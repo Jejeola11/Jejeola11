@@ -166,6 +166,11 @@ h2.title{text-align:center;font-size:clamp(26px,6vw,40px);font-weight:800;margin
 
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
 .reveal.in{opacity:1;transform:none}
+#toast{position:fixed;left:14px;bottom:84px;z-index:120;display:none;align-items:center;gap:10px;background:rgba(0,56,64,.97);border:1px solid rgba(255,215,0,.25);border-radius:14px;padding:11px 14px;box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:285px}
+#toast.show{display:flex;animation:sl .4s ease}
+@keyframes sl{from{transform:translateX(-120%)}to{transform:none}}
+#toast .dot{width:9px;height:9px;border-radius:50%;background:#2ecc71;box-shadow:0 0 8px #2ecc71;flex:0 0 auto}
+#toast b{color:#fff;font-size:13px}#toast .m{color:rgba(248,245,240,.85);font-size:13px}#toast .tt{color:rgba(248,245,240,.5);font-size:11px;margin-top:2px}
 </style>
 </head>
 <body>
@@ -393,6 +398,9 @@ h2.title{text-align:center;font-size:clamp(26px,6vw,40px);font-weight:800;margin
   <p style="margin-top:6px;opacity:.7">Results vary and depend on the effort you put in. This is education, not a guarantee of income.</p>
 </footer>
 
+<!-- SOCIAL-PROOF TOAST -->
+<div id="toast"><span class="dot"></span><div><b id="tName"></b> <span class="m" id="tMsg"></span><div class="tt" id="tTime"></div></div></div>
+
 <!-- ===== STICKY BAR ===== -->
 <div class="sticky">
   <div class="pr">The $500 Week<b>₦3,500 / $3</b></div>
@@ -428,6 +436,15 @@ h2.title{text-align:center;font-size:clamp(26px,6vw,40px);font-weight:800;margin
       else { b.textContent='🔊 Tap for sound'; }
     });
   });
+})();
+/* Social-proof toast */
+(function(){
+  var TN=[['Chiamaka','Lagos'],['David','Abuja'],['Kwame','Accra'],['Amara','Port Harcourt'],['Tunde','Ibadan'],['Grace','Nairobi'],['Sarah','London'],['Emeka','Enugu'],['Aisha','Kano'],['Michael','Houston'],['Blessing','Benin City'],['Daniel','Kumasi'],['Funke','Lagos'],['Joshua','Abuja'],['Zainab','Kaduna'],['Kelvin','Accra'],['Ngozi','Lagos'],['Ada','Awka']];
+  var TA=['just got The $500 Week','just grabbed the ebook','just started the 7-day sprint','just downloaded it'];
+  function toast(){var n=TN[Math.floor(Math.random()*TN.length)];var a=TA[Math.floor(Math.random()*TA.length)];var mins=Math.floor(Math.random()*40)+2;
+    document.getElementById('tName').textContent=n[0]+' from '+n[1];document.getElementById('tMsg').textContent=a;document.getElementById('tTime').textContent=mins+' minutes ago';
+    var t=document.getElementById('toast');t.classList.add('show');setTimeout(function(){t.classList.remove('show');},5000);}
+  function loop(){toast();setTimeout(loop,Math.floor(Math.random()*12000)+9000);}setTimeout(loop,4500);
 })();
 /* Scroll reveal (with safety fallback so content is NEVER stuck hidden) */
 (function(){
