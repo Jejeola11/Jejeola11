@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fuse Character Lab — Designing the face that earns for you</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#003840;--gold:#FFD700;--cream:#F8F5F0;--midnight:#0A1A2E;--ink:#0c1418;--line:rgba(255,255,255,.10)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Archivo',system-ui,sans-serif;background:radial-gradient(130% 90% at 50% 0%,#0d4753 0%,var(--teal) 38%,var(--midnight) 100%);color:var(--cream);min-height:100vh}
+h1,h2,h3,.dsp{font-family:'Bricolage Grotesque',sans-serif;letter-spacing:-.02em}
+.wrap{max-width:920px;margin:0 auto;padding:0 16px}
+a{color:var(--gold)}
+
+/* ACCESS GATE */
+#gate{position:fixed;inset:0;background:linear-gradient(160deg,var(--teal),var(--midnight));z-index:200;display:flex;align-items:center;justify-content:center;padding:24px}
+#gate .box{max-width:380px;text-align:center}
+#gate h1{font-size:30px;color:#fff;margin-bottom:6px}
+#gate .tag{color:var(--gold);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:22px}
+#gate input{width:100%;padding:15px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:#fff;font-size:16px;text-align:center;letter-spacing:2px;margin-bottom:12px}
+#gate button{width:100%;padding:15px;border:0;border-radius:12px;background:var(--gold);color:var(--teal);font-weight:800;font-size:16px;cursor:pointer;font-family:'Bricolage Grotesque'}
+#gate .err{color:#ff8080;font-size:13px;height:18px;margin-top:8px}
+#gate .hint{color:rgba(255,255,255,.5);font-size:12px;margin-top:16px}
+
+/* HEADER */
+header.top{padding:20px 0 8px;text-align:center}
+.brandmark{display:inline-flex;align-items:center;gap:9px;font-family:'Bricolage Grotesque';font-weight:800;font-size:19px;color:#fff}
+.brandmark .spark{width:14px;height:14px;background:var(--gold);clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%)}
+.subtag{color:var(--gold);font-size:11.5px;letter-spacing:2.5px;text-transform:uppercase;margin-top:5px}
+
+/* TABS */
+.tabs{display:flex;gap:6px;justify-content:center;margin:18px auto;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:40px;padding:5px;max-width:430px}
+.tabs button{flex:1;padding:10px 6px;border:0;background:transparent;color:rgba(248,245,240,.7);font-weight:700;font-size:13.5px;border-radius:30px;cursor:pointer;font-family:'Archivo'}
+.tabs button.on{background:var(--gold);color:var(--teal)}
+.panel{display:none}.panel.on{display:block}
+
+/* GENERATOR */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+.field label{display:block;font-size:11.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);margin-bottom:7px;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:8px 12px;border-radius:30px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--cream);font-size:13px;cursor:pointer;transition:.12s}
+.chip:hover{border-color:rgba(255,215,0,.5)}
+.chip.sel{background:var(--gold);color:var(--teal);border-color:var(--gold);font-weight:700}
+.field.full{grid-column:1/-1}
+textarea,select{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#fff;font-size:14px;font-family:'Archivo'}
+textarea{resize:vertical;min-height:46px}
+.row-btns{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 18px}
+.btn{padding:13px 20px;border:0;border-radius:40px;font-weight:800;font-size:14.5px;cursor:pointer;font-family:'Bricolage Grotesque'}
+.btn.gold{background:var(--gold);color:var(--teal)}
+.btn.ghost{background:transparent;border:1px solid var(--gold);color:var(--gold)}
+.btn.sm{padding:9px 15px;font-size:13px}
+
+/* OUTPUT */
+.out{background:rgba(0,0,0,.30);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:30px}
+.out .plat{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.out .plat button{padding:7px 13px;border-radius:30px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--cream);font-size:12.5px;cursor:pointer}
+.out .plat button.on{background:rgba(255,215,0,.16);border-color:var(--gold);color:var(--gold);font-weight:700}
+.blk{margin-bottom:16px}
+.blk .h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.blk .h span{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);font-weight:700}
+.copy{background:rgba(255,215,0,.14);border:1px solid rgba(255,215,0,.4);color:var(--gold);font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:20px;cursor:pointer}
+.copy.done{background:var(--gold);color:var(--teal)}
+.txt{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:11px;padding:13px;font-size:13.5px;line-height:1.6;white-space:pre-wrap;color:#eef0ee}
+.txt.mini{font-size:12.5px;color:#cfd6d4}
+.vary{display:grid;gap:8px}
+
+/* PRESETS */
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:640px){.pgrid{grid-template-columns:repeat(2,1fr)}}
+.pcard{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:14px;cursor:pointer;transition:.12s}
+.pcard:hover{border-color:var(--gold);transform:translateY(-2px)}
+.pcard .nm{font-family:'Bricolage Grotesque';font-weight:800;font-size:15px;color:#fff;margin-bottom:4px}
+.pcard .ds{font-size:12px;color:rgba(248,245,240,.7);line-height:1.4}
+.pcard .badge{display:inline-block;margin-top:8px;font-size:10px;letter-spacing:.5px;background:rgba(255,215,0,.15);color:var(--gold);padding:3px 8px;border-radius:20px}
+
+/* GUIDE */
+.guide h3{color:var(--gold);font-size:18px;margin:20px 0 8px}
+.guide p,.guide li{font-size:14.5px;color:rgba(248,245,240,.9);line-height:1.65}
+.guide ol{padding-left:20px;margin:6px 0}
+.guide .step{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:12px;padding:16px;margin:10px 0}
+.note{font-size:12.5px;color:rgba(248,245,240,.6);margin:24px 0 40px;text-align:center}
+.saved-wrap{margin:10px 0 26px}
+.saved-wrap .stag{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:30px;padding:7px 12px;font-size:12.5px;margin:4px 4px 0 0;cursor:pointer}
+.saved-wrap .stag b{color:var(--gold)}
+.saved-wrap .stag .x{color:#ff8a8a}
+</style>
+</head>
+<body>
+
+<!-- ACCESS GATE -->
+<div id="gate">
+  <div class="box">
+    <h1>Fuse Character Lab</h1>
+    <div class="tag">Designing the face that earns for you</div>
+    <input id="code" placeholder="ENTER YOUR ACCESS CODE" autocomplete="off">
+    <button onclick="unlock()">Unlock the Lab →</button>
+    <div class="err" id="gerr"></div>
+    <div class="hint">Got your code after purchase. Lost it? DM @director_ria</div>
+  </div>
+</div>
+
+<header class="top">
+  <div class="brandmark"><span class="spark"></span> FUSE CHARACTER LAB</div>
+  <div class="subtag">Designing the face that earns for you</div>
+</header>
+
+<div class="wrap">
+  <div class="tabs">
+    <button class="on" data-t="gen">⚡ Generator</button>
+    <button data-t="pre">★ Presets</button>
+    <button data-t="how">📘 How to Generate</button>
+  </div>
+
+  <!-- GENERATOR PANEL -->
+  <div class="panel on" id="gen">
+    <div class="grid" id="fields"></div>
+    <div class="field full" style="margin-bottom:14px">
+      <label>Extra vibe (optional — anything you want woven in)</label>
+      <textarea id="extra" placeholder="e.g. holding an iced coffee, gold hoop earrings, slight smile, rainy window behind…"></textarea>
+    </div>
+    <div class="row-btns">
+      <button class="btn gold" onclick="generate()">Generate Prompt ⚡</button>
+      <button class="btn ghost sm" onclick="randomize()">🎲 Surprise me</button>
+      <button class="btn ghost sm" onclick="saveChar()">💾 Save character</button>
+    </div>
+    <div class="saved-wrap" id="savedWrap"></div>
+
+    <div class="out" id="out" style="display:none">
+      <div class="plat" id="plats"></div>
+      <div class="blk">
+        <div class="h"><span>Main prompt</span><button class="copy" data-c="main">📋 Copy</button></div>
+        <div class="txt" id="pMain"></div>
+      </div>
+      <div class="blk">
+        <div class="h"><span>🔒 Consistency block — paste this to keep the SAME face every time</span><button class="copy" data-c="cons">📋 Copy</button></div>
+        <div class="txt mini" id="pCons"></div>
+      </div>
+      <div class="blk">
+        <div class="h"><span>3 fresh variations (same character, new shots)</span><button class="copy" data-c="vary">📋 Copy all</button></div>
+        <div class="vary" id="pVary"></div>
+      </div>
+      <div class="blk" id="negWrap">
+        <div class="h"><span>Negative prompt</span><button class="copy" data-c="neg">📋 Copy</button></div>
+        <div class="txt mini" id="pNeg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRESETS PANEL -->
+  <div class="panel" id="pre">
+    <p class="note" style="margin:6px 0 18px">Tap a starter character to load it into the Generator, then tweak anything.</p>
+    <div class="pgrid" id="pgrid"></div>
+  </div>
+
+  <!-- GUIDE PANEL -->
+  <div class="panel guide" id="how">
+    <h3>The golden rule of consistency</h3>
+    <p>A character only "earns" if it looks like the <b>same person</b> in every post. Two things lock that in: (1) always reuse <b>one reference image</b> of your character, and (2) always include the <b>Consistency block</b> the Generator gives you. Change the outfit and setting freely — never change the identity wording.</p>
+
+    <h3>Path A — ChatGPT / GPT Image 2 (fastest, no training)</h3>
+    <div class="step">
+      <ol>
+        <li>Generate your character once (use any Main prompt here).</li>
+        <li>Pick your favourite result — that's now your <b>reference image</b>.</li>
+        <li>For every new image: <b>upload that same reference</b>, paste a new Main prompt, and keep the Consistency block. Say "keep the exact same face and person as the reference."</li>
+        <li>Re-upload the <b>best</b> result occasionally so the likeness never drifts.</li>
+      </ol>
+    </div>
+
+    <h3>Path B — Higgsfield Soul (most consistent, premium)</h3>
+    <div class="step">
+      <ol>
+        <li>Collect 5–20 clear photos of the character (or one strong AI image, upscaled into a few angles).</li>
+        <li>Train a Soul in Higgsfield → you get a <b>Soul ID</b>.</li>
+        <li>Switch the Generator's platform toggle to <b>Higgsfield Soul</b>, paste the Main prompt, and add your Soul ID. Same face, every time, forever.</li>
+      </ol>
+    </div>
+
+    <h3>Turning a character into income</h3>
+    <p>Make a character → generate 3 sample images → animate one in Kling/HeyGen → that's a UGC video brands pay $50–$500 for. The Lab is step one of the whole machine.</p>
+    <p class="note">Want the full A–Z system? → <a href="https://thunderous-gumption-a4631d.netlify.app/">Fuse Atelier</a></p>
+  </div>
+
+  <p class="note">Fuse Character Lab · © Fuse Atelier · <a href="https://instagram.com/director_ria">@director_ria</a><br>Your access is personal — please don't share your code. New presets added regularly.</p>
+</div>
+
+<script>
+/* ============== ACCESS GATE ============== */
+var ACCESS_CODE = "FUSE2026";              // <-- change this to your real code
+if(localStorage.getItem('fcl_unlocked')==='1'){ document.getElementById('gate').style.display='none'; }
+function unlock(){
+  var v=document.getElementById('code').value.trim().toUpperCase();
+  if(v===ACCESS_CODE){ localStorage.setItem('fcl_unlocked','1'); document.getElementById('gate').style.display='none'; }
+  else { document.getElementById('gerr').textContent='Incorrect code — check your purchase email.'; }
+}
+document.getElementById('code').addEventListener('keydown',function(e){ if(e.key==='Enter') unlock(); });
+
+/* ============== THE PROMPT LIBRARY (building blocks) ============== */
+/* Each option: label + p (phrase). The assembler composes these per platform. */
+var LIB = {
+  gender:{ label:'Gender', opts:[
+    {label:'Female', p:'woman'},
+    {label:'Male', p:'man'},
+    {label:'Androgynous', p:'androgynous person'},
+  ]},
+  heritage:{ label:'Heritage / Look', opts:[
+    {label:'Black · African', p:'Black African'},
+    {label:'Black · diaspora', p:'Black'},
+    {label:'Arab / M. East', p:'Middle Eastern'},
+    {label:'South Asian', p:'South Asian'},
+    {label:'East Asian', p:'East Asian'},
+    {label:'Southeast Asian', p:'Southeast Asian'},
+    {label:'Latina/o', p:'Latino'},
+    {label:'Mediterranean', p:'Mediterranean'},
+    {label:'Mixed', p:'mixed-race'},
+    {label:'Caucasian', p:'Caucasian'},
+  ]},
+  hair:{ label:'Hair / Headstyle', opts:[
+    {label:'Sleek long', p:'with long, sleek, glossy hair'},
+    {label:'Wavy lob', p:'with a shoulder-length wavy lob'},
+    {label:'Bob wig', p:'with a sharp chin-length bob'},
+    {label:'Curly afro', p:'with a voluminous natural curly afro'},
+    {label:'Box braids', p:'with long neat box braids'},
+    {label:'Locs', p:'with well-groomed locs'},
+    {label:'Slick bun', p:'with hair in a clean slicked-back bun'},
+    {label:'Short crop', p:'with a short tapered crop'},
+    {label:'Buzz / fade', p:'with a clean fade haircut'},
+    {label:'Headscarf', p:'wearing an elegant draped headscarf'},
+    {label:'Curtain bangs', p:'with soft curtain-bang blowout hair'},
+  ]},
+  vibe:{ label:'Vibe', opts:[
+    {label:'Gen-Z casual', p:'a relatable Gen-Z'},
+    {label:'Young pro', p:'a polished young professional'},
+    {label:'Old-money luxe', p:'a refined old-money luxury'},
+    {label:'CEO / boss', p:'a powerful CEO-energy'},
+    {label:'Clean girl', p:'an effortless clean-aesthetic'},
+    {label:'Streetwear', p:'a cool streetwear'},
+    {label:'Editorial', p:'a high-fashion editorial'},
+    {label:'Girl/guy next door', p:'a warm approachable'},
+  ]},
+  outfit:{ label:'Outfit', opts:[
+    {label:'Cream knit top', p:'a cream chunky knit top'},
+    {label:'Black tailored blazer', p:'a sharp tailored black blazer'},
+    {label:'Teal suit', p:'a deep-teal tailored suit'},
+    {label:'White tee', p:'a clean fitted white t-shirt'},
+    {label:'Beige trench', p:'a beige trench coat over neutrals'},
+    {label:'Athleisure set', p:'a matching athleisure set'},
+    {label:'Slip dress', p:'a satin slip dress'},
+    {label:'Hoodie', p:'an oversized premium hoodie'},
+    {label:'Linen shirt', p:'a relaxed linen button-down'},
+    {label:'Evening gown', p:'an elegant evening gown'},
+    {label:'Denim + tee', p:'denim and a simple tee'},
+    {label:'Co-ord knit', p:'a soft co-ord knit set'},
+  ]},
+  setting:{ label:'Setting', opts:[
+    {label:'Luxury desk', p:'seated at a dark luxury executive desk'},
+    {label:'Bedroom vanity', p:'at a softly lit bedroom vanity'},
+    {label:'Modern kitchen', p:'in a bright modern kitchen'},
+    {label:'Café', p:'at a cozy aesthetic café'},
+    {label:'Car interior', p:'in a luxury car interior'},
+    {label:'Studio seamless', p:'against a clean studio seamless backdrop'},
+    {label:'City street', p:'on a stylish city street'},
+    {label:'Rooftop', p:'on a rooftop at dusk with city skyline'},
+    {label:'Hotel lobby', p:'in an upscale hotel lobby'},
+    {label:'Poolside sunset', p:'poolside at golden sunset'},
+    {label:'Home sofa', p:'on a cozy living-room sofa'},
+    {label:'Gym', p:'in a sleek modern gym'},
+    {label:'Library / office', p:'in a warm book-lined study'},
+    {label:'Restaurant', p:'at a chic dimly-lit restaurant'},
+  ]},
+  lighting:{ label:'Lighting', opts:[
+    {label:'Soft daylight', p:'soft natural daylight'},
+    {label:'Golden hour', p:'warm golden-hour glow'},
+    {label:'Chiaroscuro', p:'dramatic chiaroscuro side lighting with deep shadows'},
+    {label:'Ring-light UGC', p:'even bright ring-light'},
+    {label:'Cinematic moody', p:'cinematic moody low-key lighting'},
+    {label:'Clean bright', p:'clean bright airy lighting'},
+    {label:'Neon night', p:'colorful neon night lighting'},
+  ]},
+  shot:{ label:'Shot type', opts:[
+    {label:'Selfie UGC', p:{frame:'a vertical selfie-style phone video still', cam:'shot on an iPhone front camera'}},
+    {label:'Half-body', p:{frame:'a half-body portrait', cam:'shot on a 50mm lens'}},
+    {label:'Full-body editorial', p:{frame:'a full-body editorial fashion photograph', cam:'shot on a cinema camera'}},
+    {label:'Tight close-up', p:{frame:'a tight beauty close-up', cam:'shot on an 85mm lens, shallow depth of field'}},
+    {label:'Over-the-shoulder', p:{frame:'an over-the-shoulder candid shot', cam:'shot on a 35mm lens'}},
+  ]},
+};
+var PLATFORMS=[
+  {id:'soul', label:'Higgsfield Soul'},
+  {id:'gpt', label:'ChatGPT / GPT Image'},
+  {id:'mj', label:'Midjourney'},
+  {id:'kling', label:'Kling (video)'},
+];
+
+/* ============== STATE + UI ============== */
+var state={ gender:0, heritage:0, hair:0, vibe:0, outfit:0, setting:0, lighting:0, shot:0, platform:'soul' };
+var order=['gender','heritage','hair','vibe','outfit','setting','lighting','shot'];
+
+function buildFields(){
+  var html='';
+  order.forEach(function(k){
+    var f=LIB[k];
+    html+='<div class="field"><label>'+f.label+'</label><div class="chips" data-k="'+k+'">';
+    f.opts.forEach(function(o,i){ html+='<span class="chip'+(state[k]===i?' sel':'')+'" data-i="'+i+'">'+o.label+'</span>'; });
+    html+='</div></div>';
+  });
+  document.getElementById('fields').innerHTML=html;
+  document.querySelectorAll('.chips').forEach(function(c){
+    var k=c.getAttribute('data-k');
+    c.querySelectorAll('.chip').forEach(function(ch){
+      ch.onclick=function(){ state[k]=+ch.getAttribute('data-i'); buildFields(); if(document.getElementById('out').style.display!=='none') generate(); };
+    });
+  });
+}
+function buildPlats(){
+  var html=''; PLATFORMS.forEach(function(p){ html+='<button class="'+(state.platform===p.id?'on':'')+'" data-p="'+p.id+'">'+p.label+'</button>'; });
+  document.getElementById('plats').innerHTML=html;
+  document.querySelectorAll('#plats button').forEach(function(b){ b.onclick=function(){ state.platform=b.getAttribute('data-p'); buildPlats(); generate(); }; });
+}
+
+/* ============== THE ASSEMBLER ============== */
+function pick(k){ return LIB[k].opts[state[k]]; }
+function charToken(){
+  // a stable handle so they can name/reuse the identity
+  return (pick('vibe').label.split(' ')[0]+'_'+pick('heritage').label.split(' ')[0]+'_'+pick('gender').label).replace(/[^A-Za-z_]/g,'');
+}
+function subject(){ return pick('vibe').p+' '+pick('heritage').p+' '+pick('gender').p; }
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+var POSES=[
+  'looking directly at the camera with a calm, confident expression',
+  'glancing slightly to the side, relaxed and natural',
+  'mid-laugh, warm and candid',
+  'chin slightly lifted, poised and powerful',
+  'soft genuine smile, approachable energy'
+];
+
+function corePhrase(poseIdx){
+  var s=pick('shot').p;
+  var parts=[subject(), pick('hair').p, 'wearing '+pick('outfit').p, pick('setting').p];
+  var extra=document.getElementById('extra').value.trim();
+  var pose=POSES[poseIdx % POSES.length];
+  return {frame:s.frame, cam:s.cam, body:parts.join(', '), light:pick('lighting').p, pose:pose, extra:extra};
+}
+
+function assemble(platform, poseIdx){
+  var c=corePhrase(poseIdx);
+  var ex = c.extra ? (' '+c.extra+'.') : '';
+  if(platform==='soul'){
+    return cap(c.frame)+', photorealistic. '+cap(c.body)+'. '+cap(c.light)+' lighting. '+cap(c.pose)+'. '+c.cam+', high detail, realistic skin texture, vertical 9:16.'+ex;
+  }
+  if(platform==='gpt'){
+    return 'Create '+c.frame+' of '+c.body+'. Photorealistic, '+c.light+' lighting. '+cap(c.pose)+'. '+c.cam+'. Keep the exact same face, hairline and identity as the reference image — identical facial features, same person, do not change the face.'+ex;
+  }
+  if(platform==='mj'){
+    return c.frame+', '+c.body+', '+c.light+' lighting, '+c.pose+', '+c.cam+', photorealistic, ultra detailed skin '+ex+' --ar 9:16 --style raw --v 6';
+  }
+  if(platform==='kling'){
+    return 'Animate this character image: '+c.body+'. '+cap(c.pose)+'. Subtle cinematic motion — slow push-in, natural head movement, a slow blink, gentle fabric movement, '+c.light+' lighting. Keep the same face and identity. Smooth, premium, realistic.'+ex;
+  }
+}
+function consistencyBlock(){
+  var tok=charToken();
+  if(state.platform==='soul'){
+    return 'Soul ID: <paste your trained Soul ID here>\nCharacter handle: "'+tok+'"\nKeep: same face, same features, identical person across every generation. Quality 2k, Style General.';
+  }
+  if(state.platform==='gpt'){
+    return 'Always upload the SAME reference image of "'+tok+'".\nAlways add: "same exact face and person as the reference, identical facial features, do not alter identity."\nRe-upload your best result every few images so the likeness never drifts.';
+  }
+  if(state.platform==='mj'){
+    return 'Use the same --cref <reference image URL> and a fixed --sref for style.\nKeep --seed the SAME number across images to lock the look. Character handle: "'+tok+'".';
+  }
+  return 'Use the same source character image every time. Character handle: "'+tok+'". Keep face identical; only motion changes.';
+}
+function negPrompt(){ return 'deformed face, distorted features, extra fingers, asymmetric eyes, plastic skin, over-smoothed, watermark, text artifacts, changing identity between images, blurry, low detail'; }
+
+function generate(){
+  buildPlats();
+  document.getElementById('out').style.display='block';
+  document.getElementById('pMain').textContent=assemble(state.platform,0);
+  document.getElementById('pCons').textContent=consistencyBlock();
+  var vary='';
+  for(var i=1;i<=3;i++){ vary+='<div class="txt mini">'+escapeHtml(assemble(state.platform,i))+'</div>'; }
+  document.getElementById('pVary').innerHTML=vary;
+  // negative only relevant for MJ/soul-style
+  var showNeg = (state.platform==='mj'||state.platform==='soul');
+  document.getElementById('negWrap').style.display = showNeg?'block':'none';
+  document.getElementById('pNeg').textContent=negPrompt();
+  window.scrollTo({top:document.getElementById('out').offsetTop-20,behavior:'smooth'});
+}
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* copy buttons */
+document.addEventListener('click',function(e){
+  var b=e.target.closest('.copy'); if(!b) return;
+  var which=b.getAttribute('data-c'); var text='';
+  if(which==='main') text=document.getElementById('pMain').textContent;
+  if(which==='cons') text=document.getElementById('pCons').textContent;
+  if(which==='neg') text=document.getElementById('pNeg').textContent;
+  if(which==='vary') text=Array.from(document.querySelectorAll('#pVary .txt')).map(function(d){return d.textContent;}).join('\n\n');
+  navigator.clipboard.writeText(text).then(function(){ b.classList.add('done'); var o=b.textContent; b.textContent='✓ Copied'; setTimeout(function(){b.classList.remove('done');b.textContent=o;},1300); });
+});
+
+/* randomize */
+function randomize(){
+  order.forEach(function(k){ state[k]=Math.floor(Math.random()*LIB[k].opts.length); });
+  buildFields(); generate();
+}
+
+/* ============== SAVE / LOAD CHARACTERS ============== */
+function getSaved(){ try{return JSON.parse(localStorage.getItem('fcl_saved')||'[]');}catch(e){return[];} }
+function renderSaved(){
+  var s=getSaved(); var w=document.getElementById('savedWrap');
+  if(!s.length){ w.innerHTML=''; return; }
+  w.innerHTML='<div style="font-size:11.5px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:6px">Your saved characters</div>'+
+    s.map(function(it,i){ return '<span class="stag" data-i="'+i+'"><b>'+escapeHtml(it.name)+'</b> · load <span class="x" data-x="'+i+'">✕</span></span>'; }).join('');
+  w.querySelectorAll('.stag').forEach(function(t){
+    t.onclick=function(e){ if(e.target.classList.contains('x')) return; state=Object.assign({},getSaved()[+t.getAttribute('data-i')].state); buildFields(); generate(); };
+  });
+  w.querySelectorAll('.x').forEach(function(x){
+    x.onclick=function(e){ e.stopPropagation(); var s=getSaved(); s.splice(+x.getAttribute('data-x'),1); localStorage.setItem('fcl_saved',JSON.stringify(s)); renderSaved(); };
+  });
+}
+function saveChar(){
+  var name=prompt('Name this character (e.g. "Maya — clean girl")');
+  if(!name) return;
+  var s=getSaved(); s.push({name:name, state:Object.assign({},state)}); localStorage.setItem('fcl_saved',JSON.stringify(s)); renderSaved();
+}
+
+/* ============== PRESETS ============== */
+var PRESETS=[
+  {nm:'The Signature', ds:'Luxury Black woman, headscarf, teal suit, executive desk.', badge:'Editorial', st:{gender:0,heritage:0,hair:9,vibe:2,outfit:2,setting:0,lighting:2,shot:2,platform:'soul'}},
+  {nm:'Clean-Girl Maya', ds:'Effortless Black woman, sleek hair, café, soft daylight.', badge:'UGC', st:{gender:0,heritage:1,hair:0,vibe:4,outfit:0,setting:3,lighting:0,shot:0,platform:'gpt'}},
+  {nm:'The Founder (M)', ds:'CEO-energy man, black blazer, luxury desk, moody light.', badge:'Editorial', st:{gender:1,heritage:0,hair:8,vibe:3,outfit:1,setting:0,lighting:2,shot:2,platform:'soul'}},
+  {nm:'Streetwear Kai', ds:'Cool man, fade, hoodie, neon city street.', badge:'UGC', st:{gender:1,heritage:1,hair:8,vibe:5,outfit:7,setting:6,lighting:6,shot:0,platform:'gpt'}},
+  {nm:'Soft Luxe Bob', ds:'Clean-aesthetic woman, bob, hotel lobby, golden hour.', badge:'Lifestyle', st:{gender:0,heritage:9,hair:2,vibe:4,outfit:4,setting:8,lighting:1,shot:1,platform:'gpt'}},
+  {nm:'Fitness Coach', ds:'Athleisure woman, slick bun, modern gym, bright light.', badge:'Niche', st:{gender:0,heritage:0,hair:6,vibe:0,outfit:5,setting:11,lighting:5,shot:0,platform:'gpt'}},
+  {nm:'Editorial Curls', ds:'High-fashion woman, curly afro, studio seamless.', badge:'Editorial', st:{gender:0,heritage:0,hair:3,vibe:6,outfit:9,setting:5,lighting:2,shot:2,platform:'mj'}},
+  {nm:'Café Linen Guy', ds:'Approachable man, linen shirt, café, daylight.', badge:'UGC', st:{gender:1,heritage:7,hair:7,vibe:7,outfit:8,setting:3,lighting:0,shot:0,platform:'gpt'}},
+  {nm:'Rooftop Locs', ds:'Streetwear man, locs, rooftop dusk, cinematic.', badge:'Lifestyle', st:{gender:1,heritage:1,hair:5,vibe:5,outfit:6,setting:7,lighting:4,shot:2,platform:'soul'}},
+];
+function buildPresets(){
+  document.getElementById('pgrid').innerHTML=PRESETS.map(function(p,i){
+    return '<div class="pcard" data-i="'+i+'"><div class="nm">'+p.nm+'</div><div class="ds">'+p.ds+'</div><div class="badge">'+p.badge+'</div></div>';
+  }).join('');
+  document.querySelectorAll('.pcard').forEach(function(c){
+    c.onclick=function(){ state=Object.assign({},PRESETS[+c.getAttribute('data-i')].st); switchTab('gen'); buildFields(); generate(); };
+  });
+}
+
+/* ============== TABS ============== */
+function switchTab(t){
+  document.querySelectorAll('.tabs button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-t')===t); });
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.toggle('on', p.id===t); });
+}
+document.querySelectorAll('.tabs button').forEach(function(b){ b.onclick=function(){ switchTab(b.getAttribute('data-t')); }; });
+
+/* init */
+buildFields(); buildPlats(); buildPresets(); renderSaved();
+</script>
+</body>
+</html>
