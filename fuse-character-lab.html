@@ -257,19 +257,27 @@ textarea{resize:vertical;min-height:46px}
    Zapier from Selar). No re-uploading the app.
 
    ALWAYS_ALLOW = your own emails that work no matter what (for testing). */
-var BUYERS_CSV_URL = "";  // <-- paste your published Google Sheet CSV link here
-var ALWAYS_ALLOW = ["riadigitals0@gmail.com"];  // your own email(s)
+var BUYERS_CSV_URL = "https://docs.google.com/spreadsheets/d/1UVI-S2DnwvE6zlt2bR3wYw5HiOlJtEQWdSAIbWFHDhY/gviz/tq?tqx=out:csv";
+var BUYERS_CSV_FALLBACK = "https://docs.google.com/spreadsheets/d/1UVI-S2DnwvE6zlt2bR3wYw5HiOlJtEQWdSAIbWFHDhY/export?format=csv&gid=0";
+var ALWAYS_ALLOW = ["riadigitals0@gmail.com"];  // your own email(s) — always work
 
 if(localStorage.getItem('fcl_email')){ document.getElementById('gate').style.display='none'; }
 function gateOK(email){ localStorage.setItem('fcl_email', email); document.getElementById('gate').style.display='none'; }
 
 async function fetchBuyers(){
   if(!BUYERS_CSV_URL) return null;
-  try{
-    var r=await fetch(BUYERS_CSV_URL, {cache:'no-store'});
-    var t=await r.text();
-    return t.split(/[\r\n,]+/).map(function(x){return x.trim().toLowerCase();}).filter(Boolean);
-  }catch(e){ return null; }
+  var urls=[BUYERS_CSV_URL, BUYERS_CSV_FALLBACK].filter(Boolean);
+  for(var i=0;i<urls.length;i++){
+    try{
+      var r=await fetch(urls[i], {cache:'no-store'});
+      if(!r.ok) continue;
+      var t=await r.text();
+      return t.split(/[\r\n,]+/)
+              .map(function(x){ return x.replace(/^"|"$/g,'').trim().toLowerCase(); })
+              .filter(function(x){ return x.indexOf('@')>0; });
+    }catch(e){}
+  }
+  return 'ERROR';
 }
 async function unlock(){
   var email=(document.getElementById('email').value||'').trim().toLowerCase();
@@ -277,15 +285,11 @@ async function unlock(){
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent='Please enter a valid email.'; return; }
   var btn=document.getElementById('unlockBtn'); btn.textContent='Checking…'; err.textContent='';
   if(ALWAYS_ALLOW.indexOf(email)>=0){ gateOK(email); return; }
+  if(!BUYERS_CSV_URL){ gateOK(email); return; }       // not connected -> open (not the case now)
   var list=await fetchBuyers();
-  if(list===null){
-    // No buyer list connected yet -> allow (so you can test/launch); tighten by adding BUYERS_CSV_URL.
-    gateOK(email);
-  } else if(list.indexOf(email)>=0){
-    gateOK(email);
-  } else {
-    err.textContent='Email not found. Use the exact email you paid with, or DM @director_ria.';
-  }
+  if(list==='ERROR'){ err.textContent="Couldn't verify right now — check your connection and try again."; }
+  else if(list.indexOf(email)>=0){ gateOK(email); }
+  else { err.textContent='Email not found. Use the exact email you paid with, or DM @director_ria.'; }
   btn.textContent='Unlock the Lab →';
 }
 document.getElementById('email').addEventListener('keydown',function(e){ if(e.key==='Enter') unlock(); });
