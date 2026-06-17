@@ -110,13 +110,13 @@ textarea{resize:vertical;min-height:46px}
 .mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .mh span{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);font-weight:700}
 
-/* TOAST */
-#toast{position:fixed;left:14px;bottom:16px;z-index:120;display:none;align-items:center;gap:10px;background:rgba(10,26,46,.96);border:1px solid var(--line);border-radius:14px;padding:11px 14px;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:290px;animation:slidein .4s ease}
-#toast.show{display:flex}
-#toast .dot{width:9px;height:9px;border-radius:50%;background:#2ecc71;box-shadow:0 0 8px #2ecc71;flex:0 0 auto}
-#toast b{color:#fff;font-size:13px}
-#toast span{color:rgba(248,245,240,.85);font-size:13px}
-#toast .ttime{color:rgba(248,245,240,.5);font-size:11px;margin-top:2px}
+/* CTA TOAST (tappable) */
+#toast{position:fixed;left:14px;bottom:16px;z-index:120;display:none;align-items:center;gap:11px;background:rgba(10,26,46,.97);border:1px solid rgba(255,215,0,.32);border-radius:14px;padding:12px 15px;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:300px;text-decoration:none;cursor:pointer}
+#toast.show{display:flex;animation:slidein .4s ease}
+#toast:hover{border-color:var(--gold)}
+#toast .ico{font-size:20px;flex:0 0 auto}
+#toast b{color:#fff;font-size:13.5px;font-weight:700;display:block;line-height:1.3}
+#toast .tsub{color:var(--gold);font-size:11.5px;margin-top:2px;font-weight:600}
 @keyframes slidein{from{transform:translateX(-120%)}to{transform:none}}
 </style>
 </head>
@@ -240,42 +240,52 @@ textarea{resize:vertical;min-height:46px}
   </div>
 </div>
 
-<!-- SOCIAL-PROOF TOAST -->
-<div id="toast"><span class="dot"></span><div><b id="toastName"></b> <span id="toastMsg"></span><div class="ttime" id="toastTime"></div></div></div>
+<!-- ROTATING CTA TOAST -->
+<a id="toast" target="_blank" rel="noopener"><span class="ico" id="tIco">📢</span><div><b id="tTxt"></b><div class="tsub" id="tSub">Tap to open →</div></div></a>
 
 <script>
 /* ============== ACCESS GATE (email verification) ==============
-   Tighter than a shareable code: each buyer unlocks with the email they
-   paid with. The list of paid emails lives on YOUR server (Google Apps
-   Script reading a Selar-fed sheet), so it's never exposed in this file.
-   Set VERIFY_URL to your Apps Script web-app URL (see the Selar setup guide).
-   If VERIFY_URL is left blank, a small TEST list is used so you can demo. */
-var VERIFY_URL = "";  // <-- paste your Apps Script /exec URL here
-var TEST_EMAILS = ["test@fuse.com","riadigitals0@gmail.com"]; // demo only
+   How it works: each buyer unlocks with the SAME email they paid with on
+   Selar. Their email must appear in your Google Sheet of buyers, which you
+   publish as a CSV link. The app reads that list and checks the email.
+
+   3 one-time steps (see the setup guide I sent):
+   1) Make a Google Sheet, put buyer emails down column A.
+   2) File -> Share -> Publish to web -> choose "Comma-separated values (.csv)" -> Publish.
+   3) Paste that published link below as BUYERS_CSV_URL.
+   To add buyers later: just add their email to the sheet (or auto-add with
+   Zapier from Selar). No re-uploading the app.
+
+   ALWAYS_ALLOW = your own emails that work no matter what (for testing). */
+var BUYERS_CSV_URL = "";  // <-- paste your published Google Sheet CSV link here
+var ALWAYS_ALLOW = ["riadigitals0@gmail.com"];  // your own email(s)
 
 if(localStorage.getItem('fcl_email')){ document.getElementById('gate').style.display='none'; }
+function gateOK(email){ localStorage.setItem('fcl_email', email); document.getElementById('gate').style.display='none'; }
 
-function gateOK(email){
-  localStorage.setItem('fcl_email', email);
-  document.getElementById('gate').style.display='none';
+async function fetchBuyers(){
+  if(!BUYERS_CSV_URL) return null;
+  try{
+    var r=await fetch(BUYERS_CSV_URL, {cache:'no-store'});
+    var t=await r.text();
+    return t.split(/[\r\n,]+/).map(function(x){return x.trim().toLowerCase();}).filter(Boolean);
+  }catch(e){ return null; }
 }
 async function unlock(){
-  var el=document.getElementById('email');
-  var email=(el.value||'').trim().toLowerCase();
+  var email=(document.getElementById('email').value||'').trim().toLowerCase();
   var err=document.getElementById('gerr');
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent='Enter a valid email.'; return; }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent='Please enter a valid email.'; return; }
   var btn=document.getElementById('unlockBtn'); btn.textContent='Checking…'; err.textContent='';
-  try{
-    if(VERIFY_URL){
-      var dev = localStorage.getItem('fcl_dev') || (Date.now().toString(36)+Math.random().toString(36).slice(2,8));
-      localStorage.setItem('fcl_dev',dev);
-      var r=await fetch(VERIFY_URL+'?email='+encodeURIComponent(email)+'&device='+dev);
-      var j=await r.json();
-      if(j && j.valid){ gateOK(email); } else { err.textContent = j && j.reason ? j.reason : 'Email not found. Use the email you paid with.'; }
-    } else {
-      if(TEST_EMAILS.indexOf(email)>=0){ gateOK(email); } else { err.textContent='Email not found (demo mode).'; }
-    }
-  }catch(e){ err.textContent='Network error — try again.'; }
+  if(ALWAYS_ALLOW.indexOf(email)>=0){ gateOK(email); return; }
+  var list=await fetchBuyers();
+  if(list===null){
+    // No buyer list connected yet -> allow (so you can test/launch); tighten by adding BUYERS_CSV_URL.
+    gateOK(email);
+  } else if(list.indexOf(email)>=0){
+    gateOK(email);
+  } else {
+    err.textContent='Email not found. Use the exact email you paid with, or DM @director_ria.';
+  }
   btn.textContent='Unlock the Lab →';
 }
 document.getElementById('email').addEventListener('keydown',function(e){ if(e.key==='Enter') unlock(); });
@@ -564,27 +574,24 @@ function useInGen(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-/* ============== SOCIAL-PROOF TOAST ============== */
-var TOAST_NAMES=[
-  ['Chiamaka','Lagos'],['David','Abuja'],['Kwame','Accra'],['Amara','Port Harcourt'],
-  ['Tunde','Ibadan'],['Grace','Nairobi'],['Sarah','London'],['Emeka','Enugu'],
-  ['Aisha','Kano'],['Michael','Houston'],['Blessing','Benin City'],['Daniel','Kumasi'],
-  ['Funke','Lagos'],['Joshua','Abuja'],['Zainab','Kaduna'],['Precious','Owerri'],
-  ['Kelvin','Accra'],['Ngozi','Lagos'],['Samuel','Nairobi'],['Ada','Awka']
+/* ============== ROTATING CTA TOAST (tappable) ============== */
+var CTAS=[
+  {ico:'📢', txt:'Join my free WhatsApp channel', url:'https://whatsapp.com/channel/0029VbCNw4SEVccF7XvEWO1O'},
+  {ico:'🚀', txt:'Get the full system — Fuse Atelier', url:'https://fuse-atelier.netlify.app'},
+  {ico:'📘', txt:'Grab The $500 Week ebook', url:'https://500-dollar-week.netlify.app'},
+  {ico:'📸', txt:'Follow @director_ria on Instagram', url:'https://www.instagram.com/director_ria'},
+  {ico:'💬', txt:'Message me on WhatsApp', url:'https://wa.me/2349044558101'}
 ];
-var TOAST_ACTIONS=['just unlocked Fuse Character Lab','just grabbed the founder deal','just joined the Lab','just got access'];
+var ctaIdx=0;
 function showToast(){
-  var n=TOAST_NAMES[Math.floor(Math.random()*TOAST_NAMES.length)];
-  var a=TOAST_ACTIONS[Math.floor(Math.random()*TOAST_ACTIONS.length)];
-  var mins=Math.floor(Math.random()*42)+2;
-  document.getElementById('toastName').textContent=n[0]+' from '+n[1];
-  document.getElementById('toastMsg').textContent=a;
-  document.getElementById('toastTime').textContent=mins+' minutes ago';
-  var t=document.getElementById('toast'); t.classList.add('show');
-  setTimeout(function(){ t.classList.remove('show'); }, 5000);
+  var c=CTAS[ctaIdx % CTAS.length]; ctaIdx++;
+  document.getElementById('tIco').textContent=c.ico;
+  document.getElementById('tTxt').textContent=c.txt;
+  var t=document.getElementById('toast'); t.href=c.url; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 6000);
 }
-function loopToast(){ showToast(); setTimeout(loopToast, Math.floor(Math.random()*12000)+9000); }
-setTimeout(loopToast, 4000);
+function loopToast(){ showToast(); setTimeout(loopToast, Math.floor(Math.random()*9000)+11000); }
+setTimeout(loopToast, 5000);
 
 /* init */
 buildFields(); buildPlats(); buildPresets(); buildGallery(); renderSaved();
