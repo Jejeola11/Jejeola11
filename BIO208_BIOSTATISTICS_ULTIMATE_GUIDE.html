@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIO 208 Biostatistics — The Series 🎬</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<style>
+:root {
+  --green:#00b894;--blue:#0984e3;--purple:#6c5ce7;--orange:#e17055;
+  --red:#d63031;--yellow:#fdcb6e;--dark:#1a1a2e;--card:#16213e;
+  --text:#e8e8f0;--muted:#a0a0b8;--white:#ffffff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:var(--text);line-height:1.7;font-size:16px}
+a{color:var(--green);text-decoration:none}
+
+/* NAV */
+#sidebar{position:fixed;top:0;left:0;width:260px;height:100vh;background:#0d0d1a;overflow-y:auto;padding:20px 0;z-index:100;border-right:1px solid #2a2a4a;transition:transform .3s}
+#sidebar h2{font-size:13px;color:var(--green);text-transform:uppercase;letter-spacing:2px;padding:0 20px 10px;border-bottom:1px solid #2a2a4a;margin-bottom:10px}
+#sidebar ul{list-style:none}
+#sidebar ul li a{display:block;padding:7px 20px;color:var(--muted);font-size:13px;transition:all .2s;border-left:3px solid transparent}
+#sidebar ul li a:hover,#sidebar ul li a.active{color:var(--white);border-left-color:var(--green);background:rgba(0,184,148,.08)}
+#sidebar ul li.section-head a{color:var(--yellow);font-weight:600;font-size:13px}
+
+#main{margin-left:260px;padding:40px 50px;max-width:1000px}
+@media(max-width:900px){#sidebar{transform:translateX(-100%);width:240px}#main{margin-left:0;padding:20px}}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#0d0d1a 0%,#1a1a3e 50%,#0d1a2e 100%);border:1px solid #2a2a5a;border-radius:16px;padding:50px 40px;margin-bottom:40px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(0,184,148,.06) 0%,transparent 60%);pointer-events:none}
+.hero h1{font-size:2.8em;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}
+.hero .subtitle{font-size:1.1em;color:var(--muted);margin-bottom:20px}
+.hero .tagline{font-size:.95em;color:var(--yellow);font-style:italic}
+.badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:20px}
+.badge{background:rgba(0,184,148,.15);border:1px solid rgba(0,184,148,.3);color:var(--green);padding:5px 14px;border-radius:20px;font-size:13px;font-weight:600}
+
+/* SECTIONS */
+.season{margin-bottom:60px}
+.season-header{background:linear-gradient(135deg,var(--card),#1e1e3e);border:1px solid #3a3a6a;border-radius:12px;padding:25px 30px;margin-bottom:30px;position:relative;overflow:hidden}
+.season-header::after{content:'';position:absolute;right:-20px;top:-20px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(108,92,231,.2),transparent);pointer-events:none}
+.season-header h2{font-size:1.6em;font-weight:800;color:var(--white);margin-bottom:5px}
+.season-header .tagline{color:var(--muted);font-style:italic;font-size:.95em}
+.season-num{font-size:.75em;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--green);margin-bottom:5px}
+
+.episode{margin-bottom:28px;padding:22px 26px;background:var(--card);border-radius:10px;border:1px solid #2a2a4a}
+.episode h3{font-size:1.1em;font-weight:700;color:var(--green);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.episode h4{font-size:1em;font-weight:700;color:var(--yellow);margin:16px 0 8px}
+.episode p{color:var(--text);margin-bottom:10px}
+.episode ul,.episode ol{padding-left:22px;margin-bottom:10px}
+.episode li{color:var(--text);margin-bottom:4px}
+
+/* BOXES */
+.mnemonic{background:linear-gradient(135deg,rgba(253,203,110,.08),rgba(253,203,110,.04));border:1px solid rgba(253,203,110,.3);border-left:4px solid var(--yellow);border-radius:8px;padding:14px 18px;margin:12px 0}
+.mnemonic strong{color:var(--yellow)}
+.exam-tip{background:linear-gradient(135deg,rgba(9,132,227,.08),rgba(9,132,227,.04));border:1px solid rgba(9,132,227,.3);border-left:4px solid var(--blue);border-radius:8px;padding:14px 18px;margin:12px 0}
+.exam-tip strong{color:var(--blue)}
+.formula-box{background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.3);border-radius:8px;padding:16px 20px;margin:14px 0;text-align:center}
+.formula-box .label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--purple);margin-bottom:8px;font-weight:700}
+.analogy{background:rgba(0,184,148,.06);border:1px solid rgba(0,184,148,.2);border-radius:8px;padding:14px 18px;margin:12px 0;font-style:italic;color:var(--muted)}
+.analogy strong{color:var(--green);font-style:normal}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.9em}
+th{background:rgba(0,184,148,.15);color:var(--green);padding:10px 14px;text-align:left;font-weight:700;border:1px solid #2a2a4a}
+td{padding:9px 14px;border:1px solid #2a2a4a;color:var(--text)}
+tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+tr:hover td{background:rgba(0,184,148,.04)}
+
+/* FLASHCARDS */
+#flashcards-section .fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:20px}
+.fc{perspective:600px;height:160px;cursor:pointer}
+.fc-inner{width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;position:relative}
+.fc.flipped .fc-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:10px;padding:18px;display:flex;flex-direction:column;justify-content:center}
+.fc-front{background:linear-gradient(135deg,#1e1e3e,#16213e);border:1px solid #3a3a6a}
+.fc-back{background:linear-gradient(135deg,rgba(0,184,148,.15),rgba(9,132,227,.1));border:1px solid rgba(0,184,148,.3);transform:rotateY(180deg)}
+.fc-num{font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.fc-front p{color:var(--white);font-weight:600;font-size:.95em}
+.fc-back p{color:var(--text);font-size:.88em;line-height:1.5}
+.fc-hint{font-size:11px;color:var(--muted);margin-top:auto;text-align:right}
+
+/* ASSIGNMENTS */
+.assignment{background:var(--card);border:1px solid #2a2a4a;border-radius:12px;padding:24px;margin-bottom:24px}
+.assignment h3{color:var(--orange);font-size:1.15em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.assignment .step{background:rgba(255,255,255,.03);border-radius:6px;padding:12px 16px;margin:8px 0;border-left:3px solid var(--purple)}
+.answer-box{background:linear-gradient(135deg,rgba(0,184,148,.12),rgba(0,184,148,.06));border:2px solid var(--green);border-radius:8px;padding:12px 18px;margin:10px 0;text-align:center;font-size:1.05em;font-weight:700;color:var(--green)}
+
+/* EXAM */
+.exam-q{background:var(--card);border:1px solid #2a2a4a;border-radius:8px;padding:18px 22px;margin-bottom:14px;transition:border-color .2s}
+.exam-q:hover{border-color:#3a3a6a}
+.exam-q .qnum{font-size:11px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.exam-q p{font-weight:600;color:var(--white);margin:6px 0 10px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.option{background:rgba(255,255,255,.03);border:1px solid #3a3a4a;border-radius:6px;padding:8px 12px;cursor:pointer;transition:all .2s;font-size:.9em;color:var(--text)}
+.option:hover{background:rgba(0,184,148,.08);border-color:rgba(0,184,148,.4)}
+.option.correct{background:rgba(0,184,148,.15);border-color:var(--green);color:var(--green)}
+.option.wrong{background:rgba(214,48,49,.1);border-color:var(--red);color:var(--red)}
+.answer-key-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:16px}
+.ak-item{background:var(--card);border:1px solid #2a2a4a;border-radius:6px;padding:8px 12px;font-size:.85em;display:flex;justify-content:space-between;align-items:center}
+.ak-item .ans{font-weight:700;color:var(--green)}
+
+/* RESOURCES */
+.resource-card{background:var(--card);border:1px solid #2a2a4a;border-radius:10px;padding:18px;margin-bottom:12px}
+.resource-card h4{color:var(--yellow);margin-bottom:8px}
+.resource-card .tier{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:2px 8px;border-radius:10px;display:inline-block;margin-bottom:8px}
+.tier-1{background:rgba(0,184,148,.2);color:var(--green)}
+.tier-2{background:rgba(108,92,231,.2);color:#a29bfe}
+
+/* TIPS */
+.tip-card{background:var(--card);border-left:4px solid var(--orange);border-radius:0 10px 10px 0;padding:16px 20px;margin-bottom:12px}
+.mnemonic-table tr td:first-child{color:var(--yellow);font-weight:700}
+
+/* SCROLL TO TOP */
+#scrolltop{position:fixed;bottom:30px;right:30px;background:var(--green);color:#000;border:none;width:44px;height:44px;border-radius:50%;font-size:18px;cursor:pointer;display:none;z-index:999;align-items:center;justify-content:center}
+#scrolltop.show{display:flex}
+
+/* PROGRESS */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--green),var(--blue));width:0%;z-index:9999;transition:width .1s}
+
+h1,h2,h3,h4{line-height:1.3}
+strong{color:var(--white)}
+em{color:var(--yellow);font-style:italic}
+code{background:#1e1e3e;color:var(--green);padding:2px 6px;border-radius:4px;font-family:monospace}
+hr{border:none;border-top:1px solid #2a2a4a;margin:24px 0}
+
+/* Section divider */
+.section-divider{text-align:center;padding:10px;color:var(--muted);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin:40px 0 20px}
+
+mjx-container{overflow-x:auto;max-width:100%}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <h2>📺 BIO 208 Series</h2>
+  <ul>
+    <li class="section-head"><a href="#hero">🎬 Overview</a></li>
+    <li><a href="#s1">🏰 S1: Data Kingdom</a></li>
+    <li><a href="#s2">🗺️ S2: Sampling Saga</a></li>
+    <li><a href="#s3">📊 S3: Data Presentation</a></li>
+    <li><a href="#s4">⚖️ S4: Central Tendency</a></li>
+    <li><a href="#s5">🎲 S5: Probability</a></li>
+    <li><a href="#s6">🌊 S6: Distributions</a></li>
+    <li><a href="#s7">⚔️ S7: Hypothesis Testing</a></li>
+    <li><a href="#s8">💕 S8: Correlation & Regression</a></li>
+    <li class="section-head"><a href="#flashcards">🃏 Flashcards</a></li>
+    <li class="section-head"><a href="#assignments">📝 Assignments</a></li>
+    <li class="section-head"><a href="#exam">🎯 Mock CBT Exam</a></li>
+    <li class="section-head"><a href="#tips">⚡ Fast Reading Tips</a></li>
+    <li class="section-head"><a href="#resources">📚 Resources</a></li>
+  </ul>
+</nav>
+
+<main id="main">
+
+<!-- HERO -->
+<div class="hero" id="hero">
+  <h1>🎬 BIOSTATISTICS: THE SERIES</h1>
+  <p class="subtitle">BIO 208 Ultimate Study Guide — Nigerian Student Edition</p>
+  <p class="tagline">"Where Numbers Meet Biology and Somehow, Somehow, You Will Pass!" 🇳🇬</p>
+  <div class="badges">
+    <span class="badge">8 Seasons</span>
+    <span class="badge">50+ Flashcards</span>
+    <span class="badge">7 Assignments Solved</span>
+    <span class="badge">40 MCQ Mock Exam</span>
+    <span class="badge">Mnemonics</span>
+    <span class="badge">YouTube + Books</span>
+  </div>
+</div>
+
+<!-- ===== SEASON 1 ===== -->
+<section class="season" id="s1">
+  <div class="season-header">
+    <div class="season-num">Season 1</div>
+    <h2>🏰 The Data Kingdom</h2>
+    <p class="tagline">"Where Every Number Has a Story"</p>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 1.1 — Welcome to the Kingdom</h3>
+    <p>In the grand <strong>Data Kingdom</strong>, not all numbers are created equal. Some flow like the Benue River — continuous and smooth. Others stand firm like market stalls in Onitsha — countable, discrete, whole.</p>
+    <div class="analogy"><strong>Think of it this way:</strong> Continuous data is like Eko Bridge traffic — it flows at any level (1,234.5 cars/hour is valid). Discrete data is like counting students — you can't have 2.5 students. Either Emeka is present or he isn't! 😄</div>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 1.2 — The Two Great Provinces</h3>
+    <h4>🌊 PROVINCE 1: CONTINUOUS VARIABLES</h4>
+    <p>Can take <strong>any value</strong> within a range — including decimals. Arise from <em>measurement</em>.</p>
+    <ul>
+      <li>Height of a student: 1.73 m</li>
+      <li>Weight of a rat: 245.6 g</li>
+      <li>Blood pressure: 120.4 mmHg</li>
+      <li>Temperature: 36.7°C</li>
+      <li>Leaf length: 4.32 cm</li>
+    </ul>
+    <h4>🧱 PROVINCE 2: DISCONTINUOUS (DISCRETE) VARIABLES</h4>
+    <p>Can only take <strong>specific, countable values</strong> — usually whole numbers. Arise from <em>counting</em>.</p>
+    <ul>
+      <li>Number of eggs laid by a hen: 0, 1, 2, 3... (not 2.7 eggs!)</li>
+      <li>Number of children in a family</li>
+      <li>Number of bacteria colonies</li>
+      <li>Number of malaria cases in a ward</li>
+    </ul>
+    <div class="mnemonic"><strong>💡 MNEMONIC — "Count = Discrete, Measure = Continuous"</strong><br>If you COUNT it → Discrete (D for Discrete, D for Digits)<br>If you MEASURE it → Continuous (C for Continuous, C for Calculator needed)</div>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 1.3 — The Four Noble Houses (NOIR)</h3>
+    <div class="mnemonic"><strong>💡 MNEMONIC: "NOIR"</strong> — Like a French detective movie! 🕵️<br><strong>N</strong>ominal · <strong>O</strong>rdinal · <strong>I</strong>nterval · <strong>R</strong>atio</div>
+    <table>
+      <tr><th>House</th><th>Order?</th><th>Equal Gaps?</th><th>True Zero?</th><th>Examples</th></tr>
+      <tr><td><strong>Nominal</strong></td><td>❌</td><td>❌</td><td>❌</td><td>Blood group, Gender, Species</td></tr>
+      <tr><td><strong>Ordinal</strong></td><td>✅</td><td>❌</td><td>❌</td><td>Grade (A–F), Pain scale, Disease severity</td></tr>
+      <tr><td><strong>Interval</strong></td><td>✅</td><td>✅</td><td>❌</td><td>Temperature °C, IQ scores, Calendar years</td></tr>
+      <tr><td><strong>Ratio</strong></td><td>✅</td><td>✅</td><td>✅</td><td>Height, Weight, Blood pressure, Age</td></tr>
+    </table>
+    <div class="exam-tip"><strong>📝 EXAM TIP:</strong> "Which level of measurement is blood group?" → <strong>Nominal</strong>. "Body temperature in Kelvin?" → <strong>Ratio</strong> (Kelvin has a true zero; Celsius does not). This comes up EVERY semester!</div>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 1.4 — Why Biological Data Is Always Variable</h3>
+    <p>No two organisms are exactly alike. This is <strong>biological variability</strong> — and it's the reason biostatistics exists!</p>
+    <ul>
+      <li><strong>Genetic variation</strong> — different genes, different traits</li>
+      <li><strong>Environmental variation</strong> — different nutrition, climate, exposure</li>
+      <li><strong>Measurement error</strong> — your ruler isn't perfectly placed</li>
+      <li><strong>Sampling variation</strong> — you happened to pick the tallest students</li>
+      <li><strong>Age and developmental stage</strong> — a 20-year-old frog vs a 1-year-old frog</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== SEASON 2 ===== -->
+<section class="season" id="s2">
+  <div class="season-header">
+    <div class="season-num">Season 2</div>
+    <h2>🗺️ The Sampling Saga</h2>
+    <p class="tagline">"How to Pick a Winning Team Without Interviewing Everyone in Nigeria"</p>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 2.1 — Population vs. Sample</h3>
+    <div class="analogy"><strong>INEC Analogy:</strong> Imagine INEC trying to predict election results by interviewing all 200 million Nigerians. That would take forever. Instead, they sample. That's the entire logic of statistics!</div>
+    <table>
+      <tr><th>Concept</th><th>Definition</th><th>Example</th><th>Symbol</th></tr>
+      <tr><td><strong>Population (N)</strong></td><td>The entire group of interest</td><td>All mosquitoes in Lagos State</td><td>N, μ, σ</td></tr>
+      <tr><td><strong>Sample (n)</strong></td><td>A subset of the population</td><td>500 mosquitoes from 5 LGAs</td><td>n, x̄, s</td></tr>
+      <tr><td><strong>Parameter</strong></td><td>Number describing population</td><td>Population mean μ</td><td>Greek letters</td></tr>
+      <tr><td><strong>Statistic</strong></td><td>Number describing sample</td><td>Sample mean x̄</td><td>Roman letters</td></tr>
+    </table>
+    <div class="mnemonic"><strong>💡 MNEMONIC: "P-P-S-S"</strong><br><strong>P</strong>opulation has <strong>P</strong>arameters (both start with P)<br><strong>S</strong>ample has <strong>S</strong>tatistics (both start with S)</div>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 2.2 — The Five Warriors of Sampling</h3>
+    <div class="mnemonic"><strong>💡 MNEMONIC: "SSSCC"</strong> — "Some Students Study Continuously, Cleverly!"<br><strong>S</strong>imple Random · <strong>S</strong>tratified · <strong>S</strong>ystematic · <strong>C</strong>luster · <strong>C</strong>onvenience</div>
+    <h4>⚔️ 1. Simple Random Sampling</h4>
+    <p>Every member has an <strong>equal chance</strong> of selection. Method: lottery, random number tables. Best for small, homogeneous populations.</p>
+    <h4>⚔️ 2. Stratified Sampling</h4>
+    <p>Divide into <strong>strata</strong> (subgroups), then randomly sample each stratum. Ensures all subgroups are represented. Example: sample malaria cases by urban/rural/peri-urban zones in Kano.</p>
+    <h4>⚔️ 3. Systematic Sampling</h4>
+    <p>Select every <strong>kth</strong> element. k = N/n. Example: from 1000 patients, select every 10th patient (k=10).</p>
+    <h4>⚔️ 4. Cluster Sampling</h4>
+    <p>Divide into <strong>clusters</strong>, randomly select entire clusters. Practical for geographically dispersed populations. Example: randomly select 10 LGAs and study ALL individuals in those LGAs.</p>
+    <h4>⚔️ 5. Convenience Sampling</h4>
+    <p>Select whoever is <strong>easily available</strong>. Fast and cheap but highly biased. Not recommended for scientific research.</p>
+    <div class="exam-tip"><strong>📝 EXAM TIP:</strong> Exams love asking you to identify sampling types from scenarios. Key question: "How were individuals selected?"</div>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 2.3 — Estimation & Confidence Intervals</h3>
+    <div class="formula-box">
+      <div class="label">KEY FORMULA — Confidence Interval for Mean</div>
+      \[ CI = \bar{x} \pm Z_{\alpha/2} \cdot \frac{\sigma}{\sqrt{n}} \]
+      <p style="color:var(--muted);font-size:.85em;margin-top:8px">95% CI: Z = 1.96 &nbsp;|&nbsp; 99% CI: Z = 2.576 &nbsp;|&nbsp; 90% CI: Z = 1.645</p>
+    </div>
+    <div class="formula-box">
+      <div class="label">Standard Error of the Mean</div>
+      \[ SE = \frac{\sigma}{\sqrt{n}} \]
+    </div>
+    <div class="exam-tip"><strong>📝 EXAM TIP:</strong> A 95% CI means: "If we repeated sampling 100 times, 95 of the resulting intervals would contain the true population parameter." Larger sample → smaller SE → more precise estimate!</div>
+  </div>
+</section>
+
+<!-- ===== SEASON 3 ===== -->
+<section class="season" id="s3">
+  <div class="season-header">
+    <div class="season-num">Season 3</div>
+    <h2>📊 The Great Data Presentation</h2>
+    <p class="tagline">"Raw Data is Like Banga Soup Without Salt — Technically There, But Unpalatable"</p>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 3.1 — Building a Frequency Distribution Table</h3>
+    <p><strong>Step 1:</strong> Find the Range = Maximum − Minimum</p>
+    <p><strong>Step 2:</strong> Determine number of classes using <strong>Sturge's Rule:</strong></p>
+    <div class="formula-box"><div class="label">Sturge's Rule</div>\[ k = 1 + 3.322 \log_{10}(n) \]</div>
+    <p><strong>Step 3:</strong> Class Width = Range ÷ k (round up)</p>
+    <p><strong>Step 4:</strong> Build the table. Example with n=30 student heights (155–183 cm):</p>
+    <table>
+      <tr><th>Class Interval</th><th>Frequency (f)</th><th>Relative Freq.</th><th>Cumulative Freq.</th></tr>
+      <tr><td>155 – 159</td><td>5</td><td>0.167</td><td>5</td></tr>
+      <tr><td>160 – 164</td><td>6</td><td>0.200</td><td>11</td></tr>
+      <tr><td>165 – 169</td><td>6</td><td>0.200</td><td>17</td></tr>
+      <tr><td>170 – 174</td><td>6</td><td>0.200</td><td>23</td></tr>
+      <tr><td>175 – 179</td><td>5</td><td>0.167</td><td>28</td></tr>
+      <tr><td>180 – 184</td><td>2</td><td>0.067</td><td>30</td></tr>
+      <tr><td><strong>Total</strong></td><td><strong>30</strong></td><td><strong>1.000</strong></td><td></td></tr>
+    </table>
+    <p><strong>Key Vocabulary:</strong></p>
+    <ul>
+      <li><strong>Class Mark (Midpoint):</strong> (Lower + Upper limit) / 2 → (155+159)/2 = 157</li>
+      <li><strong>Class Boundaries:</strong> Lower − 0.5 and Upper + 0.5 → (154.5, 159.5)</li>
+      <li><strong>Class Width:</strong> Upper boundary − Lower boundary = 5</li>
+    </ul>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 3.2 — Visual Presentations (The Art Gallery)</h3>
+    <table>
+      <tr><th>Chart Type</th><th>Used For</th><th>Key Feature</th></tr>
+      <tr><td><strong>Histogram</strong></td><td>Continuous data</td><td>Bars TOUCH (no gaps!)</td></tr>
+      <tr><td><strong>Bar Chart</strong></td><td>Discrete/categorical data</td><td>Bars DON'T touch (gaps!)</td></tr>
+      <tr><td><strong>Frequency Polygon</strong></td><td>Comparing distributions</td><td>Line connecting midpoints</td></tr>
+      <tr><td><strong>Ogive</strong></td><td>Cumulative frequency</td><td>S-shaped curve, find median/quartiles</td></tr>
+      <tr><td><strong>Pie Chart</strong></td><td>Proportions/categories</td><td>Angle = (f/total) × 360°</td></tr>
+      <tr><td><strong>Stem-and-Leaf</strong></td><td>Small datasets</td><td>Preserves original data</td></tr>
+    </table>
+    <div class="mnemonic"><strong>💡 MNEMONIC: "Histograms Hug, Bar charts Breathe"</strong><br>Histograms — bars touch (continuous). Bar charts — bars have breathing room (discrete).</div>
+    <div class="exam-tip"><strong>📝 EXAM TIP:</strong> Histogram = continuous data, bars TOUCH. Bar chart = discrete/categorical, bars SEPARATE. This distinction comes up EVERY semester!</div>
+  </div>
+</section>
+
+<!-- ===== SEASON 4 ===== -->
+<section class="season" id="s4">
+  <div class="season-header">
+    <div class="season-num">Season 4</div>
+    <h2>⚖️ Central Tendency & Dispersion Wars</h2>
+    <p class="tagline">"The Battle for the Middle Ground and the Spread of Power"</p>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 4.1 — The Holy Trinity of Central Tendency</h3>
+    <h4>👑 THE MEAN</h4>
+    <div class="formula-box">
+      <div class="label">Sample Mean</div>
+      \[ \bar{x} = \frac{\sum x_i}{n} \]
+    </div>
+    <div class="formula-box">
+      <div class="label">Grouped Data Mean</div>
+      \[ \bar{x} = \frac{\sum f_i m_i}{\sum f_i} \quad \text{where } m_i = \text{class mark} \]
+    </div>
+    <p><strong>Properties:</strong> Uses ALL values. Affected by outliers. Best for symmetric data.</p>
+
+    <h4>🥈 THE MEDIAN</h4>
+    <p>The middle value when data is arranged in order.</p>
+    <ul>
+      <li>Odd n: value at position (n+1)/2</li>
+      <li>Even n: average of n/2 and (n/2+1)th values</li>
+    </ul>
+    <div class="formula-box">
+      <div class="label">Median for Grouped Data</div>
+      \[ \text{Median} = L + \frac{\frac{n}{2} - cf}{f} \times h \]
+      <p style="color:var(--muted);font-size:.85em;margin-top:8px">L = lower boundary of median class, cf = cumulative freq before, f = freq of median class, h = class width</p>
+    </div>
+    <p><strong>Properties:</strong> NOT affected by outliers. Best for skewed data.</p>
+
+    <h4>🥉 THE MODE</h4>
+    <p>The value that appears most frequently. A dataset can be unimodal, bimodal, or multimodal.</p>
+    <div class="formula-box">
+      <div class="label">Mode for Grouped Data</div>
+      \[ \text{Mode} = L + \frac{d_1}{d_1 + d_2} \times h \]
+      <p style="color:var(--muted);font-size:.85em;margin-top:8px">d₁ = modal freq − freq before, d₂ = modal freq − freq after</p>
+    </div>
+
+    <div class="mnemonic"><strong>💡 MNEMONIC: "Mean for Symmetric, Median for Skewed, Mode for Categorical"</strong></div>
+    <div class="analogy"><strong>💸 The Billionaire Example:</strong> If a billionaire moves into your hostel, the MEAN income skyrockets, but the MEDIAN barely changes. That's why economists prefer MEDIAN income for describing "typical" citizens!</div>
+
+    <h4>📐 Skewness and the Mean-Median-Mode Relationship</h4>
+    <table>
+      <tr><th>Distribution Shape</th><th>Relationship</th></tr>
+      <tr><td>Symmetric (Normal)</td><td>Mean = Median = Mode</td></tr>
+      <tr><td>Positively skewed (right tail)</td><td>Mode &lt; Median &lt; Mean</td></tr>
+      <tr><td>Negatively skewed (left tail)</td><td>Mean &lt; Median &lt; Mode</td></tr>
+    </table>
+    <div class="mnemonic"><strong>💡 MNEMONIC for positive skew:</strong> "Mean is pulled toward the tail" — the tail stretches right, pulling the mean right too!</div>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 4.2 — The Dispersion Warriors</h3>
+    <div class="formula-box">
+      <div class="label">Range</div>
+      \[ \text{Range} = X_{max} - X_{min} \]
+    </div>
+    <div class="formula-box">
+      <div class="label">Sample Variance</div>
+      \[ s^2 = \frac{\sum(x_i - \bar{x})^2}{n-1} \]
+    </div>
+    <div class="formula-box">
+      <div class="label">Standard Deviation</div>
+      \[ s = \sqrt{\frac{\sum(x_i - \bar{x})^2}{n-1}} \]
+    </div>
+    <div class="formula-box">
+      <div class="label">Coefficient of Variation (CV)</div>
+      \[ CV = \frac{s}{\bar{x}} \times 100\% \]
+    </div>
+    <p><strong>Why n−1?</strong> Bessel's correction — makes sample variance an <em>unbiased estimator</em> of population variance.</p>
+    <p><strong>CV Example:</strong> Heights (mean=170cm, SD=8cm): CV=4.7%. Weights (mean=65kg, SD=6kg): CV=9.2%. → Weights are MORE variable!</p>
+    <div class="exam-tip"><strong>📝 EXAM TIP:</strong> Use CV to compare variability between datasets with DIFFERENT units or scales. Variance is in squared units; SD is in same units as data.</div>
+  </div>
+</section>
+
+<!-- ===== SEASON 5 ===== -->
+<section class="season" id="s5">
+  <div class="season-header">
+    <div class="season-num">Season 5</div>
+    <h2>🎲 The Probability Chronicles</h2>
+    <p class="tagline">"Calculating Your Chances — In Statistics and in Life!"</p>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 5.1 — The Probability Kingdom</h3>
+    <div class="formula-box">
+      <div class="label">Basic Probability</div>
+      \[ P(A) = \frac{\text{Number of favourable outcomes}}{\text{Total number of possible outcomes}} \]
+    </div>
+    <p><strong>Properties:</strong> 0 ≤ P(A) ≤ 1 &nbsp;|&nbsp; P(certain) = 1 &nbsp;|&nbsp; P(impossible) = 0 &nbsp;|&nbsp; P(A') = 1 − P(A)</p>
+    <div class="analogy"><strong>JAMB Analogy:</strong> 100,000 students write JAMB, 20,000 get cut-off. P(cut-off) = 20,000/100,000 = 0.2 = 20%. Now add your preparation factor... 😅</div>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 5.2 — The Rules of the Game</h3>
+    <div class="formula-box">
+      <div class="label">Addition Rule (non-mutually exclusive)</div>
+      \[ P(A \cup B) = P(A) + P(B) - P(A \cap B) \]
+    </div>
+    <div class="formula-box">
+      <div class="label">Multiplication Rule (independent events)</div>
+      \[ P(A \cap B) = P(A) \times P(B) \]
+    </div>
+    <div class="formula-box">
+      <div class="label">Conditional Probability</div>
+      \[ P(A|B) = \frac{P(A \cap B)}{P(B)} \]
+    </div>
+    <table>
+      <tr><th>Feature</th><th>Mutually Exclusive</th><th>Independent</th></tr>
+      <tr><td>Can both occur?</td><td>❌ NO</td><td>✅ YES</td></tr>
+      <tr><td>P(A∩B) =</td><td>0</td><td>P(A)×P(B)</td></tr>
+      <tr><td>Example</td><td>Male OR Female (same person)</td><td>Coin toss AND die roll</td></tr>
+    </table>
+    <div class="mnemonic"><strong>💡 MNEMONIC:</strong> "Mutually exclusive = CANNOT happen together. Independent = DON'T AFFECT each other."</div>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 5.3 — Permutations & Combinations</h3>
+    <div class="formula-box">
+      <div class="label">Permutation — ORDER MATTERS</div>
+      \[ P(n,r) = \frac{n!}{(n-r)!} \]
+    </div>
+    <div class="formula-box">
+      <div class="label">Combination — ORDER DOESN'T MATTER</div>
+      \[ C(n,r) = \binom{n}{r} = \frac{n!}{r!(n-r)!} \]
+    </div>
+    <div class="mnemonic"><strong>💡 MNEMONIC:</strong> "Combination lock? Actually you need the exact ORDER — it's really a PERMUTATION lock!" 😂<br><br>"How many ways to <em>arrange</em>..." → Permutation<br>"How many ways to <em>select/choose</em>..." → Combination</div>
+
+    <h4>🔵 Hypergeometric Distribution</h4>
+    <p>Used for sampling <strong>WITHOUT replacement</strong> from a finite population with two types.</p>
+    <div class="formula-box">
+      <div class="label">Hypergeometric Formula</div>
+      \[ P(X=k) = \frac{\binom{K}{k}\binom{N-K}{n-k}}{\binom{N}{n}} \]
+      <p style="color:var(--muted);font-size:.85em;margin-top:8px">N=population, K=successes in population, n=sample size, k=desired successes</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEASON 6 ===== -->
+<section class="season" id="s6">
+  <div class="season-header">
+    <div class="season-num">Season 6</div>
+    <h2>🌊 The Distribution Trilogy</h2>
+    <p class="tagline">"Three Distributions Walk Into a Biology Lab..."</p>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 6.1 — NORMAL DISTRIBUTION: The Beautiful Bell 🔔</h3>
+    <p><strong>THE most important distribution in all of statistics!</strong></p>
+    <p><strong>Properties:</strong> Bell-shaped &amp; symmetric · Mean = Median = Mode · Total area = 1 · Defined by μ and σ · Notation: X ~ N(μ, σ²)</p>
+
+    <h4>The Empirical Rule (68-95-99.7)</h4>
+    <table>
+      <tr><th>Range</th><th>% of Data</th><th>Memory Hook</th></tr>
+      <tr><td>μ ± 1σ</td><td><strong>68%</strong></td><td>About 2/3 of all values</td></tr>
+      <tr><td>μ ± 2σ</td><td><strong>95%</strong></td><td>Almost all values</td></tr>
+      <tr><td>μ ± 3σ</td><td><strong>99.7%</strong></td><td>Virtually everything</td></tr>
+    </table>
+    <div class="mnemonic"><strong>💡 MNEMONIC: "68-95-99.7 — First class, Second class, Third class!"</strong> (A stretch, but you'll remember it 😄)</div>
+
+    <div class="formula-box">
+      <div class="label">Z-Score Formula</div>
+      \[ Z = \frac{X - \mu}{\sigma} \]
+      <p style="color:var(--muted);font-size:.85em;margin-top:8px">Converts any normal distribution to Standard Normal Z ~ N(0,1)</p>
+    </div>
+
+    <h4>Key Z-Table Values to Memorize</h4>
+    <table>
+      <tr><th>Z</th><th>P(Z &lt; z)</th><th>Z</th><th>P(Z &lt; z)</th></tr>
+      <tr><td>−2.00</td><td>0.0228</td><td>1.00</td><td>0.8413</td></tr>
+      <tr><td>−1.00</td><td>0.1587</td><td>1.645</td><td>0.9500</td></tr>
+      <tr><td>0.00</td><td><strong>0.5000</strong></td><td>1.96</td><td>0.9750</td></tr>
+      <tr><td>0.56</td><td>0.7123</td><td>2.00</td><td>0.9772</td></tr>
+      <tr><td>0.89</td><td>0.8133</td><td>3.00</td><td>0.9987</td></tr>
+    </table>
+    <div class="exam-tip"><strong>📝 EXAM TIP:</strong> P(Z &lt; 0) = 0.5 always (by symmetry). For P(Z &gt; z) = 1 − P(Z &lt; z). For P(a &lt; Z &lt; b) = P(Z &lt; b) − P(Z &lt; a).</div>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 6.2 — BINOMIAL DISTRIBUTION: Two Outcomes Only 🪙</h3>
+    <div class="mnemonic"><strong>💡 MNEMONIC: "FTIC"</strong><br><strong>F</strong>ixed number of trials (n) · <strong>T</strong>wo outcomes (success/failure) · <strong>I</strong>ndependent trials · <strong>C</strong>onstant probability p</div>
+    <div class="formula-box">
+      <div class="label">Binomial Probability</div>
+      \[ P(X=k) = \binom{n}{k} p^k (1-p)^{n-k} \]
+    </div>
+    <div class="formula-box">
+      <div class="label">Mean, Variance, SD</div>
+      \[ \mu = np \qquad \sigma^2 = npq \qquad \sigma = \sqrt{npq} \]
+      <p style="color:var(--muted);font-size:.85em;margin-top:8px">where q = 1 − p</p>
+    </div>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 6.3 — POISSON DISTRIBUTION: Rare Events ⚡</h3>
+    <p>Models number of times a <strong>rare event</strong> occurs in a fixed interval of time or space.</p>
+    <div class="formula-box">
+      <div class="label">Poisson Probability</div>
+      \[ P(X=k) = \frac{e^{-\lambda} \cdot \lambda^k}{k!} \]
+      <p style="color:var(--muted);font-size:.85em;margin-top:8px">e = 2.71828... &nbsp;|&nbsp; λ = average number of events</p>
+    </div>
+    <div class="mnemonic"><strong>💡 UNIQUE PROPERTY: Mean = Variance = λ</strong><br>This is ONLY true for the Poisson distribution! Examiners LOVE testing this.</div>
+    <p><strong>When to approximate Binomial with Poisson:</strong> n is large (n &gt; 50), p is small (p &lt; 0.1). Then λ = np.</p>
+
+    <h4>📊 Distribution Comparison Summary</h4>
+    <table>
+      <tr><th>Feature</th><th>Normal</th><th>Binomial</th><th>Poisson</th></tr>
+      <tr><td>Data type</td><td>Continuous</td><td>Discrete</td><td>Discrete</td></tr>
+      <tr><td>Parameters</td><td>μ, σ</td><td>n, p</td><td>λ</td></tr>
+      <tr><td>Mean</td><td>μ</td><td>np</td><td>λ</td></tr>
+      <tr><td>Variance</td><td>σ²</td><td>npq</td><td>λ</td></tr>
+      <tr><td>Use for</td><td>Measurements</td><td>Count of successes</td><td>Rare events</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ===== SEASON 7 ===== -->
+<section class="season" id="s7">
+  <div class="season-header">
+    <div class="season-num">Season 7</div>
+    <h2>⚔️ Hypothesis Testing — The Final Battle</h2>
+    <p class="tagline">"When You're Not Sure If Your Result is Real or Just Coincidence"</p>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 7.1 — Setting Up the Battle</h3>
+    <p><strong>H₀ (Null Hypothesis):</strong> The "status quo" — assumes NO effect, NO difference.</p>
+    <p><strong>H₁ (Alternative Hypothesis):</strong> What you're trying to PROVE.</p>
+
+    <h4>The Two Great Errors</h4>
+    <table>
+      <tr><th></th><th>H₀ is TRUE</th><th>H₀ is FALSE</th></tr>
+      <tr><td><strong>Reject H₀</strong></td><td>❌ Type I Error (α)</td><td>✅ Correct (Power)</td></tr>
+      <tr><td><strong>Fail to Reject H₀</strong></td><td>✅ Correct</td><td>❌ Type II Error (β)</td></tr>
+    </table>
+    <div class="mnemonic"><strong>💡 MNEMONIC:</strong><br>Type I = "Cry Wolf" → False alarm (say there's an effect when there isn't) → α<br>Type II = "Miss the Wolf" → Miss the real effect → β<br><strong>p-value &lt; α → Reject H₀ (statistically significant!)</strong></div>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 7.2 — The t-TEST: Testing Means</h3>
+    <p>Use t-test when: small sample (n &lt; 30) AND/OR population variance is unknown.</p>
+    <div class="formula-box">
+      <div class="label">One-Sample t-Test</div>
+      \[ t = \frac{\bar{x} - \mu_0}{s/\sqrt{n}}, \quad df = n-1 \]
+    </div>
+    <div class="formula-box">
+      <div class="label">Two-Sample Independent t-Test</div>
+      \[ t = \frac{\bar{x}_1 - \bar{x}_2}{s_p\sqrt{\frac{1}{n_1}+\frac{1}{n_2}}}, \quad s_p^2 = \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1+n_2-2} \]
+    </div>
+    <div class="formula-box">
+      <div class="label">Paired t-Test (before/after, matched pairs)</div>
+      \[ t = \frac{\bar{d}}{s_d/\sqrt{n}}, \quad df = n-1 \]
+    </div>
+    <div class="exam-tip"><strong>📝 EXAM TIP:</strong> Use PAIRED t-test when the SAME subjects are measured twice (before/after drug treatment). Use INDEPENDENT t-test when two DIFFERENT groups are compared.</div>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 7.3 — ANOVA: The Big Leagues</h3>
+    <p>Compare means of <strong>3 or more groups</strong>. H₀: μ₁ = μ₂ = μ₃ = ... = μₖ</p>
+    <div class="formula-box">
+      <div class="label">F-Statistic</div>
+      \[ F = \frac{MS_{Between}}{MS_{Within}} = \frac{SS_B/(k-1)}{SS_W/(N-k)} \]
+    </div>
+    <table>
+      <tr><th>Source</th><th>SS</th><th>df</th><th>MS</th><th>F</th></tr>
+      <tr><td>Between Groups</td><td>SS_B</td><td>k−1</td><td>SS_B/(k−1)</td><td>MS_B/MS_W</td></tr>
+      <tr><td>Within Groups (Error)</td><td>SS_W</td><td>N−k</td><td>SS_W/(N−k)</td><td></td></tr>
+      <tr><td>Total</td><td>SS_T</td><td>N−1</td><td></td><td></td></tr>
+    </table>
+    <div class="exam-tip"><strong>📝 EXAM TIP:</strong> ANOVA tests if ANY group differs — not WHICH one. For that, you need post-hoc tests (Tukey, Bonferroni). Examiners love this distinction!</div>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 7.4 — CHI-SQUARE TEST: For Categorical Data χ²</h3>
+    <div class="formula-box">
+      <div class="label">Chi-Square Statistic</div>
+      \[ \chi^2 = \sum \frac{(O-E)^2}{E} \]
+      <p style="color:var(--muted);font-size:.85em;margin-top:8px">O = Observed, E = Expected = (Row total × Column total) / Grand total</p>
+    </div>
+    <p><strong>Degrees of freedom:</strong> Test of independence: df = (r−1)(c−1) &nbsp;|&nbsp; Goodness of fit: df = k−1</p>
+    <div class="mnemonic"><strong>💡 MNEMONIC:</strong> "Chi-Square = Chai Square — it's hot and tests CATEGORIES!" ☕</div>
+  </div>
+</section>
+
+<!-- ===== SEASON 8 ===== -->
+<section class="season" id="s8">
+  <div class="season-header">
+    <div class="season-num">Season 8</div>
+    <h2>💕 Correlation & Regression — The Love Story</h2>
+    <p class="tagline">"When Two Variables Can't Stop Looking at Each Other"</p>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 8.1 — Correlation</h3>
+    <div class="analogy"><strong>Lagos Traffic Analogy:</strong> When it rains, traffic ALWAYS increases. But correlation ≠ causation! The rain doesn't CAUSE the traffic — it's the flooded roads, the accidents... 😂</div>
+    <div class="formula-box">
+      <div class="label">Pearson's r (Computational Formula)</div>
+      \[ r = \frac{n\sum xy - (\sum x)(\sum y)}{\sqrt{[n\sum x^2 - (\sum x)^2][n\sum y^2 - (\sum y)^2]}} \]
+    </div>
+    <table>
+      <tr><th>r value</th><th>Interpretation</th></tr>
+      <tr><td>+1.0</td><td>Perfect positive correlation</td></tr>
+      <tr><td>+0.7 to +1.0</td><td>Strong positive</td></tr>
+      <tr><td>+0.3 to +0.7</td><td>Moderate positive</td></tr>
+      <tr><td>0</td><td>No linear correlation</td></tr>
+      <tr><td>−0.3 to −0.7</td><td>Moderate negative</td></tr>
+      <tr><td>−1.0</td><td>Perfect negative correlation</td></tr>
+    </table>
+    <div class="mnemonic"><strong>💡 MNEMONIC:</strong> Positive r = variables go UP together (best friends). Negative r = one goes UP while other goes DOWN (enemies!)</div>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 8.2 — Linear Regression</h3>
+    <div class="formula-box">
+      <div class="label">Regression Equation</div>
+      \[ Y = a + bX \]
+    </div>
+    <div class="formula-box">
+      <div class="label">Slope (b) and Intercept (a)</div>
+      \[ b = \frac{n\sum xy - (\sum x)(\sum y)}{n\sum x^2 - (\sum x)^2} \qquad a = \bar{y} - b\bar{x} \]
+    </div>
+    <div class="formula-box">
+      <div class="label">Coefficient of Determination</div>
+      \[ R^2 = r^2 \]
+      <p style="color:var(--muted);font-size:.85em;margin-top:8px">R² = 0.81 means X explains 81% of variation in Y</p>
+    </div>
+    <div class="exam-tip"><strong>📝 EXAM TIP:</strong> Correlation has NO direction (X and Y are interchangeable). Regression DOES have a direction — which variable is X and which is Y matters!</div>
+  </div>
+
+  <div class="episode">
+    <h3>🎬 Episode 8.3 — Curvilinear Regression & Transformations</h3>
+    <p>When the X-Y relationship is NOT linear, use transformations to linearize it:</p>
+    <table>
+      <tr><th>Relationship</th><th>Transformation</th><th>Use For</th></tr>
+      <tr><td>Exponential: Y = ae^(bX)</td><td>ln Y vs X</td><td>Bacterial growth</td></tr>
+      <tr><td>Power: Y = aX^b</td><td>log Y vs log X</td><td>Allometric relationships</td></tr>
+      <tr><td>Right-skewed data</td><td>Log transform</td><td>Income, population counts</td></tr>
+      <tr><td>Proportion data</td><td>Arcsin √Y</td><td>% data</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ===== FLASHCARDS ===== -->
+<section class="season" id="flashcards">
+  <div class="season-header" style="background:linear-gradient(135deg,#1a2e1e,#1e2e1a)">
+    <div class="season-num" style="color:var(--green)">Interactive Flashcards</div>
+    <h2>🃏 50+ Power Cards</h2>
+    <p class="tagline">Click each card to flip and reveal the answer!</p>
+  </div>
+  <div id="flashcards-section">
+  <div class="fc-grid" id="fc-grid"></div>
+  </div>
+</section>
+
+<!-- ===== ASSIGNMENTS ===== -->
+<section class="season" id="assignments">
+  <div class="season-header" style="background:linear-gradient(135deg,#2e1a1a,#1a1a2e)">
+    <div class="season-num" style="color:var(--orange)">Assignment Solutions</div>
+    <h2>📝 All 7 Fully Worked</h2>
+    <p class="tagline">Step-by-step solutions ready to submit</p>
+  </div>
+
+  <div class="assignment">
+    <h3>📌 Assignment 1 — Hypergeometric Distribution (Scholarship)</h3>
+    <p><strong>Problem:</strong> 10 applicants, 5 are Nigerians. 5 get scholarships at random.</p>
+    <p><strong>Setup:</strong> N=10, K=5 (Nigerians), n=5 (awarded), Formula: P(X=k) = C(K,k)·C(N−K,n−k) / C(N,n)</p>
+    <div class="step">First, calculate C(10,5) = 10!/(5!×5!) = 10×9×8×7×6/(5×4×3×2×1) = <strong>252</strong></div>
+    <h4>Part i) All 5 are Nigerians (k=5)</h4>
+    <div class="formula-box">\[ P(X=5) = \frac{\binom{5}{5}\binom{5}{0}}{\binom{10}{5}} = \frac{1 \times 1}{252} = \frac{1}{252} \]</div>
+    <div class="answer-box">✅ P(all 5 Nigerians) = 1/252 ≈ 0.00397 (about 0.4% chance)</div>
+    <h4>Part ii) Only 1 is a Nigerian (k=1)</h4>
+    <div class="formula-box">\[ P(X=1) = \frac{\binom{5}{1}\binom{5}{4}}{\binom{10}{5}} = \frac{5 \times 5}{252} = \frac{25}{252} \]</div>
+    <div class="answer-box">✅ P(only 1 Nigerian) = 25/252 ≈ 0.0992 (about 9.9% chance)</div>
+  </div>
+
+  <div class="assignment">
+    <h3>📌 Assignment 2 — Normal Distribution (Waist Measurements)</h3>
+    <p><strong>Parameters:</strong> n = 800 girls, <strong>μ = 75 cm, σ = 9 cm</strong> (using the new parameters stated in the problem)</p>
+    <h4>Part i) Girls with waist between 67 cm and 72 cm</h4>
+    <div class="step">Z₁ = (67 − 75)/9 = −8/9 = <strong>−0.89</strong> → P(Z &lt; −0.89) = 0.1867</div>
+    <div class="step">Z₂ = (72 − 75)/9 = −3/9 = <strong>−0.33</strong> → P(Z &lt; −0.33) = 0.3707</div>
+    <div class="step">P(67 &lt; X &lt; 72) = 0.3707 − 0.1867 = <strong>0.1840</strong></div>
+    <div class="answer-box">✅ Number of girls = 0.1840 × 800 = <strong>≈ 147 girls</strong></div>
+    <h4>Part ii) Girls with waist &lt; 75 cm</h4>
+    <div class="step">Z = (75 − 75)/9 = <strong>0</strong> → P(Z &lt; 0) = 0.5000 (exactly half, by symmetry!)</div>
+    <div class="answer-box">✅ Number of girls = 0.5 × 800 = <strong>400 girls</strong></div>
+    <h4>Part iii) Girls with waist ≥ 70 cm</h4>
+    <div class="step">Z = (70 − 75)/9 = −5/9 = <strong>−0.556</strong></div>
+    <div class="step">P(Z ≥ −0.556) = P(Z ≤ +0.556) ≈ 0.7110</div>
+    <div class="answer-box">✅ Number of girls = 0.7110 × 800 = <strong>≈ 569 girls</strong></div>
+  </div>
+
+  <div class="assignment">
+    <h3>📌 Assignment 3 — Poisson Distribution (Defective Flasks)</h3>
+    <p><strong>Setup:</strong> n = 100, p = 0.05</p>
+    <div class="step"><strong>λ = np = 100 × 0.05 = 5</strong> &nbsp;|&nbsp; e⁻⁵ = 0.006738</div>
+    <h4>Part i) P(none defective) = P(X = 0)</h4>
+    <div class="formula-box">\[ P(X=0) = \frac{e^{-5} \cdot 5^0}{0!} = e^{-5} = 0.006738 \]</div>
+    <div class="answer-box">✅ P(X=0) = <strong>0.0067</strong></div>
+    <h4>Part ii) P(exactly 5 defective) = P(X = 5)</h4>
+    <div class="formula-box">\[ P(X=5) = \frac{e^{-5} \cdot 5^5}{5!} = \frac{0.006738 \times 3125}{120} = \frac{21.06}{120} = 0.1755 \]</div>
+    <div class="answer-box">✅ P(X=5) = <strong>0.1755</strong></div>
+    <h4>Part iii) P(at least 5) = P(X ≥ 5)</h4>
+    <table>
+      <tr><th>k</th><th>Calculation</th><th>P(X=k)</th></tr>
+      <tr><td>0</td><td>e⁻⁵ × 5⁰/0!</td><td>0.0067</td></tr>
+      <tr><td>1</td><td>e⁻⁵ × 5¹/1!</td><td>0.0337</td></tr>
+      <tr><td>2</td><td>e⁻⁵ × 5²/2!</td><td>0.0842</td></tr>
+      <tr><td>3</td><td>e⁻⁵ × 5³/3!</td><td>0.1404</td></tr>
+      <tr><td>4</td><td>e⁻⁵ × 5⁴/4!</td><td>0.1755</td></tr>
+      <tr><td><strong>Sum</strong></td><td></td><td><strong>0.4405</strong></td></tr>
+    </table>
+    <div class="formula-box">\[ P(X \geq 5) = 1 - P(X \leq 4) = 1 - 0.4405 = 0.5595 \]</div>
+    <div class="answer-box">✅ P(X ≥ 5) = <strong>0.5595</strong> (about 56% chance!)</div>
+  </div>
+
+  <div class="assignment">
+    <h3>📌 Assignment 4 — Conditional Probability (Maths & Physics)</h3>
+    <p><strong>Given:</strong> P(Mathematics) = 0.6, P(Physics) = 0.5, P(Both) = 0.3</p>
+    <p><strong>Find:</strong> P(Mathematics | Physics)</p>
+    <div class="formula-box">\[ P(\text{Math}|\text{Physics}) = \frac{P(\text{Math} \cap \text{Physics})}{P(\text{Physics})} = \frac{0.3}{0.5} = 0.6 \]</div>
+    <div class="answer-box">✅ P(Math|Physics) = <strong>0.6</strong> — 60% chance the student also does Maths</div>
+  </div>
+
+  <div class="assignment">
+    <h3>📌 Assignment 5 — Probability Distribution (Red Balls)</h3>
+    <p><strong>Setup:</strong> 4 red + 2 green = 6 balls. Draw 2 WITHOUT replacement. X = number of red balls.</p>
+    <div class="step"><strong>P(X=0):</strong> Both green → (2/6) × (1/5) = 2/30 = <strong>1/15</strong></div>
+    <div class="step"><strong>P(X=1):</strong> One red, one green (either order) → (4/6)(2/5) + (2/6)(4/5) = 8/30 + 8/30 = 16/30 = <strong>8/15</strong></div>
+    <div class="step"><strong>P(X=2):</strong> Both red → (4/6) × (3/5) = 12/30 = <strong>6/15</strong></div>
+    <div class="step"><strong>Verification:</strong> 1/15 + 8/15 + 6/15 = 15/15 = 1 ✓</div>
+    <table>
+      <tr><th>X</th><th>P(X)</th><th>Decimal</th></tr>
+      <tr><td>0</td><td>1/15</td><td>0.0667</td></tr>
+      <tr><td>1</td><td>8/15</td><td>0.5333</td></tr>
+      <tr><td>2</td><td>6/15</td><td>0.4000</td></tr>
+      <tr><td><strong>Total</strong></td><td><strong>15/15</strong></td><td><strong>1.0000 ✓</strong></td></tr>
+    </table>
+    <div class="answer-box">✅ E(X) = 0(1/15) + 1(8/15) + 2(6/15) = 20/15 = <strong>4/3 ≈ 1.33</strong></div>
+  </div>
+
+  <div class="assignment">
+    <h3>📌 Assignment 6 — Binomial Distribution (Disease Recovery)</h3>
+    <p><strong>Given:</strong> n=10 persons, p=0.80 (probability of recovery), find P(X=7)</p>
+    <div class="formula-box">\[ P(X=7) = \binom{10}{7}(0.8)^7(0.2)^3 = 120 \times 0.2097 \times 0.008 \]</div>
+    <div class="answer-box">✅ P(X=7) = <strong>0.2013</strong></div>
+    <div class="formula-box">\[ \text{Mean} = np = 10 \times 0.8 = \mathbf{8} \qquad \text{Variance} = npq = 10 \times 0.8 \times 0.2 = \mathbf{1.6} \]</div>
+  </div>
+
+  <div class="assignment">
+    <h3>📌 Assignment 7 — Set Theory Probability (Language Speakers)</h3>
+    <p><strong>Given:</strong> 80 students total. E=45, F=30, Y=25, E∩F=5, E∩Y=10, F∩Y=8, E∩F∩Y=5</p>
+    <div class="step"><strong>English ONLY:</strong> 45 − 5 − 10 + 5 = <strong>35</strong></div>
+    <div class="step"><strong>French ONLY:</strong> 30 − 5 − 8 + 5 = <strong>22</strong></div>
+    <div class="step"><strong>Yoruba ONLY:</strong> 25 − 10 − 8 + 5 = <strong>12</strong></div>
+    <div class="step"><strong>At least one language:</strong> 45+30+25−5−10−8+5 = <strong>82</strong> (Note: this exceeds 80, suggesting a minor inconsistency in the problem data)</div>
+    <table>
+      <tr><th>Language</th><th>Count</th><th>Probability</th></tr>
+      <tr><td>English only</td><td>35</td><td>35/80 = <strong>0.4375</strong></td></tr>
+      <tr><td>French only</td><td>22</td><td>22/80 = <strong>0.275</strong></td></tr>
+      <tr><td>Yoruba only</td><td>12</td><td>12/80 = <strong>0.15</strong></td></tr>
+      <tr><td>At least one</td><td>82*</td><td>≈ <strong>1.0</strong> (all students)</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ===== MOCK EXAM ===== -->
+<section class="season" id="exam">
+  <div class="season-header" style="background:linear-gradient(135deg,#1a1a2e,#2e1a2e)">
+    <div class="season-num" style="color:var(--purple)">Mock CBT Exam</div>
+    <h2>🎯 40 Questions — 40 Minutes</h2>
+    <p class="tagline">Click an option to select it. Hit "Show All Answers" when done!</p>
+  </div>
+  <div id="exam-container"></div>
+  <div style="text-align:center;margin:20px 0">
+    <button onclick="showAnswers()" style="background:var(--green);color:#000;border:none;padding:12px 30px;border-radius:8px;font-size:1em;font-weight:700;cursor:pointer">🔑 Show All Answers</button>
+    <button onclick="resetExam()" style="background:#2a2a4a;color:var(--text);border:1px solid #3a3a6a;padding:12px 30px;border-radius:8px;font-size:1em;font-weight:700;cursor:pointer;margin-left:10px">🔄 Reset</button>
+  </div>
+  <div id="score-display" style="display:none;text-align:center;padding:20px;background:var(--card);border-radius:10px;margin-top:10px">
+    <h3 style="color:var(--green);font-size:1.5em" id="score-text"></h3>
+    <p id="score-msg" style="color:var(--muted);margin-top:8px"></p>
+  </div>
+
+  <div class="season-header" style="margin-top:30px;background:rgba(0,184,148,.06)">
+    <div class="season-num">Answer Key</div>
+    <h2>🔑 All 40 Answers</h2>
+  </div>
+  <div class="answer-key-grid" id="answer-key"></div>
+</section>
+
+<!-- ===== TIPS ===== -->
+<section class="season" id="tips">
+  <div class="season-header" style="background:linear-gradient(135deg,#1a2a1a,#2a2a0a)">
+    <div class="season-num" style="color:var(--yellow)">Fast Reading Tips</div>
+    <h2>⚡ The 10-Hour Crash Plan</h2>
+    <p class="tagline">"For the Night Before the Exam (You Know Who You Are)" 😂</p>
+  </div>
+
+  <div class="episode">
+    <h3>🚀 Hour-by-Hour Crash Plan</h3>
+    <table>
+      <tr><th>Hours</th><th>Topic</th><th>Focus</th></tr>
+      <tr><td>1–2</td><td>Seasons 1–2: Data &amp; Sampling</td><td>NOIR, SSSCC, P-P-S-S mnemonic</td></tr>
+      <tr><td>3–4</td><td>Seasons 3–4: Presentation &amp; Central Tendency</td><td>Frequency tables, Mean/Median/Mode formulas, CV</td></tr>
+      <tr><td>5–6</td><td>Season 5: Probability</td><td>Addition rule, conditional probability, combinations</td></tr>
+      <tr><td>7–8</td><td>Season 6: Distributions</td><td>Z-score, FTIC binomial, Poisson λ formula</td></tr>
+      <tr><td>9–10</td><td>Seasons 7–8: Testing &amp; Regression</td><td>H₀/H₁, errors, t-test, ANOVA, χ², r and R²</td></tr>
+    </table>
+  </div>
+
+  <div class="episode">
+    <h3>💡 Top 10 High-Yield Exam Tips</h3>
+    <div class="tip-card">1. <strong>Normal Distribution Z-scores</strong> — ALWAYS come up. Master Z=(X−μ)/σ and table reading cold.</div>
+    <div class="tip-card">2. <strong>Binomial vs Poisson</strong> — Poisson: rare event, λ=np. Binomial: FTIC. Know when to use each.</div>
+    <div class="tip-card">3. <strong>Type I vs Type II errors</strong> — Examiner LOVES this. Type I = false alarm (α). Type II = miss (β).</div>
+    <div class="tip-card">4. <strong>Chi-square df</strong> — Independence: (r−1)(c−1). Goodness of fit: k−1. Know this cold.</div>
+    <div class="tip-card">5. <strong>Mean vs Median</strong> — Skewed data → Median. Symmetric → Mean is fine.</div>
+    <div class="tip-card">6. <strong>Sampling methods</strong> — Be able to identify from a scenario description (SSSCC).</div>
+    <div class="tip-card">7. <strong>Poisson unique property</strong> — Mean = Variance = λ. ONLY true for Poisson!</div>
+    <div class="tip-card">8. <strong>Regression vs Correlation</strong> — Correlation: no direction. Regression: X predicts Y (direction matters).</div>
+    <div class="tip-card">9. <strong>Histogram vs Bar chart</strong> — Bars TOUCH (continuous) vs bars DON'T touch (discrete/categorical).</div>
+    <div class="tip-card">10. <strong>ANOVA df</strong> — Between: k−1. Within: N−k. Total: N−1. F = MS_B/MS_W.</div>
+  </div>
+
+  <div class="episode">
+    <h3>🧠 Golden Mnemonics Cheat Sheet</h3>
+    <table class="mnemonic-table">
+      <tr><th>Mnemonic</th><th>Meaning</th></tr>
+      <tr><td>NOIR</td><td>Nominal, Ordinal, Interval, Ratio (data types)</td></tr>
+      <tr><td>SSSCC</td><td>Simple, Stratified, Systematic, Cluster, Convenience</td></tr>
+      <tr><td>P-P-S-S</td><td>Population=Parameters, Sample=Statistics</td></tr>
+      <tr><td>FTIC</td><td>Fixed n, Two outcomes, Independent, Constant p (Binomial)</td></tr>
+      <tr><td>Count=Discrete, Measure=Continuous</td><td>Identifies variable type instantly</td></tr>
+      <tr><td>68-95-99.7</td><td>Normal distribution empirical rule</td></tr>
+      <tr><td>Reject if p &lt; α</td><td>Decision rule for hypothesis testing</td></tr>
+      <tr><td>Type I = Cry Wolf</td><td>False alarm, α error</td></tr>
+      <tr><td>Type II = Miss the Wolf</td><td>Miss the real effect, β error</td></tr>
+      <tr><td>R² = r²</td><td>Coefficient of determination from correlation</td></tr>
+      <tr><td>Mean = Variance = λ</td><td>Unique Poisson property</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ===== RESOURCES ===== -->
+<section class="season" id="resources">
+  <div class="season-header" style="background:linear-gradient(135deg,#1a1e2e,#0d1a2e)">
+    <div class="season-num" style="color:var(--blue)">Resources</div>
+    <h2>📚 YouTube + Books + Websites</h2>
+    <p class="tagline">Your extended learning toolkit</p>
+  </div>
+
+  <div class="episode">
+    <h3>🎥 YouTube Channels</h3>
+    <div class="resource-card">
+      <span class="tier tier-1">TIER 1 — MUST WATCH</span>
+      <h4>1. StatQuest with Josh Starmer</h4>
+      <p>Best statistical concept explanations on YouTube. Clear visuals, builds from scratch. Watch: Normal distribution, ANOVA, t-test, regression. His motto: "Statistics made CLEARLY easy — BAM! 💥"</p>
+    </div>
+    <div class="resource-card">
+      <span class="tier tier-1">TIER 1 — MUST WATCH</span>
+      <h4>2. Khan Academy Statistics</h4>
+      <p>Free, comprehensive, starts from basics. Great for probability and distributions. The #1 free resource for Nigerian students worldwide.</p>
+    </div>
+    <div class="resource-card">
+      <span class="tier tier-1">TIER 1 — MUST WATCH</span>
+      <h4>3. Professor Leonard</h4>
+      <p>Full university-level statistics course on YouTube. Detailed, rigorous, very clear. Great for the complete BIO 208 curriculum.</p>
+    </div>
+    <div class="resource-card">
+      <span class="tier tier-2">TIER 2 — RECOMMENDED</span>
+      <h4>4. The Organic Chemistry Tutor</h4>
+      <p>Excellent worked examples for probability and distributions. Fast-paced and exam-focused. Search specifically for "Normal Distribution," "Binomial," "Poisson."</p>
+    </div>
+    <div class="resource-card">
+      <span class="tier tier-2">TIER 2 — RECOMMENDED</span>
+      <h4>5. Crash Course Statistics</h4>
+      <p>15–20 minute fun episodes with animations. Great for conceptual understanding before diving into formulas.</p>
+    </div>
+    <div class="resource-card">
+      <span class="tier tier-2">TIER 2 — RECOMMENDED</span>
+      <h4>6. zedstatistics</h4>
+      <p>Excellent for hypothesis testing and regression. Thorough and clear explanations.</p>
+    </div>
+  </div>
+
+  <div class="episode">
+    <h3>📖 Textbooks</h3>
+    <div class="resource-card">
+      <h4>🥇 Biostatistics for the Biological and Health Sciences — Triola &amp; Triola</h4>
+      <p>The gold standard for BIO courses. Clear examples, good practice problems. Covers everything in BIO 208.</p>
+    </div>
+    <div class="resource-card">
+      <h4>🥇 Biostatistics: A Foundation for Analysis in Health Sciences — Daniel &amp; Cross</h4>
+      <p>Very comprehensive with detailed worked examples. Widely used in Nigerian universities.</p>
+    </div>
+    <div class="resource-card">
+      <h4>📗 Introductory Statistics — Weiss</h4>
+      <p>Excellent for building foundations. Clean explanations of all core topics.</p>
+    </div>
+    <div class="resource-card">
+      <h4>📗 Statistics for Biology and Health — Rosner &nbsp;|&nbsp; Applied Statistics — Snedecor &amp; Cochran</h4>
+      <p>Classic biology-statistics references. Great for deeper understanding after the basics.</p>
+    </div>
+  </div>
+
+  <div class="episode">
+    <h3>🌐 Websites &amp; Apps</h3>
+    <ul>
+      <li><strong>openstax.org/books/statistics</strong> — Free statistics textbook PDF</li>
+      <li><strong>desmos.com</strong> — Interactive normal distribution graphs</li>
+      <li><strong>wolframalpha.com</strong> — Calculate any probability distribution instantly</li>
+      <li><strong>quizlet.com</strong> — Create digital flashcards from this guide</li>
+      <li><strong>statology.org</strong> — Excellent worked examples and tutorials</li>
+    </ul>
+  </div>
+
+  <div style="text-align:center;padding:40px;background:linear-gradient(135deg,var(--card),#1e1e3e);border-radius:12px;border:1px solid #3a3a6a;margin-top:20px">
+    <h2 style="color:var(--green);font-size:1.8em;margin-bottom:12px">🏆 End Credits</h2>
+    <p style="color:var(--muted);max-width:600px;margin:0 auto;font-style:italic;line-height:1.8">
+      You have completed <strong style="color:var(--white)">BIOSTATISTICS: THE SERIES</strong> — all 8 Seasons. You now know the Data Kingdom, survived the Sampling Saga, conquered Central Tendency, navigated the Probability Chronicles, mastered the Distribution Trilogy, won the Hypothesis Testing Battle, and written the love story of Correlation and Regression.<br><br>
+      Go and pass that exam. You've got this. And if NEPA takes light while you're studying tonight... use your phone torch. Statistics waits for no one. 🕯️😂🇳🇬
+    </p>
+  </div>
+</section>
+
+</main>
+
+<button id="scrolltop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// ===== FLASHCARD DATA =====
+const cards = [
+  ["What is a continuous variable?","A variable that can take any value within a range, including decimals. Arises from MEASUREMENT. Examples: height, weight, temperature, blood pressure."],
+  ["What is a discrete (discontinuous) variable?","A variable that only takes specific countable values (usually whole numbers). Arises from COUNTING. Examples: number of eggs, children, bacteria colonies."],
+  ["What is a statistical population?","The COMPLETE set of all individuals/items of interest. Described by PARAMETERS (Greek letters: μ, σ)."],
+  ["What is a sample?","A SUBSET of the population used to make inferences. Described by STATISTICS (Roman letters: x̄, s)."],
+  ["P-P-S-S rule","Population has Parameters. Sample has Statistics. (Both start with same letter!)"],
+  ["Formula for arithmetic mean","x̄ = Σxᵢ/n (ungrouped) OR x̄ = Σfᵢmᵢ/Σfᵢ (grouped, where m = class mark)"],
+  ["How to find the median for even n?","Arrange in order. Median = average of the (n/2)th and (n/2+1)th values."],
+  ["When is median better than mean?","When data is SKEWED or has OUTLIERS. Median is not pulled by extreme values."],
+  ["Sample variance formula","s² = Σ(xᵢ−x̄)²/(n−1). Uses n−1 (Bessel's correction) for unbiased estimate."],
+  ["Standard deviation formula","s = √[Σ(xᵢ−x̄)²/(n−1)]. Same units as original data. Square root of variance."],
+  ["Normal Distribution properties","Bell-shaped, symmetric. Mean=Median=Mode. Total area=1. Defined by μ and σ. Notation: X~N(μ,σ²)."],
+  ["The Empirical Rule","68% within μ±σ | 95% within μ±2σ | 99.7% within μ±3σ. Only for normal distributions!"],
+  ["Z-score formula","Z = (X−μ)/σ. How many SDs is X from mean? Standard Normal: Z~N(0,1)."],
+  ["Binomial Distribution: FTIC conditions","Fixed n | Two outcomes (success/fail) | Independent trials | Constant p. Formula: P(X=k)=C(n,k)pᵏqⁿ⁻ᵏ"],
+  ["Binomial: mean and variance","Mean = np | Variance = npq | SD = √(npq) where q = 1−p"],
+  ["Poisson Distribution formula","P(X=k) = e⁻λ·λᵏ/k! For rare events in fixed time/space. e ≈ 2.71828."],
+  ["Unique property of Poisson","Mean = Variance = λ. ONLY the Poisson distribution has this property!"],
+  ["When to use Poisson vs Binomial?","Poisson: n large, p small, rare events, λ=np. Binomial: FTIC conditions, fixed n."],
+  ["Null hypothesis (H₀)","The 'no effect/no difference' hypothesis. Assumed TRUE until evidence proves otherwise."],
+  ["Type I error (α)","Rejecting H₀ when it's TRUE. False positive / 'crying wolf'. Probability = α (e.g. 0.05)."],
+  ["Type II error (β)","Failing to reject H₀ when it's FALSE. False negative / 'missing the wolf'. Probability = β."],
+  ["p-value decision rule","If p-value < α → REJECT H₀ (statistically significant). If p-value ≥ α → Fail to reject."],
+  ["One-sample t-test formula","t = (x̄−μ₀)/(s/√n), df = n−1. Use when n<30 and population σ unknown."],
+  ["Paired t-test formula","t = d̄/(sₐ/√n), df = n−1. Use when SAME subjects measured twice (before/after)."],
+  ["ANOVA F-statistic","F = MS_Between/MS_Within. df_B = k−1, df_W = N−k, df_T = N−1."],
+  ["Chi-square formula","χ² = Σ(O−E)²/E. O=observed, E=expected=(Row total×Col total)/Grand total."],
+  ["Chi-square df","Test of independence: (r−1)(c−1). Goodness of fit: k−1."],
+  ["Pearson's r range","−1 ≤ r ≤ +1. r=+1 perfect positive, r=0 no correlation, r=−1 perfect negative."],
+  ["Coefficient of determination R²","R² = r². Proportion of variance in Y explained by X. R²=0.81 means X explains 81% of Y variation."],
+  ["Regression equation","Y = a + bX. b=slope (change in Y per unit X), a=intercept (Y when X=0)."],
+  ["Slope b formula","b = [nΣxy−ΣxΣy] / [nΣx²−(Σx)²]. Then a = ȳ−bx̄."],
+  ["NOIR mnemonic","Nominal (names only) | Ordinal (ranked, unequal gaps) | Interval (equal gaps, no true zero) | Ratio (equal gaps + true zero)."],
+  ["SSSCC sampling mnemonic","Simple random | Stratified | Systematic | Cluster | Convenience. 'Some Students Study Continuously, Cleverly!'"],
+  ["Coefficient of Variation (CV)","CV = (s/x̄)×100%. Used to COMPARE variability between datasets with different units or scales."],
+  ["Standard Error of the Mean","SE = σ/√n (or s/√n). How much sample mean varies from population mean. Larger n → smaller SE."],
+  ["95% Confidence Interval","CI = x̄ ± 1.96(σ/√n). Means: if repeated 100 times, 95 intervals would contain true μ."],
+  ["Systematic sampling interval","k = N/n. Select a random start between 1 and k, then every kth element."],
+  ["Class mark (midpoint) formula","(Lower class limit + Upper class limit) / 2"],
+  ["Sturge's rule","k = 1 + 3.322×log₁₀(n). Determines number of classes in a frequency distribution."],
+  ["Hypergeometric distribution","P(X=k) = C(K,k)×C(N−K,n−k)/C(N,n). For sampling WITHOUT replacement from finite population."],
+  ["Skewness in positive skew","Mode < Median < Mean. Tail extends to the RIGHT. Mean is pulled toward the tail."],
+  ["Skewness in negative skew","Mean < Median < Mode. Tail extends to the LEFT."],
+  ["IQR formula","IQR = Q3−Q1. Contains middle 50% of data. RESISTANT to outliers."],
+  ["Combination C(8,3)","C(8,3) = 8!/(3!×5!) = (8×7×6)/(3×2×1) = 56"],
+  ["Conditional probability example","P(A|B) = P(A∩B)/P(B). Given B happened, what is P(A)? The | means 'given'."],
+  ["Mutually exclusive addition rule","P(A∪B) = P(A)+P(B). No overlap. Example: P(Head or Tail) = 0.5+0.5 = 1."],
+  ["Central Limit Theorem","As n increases (n≥30), the distribution of sample means approaches NORMAL regardless of population shape."],
+  ["Histogram vs Bar chart","Histogram: continuous data, bars TOUCH. Bar chart: discrete/categorical, bars DON'T touch (gaps!)."],
+  ["Pearson's skewness coefficient","Sk = 3(x̄−Median)/s. Positive Sk = right-skewed. Negative Sk = left-skewed."],
+  ["ANOVA post-hoc tests","After significant ANOVA, use Tukey or Bonferroni tests to find WHICH pairs of groups differ."],
+  ["Log transformation","Use for right-skewed data or exponential relationships. Converts Y=ae^(bX) to linear: ln Y = ln a + bX."],
+];
+
+// Build flashcard grid
+const grid = document.getElementById('fc-grid');
+cards.forEach((c,i) => {
+  const el = document.createElement('div');
+  el.className = 'fc';
+  el.innerHTML = `<div class="fc-inner">
+    <div class="fc-front"><div class="fc-num">Card ${i+1}</div><p>${c[0]}</p><div class="fc-hint">👆 Click to flip</div></div>
+    <div class="fc-back"><div class="fc-num">Answer</div><p>${c[1]}</p></div>
+  </div>`;
+  el.onclick = () => el.classList.toggle('flipped');
+  grid.appendChild(el);
+});
+
+// ===== EXAM DATA =====
+const questions = [
+  {q:"A variable that can take any value within a range is called:", opts:["Discrete","Nominal","Continuous","Ordinal"], ans:2},
+  {q:"The number of children in a family is an example of:", opts:["Continuous data","Discrete data","Interval data","Ratio data"], ans:1},
+  {q:"The NOIR mnemonic refers to:", opts:["Nominal, Ordinal, Independent, Ratio","Nominal, Ordinal, Interval, Ratio","Normal, Ordinal, Interval, Random","Null, Ordinal, Interval, Ratio"], ans:1},
+  {q:"Blood group (A, B, AB, O) is measured on which scale?", opts:["Ordinal","Interval","Nominal","Ratio"], ans:2},
+  {q:"Which sampling method selects every kth element from a list?", opts:["Cluster","Stratified","Convenience","Systematic"], ans:3},
+  {q:"A number that describes a population is called:", opts:["Statistic","Variable","Parameter","Estimator"], ans:2},
+  {q:"The standard error of the mean is calculated as:", opts:["σ/n","σ²/n","σ/√n","√n/σ"], ans:2},
+  {q:"For a 95% confidence interval, the Z-value used is:", opts:["1.645","1.96","2.576","2.33"], ans:1},
+  {q:"Sturge's rule for number of classes is:", opts:["k = 1 + log(n)","k = 1 + 3.322 log₁₀(n)","k = n/5","k = √n"], ans:1},
+  {q:"The class mark of the interval 155–159 is:", opts:["155","159","157","154.5"], ans:2},
+  {q:"The arithmetic mean of 2, 4, 6, 8, 10 is:", opts:["5","6","7","8"], ans:1},
+  {q:"Which measure is most affected by extreme outliers?", opts:["Mode","Median","Mean","Geometric Mean"], ans:2},
+  {q:"For a positively skewed distribution:", opts:["Mean = Median = Mode","Mean > Median > Mode","Mean < Median < Mode","Median > Mean"], ans:1},
+  {q:"The coefficient of variation formula is:", opts:["s/x̄","(s/x̄) × 100%","x̄/s","σ/μ × 50%"], ans:1},
+  {q:"For the normal distribution, what % of data lies within μ ± 2σ?", opts:["68%","95%","99.7%","50%"], ans:1},
+  {q:"If X ~ N(50, 16), the Z-score for X = 54 is:", opts:["0.25","1.0","4.0","2.0"], ans:1},
+  {q:"The Binomial distribution requires:", opts:["Continuous outcomes","Fixed probability and independence","λ = np","Large sample sizes only"], ans:1},
+  {q:"For Binomial with n=20, p=0.3, the mean is:", opts:["14","6","4.2","0.3"], ans:1},
+  {q:"The Poisson distribution is used for:", opts:["Normally distributed events","Rare events in fixed time/space","Only large samples","Continuous variables"], ans:1},
+  {q:"Which distribution has Mean = Variance?", opts:["Normal","Binomial","Poisson","Hypergeometric"], ans:2},
+  {q:"P(A∪B) for mutually exclusive events equals:", opts:["P(A)×P(B)","P(A)+P(B)−P(A∩B)","P(A)+P(B)","P(A)/P(B)"], ans:2},
+  {q:"Conditional probability P(A|B) equals:", opts:["P(A∩B)/P(A)","P(A)×P(B)","P(A∩B)/P(B)","P(A)+P(B)"], ans:2},
+  {q:"C(8,3) = ?", opts:["56","24","336","168"], ans:0},
+  {q:"The null hypothesis typically states:", opts:["There is a significant difference","There is NO significant difference","The sample is biased","Data is not normal"], ans:1},
+  {q:"A Type I error occurs when:", opts:["We fail to reject a false H₀","We reject a TRUE H₀","Sample is too small","Data is skewed"], ans:1},
+  {q:"The t-test is preferred over z-test when:", opts:["n>30 and σ is known","n<30 and σ is unknown","Data is categorical","Comparing >2 groups"], ans:1},
+  {q:"ANOVA is used to compare:", opts:["Two variances","Two proportions","Means of 3 or more groups","Categorical frequencies"], ans:2},
+  {q:"In one-way ANOVA with 4 groups and 20 total obs, df Between = ?", opts:["16","4","3","19"], ans:2},
+  {q:"The F-statistic in ANOVA equals:", opts:["SS_B/SS_W","MS_B/MS_W","MS_W/MS_B","SS_T/SS_W"], ans:1},
+  {q:"Chi-square test is used for:", opts:["Comparing means","Comparing variances","Testing association between categorical variables","Testing normality"], ans:2},
+  {q:"Expected frequency in chi-square test:", opts:["(Row+Col)/Total","(Row×Col)/Total","(Row−Col)/Total","√(Row×Col)"], ans:1},
+  {q:"Pearson's r = −0.85 indicates:", opts:["Weak positive correlation","Strong positive correlation","Strong negative correlation","No correlation"], ans:2},
+  {q:"If r = 0.7, then R² =", opts:["0.7","0.49","0.84","0.35"], ans:1},
+  {q:"In regression Y = 2 + 3X, when X = 4, Y =", opts:["10","12","14","9"], ans:2},
+  {q:"The slope b in regression Y = a + bX represents:", opts:["Value of Y when X=0","Change in X per unit Y","Change in Y per unit X","Correlation between X and Y"], ans:2},
+  {q:"Which distribution models number of typing errors per page?", opts:["Normal","Binomial","Poisson","Uniform"], ans:2},
+  {q:"Sampling WITHOUT replacement from finite population uses:", opts:["Binomial","Normal","Hypergeometric","Poisson"], ans:2},
+  {q:"Coefficient of variation is useful because it:", opts:["Estimates population mean","Compares variability between different-unit datasets","Tests normality","Measures correlation"], ans:1},
+  {q:"In simple random sampling, which is TRUE?", opts:["Some members have higher chance","Every member has equal chance","Population must be divided","Only clusters selected"], ans:1},
+  {q:"The Central Limit Theorem states:", opts:["Population becomes normal with large n","Distribution of sample means approaches normal","Sample variance approaches zero","All samples become identical"], ans:1},
+];
+
+const examContainer = document.getElementById('exam-container');
+const answers = new Array(questions.length).fill(null);
+
+function buildExam() {
+  examContainer.innerHTML = '';
+  questions.forEach((q,i) => {
+    const div = document.createElement('div');
+    div.className = 'exam-q';
+    div.innerHTML = `<div class="qnum">Question ${i+1} of ${questions.length}</div>
+      <p>${q.q}</p>
+      <div class="options">
+        ${q.opts.map((o,j)=>`<div class="option" onclick="selectOpt(${i},${j},this)" id="opt-${i}-${j}">${String.fromCharCode(65+j)}) ${o}</div>`).join('')}
+      </div>`;
+    examContainer.appendChild(div);
+  });
+}
+
+function selectOpt(qi, oi, el) {
+  // Clear previous selection
+  for(let j=0;j<4;j++){
+    const o = document.getElementById(`opt-${qi}-${j}`);
+    if(o){o.classList.remove('correct','wrong');}
+  }
+  answers[qi] = oi;
+  el.style.background='rgba(108,92,231,.2)';
+  el.style.borderColor='#6c5ce7';
+}
+
+function showAnswers() {
+  let score = 0;
+  questions.forEach((q,i) => {
+    for(let j=0;j<4;j++){
+      const o = document.getElementById(`opt-${i}-${j}`);
+      if(!o) return;
+      o.style.background='';o.style.borderColor='';
+      if(j===q.ans){o.classList.add('correct');}
+      else if(j===answers[i] && answers[i]!==q.ans){o.classList.add('wrong');}
+    }
+    if(answers[i]===q.ans) score++;
+  });
+  const sd = document.getElementById('score-display');
+  const pct = Math.round(score/questions.length*100);
+  let msg = '';
+  if(pct>=90) msg="🏆 Excellent! First class incoming!";
+  else if(pct>=75) msg="📚 Good work! Revise weak areas.";
+  else if(pct>=60) msg="💪 Average — more practice needed!";
+  else msg="🔄 Re-read the notes and try again. You've got this!";
+  document.getElementById('score-text').textContent = `Score: ${score}/${questions.length} (${pct}%)`;
+  document.getElementById('score-msg').textContent = msg;
+  sd.style.display='block';
+}
+
+function resetExam() {
+  answers.fill(null);
+  buildExam();
+  document.getElementById('score-display').style.display='none';
+}
+
+buildExam();
+
+// Answer key grid
+const akGrid = document.getElementById('answer-key');
+questions.forEach((q,i) => {
+  const el = document.createElement('div');
+  el.className='ak-item';
+  el.innerHTML=`<span>Q${i+1}</span><span class="ans">${String.fromCharCode(65+q.ans)}</span>`;
+  akGrid.appendChild(el);
+});
+
+// Progress bar
+window.addEventListener('scroll', () => {
+  const scroll = window.scrollY;
+  const height = document.body.scrollHeight - window.innerHeight;
+  document.getElementById('progress').style.width = (scroll/height*100)+'%';
+  const st = document.getElementById('scrolltop');
+  scroll>300 ? st.classList.add('show') : st.classList.remove('show');
+  // Highlight sidebar
+  document.querySelectorAll('section.season').forEach(sec => {
+    const rect = sec.getBoundingClientRect();
+    if(rect.top<=100 && rect.bottom>100){
+      document.querySelectorAll('#sidebar a').forEach(a => a.classList.remove('active'));
+      const link = document.querySelector(`#sidebar a[href="#${sec.id}"]`);
+      if(link) link.classList.add('active');
+    }
+  });
+});
+</script>
+</body>
+</html>
