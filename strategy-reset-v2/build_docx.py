@@ -203,13 +203,16 @@ body(doc, "We run the new engine on 10 scripts over 10 days, with the 7-day paid
 
 # 7 Ask + payment
 heading(doc, '7 · What We’re Asking For Today & How To Fund It')
+sub(doc, 'Your fee for this phase')
+body(doc, "The first 15 days were billed at the original content rate — $750, half of the $1,500/month engagement. This next 15-day phase is $1,000: the scope expands from producing content to running a managed campaign — viral-structure research and hands-on management of the paid boost across all three platforms — which the first block didn't include.")
 make_table(doc, [
     ['#','Item','Amount'],
-    ['1','Milestone 1 — first 15 days (delivered)','$750'],
-    ['2','Production & ad budget — one cycle (tools + 7-day boost)','$915'],
-    ['3','Performance bonus — paid on free-community signups (on results)','$500'],
+    ['1','Milestone 1 — first 15 days, delivered (close-out)','$750'],
+    ['2','Management fee — next 15-day phase (research + managed paid campaign)','$1,000'],
+    ['3','Production & ad budget — one cycle (tools + 7-day boost)','$915'],
+    ['4','Performance bonus — paid on free-community signups (on results)','$500'],
 ], widths=[0.4,5.2,1.4], num_cols=[2])
-small(doc, "Item 3 is paid only on delivered signups. Items 1 & 2 are what we need to close out and set off.")
+small(doc, "Item 4 is paid only on delivered signups. Items 1–3 are what we need to close out and set off.")
 sub(doc, 'Two ways to pay')
 make_table(doc, [
     ['Option A — Release via milestone','Option B — Direct transfer (fastest)'],
@@ -235,7 +238,7 @@ d2.styles['Normal'].font.name='Calibri'; d2.styles['Normal'].font.size=Pt(11)
 tp = d2.add_paragraph(); run(tp,'Call Run-Sheet — Strategy Reset v2', size=22, bold=True, color=NAVY)
 sp = d2.add_paragraph(); run(sp,'INTERNAL · for you only', size=11, bold=True, color=GOLD)
 gp = d2.add_paragraph(); gp.paragraph_format.space_after=Pt(10)
-run(gp,'Goal of the call: (1) release the $750 milestone, (2) get sign-off on the new direction, (3) lock the production budget, (4) swap the bonus to free-community signups, (5) agree how they pay. Keep the tone calm and confident — you delivered the work. This is a better plan, not an apology.', size=10.5, color=DARK)
+run(gp,'Goal of the call: (1) release the $750 milestone, (2) get sign-off on the new direction, (3) agree the $1,000 fee for the next phase, (4) lock the production budget, (5) swap the bonus to free-community signups, (6) agree how they pay. Keep the tone calm and confident — you delivered the work. This is a better plan, not an apology.', size=10.5, color=DARK)
 
 def quote(doc, text):
     p = doc.add_paragraph(); p.paragraph_format.left_indent=Inches(0.25); p.paragraph_format.space_after=Pt(6)
@@ -264,7 +267,11 @@ bullet(d2,[('If he worries about copying: ',True),('“We borrow the structure, 
 bullet(d2,[('Three platforms native: ',True),('one structure → YouTube + Instagram + TikTok.',False)])
 bullet(d2,[('Paid boost, 7-day push: ',True),('“This is the lever that was missing. The difference between a good post nobody sees and one that compounds followers and signups.”',False)])
 
-heading(d2,'4 · The budget (lead with the total)', size=14)
+heading(d2,'4 · Your fee for this phase — $1,000', size=14)
+bullet(d2,[('Frame the jump from $750: ',True),('“The first block was billed at the old content-only rate — $750, half of the $1,500/month. This phase is $1,000 because it’s no longer just content: it includes the viral research and running the paid campaign across all three platforms, which is extra hands-on work the first block didn’t have.”',False)])
+bullet(d2,[('Keep it separate from the ad/tool budget. ',True),('The $1,000 is your labour; the $915 is the engine’s running cost (mostly his ad spend). Don’t let them blur.',False)])
+
+heading(d2,'4b · The budget (lead with the total)', size=14)
 bullet(d2,[('Tool stack: $235/mo ',True),('— HeyGen, Higgsfield, Claude, Metricool, ElevenLabs, CapCut, Canva.',False)])
 bullet(d2,[('Paid boost: $595 ',True),('for a 7-day push (recommend Standard; Lean ~$315 / Aggressive ~$1,050).',False)])
 bullet(d2,[('+10% buffer → one-cycle total ≈ $915. ',True),('Anything he already pays for, we deduct.',False)])
@@ -287,6 +294,7 @@ heading(d2,'Numbers cheat-sheet (memorise these)', size=14)
 make_table(d2, [
     ['Item','Number'],
     ['Milestone 1 (release now)','$750'],
+    ['Management fee — next 15-day phase','$1,000'],
     ['Tool stack / month','$235'],
     ['Paid boost (7-day, Standard)','$595'],
     ['One-cycle budget (incl. buffer)','~$915'],
@@ -300,6 +308,7 @@ make_table(d2, [
 heading(d2,'Likely objections → your answer', size=14)
 obj = [
  ('“Why pay $750 if it didn’t go viral?”','It’s for delivered production, not a virality guarantee. Reach is what the new plan fixes — fully budgeted, your call to fund.'),
+ ('“Why is the next phase $1,000, not $750?”','The first block was content-only at the old rate. This phase adds viral research and managed paid advertising across 3 platforms — more hands-on work, so a modest increase. Still below the original $1,500/month run rate.'),
  ('“Isn’t copying viral posts risky/unoriginal?”','We model structure, not content. Standard practice for every serious creator. Brand stays ours.'),
  ('“Why pay for free signups, not sales?”','That’s the part I control and can guarantee effort against. Sales depend on your funnel. You also keep the audience.'),
  ('“$915 is a lot.”','Most of it is your ad spend going to your reach, plus tools you keep. We can run the Lean tier (~$315 boost) to start smaller.'),
