@@ -3,13 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-M7WK7DBV');</script>
-<!-- End Google Tag Manager -->
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '844719113814759');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=844719113814759&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 <title>Fuse Character Lab — Designing the face that earns for you</title>
 <meta name="description" content="Build a consistent AI character — any look, any gender, any setting — and get the exact prompt in 10 seconds. Founder price ₦7,500 for the first 100.">
 <meta property="og:title" content="Fuse Character Lab — Designing the face that earns for you">
@@ -164,10 +174,6 @@ h2.t{text-align:center;font-size:clamp(26px,6vw,40px);font-weight:800;color:#fff
 </style>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M7WK7DBV"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
 
 <div class="anno">⚡ FOUNDER PRICE: ₦7,500 — first 100 buyers only · then ₦15,000</div>
 
@@ -380,9 +386,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div id="toast"><span class="dot"></span><div><b id="tName"></b> <span class="m" id="tMsg"></span><div class="tt" id="tTime"></div></div></div>
 
 <script>
-/* push a checkout event to GTM (use as a trigger) + fire pixel if present */
+/* fire Meta Pixel InitiateCheckout when any buy button is clicked */
 document.querySelectorAll('.cta, .sticky a').forEach(function(a){ a.addEventListener('click',function(){
-  window.dataLayer=window.dataLayer||[]; dataLayer.push({event:'initiate_checkout'});
   if(window.fbq) fbq('track','InitiateCheckout');
 }); });
 /* demo unmute */
