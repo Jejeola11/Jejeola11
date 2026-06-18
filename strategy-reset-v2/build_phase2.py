@@ -158,42 +158,43 @@ def doc(flow):
         widths=[140,38],num_cols=[1],total=True,total_rows=0)
     flow.append(Paragraph("Weekly billing keeps it low-risk for you: you see the numbers each week before funding the next.", small_st))
 
-    heading(flow,'6 · Honest Sales Projection — First 15 Days')
-    flow.append(Paragraph("These are estimates, not guarantees — built bottom-up from a conservative Instagram funnel. The base case is what we expect; the upside is what one viral reel (the whole point of the Kumar Method) can unlock.", body_st))
-    flow.append(Paragraph('The funnel maths (base case)',sub_st))
+    heading(flow,'6 · The Sales Target — 50 Sales In 15 Days')
+    flow.append(Paragraph("This is what we build the whole engine to hit. It's an honest, bottom-up estimate from the Instagram funnel — not a guarantee — but it's the target the boost spend and the Kumar-style reels are designed to reach.", body_st))
+    flow.append(Paragraph('The funnel maths',sub_st))
     ctable(flow,['Stage','Rate','Result (15 days)'],
-        [['Landing-page visitors (paid + organic)','—','~1,500'],
-         ['Join the free community','25%','~375 members'],
-         ['Buy the $97 Challenge (the in-community video)','8%','~30 sales'],
-         ['Revenue at $97','','~$2,910']],
+        [['Landing-page visitors (paid + organic)','—','~2,500'],
+         ['Join the free community','25%','~625 members'],
+         ['Buy the $97 Challenge (the in-community video)','8%','~50 sales'],
+         ['Revenue at $97','','~$4,850']],
         widths=[88,30,60],num_cols=[2],total=True)
-    flow.append(Paragraph('Weekly sales — three scenarios',sub_st))
-    ctable(flow,['Scenario','Week 1 (build + launch)','Week 2 (full cadence)','15-day sales','Revenue'],
-        [['Conservative','6','10','16','$1,552'],
-         ['Base (expected)','10','20','30','$2,910'],
-         ['Upside','18','32','50','$4,850']],
-        widths=[34,40,40,28,26],num_cols=[4],ctr_cols=[1,2,3])
-    flow.append(Paragraph("Week 1 is lighter because the first days go into training your avatar, cloning your voice and launching — momentum compounds in week 2. A single reel breaking out can push past the upside case entirely.", small_st))
+    flow.append(Paragraph('How it builds across the two weeks',sub_st))
+    ctable(flow,['Week','Focus','Sales','Revenue'],
+        [['Week 1','Build avatar + voice, launch, first reels','18','$1,746'],
+         ['Week 2','Full cadence, boost behind the winners','32','$3,104'],
+         ['15-day total','','50','$4,850']],
+        widths=[28,84,30,36],num_cols=[3],ctr_cols=[2],total=True)
+    flow.append(Paragraph("Week 1 is lighter because the first days go into training your avatar, cloning your voice and launching — momentum compounds in week 2. And a single reel breaking out (the whole point of the Kumar Method) can push well past 50.", small_st))
 
-    heading(flow,'7 · You Recover Everything — The Numbers')
-    flow.append(Paragraph("Here is the part that matters: stacked against the projected sales, the model pays itself back inside the 15 days.", body_st))
+    heading(flow,'7 · You Profit — Even After The Bonus')
+    flow.append(Paragraph("Here is the part that matters. At the 50-sale target, the Challenge revenue covers every cost of the cycle — including the performance bonus — and still leaves you in clear profit.", body_st))
     ctable(flow,['Your investment (15-day cycle)','Amount'],
         [['Milestone 1 — first 15 days (delivered)','$750'],
          ['Production budget (tools + boost)','$736'],
          ['Management fee (~2 weeks @ $400)','$800'],
-         ['Total all-in for the cycle','$2,286']],
+         ['Performance bonus (on 40 sales)','$500'],
+         ['Total all-in, including the bonus','$2,786']],
         widths=[140,38],num_cols=[1],total=True)
     flow.append(Paragraph('Against projected revenue',sub_st))
-    ctable(flow,['Scenario','Revenue','Covers running cost\n($1,536: tools+boost+mgmt)','Covers everything\n($2,286 incl. milestone)'],
-        [['Conservative — 16 sales','$1,552','Yes — fully','Almost (~68%)'],
-         ['Base — 30 sales','$2,910','Yes','Yes + ~$624 left over'],
-         ['Upside — 50 sales','$4,850','Yes','Yes + ~$2,560 profit']],
-        widths=[40,26,56,56],num_cols=[1],ctr_cols=[])
+    ctable(flow,['','Amount'],
+        [['Projected revenue — 50 sales x $97','$4,850'],
+         ['Less: total all-in for the cycle (incl. bonus)','- $2,786'],
+         ['Your profit on the cycle','$2,064']],
+        widths=[140,38],num_cols=[1],total=True)
     bullets(flow,[
-        "<b>Break-even on the new spend</b> (tools + boost + management = $1,536): <b>just 16 sales.</b>",
-        "<b>Break-even on everything</b>, including the delivered milestone ($2,286): <b>24 sales.</b>",
-        "Every sale beyond that is profit — and you keep the trained avatar, the cloned voice, the new followers and the community members as assets that keep selling for you long after the 15 days."])
-    flow.append(Paragraph("And the $97 sale is only the front door: every Challenge buyer is a warm lead for your higher-ticket coaching and deal work, where the real lifetime value sits.", small_st))
+        "At the target you clear roughly <b>$2,064 in profit</b> after paying every cost <i>and</i> the $500 bonus.",
+        "That's exactly why the bonus makes sense — it only triggers once you're already deep in profit, so it comes out of money you wouldn't have without the work.",
+        "And you keep the trained avatar, the cloned voice, the new followers and the community members as assets that keep selling long after the 15 days."])
+    flow.append(Paragraph("The $97 sale is only the front door: every Challenge buyer is a warm lead for your higher-ticket coaching and deal work, where the real lifetime value sits.", small_st))
 
     heading(flow,'8 · Performance Bonus — Tied To Real Sales')
     flow.append(Paragraph("As agreed, the bonus is attached to actual $97 Challenge sales — the outcome we're now driving directly:", body_st))
