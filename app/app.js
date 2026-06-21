@@ -43,6 +43,7 @@ function openStudio(key) {
   if (key === 'reactor') { showView('reactor'); return; }
   if (key === 'market') { showView('market'); loadMarket(); return; }
   if (key === 'learn') { showView('learn'); buildLessons(); return; }
+  if (key === 'avatar') { showView('avatar'); loadAvatars(); return; }
   activeStudio = cfg.STUDIOS.find((s) => s.key === key) || cfg.STUDIOS[0];
   $('studioIcon').textContent = activeStudio.icon;
   $('studioName').textContent = activeStudio.name;
@@ -270,6 +271,70 @@ async function claimDaily() {
   $('streakBtn').disabled = false;
 }
 
+// ---------------- AI Avatar Studio (consistent faces) ----------------
+let selectedAvatar = null;
+async function loadAvatars() {
+  if (preview) { $('avatarList').innerHTML = '<div class="empty" style="grid-column:1/-1">Sign up to create your avatar</div>'; return; }
+  const { data } = await sb.from('avatars').select('id,name,image_url,status').order('created_at', { ascending: false });
+  $('avatarList').innerHTML = (data && data.length)
+    ? data.map((a) => `<div style="text-align:center"><img src="${a.image_url}" data-id="${a.id}" data-name="${a.name}" class="avThumb" style="aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer"><div style="font-size:11px;margin-top:4px" class="muted">${a.name}</div></div>`).join('')
+    : '<div class="empty" style="grid-column:1/-1">No avatars yet — create one below 👇</div>';
+  $('avatarList').querySelectorAll('.avThumb').forEach((el) => el.onclick = () => selectAvatar(el.dataset.id, el.dataset.name));
+}
+function selectAvatar(id, name) {
+  selectedAvatar = id;
+  $('avSelName').textContent = name;
+  $('avGenWrap').style.display = 'block';
+  $('avResult').innerHTML = '<div class="muted">Your consistent-face image appears here.</div>';
+  $('avGenWrap').scrollIntoView({ behavior: 'smooth' });
+}
+async function createAvatar() {
+  if (preview) { showAuth('signup'); return; }
+  const name = $('avNewName').value.trim();
+  const file = $('avFile').files[0];
+  if (!name || !file) return note('avNote', 'Add a name and choose a selfie.', 'err');
+  $('avCreate').disabled = true; note('avNote', 'Uploading…', 'ok');
+  try {
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = `${user.id}/${Date.now()}.${ext}`;
+    const { error: upErr } = await sb.storage.from('avatars').upload(path, file, { upsert: false });
+    if (upErr) throw upErr;
+    const { data: pub } = sb.storage.from('avatars').getPublicUrl(path);
+    const { error: insErr } = await sb.from('avatars').insert({ user_id: user.id, name, image_url: pub.publicUrl });
+    if (insErr) throw insErr;
+    note('avNote', '✅ Avatar created! Tap it above to generate.', 'ok');
+    $('avNewName').value = ''; $('avFile').value = '';
+    loadAvatars();
+  } catch (e) { note('avNote', e.message || 'Could not create avatar.', 'err'); }
+  $('avCreate').disabled = false;
+}
+async function avatarGenerate() {
+  if (preview) { showAuth('signup'); return; }
+  if (!selectedAvatar) return note('avGenNote', 'Pick an avatar first.', 'err');
+  const prompt = $('avPrompt').value.trim();
+  if (!prompt) return note('avGenNote', 'Describe the scene.', 'err');
+  const aspect = $('avAspect').value;
+  const btn = $('avGen'); btn.disabled = true; btn.textContent = 'Generating…';
+  $('avResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Locking your face into the scene…</div></div>';
+  note('avGenNote', '');
+  try {
+    const res = await fetch('/.netlify/functions/avatar-generate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ avatar_id: selectedAvatar, prompt, aspect }),
+    });
+    const data = await res.json();
+    if (res.status === 503) { $('avResult').innerHTML = '<div class="muted">Avatar Studio is being connected.</div>'; note('avGenNote', data.error, 'err'); }
+    else if (res.status === 402) { note('avGenNote', 'Out of credits — top up.', 'err'); openBuy(); }
+    else if (!res.ok) throw new Error(data.error || 'Failed');
+    else {
+      $('creditCount').textContent = data.credits;
+      $('avResult').innerHTML = `<div><img src="${data.url}" alt="avatar"><div style="margin-top:12px"><a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
+      note('avGenNote', 'Done ✅', 'ok');
+    }
+  } catch (e) { $('avResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('avGenNote', e.message || 'Failed — credits not charged.', 'err'); }
+  btn.disabled = false; btn.textContent = '✨ Generate (4 credits)';
+}
+
 // ---------------- marketplace ----------------
 async function loadMarket() {
   $('mpPrompt').value = lastPrompt || '';
@@ -412,6 +477,9 @@ window.addEventListener('DOMContentLoaded', () => {
   $('reactorBack').onclick = () => showView('home');
   $('marketBack').onclick = () => showView('home');
   $('learnBack').onclick = () => showView('home');
+  $('avatarBack').onclick = () => showView('home');
+  $('avCreate').onclick = createAvatar;
+  $('avGen').onclick = avatarGenerate;
   $('seeLib').onclick = () => showView('library');
   $('streakBtn').onclick = claimDaily;
   $('mpPublish').onclick = publishPreset;

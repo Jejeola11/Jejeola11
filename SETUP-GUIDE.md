@@ -31,8 +31,9 @@ On the left menu click **SQL Editor → + New query**. Then, **one at a time**:
 1. Open the file **`supabase/schema.sql`** from your repo, copy **everything**, paste it in, click **Run** (bottom right). You should see *Success*.
 2. New query again → paste **`supabase/schema-phase2.sql`** → **Run**.
 3. New query again → paste **`supabase/schema-phase3.sql`** → **Run**.
+4. New query again → paste **`supabase/schema-phase4.sql`** → **Run** (this also creates the `avatars` storage bucket for the Avatar Studio).
 
-✅ That creates users, credits, payments, referrals, challenges, streaks, marketplace — everything.
+✅ That creates users, credits, payments, referrals, challenges, streaks, marketplace, and avatars — everything.
 
 ### 1.3 Let new users in instantly (important!)
 1. Left menu → **Authentication → Providers → Email**.
@@ -138,6 +139,10 @@ The app needs your Supabase **URL** and **anon key** in one file:
 - **Fuse Reactor (Claude/Gemini/ChatGPT):** make an account at **openrouter.ai**,
   add credit, copy the key, and add a Netlify env var `OPENROUTER_API_KEY`. The
   text AIs go live instantly. (Video AIs stay "coming soon" until separately wired.)
+- **AI Avatar Studio (consistent faces):** make an account at **fal.ai**, add
+  credit, copy your key, and add a Netlify env var `FAL_KEY`. Users then upload a
+  selfie to create an avatar and generate themselves in any scene with the same
+  face. (Make sure you ran `schema-phase4.sql` so the `avatars` bucket exists.)
 - **WhatsApp bot:** needs a **Meta WhatsApp Business** number. Add env vars
   `WHATSAPP_VERIFY_TOKEN` (any phrase you pick), `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_ID`,
   then set the webhook in Meta to `.../.netlify/functions/whatsapp`. This one is

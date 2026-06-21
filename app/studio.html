@@ -50,6 +50,35 @@
     <div class="libgrid" id="homeRecent"></div>
   </section>
 
+  <!-- ===== AI AVATAR STUDIO (consistent faces) ===== -->
+  <section class="view" id="view-avatar">
+    <div class="backlink" id="avatarBack">← Studios</div>
+    <div class="studio-head"><div class="ic">🧑‍🎨</div><div><h2>AI Avatar Studio</h2><p>Lock your face once · generate yourself in any scene</p></div></div>
+
+    <div class="shead"><h2>My avatars</h2></div>
+    <div class="libgrid" id="avatarList"></div>
+
+    <div class="panel" style="margin-top:14px">
+      <h3>➕ Create a new avatar</h3>
+      <p class="muted" style="margin:0 0 10px;font-size:13px">Upload a clear, front-facing selfie (good light, just your face). We lock that identity so every generation looks like you. 🪄</p>
+      <input id="avNewName" placeholder="Avatar name, e.g. 'Me — pro look'">
+      <input id="avFile" type="file" accept="image/*" style="margin-top:8px;padding:9px">
+      <button class="btn gold block" id="avCreate" style="margin-top:10px">Create avatar</button>
+      <div class="note" id="avNote"></div>
+    </div>
+
+    <div class="panel" id="avGenWrap" style="margin-top:14px;display:none">
+      <h3>🎬 Generate with <span id="avSelName" class="gold"></span></h3>
+      <label class="fld" for="avPrompt">Describe the scene</label>
+      <textarea id="avPrompt" placeholder="e.g. CEO in a modern Lagos office, navy suit, magazine cover lighting"></textarea>
+      <label class="fld" for="avAspect">Aspect</label>
+      <select id="avAspect"><option value="9:16">9:16 vertical</option><option value="1:1">1:1 square</option><option value="4:5">4:5 portrait</option><option value="16:9">16:9 wide</option></select>
+      <button class="btn gold block" id="avGen" style="margin-top:14px">✨ Generate (4 credits)</button>
+      <div class="note" id="avGenNote"></div>
+      <div class="result" id="avResult" style="margin-top:12px;min-height:300px"><div class="muted">Your consistent-face image appears here.</div></div>
+    </div>
+  </section>
+
   <!-- ===== MARKETPLACE ===== -->
   <section class="view" id="view-market">
     <div class="backlink" id="marketBack">← Studios</div>
