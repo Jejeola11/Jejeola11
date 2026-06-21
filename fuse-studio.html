@@ -377,6 +377,22 @@ textarea{min-height:104px;resize:vertical}
 .refthumb{width:46px;height:46px;border-radius:8px;object-fit:cover;border:1px solid var(--line)}
 @media (max-width:560px){ .builder{grid-template-columns:1fr} }
 
+/* model gallery (Higgsfield-style) */
+.mtabs{display:flex;gap:8px;margin:6px 0 14px;position:sticky;top:62px;background:var(--bg);padding:6px 0;z-index:20}
+.mtab{flex:0 0 auto;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:9px 16px;font-weight:700;font-size:14px;cursor:pointer}
+.mtab.active{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1205;border-color:transparent}
+.mcard{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel);cursor:pointer;transition:border-color .12s,transform .12s}
+.mcard:hover{border-color:var(--gold);transform:translateY(-2px)}
+.mcard .msample{aspect-ratio:1;background:linear-gradient(160deg,var(--panel-2),var(--bg-2));display:grid;place-items:center;color:#6f928b;font-size:11px;border-bottom:1px solid var(--line)}
+.mcard .msample img,.mcard .msample video{width:100%;height:100%;object-fit:cover}
+.mcard .minfo{padding:10px 12px}
+.mcard .mn{font-family:"Bricolage Grotesque";font-weight:800;font-size:14px}
+.mcard .mb{font-size:11px;color:var(--muted)}
+.mcard .mc{font-size:12px;color:var(--gold);font-weight:700;margin-top:4px}
+#modelGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (min-width:560px){ #modelGrid{grid-template-columns:repeat(3,1fr)} }
+.result video{border-radius:14px;max-height:560px;width:auto;box-shadow:var(--shadow)}
+
 
 </style>
 <script>
@@ -418,6 +434,29 @@ window.FUSE = {
     { key: 'avatar',   name: 'AI Avatar Studio',       icon: '🧑‍🎨', tag: 'BETA',    desc: 'Your consistent character face',
       template: 'professional portrait of {input}, consistent character, studio lighting, sharp detail, identity reference',
       advanced: true },
+  ],
+
+  // ===== Model catalog (Higgsfield-style gallery) =====
+  // slug must match netlify/functions/_packs.js. `sample` is a placeholder you
+  // can later swap for a real sample image/video URL.
+  IMAGE_MODELS: [
+    { slug: 'nano-banana',           name: 'Nano Banana',     badge: 'Google',    credits: 2, sample: '' },
+    { slug: 'flux-pro',              name: 'Flux Pro',        badge: 'Best',      credits: 4, sample: '' },
+    { slug: 'flux-dev',              name: 'Flux Dev',        badge: 'Quality',   credits: 2, sample: '' },
+    { slug: 'flux-schnell',          name: 'Flux Schnell',    badge: 'Fast',      credits: 1, sample: '' },
+    { slug: 'google-imagen4',        name: 'Imagen 4',        badge: 'Google',    credits: 3, sample: '' },
+    { slug: 'google-imagen4-fast',   name: 'Imagen 4 Fast',   badge: 'Google',    credits: 2, sample: '' },
+    { slug: 'google-imagen4-ultra',  name: 'Imagen 4 Ultra',  badge: 'Google',    credits: 5, sample: '' },
+    { slug: 'bytedance-seedream-v4', name: 'Seedream v4',     badge: 'ByteDance', credits: 3, sample: '' },
+    { slug: 'hunyuan-image-2.1',     name: 'Hunyuan 2.1',     badge: 'Tencent',   credits: 3, sample: '' },
+    { slug: 'sdxl',                  name: 'SDXL',            badge: 'Stability', credits: 2, sample: '' },
+  ],
+  VIDEO_MODELS: [
+    { slug: 'seedance-lite', name: 'Seedance Lite', badge: 'ByteDance', credits: 20, sample: '' },
+    { slug: 'seedance-pro',  name: 'Seedance Pro',  badge: 'ByteDance', credits: 40, sample: '' },
+    { slug: 'kling',         name: 'Kling',         badge: 'Kuaishou',  credits: 50, sample: '' },
+    { slug: 'hailuo',        name: 'Hailuo',        badge: 'MiniMax',   credits: 40, sample: '' },
+    { slug: 'veo',           name: 'Google Veo',    badge: 'Google',    credits: 60, sample: '' },
   ],
 
   // Quick preset chips on Home.
@@ -570,6 +609,41 @@ window.FUSE = {
     <a class="btn ghost block" id="learnCourse" style="margin-top:10px">🎬 Get the full Fuse Atelier course</a>
   </section>
 
+  <!-- ===== MODEL GALLERY (Image / Video / Reactor) ===== -->
+  <section class="view" id="view-models">
+    <div class="mtabs">
+      <button class="mtab active" data-kind="image"><span>🖼</span> Image</button>
+      <button class="mtab" data-kind="video"><span>🎬</span> Video</button>
+      <button class="mtab" data-kind="reactor"><span>⚛️</span> Reactor</button>
+    </div>
+    <input id="modelSearch" placeholder="🔍 Search models…">
+    <div id="modelGrid" style="margin-top:12px"></div>
+  </section>
+
+  <!-- ===== VIDEO STUDIO ===== -->
+  <section class="view" id="view-video">
+    <div class="backlink" id="videoBack">← Models</div>
+    <div class="studio-head"><div class="ic">🎬</div><div><h2 id="vModelName">Video</h2><p>Animate a prompt — or an image — into motion</p></div></div>
+    <div class="panel" style="margin-top:14px">
+      <div class="refbtn" id="vRefBtn"><span>🖼 Add a starting image (image→video, optional)</span></div>
+      <input id="vRefFile" type="file" accept="image/*" style="display:none">
+      <div id="vRefPreview" style="display:none;align-items:center;gap:10px;margin-top:8px">
+        <img id="vRefThumb" class="refthumb" alt="ref"><span class="muted" style="font-size:13px">Starting image attached</span>
+        <button class="btn ghost sm" id="vRefRemove" style="margin-left:auto">Remove</button>
+      </div>
+      <label class="fld" for="vPrompt">Describe the motion / scene</label>
+      <textarea id="vPrompt" placeholder="e.g. she turns to camera and smiles, cinematic slow zoom, golden light"></textarea>
+      <div class="row2">
+        <div><label class="fld">Aspect</label><select id="vAspect"><option>16:9</option><option>9:16</option><option>1:1</option></select></div>
+        <div><label class="fld">Duration</label><select id="vDuration"><option>5s</option><option>10s</option></select></div>
+      </div>
+      <label class="fld">Resolution</label><select id="vRes"><option>480p</option><option>720p</option><option>1080p</option></select>
+      <button class="btn gold block" id="vGen" style="margin-top:14px">🎬 Generate video</button>
+      <div class="note" id="vNote"></div>
+    </div>
+    <div class="result" id="vResult" style="margin-top:12px"><div class="muted">Your video appears here. Video takes a little longer ⏳</div></div>
+  </section>
+
   <!-- ===== STUDIO (generator — used by Generate + all studios) ===== -->
   <section class="view" id="view-studio">
     <div class="backlink" id="studioBack">← Studios</div>
@@ -689,7 +763,7 @@ window.FUSE = {
   <div class="in">
     <button class="tab active" data-view="home"><span class="ti">🏠</span>Home</button>
     <button class="tab" data-view="community"><span class="ti">👥</span>Community</button>
-    <button class="tab center" data-view="studio" data-studio="generate"><span class="ti">✨</span>Create</button>
+    <button class="tab center" data-view="models"><span class="ti">✨</span>Create</button>
     <button class="tab" data-view="library"><span class="ti">📚</span>Library</button>
     <button class="tab" data-view="profile"><span class="ti">👤</span>Profile</button>
   </div>
@@ -793,6 +867,87 @@ function showView(name, opts = {}) {
   if (name === 'profile') loadProfile();
   if (name === 'community') loadChallenges();
   if (name === 'reactor') buildReactor();
+  if (name === 'models') buildModels(modelKind);
+}
+
+// ---------------- model gallery (Image / Video / Reactor) ----------------
+let modelKind = 'image';
+function buildModels(kind) {
+  modelKind = kind || 'image';
+  document.querySelectorAll('.mtab').forEach((t) => t.classList.toggle('active', t.dataset.kind === modelKind));
+  if (modelKind === 'reactor') { showView('reactor'); return; }
+  const list = modelKind === 'video' ? cfg.VIDEO_MODELS : cfg.IMAGE_MODELS;
+  const q = ($('modelSearch').value || '').toLowerCase();
+  const shown = list.filter((m) => m.name.toLowerCase().includes(q) || m.badge.toLowerCase().includes(q));
+  $('modelGrid').innerHTML = shown.map((m) => {
+    const media = m.sample
+      ? (modelKind === 'video' ? `<video src="${m.sample}" muted loop playsinline></video>` : `<img src="${m.sample}">`)
+      : '＋ add sample';
+    return `<div class="mcard" data-slug="${m.slug}"><div class="msample">${media}</div>
+      <div class="minfo"><div class="mn">${m.name}</div><div class="mb">${m.badge}</div><div class="mc">${m.credits} cr</div></div></div>`;
+  }).join('');
+  $('modelGrid').querySelectorAll('.mcard').forEach((el) => el.onclick = () => {
+    modelKind === 'video' ? openVideo(el.dataset.slug) : openImageModel(el.dataset.slug);
+  });
+}
+function openImageModel(slug) {
+  openStudio('generate');
+  buildModelSelect();
+  $('model').value = slug;
+}
+function buildModelSelect() {
+  $('model').innerHTML = cfg.IMAGE_MODELS.map((m) => `<option value="${m.slug}">${m.name} (${m.credits})</option>`).join('');
+}
+
+// ---------------- video studio ----------------
+let vModel = null, vRefUrl = '';
+function openVideo(slug) {
+  vModel = cfg.VIDEO_MODELS.find((m) => m.slug === slug) || cfg.VIDEO_MODELS[0];
+  $('vModelName').textContent = vModel.name + ' · ' + vModel.credits + ' cr';
+  $('vResult').innerHTML = '<div class="muted">Your video appears here. Video takes a little longer ⏳</div>';
+  $('vGen').textContent = `🎬 Generate video (${vModel.credits} credits)`;
+  vRefUrl = ''; $('vRefPreview').style.display = 'none'; $('vRefBtn').style.display = 'flex';
+  note('vNote', '');
+  showView('video');
+}
+async function pickVideoRef(file) {
+  if (preview) { showAuth('signup'); return; }
+  if (!file) return;
+  note('vNote', 'Uploading image…', 'ok');
+  try {
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = `${user.id}/v-${Date.now()}.${ext}`;
+    const { error } = await sb.storage.from('avatars').upload(path, file);
+    if (error) throw error;
+    vRefUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    $('vRefThumb').src = vRefUrl; $('vRefPreview').style.display = 'flex'; $('vRefBtn').style.display = 'none';
+    note('vNote', '✅ Starting image attached.', 'ok');
+  } catch (e) { note('vNote', e.message || 'Upload failed.', 'err'); }
+}
+async function videoGenerate() {
+  if (preview) { showAuth('signup'); return; }
+  if (!vModel) return;
+  const prompt = $('vPrompt').value.trim();
+  if (!prompt && !vRefUrl) return note('vNote', 'Add a prompt or a starting image.', 'err');
+  const btn = $('vGen'); btn.disabled = true; btn.textContent = 'Generating…';
+  $('vResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Rendering your video… this can take 1–3 min</div></div>';
+  note('vNote', '');
+  let t = 0; const iv = setInterval(() => { t += 3; const d = $('vResult').querySelector('div div'); if (d) d.textContent = `Rendering… (${t}s)`; }, 3000);
+  try {
+    const res = await fetch('/.netlify/functions/video-generate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ model: vModel.slug, prompt, aspect: $('vAspect').value, duration: $('vDuration').value, resolution: $('vRes').value, image_url: vRefUrl || undefined }),
+    });
+    const data = await res.json(); clearInterval(iv);
+    if (res.status === 402) { note('vNote', 'Out of credits — top up.', 'err'); openBuy(); $('vResult').innerHTML = '<div>Out of credits.</div>'; }
+    else if (!res.ok) throw new Error(data.error || 'Failed');
+    else {
+      $('creditCount').textContent = data.credits;
+      $('vResult').innerHTML = `<div><video src="${data.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
+      note('vNote', 'Done ✅', 'ok');
+    }
+  } catch (e) { clearInterval(iv); $('vResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('vNote', e.message || 'Failed — credits not charged.', 'err'); }
+  btn.disabled = false; btn.textContent = `🎬 Generate video (${vModel.credits} credits)`;
 }
 
 function openStudio(key) {
@@ -1308,6 +1463,15 @@ window.addEventListener('DOMContentLoaded', () => {
   $('refBtn').onclick = () => $('refFile').click();
   $('refFile').onchange = (e) => pickReference(e.target.files[0]);
   $('refRemove').onclick = removeReference;
+  // model gallery + video studio
+  document.querySelectorAll('.mtab').forEach((t) => t.onclick = () => buildModels(t.dataset.kind));
+  $('modelSearch').oninput = () => buildModels(modelKind);
+  $('videoBack').onclick = () => showView('models');
+  $('vGen').onclick = videoGenerate;
+  $('vRefBtn').onclick = () => $('vRefFile').click();
+  $('vRefFile').onchange = (e) => pickVideoRef(e.target.files[0]);
+  $('vRefRemove').onclick = () => { vRefUrl = ''; $('vRefPreview').style.display = 'none'; $('vRefBtn').style.display = 'flex'; $('vRefFile').value = ''; };
+  buildModelSelect();
   $('seeLib').onclick = () => showView('library');
   $('streakBtn').onclick = claimDaily;
   $('mpPublish').onclick = publishPreset;

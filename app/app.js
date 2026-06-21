@@ -38,6 +38,87 @@ function showView(name, opts = {}) {
   if (name === 'profile') loadProfile();
   if (name === 'community') loadChallenges();
   if (name === 'reactor') buildReactor();
+  if (name === 'models') buildModels(modelKind);
+}
+
+// ---------------- model gallery (Image / Video / Reactor) ----------------
+let modelKind = 'image';
+function buildModels(kind) {
+  modelKind = kind || 'image';
+  document.querySelectorAll('.mtab').forEach((t) => t.classList.toggle('active', t.dataset.kind === modelKind));
+  if (modelKind === 'reactor') { showView('reactor'); return; }
+  const list = modelKind === 'video' ? cfg.VIDEO_MODELS : cfg.IMAGE_MODELS;
+  const q = ($('modelSearch').value || '').toLowerCase();
+  const shown = list.filter((m) => m.name.toLowerCase().includes(q) || m.badge.toLowerCase().includes(q));
+  $('modelGrid').innerHTML = shown.map((m) => {
+    const media = m.sample
+      ? (modelKind === 'video' ? `<video src="${m.sample}" muted loop playsinline></video>` : `<img src="${m.sample}">`)
+      : '＋ add sample';
+    return `<div class="mcard" data-slug="${m.slug}"><div class="msample">${media}</div>
+      <div class="minfo"><div class="mn">${m.name}</div><div class="mb">${m.badge}</div><div class="mc">${m.credits} cr</div></div></div>`;
+  }).join('');
+  $('modelGrid').querySelectorAll('.mcard').forEach((el) => el.onclick = () => {
+    modelKind === 'video' ? openVideo(el.dataset.slug) : openImageModel(el.dataset.slug);
+  });
+}
+function openImageModel(slug) {
+  openStudio('generate');
+  buildModelSelect();
+  $('model').value = slug;
+}
+function buildModelSelect() {
+  $('model').innerHTML = cfg.IMAGE_MODELS.map((m) => `<option value="${m.slug}">${m.name} (${m.credits})</option>`).join('');
+}
+
+// ---------------- video studio ----------------
+let vModel = null, vRefUrl = '';
+function openVideo(slug) {
+  vModel = cfg.VIDEO_MODELS.find((m) => m.slug === slug) || cfg.VIDEO_MODELS[0];
+  $('vModelName').textContent = vModel.name + ' · ' + vModel.credits + ' cr';
+  $('vResult').innerHTML = '<div class="muted">Your video appears here. Video takes a little longer ⏳</div>';
+  $('vGen').textContent = `🎬 Generate video (${vModel.credits} credits)`;
+  vRefUrl = ''; $('vRefPreview').style.display = 'none'; $('vRefBtn').style.display = 'flex';
+  note('vNote', '');
+  showView('video');
+}
+async function pickVideoRef(file) {
+  if (preview) { showAuth('signup'); return; }
+  if (!file) return;
+  note('vNote', 'Uploading image…', 'ok');
+  try {
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = `${user.id}/v-${Date.now()}.${ext}`;
+    const { error } = await sb.storage.from('avatars').upload(path, file);
+    if (error) throw error;
+    vRefUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    $('vRefThumb').src = vRefUrl; $('vRefPreview').style.display = 'flex'; $('vRefBtn').style.display = 'none';
+    note('vNote', '✅ Starting image attached.', 'ok');
+  } catch (e) { note('vNote', e.message || 'Upload failed.', 'err'); }
+}
+async function videoGenerate() {
+  if (preview) { showAuth('signup'); return; }
+  if (!vModel) return;
+  const prompt = $('vPrompt').value.trim();
+  if (!prompt && !vRefUrl) return note('vNote', 'Add a prompt or a starting image.', 'err');
+  const btn = $('vGen'); btn.disabled = true; btn.textContent = 'Generating…';
+  $('vResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Rendering your video… this can take 1–3 min</div></div>';
+  note('vNote', '');
+  let t = 0; const iv = setInterval(() => { t += 3; const d = $('vResult').querySelector('div div'); if (d) d.textContent = `Rendering… (${t}s)`; }, 3000);
+  try {
+    const res = await fetch('/.netlify/functions/video-generate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ model: vModel.slug, prompt, aspect: $('vAspect').value, duration: $('vDuration').value, resolution: $('vRes').value, image_url: vRefUrl || undefined }),
+    });
+    const data = await res.json(); clearInterval(iv);
+    if (res.status === 402) { note('vNote', 'Out of credits — top up.', 'err'); openBuy(); $('vResult').innerHTML = '<div>Out of credits.</div>'; }
+    else if (!res.ok) throw new Error(data.error || 'Failed');
+    else {
+      $('creditCount').textContent = data.credits;
+      $('vResult').innerHTML = `<div><video src="${data.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
+      note('vNote', 'Done ✅', 'ok');
+    }
+  } catch (e) { clearInterval(iv); $('vResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('vNote', e.message || 'Failed — credits not charged.', 'err'); }
+  btn.disabled = false; btn.textContent = `🎬 Generate video (${vModel.credits} credits)`;
 }
 
 function openStudio(key) {
@@ -550,6 +631,15 @@ window.addEventListener('DOMContentLoaded', () => {
   $('refBtn').onclick = () => $('refFile').click();
   $('refFile').onchange = (e) => pickReference(e.target.files[0]);
   $('refRemove').onclick = removeReference;
+  // model gallery + video studio
+  document.querySelectorAll('.mtab').forEach((t) => t.onclick = () => buildModels(t.dataset.kind));
+  $('modelSearch').oninput = () => buildModels(modelKind);
+  $('videoBack').onclick = () => showView('models');
+  $('vGen').onclick = videoGenerate;
+  $('vRefBtn').onclick = () => $('vRefFile').click();
+  $('vRefFile').onchange = (e) => pickVideoRef(e.target.files[0]);
+  $('vRefRemove').onclick = () => { vRefUrl = ''; $('vRefPreview').style.display = 'none'; $('vRefBtn').style.display = 'flex'; $('vRefFile').value = ''; };
+  buildModelSelect();
   $('seeLib').onclick = () => showView('library');
   $('streakBtn').onclick = claimDaily;
   $('mpPublish').onclick = publishPreset;

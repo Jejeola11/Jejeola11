@@ -29,13 +29,33 @@ const REFERRAL = { reward: 30, bonus: 15 };
 // Update to taste; pricing should be value-based, not a strict FX conversion.
 const USD_RATE = 1550;
 
-// Credits charged per generation, by model. Image only for now (video later).
-const MODEL_COST = {
+// Image models (MuAPI slug -> credits charged). One MuAPI key unlocks all of them.
+// If a slug ever errors, correct it from muapi.ai (open-gen / API docs) — the
+// slug here is exactly what we POST to /api/v1/{slug}.
+const IMAGE_MODELS = {
   'flux-schnell': 1,
-  'flux-dev':     2,
-  'nano-banana':  2,
-  'flux-pro':     4,
+  'flux-dev': 2,
+  'nano-banana': 2,
+  'flux-pro': 4,
+  'google-imagen4-fast': 2,
+  'google-imagen4': 3,
+  'google-imagen4-ultra': 5,
+  'bytedance-seedream-v4': 3,
+  'hunyuan-image-2.1': 3,
+  'sdxl': 2,
 };
+
+// Video models (MuAPI slug -> credits). Video is pricier — price with margin.
+const VIDEO_MODELS = {
+  'seedance-lite': 20,
+  'seedance-pro': 40,
+  'kling': 50,
+  'hailuo': 40,
+  'veo': 60,
+};
+
+// Back-compat alias.
+const MODEL_COST = IMAGE_MODELS;
 
 // Fuse Reactor — text-AI costs (credits per message). Cheap; included on paid plans.
 const REACTOR_COST = {
@@ -44,4 +64,4 @@ const REACTOR_COST = {
   'openai/gpt-4o-mini': 1,
 };
 
-module.exports = { PACKS, MODEL_COST, REFERRAL, USD_RATE, REACTOR_COST };
+module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, REFERRAL, USD_RATE, REACTOR_COST };

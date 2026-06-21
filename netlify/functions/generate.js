@@ -7,7 +7,7 @@
 //   4. record the generation, return the image URL + new balance
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
-const { MODEL_COST } = require('./_packs');
+const { IMAGE_MODELS } = require('./_packs');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
@@ -78,7 +78,7 @@ exports.handler = async (event) => {
   const ref = (body.reference_image_url || '').trim();
   if (!prompt) return json(400, { error: 'Add a prompt first.' });
   const useRef = ref && process.env.FAL_KEY;       // reference only applies when fal is connected
-  const cost = useRef ? 2 : MODEL_COST[model];
+  const cost = useRef ? 2 : IMAGE_MODELS[model];
   if (!cost) return json(400, { error: 'Unknown model.' });
 
   const db = admin();

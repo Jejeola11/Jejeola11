@@ -38,6 +38,29 @@ window.FUSE = {
       advanced: true },
   ],
 
+  // ===== Model catalog (Higgsfield-style gallery) =====
+  // slug must match netlify/functions/_packs.js. `sample` is a placeholder you
+  // can later swap for a real sample image/video URL.
+  IMAGE_MODELS: [
+    { slug: 'nano-banana',           name: 'Nano Banana',     badge: 'Google',    credits: 2, sample: '' },
+    { slug: 'flux-pro',              name: 'Flux Pro',        badge: 'Best',      credits: 4, sample: '' },
+    { slug: 'flux-dev',              name: 'Flux Dev',        badge: 'Quality',   credits: 2, sample: '' },
+    { slug: 'flux-schnell',          name: 'Flux Schnell',    badge: 'Fast',      credits: 1, sample: '' },
+    { slug: 'google-imagen4',        name: 'Imagen 4',        badge: 'Google',    credits: 3, sample: '' },
+    { slug: 'google-imagen4-fast',   name: 'Imagen 4 Fast',   badge: 'Google',    credits: 2, sample: '' },
+    { slug: 'google-imagen4-ultra',  name: 'Imagen 4 Ultra',  badge: 'Google',    credits: 5, sample: '' },
+    { slug: 'bytedance-seedream-v4', name: 'Seedream v4',     badge: 'ByteDance', credits: 3, sample: '' },
+    { slug: 'hunyuan-image-2.1',     name: 'Hunyuan 2.1',     badge: 'Tencent',   credits: 3, sample: '' },
+    { slug: 'sdxl',                  name: 'SDXL',            badge: 'Stability', credits: 2, sample: '' },
+  ],
+  VIDEO_MODELS: [
+    { slug: 'seedance-lite', name: 'Seedance Lite', badge: 'ByteDance', credits: 20, sample: '' },
+    { slug: 'seedance-pro',  name: 'Seedance Pro',  badge: 'ByteDance', credits: 40, sample: '' },
+    { slug: 'kling',         name: 'Kling',         badge: 'Kuaishou',  credits: 50, sample: '' },
+    { slug: 'hailuo',        name: 'Hailuo',        badge: 'MiniMax',   credits: 40, sample: '' },
+    { slug: 'veo',           name: 'Google Veo',    badge: 'Google',    credits: 60, sample: '' },
+  ],
+
   // Quick preset chips on Home.
   PRESETS: ['Nigerian entrepreneur', 'Luxury skincare brand', 'Fashion lookbook', 'Tech startup founder', 'Food product ad', 'Cinematic portrait'],
 

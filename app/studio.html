@@ -117,6 +117,41 @@
     <a class="btn ghost block" id="learnCourse" style="margin-top:10px">🎬 Get the full Fuse Atelier course</a>
   </section>
 
+  <!-- ===== MODEL GALLERY (Image / Video / Reactor) ===== -->
+  <section class="view" id="view-models">
+    <div class="mtabs">
+      <button class="mtab active" data-kind="image"><span>🖼</span> Image</button>
+      <button class="mtab" data-kind="video"><span>🎬</span> Video</button>
+      <button class="mtab" data-kind="reactor"><span>⚛️</span> Reactor</button>
+    </div>
+    <input id="modelSearch" placeholder="🔍 Search models…">
+    <div id="modelGrid" style="margin-top:12px"></div>
+  </section>
+
+  <!-- ===== VIDEO STUDIO ===== -->
+  <section class="view" id="view-video">
+    <div class="backlink" id="videoBack">← Models</div>
+    <div class="studio-head"><div class="ic">🎬</div><div><h2 id="vModelName">Video</h2><p>Animate a prompt — or an image — into motion</p></div></div>
+    <div class="panel" style="margin-top:14px">
+      <div class="refbtn" id="vRefBtn"><span>🖼 Add a starting image (image→video, optional)</span></div>
+      <input id="vRefFile" type="file" accept="image/*" style="display:none">
+      <div id="vRefPreview" style="display:none;align-items:center;gap:10px;margin-top:8px">
+        <img id="vRefThumb" class="refthumb" alt="ref"><span class="muted" style="font-size:13px">Starting image attached</span>
+        <button class="btn ghost sm" id="vRefRemove" style="margin-left:auto">Remove</button>
+      </div>
+      <label class="fld" for="vPrompt">Describe the motion / scene</label>
+      <textarea id="vPrompt" placeholder="e.g. she turns to camera and smiles, cinematic slow zoom, golden light"></textarea>
+      <div class="row2">
+        <div><label class="fld">Aspect</label><select id="vAspect"><option>16:9</option><option>9:16</option><option>1:1</option></select></div>
+        <div><label class="fld">Duration</label><select id="vDuration"><option>5s</option><option>10s</option></select></div>
+      </div>
+      <label class="fld">Resolution</label><select id="vRes"><option>480p</option><option>720p</option><option>1080p</option></select>
+      <button class="btn gold block" id="vGen" style="margin-top:14px">🎬 Generate video</button>
+      <div class="note" id="vNote"></div>
+    </div>
+    <div class="result" id="vResult" style="margin-top:12px"><div class="muted">Your video appears here. Video takes a little longer ⏳</div></div>
+  </section>
+
   <!-- ===== STUDIO (generator — used by Generate + all studios) ===== -->
   <section class="view" id="view-studio">
     <div class="backlink" id="studioBack">← Studios</div>
@@ -236,7 +271,7 @@
   <div class="in">
     <button class="tab active" data-view="home"><span class="ti">🏠</span>Home</button>
     <button class="tab" data-view="community"><span class="ti">👥</span>Community</button>
-    <button class="tab center" data-view="studio" data-studio="generate"><span class="ti">✨</span>Create</button>
+    <button class="tab center" data-view="models"><span class="ti">✨</span>Create</button>
     <button class="tab" data-view="library"><span class="ti">📚</span>Library</button>
     <button class="tab" data-view="profile"><span class="ti">👤</span>Profile</button>
   </div>
