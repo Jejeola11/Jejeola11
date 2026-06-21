@@ -69,6 +69,19 @@
 
     <div class="panel" id="avGenWrap" style="margin-top:14px;display:none">
       <h3>🎬 Generate with <span id="avSelName" class="gold"></span></h3>
+
+      <details style="margin-bottom:12px">
+        <summary style="cursor:pointer;color:var(--gold);font-weight:700;font-size:14px">🧬 Consistent avatar prompt builder</summary>
+        <p class="muted" style="font-size:12px;margin:8px 0">Pick a few options and we'll write a strong, consistent prompt for you.</p>
+        <div class="builder">
+          <select id="bSetting"><option value="">Setting…</option><option>modern Lagos office</option><option>luxury studio backdrop</option><option>outdoor city street</option><option>elegant event / owambe</option><option>cozy home interior</option><option>fashion runway</option></select>
+          <select id="bOutfit"><option value="">Outfit / style…</option><option>sharp business suit</option><option>stylish aso-ebi</option><option>casual streetwear</option><option>elegant evening wear</option><option>creative artsy look</option></select>
+          <select id="bLight"><option value="">Lighting / mood…</option><option>soft studio light</option><option>golden hour glow</option><option>dramatic cinematic light</option><option>bright clean daylight</option><option>moody editorial</option></select>
+          <select id="bShot"><option value="">Shot type…</option><option>close-up portrait</option><option>half-body shot</option><option>full-body shot</option><option>magazine cover</option></select>
+        </div>
+        <button class="btn ghost block" id="bBuild" style="margin-top:10px">Write my prompt ✍️</button>
+      </details>
+
       <label class="fld" for="avPrompt">Describe the scene</label>
       <textarea id="avPrompt" placeholder="e.g. CEO in a modern Lagos office, navy suit, magazine cover lighting"></textarea>
       <label class="fld" for="avAspect">Aspect</label>
@@ -133,6 +146,13 @@
             <option value="16:9">16:9 wide</option>
           </select>
         </div>
+      </div>
+      <div class="refbtn" id="refBtn"><span>🖼 Add an image reference (optional)</span></div>
+      <input id="refFile" type="file" accept="image/*" style="display:none">
+      <div id="refPreview" style="display:none;align-items:center;gap:10px;margin-top:8px">
+        <img id="refThumb" class="refthumb" alt="reference">
+        <span class="muted" style="font-size:13px">Reference attached</span>
+        <button class="btn ghost sm" id="refRemove" style="margin-left:auto">Remove</button>
       </div>
       <button class="btn gold block" id="genBtn" style="margin-top:16px">✨ Generate</button>
       <div class="note" id="genNote"></div>
@@ -223,6 +243,17 @@
 </nav>
 
 <div class="previewRibbon" id="previewRibbon" style="display:none">👀 Preview mode — sign up to generate</div>
+
+<!-- ===== Onboarding quiz (before signup) ===== -->
+<div class="overlay" id="quizOverlay" style="display:none">
+  <div class="modal">
+    <div class="qprog" id="qProg"></div>
+    <h2 id="qTitle" style="text-align:center;margin:0 0 4px">Welcome 👋</h2>
+    <p class="muted" id="qSub" style="text-align:center;margin:0 0 16px">Let's tailor Fuse Studio to you.</p>
+    <div id="qOptions"></div>
+    <div class="switch" style="margin-top:6px"><a id="qSkip">Skip</a></div>
+  </div>
+</div>
 
 <!-- ===== Auth overlay ===== -->
 <div class="overlay" id="authOverlay" style="display:none">

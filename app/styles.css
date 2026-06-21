@@ -305,3 +305,64 @@ textarea{min-height:104px;resize:vertical}
 .mp .mt{font-family:"Bricolage Grotesque";font-weight:800;font-size:14px}
 .mp .mu{font-size:12px;color:var(--muted)}
 
+/* ============================================================
+   LANDING (Higgsfield-style structure, teal + gold)
+   ============================================================ */
+.promobar{background:linear-gradient(90deg,var(--gold),var(--gold-deep));color:#1a1205;text-align:center;font-weight:800;font-size:12.5px;padding:8px 14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+.promobar .tag{background:#1a1205;color:var(--gold);border-radius:999px;padding:3px 10px;font-size:11px}
+.promobar .cd{background:#7a1f1f;color:#fff;border-radius:999px;padding:3px 10px;font-size:11px}
+
+.lhero{text-align:center;padding:48px 0 20px}
+.lhero h1.display{font-size:clamp(34px,8vw,72px)}
+.lhero .lede{max-width:620px;margin:16px auto 0;color:var(--muted);font-size:17px}
+.secretstrip{display:inline-flex;gap:8px;align-items:center;margin:20px auto 14px;background:rgba(122,31,31,.25);border:1px solid #7a1f1f;color:#ffb3a3;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700}
+
+/* placeholder media boxes (she fills later) */
+.ph{border:2px dashed var(--line);border-radius:var(--radius);background:linear-gradient(160deg,var(--panel),var(--bg-2));display:grid;place-items:center;text-align:center;color:var(--muted);padding:20px;position:relative}
+.ph .lbl{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.ph small{display:block;color:#6f928b;margin-top:4px;font-size:11px}
+.ph.v169{aspect-ratio:16/9}
+.ph.v34{aspect-ratio:3/4}
+.ph.v11{aspect-ratio:1/1}
+.ph:hover{border-color:var(--gold)}
+
+.partners{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:18px;opacity:.8}
+.partners .pchip{border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;color:var(--muted)}
+
+.showrow{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch}
+.showrow .ph{min-width:200px}
+
+/* comparison table */
+.cmp{width:100%;border-collapse:collapse;margin-top:14px}
+.cmp th,.cmp td{padding:12px 10px;text-align:left;border-bottom:1px solid var(--line);font-size:14px}
+.cmp th{font-family:"Bricolage Grotesque";font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+.cmp .col-pro{color:var(--gold);text-align:center}
+.cmp td.mid{text-align:center;color:var(--muted)}
+.cmp td.yes{text-align:center;color:var(--gold);font-weight:800}
+.cmp .pro-cell{background:rgba(231,194,92,.07)}
+
+/* FAQ */
+.faq details{border:1px solid var(--line);border-radius:14px;padding:0 16px;margin-bottom:10px;background:var(--panel)}
+.faq summary{cursor:pointer;padding:16px 0;font-weight:700;font-family:"Archivo";list-style:none;display:flex;justify-content:space-between;align-items:center}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--gold);font-size:20px;font-weight:800}
+.faq details[open] summary::after{content:"–"}
+.faq p{margin:0 0 16px;color:var(--muted);font-size:14px}
+
+/* onboarding quiz */
+.quizopt{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:14px;padding:15px 16px;background:var(--bg-2);cursor:pointer;margin-bottom:10px;transition:border-color .12s}
+.quizopt:hover,.quizopt.sel{border-color:var(--gold)}
+.quizopt .qi{font-size:18px;margin-right:4px}
+.quizopt .dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);flex:0 0 auto}
+.quizopt.sel .dot{border-color:var(--gold);background:var(--gold)}
+.qprog{display:flex;gap:6px;justify-content:center;margin-bottom:16px}
+.qprog i{width:28px;height:4px;border-radius:2px;background:var(--line)}
+.qprog i.on{background:var(--gold)}
+
+/* avatar prompt builder + reference upload */
+.builder{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.refbtn{display:flex;align-items:center;gap:10px;border:1px dashed var(--line);border-radius:12px;padding:12px;cursor:pointer;color:var(--muted);font-size:13px;margin-top:8px}
+.refbtn:hover{border-color:var(--gold);color:var(--gold)}
+.refthumb{width:46px;height:46px;border-radius:8px;object-fit:cover;border:1px solid var(--line)}
+@media (max-width:560px){ .builder{grid-template-columns:1fr} }
+

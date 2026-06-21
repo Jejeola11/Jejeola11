@@ -14,6 +14,7 @@ let preview = false;
 let showUsd = false;
 let activeStudio = cfg.STUDIOS[0];
 let lastPrompt = '';
+let refUrl = '';   // optional image reference for the main generator
 
 const naira = (n) => '₦' + Number(n).toLocaleString();
 const usd = (n) => '$' + Math.round(n / cfg.USD_RATE);
@@ -124,7 +125,7 @@ async function generate() {
   try {
     const res = await fetch('/.netlify/functions/generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ prompt, model, aspect }),
+      body: JSON.stringify({ prompt, model, aspect, reference_image_url: refUrl || undefined }),
     });
     const data = await res.json(); clearInterval(iv);
     if (res.status === 402) { note('genNote', 'Out of credits — top up to keep creating.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; }
@@ -402,6 +403,70 @@ function maybePromo() {
   }, 9000);
 }
 
+// ---------------- onboarding quiz (short, before signup) ----------------
+const QUIZ = [
+  { title: 'What do you want to create?', sub: "We'll tailor your studio.",
+    options: [
+      { i: '🎯', t: 'Brand & product visuals', v: 'brand' },
+      { i: '🎬', t: 'UGC & ad content', v: 'ugc' },
+      { i: '🧑‍🎨', t: 'A consistent avatar of me', v: 'avatar' },
+      { i: '🎥', t: 'Movie / cinematic scenes', v: 'movie' },
+    ] },
+  { title: 'What frustrates you most about AI tools?', sub: 'Fuse fixes these.',
+    options: [
+      { i: '😵', t: 'Inconsistent faces', v: 'consistency' },
+      { i: '✍️', t: 'Prompting is too hard', v: 'prompting' },
+      { i: '💸', t: 'Too expensive', v: 'cost' },
+      { i: '🐌', t: 'Too slow', v: 'speed' },
+    ] },
+];
+let quizStep = 0; const quizAns = [];
+function showQuiz() { quizStep = 0; renderQuiz(); $('quizOverlay').style.display = 'grid'; }
+function renderQuiz() {
+  const q = QUIZ[quizStep];
+  $('qTitle').textContent = q.title; $('qSub').textContent = q.sub;
+  $('qProg').innerHTML = QUIZ.map((_, i) => `<i class="${i <= quizStep ? 'on' : ''}"></i>`).join('');
+  $('qOptions').innerHTML = q.options.map((o) =>
+    `<div class="quizopt" data-v="${o.v}"><span><span class="qi">${o.i}</span> ${o.t}</span><span class="dot"></span></div>`).join('');
+  $('qOptions').querySelectorAll('.quizopt').forEach((el) => el.onclick = () => {
+    quizAns[quizStep] = el.dataset.v;
+    el.classList.add('sel');
+    setTimeout(nextQuiz, 220);
+  });
+}
+function nextQuiz() {
+  if (quizStep < QUIZ.length - 1) { quizStep++; renderQuiz(); return; }
+  localStorage.setItem('fuse_quiz', JSON.stringify(quizAns));
+  $('quizOverlay').style.display = 'none';
+  showAuth('signup');
+}
+function skipQuiz() { localStorage.setItem('fuse_quiz', 'skip'); $('quizOverlay').style.display = 'none'; showAuth('signup'); }
+
+// ---------------- avatar prompt builder ----------------
+function buildAvatarPrompt() {
+  const parts = ['professional consistent-character portrait'];
+  ['bSetting', 'bOutfit', 'bLight', 'bShot'].forEach((id) => { const v = $(id).value; if (v) parts.push(v); });
+  parts.push('sharp detail, same face, high quality');
+  $('avPrompt').value = parts.join(', ');
+}
+
+// ---------------- image reference upload (main generator) ----------------
+async function pickReference(file) {
+  if (preview) { showAuth('signup'); return; }
+  if (!file) return;
+  note('genNote', 'Uploading reference…', 'ok');
+  try {
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = `${user.id}/ref-${Date.now()}.${ext}`;
+    const { error } = await sb.storage.from('avatars').upload(path, file, { upsert: false });
+    if (error) throw error;
+    refUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    $('refThumb').src = refUrl; $('refPreview').style.display = 'flex'; $('refBtn').style.display = 'none';
+    note('genNote', '✅ Reference attached — it will guide your generation.', 'ok');
+  } catch (e) { note('genNote', e.message || 'Upload failed.', 'err'); }
+}
+function removeReference() { refUrl = ''; $('refPreview').style.display = 'none'; $('refBtn').style.display = 'flex'; $('refFile').value = ''; }
+
 // ---------------- auth ----------------
 let authMode = 'signup';
 function showAuth(mode) { setAuthMode(mode || 'signup'); $('authOverlay').style.display = 'grid'; }
@@ -455,7 +520,7 @@ function prompt0(m) { return window.prompt(m); }
 async function boot() {
   const { data } = await sb.auth.getSession();
   user = data.session ? data.session.user : null;
-  if (!user) { showAuth('signup'); return; }
+  if (!user) { if (localStorage.getItem('fuse_quiz')) showAuth('signup'); else showQuiz(); return; }
   hideAuth(); preview = false; $('previewRibbon').style.display = 'none';
   buildHome();
   await loadProfile();
@@ -480,6 +545,11 @@ window.addEventListener('DOMContentLoaded', () => {
   $('avatarBack').onclick = () => showView('home');
   $('avCreate').onclick = createAvatar;
   $('avGen').onclick = avatarGenerate;
+  $('bBuild').onclick = buildAvatarPrompt;
+  $('qSkip').onclick = skipQuiz;
+  $('refBtn').onclick = () => $('refFile').click();
+  $('refFile').onchange = (e) => pickReference(e.target.files[0]);
+  $('refRemove').onclick = removeReference;
   $('seeLib').onclick = () => showView('library');
   $('streakBtn').onclick = claimDaily;
   $('mpPublish').onclick = publishPreset;

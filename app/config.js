@@ -15,13 +15,10 @@ window.FUSE = {
 
   // Buy options. Real prices are enforced server-side in netlify/functions/_packs.js.
   PACKS: [
-    { key: 'starter',    name: 'Starter',       naira: 2500,  credits: 60,   note: 'Try a few looks',     kind: 'pack' },
-    { key: 'creator',    name: 'Creator Pack',  naira: 6000,  credits: 180,  note: 'Best value',           kind: 'pack', featured: true },
-    { key: 'pro',        name: 'Pro Pack',      naira: 12000, credits: 420,  note: 'Heavy creators',       kind: 'pack' },
-    { key: 'creator_mo', name: 'Creator',       naira: 9000,  credits: 350,  note: 'Monthly · all studios', kind: 'sub' },
-    { key: 'pro_mo',     name: 'Studio Pro',    naira: 20000, credits: 800,  note: 'Monthly · video + AI',  kind: 'sub' },
-    { key: 'agency_mo',  name: 'Agency',        naira: 75000, credits: 3500, note: 'Monthly · white-label', kind: 'sub' },
-    { key: 'course',     name: 'Fuse Atelier Course', naira: 60000, credits: 500, note: 'Learn + 500 credits', kind: 'course' },
+    { key: 'creator_mo', name: 'Creator',       naira: 9000,  credits: 350,  note: 'All studios · monthly',  kind: 'sub' },
+    { key: 'pro_mo',     name: 'Pro',           naira: 20000, credits: 800,  note: 'Video + AI · monthly',   kind: 'sub', featured: true },
+    { key: 'agency_mo',  name: 'Agency',        naira: 75000, credits: 3500, note: 'White-label · monthly',  kind: 'sub' },
+    { key: 'course',     name: 'Fuse Atelier Course', naira: 60000, credits: 500, note: 'Course + 500 credits', kind: 'course' },
   ],
 
   // Creative Studios — each is a guided generator using the live engine.

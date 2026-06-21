@@ -40,6 +40,29 @@ async function muapiGenerate({ prompt, aspect, model }) {
   throw new Error('Timed out — please try again');
 }
 
+// Image-to-image with a user reference (via fal). Used when a reference is attached.
+const FAL_SIZE = { '9:16': 'portrait_16_9', '1:1': 'square_hd', '4:5': 'portrait_4_3', '16:9': 'landscape_16_9' };
+async function falImg2Img({ prompt, image_url, aspect }) {
+  const headers = { Authorization: `Key ${process.env.FAL_KEY}`, 'Content-Type': 'application/json' };
+  const sub = await fetch('https://queue.fal.run/fal-ai/flux/dev/image-to-image', {
+    method: 'POST', headers,
+    body: JSON.stringify({ prompt, image_url, strength: 0.85, image_size: FAL_SIZE[aspect] || 'portrait_16_9' }),
+  });
+  const sd = await sub.json();
+  if (!sub.ok) throw new Error((sd.detail && JSON.stringify(sd.detail)) || sd.error || ('Engine HTTP ' + sub.status));
+  if (!sd.status_url) throw new Error('No job started');
+  for (let i = 0; i < 60; i++) {
+    await new Promise((r) => setTimeout(r, 2500));
+    const st = await (await fetch(sd.status_url, { headers })).json();
+    if (st.status === 'COMPLETED') {
+      const out = await (await fetch(sd.response_url, { headers })).json();
+      return { url: out.images && out.images[0] && out.images[0].url };
+    }
+    if (st.status === 'FAILED' || st.status === 'ERROR') throw new Error('Generation failed');
+  }
+  throw new Error('Timed out — please try again');
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
 
@@ -52,8 +75,10 @@ exports.handler = async (event) => {
   const prompt = (body.prompt || '').trim();
   const aspect = body.aspect || '9:16';
   const model = body.model || 'flux-schnell';
+  const ref = (body.reference_image_url || '').trim();
   if (!prompt) return json(400, { error: 'Add a prompt first.' });
-  const cost = MODEL_COST[model];
+  const useRef = ref && process.env.FAL_KEY;       // reference only applies when fal is connected
+  const cost = useRef ? 2 : MODEL_COST[model];
   if (!cost) return json(400, { error: 'Unknown model.' });
 
   const db = admin();
@@ -69,11 +94,13 @@ exports.handler = async (event) => {
 
   // 2) Generate. If it fails, refund the credits we just took.
   try {
-    const r = await muapiGenerate({ prompt, aspect, model });
+    const r = useRef
+      ? await falImg2Img({ prompt, image_url: ref, aspect })
+      : await muapiGenerate({ prompt, aspect, model });
     if (!r.url) throw new Error('No image returned');
 
     await db.from('generations').insert({
-      user_id: user.id, type: 'image', model, prompt, aspect,
+      user_id: user.id, type: 'image', model: useRef ? 'flux-img2img' : model, prompt, aspect,
       output_url: r.url, cost_usd: r.cost_usd, credits_spent: cost,
     });
 
