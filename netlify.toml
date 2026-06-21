@@ -3,6 +3,12 @@
   publish = "."
   functions = "netlify/functions"
 
+[build.environment]
+  # The Supabase anon key + URL are PUBLIC by design (front-end safe; the
+  # database is protected by Row Level Security). Tell Netlify's secret
+  # scanner not to flag them, so deploys don't fail on a false positive.
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_ANON_KEY,SUPABASE_URL"
+
 [functions]
   node_bundler = "esbuild"
   # Paystack webhook needs the raw body for signature verification.
