@@ -1,0 +1,33 @@
+# Fuse Studio — Netlify configuration
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+  # Paystack webhook needs the raw body for signature verification.
+  included_files = []
+
+# ---- Clean routes for the hosted app ----
+# The new Fuse Studio landing is the front door.
+[[redirects]]
+  from = "/"
+  to = "/app/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/studio"
+  to = "/app/studio.html"
+  status = 200
+
+[[redirects]]
+  from = "/app"
+  to = "/app/index.html"
+  status = 200
+
+# Old funnels stay reachable for reference / paid traffic already in flight.
+[[redirects]]
+  from = "/legacy"
+  to = "/index.html"
+  status = 200

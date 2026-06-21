@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fuse Studio — Create</title>
+<meta name="theme-color" content="#04231F">
+<link rel="manifest" href="/app/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/app/icons/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app/styles.css">
+<script src="/app/config.js"></script>
+</head>
+<body>
+
+<!-- ===== App bar ===== -->
+<header class="appbar">
+  <div class="wrap">
+    <a class="brand" href="/app/index.html"><span class="dot">F</span> Fuse&nbsp;Studio</a>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="credits" id="creditPill" title="Buy more" style="cursor:pointer">
+        <span id="planBadge" class="muted" style="font-weight:600;font-size:12px">Free trial</span>
+        · <b id="creditCount">…</b>&nbsp;credits
+      </span>
+      <button class="btn gold sm" id="buyBtn">＋ Top up</button>
+      <button class="btn ghost sm" id="logoutBtn">Log out</button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== Studio ===== -->
+<main id="appMain">
+  <div class="wrap studio-grid">
+
+    <!-- Controls -->
+    <div class="panel">
+      <h3>🎬 Create</h3>
+      <label class="fld" for="prompt">Describe your character / scene</label>
+      <textarea id="prompt" placeholder="e.g. A confident Nigerian woman entrepreneur, soft studio light, gold accents, editorial photo, ultra detailed"></textarea>
+
+      <div class="row2">
+        <div>
+          <label class="fld" for="model">Engine</label>
+          <select id="model">
+            <option value="flux-schnell">Flux Schnell — fast (1 credit)</option>
+            <option value="flux-dev">Flux Dev — quality (2 credits)</option>
+            <option value="nano-banana">Nano Banana (2 credits)</option>
+            <option value="flux-pro">Flux Pro — best (4 credits)</option>
+          </select>
+        </div>
+        <div>
+          <label class="fld" for="aspect">Aspect</label>
+          <select id="aspect">
+            <option value="9:16">9:16 vertical</option>
+            <option value="1:1">1:1 square</option>
+            <option value="4:5">4:5 portrait</option>
+            <option value="16:9">16:9 wide</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn gold block" id="genBtn" style="margin-top:18px">✨ Generate</button>
+      <div class="note" id="genNote"></div>
+
+      <div id="gallery" class="gallery"></div>
+    </div>
+
+    <!-- Result -->
+    <div>
+      <div class="result" id="result">
+        <div>Your creation will appear here.<br><span class="muted">Write a prompt and hit Generate ✨</span></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ===== Auth overlay ===== -->
+<div class="overlay" id="authOverlay" style="display:none">
+  <div class="modal">
+    <div class="brand" style="justify-content:center;margin-bottom:8px"><span class="dot">F</span> Fuse&nbsp;Studio</div>
+    <h2 id="authTitle" style="text-align:center">Create your account</h2>
+    <p class="muted" id="authTrial" style="text-align:center;margin:0 0 14px">🎁 Start with <b class="gold">12 free credits</b> — no card needed.</p>
+    <label class="fld" for="authEmail">Email</label>
+    <input id="authEmail" type="email" placeholder="you@email.com" autocomplete="email">
+    <label class="fld" for="authPass">Password</label>
+    <input id="authPass" type="password" placeholder="••••••••" autocomplete="current-password">
+    <button class="btn gold block" id="authBtn" style="margin-top:16px">Start free →</button>
+    <div class="note" id="authNote"></div>
+    <div class="switch"><span id="authSwitchText">Already have an account?</span>
+      <a id="authSwitchLink">Log in</a></div>
+  </div>
+</div>
+
+<!-- ===== Buy modal ===== -->
+<div class="overlay" id="buyOverlay" style="display:none">
+  <div class="modal">
+    <button class="close" id="buyClose">✕</button>
+    <h2>Top up credits</h2>
+    <p class="muted" style="margin:2px 0 14px">Pay by <b class="gold">bank transfer</b> — instant, secure, settles to Fuse.</p>
+    <div class="packs" id="packList"></div>
+    <div class="note" id="buyNote"></div>
+  </div>
+</div>
+
+<script type="module" src="/app/app.js"></script>
+</body>
+</html>

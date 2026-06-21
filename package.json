@@ -1,0 +1,10 @@
+{
+  "name": "fuse-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fuse Studio — hosted AI image & video generation with credits, trials and Paystack payments.",
+  "type": "commonjs",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4"
+  }
+}

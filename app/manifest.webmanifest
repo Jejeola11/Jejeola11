@@ -1,0 +1,16 @@
+{
+  "name": "Fuse Studio",
+  "short_name": "Fuse Studio",
+  "description": "Create the face that earns for you — AI characters, photos & videos in seconds.",
+  "start_url": "/studio",
+  "scope": "/app/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#04231F",
+  "theme_color": "#04231F",
+  "icons": [
+    { "src": "/app/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/app/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/app/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
