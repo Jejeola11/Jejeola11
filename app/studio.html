@@ -32,14 +32,47 @@
   <section class="view active" id="view-home">
     <div class="promo-banner" id="homePromo"></div>
 
+    <div class="streak" id="streakCard">
+      <div><div class="sn">🔥 Daily reward</div><div class="sd" id="streakText">Claim 1 free credit today</div></div>
+      <button class="btn gold sm" id="streakBtn">Claim</button>
+    </div>
+
     <div class="shead"><h2>Studios</h2></div>
     <div class="tools" id="toolGrid"></div>
+
+    <div class="shead"><h2>🇳🇬 Naija packs</h2></div>
+    <div class="chips" id="naijaChips"></div>
 
     <div class="shead"><h2>Quick ideas</h2></div>
     <div class="chips" id="presetChips"></div>
 
     <div class="shead"><h2>Recent</h2><a id="seeLib">See all →</a></div>
     <div class="libgrid" id="homeRecent"></div>
+  </section>
+
+  <!-- ===== MARKETPLACE ===== -->
+  <section class="view" id="view-market">
+    <div class="backlink" id="marketBack">← Studios</div>
+    <div class="studio-head"><div class="ic">🛒</div><div><h2>Preset Marketplace</h2><p>Use community looks · publish yours & earn</p></div></div>
+    <div class="panel" style="margin-top:14px">
+      <label class="fld">Publish your last prompt as a preset</label>
+      <input id="mpTitle" placeholder="Preset title, e.g. 'Glossy skincare ad'">
+      <textarea id="mpPrompt" placeholder="The prompt to share…" style="min-height:70px;margin-top:8px"></textarea>
+      <button class="btn ghost block" id="mpPublish" style="margin-top:10px">Publish preset</button>
+      <div class="note" id="mpNote"></div>
+    </div>
+    <div class="shead"><h2>Community presets</h2></div>
+    <div id="mpList"></div>
+  </section>
+
+  <!-- ===== ACADEMY (earn while you learn) ===== -->
+  <section class="view" id="view-learn">
+    <div class="backlink" id="learnBack">← Studios</div>
+    <div class="studio-head"><div class="ic">🎓</div><div><h2>Fuse Academy</h2><p>Learn the money skills · earn credits</p></div></div>
+    <div id="lessonList" style="margin-top:14px"></div>
+    <button class="btn gold block" id="learnClaim" style="margin-top:8px">✅ I finished — claim my bonus</button>
+    <div class="note" id="learnNote"></div>
+    <a class="btn ghost block" id="learnCourse" style="margin-top:10px">🎬 Get the full Fuse Atelier course</a>
   </section>
 
   <!-- ===== STUDIO (generator — used by Generate + all studios) ===== -->
@@ -135,6 +168,13 @@
       <div class="prow" style="margin:0"><span class="pl">Commission balance</span><span class="pv gold" id="pfAffiliate">₦0</span></div>
       <button class="btn ghost block" id="payoutBtn" style="margin-top:10px">Request payout</button>
       <div class="note" id="payoutNote"></div>
+    </div>
+
+    <div class="shead"><h2>Generate on WhatsApp 🤖</h2></div>
+    <div class="panel">
+      <p class="muted" style="margin:0 0 8px;font-size:14px">Link your WhatsApp number, then text prompts to our bot and get images right in your chats.</p>
+      <div class="refbox"><input id="waPhone" placeholder="2348012345678 (country code, no +)"><button class="btn ghost sm" id="waLink">Link</button></div>
+      <div class="note" id="waNote"></div>
     </div>
 
     <button class="btn ghost block" id="logoutBtn" style="margin-top:18px">Log out</button>

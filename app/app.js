@@ -13,6 +13,7 @@ let user = null;
 let preview = false;
 let showUsd = false;
 let activeStudio = cfg.STUDIOS[0];
+let lastPrompt = '';
 
 const naira = (n) => '₦' + Number(n).toLocaleString();
 const usd = (n) => '$' + Math.round(n / cfg.USD_RATE);
@@ -40,6 +41,8 @@ function showView(name, opts = {}) {
 
 function openStudio(key) {
   if (key === 'reactor') { showView('reactor'); return; }
+  if (key === 'market') { showView('market'); loadMarket(); return; }
+  if (key === 'learn') { showView('learn'); buildLessons(); return; }
   activeStudio = cfg.STUDIOS.find((s) => s.key === key) || cfg.STUDIOS[0];
   $('studioIcon').textContent = activeStudio.icon;
   $('studioName').textContent = activeStudio.name;
@@ -51,8 +54,12 @@ function openStudio(key) {
 
 // ---------------- home builders ----------------
 function buildHome() {
-  // tool cards (studios + reactor)
-  const cards = cfg.STUDIOS.filter((s) => s.key !== 'generate').concat([{ key: 'reactor', name: cfg.REACTOR_NAME, icon: '⚛️', tag: 'NEW', desc: 'Claude · Gemini · ChatGPT & more' }]);
+  // tool cards (studios + reactor + marketplace + academy)
+  const cards = cfg.STUDIOS.filter((s) => s.key !== 'generate').concat([
+    { key: 'reactor', name: cfg.REACTOR_NAME, icon: '⚛️', tag: 'NEW', desc: 'Claude · Gemini · ChatGPT & more' },
+    { key: 'market',  name: 'Marketplace',     icon: '🛒', tag: '',    desc: 'Use & sell community presets' },
+    { key: 'learn',   name: 'Fuse Academy',    icon: '🎓', tag: '',    desc: 'Learn & earn 20 credits' },
+  ]);
   $('toolGrid').innerHTML = cards.map((s) => {
     const cls = s.tag === 'BETA' ? 'beta' : s.tag === 'TRENDING' ? 'trend' : '';
     return `<div class="tool" data-studio="${s.key}">
@@ -66,6 +73,14 @@ function buildHome() {
   $('presetChips').querySelectorAll('.chip').forEach((el) => el.onclick = () => {
     openStudio('generate'); $('prompt').value = el.textContent;
   });
+
+  // Naija packs
+  $('naijaChips').innerHTML = cfg.NAIJA_PACKS.map((p, i) => `<div class="chip" data-i="${i}">${p.name}</div>`).join('');
+  $('naijaChips').querySelectorAll('.chip').forEach((el) => el.onclick = () => {
+    openStudio('generate'); $('prompt').value = cfg.NAIJA_PACKS[+el.dataset.i].prompt;
+  });
+
+  refreshStreak();
 
   // promo banner
   const pr = cfg.PROMO;
@@ -96,6 +111,7 @@ async function generate() {
   if (preview) { showAuth('signup'); return; }
   const raw = $('prompt').value.trim();
   if (!raw) return note('genNote', 'Describe what you want to create.', 'err');
+  lastPrompt = raw;
   const prompt = activeStudio.template.replace('{input}', raw);
   const model = $('model').value, aspect = $('aspect').value;
 
@@ -233,6 +249,82 @@ async function buy(pack, el) {
   } catch (e) { note('buyNote', e.message, 'err'); if (el) el.style.opacity = '1'; }
 }
 
+// ---------------- daily streak ----------------
+async function refreshStreak() {
+  if (preview) { $('streakText').textContent = 'Sign up to start your streak'; return; }
+  const { data } = await sb.from('profiles').select('last_claim_at, streak_days').eq('id', user.id).maybeSingle();
+  if (!data) return;
+  const can = !data.last_claim_at || (Date.now() - new Date(data.last_claim_at).getTime()) > 20 * 3600 * 1000;
+  $('streakText').textContent = `🔥 ${data.streak_days || 0}-day streak` + (can ? ' · claim today!' : ' · come back tomorrow');
+  $('streakBtn').style.display = can ? 'inline-flex' : 'none';
+}
+async function claimDaily() {
+  if (preview) { showAuth('signup'); return; }
+  $('streakBtn').disabled = true;
+  try {
+    const res = await fetch('/.netlify/functions/daily-claim', { method: 'POST', headers: { ...(await authHeader()) } });
+    const d = await res.json();
+    if (d.claimed) { $('creditCount').textContent = d.credits; $('streakText').textContent = `🔥 ${d.streak}-day streak · +${d.award} credit${d.award > 1 ? 's' : ''}! 🎉`; $('streakBtn').style.display = 'none'; }
+    else $('streakText').textContent = `🔥 ${d.streak}-day streak · come back tomorrow`;
+  } catch (e) {}
+  $('streakBtn').disabled = false;
+}
+
+// ---------------- marketplace ----------------
+async function loadMarket() {
+  $('mpPrompt').value = lastPrompt || '';
+  const { data } = await sb.from('marketplace_presets').select('id,title,uses,prompt,model,aspect').eq('active', true).order('uses', { ascending: false }).limit(40);
+  $('mpList').innerHTML = (data && data.length) ? data.map((p) =>
+    `<div class="mp"><div><div class="mt">${p.title}</div><div class="mu">🔥 ${p.uses} uses</div></div>
+      <button class="btn gold sm" data-id="${p.id}" data-prompt="${encodeURIComponent(p.prompt)}" data-model="${p.model}" data-aspect="${p.aspect}">Use</button></div>`).join('')
+    : '<div class="empty">No presets yet — be the first to publish one ✨</div>';
+  $('mpList').querySelectorAll('button').forEach((b) => b.onclick = () => usePreset(b.dataset));
+}
+async function publishPreset() {
+  if (preview) { showAuth('signup'); return; }
+  const title = $('mpTitle').value.trim(), prompt = $('mpPrompt').value.trim();
+  if (!title || !prompt) return note('mpNote', 'Add a title and a prompt.', 'err');
+  const { error } = await sb.from('marketplace_presets').insert({ owner_id: user.id, title, prompt });
+  note('mpNote', error ? error.message : '✅ Published! You earn a credit each time someone uses it.', error ? 'err' : 'ok');
+  if (!error) { $('mpTitle').value = ''; loadMarket(); }
+}
+async function usePreset(d) {
+  openStudio('generate');
+  $('prompt').value = decodeURIComponent(d.prompt);
+  if (d.model) $('model').value = d.model;
+  if (d.aspect) $('aspect').value = d.aspect;
+  if (!preview) fetch('/.netlify/functions/use-preset', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ id: d.id }) }).catch(() => {});
+}
+
+// ---------------- academy (earn while you learn) ----------------
+function buildLessons() {
+  $('lessonList').innerHTML = cfg.LESSONS.map((l, i) =>
+    `<div class="lesson"><h3>${i + 1}. ${l.t}</h3><p>${l.b}</p></div>`).join('');
+  note('learnNote', '');
+}
+async function claimLearn() {
+  if (preview) { showAuth('signup'); return; }
+  $('learnClaim').disabled = true;
+  try {
+    const res = await fetch('/.netlify/functions/claim-learn-bonus', { method: 'POST', headers: { ...(await authHeader()) } });
+    const d = await res.json();
+    if (d.claimed) { $('creditCount').textContent = d.credits; note('learnNote', `🎉 +${cfg.LEARN_BONUS} credits! You're ready to earn.`, 'ok'); }
+    else note('learnNote', 'You already claimed your learning bonus 💛', 'ok');
+  } catch (e) { note('learnNote', 'Could not claim — try again.', 'err'); }
+  $('learnClaim').disabled = false;
+}
+
+// ---------------- link WhatsApp ----------------
+async function linkWhatsapp() {
+  if (preview) { showAuth('signup'); return; }
+  const phone = $('waPhone').value.trim();
+  try {
+    const res = await fetch('/.netlify/functions/link-whatsapp', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ phone }) });
+    const d = await res.json();
+    note('waNote', res.ok ? '✅ Linked! Text our WhatsApp bot a prompt to generate.' : d.error, res.ok ? 'ok' : 'err');
+  } catch (e) { note('waNote', 'Could not link.', 'err'); }
+}
+
 // ---------------- promo popup ----------------
 function maybePromo() {
   if (sessionStorage.getItem('fuse_promo_seen')) return;
@@ -318,7 +410,14 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   $('studioBack').onclick = () => showView('home');
   $('reactorBack').onclick = () => showView('home');
+  $('marketBack').onclick = () => showView('home');
+  $('learnBack').onclick = () => showView('home');
   $('seeLib').onclick = () => showView('library');
+  $('streakBtn').onclick = claimDaily;
+  $('mpPublish').onclick = publishPreset;
+  $('learnClaim').onclick = claimLearn;
+  $('learnCourse').onclick = () => buy('course');
+  $('waLink').onclick = linkWhatsapp;
   $('genBtn').onclick = generate;
   $('rcSend').onclick = reactorSend;
   $('buyBtn').onclick = openBuy; $('creditPill').onclick = openBuy;

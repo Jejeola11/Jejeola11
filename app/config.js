@@ -63,4 +63,24 @@ window.FUSE = {
     pack: 'course',
     hours: 24, // countdown length
   },
+
+  // 🇳🇬 Naija template packs — your local moat. Each loads a tuned prompt.
+  NAIJA_PACKS: [
+    { name: 'Owambe / Aso-ebi look',   prompt: 'elegant Nigerian woman in stylish aso-ebi lace, gele head-tie, owambe party, gold jewelry, editorial photo, rich colors' },
+    { name: 'Nollywood movie poster',  prompt: 'dramatic Nollywood movie poster, Nigerian cast, bold title space, cinematic lighting, high contrast, blockbuster style' },
+    { name: 'Food vendor ad',          prompt: 'mouth-watering Nigerian jollof rice and grilled chicken, professional food photography, vibrant, appetizing, social media ad' },
+    { name: 'Lagos real estate',       prompt: 'modern luxury Lagos apartment exterior and interior, bright, aspirational real-estate listing photo, blue sky' },
+    { name: 'Church / event flyer',    prompt: 'clean modern church program flyer background, elegant, spiritual, space for text, gold and deep teal accents' },
+    { name: 'Small-biz WhatsApp DP',   prompt: 'professional friendly Nigerian entrepreneur portrait, clean background, trustworthy, profile photo, soft studio light' },
+  ],
+
+  // 🎓 Earn-while-you-learn — finishing these unlocks a 20-credit bonus.
+  LESSONS: [
+    { t: 'Find your money niche', b: 'Pick who you serve: vendors, creators, brands. Riches are in the niches.' },
+    { t: 'Write prompts that sell', b: 'Describe the subject, the mood, the lighting, and the use. Specific = stunning.' },
+    { t: 'Turn images into income', b: 'Package your work: brand kits, UGC bundles, ad creatives — and price by value.' },
+    { t: 'Promote & get paid', b: 'Use your referral link, post your work, run the founding offer to your audience.' },
+  ],
+  LEARN_BONUS: 20,
+
 };
