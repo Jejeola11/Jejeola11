@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Fuse Studio — Create</title>
+<title>Fuse Studio</title>
 <meta name="theme-color" content="#04231F">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -207,68 +207,218 @@ textarea{min-height:104px;resize:vertical}
   .gallery{grid-template-columns:repeat(3,1fr)}
 }
 
+/* ============================================================
+   PHASE 2 — Higgsfield-style app shell (bottom tabs, tool cards,
+   promos, library, profile, reactor). Teal + gold.
+   ============================================================ */
+.app-shell{max-width:760px;margin:0 auto;padding:0 16px 110px}  /* room for bottom bar */
+.view{display:none}
+.view.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* sticky top */
+.topbar{position:sticky;top:0;z-index:30;background:rgba(4,35,31,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.topbar .in{max-width:760px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;padding:0 16px}
+.pill{display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;cursor:pointer}
+.pill b{color:var(--gold)}
+
+/* promo banner w/ countdown */
+.promo-banner{margin:16px 0;border-radius:var(--radius);padding:18px;border:1px solid var(--gold);
+  background:linear-gradient(120deg,rgba(231,194,92,.16),rgba(13,58,51,.6));position:relative;overflow:hidden}
+.promo-banner .lab{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.promo-banner h3{margin:6px 0;font-family:"Bricolage Grotesque";font-weight:800;font-size:22px}
+.promo-banner p{margin:0 0 12px;color:var(--muted);font-size:14px}
+.countdown{display:inline-flex;gap:6px;font-family:"Bricolage Grotesque";font-weight:800;font-size:15px;color:var(--gold);margin-left:8px}
+
+/* section heads */
+.shead{display:flex;align-items:center;justify-content:space-between;margin:22px 0 12px}
+.shead h2{font-family:"Bricolage Grotesque";font-weight:800;font-size:18px;margin:0;text-transform:uppercase;letter-spacing:.02em}
+.shead a{color:var(--gold);font-size:13px;font-weight:700}
+
+/* tool cards grid */
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tool{position:relative;border:1px solid var(--line);border-radius:16px;padding:16px;background:linear-gradient(160deg,var(--panel),var(--panel-2));cursor:pointer;transition:border-color .12s,transform .12s;min-height:108px}
+.tool:hover{border-color:var(--gold);transform:translateY(-2px)}
+.tool .ic{font-size:24px}
+.tool .tn{font-family:"Bricolage Grotesque";font-weight:800;font-size:15px;margin:8px 0 2px}
+.tool .td{color:var(--muted);font-size:12px;line-height:1.35}
+.tool .bdg{position:absolute;top:12px;right:12px;font-size:9px;font-weight:800;letter-spacing:.08em;padding:3px 7px;border-radius:999px;background:var(--gold);color:#1a1205;text-transform:uppercase}
+.tool .bdg.beta{background:#7b5cff;color:#fff}
+.tool .bdg.trend{background:#ff5c8a;color:#fff}
+
+/* preset chips */
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+.chip{white-space:nowrap;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer}
+.chip:hover{border-color:var(--gold);color:var(--gold)}
+
+/* bottom tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(4,35,31,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:8px 0 calc(8px + env(safe-area-inset-bottom))}
+.tabbar .in{max-width:760px;margin:0 auto;display:flex;justify-content:space-around;align-items:center}
+.tab{background:none;border:0;color:var(--muted);font-size:11px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 10px}
+.tab .ti{font-size:19px;line-height:1}
+.tab.active{color:var(--gold)}
+.tab.center .ti{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1205;font-size:22px;box-shadow:0 8px 22px rgba(231,194,92,.4);margin-top:-22px;border:3px solid var(--bg)}
+.tab.center{color:var(--gold)}
+
+/* studio generator panel (reused for all studios) */
+.studio-head{display:flex;align-items:center;gap:10px;margin:16px 0 4px}
+.studio-head .ic{font-size:26px}
+.studio-head h2{font-family:"Bricolage Grotesque";font-weight:800;margin:0;font-size:20px}
+.studio-head p{margin:0;color:var(--muted);font-size:13px}
+.backlink{color:var(--gold);font-weight:700;font-size:13px;cursor:pointer;display:inline-flex;gap:5px;align-items:center;margin:14px 0 0}
+
+/* library / profile */
+.libgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.libgrid img{aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer}
+.empty{text-align:center;color:var(--muted);padding:50px 20px;border:1px dashed var(--line);border-radius:16px}
+.prow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel);margin-bottom:10px}
+.prow .pl{font-size:13px;color:var(--muted)}
+.prow .pv{font-weight:800;font-family:"Bricolage Grotesque"}
+.refbox{display:flex;gap:8px;margin-top:8px}
+.refbox input{font-size:13px}
+
+/* reactor list */
+.rlist{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rcard{border:1px solid var(--line);border-radius:14px;padding:14px;background:var(--panel);cursor:pointer;transition:border-color .12s}
+.rcard:hover{border-color:var(--gold)}
+.rcard .rn{font-family:"Bricolage Grotesque";font-weight:800;font-size:15px}
+.rcard .rb{font-size:11px;color:var(--muted)}
+.rcard .rc{font-size:12px;color:var(--gold);font-weight:700;margin-top:6px}
+.rcard.soon{opacity:.6}
+.rcard.soon .rc{color:var(--muted)}
+
+/* challenge card */
+.chal{border:1px solid var(--gold);border-radius:16px;padding:16px;background:linear-gradient(120deg,rgba(231,194,92,.1),rgba(13,58,51,.5));margin-bottom:12px}
+.chal h3{margin:0 0 4px;font-family:"Bricolage Grotesque";font-weight:800}
+.chal .prize{color:var(--gold);font-weight:800}
+
+/* preview ribbon */
+.previewRibbon{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);z-index:55;background:#7b5cff;color:#fff;font-size:12px;font-weight:700;padding:7px 14px;border-radius:999px;box-shadow:var(--shadow)}
+
+.sticky-low{position:fixed;left:12px;right:12px;bottom:80px;z-index:54;max-width:736px;margin:0 auto;background:var(--panel-2);border:1px solid var(--gold);border-radius:14px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:var(--shadow)}
+.sticky-low span{font-size:13px}
+
+@media (min-width:560px){ .tools{grid-template-columns:repeat(3,1fr)} }
+
+
 </style>
 <script>
 // ============================================================
-// Fuse Studio — public frontend config.
-// These two Supabase values are SAFE to expose (anon/public key).
-// Fill them after you create your Supabase project
-// (Supabase → Project Settings → API).
-// Everything secret (service role, MuAPI, Paystack secret) lives in
-// Netlify environment variables and is NEVER in this file.
+// Fuse Studio — public frontend config (safe to expose).
+// Fill the two Supabase values after creating your project.
 // ============================================================
 window.FUSE = {
   SUPABASE_URL: 'https://YOUR-PROJECT.supabase.co',
   SUPABASE_ANON_KEY: 'YOUR-ANON-PUBLIC-KEY',
 
-  // Display info for the buy modal. Real prices/credits are enforced
-  // server-side in netlify/functions/_packs.js — keep these in sync for display.
+  // Preview password — lets you (or anyone) tour the studio UI without
+  // a Supabase account. Generation/payments still need a real login.
+  PREVIEW_CODE: 'FUSE-VIP',
+
+  // Naira per US dollar — for showing $ prices to foreigners (display only).
+  USD_RATE: 1550,
+
+  // Buy options. Real prices are enforced server-side in netlify/functions/_packs.js.
   PACKS: [
-    { key: 'starter', name: 'Starter',  naira: 2500,  credits: 60,  note: 'Try a few looks',    kind: 'pack' },
-    { key: 'creator', name: 'Creator',  naira: 6000,  credits: 180, note: 'Best value',          kind: 'pack', featured: true },
-    { key: 'pro',     name: 'Pro Pack', naira: 12000, credits: 420, note: 'For heavy creators',  kind: 'pack' },
-    { key: 'lite_mo', name: 'Studio Lite', naira: 5000,  credits: 150, note: 'Monthly plan',     kind: 'sub' },
-    { key: 'pro_mo',  name: 'Studio Pro',  naira: 15000, credits: 600, note: 'Monthly plan',     kind: 'sub' },
+    { key: 'starter',    name: 'Starter',       naira: 2500,  credits: 60,   note: 'Try a few looks',     kind: 'pack' },
+    { key: 'creator',    name: 'Creator Pack',  naira: 6000,  credits: 180,  note: 'Best value',           kind: 'pack', featured: true },
+    { key: 'pro',        name: 'Pro Pack',      naira: 12000, credits: 420,  note: 'Heavy creators',       kind: 'pack' },
+    { key: 'creator_mo', name: 'Creator',       naira: 9000,  credits: 350,  note: 'Monthly · all studios', kind: 'sub' },
+    { key: 'pro_mo',     name: 'Studio Pro',    naira: 20000, credits: 800,  note: 'Monthly · video + AI',  kind: 'sub' },
+    { key: 'agency_mo',  name: 'Agency',        naira: 75000, credits: 3500, note: 'Monthly · white-label', kind: 'sub' },
+    { key: 'course',     name: 'Fuse Atelier Course', naira: 60000, credits: 500, note: 'Learn + 500 credits', kind: 'course' },
   ],
+
+  // Creative Studios — each is a guided generator using the live engine.
+  STUDIOS: [
+    { key: 'generate', name: 'Generate',               icon: '✨', tag: '',         desc: 'Free-form image creation',
+      template: '{input}' },
+    { key: 'brand',    name: 'Brand Identity Studio',  icon: '🎯', tag: 'NEW',      desc: 'Logos, looks & brand visuals',
+      template: 'professional brand identity concept for {input}, modern logo and visual style, cohesive premium color palette, clean, high-end, editorial' },
+    { key: 'packaging',name: 'Packaging Design Studio',icon: '📦', tag: '',         desc: 'Product packaging mockups',
+      template: 'premium product packaging design mockup for {input}, realistic studio product photography, elegant label, retail-ready, soft lighting' },
+    { key: 'ugc',      name: 'UGC Creator Studio',     icon: '🎬', tag: 'TRENDING', desc: 'Scroll-stopping ad content',
+      template: 'authentic UGC-style content photo of {input}, natural lighting, candid, relatable, social-media ready, shot on phone aesthetic' },
+    { key: 'movie',    name: 'Movie Studio',           icon: '🎥', tag: '',         desc: 'Cinematic scenes & posters',
+      template: 'cinematic film still of {input}, dramatic lighting, movie-grade color grade, depth of field, epic composition, poster quality' },
+    { key: 'avatar',   name: 'AI Avatar Studio',       icon: '🧑‍🎨', tag: 'BETA',    desc: 'Your consistent character face',
+      template: 'professional portrait of {input}, consistent character, studio lighting, sharp detail, identity reference',
+      advanced: true },
+  ],
+
+  // Quick preset chips on Home.
+  PRESETS: ['Nigerian entrepreneur', 'Luxury skincare brand', 'Fashion lookbook', 'Tech startup founder', 'Food product ad', 'Cinematic portrait'],
+
+  // Fuse Reactor — the multi-AI hub (renamed, not a Higgsfield copy).
+  REACTOR_NAME: 'Fuse Reactor',
+  REACTOR_MODELS: [
+    { id: 'anthropic/claude-3.5-sonnet', name: 'Claude',  badge: 'Anthropic', credits: 2, live: true },
+    { id: 'google/gemini-flash-1.5',     name: 'Gemini',  badge: 'Google',    credits: 1, live: true },
+    { id: 'openai/gpt-4o-mini',          name: 'ChatGPT', badge: 'OpenAI',    credits: 1, live: true },
+    { id: 'kling',  name: 'Kling Video',  badge: 'Video', credits: 40, live: false },
+    { id: 'heygen', name: 'HeyGen Avatar',badge: 'Video', credits: 50, live: false },
+    { id: 'veo',    name: 'Google Veo',   badge: 'Video', credits: 60, live: false },
+  ],
+
+  // Rotating promo pop-up (the Higgsfield-style effect).
+  PROMO: {
+    title: 'Founding Member Offer',
+    body: 'Get 27 days of Studio Pro + the Fuse Atelier course bundle. Limited launch pricing.',
+    cta: 'Claim the offer',
+    pack: 'course',
+    hours: 24, // countdown length
+  },
 };
 
 </script>
 </head>
 <body>
 
-<!-- ===== App bar ===== -->
-<header class="appbar">
-  <div class="wrap">
+<!-- ===== Top bar ===== -->
+<header class="topbar">
+  <div class="in">
     <a class="brand" href="/app/index.html"><span class="dot">F</span> Fuse&nbsp;Studio</a>
-    <div style="display:flex;align-items:center;gap:10px">
-      <span class="credits" id="creditPill" title="Buy more" style="cursor:pointer">
-        <span id="planBadge" class="muted" style="font-weight:600;font-size:12px">Free trial</span>
-        · <b id="creditCount">…</b>&nbsp;credits
-      </span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="pill" id="creditPill"><span id="planBadge" class="muted" style="font-weight:600;font-size:11px">Trial</span> · <b id="creditCount">…</b> cr</span>
       <button class="btn gold sm" id="buyBtn">＋ Top up</button>
-      <button class="btn ghost sm" id="logoutBtn">Log out</button>
     </div>
   </div>
 </header>
 
-<!-- ===== Studio ===== -->
-<main id="appMain">
-  <div class="wrap studio-grid">
+<main class="app-shell" id="appMain">
 
-    <!-- Controls -->
-    <div class="panel">
-      <h3>🎬 Create</h3>
-      <label class="fld" for="prompt">Describe your character / scene</label>
-      <textarea id="prompt" placeholder="e.g. A confident Nigerian woman entrepreneur, soft studio light, gold accents, editorial photo, ultra detailed"></textarea>
+  <!-- ===== HOME ===== -->
+  <section class="view active" id="view-home">
+    <div class="promo-banner" id="homePromo"></div>
 
+    <div class="shead"><h2>Studios</h2></div>
+    <div class="tools" id="toolGrid"></div>
+
+    <div class="shead"><h2>Quick ideas</h2></div>
+    <div class="chips" id="presetChips"></div>
+
+    <div class="shead"><h2>Recent</h2><a id="seeLib">See all →</a></div>
+    <div class="libgrid" id="homeRecent"></div>
+  </section>
+
+  <!-- ===== STUDIO (generator — used by Generate + all studios) ===== -->
+  <section class="view" id="view-studio">
+    <div class="backlink" id="studioBack">← Studios</div>
+    <div class="studio-head">
+      <div class="ic" id="studioIcon">✨</div>
+      <div><h2 id="studioName">Generate</h2><p id="studioDesc">Free-form image creation</p></div>
+    </div>
+    <div class="panel" style="margin-top:14px">
+      <label class="fld" for="prompt">Describe what you want</label>
+      <textarea id="prompt" placeholder="e.g. a confident Nigerian woman founder, gold accents, editorial studio light"></textarea>
       <div class="row2">
         <div>
           <label class="fld" for="model">Engine</label>
           <select id="model">
-            <option value="flux-schnell">Flux Schnell — fast (1 credit)</option>
-            <option value="flux-dev">Flux Dev — quality (2 credits)</option>
-            <option value="nano-banana">Nano Banana (2 credits)</option>
-            <option value="flux-pro">Flux Pro — best (4 credits)</option>
+            <option value="flux-schnell">Flux Schnell — fast (1)</option>
+            <option value="flux-dev">Flux Dev — quality (2)</option>
+            <option value="nano-banana">Nano Banana (2)</option>
+            <option value="flux-pro">Flux Pro — best (4)</option>
           </select>
         </div>
         <div>
@@ -281,22 +431,88 @@ window.FUSE = {
           </select>
         </div>
       </div>
-
-      <button class="btn gold block" id="genBtn" style="margin-top:18px">✨ Generate</button>
+      <button class="btn gold block" id="genBtn" style="margin-top:16px">✨ Generate</button>
       <div class="note" id="genNote"></div>
+    </div>
+    <div class="result" id="result" style="margin-top:14px">
+      <div>Your creation appears here.<br><span class="muted">Write a prompt and hit Generate ✨</span></div>
+    </div>
+  </section>
 
-      <div id="gallery" class="gallery"></div>
+  <!-- ===== FUSE REACTOR (multi-AI hub) ===== -->
+  <section class="view" id="view-reactor">
+    <div class="backlink" id="reactorBack">← Studios</div>
+    <div class="studio-head">
+      <div class="ic">⚛️</div>
+      <div><h2 id="reactorTitle">Fuse Reactor</h2><p>One core for your entire AI stack</p></div>
+    </div>
+    <div class="rlist" id="reactorList" style="margin-top:14px"></div>
+    <div class="panel" id="reactorChat" style="margin-top:14px;display:none">
+      <div class="studio-head" style="margin-top:0"><div class="ic" id="rcIcon">🤖</div><div><h2 id="rcName">Claude</h2><p id="rcCost"></p></div></div>
+      <textarea id="rcInput" placeholder="Ask anything — captions, scripts, product names, ad copy…"></textarea>
+      <button class="btn gold block" id="rcSend" style="margin-top:12px">Send</button>
+      <div class="note" id="rcNote"></div>
+      <div id="rcOut" style="margin-top:12px;white-space:pre-wrap;font-size:14px;color:var(--ink)"></div>
+    </div>
+  </section>
+
+  <!-- ===== COMMUNITY (challenges + content rewards) ===== -->
+  <section class="view" id="view-community">
+    <div class="shead"><h2>Challenges</h2></div>
+    <div id="challengeList"></div>
+    <div class="shead"><h2>Earn credits with content</h2></div>
+    <div class="panel">
+      <p class="muted" style="margin:0 0 10px;font-size:14px">Post a video/photo made with Fuse Studio, drop the link, and earn credits when it's approved. 🎁</p>
+      <input id="contentUrl" type="url" placeholder="https://tiktok.com/@you/video/…">
+      <button class="btn gold block" id="contentSubmit" style="margin-top:10px">Submit for credits</button>
+      <div class="note" id="contentNote"></div>
+    </div>
+  </section>
+
+  <!-- ===== LIBRARY ===== -->
+  <section class="view" id="view-library">
+    <div class="shead"><h2>Your library</h2></div>
+    <div class="libgrid" id="libGrid"></div>
+  </section>
+
+  <!-- ===== PROFILE ===== -->
+  <section class="view" id="view-profile">
+    <div class="shead"><h2>Profile</h2></div>
+    <div class="prow"><span class="pl">Email</span><span class="pv" id="pfEmail" style="font-size:13px">—</span></div>
+    <div class="prow"><span class="pl">Plan</span><span class="pv" id="pfPlan">Free trial</span></div>
+    <div class="prow"><span class="pl">Credits</span><span class="pv gold" id="pfCredits">…</span></div>
+
+    <div class="shead"><h2>Invite & earn</h2></div>
+    <div class="panel">
+      <p class="muted" style="margin:0 0 8px;font-size:14px">Share your link — earn <b class="gold">30 credits</b> for every friend who joins, they get 15 too. 🔁</p>
+      <div class="refbox"><input id="refLink" readonly value="—"><button class="btn ghost sm" id="copyRef">Copy</button></div>
     </div>
 
-    <!-- Result -->
-    <div>
-      <div class="result" id="result">
-        <div>Your creation will appear here.<br><span class="muted">Write a prompt and hit Generate ✨</span></div>
-      </div>
+    <div class="shead"><h2>Affiliate cash</h2></div>
+    <div class="panel">
+      <p class="muted" style="margin:0 0 8px;font-size:14px">Earn real cash commission on sales you refer. Cash out to your bank (verified affiliates).</p>
+      <div class="prow" style="margin:0"><span class="pl">Commission balance</span><span class="pv gold" id="pfAffiliate">₦0</span></div>
+      <button class="btn ghost block" id="payoutBtn" style="margin-top:10px">Request payout</button>
+      <div class="note" id="payoutNote"></div>
     </div>
 
-  </div>
+    <button class="btn ghost block" id="logoutBtn" style="margin-top:18px">Log out</button>
+  </section>
+
 </main>
+
+<!-- ===== Bottom tab bar ===== -->
+<nav class="tabbar">
+  <div class="in">
+    <button class="tab active" data-view="home"><span class="ti">🏠</span>Home</button>
+    <button class="tab" data-view="community"><span class="ti">👥</span>Community</button>
+    <button class="tab center" data-view="studio" data-studio="generate"><span class="ti">✨</span>Create</button>
+    <button class="tab" data-view="library"><span class="ti">📚</span>Library</button>
+    <button class="tab" data-view="profile"><span class="ti">👤</span>Profile</button>
+  </div>
+</nav>
+
+<div class="previewRibbon" id="previewRibbon" style="display:none">👀 Preview mode — sign up to generate</div>
 
 <!-- ===== Auth overlay ===== -->
 <div class="overlay" id="authOverlay" style="display:none">
@@ -310,8 +526,8 @@ window.FUSE = {
     <input id="authPass" type="password" placeholder="••••••••" autocomplete="current-password">
     <button class="btn gold block" id="authBtn" style="margin-top:16px">Start free →</button>
     <div class="note" id="authNote"></div>
-    <div class="switch"><span id="authSwitchText">Already have an account?</span>
-      <a id="authSwitchLink">Log in</a></div>
+    <div class="switch"><span id="authSwitchText">Already have an account?</span> <a id="authSwitchLink">Log in</a></div>
+    <div class="switch" style="margin-top:8px"><a id="previewLink">👀 Just looking? Preview the studio</a></div>
   </div>
 </div>
 
@@ -320,209 +536,373 @@ window.FUSE = {
   <div class="modal">
     <button class="close" id="buyClose">✕</button>
     <h2>Top up credits</h2>
-    <p class="muted" style="margin:2px 0 14px">Pay by <b class="gold">bank transfer</b> — instant, secure, settles to Fuse.</p>
+    <p class="muted" style="margin:2px 0 10px">Pay by <b class="gold">bank transfer</b> — instant & secure.
+      <a id="curToggle" class="gold" style="cursor:pointer;float:right">Show $</a></p>
     <div class="packs" id="packList"></div>
     <div class="note" id="buyNote"></div>
   </div>
 </div>
 
+<!-- ===== Promo pop-up ===== -->
+<div class="overlay" id="promoOverlay" style="display:none">
+  <div class="modal" style="text-align:center">
+    <button class="close" id="promoClose">✕</button>
+    <div style="font-size:34px">🎁</div>
+    <h2 id="promoTitle">Founding Member Offer</h2>
+    <p class="muted" id="promoBody"></p>
+    <div class="countdown" id="promoCountdown" style="justify-content:center;margin:6px 0 14px"></div>
+    <button class="btn gold block" id="promoCta">Claim the offer</button>
+  </div>
+</div>
+
 <script type="module">
 // ============================================================
-// Fuse Studio — studio app logic
-// Auth (Supabase) + credit display + generation (via secure function)
-// + Paystack checkout. Loaded only on studio.html.
+// Fuse Studio — app shell logic (Phase 2–5)
+// Auth + view routing + studios + reactor + library + profile +
+// referrals + challenges + content rewards + promos + preview mode.
 // ============================================================
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 
 const cfg = window.FUSE;
 const sb = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
-
 const $ = (id) => document.getElementById(id);
-let currentUser = null;
 
-// ---------- helpers ----------
+let user = null;
+let preview = false;
+let showUsd = false;
+let activeStudio = cfg.STUDIOS[0];
+
+const naira = (n) => '₦' + Number(n).toLocaleString();
+const usd = (n) => '
+</body>
+</html>
+ + Math.round(n / cfg.USD_RATE);
+const price = (n) => (showUsd ? usd(n) : naira(n));
+
 async function authHeader() {
   const { data } = await sb.auth.getSession();
-  const token = data.session && data.session.access_token;
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  const t = data.session && data.session.access_token;
+  return t ? { Authorization: `Bearer ${t}` } : {};
 }
-function naira(n) { return '₦' + Number(n).toLocaleString(); }
+function note(id, msg, kind) { const e = $(id); e.textContent = msg || ''; e.className = 'note' + (kind ? ' ' + kind : ''); }
 
-// ---------- auth ----------
-async function refreshSession() {
-  const { data } = await sb.auth.getSession();
-  currentUser = data.session ? data.session.user : null;
-  if (currentUser) { hideAuth(); await loadProfile(); await loadGallery(); }
-  else { showAuth(); }
+// ---------------- view routing ----------------
+function showView(name, opts = {}) {
+  document.querySelectorAll('.view').forEach((v) => v.classList.remove('active'));
+  const el = $('view-' + name);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.view === name));
+  window.scrollTo(0, 0);
+  if (name === 'library') loadLibrary();
+  if (name === 'profile') loadProfile();
+  if (name === 'community') loadChallenges();
+  if (name === 'reactor') buildReactor();
 }
 
-function showAuth() { $('authOverlay').style.display = 'grid'; $('appMain').style.opacity = '.15'; }
-function hideAuth() { $('authOverlay').style.display = 'none'; $('appMain').style.opacity = '1'; }
+function openStudio(key) {
+  if (key === 'reactor') { showView('reactor'); return; }
+  activeStudio = cfg.STUDIOS.find((s) => s.key === key) || cfg.STUDIOS[0];
+  $('studioIcon').textContent = activeStudio.icon;
+  $('studioName').textContent = activeStudio.name;
+  $('studioDesc').textContent = activeStudio.desc + (activeStudio.advanced ? ' · Beta' : '');
+  $('result').innerHTML = '<div>Your creation appears here.<br><span class="muted">Write a prompt and hit Generate ✨</span></div>';
+  note('genNote', '');
+  showView('studio');
+}
 
-let authMode = 'signup'; // 'signup' | 'login'
+// ---------------- home builders ----------------
+function buildHome() {
+  // tool cards (studios + reactor)
+  const cards = cfg.STUDIOS.filter((s) => s.key !== 'generate').concat([{ key: 'reactor', name: cfg.REACTOR_NAME, icon: '⚛️', tag: 'NEW', desc: 'Claude · Gemini · ChatGPT & more' }]);
+  $('toolGrid').innerHTML = cards.map((s) => {
+    const cls = s.tag === 'BETA' ? 'beta' : s.tag === 'TRENDING' ? 'trend' : '';
+    return `<div class="tool" data-studio="${s.key}">
+      ${s.tag ? `<span class="bdg ${cls}">${s.tag}</span>` : ''}
+      <div class="ic">${s.icon}</div><div class="tn">${s.name}</div><div class="td">${s.desc}</div></div>`;
+  }).join('');
+  $('toolGrid').querySelectorAll('.tool').forEach((el) => el.onclick = () => openStudio(el.dataset.studio));
+
+  // preset chips
+  $('presetChips').innerHTML = cfg.PRESETS.map((p) => `<div class="chip">${p}</div>`).join('');
+  $('presetChips').querySelectorAll('.chip').forEach((el) => el.onclick = () => {
+    openStudio('generate'); $('prompt').value = el.textContent;
+  });
+
+  // promo banner
+  const pr = cfg.PROMO;
+  $('homePromo').innerHTML =
+    `<div class="lab">⏳ ${pr.title}</div><h3>${pr.body}</h3>
+     <button class="btn gold sm" id="promoBannerCta">${pr.cta}</button>
+     <span class="countdown" id="bannerCountdown"></span>`;
+  $('promoBannerCta').onclick = () => buy(pr.pack);
+  startCountdown('bannerCountdown', pr.hours);
+}
+
+// ---------------- countdown ----------------
+function startCountdown(id, hours) {
+  const end = Date.now() + hours * 3600 * 1000;
+  const tick = () => {
+    const el = $(id); if (!el) return;
+    let s = Math.max(0, Math.floor((end - Date.now()) / 1000));
+    const h = String(Math.floor(s / 3600)).padStart(2, '0');
+    const m = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+    const ss = String(s % 60).padStart(2, '0');
+    el.textContent = `${h}:${m}:${ss}`;
+  };
+  tick(); setInterval(tick, 1000);
+}
+
+// ---------------- generate ----------------
+async function generate() {
+  if (preview) { showAuth('signup'); return; }
+  const raw = $('prompt').value.trim();
+  if (!raw) return note('genNote', 'Describe what you want to create.', 'err');
+  const prompt = activeStudio.template.replace('{input}', raw);
+  const model = $('model').value, aspect = $('aspect').value;
+
+  const btn = $('genBtn'); btn.disabled = true; btn.textContent = 'Generating…';
+  $('result').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Sending to the engine…</div></div>';
+  note('genNote', '');
+  let t = 0; const iv = setInterval(() => { t += 2.5; const d = $('result').querySelector('div div'); if (d) d.textContent = `Creating… (${Math.round(t)}s)`; }, 2500);
+
+  try {
+    const res = await fetch('/.netlify/functions/generate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ prompt, model, aspect }),
+    });
+    const data = await res.json(); clearInterval(iv);
+    if (res.status === 402) { note('genNote', 'Out of credits — top up to keep creating.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; }
+    else if (!res.ok) throw new Error(data.error || 'Generation failed');
+    else {
+      $('creditCount').textContent = data.credits;
+      $('result').innerHTML = `<div><img src="${data.url}" alt="result"><div style="margin-top:12px"><a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
+      note('genNote', 'Done ✅', 'ok');
+    }
+  } catch (e) { clearInterval(iv); $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); }
+  btn.disabled = false; btn.textContent = '✨ Generate';
+}
+
+// ---------------- reactor (multi-AI) ----------------
+let rcModel = null;
+function buildReactor() {
+  $('reactorTitle').textContent = cfg.REACTOR_NAME;
+  $('reactorList').innerHTML = cfg.REACTOR_MODELS.map((m) =>
+    `<div class="rcard ${m.live ? '' : 'soon'}" data-id="${m.id}">
+       <div class="rn">${m.name}</div><div class="rb">${m.badge}</div>
+       <div class="rc">${m.live ? m.credits + ' cr / msg' : 'Coming soon'}</div></div>`).join('');
+  $('reactorList').querySelectorAll('.rcard').forEach((el) => el.onclick = () => {
+    const m = cfg.REACTOR_MODELS.find((x) => x.id === el.dataset.id);
+    if (!m.live) { note('rcNote', `${m.name} comes online soon — video AIs are being connected.`, 'err'); $('reactorChat').style.display = 'block'; $('rcName').textContent = m.name; $('rcCost').textContent = 'Coming soon'; $('rcOut').textContent=''; return; }
+    rcModel = m; $('reactorChat').style.display = 'block';
+    $('rcName').textContent = m.name; $('rcCost').textContent = m.credits + ' credits per message'; $('rcOut').textContent = ''; note('rcNote', '');
+  });
+}
+async function reactorSend() {
+  if (preview) { showAuth('signup'); return; }
+  if (!rcModel) return;
+  const prompt = $('rcInput').value.trim(); if (!prompt) return note('rcNote', 'Type a message.', 'err');
+  const btn = $('rcSend'); btn.disabled = true; btn.textContent = 'Thinking…'; note('rcNote', '');
+  try {
+    const res = await fetch('/.netlify/functions/ai-chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ model: rcModel.id, prompt }),
+    });
+    const data = await res.json();
+    if (res.status === 503) note('rcNote', data.error, 'err');
+    else if (res.status === 402) { note('rcNote', 'Out of credits.', 'err'); openBuy(); }
+    else if (!res.ok) throw new Error(data.error || 'AI error');
+    else { $('rcOut').textContent = data.text; $('creditCount').textContent = data.credits; }
+  } catch (e) { note('rcNote', e.message, 'err'); }
+  btn.disabled = false; btn.textContent = 'Send';
+}
+
+// ---------------- library / recent ----------------
+async function loadLibrary() {
+  if (preview) return demoGrid('libGrid');
+  const { data } = await sb.from('generations').select('output_url').eq('user_id', user.id).order('created_at', { ascending: false }).limit(30);
+  const g = $('libGrid');
+  g.innerHTML = (data && data.length) ? data.map((x) => `<img src="${x.output_url}" onclick="window.open('${x.output_url}','_blank')">`).join('')
+    : '<div class="empty">No creations yet — make your first ✨</div>';
+}
+async function loadRecent() {
+  if (preview) return demoGrid('homeRecent');
+  const { data } = await sb.from('generations').select('output_url').eq('user_id', user.id).order('created_at', { ascending: false }).limit(6);
+  $('homeRecent').innerHTML = (data && data.length) ? data.map((x) => `<img src="${x.output_url}" onclick="window.open('${x.output_url}','_blank')">`).join('') : '<div class="empty" style="grid-column:1/-1">Your recent creations show here.</div>';
+}
+function demoGrid(id) { $(id).innerHTML = Array(6).fill('<div class="empty" style="aspect-ratio:1;display:grid;place-items:center;padding:0">🖼️</div>').join(''); }
+
+// ---------------- profile ----------------
+async function loadProfile() {
+  $('creditCount').textContent;
+  if (preview) {
+    $('pfEmail').textContent = 'preview@fuse'; $('pfPlan').textContent = 'Preview'; $('pfCredits').textContent = '—';
+    $('refLink').value = location.origin + '/?ref=YOURCODE'; $('pfAffiliate').textContent = '₦0'; return;
+  }
+  const { data } = await sb.from('profiles').select('credits, plan, plan_expires_at, referral_code, affiliate_naira').eq('id', user.id).maybeSingle();
+  if (!data) return;
+  $('pfEmail').textContent = user.email;
+  $('pfPlan').textContent = data.plan === 'free' ? 'Free trial' : 'Studio ' + data.plan;
+  $('pfCredits').textContent = data.credits;
+  $('creditCount').textContent = data.credits;
+  $('planBadge').textContent = data.plan === 'free' ? 'Trial' : data.plan;
+  $('refLink').value = `${location.origin}/?ref=${data.referral_code}`;
+  $('pfAffiliate').textContent = naira(data.affiliate_naira || 0);
+}
+
+// ---------------- community ----------------
+async function loadChallenges() {
+  const { data } = await sb.from('challenges').select('*').eq('active', true).order('created_at', { ascending: false });
+  $('challengeList').innerHTML = (data && data.length) ? data.map((c) =>
+    `<div class="chal"><h3>${c.title}</h3><p class="muted" style="margin:0 0 6px;font-size:14px">${c.brief || ''}</p>
+      <div class="prize">🏆 ${c.prize || ''}</div></div>`).join('')
+    : '<div class="empty">No active challenges right now — check back soon.</div>';
+}
+async function submitContent() {
+  if (preview) { showAuth('signup'); return; }
+  const url = $('contentUrl').value.trim(); if (!url) return note('contentNote', 'Paste your post link.', 'err');
+  const { error } = await sb.from('content_submissions').insert({ user_id: user.id, url });
+  note('contentNote', error ? error.message : '✅ Submitted! We review and credit approved posts.', error ? 'err' : 'ok');
+  if (!error) $('contentUrl').value = '';
+}
+async function requestPayout() {
+  if (preview) { showAuth('signup'); return; }
+  const { error } = await sb.from('payout_requests').insert({ user_id: user.id, amount_naira: 0, status: 'requested' });
+  note('payoutNote', error ? error.message : '✅ Request received. Verified affiliates are paid by transfer.', error ? 'err' : 'ok');
+}
+
+// ---------------- buy / Paystack ----------------
+function openBuy() { renderPacks(); note('buyNote', ''); $('buyOverlay').style.display = 'grid'; }
+function renderPacks() {
+  $('packList').innerHTML = cfg.PACKS.map((p) =>
+    `<div class="pk" data-pack="${p.key}"><div><div class="pkn">${p.name}${p.featured ? ' ⭐' : ''}</div>
+      <div class="pkc">${p.credits} credits · ${p.note}${p.kind === 'sub' ? ' /mo' : ''}</div></div>
+      <div class="pka">${price(p.naira)}</div></div>`).join('');
+  $('packList').querySelectorAll('.pk').forEach((el) => el.onclick = () => buy(el.dataset.pack, el));
+  $('curToggle').textContent = showUsd ? 'Show ₦' : 'Show 
+</body>
+</html>
+;
+}
+async function buy(pack, el) {
+  if (preview) { showAuth('signup'); return; }
+  note('buyNote', 'Opening secure checkout…', 'ok'); if (el) el.style.opacity = '.5';
+  try {
+    const res = await fetch('/.netlify/functions/paystack-init', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ pack }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not start payment');
+    window.location.href = data.authorization_url;
+  } catch (e) { note('buyNote', e.message, 'err'); if (el) el.style.opacity = '1'; }
+}
+
+// ---------------- promo popup ----------------
+function maybePromo() {
+  if (sessionStorage.getItem('fuse_promo_seen')) return;
+  setTimeout(() => {
+    const pr = cfg.PROMO;
+    $('promoTitle').textContent = pr.title; $('promoBody').textContent = pr.body;
+    startCountdown('promoCountdown', pr.hours);
+    $('promoOverlay').style.display = 'grid';
+    sessionStorage.setItem('fuse_promo_seen', '1');
+  }, 9000);
+}
+
+// ---------------- auth ----------------
+let authMode = 'signup';
+function showAuth(mode) { setAuthMode(mode || 'signup'); $('authOverlay').style.display = 'grid'; }
+function hideAuth() { $('authOverlay').style.display = 'none'; }
 function setAuthMode(m) {
   authMode = m;
   $('authTitle').textContent = m === 'signup' ? 'Create your account' : 'Welcome back';
   $('authBtn').textContent = m === 'signup' ? 'Start free →' : 'Log in →';
-  $('authSwitchText').textContent = m === 'signup' ? 'Already have an account?' : "New here?";
+  $('authSwitchText').textContent = m === 'signup' ? 'Already have an account?' : 'New here?';
   $('authSwitchLink').textContent = m === 'signup' ? 'Log in' : 'Create one';
   $('authTrial').style.display = m === 'signup' ? 'block' : 'none';
-  setNote('authNote', '');
+  note('authNote', '');
 }
-function setNote(id, msg, kind) {
-  const el = $(id); el.textContent = msg || '';
-  el.className = 'note' + (kind ? ' ' + kind : '');
-}
-
 async function doAuth() {
-  const email = $('authEmail').value.trim();
-  const pass = $('authPass').value;
-  if (!email || !pass) return setNote('authNote', 'Enter your email and password.', 'err');
+  const email = $('authEmail').value.trim(), pass = $('authPass').value;
+  if (!email || !pass) return note('authNote', 'Enter email and password.', 'err');
   $('authBtn').disabled = true;
   try {
     if (authMode === 'signup') {
       const { error } = await sb.auth.signUp({ email, password: pass });
       if (error) throw error;
       const { data } = await sb.auth.getSession();
-      if (!data.session) {
-        setNote('authNote', '✅ Account created — check your email to confirm, then log in.', 'ok');
-        $('authBtn').disabled = false; setAuthMode('login'); return;
-      }
+      if (!data.session) { note('authNote', '✅ Account created — check your email to confirm, then log in.', 'ok'); setAuthMode('login'); $('authBtn').disabled = false; return; }
+      await claimReferral();
     } else {
       const { error } = await sb.auth.signInWithPassword({ email, password: pass });
       if (error) throw error;
     }
-    await refreshSession();
-  } catch (e) {
-    setNote('authNote', e.message || 'Something went wrong.', 'err');
-  }
+    await boot();
+  } catch (e) { note('authNote', e.message || 'Something went wrong.', 'err'); }
   $('authBtn').disabled = false;
 }
-
+async function claimReferral() {
+  const code = localStorage.getItem('fuse_ref'); if (!code) return;
+  try { await fetch('/.netlify/functions/claim-referral', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ code }) }); localStorage.removeItem('fuse_ref'); } catch (e) {}
+}
 async function logout() { await sb.auth.signOut(); location.reload(); }
 
-// ---------- profile / credits ----------
-async function loadProfile() {
-  const { data, error } = await sb.from('profiles')
-    .select('credits, plan, plan_expires_at').eq('id', currentUser.id).maybeSingle();
-  if (error || !data) { $('creditCount').textContent = '…'; return; }
-  $('creditCount').textContent = data.credits;
-  $('planBadge').textContent = data.plan === 'free' ? 'Free trial' : 'Studio ' + data.plan;
+// ---------------- preview mode ----------------
+function enterPreview() {
+  const code = prompt0('Enter preview password:');
+  if (code === null) return;
+  if (code.trim() !== cfg.PREVIEW_CODE) { note('authNote', 'Wrong password.', 'err'); return; }
+  preview = true; hideAuth(); $('previewRibbon').style.display = 'block';
+  $('creditCount').textContent = '∞'; $('planBadge').textContent = 'Preview';
+  buildHome(); loadRecent();
+}
+function prompt0(m) { return window.prompt(m); }
+
+// ---------------- boot ----------------
+async function boot() {
+  const { data } = await sb.auth.getSession();
+  user = data.session ? data.session.user : null;
+  if (!user) { showAuth('signup'); return; }
+  hideAuth(); preview = false; $('previewRibbon').style.display = 'none';
+  buildHome();
+  await loadProfile();
+  await loadRecent();
+  await claimReferral();
+  maybePromo();
 }
 
-// ---------- generate ----------
-async function generate() {
-  const prompt = $('prompt').value.trim();
-  if (!prompt) { setNote('genNote', 'Describe what you want to create.', 'err'); return; }
-  const model = $('model').value;
-  const aspect = $('aspect').value;
-
-  const btn = $('genBtn'); btn.disabled = true; btn.innerHTML = 'Generating…';
-  $('result').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Sending to the engine…</div></div>';
-  setNote('genNote', '');
-
-  let elapsed = 0;
-  const tick = setInterval(() => { elapsed += 2.5;
-    const r = $('result').querySelector('div div'); if (r) r.textContent = `Creating… (${Math.round(elapsed)}s)`;
-  }, 2500);
-
-  try {
-    const res = await fetch('/.netlify/functions/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ prompt, model, aspect }),
-    });
-    const data = await res.json();
-    clearInterval(tick);
-
-    if (res.status === 402) {
-      $('result').innerHTML = '<div>You’re out of credits.</div>';
-      setNote('genNote', 'Out of credits — top up to keep creating.', 'err');
-      openBuy(); return;
-    }
-    if (!res.ok) throw new Error(data.error || 'Generation failed');
-
-    $('creditCount').textContent = data.credits;
-    $('result').innerHTML =
-      `<div><img src="${data.url}" alt="result"><div style="margin-top:12px">` +
-      `<a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
-    setNote('genNote', 'Done ✅', 'ok');
-    loadGallery();
-  } catch (e) {
-    clearInterval(tick);
-    $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>';
-    setNote('genNote', e.message || 'Failed — your credits were not charged.', 'err');
-  }
-  btn.disabled = false; btn.innerHTML = '✨ Generate';
-}
-
-// ---------- recent gallery ----------
-async function loadGallery() {
-  const { data } = await sb.from('generations')
-    .select('output_url').eq('user_id', currentUser.id)
-    .order('created_at', { ascending: false }).limit(8);
-  const g = $('gallery');
-  if (!data || !data.length) { g.innerHTML = ''; return; }
-  g.innerHTML = data.map((x) => `<img src="${x.output_url}" onclick="window.open('${x.output_url}','_blank')">`).join('');
-}
-
-// ---------- buy / Paystack ----------
-function openBuy() {
-  const list = cfg.PACKS.map((p) => `
-    <div class="pk" data-pack="${p.key}">
-      <div><div class="pkn">${p.name}${p.featured ? ' ⭐' : ''}</div>
-        <div class="pkc">${p.credits} credits · ${p.note}${p.kind === 'sub' ? ' · /mo' : ''}</div></div>
-      <div class="pka">${naira(p.naira)}</div>
-    </div>`).join('');
-  $('packList').innerHTML = list;
-  $('packList').querySelectorAll('.pk').forEach((el) => {
-    el.onclick = () => buy(el.getAttribute('data-pack'), el);
-  });
-  setNote('buyNote', '');
-  $('buyOverlay').style.display = 'grid';
-}
-function closeBuy() { $('buyOverlay').style.display = 'none'; }
-
-async function buy(pack, el) {
-  setNote('buyNote', 'Opening secure checkout…', 'ok');
-  if (el) el.style.opacity = '.5';
-  try {
-    const res = await fetch('/.netlify/functions/paystack-init', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ pack }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Could not start payment');
-    window.location.href = data.authorization_url; // Paystack page (offers Pay with Transfer)
-  } catch (e) {
-    setNote('buyNote', e.message || 'Failed to start payment', 'err');
-    if (el) el.style.opacity = '1';
-  }
-}
-
-// ---------- wire up ----------
+// ---------------- wire up ----------------
 window.addEventListener('DOMContentLoaded', () => {
+  // capture referral code from URL (?ref=)
+  const ref = new URLSearchParams(location.search).get('ref');
+  if (ref) localStorage.setItem('fuse_ref', ref);
+
+  document.querySelectorAll('.tab').forEach((t) => t.onclick = () => {
+    if (t.dataset.studio) openStudio(t.dataset.studio); else showView(t.dataset.view);
+  });
+  $('studioBack').onclick = () => showView('home');
+  $('reactorBack').onclick = () => showView('home');
+  $('seeLib').onclick = () => showView('library');
+  $('genBtn').onclick = generate;
+  $('rcSend').onclick = reactorSend;
+  $('buyBtn').onclick = openBuy; $('creditPill').onclick = openBuy;
+  $('buyClose').onclick = () => $('buyOverlay').style.display = 'none';
+  $('curToggle').onclick = () => { showUsd = !showUsd; renderPacks(); };
+  $('promoClose').onclick = () => $('promoOverlay').style.display = 'none';
+  $('promoCta').onclick = () => { $('promoOverlay').style.display = 'none'; buy(cfg.PROMO.pack); };
+  $('contentSubmit').onclick = submitContent;
+  $('payoutBtn').onclick = requestPayout;
+  $('copyRef').onclick = () => { navigator.clipboard.writeText($('refLink').value); $('copyRef').textContent = 'Copied!'; setTimeout(() => $('copyRef').textContent = 'Copy', 1500); };
+  $('logoutBtn').onclick = logout;
   $('authBtn').onclick = doAuth;
   $('authSwitchLink').onclick = () => setAuthMode(authMode === 'signup' ? 'login' : 'signup');
   $('authPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doAuth(); });
-  $('logoutBtn').onclick = logout;
-  $('genBtn').onclick = generate;
-  $('buyBtn').onclick = openBuy;
-  $('buyClose').onclick = closeBuy;
-  $('creditPill').onclick = openBuy;
+  $('previewLink').onclick = enterPreview;
 
-  setAuthMode('signup');
-  refreshSession();
+  if (new URLSearchParams(location.search).get('paid')) setTimeout(() => user && loadProfile(), 2500);
+  /* sw disabled in standalone */
 
-  // If we just came back from Paystack, refresh the balance shortly after
-  // (webhook credits arrive server-side within a second or two).
-  if (new URLSearchParams(location.search).get('paid')) {
-    setTimeout(() => currentUser && loadProfile(), 2500);
-  }
-
-  // Register the service worker so the app is installable.
-  /* service worker disabled in standalone file */
+  boot();
 });
 
 </script>

@@ -1,22 +1,66 @@
 // ============================================================
-// Fuse Studio — public frontend config.
-// These two Supabase values are SAFE to expose (anon/public key).
-// Fill them after you create your Supabase project
-// (Supabase → Project Settings → API).
-// Everything secret (service role, MuAPI, Paystack secret) lives in
-// Netlify environment variables and is NEVER in this file.
+// Fuse Studio — public frontend config (safe to expose).
+// Fill the two Supabase values after creating your project.
 // ============================================================
 window.FUSE = {
   SUPABASE_URL: 'https://YOUR-PROJECT.supabase.co',
   SUPABASE_ANON_KEY: 'YOUR-ANON-PUBLIC-KEY',
 
-  // Display info for the buy modal. Real prices/credits are enforced
-  // server-side in netlify/functions/_packs.js — keep these in sync for display.
+  // Preview password — lets you (or anyone) tour the studio UI without
+  // a Supabase account. Generation/payments still need a real login.
+  PREVIEW_CODE: 'FUSE-VIP',
+
+  // Naira per US dollar — for showing $ prices to foreigners (display only).
+  USD_RATE: 1550,
+
+  // Buy options. Real prices are enforced server-side in netlify/functions/_packs.js.
   PACKS: [
-    { key: 'starter', name: 'Starter',  naira: 2500,  credits: 60,  note: 'Try a few looks',    kind: 'pack' },
-    { key: 'creator', name: 'Creator',  naira: 6000,  credits: 180, note: 'Best value',          kind: 'pack', featured: true },
-    { key: 'pro',     name: 'Pro Pack', naira: 12000, credits: 420, note: 'For heavy creators',  kind: 'pack' },
-    { key: 'lite_mo', name: 'Studio Lite', naira: 5000,  credits: 150, note: 'Monthly plan',     kind: 'sub' },
-    { key: 'pro_mo',  name: 'Studio Pro',  naira: 15000, credits: 600, note: 'Monthly plan',     kind: 'sub' },
+    { key: 'starter',    name: 'Starter',       naira: 2500,  credits: 60,   note: 'Try a few looks',     kind: 'pack' },
+    { key: 'creator',    name: 'Creator Pack',  naira: 6000,  credits: 180,  note: 'Best value',           kind: 'pack', featured: true },
+    { key: 'pro',        name: 'Pro Pack',      naira: 12000, credits: 420,  note: 'Heavy creators',       kind: 'pack' },
+    { key: 'creator_mo', name: 'Creator',       naira: 9000,  credits: 350,  note: 'Monthly · all studios', kind: 'sub' },
+    { key: 'pro_mo',     name: 'Studio Pro',    naira: 20000, credits: 800,  note: 'Monthly · video + AI',  kind: 'sub' },
+    { key: 'agency_mo',  name: 'Agency',        naira: 75000, credits: 3500, note: 'Monthly · white-label', kind: 'sub' },
+    { key: 'course',     name: 'Fuse Atelier Course', naira: 60000, credits: 500, note: 'Learn + 500 credits', kind: 'course' },
   ],
+
+  // Creative Studios — each is a guided generator using the live engine.
+  STUDIOS: [
+    { key: 'generate', name: 'Generate',               icon: '✨', tag: '',         desc: 'Free-form image creation',
+      template: '{input}' },
+    { key: 'brand',    name: 'Brand Identity Studio',  icon: '🎯', tag: 'NEW',      desc: 'Logos, looks & brand visuals',
+      template: 'professional brand identity concept for {input}, modern logo and visual style, cohesive premium color palette, clean, high-end, editorial' },
+    { key: 'packaging',name: 'Packaging Design Studio',icon: '📦', tag: '',         desc: 'Product packaging mockups',
+      template: 'premium product packaging design mockup for {input}, realistic studio product photography, elegant label, retail-ready, soft lighting' },
+    { key: 'ugc',      name: 'UGC Creator Studio',     icon: '🎬', tag: 'TRENDING', desc: 'Scroll-stopping ad content',
+      template: 'authentic UGC-style content photo of {input}, natural lighting, candid, relatable, social-media ready, shot on phone aesthetic' },
+    { key: 'movie',    name: 'Movie Studio',           icon: '🎥', tag: '',         desc: 'Cinematic scenes & posters',
+      template: 'cinematic film still of {input}, dramatic lighting, movie-grade color grade, depth of field, epic composition, poster quality' },
+    { key: 'avatar',   name: 'AI Avatar Studio',       icon: '🧑‍🎨', tag: 'BETA',    desc: 'Your consistent character face',
+      template: 'professional portrait of {input}, consistent character, studio lighting, sharp detail, identity reference',
+      advanced: true },
+  ],
+
+  // Quick preset chips on Home.
+  PRESETS: ['Nigerian entrepreneur', 'Luxury skincare brand', 'Fashion lookbook', 'Tech startup founder', 'Food product ad', 'Cinematic portrait'],
+
+  // Fuse Reactor — the multi-AI hub (renamed, not a Higgsfield copy).
+  REACTOR_NAME: 'Fuse Reactor',
+  REACTOR_MODELS: [
+    { id: 'anthropic/claude-3.5-sonnet', name: 'Claude',  badge: 'Anthropic', credits: 2, live: true },
+    { id: 'google/gemini-flash-1.5',     name: 'Gemini',  badge: 'Google',    credits: 1, live: true },
+    { id: 'openai/gpt-4o-mini',          name: 'ChatGPT', badge: 'OpenAI',    credits: 1, live: true },
+    { id: 'kling',  name: 'Kling Video',  badge: 'Video', credits: 40, live: false },
+    { id: 'heygen', name: 'HeyGen Avatar',badge: 'Video', credits: 50, live: false },
+    { id: 'veo',    name: 'Google Veo',   badge: 'Video', credits: 60, live: false },
+  ],
+
+  // Rotating promo pop-up (the Higgsfield-style effect).
+  PROMO: {
+    title: 'Founding Member Offer',
+    body: 'Get 27 days of Studio Pro + the Fuse Atelier course bundle. Limited launch pricing.',
+    cta: 'Claim the offer',
+    pack: 'course',
+    hours: 24, // countdown length
+  },
 };

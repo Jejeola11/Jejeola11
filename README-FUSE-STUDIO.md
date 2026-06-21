@@ -109,6 +109,17 @@ lives safely on the server as `MUAPI_KEY` — users never see it.
 - [ ] Paystack switched to **live** keys + webhook URL set
 - [ ] Test signup → generate → pay → credits added
 
+## Phase 2–5 setup (shell, studios, referrals, challenges, Reactor)
+- In Supabase SQL Editor, also run **`supabase/schema-phase2.sql`** (referrals,
+  challenges, content rewards, payouts).
+- **Preview password:** set `PREVIEW_CODE` in `app/config.js` (default `FUSE-VIP`).
+  Anyone with it can tour the studio UI without a Supabase account.
+- **Fuse Reactor (multi-AI text):** add a Netlify env var `OPENROUTER_API_KEY`
+  (from openrouter.ai) to switch Claude/Gemini/ChatGPT on. Video models
+  (Kling/HeyGen/Veo) show "coming soon" until wired to their APIs.
+- **Affiliate cash payouts & content rewards** are intentionally manual + review-based
+  (anti-fraud). Approve and pay verified users yourself from the Supabase tables.
+
 ## Later / optional
 - **Video generation** — the backend is structured to add it (a video model +
   credit cost); say the word.

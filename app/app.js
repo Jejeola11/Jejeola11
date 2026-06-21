@@ -1,197 +1,342 @@
 // ============================================================
-// Fuse Studio — studio app logic
-// Auth (Supabase) + credit display + generation (via secure function)
-// + Paystack checkout. Loaded only on studio.html.
+// Fuse Studio — app shell logic (Phase 2–5)
+// Auth + view routing + studios + reactor + library + profile +
+// referrals + challenges + content rewards + promos + preview mode.
 // ============================================================
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 
 const cfg = window.FUSE;
 const sb = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
-
 const $ = (id) => document.getElementById(id);
-let currentUser = null;
 
-// ---------- helpers ----------
+let user = null;
+let preview = false;
+let showUsd = false;
+let activeStudio = cfg.STUDIOS[0];
+
+const naira = (n) => '₦' + Number(n).toLocaleString();
+const usd = (n) => '$' + Math.round(n / cfg.USD_RATE);
+const price = (n) => (showUsd ? usd(n) : naira(n));
+
 async function authHeader() {
   const { data } = await sb.auth.getSession();
-  const token = data.session && data.session.access_token;
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  const t = data.session && data.session.access_token;
+  return t ? { Authorization: `Bearer ${t}` } : {};
 }
-function naira(n) { return '₦' + Number(n).toLocaleString(); }
+function note(id, msg, kind) { const e = $(id); e.textContent = msg || ''; e.className = 'note' + (kind ? ' ' + kind : ''); }
 
-// ---------- auth ----------
-async function refreshSession() {
-  const { data } = await sb.auth.getSession();
-  currentUser = data.session ? data.session.user : null;
-  if (currentUser) { hideAuth(); await loadProfile(); await loadGallery(); }
-  else { showAuth(); }
+// ---------------- view routing ----------------
+function showView(name, opts = {}) {
+  document.querySelectorAll('.view').forEach((v) => v.classList.remove('active'));
+  const el = $('view-' + name);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.view === name));
+  window.scrollTo(0, 0);
+  if (name === 'library') loadLibrary();
+  if (name === 'profile') loadProfile();
+  if (name === 'community') loadChallenges();
+  if (name === 'reactor') buildReactor();
 }
 
-function showAuth() { $('authOverlay').style.display = 'grid'; $('appMain').style.opacity = '.15'; }
-function hideAuth() { $('authOverlay').style.display = 'none'; $('appMain').style.opacity = '1'; }
+function openStudio(key) {
+  if (key === 'reactor') { showView('reactor'); return; }
+  activeStudio = cfg.STUDIOS.find((s) => s.key === key) || cfg.STUDIOS[0];
+  $('studioIcon').textContent = activeStudio.icon;
+  $('studioName').textContent = activeStudio.name;
+  $('studioDesc').textContent = activeStudio.desc + (activeStudio.advanced ? ' · Beta' : '');
+  $('result').innerHTML = '<div>Your creation appears here.<br><span class="muted">Write a prompt and hit Generate ✨</span></div>';
+  note('genNote', '');
+  showView('studio');
+}
 
-let authMode = 'signup'; // 'signup' | 'login'
+// ---------------- home builders ----------------
+function buildHome() {
+  // tool cards (studios + reactor)
+  const cards = cfg.STUDIOS.filter((s) => s.key !== 'generate').concat([{ key: 'reactor', name: cfg.REACTOR_NAME, icon: '⚛️', tag: 'NEW', desc: 'Claude · Gemini · ChatGPT & more' }]);
+  $('toolGrid').innerHTML = cards.map((s) => {
+    const cls = s.tag === 'BETA' ? 'beta' : s.tag === 'TRENDING' ? 'trend' : '';
+    return `<div class="tool" data-studio="${s.key}">
+      ${s.tag ? `<span class="bdg ${cls}">${s.tag}</span>` : ''}
+      <div class="ic">${s.icon}</div><div class="tn">${s.name}</div><div class="td">${s.desc}</div></div>`;
+  }).join('');
+  $('toolGrid').querySelectorAll('.tool').forEach((el) => el.onclick = () => openStudio(el.dataset.studio));
+
+  // preset chips
+  $('presetChips').innerHTML = cfg.PRESETS.map((p) => `<div class="chip">${p}</div>`).join('');
+  $('presetChips').querySelectorAll('.chip').forEach((el) => el.onclick = () => {
+    openStudio('generate'); $('prompt').value = el.textContent;
+  });
+
+  // promo banner
+  const pr = cfg.PROMO;
+  $('homePromo').innerHTML =
+    `<div class="lab">⏳ ${pr.title}</div><h3>${pr.body}</h3>
+     <button class="btn gold sm" id="promoBannerCta">${pr.cta}</button>
+     <span class="countdown" id="bannerCountdown"></span>`;
+  $('promoBannerCta').onclick = () => buy(pr.pack);
+  startCountdown('bannerCountdown', pr.hours);
+}
+
+// ---------------- countdown ----------------
+function startCountdown(id, hours) {
+  const end = Date.now() + hours * 3600 * 1000;
+  const tick = () => {
+    const el = $(id); if (!el) return;
+    let s = Math.max(0, Math.floor((end - Date.now()) / 1000));
+    const h = String(Math.floor(s / 3600)).padStart(2, '0');
+    const m = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+    const ss = String(s % 60).padStart(2, '0');
+    el.textContent = `${h}:${m}:${ss}`;
+  };
+  tick(); setInterval(tick, 1000);
+}
+
+// ---------------- generate ----------------
+async function generate() {
+  if (preview) { showAuth('signup'); return; }
+  const raw = $('prompt').value.trim();
+  if (!raw) return note('genNote', 'Describe what you want to create.', 'err');
+  const prompt = activeStudio.template.replace('{input}', raw);
+  const model = $('model').value, aspect = $('aspect').value;
+
+  const btn = $('genBtn'); btn.disabled = true; btn.textContent = 'Generating…';
+  $('result').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Sending to the engine…</div></div>';
+  note('genNote', '');
+  let t = 0; const iv = setInterval(() => { t += 2.5; const d = $('result').querySelector('div div'); if (d) d.textContent = `Creating… (${Math.round(t)}s)`; }, 2500);
+
+  try {
+    const res = await fetch('/.netlify/functions/generate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ prompt, model, aspect }),
+    });
+    const data = await res.json(); clearInterval(iv);
+    if (res.status === 402) { note('genNote', 'Out of credits — top up to keep creating.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; }
+    else if (!res.ok) throw new Error(data.error || 'Generation failed');
+    else {
+      $('creditCount').textContent = data.credits;
+      $('result').innerHTML = `<div><img src="${data.url}" alt="result"><div style="margin-top:12px"><a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
+      note('genNote', 'Done ✅', 'ok');
+    }
+  } catch (e) { clearInterval(iv); $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); }
+  btn.disabled = false; btn.textContent = '✨ Generate';
+}
+
+// ---------------- reactor (multi-AI) ----------------
+let rcModel = null;
+function buildReactor() {
+  $('reactorTitle').textContent = cfg.REACTOR_NAME;
+  $('reactorList').innerHTML = cfg.REACTOR_MODELS.map((m) =>
+    `<div class="rcard ${m.live ? '' : 'soon'}" data-id="${m.id}">
+       <div class="rn">${m.name}</div><div class="rb">${m.badge}</div>
+       <div class="rc">${m.live ? m.credits + ' cr / msg' : 'Coming soon'}</div></div>`).join('');
+  $('reactorList').querySelectorAll('.rcard').forEach((el) => el.onclick = () => {
+    const m = cfg.REACTOR_MODELS.find((x) => x.id === el.dataset.id);
+    if (!m.live) { note('rcNote', `${m.name} comes online soon — video AIs are being connected.`, 'err'); $('reactorChat').style.display = 'block'; $('rcName').textContent = m.name; $('rcCost').textContent = 'Coming soon'; $('rcOut').textContent=''; return; }
+    rcModel = m; $('reactorChat').style.display = 'block';
+    $('rcName').textContent = m.name; $('rcCost').textContent = m.credits + ' credits per message'; $('rcOut').textContent = ''; note('rcNote', '');
+  });
+}
+async function reactorSend() {
+  if (preview) { showAuth('signup'); return; }
+  if (!rcModel) return;
+  const prompt = $('rcInput').value.trim(); if (!prompt) return note('rcNote', 'Type a message.', 'err');
+  const btn = $('rcSend'); btn.disabled = true; btn.textContent = 'Thinking…'; note('rcNote', '');
+  try {
+    const res = await fetch('/.netlify/functions/ai-chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ model: rcModel.id, prompt }),
+    });
+    const data = await res.json();
+    if (res.status === 503) note('rcNote', data.error, 'err');
+    else if (res.status === 402) { note('rcNote', 'Out of credits.', 'err'); openBuy(); }
+    else if (!res.ok) throw new Error(data.error || 'AI error');
+    else { $('rcOut').textContent = data.text; $('creditCount').textContent = data.credits; }
+  } catch (e) { note('rcNote', e.message, 'err'); }
+  btn.disabled = false; btn.textContent = 'Send';
+}
+
+// ---------------- library / recent ----------------
+async function loadLibrary() {
+  if (preview) return demoGrid('libGrid');
+  const { data } = await sb.from('generations').select('output_url').eq('user_id', user.id).order('created_at', { ascending: false }).limit(30);
+  const g = $('libGrid');
+  g.innerHTML = (data && data.length) ? data.map((x) => `<img src="${x.output_url}" onclick="window.open('${x.output_url}','_blank')">`).join('')
+    : '<div class="empty">No creations yet — make your first ✨</div>';
+}
+async function loadRecent() {
+  if (preview) return demoGrid('homeRecent');
+  const { data } = await sb.from('generations').select('output_url').eq('user_id', user.id).order('created_at', { ascending: false }).limit(6);
+  $('homeRecent').innerHTML = (data && data.length) ? data.map((x) => `<img src="${x.output_url}" onclick="window.open('${x.output_url}','_blank')">`).join('') : '<div class="empty" style="grid-column:1/-1">Your recent creations show here.</div>';
+}
+function demoGrid(id) { $(id).innerHTML = Array(6).fill('<div class="empty" style="aspect-ratio:1;display:grid;place-items:center;padding:0">🖼️</div>').join(''); }
+
+// ---------------- profile ----------------
+async function loadProfile() {
+  $('creditCount').textContent;
+  if (preview) {
+    $('pfEmail').textContent = 'preview@fuse'; $('pfPlan').textContent = 'Preview'; $('pfCredits').textContent = '—';
+    $('refLink').value = location.origin + '/?ref=YOURCODE'; $('pfAffiliate').textContent = '₦0'; return;
+  }
+  const { data } = await sb.from('profiles').select('credits, plan, plan_expires_at, referral_code, affiliate_naira').eq('id', user.id).maybeSingle();
+  if (!data) return;
+  $('pfEmail').textContent = user.email;
+  $('pfPlan').textContent = data.plan === 'free' ? 'Free trial' : 'Studio ' + data.plan;
+  $('pfCredits').textContent = data.credits;
+  $('creditCount').textContent = data.credits;
+  $('planBadge').textContent = data.plan === 'free' ? 'Trial' : data.plan;
+  $('refLink').value = `${location.origin}/?ref=${data.referral_code}`;
+  $('pfAffiliate').textContent = naira(data.affiliate_naira || 0);
+}
+
+// ---------------- community ----------------
+async function loadChallenges() {
+  const { data } = await sb.from('challenges').select('*').eq('active', true).order('created_at', { ascending: false });
+  $('challengeList').innerHTML = (data && data.length) ? data.map((c) =>
+    `<div class="chal"><h3>${c.title}</h3><p class="muted" style="margin:0 0 6px;font-size:14px">${c.brief || ''}</p>
+      <div class="prize">🏆 ${c.prize || ''}</div></div>`).join('')
+    : '<div class="empty">No active challenges right now — check back soon.</div>';
+}
+async function submitContent() {
+  if (preview) { showAuth('signup'); return; }
+  const url = $('contentUrl').value.trim(); if (!url) return note('contentNote', 'Paste your post link.', 'err');
+  const { error } = await sb.from('content_submissions').insert({ user_id: user.id, url });
+  note('contentNote', error ? error.message : '✅ Submitted! We review and credit approved posts.', error ? 'err' : 'ok');
+  if (!error) $('contentUrl').value = '';
+}
+async function requestPayout() {
+  if (preview) { showAuth('signup'); return; }
+  const { error } = await sb.from('payout_requests').insert({ user_id: user.id, amount_naira: 0, status: 'requested' });
+  note('payoutNote', error ? error.message : '✅ Request received. Verified affiliates are paid by transfer.', error ? 'err' : 'ok');
+}
+
+// ---------------- buy / Paystack ----------------
+function openBuy() { renderPacks(); note('buyNote', ''); $('buyOverlay').style.display = 'grid'; }
+function renderPacks() {
+  $('packList').innerHTML = cfg.PACKS.map((p) =>
+    `<div class="pk" data-pack="${p.key}"><div><div class="pkn">${p.name}${p.featured ? ' ⭐' : ''}</div>
+      <div class="pkc">${p.credits} credits · ${p.note}${p.kind === 'sub' ? ' /mo' : ''}</div></div>
+      <div class="pka">${price(p.naira)}</div></div>`).join('');
+  $('packList').querySelectorAll('.pk').forEach((el) => el.onclick = () => buy(el.dataset.pack, el));
+  $('curToggle').textContent = showUsd ? 'Show ₦' : 'Show $';
+}
+async function buy(pack, el) {
+  if (preview) { showAuth('signup'); return; }
+  note('buyNote', 'Opening secure checkout…', 'ok'); if (el) el.style.opacity = '.5';
+  try {
+    const res = await fetch('/.netlify/functions/paystack-init', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ pack }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not start payment');
+    window.location.href = data.authorization_url;
+  } catch (e) { note('buyNote', e.message, 'err'); if (el) el.style.opacity = '1'; }
+}
+
+// ---------------- promo popup ----------------
+function maybePromo() {
+  if (sessionStorage.getItem('fuse_promo_seen')) return;
+  setTimeout(() => {
+    const pr = cfg.PROMO;
+    $('promoTitle').textContent = pr.title; $('promoBody').textContent = pr.body;
+    startCountdown('promoCountdown', pr.hours);
+    $('promoOverlay').style.display = 'grid';
+    sessionStorage.setItem('fuse_promo_seen', '1');
+  }, 9000);
+}
+
+// ---------------- auth ----------------
+let authMode = 'signup';
+function showAuth(mode) { setAuthMode(mode || 'signup'); $('authOverlay').style.display = 'grid'; }
+function hideAuth() { $('authOverlay').style.display = 'none'; }
 function setAuthMode(m) {
   authMode = m;
   $('authTitle').textContent = m === 'signup' ? 'Create your account' : 'Welcome back';
   $('authBtn').textContent = m === 'signup' ? 'Start free →' : 'Log in →';
-  $('authSwitchText').textContent = m === 'signup' ? 'Already have an account?' : "New here?";
+  $('authSwitchText').textContent = m === 'signup' ? 'Already have an account?' : 'New here?';
   $('authSwitchLink').textContent = m === 'signup' ? 'Log in' : 'Create one';
   $('authTrial').style.display = m === 'signup' ? 'block' : 'none';
-  setNote('authNote', '');
+  note('authNote', '');
 }
-function setNote(id, msg, kind) {
-  const el = $(id); el.textContent = msg || '';
-  el.className = 'note' + (kind ? ' ' + kind : '');
-}
-
 async function doAuth() {
-  const email = $('authEmail').value.trim();
-  const pass = $('authPass').value;
-  if (!email || !pass) return setNote('authNote', 'Enter your email and password.', 'err');
+  const email = $('authEmail').value.trim(), pass = $('authPass').value;
+  if (!email || !pass) return note('authNote', 'Enter email and password.', 'err');
   $('authBtn').disabled = true;
   try {
     if (authMode === 'signup') {
       const { error } = await sb.auth.signUp({ email, password: pass });
       if (error) throw error;
       const { data } = await sb.auth.getSession();
-      if (!data.session) {
-        setNote('authNote', '✅ Account created — check your email to confirm, then log in.', 'ok');
-        $('authBtn').disabled = false; setAuthMode('login'); return;
-      }
+      if (!data.session) { note('authNote', '✅ Account created — check your email to confirm, then log in.', 'ok'); setAuthMode('login'); $('authBtn').disabled = false; return; }
+      await claimReferral();
     } else {
       const { error } = await sb.auth.signInWithPassword({ email, password: pass });
       if (error) throw error;
     }
-    await refreshSession();
-  } catch (e) {
-    setNote('authNote', e.message || 'Something went wrong.', 'err');
-  }
+    await boot();
+  } catch (e) { note('authNote', e.message || 'Something went wrong.', 'err'); }
   $('authBtn').disabled = false;
 }
-
+async function claimReferral() {
+  const code = localStorage.getItem('fuse_ref'); if (!code) return;
+  try { await fetch('/.netlify/functions/claim-referral', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ code }) }); localStorage.removeItem('fuse_ref'); } catch (e) {}
+}
 async function logout() { await sb.auth.signOut(); location.reload(); }
 
-// ---------- profile / credits ----------
-async function loadProfile() {
-  const { data, error } = await sb.from('profiles')
-    .select('credits, plan, plan_expires_at').eq('id', currentUser.id).maybeSingle();
-  if (error || !data) { $('creditCount').textContent = '…'; return; }
-  $('creditCount').textContent = data.credits;
-  $('planBadge').textContent = data.plan === 'free' ? 'Free trial' : 'Studio ' + data.plan;
+// ---------------- preview mode ----------------
+function enterPreview() {
+  const code = prompt0('Enter preview password:');
+  if (code === null) return;
+  if (code.trim() !== cfg.PREVIEW_CODE) { note('authNote', 'Wrong password.', 'err'); return; }
+  preview = true; hideAuth(); $('previewRibbon').style.display = 'block';
+  $('creditCount').textContent = '∞'; $('planBadge').textContent = 'Preview';
+  buildHome(); loadRecent();
+}
+function prompt0(m) { return window.prompt(m); }
+
+// ---------------- boot ----------------
+async function boot() {
+  const { data } = await sb.auth.getSession();
+  user = data.session ? data.session.user : null;
+  if (!user) { showAuth('signup'); return; }
+  hideAuth(); preview = false; $('previewRibbon').style.display = 'none';
+  buildHome();
+  await loadProfile();
+  await loadRecent();
+  await claimReferral();
+  maybePromo();
 }
 
-// ---------- generate ----------
-async function generate() {
-  const prompt = $('prompt').value.trim();
-  if (!prompt) { setNote('genNote', 'Describe what you want to create.', 'err'); return; }
-  const model = $('model').value;
-  const aspect = $('aspect').value;
-
-  const btn = $('genBtn'); btn.disabled = true; btn.innerHTML = 'Generating…';
-  $('result').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Sending to the engine…</div></div>';
-  setNote('genNote', '');
-
-  let elapsed = 0;
-  const tick = setInterval(() => { elapsed += 2.5;
-    const r = $('result').querySelector('div div'); if (r) r.textContent = `Creating… (${Math.round(elapsed)}s)`;
-  }, 2500);
-
-  try {
-    const res = await fetch('/.netlify/functions/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ prompt, model, aspect }),
-    });
-    const data = await res.json();
-    clearInterval(tick);
-
-    if (res.status === 402) {
-      $('result').innerHTML = '<div>You’re out of credits.</div>';
-      setNote('genNote', 'Out of credits — top up to keep creating.', 'err');
-      openBuy(); return;
-    }
-    if (!res.ok) throw new Error(data.error || 'Generation failed');
-
-    $('creditCount').textContent = data.credits;
-    $('result').innerHTML =
-      `<div><img src="${data.url}" alt="result"><div style="margin-top:12px">` +
-      `<a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
-    setNote('genNote', 'Done ✅', 'ok');
-    loadGallery();
-  } catch (e) {
-    clearInterval(tick);
-    $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>';
-    setNote('genNote', e.message || 'Failed — your credits were not charged.', 'err');
-  }
-  btn.disabled = false; btn.innerHTML = '✨ Generate';
-}
-
-// ---------- recent gallery ----------
-async function loadGallery() {
-  const { data } = await sb.from('generations')
-    .select('output_url').eq('user_id', currentUser.id)
-    .order('created_at', { ascending: false }).limit(8);
-  const g = $('gallery');
-  if (!data || !data.length) { g.innerHTML = ''; return; }
-  g.innerHTML = data.map((x) => `<img src="${x.output_url}" onclick="window.open('${x.output_url}','_blank')">`).join('');
-}
-
-// ---------- buy / Paystack ----------
-function openBuy() {
-  const list = cfg.PACKS.map((p) => `
-    <div class="pk" data-pack="${p.key}">
-      <div><div class="pkn">${p.name}${p.featured ? ' ⭐' : ''}</div>
-        <div class="pkc">${p.credits} credits · ${p.note}${p.kind === 'sub' ? ' · /mo' : ''}</div></div>
-      <div class="pka">${naira(p.naira)}</div>
-    </div>`).join('');
-  $('packList').innerHTML = list;
-  $('packList').querySelectorAll('.pk').forEach((el) => {
-    el.onclick = () => buy(el.getAttribute('data-pack'), el);
-  });
-  setNote('buyNote', '');
-  $('buyOverlay').style.display = 'grid';
-}
-function closeBuy() { $('buyOverlay').style.display = 'none'; }
-
-async function buy(pack, el) {
-  setNote('buyNote', 'Opening secure checkout…', 'ok');
-  if (el) el.style.opacity = '.5';
-  try {
-    const res = await fetch('/.netlify/functions/paystack-init', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ pack }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Could not start payment');
-    window.location.href = data.authorization_url; // Paystack page (offers Pay with Transfer)
-  } catch (e) {
-    setNote('buyNote', e.message || 'Failed to start payment', 'err');
-    if (el) el.style.opacity = '1';
-  }
-}
-
-// ---------- wire up ----------
+// ---------------- wire up ----------------
 window.addEventListener('DOMContentLoaded', () => {
+  // capture referral code from URL (?ref=)
+  const ref = new URLSearchParams(location.search).get('ref');
+  if (ref) localStorage.setItem('fuse_ref', ref);
+
+  document.querySelectorAll('.tab').forEach((t) => t.onclick = () => {
+    if (t.dataset.studio) openStudio(t.dataset.studio); else showView(t.dataset.view);
+  });
+  $('studioBack').onclick = () => showView('home');
+  $('reactorBack').onclick = () => showView('home');
+  $('seeLib').onclick = () => showView('library');
+  $('genBtn').onclick = generate;
+  $('rcSend').onclick = reactorSend;
+  $('buyBtn').onclick = openBuy; $('creditPill').onclick = openBuy;
+  $('buyClose').onclick = () => $('buyOverlay').style.display = 'none';
+  $('curToggle').onclick = () => { showUsd = !showUsd; renderPacks(); };
+  $('promoClose').onclick = () => $('promoOverlay').style.display = 'none';
+  $('promoCta').onclick = () => { $('promoOverlay').style.display = 'none'; buy(cfg.PROMO.pack); };
+  $('contentSubmit').onclick = submitContent;
+  $('payoutBtn').onclick = requestPayout;
+  $('copyRef').onclick = () => { navigator.clipboard.writeText($('refLink').value); $('copyRef').textContent = 'Copied!'; setTimeout(() => $('copyRef').textContent = 'Copy', 1500); };
+  $('logoutBtn').onclick = logout;
   $('authBtn').onclick = doAuth;
   $('authSwitchLink').onclick = () => setAuthMode(authMode === 'signup' ? 'login' : 'signup');
   $('authPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doAuth(); });
-  $('logoutBtn').onclick = logout;
-  $('genBtn').onclick = generate;
-  $('buyBtn').onclick = openBuy;
-  $('buyClose').onclick = closeBuy;
-  $('creditPill').onclick = openBuy;
+  $('previewLink').onclick = enterPreview;
 
-  setAuthMode('signup');
-  refreshSession();
-
-  // If we just came back from Paystack, refresh the balance shortly after
-  // (webhook credits arrive server-side within a second or two).
-  if (new URLSearchParams(location.search).get('paid')) {
-    setTimeout(() => currentUser && loadProfile(), 2500);
-  }
-
-  // Register the service worker so the app is installable.
+  if (new URLSearchParams(location.search).get('paid')) setTimeout(() => user && loadProfile(), 2500);
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js').catch(() => {});
+
+  boot();
 });

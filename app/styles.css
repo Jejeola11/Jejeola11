@@ -195,3 +195,97 @@ textarea{min-height:104px;resize:vertical}
   .nav-links a:not(.btn){display:none}
   .gallery{grid-template-columns:repeat(3,1fr)}
 }
+
+/* ============================================================
+   PHASE 2 — Higgsfield-style app shell (bottom tabs, tool cards,
+   promos, library, profile, reactor). Teal + gold.
+   ============================================================ */
+.app-shell{max-width:760px;margin:0 auto;padding:0 16px 110px}  /* room for bottom bar */
+.view{display:none}
+.view.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* sticky top */
+.topbar{position:sticky;top:0;z-index:30;background:rgba(4,35,31,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.topbar .in{max-width:760px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;padding:0 16px}
+.pill{display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;cursor:pointer}
+.pill b{color:var(--gold)}
+
+/* promo banner w/ countdown */
+.promo-banner{margin:16px 0;border-radius:var(--radius);padding:18px;border:1px solid var(--gold);
+  background:linear-gradient(120deg,rgba(231,194,92,.16),rgba(13,58,51,.6));position:relative;overflow:hidden}
+.promo-banner .lab{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.promo-banner h3{margin:6px 0;font-family:"Bricolage Grotesque";font-weight:800;font-size:22px}
+.promo-banner p{margin:0 0 12px;color:var(--muted);font-size:14px}
+.countdown{display:inline-flex;gap:6px;font-family:"Bricolage Grotesque";font-weight:800;font-size:15px;color:var(--gold);margin-left:8px}
+
+/* section heads */
+.shead{display:flex;align-items:center;justify-content:space-between;margin:22px 0 12px}
+.shead h2{font-family:"Bricolage Grotesque";font-weight:800;font-size:18px;margin:0;text-transform:uppercase;letter-spacing:.02em}
+.shead a{color:var(--gold);font-size:13px;font-weight:700}
+
+/* tool cards grid */
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tool{position:relative;border:1px solid var(--line);border-radius:16px;padding:16px;background:linear-gradient(160deg,var(--panel),var(--panel-2));cursor:pointer;transition:border-color .12s,transform .12s;min-height:108px}
+.tool:hover{border-color:var(--gold);transform:translateY(-2px)}
+.tool .ic{font-size:24px}
+.tool .tn{font-family:"Bricolage Grotesque";font-weight:800;font-size:15px;margin:8px 0 2px}
+.tool .td{color:var(--muted);font-size:12px;line-height:1.35}
+.tool .bdg{position:absolute;top:12px;right:12px;font-size:9px;font-weight:800;letter-spacing:.08em;padding:3px 7px;border-radius:999px;background:var(--gold);color:#1a1205;text-transform:uppercase}
+.tool .bdg.beta{background:#7b5cff;color:#fff}
+.tool .bdg.trend{background:#ff5c8a;color:#fff}
+
+/* preset chips */
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+.chip{white-space:nowrap;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer}
+.chip:hover{border-color:var(--gold);color:var(--gold)}
+
+/* bottom tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(4,35,31,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:8px 0 calc(8px + env(safe-area-inset-bottom))}
+.tabbar .in{max-width:760px;margin:0 auto;display:flex;justify-content:space-around;align-items:center}
+.tab{background:none;border:0;color:var(--muted);font-size:11px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 10px}
+.tab .ti{font-size:19px;line-height:1}
+.tab.active{color:var(--gold)}
+.tab.center .ti{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1205;font-size:22px;box-shadow:0 8px 22px rgba(231,194,92,.4);margin-top:-22px;border:3px solid var(--bg)}
+.tab.center{color:var(--gold)}
+
+/* studio generator panel (reused for all studios) */
+.studio-head{display:flex;align-items:center;gap:10px;margin:16px 0 4px}
+.studio-head .ic{font-size:26px}
+.studio-head h2{font-family:"Bricolage Grotesque";font-weight:800;margin:0;font-size:20px}
+.studio-head p{margin:0;color:var(--muted);font-size:13px}
+.backlink{color:var(--gold);font-weight:700;font-size:13px;cursor:pointer;display:inline-flex;gap:5px;align-items:center;margin:14px 0 0}
+
+/* library / profile */
+.libgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.libgrid img{aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer}
+.empty{text-align:center;color:var(--muted);padding:50px 20px;border:1px dashed var(--line);border-radius:16px}
+.prow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel);margin-bottom:10px}
+.prow .pl{font-size:13px;color:var(--muted)}
+.prow .pv{font-weight:800;font-family:"Bricolage Grotesque"}
+.refbox{display:flex;gap:8px;margin-top:8px}
+.refbox input{font-size:13px}
+
+/* reactor list */
+.rlist{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rcard{border:1px solid var(--line);border-radius:14px;padding:14px;background:var(--panel);cursor:pointer;transition:border-color .12s}
+.rcard:hover{border-color:var(--gold)}
+.rcard .rn{font-family:"Bricolage Grotesque";font-weight:800;font-size:15px}
+.rcard .rb{font-size:11px;color:var(--muted)}
+.rcard .rc{font-size:12px;color:var(--gold);font-weight:700;margin-top:6px}
+.rcard.soon{opacity:.6}
+.rcard.soon .rc{color:var(--muted)}
+
+/* challenge card */
+.chal{border:1px solid var(--gold);border-radius:16px;padding:16px;background:linear-gradient(120deg,rgba(231,194,92,.1),rgba(13,58,51,.5));margin-bottom:12px}
+.chal h3{margin:0 0 4px;font-family:"Bricolage Grotesque";font-weight:800}
+.chal .prize{color:var(--gold);font-weight:800}
+
+/* preview ribbon */
+.previewRibbon{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);z-index:55;background:#7b5cff;color:#fff;font-size:12px;font-weight:700;padding:7px 14px;border-radius:999px;box-shadow:var(--shadow)}
+
+.sticky-low{position:fixed;left:12px;right:12px;bottom:80px;z-index:54;max-width:736px;margin:0 auto;background:var(--panel-2);border:1px solid var(--gold);border-radius:14px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:var(--shadow)}
+.sticky-low span{font-size:13px}
+
+@media (min-width:560px){ .tools{grid-template-columns:repeat(3,1fr)} }
+
