@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fuse Studio — Create</title>
+<meta name="theme-color" content="#04231F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Fuse Studio — design system
+   Higgsfield-style cinematic dark UI, recolored:
+   their black  -> deep teal
+   their green  -> gold
+   ============================================================ */
+:root{
+  --bg:#04231F;          /* deep teal (the "black") */
+  --bg-2:#062A25;
+  --panel:#0A322C;       /* cards / panels */
+  --panel-2:#0D3A33;
+  --line:#14463F;        /* hairlines / borders */
+  --ink:#F4F1E9;         /* warm off-white text */
+  --muted:#8FB3AC;       /* secondary text */
+  --gold:#E7C25C;        /* primary accent / CTA */
+  --gold-2:#F5D272;      /* hover */
+  --gold-deep:#C9A227;
+  --radius:18px;
+  --shadow:0 18px 50px rgba(0,0,0,.45);
+  --maxw:1120px;
+  font-synthesis:none;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(231,194,92,.10), transparent 60%),
+    radial-gradient(900px 500px at -10% 10%, rgba(20,70,63,.55), transparent 60%),
+    var(--bg);
+  color:var(--ink);
+  font-family:"Archivo",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  line-height:1.5;
+  min-height:100vh;
+}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+
+/* ---- Typographic display style (uppercase grotesque, Higgsfield-like) ---- */
+.display{
+  font-family:"Bricolage Grotesque",sans-serif;
+  font-weight:800;
+  letter-spacing:-.02em;
+  line-height:1.02;
+  text-transform:uppercase;
+}
+h1.display{font-size:clamp(40px,7vw,82px)}
+h2.display{font-size:clamp(28px,4.5vw,46px)}
+.kicker{
+  font-family:"Archivo",sans-serif;font-weight:700;font-size:12px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--gold);
+}
+.muted{color:var(--muted)}
+.gold{color:var(--gold)}
+
+/* ---- Nav ---- */
+.nav{
+  position:sticky;top:0;z-index:50;
+  backdrop-filter:saturate(140%) blur(12px);
+  background:rgba(4,35,31,.72);
+  border-bottom:1px solid var(--line);
+}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:10px;font-family:"Bricolage Grotesque";font-weight:800;font-size:20px;letter-spacing:-.01em}
+.brand .dot{
+  width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--gold),var(--gold-deep));
+  color:#1a1205;font-weight:800;font-family:"Bricolage Grotesque";font-size:16px;
+  box-shadow:0 6px 18px rgba(231,194,92,.35);
+}
+.nav-links{display:flex;align-items:center;gap:22px}
+.nav-links a{color:var(--muted);font-weight:600;font-size:14px}
+.nav-links a:hover{color:var(--ink)}
+
+/* ---- Buttons ---- */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;justify-content:center;
+  font-family:"Archivo";font-weight:700;font-size:15px;
+  padding:12px 20px;border-radius:999px;border:1px solid transparent;cursor:pointer;
+  transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.btn:active{transform:translateY(1px)}
+.btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1205;box-shadow:0 10px 26px rgba(231,194,92,.30)}
+.btn.gold:hover{background:linear-gradient(135deg,var(--gold-2),var(--gold))}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+.btn.ghost:hover{border-color:var(--gold);color:var(--gold)}
+.btn.sm{padding:8px 14px;font-size:13px}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+
+/* ---- Hero ---- */
+.hero{padding:84px 0 40px;text-align:center}
+.hero p.lede{max-width:680px;margin:18px auto 0;font-size:18px;color:var(--muted)}
+.hero .cta{display:flex;gap:12px;justify-content:center;margin-top:30px;flex-wrap:wrap}
+.badge{
+  display:inline-flex;gap:8px;align-items:center;margin-bottom:22px;
+  padding:7px 14px;border-radius:999px;border:1px solid var(--line);
+  background:var(--panel);font-size:13px;color:var(--muted);
+}
+.badge .pulse{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 0 rgba(231,194,92,.6);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(231,194,92,.5)}70%{box-shadow:0 0 0 10px rgba(231,194,92,0)}100%{box-shadow:0 0 0 0 rgba(231,194,92,0)}}
+
+/* ---- Media tile grid (Higgsfield-style showcase) ---- */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:46px}
+.tile{
+  position:relative;aspect-ratio:3/4;border-radius:var(--radius);overflow:hidden;
+  border:1px solid var(--line);
+  background:linear-gradient(160deg,var(--panel-2),var(--bg-2));
+  display:flex;align-items:flex-end;padding:14px;
+}
+.tile span{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--ink);text-transform:uppercase;opacity:.9}
+.tile::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 0%,rgba(231,194,92,.16),transparent 55%)}
+
+/* ---- Sections / feature cards ---- */
+section{padding:54px 0}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{
+  background:linear-gradient(180deg,var(--panel),var(--panel-2));
+  border:1px solid var(--line);border-radius:var(--radius);padding:22px;
+}
+.card h3{margin:10px 0 6px;font-family:"Bricolage Grotesque";font-weight:800;font-size:19px}
+.card p{margin:0;color:var(--muted);font-size:14px}
+.ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:rgba(231,194,92,.12);border:1px solid var(--line);font-size:20px}
+
+/* ---- Pricing ---- */
+.prices{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.price{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:var(--radius);padding:24px;position:relative}
+.price.featured{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 18px 50px rgba(231,194,92,.12)}
+.price .tag{position:absolute;top:-12px;right:18px;background:var(--gold);color:#1a1205;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.06em}
+.price .amt{font-family:"Bricolage Grotesque";font-weight:800;font-size:34px;margin:6px 0}
+.price .amt small{font-size:14px;color:var(--muted);font-weight:600}
+.price ul{list-style:none;margin:14px 0 18px;padding:0}
+.price li{padding:6px 0;color:var(--muted);font-size:14px;display:flex;gap:9px}
+.price li::before{content:"✦";color:var(--gold)}
+
+/* ---- Footer ---- */
+.foot{border-top:1px solid var(--line);padding:34px 0;color:var(--muted);font-size:13px;text-align:center}
+
+/* ============================================================
+   STUDIO APP
+   ============================================================ */
+.appbar{position:sticky;top:0;z-index:40;background:rgba(4,35,31,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.appbar .wrap{display:flex;align-items:center;justify-content:space-between;height:62px;gap:12px}
+.credits{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-weight:700;font-size:14px}
+.credits b{color:var(--gold)}
+
+.studio-grid{display:grid;grid-template-columns:380px 1fr;gap:20px;padding:26px 0 60px;align-items:start}
+.panel{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.panel h3{margin:0 0 14px;font-family:"Bricolage Grotesque";font-weight:800;font-size:18px}
+label.fld{display:block;margin:14px 0 6px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+textarea,input,select{
+  width:100%;background:var(--bg-2);border:1px solid var(--line);border-radius:12px;
+  color:var(--ink);padding:12px 14px;font-family:inherit;font-size:15px;outline:none;
+}
+textarea:focus,input:focus,select:focus{border-color:var(--gold)}
+textarea{min-height:104px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.result{
+  min-height:420px;border-radius:var(--radius);border:1px dashed var(--line);
+  display:grid;place-items:center;text-align:center;color:var(--muted);
+  background:radial-gradient(120% 80% at 50% 0%,rgba(231,194,92,.06),transparent 55%);padding:20px;
+}
+.result img{border-radius:14px;box-shadow:var(--shadow);max-height:560px;width:auto}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(231,194,92,.3);border-top-color:var(--gold);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-3px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+.gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+.gallery img{aspect-ratio:1;object-fit:cover;border-radius:10px;border:1px solid var(--line);cursor:pointer}
+
+/* ---- Auth + modal ---- */
+.overlay{position:fixed;inset:0;background:rgba(2,16,14,.72);backdrop-filter:blur(6px);display:grid;place-items:center;z-index:80;padding:20px}
+.modal{width:100%;max-width:420px;background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:22px;padding:26px;box-shadow:var(--shadow)}
+.modal h2{margin:6px 0 4px;font-family:"Bricolage Grotesque";font-weight:800}
+.modal .switch{margin-top:14px;font-size:14px;color:var(--muted);text-align:center}
+.modal .switch a{color:var(--gold);font-weight:700;cursor:pointer}
+.note{font-size:13px;margin-top:10px;min-height:18px}
+.note.err{color:#ff9a8a}
+.note.ok{color:var(--gold)}
+.packs{display:grid;gap:10px;margin-top:8px}
+.pk{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:14px;padding:14px;background:var(--bg-2);cursor:pointer;transition:border-color .12s}
+.pk:hover{border-color:var(--gold)}
+.pk .pkn{font-weight:800;font-family:"Bricolage Grotesque"}
+.pk .pkc{font-size:13px;color:var(--muted)}
+.pk .pka{color:var(--gold);font-weight:800;font-family:"Bricolage Grotesque";font-size:18px}
+.close{float:right;cursor:pointer;color:var(--muted);font-size:20px;border:0;background:none}
+
+@media (max-width:900px){
+  .tiles{grid-template-columns:repeat(2,1fr)}
+  .grid3,.prices{grid-template-columns:1fr}
+  .studio-grid{grid-template-columns:1fr}
+  .nav-links a:not(.btn){display:none}
+  .gallery{grid-template-columns:repeat(3,1fr)}
+}
+
+</style>
+<script>
+// ============================================================
+// Fuse Studio — public frontend config.
+// These two Supabase values are SAFE to expose (anon/public key).
+// Fill them after you create your Supabase project
+// (Supabase → Project Settings → API).
+// Everything secret (service role, MuAPI, Paystack secret) lives in
+// Netlify environment variables and is NEVER in this file.
+// ============================================================
+window.FUSE = {
+  SUPABASE_URL: 'https://YOUR-PROJECT.supabase.co',
+  SUPABASE_ANON_KEY: 'YOUR-ANON-PUBLIC-KEY',
+
+  // Display info for the buy modal. Real prices/credits are enforced
+  // server-side in netlify/functions/_packs.js — keep these in sync for display.
+  PACKS: [
+    { key: 'starter', name: 'Starter',  naira: 2500,  credits: 60,  note: 'Try a few looks',    kind: 'pack' },
+    { key: 'creator', name: 'Creator',  naira: 6000,  credits: 180, note: 'Best value',          kind: 'pack', featured: true },
+    { key: 'pro',     name: 'Pro Pack', naira: 12000, credits: 420, note: 'For heavy creators',  kind: 'pack' },
+    { key: 'lite_mo', name: 'Studio Lite', naira: 5000,  credits: 150, note: 'Monthly plan',     kind: 'sub' },
+    { key: 'pro_mo',  name: 'Studio Pro',  naira: 15000, credits: 600, note: 'Monthly plan',     kind: 'sub' },
+  ],
+};
+
+</script>
+</head>
+<body>
+
+<!-- ===== App bar ===== -->
+<header class="appbar">
+  <div class="wrap">
+    <a class="brand" href="/app/index.html"><span class="dot">F</span> Fuse&nbsp;Studio</a>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="credits" id="creditPill" title="Buy more" style="cursor:pointer">
+        <span id="planBadge" class="muted" style="font-weight:600;font-size:12px">Free trial</span>
+        · <b id="creditCount">…</b>&nbsp;credits
+      </span>
+      <button class="btn gold sm" id="buyBtn">＋ Top up</button>
+      <button class="btn ghost sm" id="logoutBtn">Log out</button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== Studio ===== -->
+<main id="appMain">
+  <div class="wrap studio-grid">
+
+    <!-- Controls -->
+    <div class="panel">
+      <h3>🎬 Create</h3>
+      <label class="fld" for="prompt">Describe your character / scene</label>
+      <textarea id="prompt" placeholder="e.g. A confident Nigerian woman entrepreneur, soft studio light, gold accents, editorial photo, ultra detailed"></textarea>
+
+      <div class="row2">
+        <div>
+          <label class="fld" for="model">Engine</label>
+          <select id="model">
+            <option value="flux-schnell">Flux Schnell — fast (1 credit)</option>
+            <option value="flux-dev">Flux Dev — quality (2 credits)</option>
+            <option value="nano-banana">Nano Banana (2 credits)</option>
+            <option value="flux-pro">Flux Pro — best (4 credits)</option>
+          </select>
+        </div>
+        <div>
+          <label class="fld" for="aspect">Aspect</label>
+          <select id="aspect">
+            <option value="9:16">9:16 vertical</option>
+            <option value="1:1">1:1 square</option>
+            <option value="4:5">4:5 portrait</option>
+            <option value="16:9">16:9 wide</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn gold block" id="genBtn" style="margin-top:18px">✨ Generate</button>
+      <div class="note" id="genNote"></div>
+
+      <div id="gallery" class="gallery"></div>
+    </div>
+
+    <!-- Result -->
+    <div>
+      <div class="result" id="result">
+        <div>Your creation will appear here.<br><span class="muted">Write a prompt and hit Generate ✨</span></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ===== Auth overlay ===== -->
+<div class="overlay" id="authOverlay" style="display:none">
+  <div class="modal">
+    <div class="brand" style="justify-content:center;margin-bottom:8px"><span class="dot">F</span> Fuse&nbsp;Studio</div>
+    <h2 id="authTitle" style="text-align:center">Create your account</h2>
+    <p class="muted" id="authTrial" style="text-align:center;margin:0 0 14px">🎁 Start with <b class="gold">12 free credits</b> — no card needed.</p>
+    <label class="fld" for="authEmail">Email</label>
+    <input id="authEmail" type="email" placeholder="you@email.com" autocomplete="email">
+    <label class="fld" for="authPass">Password</label>
+    <input id="authPass" type="password" placeholder="••••••••" autocomplete="current-password">
+    <button class="btn gold block" id="authBtn" style="margin-top:16px">Start free →</button>
+    <div class="note" id="authNote"></div>
+    <div class="switch"><span id="authSwitchText">Already have an account?</span>
+      <a id="authSwitchLink">Log in</a></div>
+  </div>
+</div>
+
+<!-- ===== Buy modal ===== -->
+<div class="overlay" id="buyOverlay" style="display:none">
+  <div class="modal">
+    <button class="close" id="buyClose">✕</button>
+    <h2>Top up credits</h2>
+    <p class="muted" style="margin:2px 0 14px">Pay by <b class="gold">bank transfer</b> — instant, secure, settles to Fuse.</p>
+    <div class="packs" id="packList"></div>
+    <div class="note" id="buyNote"></div>
+  </div>
+</div>
+
+<script type="module">
+// ============================================================
+// Fuse Studio — studio app logic
+// Auth (Supabase) + credit display + generation (via secure function)
+// + Paystack checkout. Loaded only on studio.html.
+// ============================================================
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+
+const cfg = window.FUSE;
+const sb = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+
+const $ = (id) => document.getElementById(id);
+let currentUser = null;
+
+// ---------- helpers ----------
+async function authHeader() {
+  const { data } = await sb.auth.getSession();
+  const token = data.session && data.session.access_token;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+function naira(n) { return '₦' + Number(n).toLocaleString(); }
+
+// ---------- auth ----------
+async function refreshSession() {
+  const { data } = await sb.auth.getSession();
+  currentUser = data.session ? data.session.user : null;
+  if (currentUser) { hideAuth(); await loadProfile(); await loadGallery(); }
+  else { showAuth(); }
+}
+
+function showAuth() { $('authOverlay').style.display = 'grid'; $('appMain').style.opacity = '.15'; }
+function hideAuth() { $('authOverlay').style.display = 'none'; $('appMain').style.opacity = '1'; }
+
+let authMode = 'signup'; // 'signup' | 'login'
+function setAuthMode(m) {
+  authMode = m;
+  $('authTitle').textContent = m === 'signup' ? 'Create your account' : 'Welcome back';
+  $('authBtn').textContent = m === 'signup' ? 'Start free →' : 'Log in →';
+  $('authSwitchText').textContent = m === 'signup' ? 'Already have an account?' : "New here?";
+  $('authSwitchLink').textContent = m === 'signup' ? 'Log in' : 'Create one';
+  $('authTrial').style.display = m === 'signup' ? 'block' : 'none';
+  setNote('authNote', '');
+}
+function setNote(id, msg, kind) {
+  const el = $(id); el.textContent = msg || '';
+  el.className = 'note' + (kind ? ' ' + kind : '');
+}
+
+async function doAuth() {
+  const email = $('authEmail').value.trim();
+  const pass = $('authPass').value;
+  if (!email || !pass) return setNote('authNote', 'Enter your email and password.', 'err');
+  $('authBtn').disabled = true;
+  try {
+    if (authMode === 'signup') {
+      const { error } = await sb.auth.signUp({ email, password: pass });
+      if (error) throw error;
+      const { data } = await sb.auth.getSession();
+      if (!data.session) {
+        setNote('authNote', '✅ Account created — check your email to confirm, then log in.', 'ok');
+        $('authBtn').disabled = false; setAuthMode('login'); return;
+      }
+    } else {
+      const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+      if (error) throw error;
+    }
+    await refreshSession();
+  } catch (e) {
+    setNote('authNote', e.message || 'Something went wrong.', 'err');
+  }
+  $('authBtn').disabled = false;
+}
+
+async function logout() { await sb.auth.signOut(); location.reload(); }
+
+// ---------- profile / credits ----------
+async function loadProfile() {
+  const { data, error } = await sb.from('profiles')
+    .select('credits, plan, plan_expires_at').eq('id', currentUser.id).maybeSingle();
+  if (error || !data) { $('creditCount').textContent = '…'; return; }
+  $('creditCount').textContent = data.credits;
+  $('planBadge').textContent = data.plan === 'free' ? 'Free trial' : 'Studio ' + data.plan;
+}
+
+// ---------- generate ----------
+async function generate() {
+  const prompt = $('prompt').value.trim();
+  if (!prompt) { setNote('genNote', 'Describe what you want to create.', 'err'); return; }
+  const model = $('model').value;
+  const aspect = $('aspect').value;
+
+  const btn = $('genBtn'); btn.disabled = true; btn.innerHTML = 'Generating…';
+  $('result').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Sending to the engine…</div></div>';
+  setNote('genNote', '');
+
+  let elapsed = 0;
+  const tick = setInterval(() => { elapsed += 2.5;
+    const r = $('result').querySelector('div div'); if (r) r.textContent = `Creating… (${Math.round(elapsed)}s)`;
+  }, 2500);
+
+  try {
+    const res = await fetch('/.netlify/functions/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ prompt, model, aspect }),
+    });
+    const data = await res.json();
+    clearInterval(tick);
+
+    if (res.status === 402) {
+      $('result').innerHTML = '<div>You’re out of credits.</div>';
+      setNote('genNote', 'Out of credits — top up to keep creating.', 'err');
+      openBuy(); return;
+    }
+    if (!res.ok) throw new Error(data.error || 'Generation failed');
+
+    $('creditCount').textContent = data.credits;
+    $('result').innerHTML =
+      `<div><img src="${data.url}" alt="result"><div style="margin-top:12px">` +
+      `<a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
+    setNote('genNote', 'Done ✅', 'ok');
+    loadGallery();
+  } catch (e) {
+    clearInterval(tick);
+    $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>';
+    setNote('genNote', e.message || 'Failed — your credits were not charged.', 'err');
+  }
+  btn.disabled = false; btn.innerHTML = '✨ Generate';
+}
+
+// ---------- recent gallery ----------
+async function loadGallery() {
+  const { data } = await sb.from('generations')
+    .select('output_url').eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false }).limit(8);
+  const g = $('gallery');
+  if (!data || !data.length) { g.innerHTML = ''; return; }
+  g.innerHTML = data.map((x) => `<img src="${x.output_url}" onclick="window.open('${x.output_url}','_blank')">`).join('');
+}
+
+// ---------- buy / Paystack ----------
+function openBuy() {
+  const list = cfg.PACKS.map((p) => `
+    <div class="pk" data-pack="${p.key}">
+      <div><div class="pkn">${p.name}${p.featured ? ' ⭐' : ''}</div>
+        <div class="pkc">${p.credits} credits · ${p.note}${p.kind === 'sub' ? ' · /mo' : ''}</div></div>
+      <div class="pka">${naira(p.naira)}</div>
+    </div>`).join('');
+  $('packList').innerHTML = list;
+  $('packList').querySelectorAll('.pk').forEach((el) => {
+    el.onclick = () => buy(el.getAttribute('data-pack'), el);
+  });
+  setNote('buyNote', '');
+  $('buyOverlay').style.display = 'grid';
+}
+function closeBuy() { $('buyOverlay').style.display = 'none'; }
+
+async function buy(pack, el) {
+  setNote('buyNote', 'Opening secure checkout…', 'ok');
+  if (el) el.style.opacity = '.5';
+  try {
+    const res = await fetch('/.netlify/functions/paystack-init', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ pack }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not start payment');
+    window.location.href = data.authorization_url; // Paystack page (offers Pay with Transfer)
+  } catch (e) {
+    setNote('buyNote', e.message || 'Failed to start payment', 'err');
+    if (el) el.style.opacity = '1';
+  }
+}
+
+// ---------- wire up ----------
+window.addEventListener('DOMContentLoaded', () => {
+  $('authBtn').onclick = doAuth;
+  $('authSwitchLink').onclick = () => setAuthMode(authMode === 'signup' ? 'login' : 'signup');
+  $('authPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doAuth(); });
+  $('logoutBtn').onclick = logout;
+  $('genBtn').onclick = generate;
+  $('buyBtn').onclick = openBuy;
+  $('buyClose').onclick = closeBuy;
+  $('creditPill').onclick = openBuy;
+
+  setAuthMode('signup');
+  refreshSession();
+
+  // If we just came back from Paystack, refresh the balance shortly after
+  // (webhook credits arrive server-side within a second or two).
+  if (new URLSearchParams(location.search).get('paid')) {
+    setTimeout(() => currentUser && loadProfile(), 2500);
+  }
+
+  // Register the service worker so the app is installable.
+  /* service worker disabled in standalone file */
+});
+
+</script>
+</body>
+</html>
