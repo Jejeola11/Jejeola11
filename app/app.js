@@ -175,7 +175,7 @@ function buildHome() {
     `<div class="lab">⏳ ${pr.title}</div><h3>${pr.body}</h3>
      <button class="btn gold sm" id="promoBannerCta">${pr.cta}</button>
      <span class="countdown" id="bannerCountdown"></span>`;
-  $('promoBannerCta').onclick = () => buy(pr.pack);
+  $('promoBannerCta').onclick = () => { location.href = '/atelier'; };
   startCountdown('bannerCountdown', pr.hours);
 }
 
@@ -709,6 +709,8 @@ async function boot() {
   await loadRecent();
   await claimReferral();
   maybePromo();
+  // Came from the Atelier page "Get instant access" -> start the course purchase.
+  if (new URLSearchParams(location.search).get('buy') === 'course') setTimeout(() => buy('course'), 600);
 }
 
 // ---------------- wire up ----------------
@@ -749,7 +751,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('streakBtn').onclick = claimDaily;
   $('mpPublish').onclick = publishPreset;
   $('learnClaim').onclick = claimLearn;
-  $('learnCourse').onclick = () => buy('course');
+  $('learnCourse').onclick = () => { location.href = '/atelier'; };
   $('waLink').onclick = linkWhatsapp;
   $('genBtn').onclick = generate;
   $('rcSend').onclick = reactorSend;
@@ -757,7 +759,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('buyClose').onclick = () => $('buyOverlay').style.display = 'none';
   $('curToggle').onclick = () => { showUsd = !showUsd; renderPacks(); };
   $('promoClose').onclick = () => $('promoOverlay').style.display = 'none';
-  $('promoCta').onclick = () => { $('promoOverlay').style.display = 'none'; buy(cfg.PROMO.pack); };
+  $('promoCta').onclick = () => { location.href = '/atelier'; };
   $('contentSubmit').onclick = submitContent;
   $('payoutBtn').onclick = requestPayout;
   $('copyRef').onclick = () => { navigator.clipboard.writeText($('refLink').value); $('copyRef').textContent = 'Copied!'; setTimeout(() => $('copyRef').textContent = 'Copy', 1500); };
