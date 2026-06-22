@@ -85,6 +85,23 @@ a{color:var(--green);text-decoration:none}
 .table-link.mini{padding:9px 14px;margin:10px 0;font-size:.9em}
 .table-link.mini .ico{font-size:1.1em}
 .table-link.mini a{font-size:.95em}
+.table-link.none{background:rgba(255,255,255,.025);border-color:#33334a;border-left-color:#5a5a72}
+.table-link.none .ico{filter:grayscale(.6);opacity:.6}
+.table-link.none strong{color:#b8b8c8}
+.table-link.none .tl-body{color:var(--muted)}
+/* chart diagrams */
+.diagram-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:16px;margin:16px 0}
+.figure{background:#11182a;border:1px solid #2a2a4a;border-radius:10px;padding:14px 14px 10px}
+.figure .cap{font-size:.8em;color:var(--muted);margin-top:8px;text-align:center;line-height:1.4}
+.figure .cap b{color:#7fd9d6}
+.chart{height:115px;display:flex;align-items:flex-end;padding:0 4px;border-left:2px solid #44557a;border-bottom:2px solid #44557a;gap:0}
+.chart.gapped{gap:9px;padding:0 8px}
+.chart .bar{flex:1;background:linear-gradient(180deg,#00b894,#0984e3);border-radius:3px 3px 0 0}
+.chart.touch .bar{border-left:1px solid #0d1a2e;border-radius:0}
+.chart.touch .bar:first-child{border-left:none}
+.figatip{font-size:.72em;color:#7fd9d6;text-align:center;margin-top:4px;letter-spacing:.5px}
+.slplot{font-family:'Courier New',monospace;font-size:12.5px;background:#0d1422;border:1px solid #2a2a4a;border-radius:6px;padding:10px 12px;line-height:1.7}
+.slplot .stem{color:#00cec9;font-weight:700;display:inline-block;width:22px;border-right:2px solid #44557a;margin-right:8px;text-align:right;padding-right:6px}
 
 /* TABLES */
 table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.9em}
@@ -210,7 +227,11 @@ mjx-container{overflow-x:auto;max-width:100%}
     <h3>🎬 Episode 1.1 — Welcome to the Kingdom</h3>
     <p>In the grand <strong>Data Kingdom</strong>, not all numbers are created equal. Some flow like the Benue River — continuous and smooth. Others stand firm like market stalls in Onitsha — countable, discrete, whole.</p>
     <div class="analogy"><strong>Think of it this way:</strong> Continuous data is like Eko Bridge traffic — it flows at any level (1,234.5 cars/hour is valid). Discrete data is like counting students — you can't have 2.5 students. Either Emeka is present or he isn't! 😄</div>
-  </div>
+      <div class="table-link mini none">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Table check:</strong> Conceptual — no table lookup. Your table book comes into play from Season 6 (distributions) onward.</div>
+    </div>
+</div>
 
   <div class="episode">
     <h3>🎬 Episode 1.2 — The Two Great Provinces</h3>
@@ -232,7 +253,11 @@ mjx-container{overflow-x:auto;max-width:100%}
       <li>Number of malaria cases in a ward</li>
     </ul>
     <div class="mnemonic"><strong>💡 MNEMONIC — "Count = Discrete, Measure = Continuous"</strong><br>If you COUNT it → Discrete (D for Discrete, D for Digits)<br>If you MEASURE it → Continuous (C for Continuous, C for Calculator needed)</div>
-  </div>
+      <div class="table-link mini none">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Table check:</strong> Identifying variable types is conceptual — no statistical table needed.</div>
+    </div>
+</div>
 
   <div class="episode">
     <h3>🎬 Episode 1.3 — The Four Noble Houses (NOIR)</h3>
@@ -245,7 +270,11 @@ mjx-container{overflow-x:auto;max-width:100%}
       <tr><td><strong>Ratio</strong></td><td>✅</td><td>✅</td><td>✅</td><td>Height, Weight, Blood pressure, Age</td></tr>
     </table>
     <div class="exam-tip"><strong>📝 EXAM TIP:</strong> "Which level of measurement is blood group?" → <strong>Nominal</strong>. "Body temperature in Kelvin?" → <strong>Ratio</strong> (Kelvin has a true zero; Celsius does not). This comes up EVERY semester!</div>
-  </div>
+      <div class="table-link mini none">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Table check:</strong> NOIR levels are conceptual — no statistical table needed.</div>
+    </div>
+</div>
 
   <div class="episode">
     <h3>🎬 Episode 1.4 — Why Biological Data Is Always Variable</h3>
@@ -257,7 +286,11 @@ mjx-container{overflow-x:auto;max-width:100%}
       <li><strong>Sampling variation</strong> — you happened to pick the tallest students</li>
       <li><strong>Age and developmental stage</strong> — a 20-year-old frog vs a 1-year-old frog</li>
     </ul>
-  </div>
+      <div class="table-link mini none">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Table check:</strong> Sources of variability are conceptual — no statistical table needed.</div>
+    </div>
+</div>
 </section>
 
 <!-- ===== SEASON 2 ===== -->
@@ -279,7 +312,11 @@ mjx-container{overflow-x:auto;max-width:100%}
       <tr><td><strong>Statistic</strong></td><td>Number describing sample</td><td>Sample mean x̄</td><td>Roman letters</td></tr>
     </table>
     <div class="mnemonic"><strong>💡 MNEMONIC: "P-P-S-S"</strong><br><strong>P</strong>opulation has <strong>P</strong>arameters (both start with P)<br><strong>S</strong>ample has <strong>S</strong>tatistics (both start with S)</div>
-  </div>
+      <div class="table-link mini none">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Table check:</strong> Population vs sample is conceptual — no statistical table needed.</div>
+    </div>
+</div>
 
   <div class="episode">
     <h3>🎬 Episode 2.2 — The Five Warriors of Sampling</h3>
@@ -295,7 +332,11 @@ mjx-container{overflow-x:auto;max-width:100%}
     <h4>⚔️ 5. Convenience Sampling</h4>
     <p>Select whoever is <strong>easily available</strong>. Fast and cheap but highly biased. Not recommended for scientific research.</p>
     <div class="exam-tip"><strong>📝 EXAM TIP:</strong> Exams love asking you to identify sampling types from scenarios. Key question: "How were individuals selected?"</div>
-  </div>
+      <div class="table-link mini">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Read together with:</strong> <span class="tbl-pill">Random Number Tables</span> (Section H of your book) drive <em>simple random sampling</em> — pick numbers and match them to your list. <a href="#tables">Stat Tables section</a></div>
+    </div>
+</div>
 
   <div class="episode">
     <h3>🎬 Episode 2.3 — Estimation & Confidence Intervals</h3>
@@ -309,7 +350,11 @@ mjx-container{overflow-x:auto;max-width:100%}
       \[ SE = \frac{\sigma}{\sqrt{n}} \]
     </div>
     <div class="exam-tip"><strong>📝 EXAM TIP:</strong> A 95% CI means: "If we repeated sampling 100 times, 95 of the resulting intervals would contain the true population parameter." Larger sample → smaller SE → more precise estimate!</div>
-  </div>
+      <div class="table-link mini">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Read together with:</strong> the Z-multipliers (1.96, 2.576, 1.645) are read from <span class="tbl-pill">Table A.3 — Normal</span>. <a href="#w-normal">👉 Finger walkthrough</a></div>
+    </div>
+</div>
 </section>
 
 <!-- ===== SEASON 3 ===== -->
@@ -343,7 +388,11 @@ mjx-container{overflow-x:auto;max-width:100%}
       <li><strong>Class Boundaries:</strong> Lower − 0.5 and Upper + 0.5 → (154.5, 159.5)</li>
       <li><strong>Class Width:</strong> Upper boundary − Lower boundary = 5</li>
     </ul>
-  </div>
+      <div class="table-link mini none">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Table check:</strong> Frequency tables &amp; Sturge's rule are done by hand — no statistical table needed.</div>
+    </div>
+</div>
 
   <div class="episode">
     <h3>🎬 Episode 3.2 — Visual Presentations (The Art Gallery)</h3>
@@ -356,9 +405,83 @@ mjx-container{overflow-x:auto;max-width:100%}
       <tr><td><strong>Pie Chart</strong></td><td>Proportions/categories</td><td>Angle = (f/total) × 360°</td></tr>
       <tr><td><strong>Stem-and-Leaf</strong></td><td>Small datasets</td><td>Preserves original data</td></tr>
     </table>
+
+    <h4>🖼️ What each one looks like</h4>
+    <div class="diagram-grid">
+
+      <div class="figure">
+        <div class="chart touch">
+          <div class="bar" style="height:30%"></div>
+          <div class="bar" style="height:55%"></div>
+          <div class="bar" style="height:85%"></div>
+          <div class="bar" style="height:70%"></div>
+          <div class="bar" style="height:45%"></div>
+          <div class="bar" style="height:22%"></div>
+        </div>
+        <div class="figatip">bars TOUCH ↔ no gaps</div>
+        <div class="cap"><b>Histogram</b><br>Continuous data (e.g. heights). X-axis = class boundaries.</div>
+      </div>
+
+      <div class="figure">
+        <div class="chart gapped">
+          <div class="bar" style="height:70%"></div>
+          <div class="bar" style="height:40%"></div>
+          <div class="bar" style="height:90%"></div>
+          <div class="bar" style="height:55%"></div>
+        </div>
+        <div class="figatip">bars have GAPS ↔ separate</div>
+        <div class="cap"><b>Bar Chart</b><br>Discrete/categorical data (e.g. blood groups).</div>
+      </div>
+
+      <div class="figure">
+        <svg viewBox="0 0 200 120" width="100%" height="115" preserveAspectRatio="none">
+          <line x1="8" y1="110" x2="195" y2="110" stroke="#44557a" stroke-width="2"/>
+          <line x1="8" y1="6" x2="8" y2="110" stroke="#44557a" stroke-width="2"/>
+          <polyline points="20,95 55,60 90,25 125,45 160,80 185,100" fill="none" stroke="#00cec9" stroke-width="2.5"/>
+          <g fill="#0984e3">
+            <circle cx="20" cy="95" r="3.5"/><circle cx="55" cy="60" r="3.5"/><circle cx="90" cy="25" r="3.5"/>
+            <circle cx="125" cy="45" r="3.5"/><circle cx="160" cy="80" r="3.5"/><circle cx="185" cy="100" r="3.5"/>
+          </g>
+        </svg>
+        <div class="figatip">line joins the midpoints</div>
+        <div class="cap"><b>Frequency Polygon</b><br>Join tops of histogram bars. Good for comparing distributions.</div>
+      </div>
+
+      <div class="figure">
+        <svg viewBox="0 0 200 120" width="100%" height="115" preserveAspectRatio="none">
+          <line x1="8" y1="110" x2="195" y2="110" stroke="#44557a" stroke-width="2"/>
+          <line x1="8" y1="6" x2="8" y2="110" stroke="#44557a" stroke-width="2"/>
+          <path d="M15,105 C55,100 70,70 100,55 C130,40 150,14 188,10" fill="none" stroke="#00cec9" stroke-width="2.5"/>
+        </svg>
+        <div class="figatip">always rises → S-shape</div>
+        <div class="cap"><b>Ogive</b><br>Cumulative frequency curve. Read off median &amp; quartiles.</div>
+      </div>
+
+      <div class="figure">
+        <div style="width:104px;height:104px;border-radius:50%;margin:4px auto;background:conic-gradient(#00b894 0 35%,#0984e3 0 60%,#6c5ce7 0 82%,#fdcb6e 0 100%)"></div>
+        <div class="figatip">slice = (f ÷ total) × 360°</div>
+        <div class="cap"><b>Pie Chart</b><br>Proportions of a whole (e.g. % of each species).</div>
+      </div>
+
+      <div class="figure">
+        <div class="slplot">
+          <div><span class="stem">15</span>5 6 7 8 9</div>
+          <div><span class="stem">16</span>0 2 3 5 8</div>
+          <div><span class="stem">17</span>1 4 4 6 9</div>
+          <div><span class="stem">18</span>0 1 3</div>
+        </div>
+        <div class="cap"><b>Stem-and-Leaf</b><br>Stem = tens, leaf = units. "15|5" means 155.</div>
+      </div>
+
+    </div>
+
     <div class="mnemonic"><strong>💡 MNEMONIC: "Histograms Hug, Bar charts Breathe"</strong><br>Histograms — bars touch (continuous). Bar charts — bars have breathing room (discrete).</div>
     <div class="exam-tip"><strong>📝 EXAM TIP:</strong> Histogram = continuous data, bars TOUCH. Bar chart = discrete/categorical, bars SEPARATE. This distinction comes up EVERY semester!</div>
-  </div>
+      <div class="table-link mini none">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Table check:</strong> Charts are drawn by hand from your data (see diagrams above ⬆️) — no statistical table needed.</div>
+    </div>
+</div>
 </section>
 
 <!-- ===== SEASON 4 ===== -->
@@ -414,7 +537,11 @@ mjx-container{overflow-x:auto;max-width:100%}
       <tr><td>Negatively skewed (left tail)</td><td>Mean &lt; Median &lt; Mode</td></tr>
     </table>
     <div class="mnemonic"><strong>💡 MNEMONIC for positive skew:</strong> "Mean is pulled toward the tail" — the tail stretches right, pulling the mean right too!</div>
-  </div>
+      <div class="table-link mini none">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Table check:</strong> Mean, median &amp; mode are computed by hand — no statistical table needed.</div>
+    </div>
+</div>
 
   <div class="episode">
     <h3>🎬 Episode 4.2 — The Dispersion Warriors</h3>
@@ -437,7 +564,11 @@ mjx-container{overflow-x:auto;max-width:100%}
     <p><strong>Why n−1?</strong> Bessel's correction — makes sample variance an <em>unbiased estimator</em> of population variance.</p>
     <p><strong>CV Example:</strong> Heights (mean=170cm, SD=8cm): CV=4.7%. Weights (mean=65kg, SD=6kg): CV=9.2%. → Weights are MORE variable!</p>
     <div class="exam-tip"><strong>📝 EXAM TIP:</strong> Use CV to compare variability between datasets with DIFFERENT units or scales. Variance is in squared units; SD is in same units as data.</div>
-  </div>
+      <div class="table-link mini none">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Table check:</strong> Variance, SD &amp; CV are computed by hand — no statistical table needed.</div>
+    </div>
+</div>
 </section>
 
 <!-- ===== SEASON 5 ===== -->
@@ -456,7 +587,11 @@ mjx-container{overflow-x:auto;max-width:100%}
     </div>
     <p><strong>Properties:</strong> 0 ≤ P(A) ≤ 1 &nbsp;|&nbsp; P(certain) = 1 &nbsp;|&nbsp; P(impossible) = 0 &nbsp;|&nbsp; P(A') = 1 − P(A)</p>
     <div class="analogy"><strong>JAMB Analogy:</strong> 100,000 students write JAMB, 20,000 get cut-off. P(cut-off) = 20,000/100,000 = 0.2 = 20%. Now add your preparation factor... 😅</div>
-  </div>
+      <div class="table-link mini none">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Table check:</strong> Basic probability is computed by hand — no statistical table needed.</div>
+    </div>
+</div>
 
   <div class="episode">
     <h3>🎬 Episode 5.2 — The Rules of the Game</h3>
@@ -479,7 +614,11 @@ mjx-container{overflow-x:auto;max-width:100%}
       <tr><td>Example</td><td>Male OR Female (same person)</td><td>Coin toss AND die roll</td></tr>
     </table>
     <div class="mnemonic"><strong>💡 MNEMONIC:</strong> "Mutually exclusive = CANNOT happen together. Independent = DON'T AFFECT each other."</div>
-  </div>
+      <div class="table-link mini none">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Table check:</strong> Probability rules are applied by hand — no statistical table needed.</div>
+    </div>
+</div>
 
   <div class="episode">
     <h3>🎬 Episode 5.3 — Permutations & Combinations</h3>
@@ -500,16 +639,12 @@ mjx-container{overflow-x:auto;max-width:100%}
       \[ P(X=k) = \frac{\binom{K}{k}\binom{N-K}{n-k}}{\binom{N}{n}} \]
       <p style="color:var(--muted);font-size:.85em;margin-top:8px">N=population, K=successes in population, n=sample size, k=desired successes</p>
     </div>
-  </div>
-
-  <div class="table-link">
-    <span class="ico">📊</span>
-    <div class="tl-body">
-      <strong>Heads-up:</strong> these probability rules are the foundation for the <em>distribution tables</em> you'll actually use in the exam (Binomial, Poisson). When a question gives you n &amp; p, or λ — you'll often just read the answer off
-      <span class="tbl-pill">A.1 Binomial</span><span class="tbl-pill">A.2 Poisson</span>
-      instead of computing. Full guide → <a href="#tables">Stat Tables section ↓</a>
+      <div class="table-link mini none">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Table check:</strong> Permutations &amp; combinations are computed by hand — but these C(n,r) values are exactly what build the <span class="tbl-pill">Binomial Table A.1</span> you’ll use in Season 6.</div>
     </div>
-  </div>
+</div>
+
 </section>
 
 <!-- ===== SEASON 6 ===== -->
@@ -621,7 +756,11 @@ mjx-container{overflow-x:auto;max-width:100%}
       <tr><td><strong>Fail to Reject H₀</strong></td><td>✅ Correct</td><td>❌ Type II Error (β)</td></tr>
     </table>
     <div class="mnemonic"><strong>💡 MNEMONIC:</strong><br>Type I = "Cry Wolf" → False alarm (say there's an effect when there isn't) → α<br>Type II = "Miss the Wolf" → Miss the real effect → β<br><strong>p-value &lt; α → Reject H₀ (statistically significant!)</strong></div>
-  </div>
+      <div class="table-link mini none">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Table check:</strong> Setting up H₀/H₁ and error types is conceptual — no table here. The critical-value tables arrive in the next episodes (t, F, χ²).</div>
+    </div>
+</div>
 
   <div class="episode">
     <h3>🎬 Episode 7.2 — The t-TEST: Testing Means</h3>
@@ -728,7 +867,11 @@ mjx-container{overflow-x:auto;max-width:100%}
       <p style="color:var(--muted);font-size:.85em;margin-top:8px">R² = 0.81 means X explains 81% of variation in Y</p>
     </div>
     <div class="exam-tip"><strong>📝 EXAM TIP:</strong> Correlation has NO direction (X and Y are interchangeable). Regression DOES have a direction — which variable is X and which is Y matters!</div>
-  </div>
+      <div class="table-link mini none">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Table check:</strong> Regression coefficients (b, a) and R² are computed by hand — no table lookup needed.</div>
+    </div>
+</div>
 
   <div class="episode">
     <h3>🎬 Episode 8.3 — Curvilinear Regression & Transformations</h3>
@@ -740,7 +883,11 @@ mjx-container{overflow-x:auto;max-width:100%}
       <tr><td>Right-skewed data</td><td>Log transform</td><td>Income, population counts</td></tr>
       <tr><td>Proportion data</td><td>Arcsin √Y</td><td>% data</td></tr>
     </table>
-  </div>
+      <div class="table-link mini none">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Table check:</strong> Transformations are applied by hand — no statistical table needed.</div>
+    </div>
+</div>
 </section>
 
 <!-- ===== STAT TABLES ===== -->
