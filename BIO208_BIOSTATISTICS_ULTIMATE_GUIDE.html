@@ -59,6 +59,15 @@ a{color:var(--green);text-decoration:none}
 .formula-box .label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--purple);margin-bottom:8px;font-weight:700}
 .analogy{background:rgba(0,184,148,.06);border:1px solid rgba(0,184,148,.2);border-radius:8px;padding:14px 18px;margin:12px 0;font-style:italic;color:var(--muted)}
 .analogy strong{color:var(--green);font-style:normal}
+.table-link{background:linear-gradient(135deg,rgba(0,206,201,.12),rgba(0,206,201,.04));border:1px solid rgba(0,206,201,.35);border-left:4px solid #00cec9;border-radius:8px;padding:13px 18px;margin:16px 0;display:flex;align-items:flex-start;gap:12px}
+.table-link .ico{font-size:1.4em;line-height:1}
+.table-link .tl-body{flex:1}
+.table-link strong{color:#00cec9}
+.table-link a{color:#00cec9;font-weight:700;white-space:nowrap;border-bottom:1px dashed #00cec9}
+.table-link a:hover{color:#fff;border-bottom-color:#fff}
+.tbl-pill{display:inline-block;background:rgba(0,206,201,.18);color:#00cec9;border:1px solid rgba(0,206,201,.4);border-radius:6px;padding:1px 8px;font-size:.82em;font-weight:700;margin:2px 3px 2px 0;font-family:monospace}
+.dir-warn{background:rgba(214,48,49,.1);border-left:4px solid var(--red);border-radius:6px;padding:6px 12px;margin:8px 0;font-size:.9em}
+.dir-warn strong{color:#ff7675}
 
 /* TABLES */
 table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.9em}
@@ -146,6 +155,7 @@ mjx-container{overflow-x:auto;max-width:100%}
     <li><a href="#s6">🌊 S6: Distributions</a></li>
     <li><a href="#s7">⚔️ S7: Hypothesis Testing</a></li>
     <li><a href="#s8">💕 S8: Correlation & Regression</a></li>
+    <li class="section-head"><a href="#tables">📊 Stat Tables (Exam)</a></li>
     <li class="section-head"><a href="#flashcards">🃏 Flashcards</a></li>
     <li class="section-head"><a href="#assignments">📝 Assignments</a></li>
     <li class="section-head"><a href="#exam">🎯 Mock CBT Exam</a></li>
@@ -474,6 +484,15 @@ mjx-container{overflow-x:auto;max-width:100%}
       <p style="color:var(--muted);font-size:.85em;margin-top:8px">N=population, K=successes in population, n=sample size, k=desired successes</p>
     </div>
   </div>
+
+  <div class="table-link">
+    <span class="ico">📊</span>
+    <div class="tl-body">
+      <strong>Heads-up:</strong> these probability rules are the foundation for the <em>distribution tables</em> you'll actually use in the exam (Binomial, Poisson). When a question gives you n &amp; p, or λ — you'll often just read the answer off
+      <span class="tbl-pill">A.1 Binomial</span><span class="tbl-pill">A.2 Poisson</span>
+      instead of computing. Full guide → <a href="#tables">Stat Tables section ↓</a>
+    </div>
+  </div>
 </section>
 
 <!-- ===== SEASON 6 ===== -->
@@ -551,6 +570,17 @@ mjx-container{overflow-x:auto;max-width:100%}
       <tr><td>Use for</td><td>Measurements</td><td>Count of successes</td><td>Rare events</td></tr>
     </table>
   </div>
+
+  <div class="table-link">
+    <span class="ico">📊</span>
+    <div class="tl-body">
+      <strong>In the exam — DON'T compute these by hand!</strong> Read the probabilities straight off your table book:
+      <span class="tbl-pill">A.3 Normal/Z → P(Z≤z)</span>
+      <span class="tbl-pill">A.1 Binomial → P(X≤k)</span>
+      <span class="tbl-pill">A.2 Poisson → P(X≥x)</span><br>
+      <span style="font-size:.9em;color:var(--muted)">⚠️ Binomial &amp; Poisson read in OPPOSITE directions. Full read-and-convert guide → </span><a href="#tables">Stat Tables section ↓</a>
+    </div>
+  </div>
 </section>
 
 <!-- ===== SEASON 7 ===== -->
@@ -619,6 +649,17 @@ mjx-container{overflow-x:auto;max-width:100%}
     <p><strong>Degrees of freedom:</strong> Test of independence: df = (r−1)(c−1) &nbsp;|&nbsp; Goodness of fit: df = k−1</p>
     <div class="mnemonic"><strong>💡 MNEMONIC:</strong> "Chi-Square = Chai Square — it's hot and tests CATEGORIES!" ☕</div>
   </div>
+
+  <div class="table-link">
+    <span class="ico">📊</span>
+    <div class="tl-body">
+      <strong>In the exam — get the CRITICAL VALUES from the tables.</strong> You only compute the statistic with the formula; the cut-off comes from:
+      <span class="tbl-pill">A.5 Student-t (df, tail)</span>
+      <span class="tbl-pill">A.6 F (df₁, df₂)</span>
+      <span class="tbl-pill">A.4 Chi-square (df, α)</span><br>
+      <span style="font-size:.9em;color:var(--muted)">Rule: if your calculated value &gt; table value → <strong style="color:#00cec9">Reject H₀</strong>. How to pick the right row/column → </span><a href="#tables">Stat Tables section ↓</a>
+    </div>
+  </div>
 </section>
 
 <!-- ===== SEASON 8 ===== -->
@@ -676,6 +717,116 @@ mjx-container{overflow-x:auto;max-width:100%}
       <tr><td>Right-skewed data</td><td>Log transform</td><td>Income, population counts</td></tr>
       <tr><td>Proportion data</td><td>Arcsin √Y</td><td>% data</td></tr>
     </table>
+  </div>
+
+  <div class="table-link">
+    <span class="ico">📊</span>
+    <div class="tl-body">
+      <strong>In the exam — test if your r is significant using the tables.</strong> Compute r with the formula, then compare to:
+      <span class="tbl-pill">B.1 Pearson r (n, α)</span>
+      <span class="tbl-pill">B.2 Spearman rank</span><br>
+      <span style="font-size:.9em;color:var(--muted)">If |r| &gt; table value → the correlation is statistically significant. Details → </span><a href="#tables">Stat Tables section ↓</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STAT TABLES ===== -->
+<section class="season" id="tables">
+  <div class="season-header" style="background:linear-gradient(135deg,#0d2a2a,#0d1a2e)">
+    <div class="season-num" style="color:#00cec9">Exam Hall Reference</div>
+    <h2>📊 Using the Statistical Tables</h2>
+    <p class="tagline">"Let the allowed table book do the hard work — stop cramming probabilities!"</p>
+  </div>
+
+  <div class="episode" style="border-color:rgba(214,48,49,.4)">
+    <h3 style="color:#ff7675">⚠️ Read this first</h3>
+    <p>Most exams let you bring the <strong>printed</strong> table book but <strong>forbid handwritten notes inside it</strong> (it can count as malpractice — so don't write in it). The good news: you barely need to. The tables already replace about <strong>70% of the cramming</strong>. Memorise only the short "Must-Know" list below and let the tables handle the rest.</p>
+  </div>
+
+  <div class="episode">
+    <h3>① STOP cramming these — the table gives them to you</h3>
+    <table>
+      <tr><th>Table</th><th>Gives you</th><th>Reads from…</th></tr>
+      <tr><td><strong>A.1 Binomial</strong></td><td style="color:var(--green)">P(X ≤ k)</td><td><strong>BELOW</strong> (≤)</td></tr>
+      <tr><td><strong>A.2 Poisson</strong></td><td style="color:var(--green)">P(X ≥ x)</td><td><strong>ABOVE</strong> (≥)</td></tr>
+      <tr><td><strong>A.3 Normal (Z)</strong></td><td style="color:var(--green)">P(Z ≤ z) = Φ(z)</td><td>BELOW (≤)</td></tr>
+      <tr><td><strong>A.4 Chi-square</strong></td><td style="color:var(--green)">χ² critical values</td><td>by df &amp; α</td></tr>
+      <tr><td><strong>A.5 Student-t</strong></td><td style="color:var(--green)">t critical values</td><td>by df &amp; tail</td></tr>
+      <tr><td><strong>A.6 F</strong></td><td style="color:var(--green)">F critical values</td><td>by df₁, df₂</td></tr>
+      <tr><td><strong>B.1 / B.2</strong></td><td style="color:var(--green)">r &amp; Spearman critical values</td><td>by n &amp; α</td></tr>
+    </table>
+    <div class="dir-warn"><strong>The #1 thing to keep in your head:</strong> "Binomial = ≤ (below) | Poisson = ≥ (above) | Normal = ≤". The two main tables read in OPPOSITE directions — this is the most common mistake!</div>
+  </div>
+
+  <div class="episode">
+    <h3>② MUST-KNOW formulas (tables CANNOT do these)</h3>
+    <p>Tables give probabilities &amp; cut-offs, but you must still <strong>build the statistic yourself</strong>. This is the whole irreducible list — memorise ONLY these:</p>
+    <div class="formula-box"><div class="label">Standardising</div>\[ Z = \frac{X-\mu}{\sigma} \qquad CV=\frac{s}{\bar{x}}\times100\% \]</div>
+    <div class="formula-box"><div class="label">Binomial (when p not in table) &amp; means</div>\[ P(X{=}k)=\binom{n}{k}p^k q^{\,n-k}, \quad \mu=np,\ \sigma^2=npq \]</div>
+    <div class="formula-box"><div class="label">Poisson (backup) &amp; means</div>\[ P(X{=}k)=\frac{e^{-\lambda}\lambda^{k}}{k!}, \quad \mu=\sigma^2=\lambda=np \]</div>
+    <div class="formula-box"><div class="label">Test statistics</div>\[ t=\frac{\bar{x}-\mu_0}{s/\sqrt{n}}, \quad \chi^2=\sum\frac{(O-E)^2}{E}, \quad F=\frac{MS_B}{MS_W} \]</div>
+    <div class="formula-box"><div class="label">Correlation &amp; regression</div>\[ b=\frac{n\sum xy-\sum x\sum y}{n\sum x^2-(\sum x)^2}, \quad a=\bar{y}-b\bar{x}, \quad R^2=r^2 \]</div>
+    <div class="mnemonic"><strong>💡 That's it.</strong> Everything else (looking up the actual probability or critical value) is just flipping to the right table.</div>
+  </div>
+
+  <div class="episode">
+    <h3>③ How to READ each table &amp; convert to what's asked</h3>
+    <h4>A.3 Normal / Z-table — gives Φ(z) = P(Z ≤ z)</h4>
+    <table>
+      <tr><th>Question asks</th><th>Do this</th></tr>
+      <tr><td>P(Z ≤ z)</td><td>Read directly</td></tr>
+      <tr><td>P(Z &gt; z)</td><td>1 − Φ(z)</td></tr>
+      <tr><td>P(a &lt; Z &lt; b)</td><td>Φ(b) − Φ(a)</td></tr>
+      <tr><td>P(Z ≤ −z)</td><td>1 − Φ(z) &nbsp;(symmetry)</td></tr>
+    </table>
+    <p style="color:var(--muted);font-size:.9em">First convert X → Z with Z=(X−μ)/σ. Then "number of people" = probability × total.</p>
+
+    <h4>A.1 Binomial — gives P(X ≤ k) &nbsp;|&nbsp; A.2 Poisson — gives P(X ≥ x)</h4>
+    <table>
+      <tr><th>You want</th><th>From Binomial P(X≤k)</th><th>From Poisson P(X≥x)</th></tr>
+      <tr><td>P(X = k)</td><td>P(X≤k) − P(X≤k−1)</td><td>P(X≥k) − P(X≥k+1)</td></tr>
+      <tr><td>P(X ≤ k)</td><td>read directly</td><td>1 − P(X≥k+1)</td></tr>
+      <tr><td>P(X &lt; k)</td><td>P(X≤k−1)</td><td>1 − P(X≥k)</td></tr>
+      <tr><td>P(X ≥ k)</td><td>1 − P(X≤k−1)</td><td>read directly</td></tr>
+      <tr><td>P(X &gt; k)</td><td>1 − P(X≤k)</td><td>P(X≥k+1)</td></tr>
+    </table>
+
+    <h4>A.4 χ², A.5 t, A.6 F — these give CRITICAL VALUES (not probabilities)</h4>
+    <ul>
+      <li><strong>Compute</strong> your statistic (formulas in ②), then <strong>compare</strong> to the table value.</li>
+      <li><strong>Decision rule:</strong> calculated value &gt; table value → <strong style="color:#00cec9">Reject H₀</strong> (significant).</li>
+      <li><strong>t-table:</strong> column = tail probability (0.05, or 0.025 for two-tailed); row = df = n−1.</li>
+      <li><strong>χ²:</strong> row = df = (r−1)(c−1); column = α (usually 0.05).</li>
+      <li><strong>F:</strong> column = df₁ (numerator/between = k−1); row = df₂ (denominator/within = N−k).</li>
+    </ul>
+  </div>
+
+  <div class="episode">
+    <h3>④ The 4 golden table tricks</h3>
+    <div class="exam-tip"><strong>Trick 1 — "≥ becomes 1 − ≤".</strong> For discrete data: P(X ≥ 5) = 1 − P(X ≤ 4). The boundary value (5) belongs to whichever side carries the "=". Mixing up 4 and 5 is the classic slip.</div>
+    <div class="exam-tip"><strong>Trick 2 — Binomial p &gt; 0.5 symmetry.</strong> Your binomial table only goes to p = 0.5. For larger p, flip it: P(X=k | n,p) = P(X=n−k | n,1−p). <span style="color:var(--muted)">⚠️ It uses sixteenths, so clean decimals like 0.2/0.8 aren't columns — for those, just use the binomial formula.</span></div>
+    <div class="exam-tip"><strong>Trick 3 — Normal symmetry.</strong> Φ(−z) = 1 − Φ(z). Half the curve = 0.5, so P(Z &lt; 0) = 0.5 always. "Number of items" = probability × N.</div>
+    <div class="exam-tip"><strong>Trick 4 — Poisson from Binomial.</strong> When n large &amp; p small (n&gt;50, p&lt;0.1), set λ = np and use the Poisson table instead of fighting the binomial. (Exactly Assignment 3.)</div>
+  </div>
+
+  <div class="episode">
+    <h3>⑤ Your assignments solved straight off the tables</h3>
+    <h4>Assignment 3 — Poisson, λ = np = 100×0.05 = 5 &nbsp;✅ 100% table-readable</h4>
+    <ul>
+      <li><strong>(iii) P(X ≥ 5):</strong> Table A.2, column λ=5, row x=5 → read directly ≈ <strong>0.5595</strong>. No summing!</li>
+      <li><strong>(i) P(none)=P(X=0):</strong> = 1 − P(X≥1) → <strong>0.0067</strong>.</li>
+      <li><strong>(ii) P(X=5):</strong> = P(X≥5) − P(X≥6) → <strong>0.1755</strong>.</li>
+    </ul>
+    <h4>Assignment 2 — Normal, μ=75, σ=9 &nbsp;✅ 100% table-readable</h4>
+    <ul>
+      <li>Convert with Z=(X−75)/9, look up Φ(z) in A.3, then × 800.</li>
+      <li><strong>(i) 67–72:</strong> Φ(−0.33) − Φ(−0.89) = 0.184 → <strong>≈147 girls</strong>.</li>
+      <li><strong>(ii) &lt;75:</strong> z=0 → 0.5 → <strong>400 girls</strong>.</li>
+      <li><strong>(iii) ≥70:</strong> 1 − Φ(−0.556) = 0.711 → <strong>≈569 girls</strong>.</li>
+    </ul>
+    <h4>Assignment 6 — Binomial, n=10, p=0.8 &nbsp;⚠️ use the FORMULA</h4>
+    <p>p=0.8 isn't a column (table only has sixteenths up to 0.5), so use P(X=7)=C(10,7)(0.8)⁷(0.2)³ = <strong>0.2013</strong>, mean=np=8, var=npq=1.6.</p>
+    <div class="mnemonic"><strong>Bottom line:</strong> Bring the book, trust Tables A.1–A.6, and carry only the small ② list in your head. Before every binomial/Poisson question, silently say: "Binomial ≤, Poisson ≥."</div>
   </div>
 </section>
 
