@@ -68,6 +68,20 @@ a{color:var(--green);text-decoration:none}
 .tbl-pill{display:inline-block;background:rgba(0,206,201,.18);color:#00cec9;border:1px solid rgba(0,206,201,.4);border-radius:6px;padding:1px 8px;font-size:.82em;font-weight:700;margin:2px 3px 2px 0;font-family:monospace}
 .dir-warn{background:rgba(214,48,49,.1);border-left:4px solid var(--red);border-radius:6px;padding:6px 12px;margin:8px 0;font-size:.9em}
 .dir-warn strong{color:#ff7675}
+.walk{background:rgba(0,206,201,.05);border:1px solid rgba(0,206,201,.25);border-radius:10px;padding:16px 18px;margin:16px 0}
+.walk h4{color:#00cec9;margin:0 0 4px;font-size:1.05em}
+.walk .open{font-size:.9em;color:var(--yellow);margin-bottom:10px;font-weight:600}
+.mock{margin:12px 0;overflow-x:auto}
+.mock table{font-family:'Courier New',monospace;font-size:13px;width:auto;min-width:0;margin:0}
+.mock th,.mock td{border:1px solid #2a4a4a;padding:5px 11px;text-align:center;color:var(--muted)}
+.mock th{background:#15263a;color:#7fd9d6;font-weight:700}
+.mock .axis{background:rgba(0,206,201,.18);color:#00cec9;font-weight:700}
+.mock .hit{background:#00cec9;color:#06202a;font-weight:800;box-shadow:inset 0 0 0 2px #fff}
+.mock-cap{font-size:.8em;color:var(--muted);font-style:italic;margin-top:4px}
+.steps{counter-reset:fstep;list-style:none;padding-left:0;margin:8px 0}
+.steps li{position:relative;padding:7px 8px 7px 40px;margin:6px 0;background:rgba(255,255,255,.03);border-radius:6px;color:var(--text)}
+.steps li::before{counter-increment:fstep;content:counter(fstep);position:absolute;left:9px;top:7px;width:22px;height:22px;background:#00cec9;color:#06202a;border-radius:50%;text-align:center;font-size:13px;font-weight:800;line-height:22px}
+.walk .got{background:rgba(0,206,201,.15);border:2px solid #00cec9;border-radius:8px;padding:8px 14px;margin-top:8px;text-align:center;font-weight:700;color:#00cec9}
 
 /* TABLES */
 table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.9em}
@@ -799,6 +813,143 @@ mjx-container{overflow-x:auto;max-width:100%}
       <li><strong>χ²:</strong> row = df = (r−1)(c−1); column = α (usually 0.05).</li>
       <li><strong>F:</strong> column = df₁ (numerator/between = k−1); row = df₂ (denominator/within = N−k).</li>
     </ul>
+  </div>
+
+  <div class="episode">
+    <h3>📖 READ-ALONG: Finger Walkthroughs (open your book!)</h3>
+    <p>Hold your table book open and follow along. Each mini-grid below copies your real table's layout — the <span style="color:#00cec9;font-weight:700">glowing cell</span> is where your finger should land. Practice on the mini-grid, then do the exact same move in the real book. <strong>No cramming — just pointing.</strong></p>
+
+    <!-- NORMAL -->
+    <div class="walk">
+      <h4>🔔 Table A.3 — Normal / Z &nbsp;·&nbsp; Example: find Φ(1.96) = P(Z ≤ 1.96)</h4>
+      <div class="open">👉 OPEN to Table A.3 (Standard Normal). Rows = z to 1 decimal · Columns = the 2nd decimal · Body = P(Z ≤ z).</div>
+      <ol class="steps">
+        <li>Split your z: <strong>1.96 → row "1.9" + column ".06"</strong>.</li>
+        <li>LEFT finger on the row labelled <strong>1.9</strong> (down the left edge).</li>
+        <li>RIGHT finger on the column labelled <strong>.06</strong> (across the top).</li>
+        <li>Slide both fingers until they meet — read the number.</li>
+      </ol>
+      <div class="mock">
+        <table>
+          <tr><th>z</th><th>.00</th><th>.05</th><th class="axis">.06</th><th>.07</th></tr>
+          <tr><td>1.8</td><td>.9641</td><td>.9678</td><td>.9686</td><td>.9693</td></tr>
+          <tr><td class="axis">1.9</td><td>.9713</td><td>.9744</td><td class="hit">.9750</td><td>.9756</td></tr>
+          <tr><td>2.0</td><td>.9772</td><td>.9798</td><td>.9803</td><td>.9808</td></tr>
+        </table>
+        <div class="mock-cap">Row 1.9 × Column .06 → 0.9750</div>
+      </div>
+      <div class="got">✅ Φ(1.96) = 0.9750 &nbsp;(so P(Z &gt; 1.96) = 1 − 0.9750 = 0.0250)</div>
+    </div>
+
+    <!-- POISSON -->
+    <div class="walk">
+      <h4>⚡ Table A.2 — Poisson &nbsp;·&nbsp; Assignment 3: λ = 5, find P(X ≥ 5)</h4>
+      <div class="open">👉 OPEN to Table A.2. Find the block/column for <strong>λ = 5</strong> · Rows = x · Body = P(X ≥ x) <span style="color:#ff7675">(reads from ABOVE!)</span></div>
+      <ol class="steps">
+        <li>Find the column headed <strong>λ = 5</strong> (also written 5.00).</li>
+        <li>Run your finger DOWN to the row <strong>x = 5</strong>.</li>
+        <li>The number there is already P(X ≥ 5) — no adding needed!</li>
+        <li>For P(X = 5)? Subtract the next row: row 5 − row 6.</li>
+      </ol>
+      <div class="mock">
+        <table>
+          <tr><th>x</th><th>λ=4</th><th class="axis">λ=5</th><th>λ=6</th></tr>
+          <tr><td>4</td><td>.5665</td><td>.7350</td><td>.8488</td></tr>
+          <tr><td class="axis">5</td><td>.3712</td><td class="hit">.5595</td><td>.7149</td></tr>
+          <tr><td>6</td><td>.2149</td><td>.3840</td><td>.5543</td></tr>
+        </table>
+        <div class="mock-cap">Column λ=5 × Row x=5 → 0.5595 = P(X ≥ 5)</div>
+      </div>
+      <div class="got">✅ P(X ≥ 5) = 0.5595 &nbsp;·&nbsp; P(X = 5) = 0.5595 − 0.3840 = 0.1755</div>
+    </div>
+
+    <!-- BINOMIAL -->
+    <div class="walk">
+      <h4>🪙 Table A.1 — Binomial &nbsp;·&nbsp; Example: n = 10, p = 0.25, find P(X ≤ 3)</h4>
+      <div class="open">👉 OPEN to Table A.1. Find the block for <strong>n = 10</strong> · Rows = k · Columns = p (in sixteenths) · Body = P(X ≤ k) <span style="color:#ff7675">(reads from BELOW)</span></div>
+      <ol class="steps">
+        <li>Find the <strong>n = 10</strong> block.</li>
+        <li>Column = your p. Here p = 0.25 = <strong>4/16</strong>.</li>
+        <li>Run down to row <strong>k = 3</strong>. Read it — that's P(X ≤ 3).</li>
+        <li>⚠️ p only goes to 8/16 (=0.5). If p &gt; 0.5 use the flip trick (④). If p is a "messy" decimal like 0.2/0.8, just use the formula.</li>
+      </ol>
+      <div class="mock">
+        <table>
+          <tr><th>k</th><th>2/16</th><th>3/16</th><th class="axis">4/16</th><th>5/16</th></tr>
+          <tr><td>2</td><td>.7560</td><td>.6242</td><td>.5256</td><td>.4234</td></tr>
+          <tr><td class="axis">3</td><td>.9140</td><td>.8276</td><td class="hit">.7759</td><td>.6496</td></tr>
+          <tr><td>4</td><td>.9803</td><td>.9421</td><td>.9219</td><td>.8497</td></tr>
+        </table>
+        <div class="mock-cap">n=10 block · Column 4/16 × Row k=3 → 0.7759 = P(X ≤ 3)</div>
+      </div>
+      <div class="got">✅ P(X ≤ 3) = 0.7759 &nbsp;·&nbsp; P(X = 3) = row 3 − row 2 = 0.7759 − 0.5256 = 0.2503</div>
+    </div>
+
+    <!-- t -->
+    <div class="walk">
+      <h4>📏 Table A.5 — Student-t &nbsp;·&nbsp; Example: n = 10 (df = 9), two-tailed at 5%</h4>
+      <div class="open">👉 OPEN to Table A.5. Rows = df · Columns = tail probability. Two-tailed 5% → use the <strong>0.025</strong> column.</div>
+      <ol class="steps">
+        <li>df = n − 1 = <strong>9</strong> → find that row.</li>
+        <li>Two-tailed 5% means 0.025 in each tail → column <strong>0.025</strong>.</li>
+        <li>Where they meet = your critical t value.</li>
+        <li>If your calculated |t| &gt; this → <strong>Reject H₀</strong>.</li>
+      </ol>
+      <div class="mock">
+        <table>
+          <tr><th>df</th><th>.10</th><th>.05</th><th class="axis">.025</th><th>.01</th></tr>
+          <tr><td>8</td><td>1.397</td><td>1.860</td><td>2.306</td><td>2.896</td></tr>
+          <tr><td class="axis">9</td><td>1.383</td><td>1.833</td><td class="hit">2.262</td><td>2.821</td></tr>
+          <tr><td>10</td><td>1.372</td><td>1.812</td><td>2.228</td><td>2.764</td></tr>
+        </table>
+        <div class="mock-cap">Row df=9 × Column .025 → 2.262 (critical t)</div>
+      </div>
+      <div class="got">✅ Critical t = 2.262 — beat this to be significant</div>
+    </div>
+
+    <!-- CHI-SQUARE -->
+    <div class="walk">
+      <h4>☕ Table A.4 — Chi-square &nbsp;·&nbsp; Example: df = 4, α = 0.05</h4>
+      <div class="open">👉 OPEN to Table A.4. Rows = df = (r−1)(c−1) · Columns = α.</div>
+      <ol class="steps">
+        <li>Work out df = (rows−1)(cols−1). Say it's <strong>4</strong>.</li>
+        <li>Find row <strong>4</strong>, then column <strong>0.05</strong>.</li>
+        <li>That meeting cell = critical χ². If your calculated χ² &gt; it → <strong>Reject H₀</strong>.</li>
+      </ol>
+      <div class="mock">
+        <table>
+          <tr><th>df</th><th>.10</th><th class="axis">.05</th><th>.025</th><th>.01</th></tr>
+          <tr><td>3</td><td>6.251</td><td>7.815</td><td>9.348</td><td>11.345</td></tr>
+          <tr><td class="axis">4</td><td>7.779</td><td class="hit">9.488</td><td>11.143</td><td>13.277</td></tr>
+          <tr><td>5</td><td>9.236</td><td>11.070</td><td>12.833</td><td>15.086</td></tr>
+        </table>
+        <div class="mock-cap">Row df=4 × Column .05 → 9.488 (critical χ²)</div>
+      </div>
+      <div class="got">✅ Critical χ² = 9.488</div>
+    </div>
+
+    <!-- F -->
+    <div class="walk">
+      <h4>🏟️ Table A.6 — F &nbsp;·&nbsp; Example: df₁ = 3, df₂ = 12, α = 0.05</h4>
+      <div class="open">👉 OPEN to Table A.6 (use the α = 0.05 page). Columns = df₁ (between = k−1) · Rows = df₂ (within = N−k).</div>
+      <ol class="steps">
+        <li>Numerator df₁ = groups − 1 = <strong>3</strong> → pick that COLUMN.</li>
+        <li>Denominator df₂ = N − k = <strong>12</strong> → run down to that ROW.</li>
+        <li>Their meeting cell = critical F. If your calculated F &gt; it → <strong>Reject H₀</strong> (group means differ).</li>
+      </ol>
+      <div class="mock">
+        <table>
+          <tr><th>df₂ ↓ / df₁ →</th><th>2</th><th class="axis">3</th><th>4</th></tr>
+          <tr><td>10</td><td>4.10</td><td>3.71</td><td>3.48</td></tr>
+          <tr><td class="axis">12</td><td>3.89</td><td class="hit">3.49</td><td>3.26</td></tr>
+          <tr><td>14</td><td>3.74</td><td>3.34</td><td>3.11</td></tr>
+        </table>
+        <div class="mock-cap">Column df₁=3 × Row df₂=12 → 3.49 (critical F)</div>
+      </div>
+      <div class="got">✅ Critical F = 3.49</div>
+    </div>
+
+    <div class="mnemonic"><strong>💡 The 3-finger habit:</strong> for ANY table — (1) one finger on the row label, (2) one finger on the column label, (3) slide both till they meet. The cell they hit IS your answer. That's the whole skill.</div>
   </div>
 
   <div class="episode">
