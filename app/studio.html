@@ -122,10 +122,28 @@
     <div class="mtabs">
       <button class="mtab active" data-kind="image"><span>🖼</span> Image</button>
       <button class="mtab" data-kind="video"><span>🎬</span> Video</button>
+      <button class="mtab" data-kind="tools"><span>🛠</span> Tools</button>
       <button class="mtab" data-kind="reactor"><span>⚛️</span> Reactor</button>
     </div>
     <input id="modelSearch" placeholder="🔍 Search models…">
     <div id="modelGrid" style="margin-top:12px"></div>
+  </section>
+
+  <!-- ===== TOOL (upscale / bg-remove / object-erase) ===== -->
+  <section class="view" id="view-tool">
+    <div class="backlink" id="toolBack">← Tools</div>
+    <div class="studio-head"><div class="ic">🛠</div><div><h2 id="toolName">Tool</h2><p id="toolDesc">Upload an image to process</p></div></div>
+    <div class="panel" style="margin-top:14px">
+      <div class="refbtn" id="toolPick"><span>🖼 Upload an image</span></div>
+      <input id="toolFile" type="file" accept="image/*" style="display:none">
+      <div id="toolPreview" style="display:none;align-items:center;gap:10px;margin-top:8px">
+        <img id="toolThumb" class="refthumb" alt="img"><span class="muted" style="font-size:13px">Image ready</span>
+      </div>
+      <input id="toolPrompt" placeholder="(Object Eraser) what to remove, e.g. 'the person on the left'" style="margin-top:10px;display:none">
+      <button class="btn gold block" id="toolRun" style="margin-top:12px">Run tool</button>
+      <div class="note" id="toolNote"></div>
+    </div>
+    <div class="result" id="toolResult" style="margin-top:12px"><div class="muted">Result appears here.</div></div>
   </section>
 
   <!-- ===== VIDEO STUDIO ===== -->
@@ -182,12 +200,11 @@
           </select>
         </div>
       </div>
-      <div class="refbtn" id="refBtn"><span>🖼 Add an image reference (optional)</span></div>
-      <input id="refFile" type="file" accept="image/*" style="display:none">
-      <div id="refPreview" style="display:none;align-items:center;gap:10px;margin-top:8px">
-        <img id="refThumb" class="refthumb" alt="reference">
-        <span class="muted" style="font-size:13px">Reference attached</span>
-        <button class="btn ghost sm" id="refRemove" style="margin-left:auto">Remove</button>
+      <div class="refbtn" id="refBtn"><span>🖼 Add image reference(s) — up to 3 (optional)</span></div>
+      <input id="refFile" type="file" accept="image/*" multiple style="display:none">
+      <div id="refPreview" style="display:none;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <div id="refThumbs" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+        <button class="btn ghost sm" id="refRemove">Clear</button>
       </div>
       <button class="btn gold block" id="genBtn" style="margin-top:16px">✨ Generate</button>
       <div class="note" id="genNote"></div>

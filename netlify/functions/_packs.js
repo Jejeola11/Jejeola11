@@ -37,33 +37,42 @@ const USD_RATE = 1550;
 // Update the cost_usd numbers below with MuAPI's exact prices anytime.
 // ============================================================
 const CREDIT_USD = 0.016;   // revenue we get per credit sold
-const MARGIN = 4;           // profit multiple baked into every model
-const creditsFor = (cost_usd) => Math.max(1, Math.ceil((cost_usd / CREDIT_USD) * MARGIN));
+const IMAGE_MARGIN = 4;     // profit multiple on images & tools
+const VIDEO_MARGIN = 2;     // thinner margin on video (it's expensive — stay competitive)
+const creditsFor = (cost_usd, margin) => Math.max(1, Math.ceil((cost_usd / CREDIT_USD) * margin));
 
-// MuAPI per-generation cost in USD (conservative; refine with exact prices).
+// IMPORTANT: the keys below are MuAPI endpoint slugs — exactly what we POST to
+// /api/v1/{slug}. MuAPI slugs are versioned and change over time. If a model
+// errors, copy its exact slug from your MuAPI dashboard (open-gen / API tab) and
+// update it here. flux-dev / flux-schnell are stable aliases.
 const IMAGE_COST = {
   'flux-schnell': 0.01,
-  'sdxl': 0.01,
-  'google-imagen4-fast': 0.02,
-  'nano-banana': 0.025,
   'flux-dev': 0.025,
-  'bytedance-seedream-v4': 0.03,
-  'hunyuan-image-2.1': 0.03,
-  'google-imagen4': 0.04,
-  'flux-pro': 0.05,
+  'nano-banana': 0.039,
+  'seedream': 0.03,
+  'hunyuan-image-3.0': 0.03,
+  'gpt4o-text-to-image': 0.04,
+  'flux-2-pro': 0.05,
   'google-imagen4-ultra': 0.06,
 };
-const VIDEO_COST = {        // video is ~$0.60–0.80/clip on MuAPI — priced to stay profitable
-  'seedance-lite': 0.60,
-  'seedance-pro': 0.65,
-  'kling': 0.70,
-  'hailuo': 0.60,
-  'veo': 0.80,
+const VIDEO_COST = {        // ~$0.60–0.80/clip on MuAPI
+  'seedance-v2.0-t2v': 0.60,
+  'kling-v2.6-pro-t2v': 0.70,
+  'minimax-hailuo-02-pro-t2v': 0.60,
+  'wan2.5-text-to-video': 0.60,
+  'veo3.1-text-to-video': 0.80,
+};
+const TOOL_COST = {         // utility tools (take an input image -> output)
+  'ai-image-upscale': 0.02,
+  'topaz-image-upscale': 0.04,
+  'ai-background-remover': 0.01,
+  'ai-object-eraser': 0.02,
 };
 
 // slug -> credits charged (auto-computed for guaranteed margin)
-const IMAGE_MODELS = Object.fromEntries(Object.entries(IMAGE_COST).map(([k, v]) => [k, creditsFor(v)]));
-const VIDEO_MODELS = Object.fromEntries(Object.entries(VIDEO_COST).map(([k, v]) => [k, creditsFor(v)]));
+const IMAGE_MODELS = Object.fromEntries(Object.entries(IMAGE_COST).map(([k, v]) => [k, creditsFor(v, IMAGE_MARGIN)]));
+const VIDEO_MODELS = Object.fromEntries(Object.entries(VIDEO_COST).map(([k, v]) => [k, creditsFor(v, VIDEO_MARGIN)]));
+const TOOL_MODELS = Object.fromEntries(Object.entries(TOOL_COST).map(([k, v]) => [k, creditsFor(v, IMAGE_MARGIN)]));
 const MODEL_COST = IMAGE_MODELS; // back-compat alias
 
 // Fuse Reactor — text-AI costs (credits per message). Cheap; included on paid plans.
@@ -73,4 +82,4 @@ const REACTOR_COST = {
   'openai/gpt-4o-mini': 1,
 };
 
-module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, IMAGE_COST, VIDEO_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST };
+module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST };

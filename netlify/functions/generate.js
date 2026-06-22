@@ -11,12 +11,14 @@ const { IMAGE_MODELS } = require('./_packs');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
-async function muapiGenerate({ prompt, aspect, model }) {
+async function muapiGenerate({ prompt, aspect, model, image_urls }) {
   const key = process.env.MUAPI_KEY;
+  const payload = { prompt, aspect_ratio: aspect };
+  if (image_urls && image_urls.length) payload.image_urls = image_urls; // reference image(s)
   const submit = await fetch(`${MUAPI_BASE}/${model}`, {
     method: 'POST',
     headers: { 'x-api-key': key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt, aspect_ratio: aspect }),
+    body: JSON.stringify(payload),
   });
   const txt = await submit.text();
   let j;
@@ -74,11 +76,14 @@ exports.handler = async (event) => {
 
   const prompt = (body.prompt || '').trim();
   const aspect = body.aspect || '9:16';
-  const model = body.model || 'flux-schnell';
-  const ref = (body.reference_image_url || '').trim();
+  // Collect 0..N reference images (multi-image editing/blending via Nano Banana).
+  const refs = (Array.isArray(body.reference_image_urls) ? body.reference_image_urls
+    : (body.reference_image_url ? [body.reference_image_url] : [])).filter(Boolean);
+  const useRef = refs.length > 0;
+  // With references we use Nano Banana (multi-image). Otherwise the chosen model.
+  const model = useRef ? 'nano-banana' : (body.model || 'flux-schnell');
   if (!prompt) return json(400, { error: 'Add a prompt first.' });
-  const useRef = ref && process.env.FAL_KEY;       // reference only applies when fal is connected
-  const cost = useRef ? 8 : IMAGE_MODELS[model];   // fal img2img ~$0.03 -> ~4x margin
+  const cost = IMAGE_MODELS[model];
   if (!cost) return json(400, { error: 'Unknown model.' });
 
   const db = admin();
@@ -94,13 +99,11 @@ exports.handler = async (event) => {
 
   // 2) Generate. If it fails, refund the credits we just took.
   try {
-    const r = useRef
-      ? await falImg2Img({ prompt, image_url: ref, aspect })
-      : await muapiGenerate({ prompt, aspect, model });
+    const r = await muapiGenerate({ prompt, aspect, model, image_urls: useRef ? refs : undefined });
     if (!r.url) throw new Error('No image returned');
 
     await db.from('generations').insert({
-      user_id: user.id, type: 'image', model: useRef ? 'flux-img2img' : model, prompt, aspect,
+      user_id: user.id, type: 'image', model, prompt, aspect,
       output_url: r.url, cost_usd: r.cost_usd, credits_spent: cost,
     });
 

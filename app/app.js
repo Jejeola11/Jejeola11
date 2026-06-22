@@ -14,7 +14,7 @@ let preview = false;
 let showUsd = false;
 let activeStudio = cfg.STUDIOS[0];
 let lastPrompt = '';
-let refUrl = '';   // optional image reference for the main generator
+let refUrls = [];   // optional image reference(s) for the main generator (multi)
 
 const naira = (n) => '₦' + Number(n).toLocaleString();
 const usd = (n) => '$' + Math.round(n / cfg.USD_RATE);
@@ -47,7 +47,7 @@ function buildModels(kind) {
   modelKind = kind || 'image';
   document.querySelectorAll('.mtab').forEach((t) => t.classList.toggle('active', t.dataset.kind === modelKind));
   if (modelKind === 'reactor') { showView('reactor'); return; }
-  const list = modelKind === 'video' ? cfg.VIDEO_MODELS : cfg.IMAGE_MODELS;
+  const list = modelKind === 'video' ? cfg.VIDEO_MODELS : modelKind === 'tools' ? cfg.TOOL_MODELS : cfg.IMAGE_MODELS;
   const q = ($('modelSearch').value || '').toLowerCase();
   const shown = list.filter((m) => m.name.toLowerCase().includes(q) || m.badge.toLowerCase().includes(q));
   $('modelGrid').innerHTML = shown.map((m) => {
@@ -58,7 +58,9 @@ function buildModels(kind) {
       <div class="minfo"><div class="mn">${m.name}</div><div class="mb">${m.badge}</div><div class="mc">${m.credits} cr</div></div></div>`;
   }).join('');
   $('modelGrid').querySelectorAll('.mcard').forEach((el) => el.onclick = () => {
-    modelKind === 'video' ? openVideo(el.dataset.slug) : openImageModel(el.dataset.slug);
+    if (modelKind === 'video') openVideo(el.dataset.slug);
+    else if (modelKind === 'tools') openTool(el.dataset.slug);
+    else openImageModel(el.dataset.slug);
   });
 }
 function openImageModel(slug) {
@@ -206,7 +208,7 @@ async function generate() {
   try {
     const res = await fetch('/.netlify/functions/generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ prompt, model, aspect, reference_image_url: refUrl || undefined }),
+      body: JSON.stringify({ prompt, model, aspect, reference_image_urls: refUrls.length ? refUrls : undefined }),
     });
     const data = await res.json(); clearInterval(iv);
     if (res.status === 402) { note('genNote', 'Out of credits — top up to keep creating.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; }
@@ -531,22 +533,79 @@ function buildAvatarPrompt() {
   $('avPrompt').value = parts.join(', ');
 }
 
-// ---------------- image reference upload (main generator) ----------------
-async function pickReference(file) {
+// ---------------- image reference upload (main generator, multi) ----------------
+async function pickReferences(files) {
   if (preview) { showAuth('signup'); return; }
-  if (!file) return;
-  note('genNote', 'Uploading reference…', 'ok');
+  if (!files || !files.length) return;
+  note('genNote', 'Uploading reference(s)…', 'ok');
   try {
-    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-    const path = `${user.id}/ref-${Date.now()}.${ext}`;
-    const { error } = await sb.storage.from('avatars').upload(path, file, { upsert: false });
-    if (error) throw error;
-    refUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
-    $('refThumb').src = refUrl; $('refPreview').style.display = 'flex'; $('refBtn').style.display = 'none';
-    note('genNote', '✅ Reference attached — it will guide your generation.', 'ok');
+    for (const file of Array.from(files)) {
+      if (refUrls.length >= 3) break;
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${user.id}/ref-${Date.now()}-${refUrls.length}.${ext}`;
+      const { error } = await sb.storage.from('avatars').upload(path, file);
+      if (error) throw error;
+      refUrls.push(sb.storage.from('avatars').getPublicUrl(path).data.publicUrl);
+    }
+    renderRefThumbs();
+    note('genNote', `✅ ${refUrls.length} reference${refUrls.length > 1 ? 's' : ''} attached — they'll guide your generation.`, 'ok');
   } catch (e) { note('genNote', e.message || 'Upload failed.', 'err'); }
 }
-function removeReference() { refUrl = ''; $('refPreview').style.display = 'none'; $('refBtn').style.display = 'flex'; $('refFile').value = ''; }
+function renderRefThumbs() {
+  $('refThumbs').innerHTML = refUrls.map((u) => `<img src="${u}" class="refthumb">`).join('');
+  $('refPreview').style.display = refUrls.length ? 'flex' : 'none';
+  $('refBtn').style.display = refUrls.length >= 3 ? 'none' : 'flex';
+}
+function removeReference() { refUrls = []; renderRefThumbs(); $('refFile').value = ''; }
+
+// ---------------- utility tools (upscale / bg-remove / object-erase) ----------------
+let toolSlug = null, toolImg = '';
+function openTool(slug) {
+  const t = cfg.TOOL_MODELS.find((x) => x.slug === slug) || cfg.TOOL_MODELS[0];
+  toolSlug = t.slug;
+  $('toolName').textContent = t.name + ' · ' + t.credits + ' cr';
+  $('toolDesc').textContent = t.badge;
+  $('toolPrompt').style.display = slug === 'ai-object-eraser' ? 'block' : 'none';
+  toolImg = ''; $('toolPreview').style.display = 'none'; $('toolPick').style.display = 'flex';
+  $('toolResult').innerHTML = '<div class="muted">Result appears here.</div>';
+  note('toolNote', '');
+  showView('tool');
+}
+async function pickToolImage(file) {
+  if (preview) { showAuth('signup'); return; }
+  if (!file) return;
+  note('toolNote', 'Uploading…', 'ok');
+  try {
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = `${user.id}/tool-${Date.now()}.${ext}`;
+    const { error } = await sb.storage.from('avatars').upload(path, file);
+    if (error) throw error;
+    toolImg = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    $('toolThumb').src = toolImg; $('toolPreview').style.display = 'flex'; $('toolPick').style.display = 'none';
+    note('toolNote', '✅ Image ready.', 'ok');
+  } catch (e) { note('toolNote', e.message || 'Upload failed.', 'err'); }
+}
+async function runTool() {
+  if (preview) { showAuth('signup'); return; }
+  if (!toolImg) return note('toolNote', 'Upload an image first.', 'err');
+  const btn = $('toolRun'); btn.disabled = true; btn.textContent = 'Working…';
+  $('toolResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Processing…</div></div>';
+  try {
+    const res = await fetch('/.netlify/functions/tool-generate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ slug: toolSlug, image_url: toolImg, prompt: $('toolPrompt').value.trim() || undefined }),
+    });
+    const data = await res.json();
+    if (res.status === 402) { note('toolNote', 'Out of credits — top up.', 'err'); openBuy(); }
+    else if (!res.ok) throw new Error(data.error || 'Failed');
+    else {
+      $('creditCount').textContent = data.credits;
+      $('toolResult').innerHTML = `<div><img src="${data.url}"><div style="margin-top:12px"><a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
+      note('toolNote', 'Done ✅', 'ok');
+    }
+  } catch (e) { $('toolResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('toolNote', e.message || 'Failed — credits not charged.', 'err'); }
+  btn.disabled = false; btn.textContent = 'Run tool';
+}
 
 // ---------------- auth ----------------
 let authMode = 'signup';
@@ -629,8 +688,12 @@ window.addEventListener('DOMContentLoaded', () => {
   $('bBuild').onclick = buildAvatarPrompt;
   $('qSkip').onclick = skipQuiz;
   $('refBtn').onclick = () => $('refFile').click();
-  $('refFile').onchange = (e) => pickReference(e.target.files[0]);
+  $('refFile').onchange = (e) => pickReferences(e.target.files);
   $('refRemove').onclick = removeReference;
+  $('toolBack').onclick = () => showView('models');
+  $('toolPick').onclick = () => $('toolFile').click();
+  $('toolFile').onchange = (e) => pickToolImage(e.target.files[0]);
+  $('toolRun').onclick = runTool;
   // model gallery + video studio
   document.querySelectorAll('.mtab').forEach((t) => t.onclick = () => buildModels(t.dataset.kind));
   $('modelSearch').oninput = () => buildModels(modelKind);

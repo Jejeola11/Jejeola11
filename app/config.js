@@ -42,23 +42,27 @@ window.FUSE = {
   // slug must match netlify/functions/_packs.js. `sample` is a placeholder you
   // can later swap for a real sample image/video URL.
   IMAGE_MODELS: [
-    { slug: 'nano-banana',           name: 'Nano Banana',     badge: 'Google',    credits: 7,  sample: '' },
-    { slug: 'flux-pro',              name: 'Flux Pro',        badge: 'Best',      credits: 13, sample: '' },
-    { slug: 'flux-dev',              name: 'Flux Dev',        badge: 'Quality',   credits: 7,  sample: '' },
-    { slug: 'flux-schnell',          name: 'Flux Schnell',    badge: 'Fast',      credits: 3,  sample: '' },
-    { slug: 'google-imagen4',        name: 'Imagen 4',        badge: 'Google',    credits: 10, sample: '' },
-    { slug: 'google-imagen4-fast',   name: 'Imagen 4 Fast',   badge: 'Google',    credits: 5,  sample: '' },
-    { slug: 'google-imagen4-ultra',  name: 'Imagen 4 Ultra',  badge: 'Google',    credits: 15, sample: '' },
-    { slug: 'bytedance-seedream-v4', name: 'Seedream v4',     badge: 'ByteDance', credits: 8,  sample: '' },
-    { slug: 'hunyuan-image-2.1',     name: 'Hunyuan 2.1',     badge: 'Tencent',   credits: 8,  sample: '' },
-    { slug: 'sdxl',                  name: 'SDXL',            badge: 'Stability', credits: 3,  sample: '' },
+    { slug: 'flux-schnell',          name: 'Flux Schnell',   badge: 'Fast',      credits: 3,  sample: '' },
+    { slug: 'flux-dev',              name: 'Flux Dev',       badge: 'Quality',   credits: 7,  sample: '' },
+    { slug: 'nano-banana',           name: 'Nano Banana',    badge: 'Google',    credits: 10, sample: '' },
+    { slug: 'seedream',              name: 'Seedream',       badge: 'ByteDance', credits: 8,  sample: '' },
+    { slug: 'hunyuan-image-3.0',     name: 'Hunyuan 3.0',    badge: 'Tencent',   credits: 8,  sample: '' },
+    { slug: 'gpt4o-text-to-image',   name: 'GPT Image',      badge: 'OpenAI',    credits: 10, sample: '' },
+    { slug: 'flux-2-pro',            name: 'Flux 2 Pro',     badge: 'Best',      credits: 13, sample: '' },
+    { slug: 'google-imagen4-ultra',  name: 'Imagen 4 Ultra', badge: 'Google',    credits: 15, sample: '' },
   ],
   VIDEO_MODELS: [
-    { slug: 'seedance-lite', name: 'Seedance Lite', badge: 'ByteDance', credits: 150, sample: '' },
-    { slug: 'seedance-pro',  name: 'Seedance Pro',  badge: 'ByteDance', credits: 163, sample: '' },
-    { slug: 'kling',         name: 'Kling',         badge: 'Kuaishou',  credits: 175, sample: '' },
-    { slug: 'hailuo',        name: 'Hailuo',        badge: 'MiniMax',   credits: 150, sample: '' },
-    { slug: 'veo',           name: 'Google Veo',    badge: 'Google',    credits: 200, sample: '' },
+    { slug: 'seedance-v2.0-t2v',          name: 'Seedance 2.0', badge: 'ByteDance', credits: 75,  sample: '' },
+    { slug: 'kling-v2.6-pro-t2v',         name: 'Kling 2.6 Pro', badge: 'Kuaishou', credits: 88,  sample: '' },
+    { slug: 'minimax-hailuo-02-pro-t2v',  name: 'Hailuo 02 Pro', badge: 'MiniMax',  credits: 75,  sample: '' },
+    { slug: 'wan2.5-text-to-video',       name: 'Wan 2.5',       badge: 'Alibaba',  credits: 75,  sample: '' },
+    { slug: 'veo3.1-text-to-video',       name: 'Veo 3.1',       badge: 'Google',   credits: 100, sample: '' },
+  ],
+  TOOL_MODELS: [
+    { slug: 'ai-image-upscale',      name: 'Image Upscale',     badge: 'Enhance', credits: 5,  sample: '' },
+    { slug: 'topaz-image-upscale',   name: 'Topaz Upscale',     badge: 'Pro',     credits: 10, sample: '' },
+    { slug: 'ai-background-remover',  name: 'Remove Background', badge: 'Cutout',  credits: 3,  sample: '' },
+    { slug: 'ai-object-eraser',      name: 'Object Eraser',     badge: 'Clean',   credits: 5,  sample: '' },
   ],
 
   // Quick preset chips on Home.
