@@ -15,12 +15,29 @@
   included_files = []
 
 # ---- Clean routes for the hosted app ----
-# The new Fuse Studio landing is the front door.
+# The BIO 208 biostatistics study guide is the front door.
 [[redirects]]
   from = "/"
-  to = "/app/index.html"
+  to = "/BIO208_BIOSTATISTICS_ULTIMATE_GUIDE.html"
   status = 200
   force = true
+
+# Short, easy-to-type routes for the study materials.
+[[redirects]]
+  from = "/bio208"
+  to = "/BIO208_BIOSTATISTICS_ULTIMATE_GUIDE.html"
+  status = 200
+
+[[redirects]]
+  from = "/tables"
+  to = "/BIO208_TABLE_CHEATSHEET.html"
+  status = 200
+
+# Fuse Studio stays reachable for reference.
+[[redirects]]
+  from = "/fuse"
+  to = "/app/index.html"
+  status = 200
 
 [[redirects]]
   from = "/studio"
