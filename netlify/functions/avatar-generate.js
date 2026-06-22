@@ -10,7 +10,7 @@
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
 
-const AVATAR_COST = 4; // identity generation costs more than a plain image
+const AVATAR_COST = 12; // identity generation (fal PuLID ~$0.05) priced at ~4x margin
 const FAL_MODEL = 'fal-ai/flux-pulid';
 
 const SIZE = {

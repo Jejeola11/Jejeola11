@@ -414,7 +414,7 @@ async function avatarGenerate() {
       note('avGenNote', 'Done ✅', 'ok');
     }
   } catch (e) { $('avResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('avGenNote', e.message || 'Failed — credits not charged.', 'err'); }
-  btn.disabled = false; btn.textContent = '✨ Generate (4 credits)';
+  btn.disabled = false; btn.textContent = '✨ Generate (12 credits)';
 }
 
 // ---------------- marketplace ----------------

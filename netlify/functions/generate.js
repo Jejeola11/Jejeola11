@@ -78,7 +78,7 @@ exports.handler = async (event) => {
   const ref = (body.reference_image_url || '').trim();
   if (!prompt) return json(400, { error: 'Add a prompt first.' });
   const useRef = ref && process.env.FAL_KEY;       // reference only applies when fal is connected
-  const cost = useRef ? 2 : IMAGE_MODELS[model];
+  const cost = useRef ? 8 : IMAGE_MODELS[model];   // fal img2img ~$0.03 -> ~4x margin
   if (!cost) return json(400, { error: 'Unknown model.' });
 
   const db = admin();

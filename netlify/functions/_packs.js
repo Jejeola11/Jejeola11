@@ -29,33 +29,42 @@ const REFERRAL = { reward: 30, bonus: 15 };
 // Update to taste; pricing should be value-based, not a strict FX conversion.
 const USD_RATE = 1550;
 
-// Image models (MuAPI slug -> credits charged). One MuAPI key unlocks all of them.
-// If a slug ever errors, correct it from muapi.ai (open-gen / API docs) — the
-// slug here is exactly what we POST to /api/v1/{slug}.
-const IMAGE_MODELS = {
-  'flux-schnell': 1,
-  'flux-dev': 2,
-  'nano-banana': 2,
-  'flux-pro': 4,
-  'google-imagen4-fast': 2,
-  'google-imagen4': 3,
-  'google-imagen4-ultra': 5,
-  'bytedance-seedream-v4': 3,
-  'hunyuan-image-2.1': 3,
-  'sdxl': 2,
+// ============================================================
+// COST-PLUS PRICING — guarantees profit on every generation.
+//   cost_usd = what MuAPI charges us per generation.
+//   We sell credits at ~$0.016 each (derived from the plans).
+//   Credit price = ceil(cost / 0.016 * MARGIN). Change MARGIN once to reprice all.
+// Update the cost_usd numbers below with MuAPI's exact prices anytime.
+// ============================================================
+const CREDIT_USD = 0.016;   // revenue we get per credit sold
+const MARGIN = 4;           // profit multiple baked into every model
+const creditsFor = (cost_usd) => Math.max(1, Math.ceil((cost_usd / CREDIT_USD) * MARGIN));
+
+// MuAPI per-generation cost in USD (conservative; refine with exact prices).
+const IMAGE_COST = {
+  'flux-schnell': 0.01,
+  'sdxl': 0.01,
+  'google-imagen4-fast': 0.02,
+  'nano-banana': 0.025,
+  'flux-dev': 0.025,
+  'bytedance-seedream-v4': 0.03,
+  'hunyuan-image-2.1': 0.03,
+  'google-imagen4': 0.04,
+  'flux-pro': 0.05,
+  'google-imagen4-ultra': 0.06,
+};
+const VIDEO_COST = {        // video is ~$0.60–0.80/clip on MuAPI — priced to stay profitable
+  'seedance-lite': 0.60,
+  'seedance-pro': 0.65,
+  'kling': 0.70,
+  'hailuo': 0.60,
+  'veo': 0.80,
 };
 
-// Video models (MuAPI slug -> credits). Video is pricier — price with margin.
-const VIDEO_MODELS = {
-  'seedance-lite': 20,
-  'seedance-pro': 40,
-  'kling': 50,
-  'hailuo': 40,
-  'veo': 60,
-};
-
-// Back-compat alias.
-const MODEL_COST = IMAGE_MODELS;
+// slug -> credits charged (auto-computed for guaranteed margin)
+const IMAGE_MODELS = Object.fromEntries(Object.entries(IMAGE_COST).map(([k, v]) => [k, creditsFor(v)]));
+const VIDEO_MODELS = Object.fromEntries(Object.entries(VIDEO_COST).map(([k, v]) => [k, creditsFor(v)]));
+const MODEL_COST = IMAGE_MODELS; // back-compat alias
 
 // Fuse Reactor — text-AI costs (credits per message). Cheap; included on paid plans.
 const REACTOR_COST = {
@@ -64,4 +73,4 @@ const REACTOR_COST = {
   'openai/gpt-4o-mini': 1,
 };
 
-module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, REFERRAL, USD_RATE, REACTOR_COST };
+module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, IMAGE_COST, VIDEO_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST };
