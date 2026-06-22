@@ -59,6 +59,15 @@ const IMAGE_COST = {
   'gpt4o-text-to-image': 0.04,
   'flux-2-pro': 0.05,
   'google-imagen4-ultra': 0.06,
+  // Added from the Higgsfield model list (slugs are best-effort MuAPI names —
+  // if any errors when generating, send me the error and I'll correct the slug).
+  'nano-banana-pro': 0.04,
+  'gpt-image-2': 0.04,
+  'recraft-v3': 0.03,
+  'ideogram-v3': 0.03,
+  'hidream_i1_full_image': 0.03,
+  'z-image': 0.02,
+  'seedream-5.0': 0.03,
 };
 const VIDEO_COST = {        // ~$0.60–0.80/clip on MuAPI
   'seedance-v2.0-t2v': 0.60,
