@@ -82,6 +82,9 @@ a{color:var(--green);text-decoration:none}
 .steps li{position:relative;padding:7px 8px 7px 40px;margin:6px 0;background:rgba(255,255,255,.03);border-radius:6px;color:var(--text)}
 .steps li::before{counter-increment:fstep;content:counter(fstep);position:absolute;left:9px;top:7px;width:22px;height:22px;background:#00cec9;color:#06202a;border-radius:50%;text-align:center;font-size:13px;font-weight:800;line-height:22px}
 .walk .got{background:rgba(0,206,201,.15);border:2px solid #00cec9;border-radius:8px;padding:8px 14px;margin-top:8px;text-align:center;font-weight:700;color:#00cec9}
+.table-link.mini{padding:9px 14px;margin:10px 0;font-size:.9em}
+.table-link.mini .ico{font-size:1.1em}
+.table-link.mini a{font-size:.95em}
 
 /* TABLES */
 table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.9em}
@@ -547,6 +550,10 @@ mjx-container{overflow-x:auto;max-width:100%}
       <tr><td>0.89</td><td>0.8133</td><td>3.00</td><td>0.9987</td></tr>
     </table>
     <div class="exam-tip"><strong>📝 EXAM TIP:</strong> P(Z &lt; 0) = 0.5 always (by symmetry). For P(Z &gt; z) = 1 − P(Z &lt; z). For P(a &lt; Z &lt; b) = P(Z &lt; b) − P(Z &lt; a).</div>
+    <div class="table-link mini">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Read together with:</strong> <span class="tbl-pill">Table A.3 — Normal/Z</span> gives P(Z ≤ z). No cramming — convert with Z=(X−μ)/σ, then look it up. <a href="#w-normal">👉 Finger walkthrough</a></div>
+    </div>
   </div>
 
   <div class="episode">
@@ -560,6 +567,10 @@ mjx-container{overflow-x:auto;max-width:100%}
       <div class="label">Mean, Variance, SD</div>
       \[ \mu = np \qquad \sigma^2 = npq \qquad \sigma = \sqrt{npq} \]
       <p style="color:var(--muted);font-size:.85em;margin-top:8px">where q = 1 − p</p>
+    </div>
+    <div class="table-link mini">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Read together with:</strong> <span class="tbl-pill">Table A.1 — Binomial</span> gives P(X ≤ k) <span style="color:#ff7675">(reads BELOW)</span>. ⚠️ Only p ≤ 0.5 in sixteenths — messy p like 0.8 → use the formula. <a href="#w-binom">👉 Finger walkthrough</a></div>
     </div>
   </div>
 
@@ -583,16 +594,9 @@ mjx-container{overflow-x:auto;max-width:100%}
       <tr><td>Variance</td><td>σ²</td><td>npq</td><td>λ</td></tr>
       <tr><td>Use for</td><td>Measurements</td><td>Count of successes</td><td>Rare events</td></tr>
     </table>
-  </div>
-
-  <div class="table-link">
-    <span class="ico">📊</span>
-    <div class="tl-body">
-      <strong>In the exam — DON'T compute these by hand!</strong> Read the probabilities straight off your table book:
-      <span class="tbl-pill">A.3 Normal/Z → P(Z≤z)</span>
-      <span class="tbl-pill">A.1 Binomial → P(X≤k)</span>
-      <span class="tbl-pill">A.2 Poisson → P(X≥x)</span><br>
-      <span style="font-size:.9em;color:var(--muted)">⚠️ Binomial &amp; Poisson read in OPPOSITE directions. Full read-and-convert guide → </span><a href="#tables">Stat Tables section ↓</a>
+    <div class="table-link mini">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Read together with:</strong> <span class="tbl-pill">Table A.2 — Poisson</span> gives P(X ≥ x) <span style="color:#ff7675">(reads ABOVE)</span>. Assignment 3 (λ=5) reads straight off it! <a href="#w-poisson">👉 Finger walkthrough</a></div>
     </div>
   </div>
 </section>
@@ -635,6 +639,10 @@ mjx-container{overflow-x:auto;max-width:100%}
       \[ t = \frac{\bar{d}}{s_d/\sqrt{n}}, \quad df = n-1 \]
     </div>
     <div class="exam-tip"><strong>📝 EXAM TIP:</strong> Use PAIRED t-test when the SAME subjects are measured twice (before/after drug treatment). Use INDEPENDENT t-test when two DIFFERENT groups are compared.</div>
+    <div class="table-link mini">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Read together with:</strong> <span class="tbl-pill">Table A.5 — Student-t</span> for the critical value (row = df, column = tail). Calculated |t| &gt; table → Reject H₀. <a href="#w-t">👉 Finger walkthrough</a></div>
+    </div>
   </div>
 
   <div class="episode">
@@ -651,6 +659,10 @@ mjx-container{overflow-x:auto;max-width:100%}
       <tr><td>Total</td><td>SS_T</td><td>N−1</td><td></td><td></td></tr>
     </table>
     <div class="exam-tip"><strong>📝 EXAM TIP:</strong> ANOVA tests if ANY group differs — not WHICH one. For that, you need post-hoc tests (Tukey, Bonferroni). Examiners love this distinction!</div>
+    <div class="table-link mini">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Read together with:</strong> <span class="tbl-pill">Table A.6 — F</span> for the critical value (column = df₁ = k−1, row = df₂ = N−k). Calculated F &gt; table → Reject H₀. <a href="#w-f">👉 Finger walkthrough</a></div>
+    </div>
   </div>
 
   <div class="episode">
@@ -662,16 +674,9 @@ mjx-container{overflow-x:auto;max-width:100%}
     </div>
     <p><strong>Degrees of freedom:</strong> Test of independence: df = (r−1)(c−1) &nbsp;|&nbsp; Goodness of fit: df = k−1</p>
     <div class="mnemonic"><strong>💡 MNEMONIC:</strong> "Chi-Square = Chai Square — it's hot and tests CATEGORIES!" ☕</div>
-  </div>
-
-  <div class="table-link">
-    <span class="ico">📊</span>
-    <div class="tl-body">
-      <strong>In the exam — get the CRITICAL VALUES from the tables.</strong> You only compute the statistic with the formula; the cut-off comes from:
-      <span class="tbl-pill">A.5 Student-t (df, tail)</span>
-      <span class="tbl-pill">A.6 F (df₁, df₂)</span>
-      <span class="tbl-pill">A.4 Chi-square (df, α)</span><br>
-      <span style="font-size:.9em;color:var(--muted)">Rule: if your calculated value &gt; table value → <strong style="color:#00cec9">Reject H₀</strong>. How to pick the right row/column → </span><a href="#tables">Stat Tables section ↓</a>
+    <div class="table-link mini">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Read together with:</strong> <span class="tbl-pill">Table A.4 — Chi-square</span> for the critical value (row = df = (r−1)(c−1), column = α). Calculated χ² &gt; table → Reject H₀. <a href="#w-chi">👉 Finger walkthrough</a></div>
     </div>
   </div>
 </section>
@@ -701,6 +706,10 @@ mjx-container{overflow-x:auto;max-width:100%}
       <tr><td>−1.0</td><td>Perfect negative correlation</td></tr>
     </table>
     <div class="mnemonic"><strong>💡 MNEMONIC:</strong> Positive r = variables go UP together (best friends). Negative r = one goes UP while other goes DOWN (enemies!)</div>
+    <div class="table-link mini">
+      <span class="ico">📊</span>
+      <div class="tl-body"><strong>Read together with:</strong> <span class="tbl-pill">Table B.1 — Pearson r</span> <span class="tbl-pill">B.2 — Spearman</span> for critical values (by n &amp; α). If |r| &gt; table value → the correlation is significant. <a href="#tables">👉 Stat Tables section</a></div>
+    </div>
   </div>
 
   <div class="episode">
@@ -731,16 +740,6 @@ mjx-container{overflow-x:auto;max-width:100%}
       <tr><td>Right-skewed data</td><td>Log transform</td><td>Income, population counts</td></tr>
       <tr><td>Proportion data</td><td>Arcsin √Y</td><td>% data</td></tr>
     </table>
-  </div>
-
-  <div class="table-link">
-    <span class="ico">📊</span>
-    <div class="tl-body">
-      <strong>In the exam — test if your r is significant using the tables.</strong> Compute r with the formula, then compare to:
-      <span class="tbl-pill">B.1 Pearson r (n, α)</span>
-      <span class="tbl-pill">B.2 Spearman rank</span><br>
-      <span style="font-size:.9em;color:var(--muted)">If |r| &gt; table value → the correlation is statistically significant. Details → </span><a href="#tables">Stat Tables section ↓</a>
-    </div>
   </div>
 </section>
 
@@ -820,7 +819,7 @@ mjx-container{overflow-x:auto;max-width:100%}
     <p>Hold your table book open and follow along. Each mini-grid below copies your real table's layout — the <span style="color:#00cec9;font-weight:700">glowing cell</span> is where your finger should land. Practice on the mini-grid, then do the exact same move in the real book. <strong>No cramming — just pointing.</strong></p>
 
     <!-- NORMAL -->
-    <div class="walk">
+    <div class="walk" id="w-normal">
       <h4>🔔 Table A.3 — Normal / Z &nbsp;·&nbsp; Example: find Φ(1.96) = P(Z ≤ 1.96)</h4>
       <div class="open">👉 OPEN to Table A.3 (Standard Normal). Rows = z to 1 decimal · Columns = the 2nd decimal · Body = P(Z ≤ z).</div>
       <ol class="steps">
@@ -842,7 +841,7 @@ mjx-container{overflow-x:auto;max-width:100%}
     </div>
 
     <!-- POISSON -->
-    <div class="walk">
+    <div class="walk" id="w-poisson">
       <h4>⚡ Table A.2 — Poisson &nbsp;·&nbsp; Assignment 3: λ = 5, find P(X ≥ 5)</h4>
       <div class="open">👉 OPEN to Table A.2. Find the block/column for <strong>λ = 5</strong> · Rows = x · Body = P(X ≥ x) <span style="color:#ff7675">(reads from ABOVE!)</span></div>
       <ol class="steps">
@@ -864,7 +863,7 @@ mjx-container{overflow-x:auto;max-width:100%}
     </div>
 
     <!-- BINOMIAL -->
-    <div class="walk">
+    <div class="walk" id="w-binom">
       <h4>🪙 Table A.1 — Binomial &nbsp;·&nbsp; Example: n = 10, p = 0.25, find P(X ≤ 3)</h4>
       <div class="open">👉 OPEN to Table A.1. Find the block for <strong>n = 10</strong> · Rows = k · Columns = p (in sixteenths) · Body = P(X ≤ k) <span style="color:#ff7675">(reads from BELOW)</span></div>
       <ol class="steps">
@@ -886,7 +885,7 @@ mjx-container{overflow-x:auto;max-width:100%}
     </div>
 
     <!-- t -->
-    <div class="walk">
+    <div class="walk" id="w-t">
       <h4>📏 Table A.5 — Student-t &nbsp;·&nbsp; Example: n = 10 (df = 9), two-tailed at 5%</h4>
       <div class="open">👉 OPEN to Table A.5. Rows = df · Columns = tail probability. Two-tailed 5% → use the <strong>0.025</strong> column.</div>
       <ol class="steps">
@@ -908,7 +907,7 @@ mjx-container{overflow-x:auto;max-width:100%}
     </div>
 
     <!-- CHI-SQUARE -->
-    <div class="walk">
+    <div class="walk" id="w-chi">
       <h4>☕ Table A.4 — Chi-square &nbsp;·&nbsp; Example: df = 4, α = 0.05</h4>
       <div class="open">👉 OPEN to Table A.4. Rows = df = (r−1)(c−1) · Columns = α.</div>
       <ol class="steps">
@@ -929,7 +928,7 @@ mjx-container{overflow-x:auto;max-width:100%}
     </div>
 
     <!-- F -->
-    <div class="walk">
+    <div class="walk" id="w-f">
       <h4>🏟️ Table A.6 — F &nbsp;·&nbsp; Example: df₁ = 3, df₂ = 12, α = 0.05</h4>
       <div class="open">👉 OPEN to Table A.6 (use the α = 0.05 page). Columns = df₁ (between = k−1) · Rows = df₂ (within = N−k).</div>
       <ol class="steps">
