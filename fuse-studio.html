@@ -269,7 +269,8 @@ textarea{min-height:104px;resize:vertical}
 
 /* library / profile */
 .libgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.libgrid img{aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer}
+.libgrid img,.libgrid video{aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer;width:100%}
+.mp .msample img,.mp .msample video{width:100%;height:100%;object-fit:cover}
 .empty{text-align:center;color:var(--muted);padding:50px 20px;border:1px dashed var(--line);border-radius:16px}
 .prow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel);margin-bottom:10px}
 .prow .pl{font-size:13px;color:var(--muted)}
@@ -417,6 +418,9 @@ window.FUSE = {
     { key: 'pro_mo',     name: 'Pro',           naira: 20000, credits: 800,  note: 'Video + AI · monthly',   kind: 'sub', featured: true },
     { key: 'agency_mo',  name: 'Agency',        naira: 75000, credits: 3500, note: 'White-label · monthly',  kind: 'sub' },
     { key: 'course',     name: 'Fuse Atelier Course', naira: 60000, credits: 500, note: 'Course + 500 credits', kind: 'course' },
+    { key: 'bundle_120', name: '120 credits',   naira: 3000,  credits: 120,  note: 'Top-up · never expires', kind: 'pack' },
+    { key: 'bundle_320', name: '320 credits',   naira: 7000,  credits: 320,  note: 'Top-up · best value',    kind: 'pack' },
+    { key: 'bundle_750', name: '750 credits',   naira: 15000, credits: 750,  note: 'Top-up · bulk',          kind: 'pack' },
   ],
 
   // Creative Studios — each is a guided generator using the live engine.
@@ -463,8 +467,15 @@ window.FUSE = {
     { slug: 'ai-object-eraser',      name: 'Object Eraser',     badge: 'Clean',   credits: 5,  sample: '' },
   ],
 
-  // Quick preset chips on Home.
-  PRESETS: ['Nigerian entrepreneur', 'Luxury skincare brand', 'Fashion lookbook', 'Tech startup founder', 'Food product ad', 'Cinematic portrait'],
+  // Quick idea chips on Home — tapping fills the FULL prompt (not just the title).
+  PRESETS: [
+    { label: 'Nigerian entrepreneur', prompt: 'confident Nigerian entrepreneur in a tailored suit, modern office background, soft cinematic lighting, editorial magazine portrait, ultra-detailed, premium color grade' },
+    { label: 'Luxury skincare brand', prompt: 'luxury skincare product bottle on marble, gold accents, water droplets, soft studio light, high-end beauty advertisement, crisp reflections, premium commercial photography' },
+    { label: 'Fashion lookbook', prompt: 'high-fashion lookbook photo, stylish model in elegant outfit, runway aesthetic, dramatic lighting, editorial vogue style, full-body shot, sharp detail' },
+    { label: 'Tech startup founder', prompt: 'young African tech founder, smart casual outfit, bright modern startup office, natural window light, professional LinkedIn-style portrait, confident and approachable' },
+    { label: 'Food product ad', prompt: 'mouth-watering Nigerian jollof rice and grilled chicken, vibrant colors, professional food photography, appetizing steam, social media food ad, shallow depth of field' },
+    { label: 'Cinematic portrait', prompt: 'cinematic portrait, dramatic rim lighting, moody atmosphere, film-grade color grade, shallow depth of field, shot on 85mm, ultra-detailed, poster quality' },
+  ],
 
   // Fuse Reactor — the multi-AI hub (renamed, not a Higgsfield copy).
   REACTOR_NAME: 'Fuse Reactor',
@@ -542,7 +553,7 @@ window.FUSE = {
     <div class="shead"><h2>Quick ideas</h2></div>
     <div class="chips" id="presetChips"></div>
 
-    <div class="shead"><h2>Recent</h2><a id="seeLib">See all →</a></div>
+    <div class="shead"><h2>Made with Fuse Studio</h2><a id="seeLib">See all →</a></div>
     <div class="libgrid" id="homeRecent"></div>
   </section>
 
@@ -567,7 +578,7 @@ window.FUSE = {
       <h3>🎬 Generate with <span id="avSelName" class="gold"></span></h3>
 
       <details style="margin-bottom:12px">
-        <summary style="cursor:pointer;color:var(--gold);font-weight:700;font-size:14px">🧬 Consistent avatar prompt builder</summary>
+        <summary style="cursor:pointer;color:var(--gold);font-weight:700;font-size:14px">🧬 Avatar prompt generator (1 credit)</summary>
         <p class="muted" style="font-size:12px;margin:8px 0">Pick a few options and we'll write a strong, consistent prompt for you.</p>
         <div class="builder">
           <select id="bSetting"><option value="">Setting…</option><option>modern Lagos office</option><option>luxury studio backdrop</option><option>outdoor city street</option><option>elegant event / owambe</option><option>cozy home interior</option><option>fashion runway</option></select>
@@ -575,7 +586,7 @@ window.FUSE = {
           <select id="bLight"><option value="">Lighting / mood…</option><option>soft studio light</option><option>golden hour glow</option><option>dramatic cinematic light</option><option>bright clean daylight</option><option>moody editorial</option></select>
           <select id="bShot"><option value="">Shot type…</option><option>close-up portrait</option><option>half-body shot</option><option>full-body shot</option><option>magazine cover</option></select>
         </div>
-        <button class="btn ghost block" id="bBuild" style="margin-top:10px">Write my prompt ✍️</button>
+        <button class="btn ghost block" id="bBuild" style="margin-top:10px">Write my prompt ✍️ (1 cr)</button>
       </details>
 
       <label class="fld" for="avPrompt">Describe the scene</label>
@@ -593,11 +604,14 @@ window.FUSE = {
     <div class="backlink" id="marketBack">← Studios</div>
     <div class="studio-head"><div class="ic">🛒</div><div><h2>Preset Marketplace</h2><p>Use community looks · publish yours & earn</p></div></div>
     <div class="panel" style="margin-top:14px">
-      <label class="fld">Publish your last prompt as a preset</label>
+      <label class="fld">Publish your creation as a preset</label>
+      <div class="muted" id="mpHasMedia" style="font-size:12px;margin-bottom:8px"></div>
       <input id="mpTitle" placeholder="Preset title, e.g. 'Glossy skincare ad'">
       <textarea id="mpPrompt" placeholder="The prompt to share…" style="min-height:70px;margin-top:8px"></textarea>
+      <input id="mpPrice" type="number" min="2" value="10" placeholder="Price in credits" style="margin-top:8px">
       <button class="btn ghost block" id="mpPublish" style="margin-top:10px">Publish preset</button>
       <div class="note" id="mpNote"></div>
+      <p class="muted" style="font-size:11px;margin-top:8px">You earn 50% of every sale in credits. 💰</p>
     </div>
     <div class="shead"><h2>Community presets</h2></div>
     <div id="mpList"></div>
@@ -861,6 +875,7 @@ let preview = false;
 let showUsd = false;
 let activeStudio = cfg.STUDIOS[0];
 let lastPrompt = '';
+let lastOutput = '';   // last generated image/video URL (for publishing to marketplace)
 let refUrls = [];   // optional image reference(s) for the main generator (multi)
 
 const naira = (n) => '₦' + Number(n).toLocaleString();
@@ -965,6 +980,7 @@ async function videoGenerate() {
     if (res.status === 402) { note('vNote', 'Out of credits — top up.', 'err'); openBuy(); $('vResult').innerHTML = '<div>Out of credits.</div>'; }
     else if (!res.ok) throw new Error(data.error || 'Failed');
     else {
+      lastOutput = data.url;
       $('creditCount').textContent = data.credits;
       $('vResult').innerHTML = `<div><video src="${data.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
       note('vNote', 'Done ✅', 'ok');
@@ -1003,10 +1019,10 @@ function buildHome() {
   }).join('');
   $('toolGrid').querySelectorAll('.tool').forEach((el) => el.onclick = () => openStudio(el.dataset.studio));
 
-  // preset chips
-  $('presetChips').innerHTML = cfg.PRESETS.map((p) => `<div class="chip">${p}</div>`).join('');
+  // quick idea chips — fill the FULL prompt on tap
+  $('presetChips').innerHTML = cfg.PRESETS.map((p, i) => `<div class="chip" data-i="${i}">${p.label}</div>`).join('');
   $('presetChips').querySelectorAll('.chip').forEach((el) => el.onclick = () => {
-    openStudio('generate'); $('prompt').value = el.textContent;
+    openStudio('generate'); $('prompt').value = cfg.PRESETS[+el.dataset.i].prompt;
   });
 
   // Naija packs
@@ -1064,6 +1080,7 @@ async function generate() {
     if (res.status === 402) { note('genNote', 'Out of credits — top up to keep creating.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; }
     else if (!res.ok) throw new Error(data.error || 'Generation failed');
     else {
+      lastOutput = data.url;
       $('creditCount').textContent = data.credits;
       $('result').innerHTML = `<div><img src="${data.url}" alt="result"><div style="margin-top:12px"><a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
       note('genNote', 'Done ✅', 'ok');
@@ -1116,8 +1133,13 @@ async function loadLibrary() {
 }
 async function loadRecent() {
   if (preview) return demoGrid('homeRecent');
-  const { data } = await sb.from('generations').select('output_url').eq('user_id', user.id).order('created_at', { ascending: false }).limit(6);
-  $('homeRecent').innerHTML = (data && data.length) ? data.map((x) => `<img src="${x.output_url}" onclick="window.open('${x.output_url}','_blank')">`).join('') : '<div class="empty" style="grid-column:1/-1">Your recent creations show here.</div>';
+  // Community showcase — everything made with Fuse Studio (images + videos).
+  const { data } = await sb.from('public_showcase').select('output_url, type').limit(12);
+  $('homeRecent').innerHTML = (data && data.length)
+    ? data.map((x) => x.type === 'video'
+        ? `<video src="${x.output_url}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()" onclick="window.open('${x.output_url}','_blank')"></video>`
+        : `<img src="${x.output_url}" onclick="window.open('${x.output_url}','_blank')">`).join('')
+    : '<div class="empty" style="grid-column:1/-1">Community creations will show here ✨</div>';
 }
 function demoGrid(id) { $(id).innerHTML = Array(6).fill('<div class="empty" style="aspect-ratio:1;display:grid;place-items:center;padding:0">🖼️</div>').join(''); }
 
@@ -1264,6 +1286,7 @@ async function avatarGenerate() {
     else if (res.status === 402) { note('avGenNote', 'Out of credits — top up.', 'err'); openBuy(); }
     else if (!res.ok) throw new Error(data.error || 'Failed');
     else {
+      lastOutput = data.url;
       $('creditCount').textContent = data.credits;
       $('avResult').innerHTML = `<div><img src="${data.url}" alt="avatar"><div style="margin-top:12px"><a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
       note('avGenNote', 'Done ✅', 'ok');
@@ -1275,27 +1298,51 @@ async function avatarGenerate() {
 // ---------------- marketplace ----------------
 async function loadMarket() {
   $('mpPrompt').value = lastPrompt || '';
-  const { data } = await sb.from('marketplace_presets').select('id,title,uses,prompt,model,aspect').eq('active', true).order('uses', { ascending: false }).limit(40);
-  $('mpList').innerHTML = (data && data.length) ? data.map((p) =>
-    `<div class="mp"><div><div class="mt">${p.title}</div><div class="mu">🔥 ${p.uses} uses</div></div>
-      <button class="btn gold sm" data-id="${p.id}" data-prompt="${encodeURIComponent(p.prompt)}" data-model="${p.model}" data-aspect="${p.aspect}">Use</button></div>`).join('')
-    : '<div class="empty">No presets yet — be the first to publish one ✨</div>';
-  $('mpList').querySelectorAll('button').forEach((b) => b.onclick = () => usePreset(b.dataset));
+  if (lastOutput) { $('mpHasMedia').textContent = '🖼 Your last creation will be attached as the preview.'; }
+  else { $('mpHasMedia').textContent = 'Generate something first to attach it as the preview.'; }
+  const { data } = await sb.from('marketplace_presets').select('id,title,uses,output_url,kind,price_credits').eq('active', true).order('uses', { ascending: false }).limit(40);
+  $('mpList').innerHTML = (data && data.length) ? data.map((p) => {
+    const media = p.output_url
+      ? (p.kind === 'video' ? `<video src="${p.output_url}" muted loop playsinline></video>` : `<img src="${p.output_url}">`)
+      : '🎨';
+    return `<div class="mp"><div class="msample" style="width:64px;height:64px;border-radius:10px;flex:0 0 auto;overflow:hidden">${media}</div>
+      <div style="flex:1"><div class="mt">${p.title}</div><div class="mu">🔥 ${p.uses} sold</div></div>
+      <button class="btn gold sm" data-id="${p.id}">Buy · ${p.price_credits} cr</button></div>`;
+  }).join('') : '<div class="empty">No presets yet — be the first to publish one ✨</div>';
+  $('mpList').querySelectorAll('button').forEach((b) => b.onclick = () => buyPreset(b.dataset.id, b));
 }
 async function publishPreset() {
   if (preview) { showAuth('signup'); return; }
   const title = $('mpTitle').value.trim(), prompt = $('mpPrompt').value.trim();
+  const price = Math.max(2, parseInt($('mpPrice').value, 10) || 10);
   if (!title || !prompt) return note('mpNote', 'Add a title and a prompt.', 'err');
-  const { error } = await sb.from('marketplace_presets').insert({ owner_id: user.id, title, prompt });
-  note('mpNote', error ? error.message : '✅ Published! You earn a credit each time someone uses it.', error ? 'err' : 'ok');
+  const kind = (lastOutput && /\.(mp4|webm|mov)(\?|$)/i.test(lastOutput)) ? 'video' : 'image';
+  const { error } = await sb.from('marketplace_presets').insert({
+    owner_id: user.id, title, prompt, price_credits: price, output_url: lastOutput || null, kind,
+  });
+  note('mpNote', error ? error.message : `✅ Published at ${price} credits! You earn ${Math.floor(price / 2)} credits per sale.`, error ? 'err' : 'ok');
   if (!error) { $('mpTitle').value = ''; loadMarket(); }
 }
-async function usePreset(d) {
-  openStudio('generate');
-  $('prompt').value = decodeURIComponent(d.prompt);
-  if (d.model) $('model').value = d.model;
-  if (d.aspect) $('aspect').value = d.aspect;
-  if (!preview) fetch('/.netlify/functions/use-preset', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ id: d.id }) }).catch(() => {});
+async function buyPreset(id, btn) {
+  if (preview) { showAuth('signup'); return; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Buying…'; }
+  try {
+    const res = await fetch('/.netlify/functions/buy-preset', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ id }),
+    });
+    const d = await res.json();
+    if (res.status === 402) { note('mpNote', 'Not enough credits — top up.', 'err'); openBuy(); }
+    else if (!res.ok) throw new Error(d.error || 'Failed');
+    else {
+      if (d.credits != null) $('creditCount').textContent = d.credits;
+      note('mpNote', d.owned ? '✅ You own this — loading it…' : '✅ Purchased! Loading it into the studio…', 'ok');
+      openStudio('generate');
+      $('prompt').value = d.prompt || '';
+      if (d.model) buildModelSelect(), $('model').value = d.model;
+      if (d.aspect) $('aspect').value = d.aspect;
+    }
+  } catch (e) { note('mpNote', e.message || 'Failed', 'err'); }
+  if (btn) { btn.disabled = false; btn.textContent = 'Buy'; }
 }
 
 // ---------------- academy (earn while you learn) ----------------
@@ -1378,12 +1425,21 @@ function nextQuiz() {
 }
 function skipQuiz() { localStorage.setItem('fuse_quiz', 'skip'); $('quizOverlay').style.display = 'none'; showAuth('signup'); }
 
-// ---------------- avatar prompt builder ----------------
-function buildAvatarPrompt() {
-  const parts = ['professional consistent-character portrait'];
-  ['bSetting', 'bOutfit', 'bLight', 'bShot'].forEach((id) => { const v = $(id).value; if (v) parts.push(v); });
-  parts.push('sharp detail, same face, high quality');
-  $('avPrompt').value = parts.join(', ');
+// ---------------- avatar prompt generator (charged, 1 credit) ----------------
+async function buildAvatarPrompt() {
+  if (preview) { showAuth('signup'); return; }
+  const btn = $('bBuild'); btn.disabled = true; btn.textContent = 'Writing…';
+  try {
+    const res = await fetch('/.netlify/functions/prompt-gen', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ subject: ($('avSelName').textContent || 'my avatar'), setting: $('bSetting').value, outfit: $('bOutfit').value, light: $('bLight').value, shot: $('bShot').value }),
+    });
+    const d = await res.json();
+    if (res.status === 402) { note('avGenNote', 'Out of credits — top up.', 'err'); openBuy(); }
+    else if (!res.ok) throw new Error(d.error || 'Failed');
+    else { $('avPrompt').value = d.prompt; if (d.credits != null) $('creditCount').textContent = d.credits; note('avGenNote', '✨ Prompt ready', 'ok'); }
+  } catch (e) { note('avGenNote', e.message || 'Failed', 'err'); }
+  btn.disabled = false; btn.textContent = 'Write my prompt ✍️ (1 cr)';
 }
 
 // ---------------- image reference upload (main generator, multi) ----------------

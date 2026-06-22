@@ -258,7 +258,8 @@ textarea{min-height:104px;resize:vertical}
 
 /* library / profile */
 .libgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.libgrid img{aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer}
+.libgrid img,.libgrid video{aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer;width:100%}
+.mp .msample img,.mp .msample video{width:100%;height:100%;object-fit:cover}
 .empty{text-align:center;color:var(--muted);padding:50px 20px;border:1px dashed var(--line);border-radius:16px}
 .prow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel);margin-bottom:10px}
 .prow .pl{font-size:13px;color:var(--muted)}

@@ -14,6 +14,7 @@ let preview = false;
 let showUsd = false;
 let activeStudio = cfg.STUDIOS[0];
 let lastPrompt = '';
+let lastOutput = '';   // last generated image/video URL (for publishing to marketplace)
 let refUrls = [];   // optional image reference(s) for the main generator (multi)
 
 const naira = (n) => '₦' + Number(n).toLocaleString();
@@ -115,6 +116,7 @@ async function videoGenerate() {
     if (res.status === 402) { note('vNote', 'Out of credits — top up.', 'err'); openBuy(); $('vResult').innerHTML = '<div>Out of credits.</div>'; }
     else if (!res.ok) throw new Error(data.error || 'Failed');
     else {
+      lastOutput = data.url;
       $('creditCount').textContent = data.credits;
       $('vResult').innerHTML = `<div><video src="${data.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
       note('vNote', 'Done ✅', 'ok');
@@ -153,10 +155,10 @@ function buildHome() {
   }).join('');
   $('toolGrid').querySelectorAll('.tool').forEach((el) => el.onclick = () => openStudio(el.dataset.studio));
 
-  // preset chips
-  $('presetChips').innerHTML = cfg.PRESETS.map((p) => `<div class="chip">${p}</div>`).join('');
+  // quick idea chips — fill the FULL prompt on tap
+  $('presetChips').innerHTML = cfg.PRESETS.map((p, i) => `<div class="chip" data-i="${i}">${p.label}</div>`).join('');
   $('presetChips').querySelectorAll('.chip').forEach((el) => el.onclick = () => {
-    openStudio('generate'); $('prompt').value = el.textContent;
+    openStudio('generate'); $('prompt').value = cfg.PRESETS[+el.dataset.i].prompt;
   });
 
   // Naija packs
@@ -214,6 +216,7 @@ async function generate() {
     if (res.status === 402) { note('genNote', 'Out of credits — top up to keep creating.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; }
     else if (!res.ok) throw new Error(data.error || 'Generation failed');
     else {
+      lastOutput = data.url;
       $('creditCount').textContent = data.credits;
       $('result').innerHTML = `<div><img src="${data.url}" alt="result"><div style="margin-top:12px"><a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
       note('genNote', 'Done ✅', 'ok');
@@ -266,8 +269,13 @@ async function loadLibrary() {
 }
 async function loadRecent() {
   if (preview) return demoGrid('homeRecent');
-  const { data } = await sb.from('generations').select('output_url').eq('user_id', user.id).order('created_at', { ascending: false }).limit(6);
-  $('homeRecent').innerHTML = (data && data.length) ? data.map((x) => `<img src="${x.output_url}" onclick="window.open('${x.output_url}','_blank')">`).join('') : '<div class="empty" style="grid-column:1/-1">Your recent creations show here.</div>';
+  // Community showcase — everything made with Fuse Studio (images + videos).
+  const { data } = await sb.from('public_showcase').select('output_url, type').limit(12);
+  $('homeRecent').innerHTML = (data && data.length)
+    ? data.map((x) => x.type === 'video'
+        ? `<video src="${x.output_url}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()" onclick="window.open('${x.output_url}','_blank')"></video>`
+        : `<img src="${x.output_url}" onclick="window.open('${x.output_url}','_blank')">`).join('')
+    : '<div class="empty" style="grid-column:1/-1">Community creations will show here ✨</div>';
 }
 function demoGrid(id) { $(id).innerHTML = Array(6).fill('<div class="empty" style="aspect-ratio:1;display:grid;place-items:center;padding:0">🖼️</div>').join(''); }
 
@@ -411,6 +419,7 @@ async function avatarGenerate() {
     else if (res.status === 402) { note('avGenNote', 'Out of credits — top up.', 'err'); openBuy(); }
     else if (!res.ok) throw new Error(data.error || 'Failed');
     else {
+      lastOutput = data.url;
       $('creditCount').textContent = data.credits;
       $('avResult').innerHTML = `<div><img src="${data.url}" alt="avatar"><div style="margin-top:12px"><a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
       note('avGenNote', 'Done ✅', 'ok');
@@ -422,27 +431,51 @@ async function avatarGenerate() {
 // ---------------- marketplace ----------------
 async function loadMarket() {
   $('mpPrompt').value = lastPrompt || '';
-  const { data } = await sb.from('marketplace_presets').select('id,title,uses,prompt,model,aspect').eq('active', true).order('uses', { ascending: false }).limit(40);
-  $('mpList').innerHTML = (data && data.length) ? data.map((p) =>
-    `<div class="mp"><div><div class="mt">${p.title}</div><div class="mu">🔥 ${p.uses} uses</div></div>
-      <button class="btn gold sm" data-id="${p.id}" data-prompt="${encodeURIComponent(p.prompt)}" data-model="${p.model}" data-aspect="${p.aspect}">Use</button></div>`).join('')
-    : '<div class="empty">No presets yet — be the first to publish one ✨</div>';
-  $('mpList').querySelectorAll('button').forEach((b) => b.onclick = () => usePreset(b.dataset));
+  if (lastOutput) { $('mpHasMedia').textContent = '🖼 Your last creation will be attached as the preview.'; }
+  else { $('mpHasMedia').textContent = 'Generate something first to attach it as the preview.'; }
+  const { data } = await sb.from('marketplace_presets').select('id,title,uses,output_url,kind,price_credits').eq('active', true).order('uses', { ascending: false }).limit(40);
+  $('mpList').innerHTML = (data && data.length) ? data.map((p) => {
+    const media = p.output_url
+      ? (p.kind === 'video' ? `<video src="${p.output_url}" muted loop playsinline></video>` : `<img src="${p.output_url}">`)
+      : '🎨';
+    return `<div class="mp"><div class="msample" style="width:64px;height:64px;border-radius:10px;flex:0 0 auto;overflow:hidden">${media}</div>
+      <div style="flex:1"><div class="mt">${p.title}</div><div class="mu">🔥 ${p.uses} sold</div></div>
+      <button class="btn gold sm" data-id="${p.id}">Buy · ${p.price_credits} cr</button></div>`;
+  }).join('') : '<div class="empty">No presets yet — be the first to publish one ✨</div>';
+  $('mpList').querySelectorAll('button').forEach((b) => b.onclick = () => buyPreset(b.dataset.id, b));
 }
 async function publishPreset() {
   if (preview) { showAuth('signup'); return; }
   const title = $('mpTitle').value.trim(), prompt = $('mpPrompt').value.trim();
+  const price = Math.max(2, parseInt($('mpPrice').value, 10) || 10);
   if (!title || !prompt) return note('mpNote', 'Add a title and a prompt.', 'err');
-  const { error } = await sb.from('marketplace_presets').insert({ owner_id: user.id, title, prompt });
-  note('mpNote', error ? error.message : '✅ Published! You earn a credit each time someone uses it.', error ? 'err' : 'ok');
+  const kind = (lastOutput && /\.(mp4|webm|mov)(\?|$)/i.test(lastOutput)) ? 'video' : 'image';
+  const { error } = await sb.from('marketplace_presets').insert({
+    owner_id: user.id, title, prompt, price_credits: price, output_url: lastOutput || null, kind,
+  });
+  note('mpNote', error ? error.message : `✅ Published at ${price} credits! You earn ${Math.floor(price / 2)} credits per sale.`, error ? 'err' : 'ok');
   if (!error) { $('mpTitle').value = ''; loadMarket(); }
 }
-async function usePreset(d) {
-  openStudio('generate');
-  $('prompt').value = decodeURIComponent(d.prompt);
-  if (d.model) $('model').value = d.model;
-  if (d.aspect) $('aspect').value = d.aspect;
-  if (!preview) fetch('/.netlify/functions/use-preset', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ id: d.id }) }).catch(() => {});
+async function buyPreset(id, btn) {
+  if (preview) { showAuth('signup'); return; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Buying…'; }
+  try {
+    const res = await fetch('/.netlify/functions/buy-preset', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ id }),
+    });
+    const d = await res.json();
+    if (res.status === 402) { note('mpNote', 'Not enough credits — top up.', 'err'); openBuy(); }
+    else if (!res.ok) throw new Error(d.error || 'Failed');
+    else {
+      if (d.credits != null) $('creditCount').textContent = d.credits;
+      note('mpNote', d.owned ? '✅ You own this — loading it…' : '✅ Purchased! Loading it into the studio…', 'ok');
+      openStudio('generate');
+      $('prompt').value = d.prompt || '';
+      if (d.model) buildModelSelect(), $('model').value = d.model;
+      if (d.aspect) $('aspect').value = d.aspect;
+    }
+  } catch (e) { note('mpNote', e.message || 'Failed', 'err'); }
+  if (btn) { btn.disabled = false; btn.textContent = 'Buy'; }
 }
 
 // ---------------- academy (earn while you learn) ----------------
@@ -525,12 +558,21 @@ function nextQuiz() {
 }
 function skipQuiz() { localStorage.setItem('fuse_quiz', 'skip'); $('quizOverlay').style.display = 'none'; showAuth('signup'); }
 
-// ---------------- avatar prompt builder ----------------
-function buildAvatarPrompt() {
-  const parts = ['professional consistent-character portrait'];
-  ['bSetting', 'bOutfit', 'bLight', 'bShot'].forEach((id) => { const v = $(id).value; if (v) parts.push(v); });
-  parts.push('sharp detail, same face, high quality');
-  $('avPrompt').value = parts.join(', ');
+// ---------------- avatar prompt generator (charged, 1 credit) ----------------
+async function buildAvatarPrompt() {
+  if (preview) { showAuth('signup'); return; }
+  const btn = $('bBuild'); btn.disabled = true; btn.textContent = 'Writing…';
+  try {
+    const res = await fetch('/.netlify/functions/prompt-gen', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ subject: ($('avSelName').textContent || 'my avatar'), setting: $('bSetting').value, outfit: $('bOutfit').value, light: $('bLight').value, shot: $('bShot').value }),
+    });
+    const d = await res.json();
+    if (res.status === 402) { note('avGenNote', 'Out of credits — top up.', 'err'); openBuy(); }
+    else if (!res.ok) throw new Error(d.error || 'Failed');
+    else { $('avPrompt').value = d.prompt; if (d.credits != null) $('creditCount').textContent = d.credits; note('avGenNote', '✨ Prompt ready', 'ok'); }
+  } catch (e) { note('avGenNote', e.message || 'Failed', 'err'); }
+  btn.disabled = false; btn.textContent = 'Write my prompt ✍️ (1 cr)';
 }
 
 // ---------------- image reference upload (main generator, multi) ----------------

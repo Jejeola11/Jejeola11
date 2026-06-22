@@ -20,6 +20,11 @@ const PACKS = {
 
   // ---- Fuse Atelier course bundle (one-time): course access + bonus credits ----
   course: { label: 'Fuse Atelier Course', amount_naira: 60000, credits: 500, kind: 'course', plan: 'pro' },
+
+  // ---- Credit top-up bundles (one-time; buy anytime, even mid-plan) ----
+  bundle_120: { label: '120 credits', amount_naira: 3000,  credits: 120, kind: 'pack' },
+  bundle_320: { label: '320 credits', amount_naira: 7000,  credits: 320, kind: 'pack' },
+  bundle_750: { label: '750 credits', amount_naira: 15000, credits: 750, kind: 'pack' },
 };
 
 // Referral rewards (credits).

@@ -19,6 +19,9 @@ window.FUSE = {
     { key: 'pro_mo',     name: 'Pro',           naira: 20000, credits: 800,  note: 'Video + AI · monthly',   kind: 'sub', featured: true },
     { key: 'agency_mo',  name: 'Agency',        naira: 75000, credits: 3500, note: 'White-label · monthly',  kind: 'sub' },
     { key: 'course',     name: 'Fuse Atelier Course', naira: 60000, credits: 500, note: 'Course + 500 credits', kind: 'course' },
+    { key: 'bundle_120', name: '120 credits',   naira: 3000,  credits: 120,  note: 'Top-up · never expires', kind: 'pack' },
+    { key: 'bundle_320', name: '320 credits',   naira: 7000,  credits: 320,  note: 'Top-up · best value',    kind: 'pack' },
+    { key: 'bundle_750', name: '750 credits',   naira: 15000, credits: 750,  note: 'Top-up · bulk',          kind: 'pack' },
   ],
 
   // Creative Studios — each is a guided generator using the live engine.
@@ -65,8 +68,15 @@ window.FUSE = {
     { slug: 'ai-object-eraser',      name: 'Object Eraser',     badge: 'Clean',   credits: 5,  sample: '' },
   ],
 
-  // Quick preset chips on Home.
-  PRESETS: ['Nigerian entrepreneur', 'Luxury skincare brand', 'Fashion lookbook', 'Tech startup founder', 'Food product ad', 'Cinematic portrait'],
+  // Quick idea chips on Home — tapping fills the FULL prompt (not just the title).
+  PRESETS: [
+    { label: 'Nigerian entrepreneur', prompt: 'confident Nigerian entrepreneur in a tailored suit, modern office background, soft cinematic lighting, editorial magazine portrait, ultra-detailed, premium color grade' },
+    { label: 'Luxury skincare brand', prompt: 'luxury skincare product bottle on marble, gold accents, water droplets, soft studio light, high-end beauty advertisement, crisp reflections, premium commercial photography' },
+    { label: 'Fashion lookbook', prompt: 'high-fashion lookbook photo, stylish model in elegant outfit, runway aesthetic, dramatic lighting, editorial vogue style, full-body shot, sharp detail' },
+    { label: 'Tech startup founder', prompt: 'young African tech founder, smart casual outfit, bright modern startup office, natural window light, professional LinkedIn-style portrait, confident and approachable' },
+    { label: 'Food product ad', prompt: 'mouth-watering Nigerian jollof rice and grilled chicken, vibrant colors, professional food photography, appetizing steam, social media food ad, shallow depth of field' },
+    { label: 'Cinematic portrait', prompt: 'cinematic portrait, dramatic rim lighting, moody atmosphere, film-grade color grade, shallow depth of field, shot on 85mm, ultra-detailed, poster quality' },
+  ],
 
   // Fuse Reactor — the multi-AI hub (renamed, not a Higgsfield copy).
   REACTOR_NAME: 'Fuse Reactor',

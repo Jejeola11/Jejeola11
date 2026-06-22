@@ -46,7 +46,7 @@
     <div class="shead"><h2>Quick ideas</h2></div>
     <div class="chips" id="presetChips"></div>
 
-    <div class="shead"><h2>Recent</h2><a id="seeLib">See all →</a></div>
+    <div class="shead"><h2>Made with Fuse Studio</h2><a id="seeLib">See all →</a></div>
     <div class="libgrid" id="homeRecent"></div>
   </section>
 
@@ -71,7 +71,7 @@
       <h3>🎬 Generate with <span id="avSelName" class="gold"></span></h3>
 
       <details style="margin-bottom:12px">
-        <summary style="cursor:pointer;color:var(--gold);font-weight:700;font-size:14px">🧬 Consistent avatar prompt builder</summary>
+        <summary style="cursor:pointer;color:var(--gold);font-weight:700;font-size:14px">🧬 Avatar prompt generator (1 credit)</summary>
         <p class="muted" style="font-size:12px;margin:8px 0">Pick a few options and we'll write a strong, consistent prompt for you.</p>
         <div class="builder">
           <select id="bSetting"><option value="">Setting…</option><option>modern Lagos office</option><option>luxury studio backdrop</option><option>outdoor city street</option><option>elegant event / owambe</option><option>cozy home interior</option><option>fashion runway</option></select>
@@ -79,7 +79,7 @@
           <select id="bLight"><option value="">Lighting / mood…</option><option>soft studio light</option><option>golden hour glow</option><option>dramatic cinematic light</option><option>bright clean daylight</option><option>moody editorial</option></select>
           <select id="bShot"><option value="">Shot type…</option><option>close-up portrait</option><option>half-body shot</option><option>full-body shot</option><option>magazine cover</option></select>
         </div>
-        <button class="btn ghost block" id="bBuild" style="margin-top:10px">Write my prompt ✍️</button>
+        <button class="btn ghost block" id="bBuild" style="margin-top:10px">Write my prompt ✍️ (1 cr)</button>
       </details>
 
       <label class="fld" for="avPrompt">Describe the scene</label>
@@ -97,11 +97,14 @@
     <div class="backlink" id="marketBack">← Studios</div>
     <div class="studio-head"><div class="ic">🛒</div><div><h2>Preset Marketplace</h2><p>Use community looks · publish yours & earn</p></div></div>
     <div class="panel" style="margin-top:14px">
-      <label class="fld">Publish your last prompt as a preset</label>
+      <label class="fld">Publish your creation as a preset</label>
+      <div class="muted" id="mpHasMedia" style="font-size:12px;margin-bottom:8px"></div>
       <input id="mpTitle" placeholder="Preset title, e.g. 'Glossy skincare ad'">
       <textarea id="mpPrompt" placeholder="The prompt to share…" style="min-height:70px;margin-top:8px"></textarea>
+      <input id="mpPrice" type="number" min="2" value="10" placeholder="Price in credits" style="margin-top:8px">
       <button class="btn ghost block" id="mpPublish" style="margin-top:10px">Publish preset</button>
       <div class="note" id="mpNote"></div>
+      <p class="muted" style="font-size:11px;margin-top:8px">You earn 50% of every sale in credits. 💰</p>
     </div>
     <div class="shead"><h2>Community presets</h2></div>
     <div id="mpList"></div>
