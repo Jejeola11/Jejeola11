@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📚 Study Hub — Exam Guides</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0f17;color:#e8ecf5;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 18px}
+.wrap{max-width:760px;width:100%}
+h1{font-size:32px;margin-bottom:6px;background:linear-gradient(90deg,#ffd166,#06d6a0,#4cc9f0);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:#9aa3b8;margin-bottom:30px}
+.card{display:block;text-decoration:none;color:inherit;background:linear-gradient(135deg,#161a27,#1d2233);border:1px solid #2a3145;border-radius:16px;padding:24px 26px;margin:16px 0;transition:.2s;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-3px);border-color:#ffd166;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.card .emoji{font-size:38px;float:left;margin-right:18px}
+.card h2{font-size:21px;margin-bottom:4px}
+.card p{color:#9aa3b8;font-size:14.5px}
+.card .go{position:absolute;right:22px;top:50%;transform:translateY(-50%);color:#ffd166;font-size:24px}
+.tag{display:inline-block;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;margin-bottom:8px;letter-spacing:.5px}
+.t1{background:#ffd166;color:#1a1300}
+.t2{background:#06d6a0;color:#06241b}
+.t3{background:#4cc9f0;color:#06202a}
+.foot{color:#5f6b85;font-size:13px;margin-top:30px;text-align:center}
+.gst{border-left:5px solid #ffd166}
+.bio{border-left:5px solid #06d6a0}
+.tbl{border-left:5px solid #4cc9f0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📚 Study Hub</h1>
+  <p class="sub">Your exam guides — tap to open. Works offline once loaded.</p>
+
+  <a class="card gst" href="/gst212">
+    <span class="emoji">🎬</span>
+    <span class="tag t1">GST 212</span>
+    <h2>Logic, Philosophy &amp; Human Existence</h2>
+    <p>7 seasons · 41 episodes · 81 flashcards · 50-question mock exam. Built from your past questions + full course manual.</p>
+    <span class="go">→</span>
+  </a>
+
+  <a class="card bio" href="/bio208">
+    <span class="emoji">🧬</span>
+    <span class="tag t2">BIO 208</span>
+    <h2>Biostatistics — The Ultimate Guide</h2>
+    <p>8 seasons · flashcards · 40-question mock exam · statistical-table read-along walkthroughs &amp; chart diagrams.</p>
+    <span class="go">→</span>
+  </a>
+
+  <a class="card tbl" href="/tables">
+    <span class="emoji">🖨️</span>
+    <span class="tag t3">PRINTABLE</span>
+    <h2>BIO 208 Statistical Table Cheat Sheet</h2>
+    <p>One-page printable reference — formulas, table-reading tricks, worked examples. Has a Print button.</p>
+    <span class="go">→</span>
+  </a>
+
+  <p class="foot">Made for crushing exams 🏆 · Bookmark this page</p>
+</div>
+</body>
+</html>

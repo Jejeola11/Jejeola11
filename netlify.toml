@@ -15,14 +15,19 @@
   included_files = []
 
 # ---- Clean routes for the hosted app ----
-# The BIO 208 biostatistics study guide is the front door.
+# The Study Hub (links to every guide) is the front door.
 [[redirects]]
   from = "/"
-  to = "/BIO208_BIOSTATISTICS_ULTIMATE_GUIDE.html"
+  to = "/study.html"
   status = 200
   force = true
 
 # Short, easy-to-type routes for the study materials.
+[[redirects]]
+  from = "/gst212"
+  to = "/GST212_LOGIC_ULTIMATE_GUIDE.html"
+  status = 200
+
 [[redirects]]
   from = "/bio208"
   to = "/BIO208_BIOSTATISTICS_ULTIMATE_GUIDE.html"

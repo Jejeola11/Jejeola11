@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GST 212 — Logic, Philosophy & Human Existence | The Ultimate Series</title>
+<style>
+:root{
+  --bg:#0d0f17; --panel:#161a27; --panel2:#1d2233; --ink:#e8ecf5; --mut:#9aa3b8;
+  --acc:#ffd166; --acc2:#06d6a0; --acc3:#ef476f; --acc4:#4cc9f0; --line:#2a3145;
+  --good:#06d6a0; --bad:#ef476f;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.65;font-size:16px}
+.progress{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2),var(--acc4));z-index:999;transition:width .1s}
+.wrap{display:flex;max-width:1400px;margin:0 auto}
+/* Sidebar */
+.side{position:sticky;top:0;height:100vh;overflow-y:auto;width:280px;flex:0 0 280px;background:var(--panel);border-right:1px solid var(--line);padding:18px 14px}
+.side h1{font-size:18px;margin:6px 8px 4px;color:var(--acc)}
+.side .sub{font-size:12px;color:var(--mut);margin:0 8px 16px}
+.side a{display:block;color:var(--mut);text-decoration:none;font-size:13.5px;padding:7px 10px;border-radius:8px;margin:2px 0}
+.side a:hover{background:var(--panel2);color:var(--ink)}
+.side a.active{background:linear-gradient(90deg,rgba(255,209,102,.16),transparent);color:var(--acc);font-weight:700}
+.side .grp{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#5f6b85;margin:14px 10px 4px;font-weight:700}
+/* Main */
+.main{flex:1;min-width:0;padding:34px 44px 120px}
+.hero{background:linear-gradient(135deg,#1a1f30,#23182c);border:1px solid var(--line);border-radius:20px;padding:34px 30px;margin-bottom:30px;position:relative;overflow:hidden}
+.hero:before{content:"🎬";position:absolute;font-size:160px;right:-20px;top:-30px;opacity:.07}
+.hero h1{margin:0 0 8px;font-size:30px;line-height:1.2}
+.hero p{margin:6px 0;color:var(--mut)}
+.badge{display:inline-block;background:var(--acc);color:#1a1300;font-weight:800;font-size:12px;padding:4px 12px;border-radius:20px;margin-bottom:14px;letter-spacing:.5px}
+section{margin:34px 0;scroll-margin-top:18px}
+.season{background:linear-gradient(135deg,var(--panel),var(--panel2));border:1px solid var(--line);border-left:5px solid var(--acc);border-radius:16px;padding:8px 26px 24px;margin-bottom:26px}
+.season>h2{font-size:23px;color:var(--acc);display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.stag{font-size:12px;background:var(--acc3);color:#fff;padding:3px 10px;border-radius:12px;font-weight:700;margin-left:auto}
+.ep{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:18px 0}
+.ep h3{margin:0 0 4px;font-size:18px;color:var(--acc4)}
+.ep .hook{color:var(--acc2);font-style:italic;font-size:14px;margin:0 0 12px}
+.ep p{margin:10px 0}
+.key{background:rgba(255,209,102,.08);border-left:3px solid var(--acc);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.key b{color:var(--acc)}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14.5px}
+th,td{border:1px solid var(--line);padding:9px 12px;text-align:left}
+th{background:var(--panel2);color:var(--acc)}
+tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+.mnem{background:linear-gradient(135deg,rgba(6,214,160,.12),rgba(76,201,240,.08));border:1px dashed var(--acc2);border-radius:10px;padding:12px 16px;margin:14px 0}
+.mnem b{color:var(--acc2)}
+.tip{background:rgba(76,201,240,.08);border-left:3px solid var(--acc4);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.warn{background:rgba(239,71,111,.1);border-left:3px solid var(--acc3);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.warn b{color:var(--acc3)}
+ul,ol{margin:10px 0;padding-left:24px}
+li{margin:5px 0}
+code{background:#11151f;padding:2px 7px;border-radius:5px;color:var(--acc2);font-size:14px}
+.pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:3px 12px;font-size:13px;margin:3px 4px 3px 0}
+/* Flashcards */
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:18px 0}
+.fc{background:var(--panel2);border:1px solid var(--line);border-radius:12px;min-height:130px;cursor:pointer;perspective:1000px;position:relative}
+.fc-inner{position:relative;width:100%;height:100%;min-height:130px;transition:transform .5s;transform-style:preserve-3d}
+.fc.flip .fc-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;width:100%;height:100%;min-height:130px;backface-visibility:hidden;padding:16px;display:flex;align-items:center;justify-content:center;text-align:center;border-radius:12px}
+.fc-front{font-weight:700;color:var(--acc)}
+.fc-back{background:var(--acc2);color:#06241b;transform:rotateY(180deg);font-size:14.5px;font-weight:600}
+.fc small{position:absolute;bottom:6px;right:10px;font-size:10px;color:var(--mut);font-weight:400}
+/* Exam */
+.q{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+.q .qt{font-weight:700;margin-bottom:10px}
+.q label{display:block;padding:9px 12px;border:1px solid var(--line);border-radius:8px;margin:6px 0;cursor:pointer;transition:.15s}
+.q label:hover{background:var(--panel2)}
+.q input{margin-right:10px}
+.q.correct label.sel{background:rgba(6,214,160,.2);border-color:var(--good)}
+.q.wrong label.sel{background:rgba(239,71,111,.2);border-color:var(--bad)}
+.q.correct label.ans,.q.wrong label.ans{background:rgba(6,214,160,.14);border-color:var(--good)}
+.exambtn{background:linear-gradient(90deg,var(--acc),var(--acc2));color:#10130a;border:none;padding:14px 30px;border-radius:30px;font-size:17px;font-weight:800;cursor:pointer;margin:20px 0}
+.exambtn:hover{filter:brightness(1.1)}
+#score{font-size:22px;font-weight:800;text-align:center;padding:20px;border-radius:14px;margin:18px 0;display:none}
+.totop{position:fixed;bottom:26px;right:26px;background:var(--acc);color:#1a1300;width:48px;height:48px;border-radius:50%;display:none;align-items:center;justify-content:center;font-size:22px;cursor:pointer;border:none;font-weight:800;z-index:50}
+.diag{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:16px 0}
+.node{background:var(--panel2);border:2px solid var(--acc4);border-radius:10px;padding:10px 16px;text-align:center;font-size:13px;font-weight:600}
+.arrow{display:flex;align-items:center;color:var(--acc);font-size:22px}
+a.ext{color:var(--acc4)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:880px){.side{display:none}.main{padding:20px 16px 100px}.two{grid-template-columns:1fr}.hero h1{font-size:23px}}
+</style>
+</head>
+<body>
+<div class="progress" id="prog"></div>
+<div class="wrap">
+<nav class="side">
+  <h1>🎬 GST 212</h1>
+  <div class="sub">Logic, Philosophy & Human Existence — The Series</div>
+  <a href="#start" class="active">▶️ Start Here</a>
+  <div class="grp">The Episodes</div>
+  <a href="#s1">S1 · Philosophy & Methods</a>
+  <a href="#s2">S2 · Cast of Legends</a>
+  <a href="#s3">S3 · Schools & The Isms</a>
+  <a href="#s4">S4 · The Logic Dojo</a>
+  <a href="#s5">S5 · Logic, Language & Syllogism</a>
+  <a href="#s6">S6 · Fallacies (Full Map)</a>
+  <a href="#s7">S7 · Human Existence</a>
+  <div class="grp">Weapons</div>
+  <a href="#mnem">🧠 Mnemonic Vault</a>
+  <a href="#flash">🃏 Flashcards</a>
+  <a href="#cram">⚡ 1-Hour Cram Sheet</a>
+  <a href="#tips">🏃 Fast-Read & CBT Tips</a>
+  <div class="grp">The Final Boss</div>
+  <a href="#exam">📝 Mock Exam (50 Q)</a>
+  <a href="#res">📺 YouTube & Books</a>
+</nav>
+
+<main class="main">
+<section id="start">
+  <div class="hero">
+    <span class="badge">⚡ EXAM-READY · BUILT FROM YOUR PAST QUESTIONS</span>
+    <h1>GST 212: Logic, Philosophy & Human Existence</h1>
+    <p><b>The Ultimate Binge-Study Series.</b> 7 Seasons. 22 Episodes. Zero boredom.</p>
+    <p style="color:var(--acc2)">I read all 340+ of your past questions (MUBY + LAUTECH + Professor Logic). This guide covers <b>every single topic they test</b> — and the patterns repeat like a Nollywood plot. Master these and you're golden. 🏆</p>
+  </div>
+
+  <div class="key">
+    <b>📌 How to use this (read this first — 60 seconds):</b>
+    <ol>
+      <li><b>Confused & low on time?</b> Jump straight to <a href="#cram" class="ext">⚡ 1-Hour Cram Sheet</a> — it's the whole course on one screen.</li>
+      <li><b>Want to actually understand?</b> Watch the "episodes" S1→S7 in order. Each is a 3-min read with a story hook.</li>
+      <li><b>Then drill:</b> <a href="#flash" class="ext">🃏 Flashcards</a> → <a href="#exam" class="ext">📝 Mock Exam</a>. Repeat the exam till you score 38+/40.</li>
+      <li><b>The night before:</b> Mnemonic Vault + Cram Sheet. Sleep. You've got this. 💪</li>
+    </ol>
+  </div>
+
+  <div class="tip">
+    <b>🎯 The #1 truth about your exam:</b> It's a CBT with recycled MCQs. Your MUBY (190 Q) and LAUTECH (150 Q) files are <b>almost the same questions</b>. If you can answer those two banks cold, you will likely see 70–90% of the exact same questions tomorrow. This guide teaches you the <i>why</i> so even reworded questions can't trick you.
+  </div>
+</section>
+
+<!-- ============ SEASON 1 ============ -->
+<section id="s1">
+<div class="season">
+  <h2>🌅 SEASON 1 — The Birth of Wisdom <span class="stag">What is Philosophy?</span></h2>
+
+  <div class="ep">
+    <h3>Episode 1.1 — "Love at First Thought" (Meaning of Philosophy)</h3>
+    <p class="hook">In ancient Greece, a man named Pythagoras refused to call himself "wise." Too proud. Instead he said: "I'm just a <i>lover</i> of wisdom." And a discipline was born...</p>
+    <p><b>Philosophy</b> comes from two Greek words:</p>
+    <ul>
+      <li><b>Philo</b> = love</li>
+      <li><b>Sophia</b> = wisdom</li>
+    </ul>
+    <p>So <b>Philosophy literally means "Love of Wisdom."</b> A <b>philosopher</b> is therefore a <b>"lover of wisdom."</b></p>
+    <div class="key"><b>Guaranteed exam line:</b> Philosophy literally means <b>Love of Wisdom</b>. "Sophia" = <b>Wisdom</b>. A philosopher = <b>a lover of wisdom</b>.</div>
+    <div class="mnem"><b>🧠 Mnemonic:</b> "<b>PHILO</b> the dog <b>SOFI</b>a" → Philo (love) + Sophia (wisdom). Picture a dog named Philo madly in love with a girl named Sophia. 🐶❤️</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 1.2 — "Born from Wonder" (The Nature of Philosophy)</h3>
+    <p class="hook">Why is the sky blue? Why do we die? Why be good? A child asks these. So does a philosopher. The difference? The philosopher never stops asking — and demands <i>reasons</i>.</p>
+    <p>Philosophy is <b>critical inquiry</b> — the rational, questioning examination of fundamental beliefs. It doesn't accept things blindly; it asks for <b>justification</b>.</p>
+    <ul>
+      <li>Philosophy <b>begins with WONDER</b> (the first step of philosophical inquiry).</li>
+      <li>It promotes <b>critical reflection, independent & open-minded thinking.</b></li>
+      <li>It <b>opposes</b> dogmatism, blind acceptance, superstition, and prejudice.</li>
+      <li>It questions <b>fundamental assumptions</b>.</li>
+    </ul>
+    <div class="key"><b>Exam traps:</b> Philosophy is <b>primarily concerned with critical inquiry</b> (NOT wealth/agriculture/engineering). Philosophy <b>begins with wonder</b> (NOT wealth/religion/politics).</div>
+    <div class="mnem"><b>🧠 Mnemonic:</b> Philosophy = the "<b>W-W-C</b>" subject → starts with <b>W</b>onder, asks <b>W</b>hy, demands <b>C</b>ritical reasons.</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 1.3 — "The Five Kingdoms" (Branches of Philosophy) ⭐ HIGH-YIELD</h3>
+    <p class="hook">Philosophy is an empire with 5 kingdoms. The exam LOVES asking "which kingdom studies X?" Learn this table and you bag free marks.</p>
+    <table>
+      <tr><th>Branch</th><th>Studies...</th><th>Key word / memory hook</th></tr>
+      <tr><td><b>Metaphysics</b></td><td>Reality, existence, being</td><td>"What is REAL?" (Ontology = study of <i>being</i>, a part of metaphysics)</td></tr>
+      <tr><td><b>Epistemology</b></td><td>Knowledge & its sources</td><td>"What do I KNOW?" (Episteme = knowledge)</td></tr>
+      <tr><td><b>Ethics</b></td><td>Morality, right & wrong</td><td>"What is GOOD?" (a.k.a. Moral Philosophy)</td></tr>
+      <tr><td><b>Logic</b></td><td>Correct reasoning</td><td>"What is VALID?"</td></tr>
+      <tr><td><b>Aesthetics</b></td><td>Beauty & art</td><td>"What is BEAUTIFUL?"</td></tr>
+    </table>
+    <div class="key"><b>Also memorize these "study of" terms:</b>
+      <ul style="margin-top:6px">
+        <li><b>Axiology</b> = study of <b>values</b></li>
+        <li><b>Ontology</b> = study of <b>being / existence</b></li>
+        <li><b>Epistemology</b> = study of <b>knowledge</b></li>
+        <li><b>Metaphysics</b> = study of <b>reality / ultimate reality</b></li>
+      </ul>
+    </div>
+    <div class="mnem"><b>🧠 Mnemonic for the 5 branches — "My Elephant Loves Apple Eating":</b><br>
+    <b>M</b>etaphysics · <b>E</b>pistemology · <b>L</b>ogic · <b>A</b>esthetics · <b>E</b>thics 🐘🍎</div>
+    <div class="warn"><b>⚠️ Manual vs MCQ note (important!):</b> Your <b>course manual</b> lists <b>4 core/traditional branches: Metaphysics, Epistemology, Ethics, Logic</b> (it groups these as "first-order"). But your <b>past-question banks DO ask about Aesthetics</b> too. So: if asked "what does Aesthetics study?" → <b>beauty/art</b>; if asked "list the traditional branches," the manual's answer is the <b>4</b> (Metaphysics, Epistemology, Ethics, Logic). Know both.</div>
+    <div class="key"><b>📖 From your manual — Metaphysics has 2 parts:</b> <b>Ontology</b> (study of <b>being</b>) + <b>Cosmology</b> (study of the <b>universe</b>). Aristotle defined metaphysics as <b>"being qua being."</b> Etymology: <i>meta</i> (beyond) + <i>phusis</i> (matter) = "study beyond the physical."</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 1.4 — "The 3 Faces of Philosophy" (Nature of Philosophy) 📖 FROM YOUR MANUAL</h3>
+    <p class="hook">Your manual says philosophy has three "natures." Examiners love listing questions. Lock these three in.</p>
+    <table>
+      <tr><th>Nature</th><th>Meaning</th></tr>
+      <tr><td><b>1. Criticality</b></td><td>Philosophy is a <b>critical discipline</b> — it uses <b>critical thinking</b> to evaluate & analyse ideas, and demands <b>justification</b> for beliefs.</td></tr>
+      <tr><td><b>2. Reconstruction of Ideas</b></td><td>When errors are found in old beliefs, philosophy <b>replaces or rebuilds</b> them. It is a <b>self-critiquing</b> discipline.</td></tr>
+      <tr><td><b>3. Formulation of Worldviews</b></td><td>Philosophy builds worldviews through <b>critical rigour & reflection</b> (not the layman's unexamined beliefs).</td></tr>
+    </table>
+    <div class="key"><b>3 tests of a good worldview (memorize!):</b> <b>Factual adequacy</b> · <b>Logical coherence</b> · <b>Explanatory capacity</b>.</div>
+    <div class="key"><b>📖 "What is philosophy?" — big definitions in your manual:</b>
+      <ul style="margin-top:6px">
+        <li><b>Socrates</b>: philosophy = study of <b>self-knowledge</b> ("Know thyself").</li>
+        <li><b>Plato</b>: philosophy = study of <b>ultimate reality</b>.</li>
+        <li><b>H.S. Staniland</b>: philosophy = <b>"the criticism of the ideas we live by."</b></li>
+        <li><b>Bertrand Russell</b>: philosophy is an <b>intermediary between theology and science</b>.</li>
+        <li>Philosophy began out of <b>curiosity and wonder</b>.</li>
+      </ul>
+    </div>
+    <div class="mnem"><b>🧠 Mnemonic for the 3 natures — "Critical Robots Win":</b> <b>C</b>riticality · <b>R</b>econstruction · <b>W</b>orldviews. 🤖</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 1.5 — "Two Floors of the Building" (Scope of Philosophy) 📖</h3>
+    <p class="hook">Think of philosophy as a 2-storey building.</p>
+    <ul>
+      <li><b>First-order discipline</b> = the <b>core branches themselves</b>: Logic, Ethics, Epistemology, Metaphysics.</li>
+      <li><b>Second-order discipline</b> = philosophy <b>that interrogates OTHER disciplines</b> → "philosophy of ___" (philosophy of science, of law, of religion, etc.).</li>
+    </ul>
+    <div class="key"><b>Quotable:</b> <b>Kant</b> called philosophy the <b>"Queen of the Sciences."</b> The UN marks <b>World Philosophy Day</b> (3rd Thursday of November).</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 1.6 — "The 4 Toolkits" (Methods of Philosophy) 📖 WHOLE CHAPTER — HIGH-YIELD</h3>
+    <p class="hook">How do philosophers actually DO philosophy? Four methods. Match each to its one-line job.</p>
+    <table>
+      <tr><th>Method</th><th>What it does</th><th>Key name</th></tr>
+      <tr><td><b>Analytic</b></td><td><b>Breaks down</b> complex ideas into simpler, clearer parts (analysis). Rose with the <b>logical positivists</b> (1930s).</td><td>—</td></tr>
+      <tr><td><b>Speculative</b></td><td>Thinks <b>systematically about everything</b> — seeks the <b>unity/wholeness</b> of all knowledge.</td><td>Halverson</td></tr>
+      <tr><td><b>Prescriptive</b></td><td><b>Prescribes solutions</b> (like a doctor prescribing drugs). Common in <b>ethics</b>.</td><td>—</td></tr>
+      <tr><td><b>Phenomenological</b></td><td>Philosophy of <b>lived experience</b>; uses <b>"bracketing" (epoché)</b> to set aside bias.</td><td><b>Edmund Husserl</b> (founder)</td></tr>
+    </table>
+    <div class="mnem"><b>🧠 Mnemonic — "All Smart People Php... → A-S-P-P":</b> <b>A</b>nalytic · <b>S</b>peculative · <b>P</b>rescriptive · <b>P</b>henomenological. (Husserl = "Hu-SET-aside" = bracketing.) 🧷</div>
+  </div>
+</div>
+</section>
+
+<!-- ============ SEASON 2 ============ -->
+<section id="s2">
+<div class="season">
+  <h2>🏛️ SEASON 2 — The Cast of Legends <span class="stag">The Philosophers</span></h2>
+  <p style="color:var(--mut);margin-top:14px">The exam name-drops these legends constantly. Match each name to their "one famous thing." That's literally all you need.</p>
+
+  <div class="ep">
+    <h3>Episode 2.1 — Socrates: "The Question Machine"</h3>
+    <p class="hook">He wrote NOTHING. Yet he's the father of it all. His weapon? Annoying everyone with relentless questions until their bad ideas collapsed.</p>
+    <ul>
+      <li><b>Father of Western Philosophy.</b></li>
+      <li><b>Socratic Method</b> = teaching/inquiry through <b>questioning & dialogue</b>.</li>
+      <li>Famous quotes: <b>"Know thyself"</b> and <b>"The unexamined life is not worth living."</b></li>
+      <li>Teacher of <b>Plato</b>. Executed for "corrupting the youth."</li>
+    </ul>
+    <div class="warn"><b>⚠️ Don't confuse:</b> Socrates = father of <b>Western Philosophy</b>. Aristotle = father of <b>Logic</b>. (Both get asked — keep them separate!)</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 2.2 — Plato: "The Cave Director"</h3>
+    <p class="hook">Imagine prisoners chained in a cave their whole lives, watching shadows on a wall, thinking shadows are reality. That's us, said Plato. Real knowledge = stepping into the sunlight.</p>
+    <ul>
+      <li>Student of <b>Socrates</b>, teacher of <b>Aristotle</b>.</li>
+      <li>Founded the <b>Academy</b>.</li>
+      <li>Famous for the <b>Allegory of the Cave</b>.</li>
+    </ul>
+    <div class="mnem"><b>🧠 Mnemonic:</b> "<b>Plato</b> = <b>Pla</b>ce to learn = the A<b>cademy</b>" & "Plato had a CAVE." 🕳️</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 2.3 — Aristotle: "The Father of Logic"</h3>
+    <p class="hook">Plato's brightest student. He organized human reasoning into a system so powerful it ruled for 2,000 years. He basically invented the syllogism.</p>
+    <ul>
+      <li>Student of <b>Plato</b>.</li>
+      <li><b>Father of Logic.</b></li>
+      <li>Founded the <b>Lyceum</b>.</li>
+    </ul>
+    <div class="mnem"><b>🧠 Mnemonic (don't mix the schools!):</b> "Pl<b>A</b>to → <b>A</b>cademy" and "<b>Aristotle</b> → <b>L</b>yceum → <b>L</b>ogic" (Aristotle gets the L's). 🅰️🆚🇱</div>
+    <div class="key"><b>The famous lineage chain (often tested):</b> Socrates ➜ taught ➜ Plato ➜ taught ➜ Aristotle ➜ taught ➜ Alexander the Great.</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 2.4 — The Modern Squad (Descartes, Locke, Hume, Kant, James, Sartre)</h3>
+    <p class="hook">Fast-forward 2000 years. A new generation of thinkers each became famous for ONE big idea. Memorize the pairings — pure free marks.</p>
+    <table>
+      <tr><th>Philosopher</th><th>Famous for (their "ONE thing")</th></tr>
+      <tr><td><b>René Descartes</b></td><td><b>Rationalism</b>; the quote <b>"I think, therefore I am"</b> (Cogito ergo sum)</td></tr>
+      <tr><td><b>John Locke</b></td><td><b>Empiricism</b> (knowledge from the senses)</td></tr>
+      <tr><td><b>David Hume</b></td><td><b>Empiricism</b></td></tr>
+      <tr><td><b>Immanuel Kant</b></td><td>Ethics of <b>Duty</b> (deontology)</td></tr>
+      <tr><td><b>William James</b></td><td><b>Pragmatism</b> (truth = what works/utility)</td></tr>
+      <tr><td><b>Jean-Paul Sartre</b></td><td><b>Existentialism</b> (freedom & responsibility)</td></tr>
+    </table>
+    <div class="mnem"><b>🧠 Mega-mnemonic:</b><br>
+    "<b>D</b>escartes <b>R</b>easons" (Rationalism) ·
+    "<b>L</b>ocke & <b>H</b>ume <b>E</b>xperience life" (Empiricism) ·
+    "<b>K</b>ant does his <b>D</b>uty" ·
+    "<b>J</b>ames is a <b>P</b>ragmatist" ·
+    "<b>S</b>artre just <b>E</b>xists" (Existentialism).</div>
+  </div>
+</div>
+</section>
+
+<!-- ============ SEASON 3 ============ -->
+<section id="s3">
+<div class="season">
+  <h2>⚔️ SEASON 3 — Schools of War <span class="stag">Epistemology & Isms</span></h2>
+
+  <div class="ep">
+    <h3>Episode 3.1 — "Reason vs Experience" (Rationalism vs Empiricism) ⭐</h3>
+    <p class="hook">The 2,000-year rap battle: Where does knowledge REALLY come from? Your head (reason)? Or the world (your senses)? Two gangs formed.</p>
+    <div class="two">
+      <div class="key"><b>🧠 RATIONALISM</b><br>Knowledge comes from <b>REASON / the mind</b>.<br>Believes in <b>innate ideas</b>.<br>Champion: <b>Descartes</b>.</div>
+      <div class="key"><b>👀 EMPIRICISM</b><br>Knowledge comes from <b>SENSE EXPERIENCE</b>.<br>"Empirical" = through the senses/observation.<br>Champions: <b>Locke & Hume</b>.</div>
+    </div>
+    <div class="mnem"><b>🧠 Mnemonic:</b> "<b>R</b>ationalism = <b>R</b>eason" · "<b>E</b>mpiricism = <b>E</b>xperience (your <b>E</b>yes & <b>E</b>ars)." Same first letter — can't forget. 👁️👂</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 3.2 — "The Other Gangs" (Pragmatism, Idealism, Materialism, Skepticism)</h3>
+    <table>
+      <tr><th>School (Ism)</th><th>Core belief</th><th>Hook</th></tr>
+      <tr><td><b>Pragmatism</b></td><td>Truth = what is <b>useful / works</b> (utility, practical results)</td><td>"Practical = Pragmatic." (William James)</td></tr>
+      <tr><td><b>Idealism</b></td><td>Reality is fundamentally <b>MENTAL</b> (mind/ideas)</td><td>"Ideal-ism = Ideas in the mind."</td></tr>
+      <tr><td><b>Materialism</b></td><td>Reality is fundamentally <b>PHYSICAL / matter</b></td><td>"Material = physical stuff."</td></tr>
+      <tr><td><b>Skepticism</b></td><td><b>Questions / doubts</b> knowledge claims</td><td>Opposite of <b>Dogmatism</b>.</td></tr>
+    </table>
+    <div class="warn"><b>⚠️ Classic pair:</b> Opposite of <b>Skepticism</b> = <b>Dogmatism</b>. Opposite of <b>Dogmatism</b> = <b>Skepticism</b>. They ask it both ways!</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 3.3 — "What is Truth?" (Theories of Truth + Knowledge)</h3>
+    <p class="hook">Three judges argue about what makes a statement "true." Each has a different test.</p>
+    <table>
+      <tr><th>Theory of Truth</th><th>A statement is true if it...</th></tr>
+      <tr><td><b>Correspondence</b></td><td>matches the <b>FACTS</b> / reality</td></tr>
+      <tr><td><b>Coherence</b></td><td>is <b>CONSISTENT</b> with other beliefs</td></tr>
+      <tr><td><b>Pragmatic</b></td><td>is <b>USEFUL / works</b> in practice</td></tr>
+    </table>
+    <div class="key"><b>Knowledge</b> is traditionally defined as <b>Justified True Belief (JTB)</b>. Knowledge <i>without</i> justification is just <b>"mere belief."</b> Theories of truth belong to <b>Epistemology</b>.</div>
+    <div class="mnem"><b>🧠 Mnemonic:</b> "Cor-<b>FACT</b>, Coh-<b>CONSISTENT</b>, Prag-<b>PRACTICAL</b>." Say it 3× fast.</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 3.4 — "The Full Gang of Isms" (Basic Concepts) 📖 WHOLE CHAPTER</h3>
+    <p class="hook">Your manual's Chapter 2 defines 12 "isms." You've met the big ones above — here's the complete roster with each one's champion. The exam picks ANY of these.</p>
+    <table>
+      <tr><th>Ism</th><th>Core belief</th><th>Key figure(s)</th></tr>
+      <tr><td><b>Existentialism</b></td><td>Man is <b>free & self-determining</b>; "existence precedes essence"</td><td>Kierkegaard, <b>Sartre</b></td></tr>
+      <tr><td><b>Pragmatism</b></td><td>Truth = what is <b>tested & works</b> (America's big contribution)</td><td>Dewey, Peirce, <b>James</b></td></tr>
+      <tr><td><b>Rationalism</b></td><td>Knowledge from <b>reason</b> / self-evident first principles</td><td>Plato, <b>Descartes</b>, Leibniz, Spinoza</td></tr>
+      <tr><td><b>Empiricism</b></td><td>Knowledge from <b>sense experience</b>; mind at birth = <b>tabula rasa</b> (blank slate)</td><td><b>Locke</b>, Berkeley, <b>Hume</b></td></tr>
+      <tr><td><b>Idealism</b></td><td>External objects are basically <b>ideas in the mind</b></td><td>Plato</td></tr>
+      <tr><td><b>Realism</b></td><td>Objects exist <b>independent of the mind</b> (concrete substances)</td><td><b>Aristotle</b></td></tr>
+      <tr><td><b>Materialism</b></td><td>Reality is basically <b>matter</b> (physical, destructible atoms)</td><td>Epicurus</td></tr>
+      <tr><td><b>Theism</b></td><td><b>Affirms</b> the existence of a Supreme Being (God)</td><td>—</td></tr>
+      <tr><td><b>Atheism</b></td><td><b>Denies</b> God's existence (on rational/empirical grounds)</td><td>—</td></tr>
+      <tr><td><b>Monism</b></td><td>Reality is <b>ONE</b> kind of thing (usually physical)</td><td>—</td></tr>
+      <tr><td><b>Dualism</b></td><td>Reality is <b>TWO</b>-faceted: one physical, one spiritual (mind & body)</td><td>—</td></tr>
+      <tr><td><b>Skepticism</b></td><td><b>Doubts</b> that certain/universal knowledge is attainable</td><td>—</td></tr>
+    </table>
+    <div class="key"><b>Famous tags to memorize:</b> Berkeley → <b>"esse est percipi"</b> (to be is to be perceived) · Locke → <b>tabula rasa</b> · Sartre → "existence precedes essence" / "man is what he makes of himself."</div>
+    <div class="mnem"><b>🧠 Mnemonic:</b> "<b>Mono</b> = 1 (Monism), <b>Du</b>al = 2 (Dualism)." "<b>The</b>ism = <b>The</b>re IS a God; <b>A</b>theism = <b>A</b>bsent God."</div>
+  </div>
+</div>
+</section>
+
+<!-- ============ SEASON 4 ============ -->
+<section id="s4">
+<div class="season">
+  <h2>🥋 SEASON 4 — The Logic Dojo <span class="stag">Core Logic ⭐⭐</span></h2>
+  <p style="color:var(--mut);margin-top:14px">This is the HEART of the course. Expect the MOST questions here. Slow down and master every line.</p>
+
+  <div class="ep">
+    <h3>Episode 4.1 — "Anatomy of an Argument"</h3>
+    <p class="hook">In logic, an "argument" isn't a shouting match. It's a clean machine with parts.</p>
+    <ul>
+      <li><b>Logic</b> = the study of <b>correct reasoning</b> (also: the process/patterns of reasoning).</li>
+      <li>An <b>argument</b> = <b>premises + a conclusion</b>.</li>
+      <li><b>Premises</b> = the <b>supporting statements/reasons</b>.</li>
+      <li><b>Conclusion</b> = the <b>final claim</b> drawn from the premises.</li>
+      <li><b>Inference</b> = a conclusion <b>derived from premises</b> (the mental "jump").</li>
+    </ul>
+    <div class="key"><b>One-liner to memorize:</b> "An argument is a set of <b>premises</b> offered to support a <b>conclusion</b>." Logic is the tool that checks if that support is good.</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 4.2 — "Top-Down vs Bottom-Up" (Deduction vs Induction) ⭐⭐</h3>
+    <p class="hook">Two detectives. Sherlock uses DEDUCTION (general rule → certain conclusion). A scientist uses INDUCTION (many observations → probable rule).</p>
+    <div class="two">
+      <div class="key"><b>⬇️ DEDUCTIVE</b><br>Moves <b>GENERAL → SPECIFIC</b>.<br>Aims at <b>CERTAINTY</b>.<br>Conclusion is <b>necessary</b> (guaranteed if premises true).</div>
+      <div class="key"><b>⬆️ INDUCTIVE</b><br>Moves <b>SPECIFIC → GENERAL</b>.<br>Aims at <b>PROBABILITY</b>.<br>Involves <b>generalization</b>.</div>
+    </div>
+    <div class="mnem"><b>🧠 Mnemonic:</b> "<b>De</b>duction = <b>De</b>scends (general comes <b>down</b> to specific) = <b>De</b>finite/certain." "<b>In</b>duction = <b>In</b>creases (specific builds <b>up</b> to general) = <b>In</b>-probable... only probable."</div>
+    <div class="warn"><b>⚠️ Most-missed fact:</b> Deduction = CERTAINTY. Induction = PROBABILITY. Swap these and you lose easy marks.</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 4.3 — "Valid, Sound & True" (The Holy Trinity of Logic) ⭐⭐⭐</h3>
+    <p class="hook">This trips EVERYONE up. Read it twice. A valid argument can still be nonsense — surprised? Let's fix that.</p>
+    <ul>
+      <li><b>VALIDITY</b> = the conclusion <b>follows logically</b> from the premises (good <i>structure</i>). Validity says NOTHING about whether premises are actually true!</li>
+      <li>So a <b>valid argument may have FALSE premises.</b> ✅ (Huge exam favourite.)</li>
+      <li><b>SOUNDNESS</b> = <b>Validity + all premises actually TRUE</b>. (The gold standard.)</li>
+      <li><b>Invalidity</b> = conclusion does <b>NOT</b> follow. Opposite of validity = <b>invalidity</b>.</li>
+    </ul>
+    <div class="key"><b>The killer formula:</b> <code>SOUND = VALID + TRUE PREMISES</code>. A deductive argument is strongest when it is <b>valid AND sound</b>.</div>
+    <div class="mnem"><b>🧠 Mnemonic:</b> A <b>SOUND</b>system needs the <b>S</b>peaker working (Valid structure) <b>AND</b> good music playing (True premises). Miss one → no good sound. 🔊</div>
+    <div class="warn"><b>⚠️ Mind-bender (they ASK this):</b> "An argument can be valid even if its premises are false." → TRUE. Validity is about FORM, not facts.</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 4.4 — "The 3 Unbreakable Laws" (Laws of Thought) ⭐⭐</h3>
+    <p class="hook">Three laws so basic that without them, thinking itself is impossible. Break one and you talk nonsense.</p>
+    <table>
+      <tr><th>Law</th><th>States that...</th><th>Example</th></tr>
+      <tr><td><b>Identity</b></td><td><b>A is A</b> (a thing is itself)</td><td>A cat is a cat.</td></tr>
+      <tr><td><b>Non-Contradiction</b></td><td>A <b>cannot be A and not-A</b> at the same time</td><td>You can't be alive and dead simultaneously.</td></tr>
+      <tr><td><b>Excluded Middle</b></td><td>Every statement is <b>either true or false</b> (no middle)</td><td>"It is raining OR it is not raining."</td></tr>
+    </table>
+    <div class="key"><b>Test links:</b> "Either it is raining or it is not raining" = <b>Law of Excluded Middle</b>. An <b>inconsistent/contradictory</b> statement violates the <b>Law of Non-Contradiction</b>. "A is A" = <b>Law of Identity</b>.</div>
+    <div class="mnem"><b>🧠 Mnemonic — "I Never Eat":</b> <b>I</b>dentity · <b>N</b>on-contradiction · <b>E</b>xcluded middle. 🍽️</div>
+  </div>
+</div>
+</section>
+
+<!-- ============ SEASON 5 ============ -->
+<section id="s5">
+<div class="season">
+  <h2>🔐 SEASON 5 — The Syllogism Code <span class="stag">Propositions & Symbolic Logic</span></h2>
+
+  <div class="ep">
+    <h3>Episode 5.1 — "The 3-Line Power Move" (Propositions & Syllogisms) ⭐</h3>
+    <p class="hook">"All men are mortal. Socrates is a man. Therefore, Socrates is mortal." The most famous argument in history. It's called a SYLLOGISM.</p>
+    <ul>
+      <li><b>Proposition</b> = a <b>statement capable of being true or false</b> (NOT a question, command, or exclamation). Must be <b>meaningful & truth-evaluable</b>.</li>
+      <li><b>Syllogism</b> = a deductive argument with exactly <b>THREE propositions</b> (2 premises + 1 conclusion).</li>
+      <li><b>Major premise</b> = appears <b>FIRST</b>.</li>
+      <li><b>Middle term</b> = the linking term; appears in <b>both premises only</b> (never in the conclusion). It <b>links the major and minor terms</b>.</li>
+      <li><b>Enthymeme</b> = an <b>incomplete syllogism</b> (a premise is left unstated).</li>
+    </ul>
+    <div class="key"><b>Worked example:</b> "All men are mortal" (major premise, 1st) · "Socrates is a man" (minor premise) · "∴ Socrates is mortal" (conclusion). Middle term = <b>"man/men"</b> (it's in both premises, not the conclusion).</div>
+    <div class="mnem"><b>🧠 Mnemonic:</b> Syllogism = "<b>SILLY-gism</b> has <b>3</b> lines" (like a silly 3-line poem). Middle term is the <b>MIDDLE</b>man who never shows up at the <b>conclusion</b> (the meeting). 🕴️</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 5.2 — "Symbol Warfare" (Symbolic Logic: Modus Ponens & Tollens) ⭐⭐</h3>
+    <p class="hook">Logicians got tired of long sentences, so they replaced them with symbols (P, Q). Two attack patterns dominate.</p>
+    <ul>
+      <li><b>Symbolic logic</b> = uses <b>symbols to represent statements</b>.</li>
+    </ul>
+    <table>
+      <tr><th>Pattern</th><th>Form</th><th>Means</th></tr>
+      <tr><td><b>Modus Ponens</b></td><td>If P then Q; <b>P</b>; ∴ <b>Q</b></td><td><b>Affirming the antecedent</b> ✅ valid</td></tr>
+      <tr><td><b>Modus Tollens</b></td><td>If P then Q; <b>not Q</b>; ∴ <b>not P</b></td><td><b>Denying the consequent</b> ✅ valid</td></tr>
+    </table>
+    <div class="key"><b>In plain words:</b><br>
+    • <b>Modus Ponens</b> = "Put it forward / affirm." If P→Q and P is true, then Q is true.<br>
+    • <b>Modus Tollens</b> = "Take it away / deny." If P→Q and Q is false, then P is false.</div>
+    <div class="mnem"><b>🧠 Mnemonic:</b> "<b>P</b>onens = <b>P</b>ositive = <b>P</b>uts forward the antecedent (P)." "<b>T</b>ollens = <b>T</b>akes away = denies (the consequent)." Ponens=P, Tollens=Takes. ✊</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 5.3 — "Always & Never" (Tautology, Contradiction, etc.)</h3>
+    <table>
+      <tr><th>Term</th><th>Meaning</th></tr>
+      <tr><td><b>Tautology</b></td><td>A statement that is <b>ALWAYS TRUE</b> (e.g. "It is raining or it is not raining").</td></tr>
+      <tr><td><b>Contradiction</b></td><td>A statement that is <b>both true and false</b> at once (always false).</td></tr>
+      <tr><td><b>Necessary condition</b></td><td>Must <b>exist for something else to occur</b>.</td></tr>
+    </table>
+    <div class="mnem"><b>🧠 Mnemonic:</b> "<b>Taut</b>ology = <b>T</b>otally <b>T</b>rue, always." "Contradiction = <b>Con</b> (against itself)." </div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 5.4 — "The Nine Commandments" (First 9 Rules of Inference) ⭐ SYLLABUS-LISTED</h3>
+    <p class="hook">Your official course outline literally says: "symbolic logic — <b>the first nine rules of inference</b>." So this is fair game. Don't memorize the symbols stiffly — just recognize each pattern by NAME. Symbols: <code>⊃</code>=if/then, <code>·</code>=and, <code>∨</code>=or, <code>~</code>=not, <code>∴</code>=therefore.</p>
+    <table>
+      <tr><th>#</th><th>Rule</th><th>Pattern</th><th>Plain English</th></tr>
+      <tr><td>1</td><td><b>Modus Ponens (MP)</b></td><td>p⊃q, p ∴ q</td><td>Affirm the "if" part → get the "then" part</td></tr>
+      <tr><td>2</td><td><b>Modus Tollens (MT)</b></td><td>p⊃q, ~q ∴ ~p</td><td>Deny the "then" part → deny the "if" part</td></tr>
+      <tr><td>3</td><td><b>Hypothetical Syllogism (HS)</b></td><td>p⊃q, q⊃r ∴ p⊃r</td><td>Chain of "ifs" (p→q→r, so p→r)</td></tr>
+      <tr><td>4</td><td><b>Disjunctive Syllogism (DS)</b></td><td>p∨q, ~p ∴ q</td><td>"Either/or" + one is false → the other is true</td></tr>
+      <tr><td>5</td><td><b>Constructive Dilemma (CD)</b></td><td>(p⊃q)·(r⊃s), p∨r ∴ q∨s</td><td>Two "ifs" + either antecedent → either consequent</td></tr>
+      <tr><td>6</td><td><b>Simplification (Simp)</b></td><td>p·q ∴ p</td><td>"A and B" is true → so A alone is true</td></tr>
+      <tr><td>7</td><td><b>Conjunction (Conj)</b></td><td>p, q ∴ p·q</td><td>A is true, B is true → "A and B" is true</td></tr>
+      <tr><td>8</td><td><b>Addition (Add)</b></td><td>p ∴ p∨q</td><td>A is true → "A or anything" is true</td></tr>
+      <tr><td>9</td><td><b>Absorption (Abs)</b></td><td>p⊃q ∴ p⊃(p·q)</td><td>If p→q, then p→(p and q)</td></tr>
+    </table>
+    <div class="mnem"><b>🧠 Mnemonic for all 9 — "<b>MM HD C SCA A</b>":</b><br>
+    <b>M</b>odus Ponens · <b>M</b>odus Tollens · <b>H</b>ypothetical Syllogism · <b>D</b>isjunctive Syllogism · <b>C</b>onstructive Dilemma · <b>S</b>implification · <b>C</b>onjunction · <b>A</b>ddition · <b>A</b>bsorption.<br>
+    Try: "<b>My Mum Has Done Cooking, So Come And Africa Absorbs</b>" — or make your own silly sentence; the goal is just to recall the 9 names.</div>
+    <div class="tip"><b>Exam reality:</b> Most CBT questions only test the famous two (<b>MP</b> & <b>MT</b>) plus recognizing names like <b>Hypothetical</b>/<b>Disjunctive Syllogism</b>. Know all nine by name, master MP & MT cold.</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 5.5 — "Words, Words, Words" (Language & Logic) 📖 CHAPTER 4</h3>
+    <p class="hook">Before logic can work, you need language. Your manual spends a whole chapter linking language → logic → argument. Two list-questions come straight from here.</p>
+    <div class="key"><b>3 Functions of Language</b> (after Copi):
+      <ul style="margin-top:6px">
+        <li><b>Informative</b> — communicates information (true/false facts).</li>
+        <li><b>Directive</b> — gives commands / makes requests ("Sweep the room").</li>
+        <li><b>Expressive</b> — shows feelings/emotions ("You are beautiful", "Ouch!").</li>
+      </ul>
+    </div>
+    <div class="key"><b>5 Types of Language:</b> <b>Private</b> (one group only) · <b>Public</b> (widely understood) · <b>Ordinary</b> (everyday, e.g. English, French) · <b>Ideal</b> (strict rules — maths, logic) · <b>Artificial</b> (e.g. Pidgin, Esperanto).</div>
+    <div class="key"><b>📖 Definitions of LOGIC in your manual:</b> "science of the laws of thought" (called <i>too vague</i>) · <b>Copi</b>: "a <b>technique of reasoning</b>" · <b>Laleye</b>: "the <b>analysis and criticism of thought</b>." Logic splits into <b>Formal</b> (structure; uses symbols) vs <b>Informal</b> (everyday natural-language reasoning).</div>
+    <div class="mnem"><b>🧠 Mnemonic — functions "I-D-E":</b> <b>I</b>nformative · <b>D</b>irective · <b>E</b>xpressive ("I-D-Easy"). Types "PPO-IA": <b>P</b>rivate, <b>P</b>ublic, <b>O</b>rdinary, <b>I</b>deal, <b>A</b>rtificial.</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 5.6 — "The 5 Connectors" (Logical Connectives) 📖 ⭐ MUST-KNOW SYMBOLS</h3>
+    <p class="hook">Symbolic logic snaps simple statements together using 5 connectives. Learn the symbol + name pairs — easy marks.</p>
+    <table>
+      <tr><th>Connective</th><th>Word</th><th>Symbol</th><th>Example</th></tr>
+      <tr><td><b>Conjunction</b></td><td>and</td><td><code>·</code> (dot)</td><td>p · q</td></tr>
+      <tr><td><b>Disjunction</b></td><td>or</td><td><code>v</code> (vee/wedge)</td><td>p v q</td></tr>
+      <tr><td><b>Conditional</b></td><td>if…then</td><td><code>⊃</code> (horseshoe)</td><td>p ⊃ q</td></tr>
+      <tr><td><b>Negation</b></td><td>not</td><td><code>~</code> (tilde)</td><td>~p</td></tr>
+      <tr><td><b>Biconditional</b></td><td>if and only if</td><td><code>≡</code> (triple bar)</td><td>p ≡ q</td></tr>
+    </table>
+    <div class="key"><b>Variables vs Constants:</b> lowercase <b>p, q, r…</b> = propositional <b>variables</b>; UPPERCASE <b>A–Z</b> = propositional <b>constants</b> (a specific statement).</div>
+    <div class="mnem"><b>🧠 Mnemonic — "Dogs Vee Have Tasty Treats":</b> <b>D</b>ot(and) · <b>V</b>ee(or) · <b>H</b>orseshoe(if-then) · <b>T</b>ilde(not) · <b>T</b>riple-bar(iff). 🐶</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 5.7 — "The A-E-I-O Code" (Categorical Propositions) 📖 ⭐⭐ CLASSIC</h3>
+    <p class="hook">Every "All/No/Some" statement fits one of FOUR types, labelled A, E, I, O. This is a guaranteed question.</p>
+    <table>
+      <tr><th>Type</th><th>Name</th><th>Form</th><th>Example</th></tr>
+      <tr><td><b>A</b></td><td>Universal <b>Affirmative</b></td><td>All S are P</td><td>All men are mortal</td></tr>
+      <tr><td><b>E</b></td><td>Universal <b>Negative</b></td><td>No S is P</td><td>No man is a stone</td></tr>
+      <tr><td><b>I</b></td><td>Particular <b>Affirmative</b></td><td>Some S are P</td><td>Some men are wise</td></tr>
+      <tr><td><b>O</b></td><td>Particular <b>Negative</b></td><td>Some S are not P</td><td>Some men are not wise</td></tr>
+    </table>
+    <div class="warn"><b>⚠️ Manual typo alert:</b> Your manual mislabels <b>E</b> as "particular affirmative." That's a printing error. The <b>correct, standard answer</b> is: A = Universal Affirmative, <b>E = Universal Negative</b>, I = Particular Affirmative, O = Particular Negative. Use these.</div>
+    <div class="mnem"><b>🧠 Mnemonic:</b> A & I = <b>Affirm</b> (from Latin "<b>Aff</b>Irmo"); E & O = deny/<b>nego</b> (from "n<b>E</b>g<b>O</b>"). Vowels of <i>AffIrmo</i> = A, I (yes); vowels of <i>nEgO</i> = E, O (no). Capital letters = universal, others particular.</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 5.8 — "Spotting the Parts" (Proposition Types & Indicators) 📖</h3>
+    <ul>
+      <li><b>Analytic / A priori</b> proposition = true by definition, known by <b>reason</b> alone ("A bachelor is an unmarried man"; "A square has 4 sides"). Tautological.</li>
+      <li><b>Synthetic / A posteriori</b> proposition = verified by <b>sense experience</b> ("It is raining"); common in the sciences.</li>
+    </ul>
+    <div class="key"><b>Indicator words (how to spot premise vs conclusion):</b>
+      <ul style="margin-top:6px">
+        <li><b>Premise indicators:</b> <i>because, since, as, for, the reason that, in light of the fact…</i></li>
+        <li><b>Conclusion indicators:</b> <i>therefore, thus, consequently, as a result, hence, it follows that, I conclude…</i></li>
+      </ul>
+    </div>
+    <div class="key"><b>3 types of deductive (syllogistic) arguments:</b> <b>Categorical</b> (uses A/E/I/O), <b>Disjunctive</b> (either…or), <b>Hypothetical</b> (if…then). An <b>assertion</b> = a claim with NO supporting premise (not an argument).</div>
+  </div>
+</div>
+</section>
+
+<!-- ============ SEASON 6 ============ -->
+<section id="s6">
+<div class="season">
+  <h2>💀 SEASON 6 — The Hall of Shame <span class="stag">Fallacies ⭐⭐</span></h2>
+  <p style="color:var(--mut);margin-top:14px">A <b>fallacy</b> = an <b>error in reasoning</b>. The exam asks about these CONSTANTLY, especially the Latin "Ad ___" family. Let's make them stick forever.</p>
+
+  <div class="ep">
+    <h3>Episode 6.1 — "Form vs Content" (Two Types of Fallacies)</h3>
+    <table>
+      <tr><th>Type</th><th>Error is in the...</th></tr>
+      <tr><td><b>Formal fallacy</b></td><td><b>STRUCTURE / form</b> of the argument</td></tr>
+      <tr><td><b>Informal fallacy</b></td><td><b>CONTENT / meaning</b> of the argument</td></tr>
+    </table>
+    <div class="mnem"><b>🧠 Mnemonic:</b> "<b>Form</b>al = <b>Form</b> (shape/structure)." "In<b>form</b>al = the in<b>form</b>ation/content." Same root word — easy. Also: "Logic of <b>form</b> = structure; logic of <b>content</b> = meaning."</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 6.2 — "The Ad Family" (Latin Fallacies) ⭐⭐⭐ MUST-KNOW</h3>
+    <p class="hook">Five Latin cousins, all starting with "Ad" (meaning "to/toward"). The exam asks about EVERY one. This single table is worth ~5 marks.</p>
+    <table>
+      <tr><th>Fallacy</th><th>Appeals to / Attacks</th><th>Memory hook</th></tr>
+      <tr><td><b>Ad Hominem</b></td><td>Attacks <b>the PERSON</b> (not the argument)</td><td>"Homo" = human/man → at the man</td></tr>
+      <tr><td><b>Ad Verecundiam</b></td><td>Appeal to <b>AUTHORITY</b></td><td>"re<b>VERE</b>" authority</td></tr>
+      <tr><td><b>Ad Misericordiam</b></td><td>Appeal to <b>PITY</b></td><td>"<b>MISERY</b>" → pity</td></tr>
+      <tr><td><b>Ad Baculum</b></td><td>Appeal to <b>FORCE</b> / threat</td><td>"<b>Baculum</b>" = stick/baton → <b>B</b>eating = force</td></tr>
+      <tr><td><b>Ad Populum</b></td><td>Appeal to <b>THE PEOPLE</b> / popularity</td><td>"<b>POPUL</b>ar" = people</td></tr>
+    </table>
+    <div class="mnem"><b>🧠 Master mnemonic — "<b>H</b>umble <b>V</b>illagers <b>M</b>ust <b>B</b>eg <b>P</b>oliticians":</b><br>
+    <b>H</b>ominem (person) · <b>V</b>erecundiam (authority) · <b>M</b>isericordiam (pity) · <b>B</b>aculum (force) · <b>P</b>opulum (people).</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 6.3 — "The Sneaky Squad" (Other Common Fallacies)</h3>
+    <table>
+      <tr><th>Fallacy</th><th>What it does</th></tr>
+      <tr><td><b>Straw Man</b></td><td><b>Distorts an opponent's position</b> to attack it easily</td></tr>
+      <tr><td><b>Hasty Generalization</b></td><td>Draws a conclusion from <b>insufficient evidence</b></td></tr>
+      <tr><td><b>Begging the Question</b></td><td><b>Circular reasoning</b> (assumes what it's trying to prove)</td></tr>
+      <tr><td><b>False Dilemma</b></td><td>Presents <b>only two options when more exist</b></td></tr>
+    </table>
+    <div class="key"><b>Quick links:</b> Circular reasoning = <b>Begging the question</b>. "Only 2 choices" = <b>False dilemma</b>. Distorting opponent = <b>Straw man</b>. Conclusion from too little evidence = <b>Hasty generalization</b>. Logic seeks to <b>eliminate fallacies</b>.</div>
+    <div class="mnem"><b>🧠 Mnemonic:</b> "<b>Straw</b> man is <b>weak</b> (easy to knock down) because you built it wrong (distorted)." 🌾🥊</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 6.4 — "The 3 Families" (Manual's Fallacy Map) 📖 ⭐⭐⭐</h3>
+    <p class="hook">Your manual organizes INFORMAL fallacies into <b>3 families</b>. If you remember the families + a few members each, you can name almost any fallacy they throw at you.</p>
+    <div class="diag">
+      <div class="node">FALLACIES</div><div class="arrow">→</div>
+      <div class="node">Formal<br>(error in <b>structure</b>)</div>
+      <div class="arrow">+</div>
+      <div class="node">Informal<br>(error in <b>content</b>)</div>
+    </div>
+    <p><b>Informal splits into 3 families:</b> ① <b>Ambiguity</b> ② <b>Relevance</b> ③ <b>Presumption</b>.</p>
+    <div class="key"><b>Formal fallacy examples</b> (faulty syllogism structure): <b>Undistributed Middle</b>, <b>Illicit Major</b>, <b>Illicit Minor</b>, <b>Existential Fallacy</b>.</div>
+    <div class="mnem"><b>🧠 Mnemonic for the 3 informal families — "ARP":</b> <b>A</b>mbiguity · <b>R</b>elevance · <b>P</b>resumption. ("A Real Problem.")</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 6.5 — "Family 1: Ambiguity" (Tricky Words) 📖</h3>
+    <p class="hook">These 5 fallacies happen when <b>words or grammar are unclear/shifty</b>.</p>
+    <table>
+      <tr><th>Fallacy</th><th>What goes wrong</th><th>Example</th></tr>
+      <tr><td><b>Equivocation</b></td><td>A word <b>shifts meaning</b> mid-argument</td><td>"It's good to eat natural things; hemlock is natural; so eat hemlock"</td></tr>
+      <tr><td><b>Amphiboly</b></td><td><b>Grammar/sentence structure</b> is ambiguous</td><td>"Slow men at work"</td></tr>
+      <tr><td><b>Accent</b></td><td>Meaning changes by <b>stress/emphasis</b> on a word</td><td>"A wife without <i>her</i> husband is nothing"</td></tr>
+      <tr><td><b>Composition</b></td><td>Assumes the <b>whole has the parts' property</b> (parts → whole)</td><td>"Each part is light, so the machine is light"</td></tr>
+      <tr><td><b>Division</b></td><td>Assumes the <b>parts have the whole's property</b> (whole → parts)</td><td>"LAUTECH is in Oyo, so all its students are Oyo indigenes"</td></tr>
+    </table>
+    <div class="mnem"><b>🧠 Mnemonic — "Every Angry Ant Climbs Down":</b> <b>E</b>quivocation · <b>A</b>mphiboly · <b>A</b>ccent · <b>C</b>omposition · <b>D</b>ivision. (Composition = parts→whole; Division = whole→parts — they're opposites!) 🐜</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 6.6 — "Family 2: Relevance" (Off-Topic Appeals) 📖 ⭐⭐⭐</h3>
+    <p class="hook">Premises that <b>look</b> relevant but actually aren't. This is where the Latin "Ad ___" gang lives (you met them in Ep 6.2 — here's the full manual list).</p>
+    <table>
+      <tr><th>Fallacy (Latin)</th><th>Appeals to / does</th></tr>
+      <tr><td><b>Ad Baculum</b></td><td>Appeal to <b>FORCE</b> / threat</td></tr>
+      <tr><td><b>Ad Hominem</b></td><td>Attacks the <b>PERSON</b> (abusive <i>or</i> circumstantial)</td></tr>
+      <tr><td><b>Ad Verecundiam</b></td><td>Appeal to <b>inappropriate AUTHORITY</b></td></tr>
+      <tr><td><b>Ad Misericordiam</b></td><td>Appeal to <b>PITY / emotion</b></td></tr>
+      <tr><td><b>Ad Populum</b></td><td>Appeal to <b>THE PEOPLE</b> / popularity</td></tr>
+      <tr><td><b>Ad Ignorantiam</b></td><td>Appeal to <b>IGNORANCE</b> ("not proven false → it's true")</td></tr>
+      <tr><td><b>Ignoratio Elenchi</b></td><td><b>Missing the point</b> / irrelevant conclusion</td></tr>
+    </table>
+    <div class="key"><b>Ad Hominem has 2 types:</b> <b>Abusive</b> (attacks character) & <b>Circumstantial</b> (attacks the person's situation/interest).</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 6.7 — "Family 3: Presumption" (Sneaky Assumptions) 📖</h3>
+    <p class="hook">These <b>assume something unproven</b> is already true.</p>
+    <table>
+      <tr><th>Fallacy</th><th>What goes wrong</th></tr>
+      <tr><td><b>False Cause</b> (non causa pro causa)</td><td>Assumes X caused Y with <b>no real causal link</b></td></tr>
+      <tr><td><b>Fallacy of Accident</b></td><td>Applies a <b>general rule to a case it doesn't fit</b></td></tr>
+      <tr><td><b>Hasty Generalization</b> (converse accident)</td><td>Big conclusion from <b>too few cases</b></td></tr>
+      <tr><td><b>Begging the Question</b> (petitio principii)</td><td><b>Circular</b> — assumes what it's proving</td></tr>
+      <tr><td><b>Complex Question</b></td><td><b>Many questions in one</b> ("Have you stopped being lazy?")</td></tr>
+    </table>
+    <div class="mnem"><b>🧠 Mnemonic:</b> Presumption = "<b>pre-assume</b>." False cause = "after this, so because of this." Begging the question = the snake eating its own tail. 🐍</div>
+  </div>
+</div>
+</section>
+
+<!-- ============ SEASON 7 ============ -->
+<section id="s7">
+<div class="season">
+  <h2>🌍 SEASON 7 — Philosophy & Human Existence <span class="stag">The "Human" Part</span></h2>
+
+  <div class="ep">
+    <h3>Episode 7.1 — "Born Free, Doomed to Choose" (Existentialism)</h3>
+    <p class="hook">No script. No fate. Just YOU, your choices, and the weight of being responsible for all of it. Welcome to existentialism.</p>
+    <ul>
+      <li><b>Existentialism</b> focuses on <b>human existence</b>, <b>freedom, choice & responsibility</b>, and the <b>search for meaning</b> in life.</li>
+      <li>Champion: <b>Jean-Paul Sartre</b>.</li>
+      <li>Existential questions: "Why am I here?", "What is my purpose?"</li>
+    </ul>
+    <div class="key"><b>Exam links:</b> "Freedom and responsibility" → <b>Existentialism</b>. "Search for meaning in life" → <b>Existential philosophy</b>. "Human existence is central to" → <b>Existentialism</b>.</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 7.2 — "Right, Wrong & the Greater Good" (Ethics & Values)</h3>
+    <ul>
+      <li><b>Ethics</b> (a.k.a. <b>Moral Philosophy</b>) studies <b>right & wrong / human conduct</b>.</li>
+      <li><b>Utilitarianism</b> judges actions by their <b>CONSEQUENCES</b> (greatest good for greatest number).</li>
+      <li><b>Kant / Deontology</b> judges by <b>DUTY</b> (regardless of consequences).</li>
+      <li><b>Human values</b>: honesty, virtue, integrity (philosophy & character molding → <b>virtue</b>).</li>
+    </ul>
+    <div class="mnem"><b>🧠 Mnemonic:</b> "<b>Util</b>itarianism = <b>Out</b>comes (consequences)." "<b>Kant</b> = <b>C</b>an't ignore <b>duty</b>." ⚖️</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 7.3 — "Why Any of This Matters" (Philosophy in Society)</h3>
+    <p class="hook">The finale: what's the POINT of GST 212? The exam literally tells you the answer.</p>
+    <ul>
+      <li><b>The overall goal of GST 212</b> = to develop <b>critical and logical reasoning skills</b>. (Memorize this word-for-word!)</li>
+      <li>Philosophy & <b>education</b> → linked through <b>critical inquiry</b>.</li>
+      <li>Philosophy & <b>religion</b> → differ mainly in <b>critical method</b>; both address <b>ultimate questions</b>.</li>
+      <li>Philosophy & <b>politics</b> → examine <b>power and governance</b>.</li>
+      <li>Philosophy contributes to society through <b>critical analysis</b>.</li>
+    </ul>
+    <div class="warn"><b>⚠️ Almost-guaranteed question:</b> "The overall goal of GST 212 is to develop ___" → <b>Critical and logical reasoning skills.</b></div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 7.4 — "Why Bother?" (Relevance of Logic & Philosophy to Society) 📖 CHAPTER 6</h3>
+    <p class="hook">Your manual's final chapter lists how logic & philosophy actually help humanity. Don't memorize all 9 word-for-word — know the gist so you can spot the right option.</p>
+    <ol>
+      <li>Improves <b>problem-solving</b> abilities</li>
+      <li>Develops <b>expressive & communication</b> skills</li>
+      <li>Sharpens <b>persuasive</b> abilities</li>
+      <li>Improves <b>writing</b> skills</li>
+      <li>Enables <b>objective research</b></li>
+      <li>Helps tackle deep <b>human problems</b> (mind-body, appearance-reality)</li>
+      <li>Helps resolve <b>ethical dilemmas</b> (abortion, euthanasia, surrogacy…)</li>
+      <li>Guides <b>professional/corporate conduct</b> (whistleblowing, Hippocratic oath)</li>
+      <li>Helps us <b>scrutinize cultural beliefs</b> (avoid blind dogmatism)</li>
+    </ol>
+    <div class="key"><b>Big picture:</b> Logic & philosophy turn you from a passive believer into a <b>critical, rational, self-directed thinker</b> — which (say it with me) is <b>the overall goal of GST 212</b>.</div>
+  </div>
+</div>
+</section>
+
+<!-- ============ MNEMONIC VAULT ============ -->
+<section id="mnem">
+<div class="season" style="border-left-color:var(--acc2)">
+  <h2 style="color:var(--acc2)">🧠 THE MNEMONIC VAULT</h2>
+  <p style="color:var(--mut)">All your memory hooks in one place. Screenshot this.</p>
+  <table>
+    <tr><th>To remember...</th><th>Use this</th></tr>
+    <tr><td>Meaning of Philosophy</td><td>Philo (love) + Sophia (wisdom) = <b>Love of Wisdom</b></td></tr>
+    <tr><td>5 Branches of Philosophy</td><td>"<b>My Elephant Loves Apple Eating</b>" = Metaphysics, Epistemology, Logic, Aesthetics, Ethics</td></tr>
+    <tr><td>3 Laws of Thought</td><td>"<b>I Never Eat</b>" = Identity, Non-contradiction, Excluded middle</td></tr>
+    <tr><td>Deduction vs Induction</td><td><b>De</b>scends = general→specific = <b>De</b>finite. <b>In</b>creases = specific→general = probable.</td></tr>
+    <tr><td>Valid vs Sound</td><td><b>SOUND = VALID + TRUE</b> premises (soundsystem needs speaker + music)</td></tr>
+    <tr><td>The 5 "Ad" Fallacies</td><td>"<b>Humble Villagers Must Beg Politicians</b>" = Hominem, Verecundiam, Misericordiam, Baculum, Populum</td></tr>
+    <tr><td>Modus Ponens vs Tollens</td><td><b>P</b>onens <b>P</b>uts forward (affirms antecedent); <b>T</b>ollens <b>T</b>akes away (denies consequent)</td></tr>
+    <tr><td>Rationalism vs Empiricism</td><td><b>R</b>eason vs <b>E</b>xperience (Eyes & Ears)</td></tr>
+    <tr><td>Schools & their guys</td><td>Descartes-Reason · Locke/Hume-Experience · James-Pragmatism · Sartre-Existentialism</td></tr>
+    <tr><td>Plato vs Aristotle schools</td><td>Pl<b>A</b>to → <b>A</b>cademy; Aristotle → <b>L</b>yceum + <b>L</b>ogic</td></tr>
+    <tr><td>2 "Fathers"</td><td>Socrates = father of <b>Western Philosophy</b>; Aristotle = father of <b>Logic</b></td></tr>
+    <tr><td>Theories of Truth</td><td>Cor-<b>FACT</b>, Coh-<b>CONSISTENT</b>, Prag-<b>PRACTICAL</b></td></tr>
+  </table>
+</div>
+</section>
+
+<!-- ============ FLASHCARDS ============ -->
+<section id="flash">
+<div class="season" style="border-left-color:var(--acc4)">
+  <h2 style="color:var(--acc4)">🃏 FLASHCARDS — Tap to Flip</h2>
+  <p style="color:var(--mut)">Click any card to reveal the answer. Go through till every one is instant.</p>
+  <div class="fc-grid" id="fcgrid"></div>
+</div>
+</section>
+
+<!-- ============ CRAM SHEET ============ -->
+<section id="cram">
+<div class="season" style="border-left-color:var(--acc3)">
+  <h2 style="color:var(--acc3)">⚡ THE 1-HOUR CRAM SHEET</h2>
+  <p style="color:var(--mut)">No time? This is the ENTIRE course distilled. Read it 3×.</p>
+  <div class="key">
+  <b>PHILOSOPHY</b> = love of wisdom (Philo+Sophia). Begins with <b>wonder</b>. = critical inquiry. Philosopher = lover of wisdom.<br><br>
+  <b>5 BRANCHES:</b> Metaphysics (reality/being) · Epistemology (knowledge) · Ethics (morality) · Logic (reasoning) · Aesthetics (beauty). Axiology = values. Ontology = being.<br><br>
+  <b>FATHERS:</b> Socrates = father of <b>Western Philosophy</b> (Socratic method, "know thyself", taught Plato). Aristotle = father of <b>Logic</b> (Lyceum, taught by Plato). Plato = Academy + Allegory of the Cave.<br><br>
+  <b>SCHOOLS:</b> Rationalism=reason (Descartes, "I think therefore I am"). Empiricism=senses (Locke, Hume). Pragmatism=utility (William James). Idealism=reality is mental. Materialism=reality is physical. Skepticism=doubts knowledge (opp. of dogmatism). Existentialism=human existence/freedom (Sartre).<br><br>
+  <b>LOGIC:</b> = study of correct reasoning. Argument = premises + conclusion. Inference = conclusion from premises.<br>
+  • <b>Deduction</b>: general→specific, CERTAINTY. <b>Induction</b>: specific→general, PROBABILITY.<br>
+  • <b>Valid</b> = conclusion follows (can have false premises!). <b>Sound</b> = valid + true premises. Opposite of validity = invalidity.<br>
+  • <b>3 Laws of Thought</b>: Identity (A is A) · Non-contradiction (not A & not-A together) · Excluded middle (true or false).<br><br>
+  <b>SYLLOGISM</b> = 3 propositions. Major premise = first. Middle term = in both premises, not conclusion; links major & minor. Enthymeme = incomplete syllogism. Proposition = statement that's true or false.<br><br>
+  <b>SYMBOLIC LOGIC</b> = symbols for statements. <b>Modus Ponens</b> = affirm antecedent (P→Q, P, ∴Q). <b>Modus Tollens</b> = deny consequent (P→Q, ¬Q, ∴¬P).<br><br>
+  <b>FALLACY</b> = error in reasoning. Formal=structure, Informal=content. <b>Ad Hominem</b>=person · <b>Ad Verecundiam</b>=authority · <b>Ad Misericordiam</b>=pity · <b>Ad Baculum</b>=force · <b>Ad Populum</b>=people. Straw man=distort opponent. Hasty generalization=too little evidence. Begging the question=circular. False dilemma=only 2 options.<br><br>
+  <b>TRUTH THEORIES:</b> Correspondence=facts, Coherence=consistency, Pragmatic=utility. Knowledge = Justified True Belief.<br><br>
+  <b>ETHICS:</b> Utilitarianism=consequences. Kant=duty. <b>GOAL OF GST 212</b> = develop critical & logical reasoning skills.<br><br>
+  <b>NATURE OF PHILOSOPHY (3):</b> Criticality, Reconstruction of ideas, Formulation of worldviews. Worldview tests: factual adequacy, logical coherence, explanatory capacity. Scope: first-order (the 4 core branches) vs second-order (philosophy of X). Kant = "queen of the sciences."<br><br>
+  <b>4 METHODS:</b> Analytic (break down), Speculative (whole/unity), Prescriptive (prescribe solutions), Phenomenological (lived experience; Husserl; bracketing/epoché).<br><br>
+  <b>MORE ISMS:</b> Theism=affirms God; Atheism=denies God; Realism=objects exist independent of mind (Aristotle); Idealism=reality is ideas (Plato); Monism=one reality; Dualism=mind+body; Materialism=matter (Epicurus). Berkeley="esse est percipi"; Locke="tabula rasa".<br><br>
+  <b>LANGUAGE:</b> Functions = Informative, Directive, Expressive. Types = Private, Public, Ordinary, Ideal, Artificial.<br><br>
+  <b>5 CONNECTIVES:</b> Conjunction · (and), Disjunction v (or), Conditional ⊃ (if-then), Negation ~ (not), Biconditional ≡ (iff). Variables = lowercase p,q,r; Constants = UPPERCASE.<br><br>
+  <b>CATEGORICAL PROPOSITIONS:</b> A=Universal Affirmative (All S are P), E=Universal Negative (No S is P), I=Particular Affirmative (Some S are P), O=Particular Negative (Some S are not P). Analytic=true by reason; Synthetic=true by experience. Premise indicators: because/since/for. Conclusion indicators: therefore/thus/hence. 3 deductive syllogisms: Categorical, Disjunctive, Hypothetical.<br><br>
+  <b>FALLACY FAMILIES (informal):</b> ① <b>Ambiguity</b> (Equivocation, Amphiboly, Accent, Composition, Division) ② <b>Relevance</b> (ad Baculum/force, ad Hominem/person, ad Verecundiam/authority, ad Misericordiam/pity, ad Populum/people, ad Ignorantiam/ignorance, Ignoratio Elenchi/missing point) ③ <b>Presumption</b> (False cause, Accident, Hasty generalization, Begging the question, Complex question). Formal fallacies: Undistributed Middle, Illicit Major/Minor, Existential.
+  </div>
+</div>
+</section>
+
+<!-- ============ TIPS ============ -->
+<section id="tips">
+<div class="season" style="border-left-color:var(--acc)">
+  <h2>🏃 FAST-READING & CBT EXAM TIPS</h2>
+  <div class="ep">
+    <h3>⚡ Speed-Reading This Guide</h3>
+    <ul>
+      <li><b>Bold-only pass:</b> First read ONLY the bold words. Your brain stitches the rest. Covers 80% in 20% of the time.</li>
+      <li><b>Table focus:</b> Every table here = a question cluster. Master tables first.</li>
+      <li><b>Teach it back:</b> After each season, explain it out loud to your pillow in 30 seconds. If you can't, re-read.</li>
+      <li><b>Spaced repetition:</b> Flashcards now, again in 2 hours, again before sleep. 3 hits = locked in.</li>
+    </ul>
+  </div>
+  <div class="ep">
+    <h3>🖥️ CBT Exam Strategy</h3>
+    <ul>
+      <li><b>Easy-first sweep:</b> Answer the ones you KNOW instantly first. Flag the rest. Don't let one hard Q eat your time.</li>
+      <li><b>Keyword spotting:</b> The answer is usually the option with the matching keyword (e.g. "beauty"→Aesthetics, "person"→Ad Hominem). Train this with the flashcards.</li>
+      <li><b>Eliminate the silly options:</b> GST MCQs always have 1–2 joke answers (Agriculture, Farming, Astronomy). Cross them out → 50/50 instantly.</li>
+      <li><b>Watch "NOT/EXCEPT":</b> Read every question twice for negatives.</li>
+      <li><b>No blanks:</b> Wrong ≠ penalty in most CBTs. Never leave any question unanswered — guess if you must.</li>
+      <li><b>Trust your first instinct</b> unless you find a clear reason to change.</li>
+    </ul>
+  </div>
+</div>
+</section>
+
+<!-- ============ EXAM ============ -->
+<section id="exam">
+<div class="season" style="border-left-color:var(--acc3)">
+  <h2 style="color:var(--acc3)">📝 THE FINAL BOSS — Mock Exam (50 Questions)</h2>
+  <p style="color:var(--mut)">Q1–40 are real questions from your MUBY & LAUTECH banks; Q41–50 are from your course manual. Pick an answer for each, then hit <b>Submit</b> to auto-score. Aim for 45+/50. Retake until you crush it.</p>
+  <div id="exambox"></div>
+  <div style="text-align:center"><button class="exambtn" onclick="grade()">✅ Submit & Score Me</button></div>
+  <div id="score"></div>
+</div>
+</section>
+
+<!-- ============ RESOURCES ============ -->
+<section id="res">
+<div class="season" style="border-left-color:var(--acc2)">
+  <h2 style="color:var(--acc2)">📺 YOUTUBE CHANNELS & 📚 BOOK RESOURCES</h2>
+  <div class="ep">
+    <h3>📺 YouTube (watch at 1.5× speed)</h3>
+    <ul>
+      <li><b>CrashCourse — Philosophy</b> (Hank Green): 46 short, fun episodes. Search "Crash Course Philosophy #1". Best for branches, ethics, epistemology.</li>
+      <li><b>Wireless Philosophy (Wi-Phi):</b> Search "Wireless Philosophy fallacies" and "...critical thinking" — superb on logic & fallacies.</li>
+      <li><b>TED-Ed — Philosophy & Logic playlists:</b> 5-min animated gems (search "TED-Ed logical fallacies", "TED-Ed Plato's cave").</li>
+      <li><b>The School of Life:</b> Great quick bios of Socrates, Plato, Aristotle, Descartes, Sartre, Kant.</li>
+      <li><b>Search directly:</b> "Deductive vs Inductive reasoning", "Modus Ponens Modus Tollens explained", "Square of opposition", "GST 212 Nigeria past questions".</li>
+    </ul>
+  </div>
+  <div class="ep">
+    <h3>📚 Books / Notes</h3>
+    <ul>
+      <li>Your <b>school course manual</b> — "Logic, Philosophy and Human Existence" (the primary source; this guide is built to match it).</li>
+      <li><b>Irving Copi — "Introduction to Logic"</b> (the classic for arguments, syllogisms, fallacies).</li>
+      <li><b>Nigerian GST/GNS Logic & Philosophy textbooks</b> (e.g. NOUN GST course material on Logic & Human Existence — free PDF online).</li>
+      <li><b>Simon Blackburn — "Think"</b> (very readable intro to all the big ideas).</li>
+      <li>"Philosophy 101 / A Little History of Philosophy" (Nigel Warburton) — easy and fun.</li>
+    </ul>
+  </div>
+  <div class="key">
+    <b>🎓 Final words:</b> You're not confused anymore — you're prepared. Do the mock exam twice, sleep well, and walk in like you own the hall. The patterns repeat. You've seen them all. Go get that A. 🏆🔥
+  </div>
+</div>
+</section>
+
+</main>
+</div>
+<button class="totop" id="totop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+/* ---------- Flashcards ---------- */
+const cards=[
+["Philosophy literally means?","Love of Wisdom (Philo + Sophia)"],
+["'Sophia' means?","Wisdom"],
+["A philosopher is?","A lover of wisdom"],
+["Philosophy begins with?","Wonder"],
+["Philosophy is primarily concerned with?","Critical inquiry"],
+["Branch studying reality/existence?","Metaphysics"],
+["Branch studying knowledge?","Epistemology"],
+["Branch studying morality?","Ethics (Moral Philosophy)"],
+["Branch studying correct reasoning?","Logic"],
+["Branch studying beauty & art?","Aesthetics"],
+["Study of values?","Axiology"],
+["Study of being/existence?","Ontology"],
+["Father of Western Philosophy?","Socrates"],
+["Father of Logic?","Aristotle"],
+["Socratic method involves?","Questioning / dialogue"],
+["'Know thyself' / 'unexamined life' — who?","Socrates"],
+["Who founded the Academy?","Plato"],
+["Who founded the Lyceum?","Aristotle"],
+["Allegory of the Cave — who?","Plato"],
+["Aristotle was a student of?","Plato"],
+["'I think, therefore I am' — who?","Descartes"],
+["Descartes is associated with?","Rationalism"],
+["Locke & Hume are associated with?","Empiricism"],
+["William James — which school?","Pragmatism"],
+["Jean-Paul Sartre — which school?","Existentialism"],
+["Rationalism emphasizes?","Reason"],
+["Empiricism emphasizes?","Sense experience"],
+["Pragmatism judges truth by?","Utility / what works"],
+["Idealism: reality is fundamentally?","Mental"],
+["Materialism: reality is fundamentally?","Physical"],
+["Skepticism does what?","Questions/doubts knowledge claims"],
+["Opposite of skepticism?","Dogmatism"],
+["An argument consists of?","Premises and a conclusion"],
+["An inference is?","A conclusion derived from premises"],
+["Deductive reasoning moves?","General → Specific (certainty)"],
+["Inductive reasoning moves?","Specific → General (probability)"],
+["A valid argument?","Conclusion follows logically"],
+["A sound argument?","Valid + true premises"],
+["Can a valid argument have false premises?","Yes!"],
+["Law: 'A is A'?","Law of Identity"],
+["Law: can't be A and not-A at once?","Non-contradiction"],
+["Law: every statement true or false?","Excluded Middle"],
+["A syllogism contains how many propositions?","Three"],
+["Middle term appears where?","In both premises, not the conclusion"],
+["Incomplete syllogism is called?","Enthymeme"],
+["Modus Ponens =?","Affirming the antecedent"],
+["Modus Tollens =?","Denying the consequent"],
+["A fallacy is?","An error in reasoning"],
+["Ad Hominem attacks?","The person"],
+["Appeal to authority?","Ad Verecundiam"],
+["Appeal to pity?","Ad Misericordiam"],
+["Appeal to force?","Ad Baculum"],
+["Appeal to the people?","Ad Populum"],
+["Straw man fallacy?","Distorting opponent's position"],
+["Circular reasoning is also called?","Begging the question"],
+["Knowledge is defined as?","Justified True Belief"],
+["Goal of GST 212?","Develop critical & logical reasoning skills"],
+["3 natures of philosophy?","Criticality, Reconstruction, Worldview-formulation"],
+["4 methods of philosophy?","Analytic, Speculative, Prescriptive, Phenomenological"],
+["Founder of phenomenology?","Edmund Husserl (bracketing / epoché)"],
+["Kant called philosophy the?","Queen of the Sciences"],
+["Metaphysics = meta + phusis means?","Study beyond the physical (being qua being)"],
+["Ontology vs Cosmology?","Ontology = being; Cosmology = the universe"],
+["'Tabula rasa' (blank slate) — who?","John Locke (empiricism)"],
+["'Esse est percipi' — who?","George Berkeley"],
+["Realism's champion?","Aristotle"],
+["Monism vs Dualism?","One reality vs Two (physical + spiritual)"],
+["Theism vs Atheism?","Affirms God vs Denies God"],
+["3 functions of language?","Informative, Directive, Expressive"],
+["5 logical connectives?","And(·), Or(v), If-then(⊃), Not(~), Iff(≡)"],
+["Conditional 'if…then' symbol?","Horseshoe ⊃"],
+["A / E / I / O propositions?","Univ. Affirmative / Univ. Negative / Part. Affirmative / Part. Negative"],
+["Analytic vs Synthetic proposition?","True by reason vs verified by experience"],
+["Premise indicators?","because, since, as, for"],
+["Conclusion indicators?","therefore, thus, hence, consequently"],
+["3 deductive syllogism types?","Categorical, Disjunctive, Hypothetical"],
+["3 families of informal fallacy?","Ambiguity, Relevance, Presumption"],
+["Word shifts meaning = which fallacy?","Equivocation"],
+["Parts→whole fallacy?","Composition (Division = whole→parts)"],
+["Appeal to ignorance?","Ad Ignorantiam"],
+["An assertion is?","A claim with no supporting premise (not an argument)"]
+];
+const grid=document.getElementById('fcgrid');
+cards.forEach((c,i)=>{
+  const d=document.createElement('div');d.className='fc';
+  d.innerHTML=`<div class="fc-inner"><div class="fc-front">${c[0]}<small>tap</small></div><div class="fc-back">${c[1]}</div></div>`;
+  d.onclick=()=>d.classList.toggle('flip');
+  grid.appendChild(d);
+});
+
+/* ---------- Mock Exam ---------- */
+const exam=[
+["Philosophy literally means:",["Love of science","Love of wisdom","Love of knowledge","Love of education"],1],
+["The Greek word 'Sophia' means:",["Truth","Wisdom","Logic","Knowledge"],1],
+["Who is regarded as the father of Western Philosophy?",["Plato","Aristotle","Socrates","Pythagoras"],2],
+["The branch of philosophy that studies reality is:",["Ethics","Epistemology","Metaphysics","Logic"],2],
+["Epistemology is the study of:",["Knowledge","Beauty","Reality","Government"],0],
+["Ethics deals with:",["Reasoning","Morality","Reality","Politics"],1],
+["Logic is the study of:",["Beauty","Government","Correct reasoning","Religion"],2],
+["Aesthetics is concerned with:",["Beauty and art","Knowledge","Reality","Morality"],0],
+["The study of values is known as:",["Axiology","Logic","Theology","Sociology"],0],
+["An argument consists of:",["Premises and conclusion","Opinion and facts","Belief and faith","Questions and answers"],0],
+["A deductive argument aims at:",["Probability","Certainty","Assumption","Guesswork"],1],
+["Inductive reasoning moves from:",["General to specific","Specific to general","Conclusion to premise","Theory to theory"],1],
+["Deductive reasoning moves from:",["Specific to general","General to specific","Fact to opinion","Opinion to fact"],1],
+["A valid argument is one in which:",["Premises are false","Conclusion follows logically","Conclusion is emotional","Premises are lengthy"],1],
+["A sound argument is:",["Valid with true premises","Invalid with true premises","Valid with false premises","Emotional argument"],0],
+["The law of identity states that:",["A is A","A is not A","A and not A","None of the above"],0],
+["The law of non-contradiction states:",["A is A","A cannot be A and not A simultaneously","Everything changes","Truth is relative"],1],
+["The law of excluded middle states:",["Every statement is either true or false","Truth is uncertain","Contradictions are allowed","Knowledge is impossible"],0],
+["A syllogism contains:",["Four propositions","Three propositions","Two conclusions","Five premises"],1],
+["'All men are mortal; Socrates is a man; therefore Socrates is mortal' is a:",["Induction","Analogy","Syllogism","Fallacy"],2],
+["A proposition is:",["A question","A command","A statement capable of truth or falsity","An exclamation"],2],
+["Modus Ponens means:",["Denying antecedent","Affirming antecedent","Denying conclusion","Affirming conclusion"],1],
+["Modus Tollens involves:",["Affirming consequent","Denying consequent","Denying premise","Questioning premise"],1],
+["Ad Hominem attacks:",["The evidence","The person","The conclusion","The premise"],1],
+["Appeal to authority is:",["Argumentum ad verecundiam","Ad populum","Ad baculum","Ad misericordiam"],0],
+["Appeal to pity is:",["Ad hominem","Ad misericordiam","Ad populum","Ad baculum"],1],
+["Appeal to force is:",["Ad misericordiam","Ad baculum","Ad hominem","Ad populum"],1],
+["Appeal to the people is:",["Ad populum","Ad baculum","Ad verecundiam","Ad hominem"],0],
+["A straw man fallacy involves:",["Distorting an opponent's position","Using statistics","Valid deduction","Observation"],0],
+["Rationalism emphasizes:",["Experience","Reason","Emotion","Tradition"],1],
+["Empiricism emphasizes:",["Intuition","Revelation","Sense experience","Faith"],2],
+["'I think, therefore I am' was stated by:",["Aristotle","Socrates","Descartes","Kant"],2],
+["Metaphysics studies:",["Reality and existence","Language","Economics","Politics"],0],
+["Existentialism focuses on:",["Human existence","Mathematics","Agriculture","Astronomy"],0],
+["Jean-Paul Sartre is associated with:",["Pragmatism","Existentialism","Empiricism","Rationalism"],1],
+["The father of logic is often regarded as:",["Aristotle","Socrates","Plato","Kant"],0],
+["'Know thyself' is associated with:",["Socrates","Plato","Aristotle","Descartes"],0],
+["The philosopher associated with the Allegory of the Cave is:",["Plato","Aristotle","Hume","Locke"],0],
+["Knowledge is traditionally defined as:",["True belief","Justified true belief","Opinion","Intuition"],1],
+["The overall goal of GST 212 is to develop:",["Critical and logical reasoning skills","Political power","Financial wealth","Physical strength"],0],
+["The phenomenological method was founded by:",["Edmund Husserl","René Descartes","Jean-Paul Sartre","Immanuel Kant"],0],
+["Which is NOT one of the manual's 4 traditional/core branches?",["Metaphysics","Aesthetics","Ethics","Logic"],1],
+["'To be is to be perceived' (esse est percipi) is associated with:",["George Berkeley","John Locke","David Hume","Plato"],0],
+["The idea of the mind at birth as a 'tabula rasa' (blank slate) is from:",["René Descartes","John Locke","Jean-Paul Sartre","Aristotle"],1],
+["Kant referred to philosophy as the:",["Queen of the sciences","King of the arts","Mother of logic","Father of truth"],0],
+["A word that shifts meaning within an argument commits the fallacy of:",["Equivocation","Amphiboly","Accent","Composition"],0],
+["Attributing the property of the parts to the whole is the fallacy of:",["Composition","Division","Accident","Accent"],0],
+["The connective 'if and only if' is symbolized by the:",["Triple bar (≡)","Dot (·)","Tilde (~)","Wedge (v)"],0],
+["An 'A' categorical proposition is a:",["Universal affirmative","Universal negative","Particular affirmative","Particular negative"],0],
+["Realism — that objects exist independent of the mind — is associated with:",["Aristotle","Plato","Berkeley","Hume"],0]
+];
+const box=document.getElementById('exambox');
+exam.forEach((q,i)=>{
+  let opts=q[1].map((o,j)=>`<label><input type="radio" name="q${i}" value="${j}">${String.fromCharCode(65+j)}. ${o}</label>`).join('');
+  box.innerHTML+=`<div class="q" id="q${i}"><div class="qt">${i+1}. ${q[0]}</div>${opts}</div>`;
+});
+function grade(){
+  let s=0;
+  exam.forEach((q,i)=>{
+    const qd=document.getElementById('q'+i);
+    qd.classList.remove('correct','wrong');
+    const labels=qd.querySelectorAll('label');
+    labels.forEach(l=>l.classList.remove('sel','ans'));
+    labels[q[2]].classList.add('ans');
+    const ch=qd.querySelector('input:checked');
+    if(ch){
+      const v=+ch.value; ch.parentElement.classList.add('sel');
+      if(v===q[2]){s++;qd.classList.add('correct');}else{qd.classList.add('wrong');}
+    }else{qd.classList.add('wrong');}
+  });
+  const sc=document.getElementById('score');
+  const pct=Math.round(s/exam.length*100);
+  let msg,col;
+  if(pct>=90){msg="🏆 EXAM-READY! You're going to crush this.";col="var(--good)";}
+  else if(pct>=70){msg="💪 Strong! Review the red ones and retake.";col="var(--acc)";}
+  else if(pct>=50){msg="📚 Getting there — re-read the seasons, then retry.";col="var(--acc4)";}
+  else{msg="🔁 Don't panic. Read the Cram Sheet + flashcards, then come back.";col="var(--bad)";}
+  sc.style.display="block";sc.style.background="rgba(255,255,255,.04)";sc.style.color=col;
+  sc.innerHTML=`You scored <b>${s}/${exam.length}</b> (${pct}%)<br><span style="font-size:16px">${msg}</span>`;
+  sc.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+/* ---------- Progress bar, active nav, to-top ---------- */
+const prog=document.getElementById('prog'),totop=document.getElementById('totop');
+const links=[...document.querySelectorAll('.side a')];
+const secs=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement,st=h.scrollTop,sh=h.scrollHeight-h.clientHeight;
+  prog.style.width=(st/sh*100)+'%';
+  totop.style.display=st>500?'flex':'none';
+  let cur=secs[0];
+  secs.forEach(s=>{if(s.getBoundingClientRect().top<140)cur=s;});
+  links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur.id));
+});
+</script>
+</body>
+</html>
