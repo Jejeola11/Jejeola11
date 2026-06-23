@@ -77,10 +77,10 @@ h2.display{font-size:clamp(28px,4.5vw,46px)}
 .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
 .brand{display:flex;align-items:center;gap:10px;font-family:"Bricolage Grotesque";font-weight:800;font-size:20px;letter-spacing:-.01em}
 .brand .dot{
-  width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
-  background:linear-gradient(135deg,var(--gold),var(--gold-deep));
-  color:#1a1205;font-weight:800;font-family:"Bricolage Grotesque";font-size:16px;
-  box-shadow:0 6px 18px rgba(231,194,92,.35);
+  width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
+  background:url('/app/icons/icon-192.png') center/cover no-repeat;
+  color:transparent;font-size:0;
+  box-shadow:0 6px 18px rgba(231,194,92,.30);
 }
 .nav-links{display:flex;align-items:center;gap:22px}
 .nav-links a{color:var(--muted);font-weight:600;font-size:14px}
@@ -401,6 +401,37 @@ textarea{min-height:104px;resize:vertical}
 .result video{border-radius:14px;max-height:560px;width:auto;box-shadow:var(--shadow)}
 
 
+/* labeled video tiles (landing "one simple app") */
+.vtile{margin:0}
+.vtile video{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:var(--radius);border:1px solid var(--line);background:#000;display:block}
+.vtile figcaption{text-align:center;font-size:12px;color:var(--muted);margin-top:7px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+
+/* ============================================================
+   MOBILE polish — tame oversized buttons & type on phones
+   ============================================================ */
+@media (max-width:600px){
+  .wrap{padding:0 16px}
+  section{padding:34px 0}
+  .btn{padding:11px 16px;font-size:14px}
+  .btn.sm{padding:7px 12px;font-size:12.5px}
+  h1.display{font-size:clamp(30px,8.5vw,46px)}
+  h2.display{font-size:clamp(23px,6vw,32px)}
+  .hero,.lhero{padding:30px 0 14px}
+  .hero p.lede,.lhero .lede{font-size:15px}
+  .promobar{font-size:11px;gap:6px;padding:7px 10px}
+  .nav .wrap{height:56px}
+  .brand{font-size:17px}
+  .topbar .in{height:56px;gap:8px}
+  .pill{font-size:11.5px;padding:5px 10px}
+  .tiles{grid-template-columns:repeat(2,1fr);gap:10px}
+  .prices{grid-template-columns:1fr}
+  .price .amt{font-size:28px}
+  .cmp th,.cmp td{font-size:12.5px;padding:9px 6px}
+  .app-shell{padding:0 14px 110px}
+  .studio-head h2{font-size:18px}
+  textarea,input,select{font-size:16px}  /* prevents iOS zoom-on-focus */
+}
+
 </style>
 <script>
 // ============================================================
@@ -560,11 +591,14 @@ window.FUSE = {
     <div class="shead"><h2>Studios</h2></div>
     <div class="tools" id="toolGrid"></div>
 
-    <div class="shead"><h2>✨ See what's possible</h2></div>
+    <div class="shead"><h2>✨ Made with Fuse Studio</h2></div>
     <div class="showrow">
-      <div class="showcard wide"><video src="/app/media/movie.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🎬 Movie Studio</div></div>
-      <div class="showcard"><video src="/app/media/ugc.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">📣 UGC Creator</div></div>
-      <div class="showcard"><video src="/app/media/avatar.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🧑‍🎨 AI Avatar</div></div>
+      <div class="showcard wide"><video src="/app/media/movie.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🎬 Detective film</div></div>
+      <div class="showcard"><video src="/app/media/ugc.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">📣 UGC product ad</div></div>
+      <div class="showcard"><video src="/app/media/fashion.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🖼 Fashion shoot</div></div>
+      <div class="showcard"><video src="/app/media/avatar-tile.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🧑‍🎨 AI presenter</div></div>
+      <div class="showcard"><video src="/app/media/avatar.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🗣 AI avatar</div></div>
+      <div class="showcard"><video src="/app/media/avatar2.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🗣 Talking avatar</div></div>
     </div>
 
     <div class="shead"><h2>🇳🇬 Naija packs</h2></div>

@@ -3,8 +3,11 @@ const { createClient } = require('@supabase/supabase-js');
 
 // Service-role client: full DB access, server-only. Never expose this key.
 function admin() {
+  // Be forgiving if SUPABASE_URL was pasted with a trailing slash or /rest/v1.
+  let url = (process.env.SUPABASE_URL || '').trim();
+  url = url.replace(/\/+$/, '').replace(/\/rest\/v1$/, '').replace(/\/+$/, '');
   return createClient(
-    process.env.SUPABASE_URL,
+    url,
     process.env.SUPABASE_SERVICE_ROLE_KEY,
     { auth: { persistSession: false, autoRefreshToken: false } }
   );
