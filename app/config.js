@@ -58,13 +58,13 @@ window.FUSE = {
     { slug: 'hidream_i1_full_image', name: 'HiDream',        badge: 'HiDream',   credits: 8,  sample: '' },
   ],
   VIDEO_MODELS: [
-    { slug: 'seedance-2-mini-text-to-video',        name: 'Seedance 2 Mini', badge: 'Fast',     credits: 38, sample: '' },
-    { slug: 'seedance-2-text-to-video',             name: 'Seedance 2',      badge: 'ByteDance', credits: 63, sample: '' },
-    { slug: 'seedance-2-vip-text-to-video',         name: 'Seedance 2 VIP',  badge: '4K bitrate', credits: 75, sample: '' },
+    { slug: 'grok-imagine-text-to-video',           name: 'Grok Imagine',    badge: 'Cheapest',  credits: 19, sample: '' },
+    { slug: 'seedance-2-mini-text-to-video',        name: 'Seedance 2 Mini', badge: 'Fast',      credits: 50, sample: '' },
     { slug: 'kling-v3-turbo-standard-text-to-video', name: 'Kling Turbo',    badge: 'Kuaishou',  credits: 70, sample: '' },
+    { slug: 'seedance-2-text-to-video',             name: 'Seedance 2',      badge: 'ByteDance', credits: 75, sample: '' },
     { slug: 'kling-v3-turbo-pro-text-to-video',     name: 'Kling Turbo Pro', badge: 'Kuaishou',  credits: 88, sample: '' },
-    { slug: 'grok-imagine-text-to-video',           name: 'Grok Imagine',    badge: 'xAI',       credits: 80, sample: '' },
-    { slug: 'veo3-text-to-video',                   name: 'Veo 3',           badge: 'Google',    credits: 100, sample: '' },
+    { slug: 'veo3-text-to-video',                   name: 'Veo 3',           badge: 'Google',    credits: 150, sample: '' },
+    { slug: 'seedance-2-vip-text-to-video',         name: 'Seedance 2 VIP',  badge: '4K · premium', credits: 188, sample: '' },
   ],
   TOOL_MODELS: [
     { slug: 'ai-image-upscale',      name: 'Image Upscale',     badge: 'Enhance', credits: 5,  sample: '' },

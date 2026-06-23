@@ -14,7 +14,7 @@ const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 async function muapiVideo({ model, prompt, aspect, duration, resolution, image_url }) {
   const key = process.env.MUAPI_KEY;
   const payload = { prompt, aspect_ratio: aspect, duration, resolution };
-  if (image_url) payload.image_url = image_url; // image-to-video
+  if (image_url) payload.images_list = [image_url]; // image-to-video expects an array
   const submit = await fetch(`${MUAPI_BASE}/${model}`, {
     method: 'POST',
     headers: { 'x-api-key': key, 'Content-Type': 'application/json' },

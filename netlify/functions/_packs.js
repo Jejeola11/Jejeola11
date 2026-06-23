@@ -64,14 +64,14 @@ const IMAGE_COST = {
   'google-imagen4-ultra': 0.06,
   'hidream_i1_full_image': 0.03,
 };
-const VIDEO_COST = {        // t2v + matching i2v variants (verified)
-  'seedance-2-text-to-video': 0.50,            'seedance-2-image-to-video': 0.50,
-  'seedance-2-vip-text-to-video': 0.60,        'seedance-2-vip-image-to-video': 0.60,
-  'seedance-2-mini-text-to-video': 0.30,       'seedance-2-mini-image-to-video': 0.30,
-  'kling-v3-turbo-pro-text-to-video': 0.70,    'kling-v3-turbo-pro-image-to-video': 0.70,
+const VIDEO_COST = {        // real MuAPI $ cost (seedance-vip + grok verified live; others conservative)
+  'seedance-2-mini-text-to-video': 0.40,       'seedance-2-mini-image-to-video': 0.40,
+  'seedance-2-text-to-video': 0.60,            'seedance-2-image-to-video': 0.60,
+  'seedance-2-vip-text-to-video': 1.50,        'seedance-2-vip-image-to-video': 1.50,
   'kling-v3-turbo-standard-text-to-video': 0.56, 'kling-v3-turbo-standard-image-to-video': 0.56,
-  'grok-imagine-text-to-video': 0.64,          'grok-imagine-image-to-video': 0.64,
-  'veo3-text-to-video': 0.80,                  'veo3-image-to-video': 0.80,
+  'kling-v3-turbo-pro-text-to-video': 0.70,    'kling-v3-turbo-pro-image-to-video': 0.70,
+  'grok-imagine-text-to-video': 0.15,          'grok-imagine-image-to-video': 0.15,
+  'veo3-text-to-video': 1.20,                  'veo3-image-to-video': 1.20,
 };
 const TOOL_COST = {         // utility tools (take an input image -> output)
   'ai-image-upscale': 0.02,
