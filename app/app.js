@@ -20,6 +20,8 @@ let refUrls = [];   // optional image reference(s) for the main generator (multi
 const naira = (n) => '₦' + Number(n).toLocaleString();
 const usd = (n) => '$' + Math.round(n / cfg.USD_RATE);
 const price = (n) => (showUsd ? usd(n) : naira(n));
+// Download via our proxy so it saves the file directly (no new browser tab).
+const dlHref = (u) => `/.netlify/functions/download?url=${encodeURIComponent(u)}&name=fuse-${Date.now()}`;
 
 async function authHeader() {
   const { data } = await sb.auth.getSession();
@@ -118,7 +120,7 @@ async function videoGenerate() {
     else {
       lastOutput = data.url;
       $('creditCount').textContent = data.credits;
-      $('vResult').innerHTML = `<div><video src="${data.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
+      $('vResult').innerHTML = `<div><video src="${data.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><a class="btn gold sm" href="${dlHref(data.url)}" download>⬇ Download</a></div></div>`;
       note('vNote', 'Done ✅', 'ok');
     }
   } catch (e) { clearInterval(iv); $('vResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('vNote', e.message || 'Failed — credits not charged.', 'err'); }
@@ -218,7 +220,7 @@ async function generate() {
     else {
       lastOutput = data.url;
       $('creditCount').textContent = data.credits;
-      $('result').innerHTML = `<div><img src="${data.url}" alt="result"><div style="margin-top:12px"><a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
+      $('result').innerHTML = `<div><img src="${data.url}" alt="result"><div style="margin-top:12px"><a class="btn gold sm" href="${dlHref(data.url)}" download>⬇ Download</a></div></div>`;
       note('genNote', 'Done ✅', 'ok');
     }
   } catch (e) { clearInterval(iv); $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); }
@@ -421,7 +423,7 @@ async function avatarGenerate() {
     else {
       lastOutput = data.url;
       $('creditCount').textContent = data.credits;
-      $('avResult').innerHTML = `<div><img src="${data.url}" alt="avatar"><div style="margin-top:12px"><a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
+      $('avResult').innerHTML = `<div><img src="${data.url}" alt="avatar"><div style="margin-top:12px"><a class="btn gold sm" href="${dlHref(data.url)}" download>⬇ Download</a></div></div>`;
       note('avGenNote', 'Done ✅', 'ok');
     }
   } catch (e) { $('avResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('avGenNote', e.message || 'Failed — credits not charged.', 'err'); }
@@ -642,7 +644,7 @@ async function runTool() {
     else if (!res.ok) throw new Error(data.error || 'Failed');
     else {
       $('creditCount').textContent = data.credits;
-      $('toolResult').innerHTML = `<div><img src="${data.url}"><div style="margin-top:12px"><a class="btn gold sm" href="${data.url}" target="_blank" download>⬇ Download</a></div></div>`;
+      $('toolResult').innerHTML = `<div><img src="${data.url}"><div style="margin-top:12px"><a class="btn gold sm" href="${dlHref(data.url)}" download>⬇ Download</a></div></div>`;
       note('toolNote', 'Done ✅', 'ok');
     }
   } catch (e) { $('toolResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('toolNote', e.message || 'Failed — credits not charged.', 'err'); }
