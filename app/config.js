@@ -96,11 +96,11 @@ window.FUSE = {
 
   // Rotating promo pop-up (the Higgsfield-style effect).
   PROMO: {
-    title: 'Founding Member Offer',
-    body: 'Get 27 days of Studio Pro + the Fuse Atelier course bundle. Limited launch pricing.',
-    cta: 'Claim the offer',
-    pack: 'course',
-    hours: 24, // countdown length
+    title: '🔥 Founding Offer — First 50 only',
+    body: 'The first 50 members get DOUBLE credits on any plan — a one-time founding bonus. Get in early.',
+    cta: 'Claim 2× credits',
+    pack: 'pro_mo',
+    hours: 48, // countdown length
   },
 
   // 🇳🇬 Naija template packs — your local moat. Each loads a tuned prompt.

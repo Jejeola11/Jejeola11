@@ -245,7 +245,7 @@ function buildHome() {
     `<div class="lab">⏳ ${pr.title}</div><h3>${pr.body}</h3>
      <button class="btn gold sm" id="promoBannerCta">${pr.cta}</button>
      <span class="countdown" id="bannerCountdown"></span>`;
-  $('promoBannerCta').onclick = () => { location.href = '/atelier'; };
+  $('promoBannerCta').onclick = () => openBuy();
   startCountdown('bannerCountdown', pr.hours);
 }
 
@@ -916,7 +916,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('buyClose').onclick = () => $('buyOverlay').style.display = 'none';
   $('curToggle').onclick = () => { showUsd = !showUsd; renderPacks(); };
   $('promoClose').onclick = () => $('promoOverlay').style.display = 'none';
-  $('promoCta').onclick = () => { location.href = '/atelier'; };
+  $('promoCta').onclick = () => { $('promoOverlay').style.display = 'none'; openBuy(); };
   $('contentSubmit').onclick = submitContent;
   $('payoutBtn').onclick = requestPayout;
   $('copyRef').onclick = () => { navigator.clipboard.writeText($('refLink').value); $('copyRef').textContent = 'Copied!'; setTimeout(() => $('copyRef').textContent = 'Copy', 1500); };

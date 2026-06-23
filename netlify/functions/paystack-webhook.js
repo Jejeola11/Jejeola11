@@ -48,8 +48,15 @@ exports.handler = async (event) => {
     .from('payments').select('id').eq('reference', reference).maybeSingle();
   if (existing) return { statusCode: 200, body: 'already processed' };
 
-  // 3) Credit the user.
-  await db.rpc('add_credits', { uid: userId, amount: pack.credits, why: 'purchase' });
+  // 3) Credit the user — first 50 paying members get a one-time 2x bonus.
+  let credits = pack.credits;
+  let founding = false;
+  try {
+    const { data } = await db.rpc('claim_founding', { uid: userId });
+    founding = !!data;
+  } catch (e) {}
+  if (founding) credits *= 2;
+  await db.rpc('add_credits', { uid: userId, amount: credits, why: founding ? 'founding_2x' : 'purchase' });
 
   // 4) Subscription packs also extend plan access by 30 days.
   if (pack.kind === 'sub') {
@@ -63,7 +70,7 @@ exports.handler = async (event) => {
     reference,
     amount_naira: amountNaira,
     pack: meta.pack,
-    credits_added: pack.credits,
+    credits_added: credits,
     status: 'success',
     raw: d,
   });
