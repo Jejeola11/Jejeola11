@@ -38,6 +38,16 @@ async function downloadFile(url) {
 }
 window.fuseDownload = downloadFile;
 
+// In-app lightbox preview (no new browser tab).
+let lbUrl = '';
+window.fuseLightbox = (url, type) => {
+  lbUrl = url;
+  document.getElementById('lbContent').innerHTML = (type === 'video')
+    ? `<video src="${url}" controls autoplay loop playsinline style="max-width:92vw;max-height:74vh;border-radius:14px"></video>`
+    : `<img src="${url}" style="max-width:92vw;max-height:74vh;border-radius:14px">`;
+  document.getElementById('lightbox').style.display = 'grid';
+};
+
 async function authHeader() {
   const { data } = await sb.auth.getSession();
   const t = data.session && data.session.access_token;
@@ -185,7 +195,7 @@ function openStudio(key) {
   if (key === 'market') { showView('market'); loadMarket(); return; }
   if (key === 'learn') { showView('learn'); buildLessons(); return; }
   if (key === 'avatar') { showView('avatar'); loadAvatars(); return; }
-  if (key === 'promptgen') { showView('promptgen'); return; }
+  if (key === 'promptgen') { buildPromptFields(); showView('promptgen'); return; }
   activeStudio = cfg.STUDIOS.find((s) => s.key === key) || cfg.STUDIOS[0];
   $('studioIcon').textContent = activeStudio.icon;
   $('studioName').textContent = activeStudio.name;
@@ -329,9 +339,9 @@ async function loadLibrary() {
   if (!data || !data.length) { g.innerHTML = '<div class="empty" style="grid-column:1/-1">Nothing here yet — create something ✨</div>'; return; }
   g.innerHTML = data.map((x) => {
     const media = x.type === 'video'
-      ? `<video src="${x.output_url}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()"></video>`
+      ? `<video src="${x.output_url}" muted loop playsinline></video>`
       : `<img src="${x.output_url}">`;
-    return `<div class="projitem">${media}<button class="dlbtn" onclick="fuseDownload('${x.output_url}')">⬇</button></div>`;
+    return `<div class="projitem" onclick="fuseLightbox('${x.output_url}','${x.type}')">${media}</div>`;
   }).join('');
 }
 async function loadRecent() {
@@ -499,13 +509,23 @@ async function avatarGenerate() {
 }
 
 // ---------------- prompt generator (charged, 1 credit) ----------------
+function buildPromptFields() {
+  if ($('pgFields').children.length) return;
+  $('pgFields').innerHTML = cfg.PROMPT_ORDER.map((k) => {
+    const f = cfg.PROMPT_LIB[k];
+    const opts = f.opts.map((o, i) => `<option value="${i}">${o[0]}</option>`).join('');
+    return `<select data-k="${k}"><option value="">${f.label}…</option>${opts}</select>`;
+  }).join('');
+}
 async function pgGenerate() {
   if (preview) { showAuth('signup'); return; }
+  const fields = {};
+  $('pgFields').querySelectorAll('select').forEach((s) => { if (s.value !== '') fields[s.dataset.k] = cfg.PROMPT_LIB[s.dataset.k].opts[+s.value][1]; });
   const btn = $('pgGen'); btn.disabled = true; btn.textContent = 'Writing…';
   try {
     const res = await fetch('/.netlify/functions/prompt-gen', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ subject: $('pgSubject').value.trim(), setting: $('pgSetting').value, outfit: $('pgOutfit').value, light: $('pgLight').value, shot: $('pgShot').value }),
+      body: JSON.stringify({ subject: $('pgSubject').value.trim(), extra: $('pgExtra').value.trim(), fields }),
     });
     const d = await res.json();
     if (res.status === 402) { note('pgNote', 'Out of credits — top up.', 'err'); openBuy(); }
@@ -676,7 +696,7 @@ async function buildAvatarPrompt() {
   try {
     const res = await fetch('/.netlify/functions/prompt-gen', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ subject: ($('avSelName').textContent || 'my avatar'), setting: $('bSetting').value, outfit: $('bOutfit').value, light: $('bLight').value, shot: $('bShot').value }),
+      body: JSON.stringify({ subject: ($('avSelName').textContent || 'my avatar'), fields: { setting: $('bSetting').value, outfit: $('bOutfit').value, lighting: $('bLight').value, shot: $('bShot').value } }),
     });
     const d = await res.json();
     if (res.status === 402) { note('avGenNote', 'Out of credits — top up.', 'err'); openBuy(); }
@@ -805,7 +825,7 @@ function enterPreview() {
   if (code.trim() !== cfg.PREVIEW_CODE) { note('authNote', 'Wrong password.', 'err'); return; }
   preview = true; hideAuth(); $('previewRibbon').style.display = 'block';
   $('creditCount').textContent = '∞'; $('planBadge').textContent = 'Preview';
-  buildHome(); loadRecent();
+  buildHome();
 }
 function prompt0(m) { return window.prompt(m); }
 
@@ -817,7 +837,7 @@ async function boot() {
   hideAuth(); preview = false; $('previewRibbon').style.display = 'none';
   buildHome();
   await loadProfile();
-  await loadRecent();
+
   await claimReferral();
   maybePromo();
   // Came from the Atelier page "Get instant access" -> start the course purchase.
@@ -864,7 +884,6 @@ window.addEventListener('DOMContentLoaded', () => {
   $('vRefFile').onchange = (e) => pickVideoRef(e.target.files[0]);
   $('vRefRemove').onclick = () => { vRefUrl = ''; $('vRefPreview').style.display = 'none'; $('vRefBtn').style.display = 'flex'; $('vRefFile').value = ''; };
   buildModelSelect();
-  $('seeLib').onclick = () => showView('library');
   $('streakBtn').onclick = claimDaily;
   $('mpPublish').onclick = publishPreset;
   $('learnClaim').onclick = claimLearn;
@@ -885,6 +904,8 @@ window.addEventListener('DOMContentLoaded', () => {
   $('payoutBtn').onclick = requestPayout;
   $('copyRef').onclick = () => { navigator.clipboard.writeText($('refLink').value); $('copyRef').textContent = 'Copied!'; setTimeout(() => $('copyRef').textContent = 'Copy', 1500); };
   $('logoutBtn').onclick = logout;
+  $('lbClose').onclick = () => $('lightbox').style.display = 'none';
+  $('lbDl').onclick = () => downloadFile(lbUrl);
   $('authBtn').onclick = doAuth;
   $('authSwitchLink').onclick = () => setAuthMode(authMode === 'signup' ? 'login' : 'signup');
   $('authPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doAuth(); });

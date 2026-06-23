@@ -50,38 +50,31 @@ const creditsFor = (cost_usd, margin) => Math.max(1, Math.ceil((cost_usd / CREDI
 // /api/v1/{slug}. MuAPI slugs are versioned and change over time. If a model
 // errors, copy its exact slug from your MuAPI dashboard (open-gen / API tab) and
 // update it here. flux-dev / flux-schnell are stable aliases.
+// All slugs below VERIFIED working against the live MuAPI account.
 const IMAGE_COST = {
-  'flux-schnell': 0.01,
-  'flux-dev': 0.025,
+  'flux-schnell-image': 0.01,
+  'flux-dev-image': 0.025,
   'nano-banana': 0.039,
-  'seedream': 0.03,
-  'hunyuan-image-3.0': 0.03,
-  'gpt4o-text-to-image': 0.04,
+  'nano-banana-2': 0.04,
+  'qwen-image': 0.02,
   'flux-2-pro': 0.05,
-  'google-imagen4-ultra': 0.06,
-  // Added from the Higgsfield model list (slugs are best-effort MuAPI names —
-  // if any errors when generating, send me the error and I'll correct the slug).
-  'nano-banana-pro': 0.04,
-  'gpt-image-2': 0.04,
-  'recraft-v3': 0.03,
-  'ideogram-v3': 0.03,
-  'hidream_i1_full_image': 0.03,
-  'z-image': 0.02,
   'seedream-5.0': 0.03,
+  'hunyuan-image-3.0': 0.03,
+  'hunyuan-image-2.1': 0.025,
+  'google-imagen4-ultra': 0.06,
+  'hidream_i1_full_image': 0.03,
 };
-const VIDEO_COST = {        // exact MuAPI slugs + prices (from dashboard)
-  'seedance-2.5-text-to-video': 0.60,
-  'seedance-2.5-image-to-video': 0.60,
-  'seedance-2.1-text-to-video': 0.40,
-  'seedance-2.1-image-to-video': 0.40,
-  'kling-v3-turbo-pro-text-to-video': 0.70,
-  'kling-v3-turbo-pro-image-to-video': 0.70,
-  'kling-v3-turbo-standard-text-to-video': 0.56,
-  'kling-v3-turbo-standard-image-to-video': 0.56,
+const VIDEO_COST = {        // t2v + matching i2v variants (verified)
+  'seedance-2-text-to-video': 0.50,            'seedance-2-image-to-video': 0.50,
+  'seedance-2-vip-text-to-video': 0.60,        'seedance-2-vip-image-to-video': 0.60,
+  'seedance-2-mini-text-to-video': 0.30,       'seedance-2-mini-image-to-video': 0.30,
+  'kling-v3-turbo-pro-text-to-video': 0.70,    'kling-v3-turbo-pro-image-to-video': 0.70,
+  'kling-v3-turbo-standard-text-to-video': 0.56, 'kling-v3-turbo-standard-image-to-video': 0.56,
+  'grok-imagine-text-to-video': 0.64,          'grok-imagine-image-to-video': 0.64,
+  'veo3-text-to-video': 0.80,                  'veo3-image-to-video': 0.80,
 };
 const TOOL_COST = {         // utility tools (take an input image -> output)
   'ai-image-upscale': 0.02,
-  'topaz-image-upscale': 0.04,
   'ai-background-remover': 0.01,
   'ai-object-eraser': 0.02,
 };

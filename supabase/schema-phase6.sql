@@ -12,6 +12,6 @@ update public.avatars
 
 -- Update the launch challenge to the Instagram brief + prize.
 update public.challenges
-   set brief = 'Create your best AI character or ad with Fuse Studio and post it on Instagram with #FuseStudio. Tag us to enter!',
+   set brief = 'Create your best AI character or ad with Fuse Studio, post it on Instagram, tag @fuse_studio2 with #FuseStudio to enter!',
        prize = '₦100,000 + 1,000 credits'
  where title = 'Fuse Launch Challenge';

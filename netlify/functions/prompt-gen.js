@@ -11,22 +11,28 @@ exports.handler = async (event) => {
   if (!user) return json(401, { error: 'Please sign in again.' });
   let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
 
-  const { subject = '', setting = '', outfit = '', light = '', shot = '' } = body;
-  if (!subject && !setting && !outfit) return json(400, { error: 'Pick a few options first.' });
+  const subject = (body.subject || '').trim();
+  const extra = (body.extra || '').trim();
+  const f = body.fields || {};
+  const hasFields = Object.keys(f).length > 0;
+  if (!subject && !hasFields) return json(400, { error: 'Pick a few options or type a subject.' });
 
   const db = admin();
   const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: PROMPT_COST });
   if (balance === null) return json(402, { error: 'Not enough credits.', code: 'NO_CREDITS' });
 
-  // Build a rich, consistent-character prompt.
-  const parts = [];
-  parts.push(shot || 'editorial portrait');
-  parts.push('of ' + (subject || 'the same consistent character'));
-  if (outfit) parts.push('wearing ' + outfit);
-  if (setting) parts.push('in a ' + setting);
-  if (light) parts.push(light);
-  parts.push('identical facial features, consistent identity, ultra-detailed skin texture');
-  parts.push('professional photography, sharp focus, premium color grade, 8k, magazine quality');
+  // Assemble a strong, consistent-character prompt from the chosen fragments.
+  let frame = 'editorial portrait', cam = '';
+  if (f.shot) { const sp = String(f.shot).split('|'); frame = sp[0]; cam = sp[1] || ''; }
+  const who = subject || [f.vibe, f.heritage, f.gender].filter(Boolean).join(' ') || 'the same consistent character';
+  const parts = [`${frame} of ${who}`];
+  if (f.hair) parts.push(f.hair);
+  if (f.outfit) parts.push('wearing ' + f.outfit);
+  if (f.setting) parts.push(f.setting);
+  if (f.lighting) parts.push(f.lighting + ' lighting');
+  if (extra) parts.push(extra);
+  if (cam) parts.push(cam);
+  parts.push('photorealistic, identical consistent face, ultra-detailed skin texture, premium color grade, sharp focus, magazine quality');
   const prompt = parts.join(', ');
 
   return json(200, { prompt, credits: balance });
