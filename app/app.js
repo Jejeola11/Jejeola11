@@ -215,7 +215,7 @@ function buildHome() {
     { key: 'promptgen', name: 'Prompt Generator', icon: '🧬', tag: 'NEW', desc: 'Pro prompts in 1 tap · 1 cr' },
     { key: 'reactor', name: cfg.REACTOR_NAME, icon: '⚛️', tag: 'NEW', desc: 'Claude · Gemini · ChatGPT & more' },
     { key: 'market',  name: 'Marketplace',     icon: '🛒', tag: '',    desc: 'Use & sell community presets' },
-    { key: 'learn',   name: 'Fuse Academy',    icon: '🎓', tag: '',    desc: 'Learn & earn 20 credits' },
+    { key: 'learn',   name: 'Fuse Atelier',    icon: '🎓', tag: '',    desc: 'Learn & earn 20 credits' },
   ]);
   $('toolGrid').innerHTML = cards.map((s) => {
     const cls = s.tag === 'BETA' ? 'beta' : s.tag === 'TRENDING' ? 'trend' : '';
