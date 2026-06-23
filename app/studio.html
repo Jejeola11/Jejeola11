@@ -20,6 +20,7 @@
   <div class="in">
     <a class="brand" href="/app/index.html"><span class="dot">F</span> Fuse&nbsp;Studio</a>
     <div style="display:flex;align-items:center;gap:8px">
+      <button class="pill streakpill" id="streakBtn" title="Daily reward">🔥 <b id="streakText">0</b></button>
       <span class="pill" id="creditPill"><span id="planBadge" class="muted" style="font-weight:600;font-size:11px">Trial</span> · <b id="creditCount">…</b> cr</span>
       <button class="btn gold sm" id="buyBtn">＋ Top up</button>
     </div>
@@ -56,12 +57,6 @@
 
     <div class="shead"><h2>Quick ideas</h2></div>
     <div class="chips" id="presetChips"></div>
-
-    <!-- daily reward -->
-    <div class="streak" id="streakCard" style="margin-top:18px">
-      <div><div class="sn">🔥 Daily reward</div><div class="sd" id="streakText">Claim 1 free credit today</div></div>
-      <button class="btn gold sm" id="streakBtn">Claim</button>
-    </div>
   </section>
 
   <!-- ===== AI AVATAR STUDIO (consistent faces) ===== -->
@@ -242,6 +237,25 @@
           </select>
         </div>
       </div>
+
+      <!-- image-only options -->
+      <div class="row2" id="imgOpts">
+        <div>
+          <label class="fld" for="imgRes">Resolution</label>
+          <select id="imgRes"><option value="1">Standard</option><option value="2">2K · ×2 credits</option><option value="3">4K · ×3 credits</option></select>
+        </div>
+        <div>
+          <label class="fld" for="imgCount">Variations</label>
+          <select id="imgCount"><option value="1">1 image</option><option value="2">2 · ×2</option><option value="4">4 · ×4</option></select>
+        </div>
+      </div>
+
+      <!-- video-only options -->
+      <div id="vidOpts" style="display:none">
+        <label class="fld" for="studioDuration">Length</label>
+        <select id="studioDuration"><option value="5s">5 seconds</option><option value="10s">10 seconds (×2 credits)</option></select>
+      </div>
+
       <div class="refbtn" id="refBtn"><span>🖼 Add image reference(s) — up to 5 (optional)</span></div>
       <input id="refFile" type="file" accept="image/*" multiple style="display:none">
       <div id="refPreview" style="display:none;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap">

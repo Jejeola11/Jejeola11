@@ -52,8 +52,9 @@ exports.handler = async (event) => {
   // If a starting image is attached, use the image-to-video variant of the model.
   const model = image_url ? (body.model || '').replace('text-to-video', 'image-to-video') : body.model;
 
-  const cost = VIDEO_MODELS[model];
-  if (!cost) return json(400, { error: 'Unknown video model.' });
+  const durMult = String(duration).startsWith('10') ? 2 : 1; // 10s costs double
+  const cost = VIDEO_MODELS[model] * durMult;
+  if (!VIDEO_MODELS[model]) return json(400, { error: 'Unknown video model.' });
   if (!prompt && !image_url) return json(400, { error: 'Add a prompt or a reference image.' });
 
   const db = admin();

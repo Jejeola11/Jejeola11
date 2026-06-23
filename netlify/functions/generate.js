@@ -11,9 +11,10 @@ const { IMAGE_MODELS } = require('./_packs');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
-async function muapiGenerate({ prompt, aspect, model, image_urls }) {
+async function muapiGenerate({ prompt, aspect, model, image_urls, resolution }) {
   const key = process.env.MUAPI_KEY;
   const payload = { prompt, aspect_ratio: aspect };
+  if (resolution) payload.resolution = resolution;
   if (image_urls && image_urls.length) payload.image_urls = image_urls; // reference image(s)
   const submit = await fetch(`${MUAPI_BASE}/${model}`, {
     method: 'POST',
@@ -81,35 +82,41 @@ exports.handler = async (event) => {
     : (body.reference_image_url ? [body.reference_image_url] : [])).filter(Boolean);
   const useRef = refs.length > 0;
   // With references we use Nano Banana (multi-image). Otherwise the chosen model.
-  const model = useRef ? 'nano-banana' : (body.model || 'flux-schnell');
+  const model = useRef ? 'nano-banana' : (body.model || 'flux-schnell-image');
   if (!prompt) return json(400, { error: 'Add a prompt first.' });
-  const cost = IMAGE_MODELS[model];
-  if (!cost) return json(400, { error: 'Unknown model.' });
+  const base = IMAGE_MODELS[model];
+  if (!base) return json(400, { error: 'Unknown model.' });
+
+  const count = Math.min(Math.max(parseInt(body.count, 10) || 1, 1), 4);
+  const resMult = Math.min(Math.max(parseInt(body.res, 10) || 1, 1), 3);
+  const resolution = ['1k', '2k', '4k'][resMult - 1];
+  const cost = base * count * resMult;
 
   const db = admin();
 
   // 1) Spend credits atomically (returns null if not enough).
-  const { data: balance, error: spendErr } = await db.rpc('spend_credits', {
-    uid: user.id, amount: cost,
-  });
+  const { data: balance, error: spendErr } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
   if (spendErr) return json(500, { error: 'Could not check your credits.' });
-  if (balance === null) {
-    return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
-  }
+  if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
-  // 2) Generate. If it fails, refund the credits we just took.
+  // 2) Generate `count` images in parallel. Refund if all fail.
   try {
-    const r = await muapiGenerate({ prompt, aspect, model, image_urls: useRef ? refs : undefined });
-    if (!r.url) throw new Error('No image returned');
+    const jobs = Array.from({ length: count }, () =>
+      muapiGenerate({ prompt, aspect, model, image_urls: useRef ? refs : undefined, resolution: resMult > 1 ? resolution : undefined })
+        .catch(() => null));
+    const results = await Promise.all(jobs);
+    const urls = results.filter((r) => r && r.url).map((r) => r.url);
+    if (!urls.length) throw new Error('No image returned');
 
-    await db.from('generations').insert({
-      user_id: user.id, type: 'image', model, prompt, aspect,
-      output_url: r.url, cost_usd: r.cost_usd, credits_spent: cost,
-    });
+    const rows = urls.map((u) => ({ user_id: user.id, type: 'image', model, prompt, aspect, output_url: u, credits_spent: Math.round(cost / urls.length) }));
+    await db.from('generations').insert(rows);
 
-    return json(200, { url: r.url, credits: balance, cost_usd: r.cost_usd });
+    // Partial refund if fewer images came back than paid for.
+    const refund = (count - urls.length) * base * resMult;
+    if (refund > 0) await db.rpc('add_credits', { uid: user.id, amount: refund, why: 'refund' });
+
+    return json(200, { urls, url: urls[0], credits: balance + refund });
   } catch (e) {
-    // Refund — the user shouldn't pay for a failed generation.
     await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' });
     return json(502, { error: e.message || 'Generation failed', refunded: cost });
   }

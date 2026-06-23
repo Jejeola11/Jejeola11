@@ -115,11 +115,12 @@ window.FUSE = {
 
   // 🎓 Earn-while-you-learn — finishing these unlocks a 20-credit bonus.
   LESSONS: [
-    { t: 'Find your money niche', b: 'Pick who you serve: vendors, creators, brands. Riches are in the niches.' },
-    { t: 'Write prompts that sell', b: 'Describe the subject, the mood, the lighting, and the use. Specific = stunning.' },
-    { t: 'Turn images into income', b: 'Package your work: brand kits, UGC bundles, ad creatives — and price by value.' },
-    { t: 'Promote & get paid', b: 'Use your referral link, post your work, run the founding offer to your audience.' },
+    { t: 'Direct like a pro', b: 'Craft cinematic AI photos & videos that look agency-made — characters, products, ads and scenes.' },
+    { t: 'The money skill', b: 'The exact prompts and workflows brands and clients pay in dollars for — one rare, high-value skill.' },
+    { t: 'A face that earns', b: 'Build a consistent AI character/brand you can reuse and scale — recognisable and bankable.' },
+    { t: 'Get paid in dollars', b: 'Package your work, price it in USD, and land international buyers — all from your phone.' },
   ],
+  LESSONS_NOTE: 'This is a taste of the full Fuse Atelier — The AI Creative Income System. Get the complete course below. 🎬',
   LEARN_BONUS: 20,
 
   // Ported character prompt builder (from Fuse Character Lab).

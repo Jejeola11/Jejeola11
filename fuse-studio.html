@@ -443,6 +443,13 @@ textarea{min-height:104px;resize:vertical}
 .projitem .dlbtn:active{transform:translateY(1px)}
 #libTabs{position:static}
 
+/* header streak pill + toast */
+.streakpill{cursor:pointer;border:1px solid var(--line)}
+.streakpill.claimable{border-color:var(--gold);box-shadow:0 0 0 0 rgba(231,194,92,.6);animation:pulse 1.8s infinite}
+.fuse-toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(20px);background:var(--panel-2);border:1px solid var(--gold);color:var(--ink);padding:11px 18px;border-radius:999px;font-weight:700;font-size:14px;z-index:90;opacity:0;transition:.25s;box-shadow:var(--shadow);pointer-events:none;white-space:nowrap}
+.fuse-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#imgOpts{display:grid}
+
 </style>
 <script>
 // ============================================================
@@ -562,11 +569,12 @@ window.FUSE = {
 
   // 🎓 Earn-while-you-learn — finishing these unlocks a 20-credit bonus.
   LESSONS: [
-    { t: 'Find your money niche', b: 'Pick who you serve: vendors, creators, brands. Riches are in the niches.' },
-    { t: 'Write prompts that sell', b: 'Describe the subject, the mood, the lighting, and the use. Specific = stunning.' },
-    { t: 'Turn images into income', b: 'Package your work: brand kits, UGC bundles, ad creatives — and price by value.' },
-    { t: 'Promote & get paid', b: 'Use your referral link, post your work, run the founding offer to your audience.' },
+    { t: 'Direct like a pro', b: 'Craft cinematic AI photos & videos that look agency-made — characters, products, ads and scenes.' },
+    { t: 'The money skill', b: 'The exact prompts and workflows brands and clients pay in dollars for — one rare, high-value skill.' },
+    { t: 'A face that earns', b: 'Build a consistent AI character/brand you can reuse and scale — recognisable and bankable.' },
+    { t: 'Get paid in dollars', b: 'Package your work, price it in USD, and land international buyers — all from your phone.' },
   ],
+  LESSONS_NOTE: 'This is a taste of the full Fuse Atelier — The AI Creative Income System. Get the complete course below. 🎬',
   LEARN_BONUS: 20,
 
   // Ported character prompt builder (from Fuse Character Lab).
@@ -593,6 +601,7 @@ window.FUSE = {
   <div class="in">
     <a class="brand" href="/app/index.html"><span class="dot">F</span> Fuse&nbsp;Studio</a>
     <div style="display:flex;align-items:center;gap:8px">
+      <button class="pill streakpill" id="streakBtn" title="Daily reward">🔥 <b id="streakText">0</b></button>
       <span class="pill" id="creditPill"><span id="planBadge" class="muted" style="font-weight:600;font-size:11px">Trial</span> · <b id="creditCount">…</b> cr</span>
       <button class="btn gold sm" id="buyBtn">＋ Top up</button>
     </div>
@@ -629,12 +638,6 @@ window.FUSE = {
 
     <div class="shead"><h2>Quick ideas</h2></div>
     <div class="chips" id="presetChips"></div>
-
-    <!-- daily reward -->
-    <div class="streak" id="streakCard" style="margin-top:18px">
-      <div><div class="sn">🔥 Daily reward</div><div class="sd" id="streakText">Claim 1 free credit today</div></div>
-      <button class="btn gold sm" id="streakBtn">Claim</button>
-    </div>
   </section>
 
   <!-- ===== AI AVATAR STUDIO (consistent faces) ===== -->
@@ -815,6 +818,25 @@ window.FUSE = {
           </select>
         </div>
       </div>
+
+      <!-- image-only options -->
+      <div class="row2" id="imgOpts">
+        <div>
+          <label class="fld" for="imgRes">Resolution</label>
+          <select id="imgRes"><option value="1">Standard</option><option value="2">2K · ×2 credits</option><option value="3">4K · ×3 credits</option></select>
+        </div>
+        <div>
+          <label class="fld" for="imgCount">Variations</label>
+          <select id="imgCount"><option value="1">1 image</option><option value="2">2 · ×2</option><option value="4">4 · ×4</option></select>
+        </div>
+      </div>
+
+      <!-- video-only options -->
+      <div id="vidOpts" style="display:none">
+        <label class="fld" for="studioDuration">Length</label>
+        <select id="studioDuration"><option value="5s">5 seconds</option><option value="10s">10 seconds (×2 credits)</option></select>
+      </div>
+
       <div class="refbtn" id="refBtn"><span>🖼 Add image reference(s) — up to 5 (optional)</span></div>
       <input id="refFile" type="file" accept="image/*" multiple style="display:none">
       <div id="refPreview" style="display:none;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap">
@@ -1091,6 +1113,8 @@ function setStudioMode(video) {
   studioVideo = video;
   $('smImg').classList.toggle('active', !video);
   $('smVid').classList.toggle('active', video);
+  $('imgOpts').style.display = video ? 'none' : 'grid';
+  $('vidOpts').style.display = video ? 'block' : 'none';
   if (video) { buildVideoSelect(); $('genBtn').textContent = '🎬 Generate video'; }
   else { buildModelSelect(); $('genBtn').textContent = '✨ Generate'; }
 }
@@ -1103,7 +1127,7 @@ async function generateStudioVideo(prompt) {
   try {
     const res = await fetch('/.netlify/functions/video-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ model, prompt, aspect, image_url: refUrls[0] || undefined }),
+      body: JSON.stringify({ model, prompt, aspect, duration: $('studioDuration').value, image_url: refUrls[0] || undefined }),
     });
     const data = await res.json(); clearInterval(iv);
     if (res.status === 402) { note('genNote', 'Out of credits — top up.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; }
@@ -1258,16 +1282,18 @@ async function generate() {
   try {
     const res = await fetch('/.netlify/functions/generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ prompt, model, aspect, reference_image_urls: refUrls.length ? refUrls : undefined }),
+      body: JSON.stringify({ prompt, model, aspect, count: +$('imgCount').value, res: +$('imgRes').value, reference_image_urls: refUrls.length ? refUrls : undefined }),
     });
     const data = await res.json(); clearInterval(iv);
     if (res.status === 402) { note('genNote', 'Out of credits — top up to keep creating.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; }
     else if (!res.ok) throw new Error(data.error || 'Generation failed');
     else {
-      lastOutput = data.url;
+      const urls = data.urls && data.urls.length ? data.urls : [data.url];
+      lastOutput = urls[0];
       $('creditCount').textContent = data.credits;
-      $('result').innerHTML = `<div><img src="${data.url}" alt="result"><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
-      note('genNote', 'Done ✅', 'ok');
+      const grid = urls.map((u) => `<img src="${u}" onclick="fuseLightbox('${u}','image')" style="cursor:pointer">`).join('');
+      $('result').innerHTML = `<div><div class="${urls.length > 1 ? 'libgrid' : ''}" style="${urls.length > 1 ? 'gap:8px' : ''}">${grid}</div><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${urls[0]}')">⬇ Download</button></div></div>`;
+      note('genNote', `Done ✅${urls.length > 1 ? ` · ${urls.length} variations` : ''}`, 'ok');
     }
   } catch (e) { clearInterval(iv); $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); }
   btn.disabled = false; btn.textContent = '✨ Generate';
@@ -1403,12 +1429,13 @@ async function buy(pack, el) {
 
 // ---------------- daily streak ----------------
 async function refreshStreak() {
-  if (preview) { $('streakText').textContent = 'Sign up to start your streak'; return; }
+  if (preview) { $('streakText').textContent = '0'; return; }
   const { data } = await sb.from('profiles').select('last_claim_at, streak_days').eq('id', user.id).maybeSingle();
   if (!data) return;
   const can = !data.last_claim_at || (Date.now() - new Date(data.last_claim_at).getTime()) > 20 * 3600 * 1000;
-  $('streakText').textContent = `🔥 ${data.streak_days || 0}-day streak` + (can ? ' · claim today!' : ' · come back tomorrow');
-  $('streakBtn').style.display = can ? 'inline-flex' : 'none';
+  $('streakText').textContent = data.streak_days || 0;
+  $('streakBtn').classList.toggle('claimable', can);
+  $('streakBtn').title = can ? 'Tap to claim today\'s free credit 🎁' : `${data.streak_days || 0}-day streak · come back tomorrow`;
 }
 async function claimDaily() {
   if (preview) { showAuth('signup'); return; }
@@ -1416,10 +1443,21 @@ async function claimDaily() {
   try {
     const res = await fetch('/.netlify/functions/daily-claim', { method: 'POST', headers: { ...(await authHeader()) } });
     const d = await res.json();
-    if (d.claimed) { $('creditCount').textContent = d.credits; $('streakText').textContent = `🔥 ${d.streak}-day streak · +${d.award} credit${d.award > 1 ? 's' : ''}! 🎉`; $('streakBtn').style.display = 'none'; }
-    else $('streakText').textContent = `🔥 ${d.streak}-day streak · come back tomorrow`;
+    if (d.claimed) {
+      $('creditCount').textContent = d.credits;
+      $('streakText').textContent = d.streak;
+      $('streakBtn').classList.remove('claimable');
+      note('genNote', '', '');
+      toast(`🔥 ${d.streak}-day streak · +${d.award} credit${d.award > 1 ? 's' : ''}!`);
+    } else { $('streakBtn').classList.remove('claimable'); toast(`🔥 ${d.streak}-day streak · come back tomorrow`); }
   } catch (e) {}
   $('streakBtn').disabled = false;
+}
+function toast(msg) {
+  let el = document.getElementById('fuseToast');
+  if (!el) { el = document.createElement('div'); el.id = 'fuseToast'; el.className = 'fuse-toast'; document.body.appendChild(el); }
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(window.__toastT); window.__toastT = setTimeout(() => el.classList.remove('show'), 2600);
 }
 
 // ---------------- AI Avatar Studio (consistent faces) ----------------
@@ -1593,7 +1631,8 @@ async function buyPreset(id, btn) {
 
 // ---------------- academy (earn while you learn) ----------------
 function buildLessons() {
-  $('lessonList').innerHTML = cfg.LESSONS.map((l, i) =>
+  const note0 = cfg.LESSONS_NOTE ? `<p class="muted" style="font-size:13px;margin:0 0 12px">${cfg.LESSONS_NOTE}</p>` : '';
+  $('lessonList').innerHTML = note0 + cfg.LESSONS.map((l, i) =>
     `<div class="lesson"><h3>${i + 1}. ${l.t}</h3><p>${l.b}</p></div>`).join('');
   note('learnNote', '');
 }

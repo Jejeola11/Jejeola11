@@ -112,6 +112,8 @@ function setStudioMode(video) {
   studioVideo = video;
   $('smImg').classList.toggle('active', !video);
   $('smVid').classList.toggle('active', video);
+  $('imgOpts').style.display = video ? 'none' : 'grid';
+  $('vidOpts').style.display = video ? 'block' : 'none';
   if (video) { buildVideoSelect(); $('genBtn').textContent = '🎬 Generate video'; }
   else { buildModelSelect(); $('genBtn').textContent = '✨ Generate'; }
 }
@@ -124,7 +126,7 @@ async function generateStudioVideo(prompt) {
   try {
     const res = await fetch('/.netlify/functions/video-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ model, prompt, aspect, image_url: refUrls[0] || undefined }),
+      body: JSON.stringify({ model, prompt, aspect, duration: $('studioDuration').value, image_url: refUrls[0] || undefined }),
     });
     const data = await res.json(); clearInterval(iv);
     if (res.status === 402) { note('genNote', 'Out of credits — top up.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; }
@@ -279,16 +281,18 @@ async function generate() {
   try {
     const res = await fetch('/.netlify/functions/generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ prompt, model, aspect, reference_image_urls: refUrls.length ? refUrls : undefined }),
+      body: JSON.stringify({ prompt, model, aspect, count: +$('imgCount').value, res: +$('imgRes').value, reference_image_urls: refUrls.length ? refUrls : undefined }),
     });
     const data = await res.json(); clearInterval(iv);
     if (res.status === 402) { note('genNote', 'Out of credits — top up to keep creating.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; }
     else if (!res.ok) throw new Error(data.error || 'Generation failed');
     else {
-      lastOutput = data.url;
+      const urls = data.urls && data.urls.length ? data.urls : [data.url];
+      lastOutput = urls[0];
       $('creditCount').textContent = data.credits;
-      $('result').innerHTML = `<div><img src="${data.url}" alt="result"><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
-      note('genNote', 'Done ✅', 'ok');
+      const grid = urls.map((u) => `<img src="${u}" onclick="fuseLightbox('${u}','image')" style="cursor:pointer">`).join('');
+      $('result').innerHTML = `<div><div class="${urls.length > 1 ? 'libgrid' : ''}" style="${urls.length > 1 ? 'gap:8px' : ''}">${grid}</div><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${urls[0]}')">⬇ Download</button></div></div>`;
+      note('genNote', `Done ✅${urls.length > 1 ? ` · ${urls.length} variations` : ''}`, 'ok');
     }
   } catch (e) { clearInterval(iv); $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); }
   btn.disabled = false; btn.textContent = '✨ Generate';
@@ -421,12 +425,13 @@ async function buy(pack, el) {
 
 // ---------------- daily streak ----------------
 async function refreshStreak() {
-  if (preview) { $('streakText').textContent = 'Sign up to start your streak'; return; }
+  if (preview) { $('streakText').textContent = '0'; return; }
   const { data } = await sb.from('profiles').select('last_claim_at, streak_days').eq('id', user.id).maybeSingle();
   if (!data) return;
   const can = !data.last_claim_at || (Date.now() - new Date(data.last_claim_at).getTime()) > 20 * 3600 * 1000;
-  $('streakText').textContent = `🔥 ${data.streak_days || 0}-day streak` + (can ? ' · claim today!' : ' · come back tomorrow');
-  $('streakBtn').style.display = can ? 'inline-flex' : 'none';
+  $('streakText').textContent = data.streak_days || 0;
+  $('streakBtn').classList.toggle('claimable', can);
+  $('streakBtn').title = can ? 'Tap to claim today\'s free credit 🎁' : `${data.streak_days || 0}-day streak · come back tomorrow`;
 }
 async function claimDaily() {
   if (preview) { showAuth('signup'); return; }
@@ -434,10 +439,21 @@ async function claimDaily() {
   try {
     const res = await fetch('/.netlify/functions/daily-claim', { method: 'POST', headers: { ...(await authHeader()) } });
     const d = await res.json();
-    if (d.claimed) { $('creditCount').textContent = d.credits; $('streakText').textContent = `🔥 ${d.streak}-day streak · +${d.award} credit${d.award > 1 ? 's' : ''}! 🎉`; $('streakBtn').style.display = 'none'; }
-    else $('streakText').textContent = `🔥 ${d.streak}-day streak · come back tomorrow`;
+    if (d.claimed) {
+      $('creditCount').textContent = d.credits;
+      $('streakText').textContent = d.streak;
+      $('streakBtn').classList.remove('claimable');
+      note('genNote', '', '');
+      toast(`🔥 ${d.streak}-day streak · +${d.award} credit${d.award > 1 ? 's' : ''}!`);
+    } else { $('streakBtn').classList.remove('claimable'); toast(`🔥 ${d.streak}-day streak · come back tomorrow`); }
   } catch (e) {}
   $('streakBtn').disabled = false;
+}
+function toast(msg) {
+  let el = document.getElementById('fuseToast');
+  if (!el) { el = document.createElement('div'); el.id = 'fuseToast'; el.className = 'fuse-toast'; document.body.appendChild(el); }
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(window.__toastT); window.__toastT = setTimeout(() => el.classList.remove('show'), 2600);
 }
 
 // ---------------- AI Avatar Studio (consistent faces) ----------------
@@ -611,7 +627,8 @@ async function buyPreset(id, btn) {
 
 // ---------------- academy (earn while you learn) ----------------
 function buildLessons() {
-  $('lessonList').innerHTML = cfg.LESSONS.map((l, i) =>
+  const note0 = cfg.LESSONS_NOTE ? `<p class="muted" style="font-size:13px;margin:0 0 12px">${cfg.LESSONS_NOTE}</p>` : '';
+  $('lessonList').innerHTML = note0 + cfg.LESSONS.map((l, i) =>
     `<div class="lesson"><h3>${i + 1}. ${l.t}</h3><p>${l.b}</p></div>`).join('');
   note('learnNote', '');
 }
