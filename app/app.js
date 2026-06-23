@@ -48,6 +48,34 @@ window.fuseLightbox = (url, type) => {
   document.getElementById('lightbox').style.display = 'grid';
 };
 
+// Poll an async render job until it completes (videos take minutes).
+function pollJob(requestId, resultEl, noteId, btn, btnLabel) {
+  let s = 0;
+  const timer = setInterval(async () => {
+    s += 4;
+    try {
+      const r = await fetch(`/.netlify/functions/job-status?id=${requestId}`, { headers: { ...(await authHeader()) } });
+      const d = await r.json();
+      if (d.status === 'completed') {
+        clearInterval(timer);
+        lastOutput = d.url;
+        resultEl.innerHTML = `<div><video src="${d.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${d.url}')">⬇ Download</button></div></div>`;
+        note(noteId, 'Done ✅', 'ok');
+        if (btn) { btn.disabled = false; btn.textContent = btnLabel; }
+      } else if (d.status === 'failed') {
+        clearInterval(timer);
+        resultEl.innerHTML = '<div>⚠ ' + (d.error || 'Failed') + '</div>';
+        note(noteId, (d.error || 'Failed') + ' — credits refunded.', 'err');
+        if (user) loadProfile();
+        if (btn) { btn.disabled = false; btn.textContent = btnLabel; }
+      } else {
+        const dd = resultEl.querySelector('div div'); if (dd) dd.textContent = `Rendering… (${s}s)`;
+      }
+    } catch (e) {}
+    if (s >= 360) { clearInterval(timer); note(noteId, 'Still rendering — check Projects in a minute.', 'err'); if (btn) { btn.disabled = false; btn.textContent = btnLabel; } }
+  }, 4000);
+}
+
 async function authHeader() {
   const { data } = await sb.auth.getSession();
   const t = data.session && data.session.access_token;
@@ -119,25 +147,21 @@ function setStudioMode(video) {
 }
 async function generateStudioVideo(prompt) {
   const model = $('model').value, aspect = $('aspect').value;
-  const btn = $('genBtn'); btn.disabled = true; btn.textContent = 'Generating…';
-  $('result').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Rendering your video… 1–3 min</div></div>';
+  const btn = $('genBtn'); const label = '🎬 Generate video'; btn.disabled = true; btn.textContent = 'Submitting…';
+  $('result').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Sending to the engine…</div></div>';
   note('genNote', '');
-  let t = 0; const iv = setInterval(() => { t += 3; const d = $('result').querySelector('div div'); if (d) d.textContent = `Rendering… (${t}s)`; }, 3000);
   try {
     const res = await fetch('/.netlify/functions/video-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
       body: JSON.stringify({ model, prompt, aspect, duration: $('studioDuration').value, image_url: refUrls[0] || undefined }),
     });
-    const data = await res.json(); clearInterval(iv);
-    if (res.status === 402) { note('genNote', 'Out of credits — top up.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; }
-    else if (!res.ok) throw new Error(data.error || 'Failed');
-    else {
-      lastOutput = data.url; $('creditCount').textContent = data.credits;
-      $('result').innerHTML = `<div><video src="${data.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
-      note('genNote', 'Done ✅', 'ok');
-    }
-  } catch (e) { clearInterval(iv); $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); }
-  btn.disabled = false; btn.textContent = '🎬 Generate video';
+    const data = await res.json();
+    if (res.status === 402) { note('genNote', 'Out of credits — top up.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; btn.disabled = false; btn.textContent = label; return; }
+    if (!res.ok) throw new Error(data.error || 'Failed');
+    $('creditCount').textContent = data.credits;
+    note('genNote', 'Rendering… this can take 1–3 min ⏳', 'ok'); btn.textContent = 'Rendering…';
+    pollJob(data.request_id, $('result'), 'genNote', btn, label);
+  } catch (e) { $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 
 // ---------------- video studio ----------------
@@ -170,26 +194,21 @@ async function videoGenerate() {
   if (!vModel) return;
   const prompt = $('vPrompt').value.trim();
   if (!prompt && !vRefUrl) return note('vNote', 'Add a prompt or a starting image.', 'err');
-  const btn = $('vGen'); btn.disabled = true; btn.textContent = 'Generating…';
-  $('vResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Rendering your video… this can take 1–3 min</div></div>';
+  const btn = $('vGen'); const label = `🎬 Generate video (${vModel.credits} credits)`; btn.disabled = true; btn.textContent = 'Submitting…';
+  $('vResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Sending to the engine…</div></div>';
   note('vNote', '');
-  let t = 0; const iv = setInterval(() => { t += 3; const d = $('vResult').querySelector('div div'); if (d) d.textContent = `Rendering… (${t}s)`; }, 3000);
   try {
     const res = await fetch('/.netlify/functions/video-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
       body: JSON.stringify({ model: vModel.slug, prompt, aspect: $('vAspect').value, duration: $('vDuration').value, resolution: $('vRes').value, image_url: vRefUrl || undefined }),
     });
-    const data = await res.json(); clearInterval(iv);
-    if (res.status === 402) { note('vNote', 'Out of credits — top up.', 'err'); openBuy(); $('vResult').innerHTML = '<div>Out of credits.</div>'; }
-    else if (!res.ok) throw new Error(data.error || 'Failed');
-    else {
-      lastOutput = data.url;
-      $('creditCount').textContent = data.credits;
-      $('vResult').innerHTML = `<div><video src="${data.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
-      note('vNote', 'Done ✅', 'ok');
-    }
-  } catch (e) { clearInterval(iv); $('vResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('vNote', e.message || 'Failed — credits not charged.', 'err'); }
-  btn.disabled = false; btn.textContent = `🎬 Generate video (${vModel.credits} credits)`;
+    const data = await res.json();
+    if (res.status === 402) { note('vNote', 'Out of credits — top up.', 'err'); openBuy(); $('vResult').innerHTML = '<div>Out of credits.</div>'; btn.disabled = false; btn.textContent = label; return; }
+    if (!res.ok) throw new Error(data.error || 'Failed');
+    $('creditCount').textContent = data.credits;
+    note('vNote', 'Rendering… this can take 1–3 min ⏳', 'ok'); btn.textContent = 'Rendering…';
+    pollJob(data.request_id, $('vResult'), 'vNote', btn, label);
+  } catch (e) { $('vResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('vNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 
 function openStudio(key) {

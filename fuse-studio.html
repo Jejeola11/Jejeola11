@@ -505,25 +505,25 @@ window.FUSE = {
     { slug: 'nano-banana-2',         name: 'Nano Banana 2',  badge: 'Google',    credits: 10, sample: '/app/media/samples/s2.jpg' },
     { slug: 'qwen-image',            name: 'Qwen Image',     badge: 'Alibaba',   credits: 5,  sample: '/app/media/samples/s5.jpg' },
     { slug: 'flux-2-pro',            name: 'Flux 2 Pro',     badge: 'Best',      credits: 13, sample: '/app/media/samples/s6.jpg' },
-    { slug: 'seedream-5.0',          name: 'Seedream 5.0',   badge: 'ByteDance', credits: 8,  sample: '' },
-    { slug: 'hunyuan-image-3.0',     name: 'Hunyuan 3.0',    badge: 'Tencent',   credits: 8,  sample: '' },
-    { slug: 'hunyuan-image-2.1',     name: 'Hunyuan 2.1',    badge: 'Tencent',   credits: 7,  sample: '' },
-    { slug: 'google-imagen4-ultra',  name: 'Imagen 4 Ultra', badge: 'Google',    credits: 15, sample: '' },
-    { slug: 'hidream_i1_full_image', name: 'HiDream',        badge: 'HiDream',   credits: 8,  sample: '' },
+    { slug: 'seedream-5.0',          name: 'Seedream 5.0',   badge: 'ByteDance', credits: 8,  sample: '/app/media/samples/s3.jpg' },
+    { slug: 'hunyuan-image-3.0',     name: 'Hunyuan 3.0',    badge: 'Tencent',   credits: 8,  sample: '/app/media/samples/s2.jpg' },
+    { slug: 'hunyuan-image-2.1',     name: 'Hunyuan 2.1',    badge: 'Tencent',   credits: 7,  sample: '/app/media/samples/s5.jpg' },
+    { slug: 'google-imagen4-ultra',  name: 'Imagen 4 Ultra', badge: 'Google',    credits: 15, sample: '/app/media/samples/s1.jpg' },
+    { slug: 'hidream_i1_full_image', name: 'HiDream',        badge: 'HiDream',   credits: 8,  sample: '/app/media/samples/s6.jpg' },
   ],
   VIDEO_MODELS: [
-    { slug: 'grok-imagine-text-to-video',           name: 'Grok Imagine',    badge: 'Cheapest',  credits: 19, sample: '' },
-    { slug: 'seedance-2-mini-text-to-video',        name: 'Seedance 2 Mini', badge: 'Fast',      credits: 50, sample: '' },
-    { slug: 'kling-v3-turbo-standard-text-to-video', name: 'Kling Turbo',    badge: 'Kuaishou',  credits: 70, sample: '' },
-    { slug: 'seedance-2-text-to-video',             name: 'Seedance 2',      badge: 'ByteDance', credits: 75, sample: '' },
-    { slug: 'kling-v3-turbo-pro-text-to-video',     name: 'Kling Turbo Pro', badge: 'Kuaishou',  credits: 88, sample: '' },
-    { slug: 'veo3-text-to-video',                   name: 'Veo 3',           badge: 'Google',    credits: 150, sample: '' },
-    { slug: 'seedance-2-vip-text-to-video',         name: 'Seedance 2 VIP',  badge: '4K · premium', credits: 188, sample: '' },
+    { slug: 'grok-imagine-text-to-video',           name: 'Grok Imagine',    badge: 'Cheapest',  credits: 19, sample: '/app/media/ugc.mp4' },
+    { slug: 'seedance-2-mini-text-to-video',        name: 'Seedance 2 Mini', badge: 'Fast',      credits: 50, sample: '/app/media/avatar2.mp4' },
+    { slug: 'kling-v3-turbo-standard-text-to-video', name: 'Kling Turbo',    badge: 'Kuaishou',  credits: 70, sample: '/app/media/avatar.mp4' },
+    { slug: 'seedance-2-text-to-video',             name: 'Seedance 2',      badge: 'ByteDance', credits: 75, sample: '/app/media/movie.mp4' },
+    { slug: 'kling-v3-turbo-pro-text-to-video',     name: 'Kling Turbo Pro', badge: 'Kuaishou',  credits: 88, sample: '/app/media/avatar-tile.mp4' },
+    { slug: 'veo3-text-to-video',                   name: 'Veo 3',           badge: 'Google',    credits: 150, sample: '/app/media/hero.mp4' },
+    { slug: 'seedance-2-vip-text-to-video',         name: 'Seedance 2 VIP',  badge: '4K · premium', credits: 188, sample: '/app/media/fashion.mp4' },
   ],
   TOOL_MODELS: [
-    { slug: 'ai-image-upscale',      name: 'Image Upscale',     badge: 'Enhance', credits: 5,  sample: '' },
-    { slug: 'ai-background-remover',  name: 'Remove Background', badge: 'Cutout',  credits: 3,  sample: '' },
-    { slug: 'ai-object-eraser',      name: 'Object Eraser',     badge: 'Clean',   credits: 5,  sample: '' },
+    { slug: 'ai-image-upscale',      name: 'Image Upscale',     badge: 'Enhance', credits: 5,  sample: '/app/media/samples/s2.jpg' },
+    { slug: 'ai-background-remover',  name: 'Remove Background', badge: 'Cutout',  credits: 3,  sample: '/app/media/samples/s6.jpg' },
+    { slug: 'ai-object-eraser',      name: 'Object Eraser',     badge: 'Clean',   credits: 5,  sample: '/app/media/samples/s4.jpg' },
   ],
 
   // Quick idea chips on Home — tapping fills the FULL prompt (not just the title).
@@ -1049,6 +1049,34 @@ window.fuseLightbox = (url, type) => {
   document.getElementById('lightbox').style.display = 'grid';
 };
 
+// Poll an async render job until it completes (videos take minutes).
+function pollJob(requestId, resultEl, noteId, btn, btnLabel) {
+  let s = 0;
+  const timer = setInterval(async () => {
+    s += 4;
+    try {
+      const r = await fetch(`/.netlify/functions/job-status?id=${requestId}`, { headers: { ...(await authHeader()) } });
+      const d = await r.json();
+      if (d.status === 'completed') {
+        clearInterval(timer);
+        lastOutput = d.url;
+        resultEl.innerHTML = `<div><video src="${d.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${d.url}')">⬇ Download</button></div></div>`;
+        note(noteId, 'Done ✅', 'ok');
+        if (btn) { btn.disabled = false; btn.textContent = btnLabel; }
+      } else if (d.status === 'failed') {
+        clearInterval(timer);
+        resultEl.innerHTML = '<div>⚠ ' + (d.error || 'Failed') + '</div>';
+        note(noteId, (d.error || 'Failed') + ' — credits refunded.', 'err');
+        if (user) loadProfile();
+        if (btn) { btn.disabled = false; btn.textContent = btnLabel; }
+      } else {
+        const dd = resultEl.querySelector('div div'); if (dd) dd.textContent = `Rendering… (${s}s)`;
+      }
+    } catch (e) {}
+    if (s >= 360) { clearInterval(timer); note(noteId, 'Still rendering — check Projects in a minute.', 'err'); if (btn) { btn.disabled = false; btn.textContent = btnLabel; } }
+  }, 4000);
+}
+
 async function authHeader() {
   const { data } = await sb.auth.getSession();
   const t = data.session && data.session.access_token;
@@ -1120,25 +1148,21 @@ function setStudioMode(video) {
 }
 async function generateStudioVideo(prompt) {
   const model = $('model').value, aspect = $('aspect').value;
-  const btn = $('genBtn'); btn.disabled = true; btn.textContent = 'Generating…';
-  $('result').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Rendering your video… 1–3 min</div></div>';
+  const btn = $('genBtn'); const label = '🎬 Generate video'; btn.disabled = true; btn.textContent = 'Submitting…';
+  $('result').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Sending to the engine…</div></div>';
   note('genNote', '');
-  let t = 0; const iv = setInterval(() => { t += 3; const d = $('result').querySelector('div div'); if (d) d.textContent = `Rendering… (${t}s)`; }, 3000);
   try {
     const res = await fetch('/.netlify/functions/video-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
       body: JSON.stringify({ model, prompt, aspect, duration: $('studioDuration').value, image_url: refUrls[0] || undefined }),
     });
-    const data = await res.json(); clearInterval(iv);
-    if (res.status === 402) { note('genNote', 'Out of credits — top up.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; }
-    else if (!res.ok) throw new Error(data.error || 'Failed');
-    else {
-      lastOutput = data.url; $('creditCount').textContent = data.credits;
-      $('result').innerHTML = `<div><video src="${data.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
-      note('genNote', 'Done ✅', 'ok');
-    }
-  } catch (e) { clearInterval(iv); $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); }
-  btn.disabled = false; btn.textContent = '🎬 Generate video';
+    const data = await res.json();
+    if (res.status === 402) { note('genNote', 'Out of credits — top up.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; btn.disabled = false; btn.textContent = label; return; }
+    if (!res.ok) throw new Error(data.error || 'Failed');
+    $('creditCount').textContent = data.credits;
+    note('genNote', 'Rendering… this can take 1–3 min ⏳', 'ok'); btn.textContent = 'Rendering…';
+    pollJob(data.request_id, $('result'), 'genNote', btn, label);
+  } catch (e) { $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 
 // ---------------- video studio ----------------
@@ -1171,26 +1195,21 @@ async function videoGenerate() {
   if (!vModel) return;
   const prompt = $('vPrompt').value.trim();
   if (!prompt && !vRefUrl) return note('vNote', 'Add a prompt or a starting image.', 'err');
-  const btn = $('vGen'); btn.disabled = true; btn.textContent = 'Generating…';
-  $('vResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Rendering your video… this can take 1–3 min</div></div>';
+  const btn = $('vGen'); const label = `🎬 Generate video (${vModel.credits} credits)`; btn.disabled = true; btn.textContent = 'Submitting…';
+  $('vResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Sending to the engine…</div></div>';
   note('vNote', '');
-  let t = 0; const iv = setInterval(() => { t += 3; const d = $('vResult').querySelector('div div'); if (d) d.textContent = `Rendering… (${t}s)`; }, 3000);
   try {
     const res = await fetch('/.netlify/functions/video-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
       body: JSON.stringify({ model: vModel.slug, prompt, aspect: $('vAspect').value, duration: $('vDuration').value, resolution: $('vRes').value, image_url: vRefUrl || undefined }),
     });
-    const data = await res.json(); clearInterval(iv);
-    if (res.status === 402) { note('vNote', 'Out of credits — top up.', 'err'); openBuy(); $('vResult').innerHTML = '<div>Out of credits.</div>'; }
-    else if (!res.ok) throw new Error(data.error || 'Failed');
-    else {
-      lastOutput = data.url;
-      $('creditCount').textContent = data.credits;
-      $('vResult').innerHTML = `<div><video src="${data.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
-      note('vNote', 'Done ✅', 'ok');
-    }
-  } catch (e) { clearInterval(iv); $('vResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('vNote', e.message || 'Failed — credits not charged.', 'err'); }
-  btn.disabled = false; btn.textContent = `🎬 Generate video (${vModel.credits} credits)`;
+    const data = await res.json();
+    if (res.status === 402) { note('vNote', 'Out of credits — top up.', 'err'); openBuy(); $('vResult').innerHTML = '<div>Out of credits.</div>'; btn.disabled = false; btn.textContent = label; return; }
+    if (!res.ok) throw new Error(data.error || 'Failed');
+    $('creditCount').textContent = data.credits;
+    note('vNote', 'Rendering… this can take 1–3 min ⏳', 'ok'); btn.textContent = 'Rendering…';
+    pollJob(data.request_id, $('vResult'), 'vNote', btn, label);
+  } catch (e) { $('vResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('vNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 
 function openStudio(key) {
