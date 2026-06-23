@@ -22,6 +22,20 @@ const usd = (n) => '$' + Math.round(n / cfg.USD_RATE);
 const price = (n) => (showUsd ? usd(n) : naira(n));
 // Download via our proxy so it saves the file directly (no new browser tab).
 const dlHref = (u) => `/.netlify/functions/download?url=${encodeURIComponent(u)}&name=fuse-${Date.now()}`;
+async function downloadFile(url) {
+  try {
+    const res = await fetch(dlHref(url));
+    if (!res.ok) throw new Error('proxy');
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    const o = URL.createObjectURL(blob);
+    a.href = o;
+    a.download = `fuse-${Date.now()}.${blob.type.includes('video') ? 'mp4' : blob.type.includes('png') ? 'png' : 'jpg'}`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(o), 5000);
+  } catch (e) { window.location.href = dlHref(url); }
+}
+window.fuseDownload = downloadFile;
 
 async function authHeader() {
   const { data } = await sb.auth.getSession();
@@ -120,7 +134,7 @@ async function videoGenerate() {
     else {
       lastOutput = data.url;
       $('creditCount').textContent = data.credits;
-      $('vResult').innerHTML = `<div><video src="${data.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><a class="btn gold sm" href="${dlHref(data.url)}" download>⬇ Download</a></div></div>`;
+      $('vResult').innerHTML = `<div><video src="${data.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
       note('vNote', 'Done ✅', 'ok');
     }
   } catch (e) { clearInterval(iv); $('vResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('vNote', e.message || 'Failed — credits not charged.', 'err'); }
@@ -132,6 +146,7 @@ function openStudio(key) {
   if (key === 'market') { showView('market'); loadMarket(); return; }
   if (key === 'learn') { showView('learn'); buildLessons(); return; }
   if (key === 'avatar') { showView('avatar'); loadAvatars(); return; }
+  if (key === 'promptgen') { showView('promptgen'); return; }
   activeStudio = cfg.STUDIOS.find((s) => s.key === key) || cfg.STUDIOS[0];
   $('studioIcon').textContent = activeStudio.icon;
   $('studioName').textContent = activeStudio.name;
@@ -145,6 +160,7 @@ function openStudio(key) {
 function buildHome() {
   // tool cards (studios + reactor + marketplace + academy)
   const cards = cfg.STUDIOS.filter((s) => s.key !== 'generate').concat([
+    { key: 'promptgen', name: 'Prompt Generator', icon: '🧬', tag: 'NEW', desc: 'Pro prompts in 1 tap · 1 cr' },
     { key: 'reactor', name: cfg.REACTOR_NAME, icon: '⚛️', tag: 'NEW', desc: 'Claude · Gemini · ChatGPT & more' },
     { key: 'market',  name: 'Marketplace',     icon: '🛒', tag: '',    desc: 'Use & sell community presets' },
     { key: 'learn',   name: 'Fuse Academy',    icon: '🎓', tag: '',    desc: 'Learn & earn 20 credits' },
@@ -220,7 +236,7 @@ async function generate() {
     else {
       lastOutput = data.url;
       $('creditCount').textContent = data.credits;
-      $('result').innerHTML = `<div><img src="${data.url}" alt="result"><div style="margin-top:12px"><a class="btn gold sm" href="${dlHref(data.url)}" download>⬇ Download</a></div></div>`;
+      $('result').innerHTML = `<div><img src="${data.url}" alt="result"><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
       note('genNote', 'Done ✅', 'ok');
     }
   } catch (e) { clearInterval(iv); $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); }
@@ -423,11 +439,34 @@ async function avatarGenerate() {
     else {
       lastOutput = data.url;
       $('creditCount').textContent = data.credits;
-      $('avResult').innerHTML = `<div><img src="${data.url}" alt="avatar"><div style="margin-top:12px"><a class="btn gold sm" href="${dlHref(data.url)}" download>⬇ Download</a></div></div>`;
+      $('avResult').innerHTML = `<div><img src="${data.url}" alt="avatar"><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
       note('avGenNote', 'Done ✅', 'ok');
     }
   } catch (e) { $('avResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('avGenNote', e.message || 'Failed — credits not charged.', 'err'); }
   btn.disabled = false; btn.textContent = '✨ Generate (12 credits)';
+}
+
+// ---------------- prompt generator (charged, 1 credit) ----------------
+async function pgGenerate() {
+  if (preview) { showAuth('signup'); return; }
+  const btn = $('pgGen'); btn.disabled = true; btn.textContent = 'Writing…';
+  try {
+    const res = await fetch('/.netlify/functions/prompt-gen', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ subject: $('pgSubject').value.trim(), setting: $('pgSetting').value, outfit: $('pgOutfit').value, light: $('pgLight').value, shot: $('pgShot').value }),
+    });
+    const d = await res.json();
+    if (res.status === 402) { note('pgNote', 'Out of credits — top up.', 'err'); openBuy(); }
+    else if (!res.ok) throw new Error(d.error || 'Failed');
+    else { $('pgResult').value = d.prompt; if (d.credits != null) $('creditCount').textContent = d.credits; note('pgNote', '✨ Prompt ready — edit it or use it below.', 'ok'); }
+  } catch (e) { note('pgNote', e.message || 'Failed', 'err'); }
+  btn.disabled = false; btn.textContent = '✨ Generate prompt (1 credit)';
+}
+function pgUse() {
+  const p = $('pgResult').value.trim();
+  if (!p) return note('pgNote', 'Generate a prompt first.', 'err');
+  openStudio('generate');
+  $('prompt').value = p;
 }
 
 // ---------------- marketplace ----------------
@@ -644,7 +683,7 @@ async function runTool() {
     else if (!res.ok) throw new Error(data.error || 'Failed');
     else {
       $('creditCount').textContent = data.credits;
-      $('toolResult').innerHTML = `<div><img src="${data.url}"><div style="margin-top:12px"><a class="btn gold sm" href="${dlHref(data.url)}" download>⬇ Download</a></div></div>`;
+      $('toolResult').innerHTML = `<div><img src="${data.url}"><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
       note('toolNote', 'Done ✅', 'ok');
     }
   } catch (e) { $('toolResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('toolNote', e.message || 'Failed — credits not charged.', 'err'); }
@@ -729,6 +768,9 @@ window.addEventListener('DOMContentLoaded', () => {
   $('marketBack').onclick = () => showView('home');
   $('learnBack').onclick = () => showView('home');
   $('avatarBack').onclick = () => showView('home');
+  $('pgBack').onclick = () => showView('home');
+  $('pgGen').onclick = pgGenerate;
+  $('pgUse').onclick = pgUse;
   $('avCreate').onclick = createAvatar;
   $('avGen').onclick = avatarGenerate;
   $('bBuild').onclick = buildAvatarPrompt;

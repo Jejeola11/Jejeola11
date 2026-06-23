@@ -502,11 +502,10 @@ window.FUSE = {
     { slug: 'seedream-5.0',          name: 'Seedream 5.0',   badge: 'ByteDance', credits: 8,  sample: '' },
   ],
   VIDEO_MODELS: [
-    { slug: 'seedance-v2.0-t2v',          name: 'Seedance 2.0', badge: 'ByteDance', credits: 75,  sample: '' },
-    { slug: 'kling-v2.6-pro-t2v',         name: 'Kling 2.6 Pro', badge: 'Kuaishou', credits: 88,  sample: '' },
-    { slug: 'minimax-hailuo-02-pro-t2v',  name: 'Hailuo 02 Pro', badge: 'MiniMax',  credits: 75,  sample: '' },
-    { slug: 'wan2.5-text-to-video',       name: 'Wan 2.5',       badge: 'Alibaba',  credits: 75,  sample: '' },
-    { slug: 'veo3.1-text-to-video',       name: 'Veo 3.1',       badge: 'Google',   credits: 100, sample: '' },
+    { slug: 'seedance-2.5-text-to-video',          name: 'Seedance 2.5',  badge: 'ByteDance', credits: 75, sample: '' },
+    { slug: 'seedance-2.1-text-to-video',          name: 'Seedance 2.1',  badge: 'ByteDance', credits: 50, sample: '' },
+    { slug: 'kling-v3-turbo-pro-text-to-video',    name: 'Kling Turbo Pro', badge: 'Kuaishou', credits: 88, sample: '' },
+    { slug: 'kling-v3-turbo-standard-text-to-video', name: 'Kling Turbo',  badge: 'Kuaishou', credits: 70, sample: '' },
   ],
   TOOL_MODELS: [
     { slug: 'ai-image-upscale',      name: 'Image Upscale',     badge: 'Enhance', credits: 5,  sample: '' },
@@ -585,19 +584,12 @@ window.FUSE = {
 
   <!-- ===== HOME ===== -->
   <section class="view active" id="view-home">
-    <div class="promo-banner" id="homePromo"></div>
 
-    <div class="streak" id="streakCard">
-      <div><div class="sn">🔥 Daily reward</div><div class="sd" id="streakText">Claim 1 free credit today</div></div>
-      <button class="btn gold sm" id="streakBtn">Claim</button>
-    </div>
-
-    <div class="shead"><h2>Studios</h2></div>
-    <div class="tools" id="toolGrid"></div>
-
-    <div class="shead"><h2>✨ Made with Fuse Studio</h2></div>
+    <!-- 1. Featured visuals of what you can make -->
+    <div class="shead" style="margin-top:14px"><h2>✨ What you can create</h2></div>
     <div class="showrow">
       <div class="showcard wide"><video src="/app/media/movie.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🎬 Detective film</div></div>
+      <div class="showcard wide"><video src="/app/media/hero.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🎬 Childcare ad</div></div>
       <div class="showcard"><video src="/app/media/ugc.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">📣 UGC product ad</div></div>
       <div class="showcard"><video src="/app/media/fashion.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🖼 Fashion shoot</div></div>
       <div class="showcard"><video src="/app/media/avatar-tile.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🧑‍🎨 AI presenter</div></div>
@@ -605,11 +597,25 @@ window.FUSE = {
       <div class="showcard"><video src="/app/media/avatar2.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🗣 Talking avatar</div></div>
     </div>
 
+    <!-- 2. Fuse Atelier promo -->
+    <div class="promo-banner" id="homePromo"></div>
+
+    <!-- 3. Features (studios) -->
+    <div class="shead"><h2>Studios & tools</h2></div>
+    <div class="tools" id="toolGrid"></div>
+
+    <!-- 4. Quick starts -->
     <div class="shead"><h2>🇳🇬 Naija packs</h2></div>
     <div class="chips" id="naijaChips"></div>
 
     <div class="shead"><h2>Quick ideas</h2></div>
     <div class="chips" id="presetChips"></div>
+
+    <!-- daily reward -->
+    <div class="streak" id="streakCard" style="margin-top:18px">
+      <div><div class="sn">🔥 Daily reward</div><div class="sd" id="streakText">Claim 1 free credit today</div></div>
+      <button class="btn gold sm" id="streakBtn">Claim</button>
+    </div>
 
     <div class="shead"><h2>Made with Fuse Studio</h2><a id="seeLib">See all →</a></div>
     <div class="libgrid" id="homeRecent"></div>
@@ -654,6 +660,26 @@ window.FUSE = {
       <button class="btn gold block" id="avGen" style="margin-top:14px">✨ Generate (12 credits)</button>
       <div class="note" id="avGenNote"></div>
       <div class="result" id="avResult" style="margin-top:12px;min-height:300px"><div class="muted">Your consistent-face image appears here.</div></div>
+    </div>
+  </section>
+
+  <!-- ===== PROMPT GENERATOR (charged) ===== -->
+  <section class="view" id="view-promptgen">
+    <div class="backlink" id="pgBack">← Studios</div>
+    <div class="studio-head"><div class="ic">🧬</div><div><h2>Prompt Generator</h2><p>Turn a few choices into a pro prompt · 1 credit</p></div></div>
+    <div class="panel" style="margin-top:14px">
+      <label class="fld" for="pgSubject">What or who is it?</label>
+      <input id="pgSubject" placeholder="e.g. a Nigerian skincare founder, a jollof rice product, my avatar">
+      <div class="builder" style="margin-top:8px">
+        <select id="pgSetting"><option value="">Setting…</option><option>modern Lagos office</option><option>luxury studio backdrop</option><option>outdoor city street</option><option>elegant event / owambe</option><option>cozy home interior</option><option>fashion runway</option></select>
+        <select id="pgOutfit"><option value="">Outfit / style…</option><option>sharp business suit</option><option>stylish aso-ebi</option><option>casual streetwear</option><option>elegant evening wear</option><option>creative artsy look</option></select>
+        <select id="pgLight"><option value="">Lighting / mood…</option><option>soft studio light</option><option>golden hour glow</option><option>dramatic cinematic light</option><option>bright clean daylight</option><option>moody editorial</option></select>
+        <select id="pgShot"><option value="">Shot type…</option><option>close-up portrait</option><option>half-body shot</option><option>full-body shot</option><option>magazine cover</option></select>
+      </div>
+      <button class="btn gold block" id="pgGen" style="margin-top:14px">✨ Generate prompt (1 credit)</button>
+      <div class="note" id="pgNote"></div>
+      <textarea id="pgResult" style="margin-top:12px;min-height:90px" placeholder="Your pro prompt appears here…"></textarea>
+      <button class="btn ghost block" id="pgUse" style="margin-top:8px">Use this prompt to generate →</button>
     </div>
   </section>
 
@@ -944,6 +970,20 @@ const usd = (n) => '
 const price = (n) => (showUsd ? usd(n) : naira(n));
 // Download via our proxy so it saves the file directly (no new browser tab).
 const dlHref = (u) => `/.netlify/functions/download?url=${encodeURIComponent(u)}&name=fuse-${Date.now()}`;
+async function downloadFile(url) {
+  try {
+    const res = await fetch(dlHref(url));
+    if (!res.ok) throw new Error('proxy');
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    const o = URL.createObjectURL(blob);
+    a.href = o;
+    a.download = `fuse-${Date.now()}.${blob.type.includes('video') ? 'mp4' : blob.type.includes('png') ? 'png' : 'jpg'}`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(o), 5000);
+  } catch (e) { window.location.href = dlHref(url); }
+}
+window.fuseDownload = downloadFile;
 
 async function authHeader() {
   const { data } = await sb.auth.getSession();
@@ -1042,7 +1082,7 @@ async function videoGenerate() {
     else {
       lastOutput = data.url;
       $('creditCount').textContent = data.credits;
-      $('vResult').innerHTML = `<div><video src="${data.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><a class="btn gold sm" href="${dlHref(data.url)}" download>⬇ Download</a></div></div>`;
+      $('vResult').innerHTML = `<div><video src="${data.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
       note('vNote', 'Done ✅', 'ok');
     }
   } catch (e) { clearInterval(iv); $('vResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('vNote', e.message || 'Failed — credits not charged.', 'err'); }
@@ -1054,6 +1094,7 @@ function openStudio(key) {
   if (key === 'market') { showView('market'); loadMarket(); return; }
   if (key === 'learn') { showView('learn'); buildLessons(); return; }
   if (key === 'avatar') { showView('avatar'); loadAvatars(); return; }
+  if (key === 'promptgen') { showView('promptgen'); return; }
   activeStudio = cfg.STUDIOS.find((s) => s.key === key) || cfg.STUDIOS[0];
   $('studioIcon').textContent = activeStudio.icon;
   $('studioName').textContent = activeStudio.name;
@@ -1067,6 +1108,7 @@ function openStudio(key) {
 function buildHome() {
   // tool cards (studios + reactor + marketplace + academy)
   const cards = cfg.STUDIOS.filter((s) => s.key !== 'generate').concat([
+    { key: 'promptgen', name: 'Prompt Generator', icon: '🧬', tag: 'NEW', desc: 'Pro prompts in 1 tap · 1 cr' },
     { key: 'reactor', name: cfg.REACTOR_NAME, icon: '⚛️', tag: 'NEW', desc: 'Claude · Gemini · ChatGPT & more' },
     { key: 'market',  name: 'Marketplace',     icon: '🛒', tag: '',    desc: 'Use & sell community presets' },
     { key: 'learn',   name: 'Fuse Academy',    icon: '🎓', tag: '',    desc: 'Learn & earn 20 credits' },
@@ -1142,7 +1184,7 @@ async function generate() {
     else {
       lastOutput = data.url;
       $('creditCount').textContent = data.credits;
-      $('result').innerHTML = `<div><img src="${data.url}" alt="result"><div style="margin-top:12px"><a class="btn gold sm" href="${dlHref(data.url)}" download>⬇ Download</a></div></div>`;
+      $('result').innerHTML = `<div><img src="${data.url}" alt="result"><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
       note('genNote', 'Done ✅', 'ok');
     }
   } catch (e) { clearInterval(iv); $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); }
@@ -1348,11 +1390,34 @@ async function avatarGenerate() {
     else {
       lastOutput = data.url;
       $('creditCount').textContent = data.credits;
-      $('avResult').innerHTML = `<div><img src="${data.url}" alt="avatar"><div style="margin-top:12px"><a class="btn gold sm" href="${dlHref(data.url)}" download>⬇ Download</a></div></div>`;
+      $('avResult').innerHTML = `<div><img src="${data.url}" alt="avatar"><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
       note('avGenNote', 'Done ✅', 'ok');
     }
   } catch (e) { $('avResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('avGenNote', e.message || 'Failed — credits not charged.', 'err'); }
   btn.disabled = false; btn.textContent = '✨ Generate (12 credits)';
+}
+
+// ---------------- prompt generator (charged, 1 credit) ----------------
+async function pgGenerate() {
+  if (preview) { showAuth('signup'); return; }
+  const btn = $('pgGen'); btn.disabled = true; btn.textContent = 'Writing…';
+  try {
+    const res = await fetch('/.netlify/functions/prompt-gen', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ subject: $('pgSubject').value.trim(), setting: $('pgSetting').value, outfit: $('pgOutfit').value, light: $('pgLight').value, shot: $('pgShot').value }),
+    });
+    const d = await res.json();
+    if (res.status === 402) { note('pgNote', 'Out of credits — top up.', 'err'); openBuy(); }
+    else if (!res.ok) throw new Error(d.error || 'Failed');
+    else { $('pgResult').value = d.prompt; if (d.credits != null) $('creditCount').textContent = d.credits; note('pgNote', '✨ Prompt ready — edit it or use it below.', 'ok'); }
+  } catch (e) { note('pgNote', e.message || 'Failed', 'err'); }
+  btn.disabled = false; btn.textContent = '✨ Generate prompt (1 credit)';
+}
+function pgUse() {
+  const p = $('pgResult').value.trim();
+  if (!p) return note('pgNote', 'Generate a prompt first.', 'err');
+  openStudio('generate');
+  $('prompt').value = p;
 }
 
 // ---------------- marketplace ----------------
@@ -1569,7 +1634,7 @@ async function runTool() {
     else if (!res.ok) throw new Error(data.error || 'Failed');
     else {
       $('creditCount').textContent = data.credits;
-      $('toolResult').innerHTML = `<div><img src="${data.url}"><div style="margin-top:12px"><a class="btn gold sm" href="${dlHref(data.url)}" download>⬇ Download</a></div></div>`;
+      $('toolResult').innerHTML = `<div><img src="${data.url}"><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
       note('toolNote', 'Done ✅', 'ok');
     }
   } catch (e) { $('toolResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('toolNote', e.message || 'Failed — credits not charged.', 'err'); }
@@ -1654,6 +1719,9 @@ window.addEventListener('DOMContentLoaded', () => {
   $('marketBack').onclick = () => showView('home');
   $('learnBack').onclick = () => showView('home');
   $('avatarBack').onclick = () => showView('home');
+  $('pgBack').onclick = () => showView('home');
+  $('pgGen').onclick = pgGenerate;
+  $('pgUse').onclick = pgUse;
   $('avCreate').onclick = createAvatar;
   $('avGen').onclick = avatarGenerate;
   $('bBuild').onclick = buildAvatarPrompt;

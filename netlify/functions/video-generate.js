@@ -44,12 +44,13 @@ exports.handler = async (event) => {
   if (!user) return json(401, { error: 'Please sign in again.' });
 
   let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
-  const model = body.model;
   const prompt = (body.prompt || '').trim();
   const aspect = body.aspect || '16:9';
   const duration = body.duration || '5s';
   const resolution = body.resolution || '480p';
   const image_url = (body.image_url || '').trim() || undefined;
+  // If a starting image is attached, use the image-to-video variant of the model.
+  const model = image_url ? (body.model || '').replace('text-to-video', 'image-to-video') : body.model;
 
   const cost = VIDEO_MODELS[model];
   if (!cost) return json(400, { error: 'Unknown video model.' });

@@ -30,19 +30,12 @@
 
   <!-- ===== HOME ===== -->
   <section class="view active" id="view-home">
-    <div class="promo-banner" id="homePromo"></div>
 
-    <div class="streak" id="streakCard">
-      <div><div class="sn">🔥 Daily reward</div><div class="sd" id="streakText">Claim 1 free credit today</div></div>
-      <button class="btn gold sm" id="streakBtn">Claim</button>
-    </div>
-
-    <div class="shead"><h2>Studios</h2></div>
-    <div class="tools" id="toolGrid"></div>
-
-    <div class="shead"><h2>✨ Made with Fuse Studio</h2></div>
+    <!-- 1. Featured visuals of what you can make -->
+    <div class="shead" style="margin-top:14px"><h2>✨ What you can create</h2></div>
     <div class="showrow">
       <div class="showcard wide"><video src="/app/media/movie.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🎬 Detective film</div></div>
+      <div class="showcard wide"><video src="/app/media/hero.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🎬 Childcare ad</div></div>
       <div class="showcard"><video src="/app/media/ugc.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">📣 UGC product ad</div></div>
       <div class="showcard"><video src="/app/media/fashion.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🖼 Fashion shoot</div></div>
       <div class="showcard"><video src="/app/media/avatar-tile.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🧑‍🎨 AI presenter</div></div>
@@ -50,11 +43,25 @@
       <div class="showcard"><video src="/app/media/avatar2.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🗣 Talking avatar</div></div>
     </div>
 
+    <!-- 2. Fuse Atelier promo -->
+    <div class="promo-banner" id="homePromo"></div>
+
+    <!-- 3. Features (studios) -->
+    <div class="shead"><h2>Studios & tools</h2></div>
+    <div class="tools" id="toolGrid"></div>
+
+    <!-- 4. Quick starts -->
     <div class="shead"><h2>🇳🇬 Naija packs</h2></div>
     <div class="chips" id="naijaChips"></div>
 
     <div class="shead"><h2>Quick ideas</h2></div>
     <div class="chips" id="presetChips"></div>
+
+    <!-- daily reward -->
+    <div class="streak" id="streakCard" style="margin-top:18px">
+      <div><div class="sn">🔥 Daily reward</div><div class="sd" id="streakText">Claim 1 free credit today</div></div>
+      <button class="btn gold sm" id="streakBtn">Claim</button>
+    </div>
 
     <div class="shead"><h2>Made with Fuse Studio</h2><a id="seeLib">See all →</a></div>
     <div class="libgrid" id="homeRecent"></div>
@@ -99,6 +106,26 @@
       <button class="btn gold block" id="avGen" style="margin-top:14px">✨ Generate (12 credits)</button>
       <div class="note" id="avGenNote"></div>
       <div class="result" id="avResult" style="margin-top:12px;min-height:300px"><div class="muted">Your consistent-face image appears here.</div></div>
+    </div>
+  </section>
+
+  <!-- ===== PROMPT GENERATOR (charged) ===== -->
+  <section class="view" id="view-promptgen">
+    <div class="backlink" id="pgBack">← Studios</div>
+    <div class="studio-head"><div class="ic">🧬</div><div><h2>Prompt Generator</h2><p>Turn a few choices into a pro prompt · 1 credit</p></div></div>
+    <div class="panel" style="margin-top:14px">
+      <label class="fld" for="pgSubject">What or who is it?</label>
+      <input id="pgSubject" placeholder="e.g. a Nigerian skincare founder, a jollof rice product, my avatar">
+      <div class="builder" style="margin-top:8px">
+        <select id="pgSetting"><option value="">Setting…</option><option>modern Lagos office</option><option>luxury studio backdrop</option><option>outdoor city street</option><option>elegant event / owambe</option><option>cozy home interior</option><option>fashion runway</option></select>
+        <select id="pgOutfit"><option value="">Outfit / style…</option><option>sharp business suit</option><option>stylish aso-ebi</option><option>casual streetwear</option><option>elegant evening wear</option><option>creative artsy look</option></select>
+        <select id="pgLight"><option value="">Lighting / mood…</option><option>soft studio light</option><option>golden hour glow</option><option>dramatic cinematic light</option><option>bright clean daylight</option><option>moody editorial</option></select>
+        <select id="pgShot"><option value="">Shot type…</option><option>close-up portrait</option><option>half-body shot</option><option>full-body shot</option><option>magazine cover</option></select>
+      </div>
+      <button class="btn gold block" id="pgGen" style="margin-top:14px">✨ Generate prompt (1 credit)</button>
+      <div class="note" id="pgNote"></div>
+      <textarea id="pgResult" style="margin-top:12px;min-height:90px" placeholder="Your pro prompt appears here…"></textarea>
+      <button class="btn ghost block" id="pgUse" style="margin-top:8px">Use this prompt to generate →</button>
     </div>
   </section>
 

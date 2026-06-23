@@ -62,11 +62,10 @@ window.FUSE = {
     { slug: 'seedream-5.0',          name: 'Seedream 5.0',   badge: 'ByteDance', credits: 8,  sample: '' },
   ],
   VIDEO_MODELS: [
-    { slug: 'seedance-v2.0-t2v',          name: 'Seedance 2.0', badge: 'ByteDance', credits: 75,  sample: '' },
-    { slug: 'kling-v2.6-pro-t2v',         name: 'Kling 2.6 Pro', badge: 'Kuaishou', credits: 88,  sample: '' },
-    { slug: 'minimax-hailuo-02-pro-t2v',  name: 'Hailuo 02 Pro', badge: 'MiniMax',  credits: 75,  sample: '' },
-    { slug: 'wan2.5-text-to-video',       name: 'Wan 2.5',       badge: 'Alibaba',  credits: 75,  sample: '' },
-    { slug: 'veo3.1-text-to-video',       name: 'Veo 3.1',       badge: 'Google',   credits: 100, sample: '' },
+    { slug: 'seedance-2.5-text-to-video',          name: 'Seedance 2.5',  badge: 'ByteDance', credits: 75, sample: '' },
+    { slug: 'seedance-2.1-text-to-video',          name: 'Seedance 2.1',  badge: 'ByteDance', credits: 50, sample: '' },
+    { slug: 'kling-v3-turbo-pro-text-to-video',    name: 'Kling Turbo Pro', badge: 'Kuaishou', credits: 88, sample: '' },
+    { slug: 'kling-v3-turbo-standard-text-to-video', name: 'Kling Turbo',  badge: 'Kuaishou', credits: 70, sample: '' },
   ],
   TOOL_MODELS: [
     { slug: 'ai-image-upscale',      name: 'Image Upscale',     badge: 'Enhance', credits: 5,  sample: '' },

@@ -69,12 +69,15 @@ const IMAGE_COST = {
   'z-image': 0.02,
   'seedream-5.0': 0.03,
 };
-const VIDEO_COST = {        // ~$0.60–0.80/clip on MuAPI
-  'seedance-v2.0-t2v': 0.60,
-  'kling-v2.6-pro-t2v': 0.70,
-  'minimax-hailuo-02-pro-t2v': 0.60,
-  'wan2.5-text-to-video': 0.60,
-  'veo3.1-text-to-video': 0.80,
+const VIDEO_COST = {        // exact MuAPI slugs + prices (from dashboard)
+  'seedance-2.5-text-to-video': 0.60,
+  'seedance-2.5-image-to-video': 0.60,
+  'seedance-2.1-text-to-video': 0.40,
+  'seedance-2.1-image-to-video': 0.40,
+  'kling-v3-turbo-pro-text-to-video': 0.70,
+  'kling-v3-turbo-pro-image-to-video': 0.70,
+  'kling-v3-turbo-standard-text-to-video': 0.56,
+  'kling-v3-turbo-standard-image-to-video': 0.56,
 };
 const TOOL_COST = {         // utility tools (take an input image -> output)
   'ai-image-upscale': 0.02,
