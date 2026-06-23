@@ -436,6 +436,13 @@ textarea{min-height:104px;resize:vertical}
 .reactor-cta{font-size:15px;padding:14px 18px;line-height:1.35;text-align:center}
 @media (max-width:600px){ .reactor-cta{font-size:13.5px;padding:12px 14px} }
 
+/* projects (library) items with download button */
+.projitem{position:relative}
+.projitem img,.projitem video{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);display:block}
+.projitem .dlbtn{position:absolute;bottom:6px;right:6px;background:var(--gold);color:#1a1205;border:0;border-radius:8px;padding:5px 9px;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.projitem .dlbtn:active{transform:translateY(1px)}
+#libTabs{position:static}
+
 </style>
 <script>
 // ============================================================
@@ -631,11 +638,12 @@ window.FUSE = {
     <div class="libgrid" id="avatarList"></div>
 
     <div class="panel" style="margin-top:14px">
-      <h3>➕ Create a new avatar</h3>
-      <p class="muted" style="margin:0 0 10px;font-size:13px">Upload a clear, front-facing selfie (good light, just your face). We lock that identity so every generation looks like you. 🪄</p>
+      <h3>➕ Train a new avatar</h3>
+      <p class="muted" style="margin:0 0 10px;font-size:13px">Upload <b>up to 10 clear photos</b> of yourself (different angles, good light). The more you add, the more consistent your avatar looks. 🪄</p>
       <input id="avNewName" placeholder="Avatar name, e.g. 'Me — pro look'">
-      <input id="avFile" type="file" accept="image/*" style="margin-top:8px;padding:9px">
-      <button class="btn gold block" id="avCreate" style="margin-top:10px">Create avatar</button>
+      <input id="avFile" type="file" accept="image/*" multiple style="margin-top:8px;padding:9px">
+      <div class="muted" id="avCount" style="font-size:12px;margin-top:6px"></div>
+      <button class="btn gold block" id="avCreate" style="margin-top:10px">Train avatar</button>
       <div class="note" id="avNote"></div>
     </div>
 
@@ -658,7 +666,7 @@ window.FUSE = {
       <textarea id="avPrompt" placeholder="e.g. CEO in a modern Lagos office, navy suit, magazine cover lighting"></textarea>
       <label class="fld" for="avAspect">Aspect</label>
       <select id="avAspect"><option value="9:16">9:16 vertical</option><option value="1:1">1:1 square</option><option value="4:5">4:5 portrait</option><option value="16:9">16:9 wide</option></select>
-      <button class="btn gold block" id="avGen" style="margin-top:14px">✨ Generate (12 credits)</button>
+      <button class="btn gold block" id="avGen" style="margin-top:14px">✨ Generate (10 credits)</button>
       <div class="note" id="avGenNote"></div>
       <div class="result" id="avResult" style="margin-top:12px;min-height:300px"><div class="muted">Your consistent-face image appears here.</div></div>
     </div>
@@ -690,10 +698,12 @@ window.FUSE = {
     <div class="studio-head"><div class="ic">🛒</div><div><h2>Preset Marketplace</h2><p>Use community looks · publish yours & earn</p></div></div>
     <div class="panel" style="margin-top:14px">
       <label class="fld">Publish your creation as a preset</label>
-      <div class="muted" id="mpHasMedia" style="font-size:12px;margin-bottom:8px"></div>
       <input id="mpTitle" placeholder="Preset title, e.g. 'Glossy skincare ad'">
       <textarea id="mpPrompt" placeholder="The prompt to share…" style="min-height:70px;margin-top:8px"></textarea>
-      <input id="mpPrice" type="number" min="2" value="10" placeholder="Price in credits" style="margin-top:8px">
+      <label class="fld">Preview image or video (buyers see this)</label>
+      <input id="mpFile" type="file" accept="image/*,video/*" style="padding:9px">
+      <div class="muted" id="mpHasMedia" style="font-size:12px;margin:6px 0"></div>
+      <input id="mpPrice" type="number" min="2" value="10" placeholder="Price in credits" style="margin-top:4px">
       <button class="btn ghost block" id="mpPublish" style="margin-top:10px">Publish preset</button>
       <div class="note" id="mpNote"></div>
       <p class="muted" style="font-size:11px;margin-top:8px">You earn 50% of every sale in credits. 💰</p>
@@ -799,7 +809,7 @@ window.FUSE = {
           </select>
         </div>
       </div>
-      <div class="refbtn" id="refBtn"><span>🖼 Add image reference(s) — up to 3 (optional)</span></div>
+      <div class="refbtn" id="refBtn"><span>🖼 Add image reference(s) — up to 5 (optional)</span></div>
       <input id="refFile" type="file" accept="image/*" multiple style="display:none">
       <div id="refPreview" style="display:none;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap">
         <div id="refThumbs" style="display:flex;gap:8px;flex-wrap:wrap"></div>
@@ -834,19 +844,25 @@ window.FUSE = {
   <section class="view" id="view-community">
     <div class="shead"><h2>Challenges</h2></div>
     <div id="challengeList"></div>
-    <div class="shead"><h2>Earn credits with content</h2></div>
+    <div class="shead"><h2>Earn credits with content 📸</h2></div>
     <div class="panel">
-      <p class="muted" style="margin:0 0 10px;font-size:14px">Post a video/photo made with Fuse Studio, drop the link, and earn credits when it's approved. 🎁</p>
-      <input id="contentUrl" type="url" placeholder="https://tiktok.com/@you/video/…">
-      <button class="btn gold block" id="contentSubmit" style="margin-top:10px">Submit for credits</button>
+      <p class="muted" style="margin:0 0 10px;font-size:14px">Post your Fuse Studio creation on <b>Instagram</b> with <b class="gold">#FuseStudio</b>, drop the link below, and earn credits when it's approved. 🎁</p>
+      <input id="contentUrl" type="url" placeholder="https://instagram.com/p/your-post…">
+      <button class="btn gold block" id="contentSubmit" style="margin-top:10px">Submit my Instagram post</button>
       <div class="note" id="contentNote"></div>
     </div>
   </section>
 
   <!-- ===== LIBRARY ===== -->
   <section class="view" id="view-library">
-    <div class="shead"><h2>Your library</h2></div>
-    <div class="libgrid" id="libGrid"></div>
+    <div class="shead"><h2>Your projects</h2></div>
+    <div class="mtabs" id="libTabs">
+      <button class="mtab active" data-t="all">All</button>
+      <button class="mtab" data-t="image">🖼 Images</button>
+      <button class="mtab" data-t="video">🎬 Videos</button>
+      <button class="mtab" data-t="audio">🎵 Audio</button>
+    </div>
+    <div class="libgrid" id="libGrid" style="margin-top:12px"></div>
   </section>
 
   <!-- ===== PROFILE ===== -->
@@ -870,13 +886,6 @@ window.FUSE = {
       <div class="note" id="payoutNote"></div>
     </div>
 
-    <div class="shead"><h2>Generate on WhatsApp 🤖</h2></div>
-    <div class="panel">
-      <p class="muted" style="margin:0 0 8px;font-size:14px">Link your WhatsApp number, then text prompts to our bot and get images right in your chats.</p>
-      <div class="refbox"><input id="waPhone" placeholder="2348012345678 (country code, no +)"><button class="btn ghost sm" id="waLink">Link</button></div>
-      <div class="note" id="waNote"></div>
-    </div>
-
     <button class="btn ghost block" id="logoutBtn" style="margin-top:18px">Log out</button>
   </section>
 
@@ -888,7 +897,7 @@ window.FUSE = {
     <button class="tab active" data-view="home"><span class="ti">🏠</span>Home</button>
     <button class="tab" data-view="community"><span class="ti">👥</span>Community</button>
     <button class="tab center" data-view="models"><span class="ti">✨</span>Create</button>
-    <button class="tab" data-view="library"><span class="ti">📚</span>Library</button>
+    <button class="tab" data-view="library"><span class="ti">📚</span>Projects</button>
     <button class="tab" data-view="profile"><span class="ti">👤</span>Profile</button>
   </div>
 </nav>
@@ -999,24 +1008,29 @@ async function authHeader() {
 function note(id, msg, kind) { const e = $(id); e.textContent = msg || ''; e.className = 'note' + (kind ? ' ' + kind : ''); }
 
 // ---------------- view routing ----------------
+let curView = 'home';
+const scrollMem = {};
 function showView(name, opts = {}) {
+  scrollMem[curView] = window.scrollY;          // remember where we were
   document.querySelectorAll('.view').forEach((v) => v.classList.remove('active'));
   const el = $('view-' + name);
   if (el) el.classList.add('active');
   document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.view === name));
-  window.scrollTo(0, 0);
+  curView = name;
   if (name === 'library') loadLibrary();
   if (name === 'profile') loadProfile();
   if (name === 'community') loadChallenges();
   if (name === 'reactor') buildReactor();
   if (name === 'models') buildModels(modelKind);
+  // Restore previous scroll for this view (top for first visit).
+  window.scrollTo(0, scrollMem[name] || 0);
 }
 
 // ---------------- model gallery (Image / Video / Reactor) ----------------
 let modelKind = 'image';
 function buildModels(kind) {
   modelKind = kind || 'image';
-  document.querySelectorAll('.mtab').forEach((t) => t.classList.toggle('active', t.dataset.kind === modelKind));
+  document.querySelectorAll('#view-models .mtab').forEach((t) => t.classList.toggle('active', t.dataset.kind === modelKind));
   if (modelKind === 'reactor') { showView('reactor'); return; }
   const list = modelKind === 'video' ? cfg.VIDEO_MODELS : modelKind === 'tools' ? cfg.TOOL_MODELS : cfg.IMAGE_MODELS;
   const q = ($('modelSearch').value || '').toLowerCase();
@@ -1267,12 +1281,20 @@ async function reactorSend() {
 }
 
 // ---------------- library / recent ----------------
+let libFilter = 'all';
 async function loadLibrary() {
   if (preview) return demoGrid('libGrid');
-  const { data } = await sb.from('generations').select('output_url').eq('user_id', user.id).order('created_at', { ascending: false }).limit(30);
+  let q = sb.from('generations').select('output_url, type').eq('user_id', user.id).order('created_at', { ascending: false }).limit(40);
+  if (libFilter !== 'all') q = q.eq('type', libFilter === 'image' ? 'image' : libFilter);
+  const { data } = await q;
   const g = $('libGrid');
-  g.innerHTML = (data && data.length) ? data.map((x) => `<img src="${x.output_url}" onclick="window.open('${x.output_url}','_blank')">`).join('')
-    : '<div class="empty">No creations yet — make your first ✨</div>';
+  if (!data || !data.length) { g.innerHTML = '<div class="empty" style="grid-column:1/-1">Nothing here yet — create something ✨</div>'; return; }
+  g.innerHTML = data.map((x) => {
+    const media = x.type === 'video'
+      ? `<video src="${x.output_url}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()"></video>`
+      : `<img src="${x.output_url}">`;
+    return `<div class="projitem">${media}<button class="dlbtn" onclick="fuseDownload('${x.output_url}')">⬇</button></div>`;
+  }).join('');
 }
 async function loadRecent() {
   if (preview) return demoGrid('homeRecent');
@@ -1393,19 +1415,22 @@ function selectAvatar(id, name) {
 async function createAvatar() {
   if (preview) { showAuth('signup'); return; }
   const name = $('avNewName').value.trim();
-  const file = $('avFile').files[0];
-  if (!name || !file) return note('avNote', 'Add a name and choose a selfie.', 'err');
-  $('avCreate').disabled = true; note('avNote', 'Uploading…', 'ok');
+  const files = Array.from($('avFile').files).slice(0, 10);
+  if (!name || !files.length) return note('avNote', 'Add a name and choose your photos.', 'err');
+  $('avCreate').disabled = true; note('avNote', `Uploading ${files.length} photo(s)…`, 'ok');
   try {
-    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-    const path = `${user.id}/${Date.now()}.${ext}`;
-    const { error: upErr } = await sb.storage.from('avatars').upload(path, file, { upsert: false });
-    if (upErr) throw upErr;
-    const { data: pub } = sb.storage.from('avatars').getPublicUrl(path);
-    const { error: insErr } = await sb.from('avatars').insert({ user_id: user.id, name, image_url: pub.publicUrl });
+    const urls = [];
+    for (const file of files) {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${user.id}/av-${Date.now()}-${urls.length}.${ext}`;
+      const { error: upErr } = await sb.storage.from('avatars').upload(path, file);
+      if (upErr) throw upErr;
+      urls.push(sb.storage.from('avatars').getPublicUrl(path).data.publicUrl);
+    }
+    const { error: insErr } = await sb.from('avatars').insert({ user_id: user.id, name, image_url: urls[0], image_urls: urls });
     if (insErr) throw insErr;
-    note('avNote', '✅ Avatar created! Tap it above to generate.', 'ok');
-    $('avNewName').value = ''; $('avFile').value = '';
+    note('avNote', `✅ Avatar trained on ${urls.length} photo(s)! Tap it above to generate.`, 'ok');
+    $('avNewName').value = ''; $('avFile').value = ''; $('avCount').textContent = '';
     loadAvatars();
   } catch (e) { note('avNote', e.message || 'Could not create avatar.', 'err'); }
   $('avCreate').disabled = false;
@@ -1435,7 +1460,7 @@ async function avatarGenerate() {
       note('avGenNote', 'Done ✅', 'ok');
     }
   } catch (e) { $('avResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('avGenNote', e.message || 'Failed — credits not charged.', 'err'); }
-  btn.disabled = false; btn.textContent = '✨ Generate (12 credits)';
+  btn.disabled = false; btn.textContent = '✨ Generate (10 credits)';
 }
 
 // ---------------- prompt generator (charged, 1 credit) ----------------
@@ -1482,12 +1507,30 @@ async function publishPreset() {
   const title = $('mpTitle').value.trim(), prompt = $('mpPrompt').value.trim();
   const price = Math.max(2, parseInt($('mpPrice').value, 10) || 10);
   if (!title || !prompt) return note('mpNote', 'Add a title and a prompt.', 'err');
-  const kind = (lastOutput && /\.(mp4|webm|mov)(\?|$)/i.test(lastOutput)) ? 'video' : 'image';
+
+  // Use the uploaded preview if provided, else the last creation.
+  let mediaUrl = lastOutput || null, kind = 'image';
+  const file = $('mpFile').files[0];
+  if (file) {
+    note('mpNote', 'Uploading preview…', 'ok');
+    try {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${user.id}/mp-${Date.now()}.${ext}`;
+      const { error: upErr } = await sb.storage.from('avatars').upload(path, file);
+      if (upErr) throw upErr;
+      mediaUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+      kind = file.type.startsWith('video') ? 'video' : 'image';
+    } catch (e) { return note('mpNote', e.message || 'Upload failed.', 'err'); }
+  } else if (lastOutput) {
+    kind = /\.(mp4|webm|mov)(\?|$)/i.test(lastOutput) ? 'video' : 'image';
+  }
+  if (!mediaUrl) return note('mpNote', 'Add a preview image/video so buyers can see it.', 'err');
+
   const { error } = await sb.from('marketplace_presets').insert({
-    owner_id: user.id, title, prompt, price_credits: price, output_url: lastOutput || null, kind,
+    owner_id: user.id, title, prompt, price_credits: price, output_url: mediaUrl, kind,
   });
   note('mpNote', error ? error.message : `✅ Published at ${price} credits! You earn ${Math.floor(price / 2)} credits per sale.`, error ? 'err' : 'ok');
-  if (!error) { $('mpTitle').value = ''; loadMarket(); }
+  if (!error) { $('mpTitle').value = ''; $('mpFile').value = ''; loadMarket(); }
 }
 async function buyPreset(id, btn) {
   if (preview) { showAuth('signup'); return; }
@@ -1615,7 +1658,7 @@ async function pickReferences(files) {
   note('genNote', 'Uploading reference(s)…', 'ok');
   try {
     for (const file of Array.from(files)) {
-      if (refUrls.length >= 3) break;
+      if (refUrls.length >= 5) break;
       const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
       const path = `${user.id}/ref-${Date.now()}-${refUrls.length}.${ext}`;
       const { error } = await sb.storage.from('avatars').upload(path, file);
@@ -1629,7 +1672,7 @@ async function pickReferences(files) {
 function renderRefThumbs() {
   $('refThumbs').innerHTML = refUrls.map((u) => `<img src="${u}" class="refthumb">`).join('');
   $('refPreview').style.display = refUrls.length ? 'flex' : 'none';
-  $('refBtn').style.display = refUrls.length >= 3 ? 'none' : 'flex';
+  $('refBtn').style.display = refUrls.length >= 5 ? 'none' : 'flex';
 }
 function removeReference() { refUrls = []; renderRefThumbs(); $('refFile').value = ''; }
 
@@ -1764,6 +1807,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('pgGen').onclick = pgGenerate;
   $('pgUse').onclick = pgUse;
   $('avCreate').onclick = createAvatar;
+  $('avFile').onchange = () => { const n = Math.min($('avFile').files.length, 10); $('avCount').textContent = n ? `${n} photo${n > 1 ? 's' : ''} selected` : ''; };
   $('avGen').onclick = avatarGenerate;
   $('bBuild').onclick = buildAvatarPrompt;
   $('qSkip').onclick = skipQuiz;
@@ -1777,7 +1821,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('toolFile').onchange = (e) => pickToolImage(e.target.files[0]);
   $('toolRun').onclick = runTool;
   // model gallery + video studio
-  document.querySelectorAll('.mtab').forEach((t) => t.onclick = () => buildModels(t.dataset.kind));
+  document.querySelectorAll('#view-models .mtab').forEach((t) => t.onclick = () => buildModels(t.dataset.kind));
   $('modelSearch').oninput = () => buildModels(modelKind);
   $('videoBack').onclick = () => showView('models');
   $('vGen').onclick = videoGenerate;
@@ -1790,7 +1834,11 @@ window.addEventListener('DOMContentLoaded', () => {
   $('mpPublish').onclick = publishPreset;
   $('learnClaim').onclick = claimLearn;
   $('learnCourse').onclick = () => { location.href = '/atelier'; };
-  $('waLink').onclick = linkWhatsapp;
+  document.querySelectorAll('#libTabs .mtab').forEach((t) => t.onclick = () => {
+    libFilter = t.dataset.t;
+    document.querySelectorAll('#libTabs .mtab').forEach((x) => x.classList.toggle('active', x === t));
+    loadLibrary();
+  });
   $('genBtn').onclick = generate;
   $('rcSend').onclick = reactorSend;
   $('buyBtn').onclick = openBuy; $('creditPill').onclick = openBuy;

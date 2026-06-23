@@ -46,24 +46,29 @@ async function authHeader() {
 function note(id, msg, kind) { const e = $(id); e.textContent = msg || ''; e.className = 'note' + (kind ? ' ' + kind : ''); }
 
 // ---------------- view routing ----------------
+let curView = 'home';
+const scrollMem = {};
 function showView(name, opts = {}) {
+  scrollMem[curView] = window.scrollY;          // remember where we were
   document.querySelectorAll('.view').forEach((v) => v.classList.remove('active'));
   const el = $('view-' + name);
   if (el) el.classList.add('active');
   document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.view === name));
-  window.scrollTo(0, 0);
+  curView = name;
   if (name === 'library') loadLibrary();
   if (name === 'profile') loadProfile();
   if (name === 'community') loadChallenges();
   if (name === 'reactor') buildReactor();
   if (name === 'models') buildModels(modelKind);
+  // Restore previous scroll for this view (top for first visit).
+  window.scrollTo(0, scrollMem[name] || 0);
 }
 
 // ---------------- model gallery (Image / Video / Reactor) ----------------
 let modelKind = 'image';
 function buildModels(kind) {
   modelKind = kind || 'image';
-  document.querySelectorAll('.mtab').forEach((t) => t.classList.toggle('active', t.dataset.kind === modelKind));
+  document.querySelectorAll('#view-models .mtab').forEach((t) => t.classList.toggle('active', t.dataset.kind === modelKind));
   if (modelKind === 'reactor') { showView('reactor'); return; }
   const list = modelKind === 'video' ? cfg.VIDEO_MODELS : modelKind === 'tools' ? cfg.TOOL_MODELS : cfg.IMAGE_MODELS;
   const q = ($('modelSearch').value || '').toLowerCase();
@@ -314,12 +319,20 @@ async function reactorSend() {
 }
 
 // ---------------- library / recent ----------------
+let libFilter = 'all';
 async function loadLibrary() {
   if (preview) return demoGrid('libGrid');
-  const { data } = await sb.from('generations').select('output_url').eq('user_id', user.id).order('created_at', { ascending: false }).limit(30);
+  let q = sb.from('generations').select('output_url, type').eq('user_id', user.id).order('created_at', { ascending: false }).limit(40);
+  if (libFilter !== 'all') q = q.eq('type', libFilter === 'image' ? 'image' : libFilter);
+  const { data } = await q;
   const g = $('libGrid');
-  g.innerHTML = (data && data.length) ? data.map((x) => `<img src="${x.output_url}" onclick="window.open('${x.output_url}','_blank')">`).join('')
-    : '<div class="empty">No creations yet — make your first ✨</div>';
+  if (!data || !data.length) { g.innerHTML = '<div class="empty" style="grid-column:1/-1">Nothing here yet — create something ✨</div>'; return; }
+  g.innerHTML = data.map((x) => {
+    const media = x.type === 'video'
+      ? `<video src="${x.output_url}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()"></video>`
+      : `<img src="${x.output_url}">`;
+    return `<div class="projitem">${media}<button class="dlbtn" onclick="fuseDownload('${x.output_url}')">⬇</button></div>`;
+  }).join('');
 }
 async function loadRecent() {
   if (preview) return demoGrid('homeRecent');
@@ -437,19 +450,22 @@ function selectAvatar(id, name) {
 async function createAvatar() {
   if (preview) { showAuth('signup'); return; }
   const name = $('avNewName').value.trim();
-  const file = $('avFile').files[0];
-  if (!name || !file) return note('avNote', 'Add a name and choose a selfie.', 'err');
-  $('avCreate').disabled = true; note('avNote', 'Uploading…', 'ok');
+  const files = Array.from($('avFile').files).slice(0, 10);
+  if (!name || !files.length) return note('avNote', 'Add a name and choose your photos.', 'err');
+  $('avCreate').disabled = true; note('avNote', `Uploading ${files.length} photo(s)…`, 'ok');
   try {
-    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-    const path = `${user.id}/${Date.now()}.${ext}`;
-    const { error: upErr } = await sb.storage.from('avatars').upload(path, file, { upsert: false });
-    if (upErr) throw upErr;
-    const { data: pub } = sb.storage.from('avatars').getPublicUrl(path);
-    const { error: insErr } = await sb.from('avatars').insert({ user_id: user.id, name, image_url: pub.publicUrl });
+    const urls = [];
+    for (const file of files) {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${user.id}/av-${Date.now()}-${urls.length}.${ext}`;
+      const { error: upErr } = await sb.storage.from('avatars').upload(path, file);
+      if (upErr) throw upErr;
+      urls.push(sb.storage.from('avatars').getPublicUrl(path).data.publicUrl);
+    }
+    const { error: insErr } = await sb.from('avatars').insert({ user_id: user.id, name, image_url: urls[0], image_urls: urls });
     if (insErr) throw insErr;
-    note('avNote', '✅ Avatar created! Tap it above to generate.', 'ok');
-    $('avNewName').value = ''; $('avFile').value = '';
+    note('avNote', `✅ Avatar trained on ${urls.length} photo(s)! Tap it above to generate.`, 'ok');
+    $('avNewName').value = ''; $('avFile').value = ''; $('avCount').textContent = '';
     loadAvatars();
   } catch (e) { note('avNote', e.message || 'Could not create avatar.', 'err'); }
   $('avCreate').disabled = false;
@@ -479,7 +495,7 @@ async function avatarGenerate() {
       note('avGenNote', 'Done ✅', 'ok');
     }
   } catch (e) { $('avResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('avGenNote', e.message || 'Failed — credits not charged.', 'err'); }
-  btn.disabled = false; btn.textContent = '✨ Generate (12 credits)';
+  btn.disabled = false; btn.textContent = '✨ Generate (10 credits)';
 }
 
 // ---------------- prompt generator (charged, 1 credit) ----------------
@@ -526,12 +542,30 @@ async function publishPreset() {
   const title = $('mpTitle').value.trim(), prompt = $('mpPrompt').value.trim();
   const price = Math.max(2, parseInt($('mpPrice').value, 10) || 10);
   if (!title || !prompt) return note('mpNote', 'Add a title and a prompt.', 'err');
-  const kind = (lastOutput && /\.(mp4|webm|mov)(\?|$)/i.test(lastOutput)) ? 'video' : 'image';
+
+  // Use the uploaded preview if provided, else the last creation.
+  let mediaUrl = lastOutput || null, kind = 'image';
+  const file = $('mpFile').files[0];
+  if (file) {
+    note('mpNote', 'Uploading preview…', 'ok');
+    try {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${user.id}/mp-${Date.now()}.${ext}`;
+      const { error: upErr } = await sb.storage.from('avatars').upload(path, file);
+      if (upErr) throw upErr;
+      mediaUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+      kind = file.type.startsWith('video') ? 'video' : 'image';
+    } catch (e) { return note('mpNote', e.message || 'Upload failed.', 'err'); }
+  } else if (lastOutput) {
+    kind = /\.(mp4|webm|mov)(\?|$)/i.test(lastOutput) ? 'video' : 'image';
+  }
+  if (!mediaUrl) return note('mpNote', 'Add a preview image/video so buyers can see it.', 'err');
+
   const { error } = await sb.from('marketplace_presets').insert({
-    owner_id: user.id, title, prompt, price_credits: price, output_url: lastOutput || null, kind,
+    owner_id: user.id, title, prompt, price_credits: price, output_url: mediaUrl, kind,
   });
   note('mpNote', error ? error.message : `✅ Published at ${price} credits! You earn ${Math.floor(price / 2)} credits per sale.`, error ? 'err' : 'ok');
-  if (!error) { $('mpTitle').value = ''; loadMarket(); }
+  if (!error) { $('mpTitle').value = ''; $('mpFile').value = ''; loadMarket(); }
 }
 async function buyPreset(id, btn) {
   if (preview) { showAuth('signup'); return; }
@@ -659,7 +693,7 @@ async function pickReferences(files) {
   note('genNote', 'Uploading reference(s)…', 'ok');
   try {
     for (const file of Array.from(files)) {
-      if (refUrls.length >= 3) break;
+      if (refUrls.length >= 5) break;
       const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
       const path = `${user.id}/ref-${Date.now()}-${refUrls.length}.${ext}`;
       const { error } = await sb.storage.from('avatars').upload(path, file);
@@ -673,7 +707,7 @@ async function pickReferences(files) {
 function renderRefThumbs() {
   $('refThumbs').innerHTML = refUrls.map((u) => `<img src="${u}" class="refthumb">`).join('');
   $('refPreview').style.display = refUrls.length ? 'flex' : 'none';
-  $('refBtn').style.display = refUrls.length >= 3 ? 'none' : 'flex';
+  $('refBtn').style.display = refUrls.length >= 5 ? 'none' : 'flex';
 }
 function removeReference() { refUrls = []; renderRefThumbs(); $('refFile').value = ''; }
 
@@ -808,6 +842,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('pgGen').onclick = pgGenerate;
   $('pgUse').onclick = pgUse;
   $('avCreate').onclick = createAvatar;
+  $('avFile').onchange = () => { const n = Math.min($('avFile').files.length, 10); $('avCount').textContent = n ? `${n} photo${n > 1 ? 's' : ''} selected` : ''; };
   $('avGen').onclick = avatarGenerate;
   $('bBuild').onclick = buildAvatarPrompt;
   $('qSkip').onclick = skipQuiz;
@@ -821,7 +856,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('toolFile').onchange = (e) => pickToolImage(e.target.files[0]);
   $('toolRun').onclick = runTool;
   // model gallery + video studio
-  document.querySelectorAll('.mtab').forEach((t) => t.onclick = () => buildModels(t.dataset.kind));
+  document.querySelectorAll('#view-models .mtab').forEach((t) => t.onclick = () => buildModels(t.dataset.kind));
   $('modelSearch').oninput = () => buildModels(modelKind);
   $('videoBack').onclick = () => showView('models');
   $('vGen').onclick = videoGenerate;
@@ -834,7 +869,11 @@ window.addEventListener('DOMContentLoaded', () => {
   $('mpPublish').onclick = publishPreset;
   $('learnClaim').onclick = claimLearn;
   $('learnCourse').onclick = () => { location.href = '/atelier'; };
-  $('waLink').onclick = linkWhatsapp;
+  document.querySelectorAll('#libTabs .mtab').forEach((t) => t.onclick = () => {
+    libFilter = t.dataset.t;
+    document.querySelectorAll('#libTabs .mtab').forEach((x) => x.classList.toggle('active', x === t));
+    loadLibrary();
+  });
   $('genBtn').onclick = generate;
   $('rcSend').onclick = reactorSend;
   $('buyBtn').onclick = openBuy; $('creditPill').onclick = openBuy;

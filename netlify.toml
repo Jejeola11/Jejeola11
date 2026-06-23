@@ -27,10 +27,12 @@
   to = "/app/studio.html"
   status = 200
 
+# Atelier course lives on the owner's dedicated, perfected site.
 [[redirects]]
   from = "/atelier"
-  to = "/app/atelier.html"
-  status = 200
+  to = "https://fuse-atelier.netlify.app"
+  status = 302
+  force = true
 
 [[redirects]]
   from = "/app"

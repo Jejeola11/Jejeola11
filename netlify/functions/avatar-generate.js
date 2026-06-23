@@ -1,62 +1,39 @@
 // ============================================================
 // POST /.netlify/functions/avatar-generate   (AI Avatar Studio)
 // Auth required. Body: { avatar_id, prompt, aspect }
-// Generates the user IN a new scene while keeping their face consistent,
-// using fal.ai Flux + PuLID identity. Comes online when FAL_KEY is set.
-//   1. validate user + load their avatar (the reference selfie)
-//   2. spend credits (refunded on failure)
-//   3. call fal with the reference image + scene prompt
-//   4. save + return the consistent-face image
+// Generates the user in a new scene while keeping their trained face,
+// using MuAPI Nano Banana with the avatar's reference photos (up to 10).
+// Works with your existing MUAPI_KEY — no extra provider needed.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
 
-const AVATAR_COST = 12; // identity generation (fal PuLID ~$0.05) priced at ~4x margin
-const FAL_MODEL = 'fal-ai/flux-pulid';
+const AVATAR_COST = 10;
+const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
-const SIZE = {
-  '9:16': 'portrait_16_9',
-  '1:1': 'square_hd',
-  '4:5': 'portrait_4_3',
-  '16:9': 'landscape_16_9',
-};
-
-async function falGenerate({ prompt, reference_image_url, image_size }) {
-  const key = process.env.FAL_KEY;
-  const headers = { Authorization: `Key ${key}`, 'Content-Type': 'application/json' };
-
-  // submit
-  const sub = await fetch(`https://queue.fal.run/${FAL_MODEL}`, {
-    method: 'POST', headers,
-    body: JSON.stringify({ prompt, reference_image_url, image_size, num_inference_steps: 20, id_weight: 1 }),
+async function muapiAvatar({ prompt, image_urls, aspect }) {
+  const key = process.env.MUAPI_KEY;
+  const submit = await fetch(`${MUAPI_BASE}/nano-banana`, {
+    method: 'POST',
+    headers: { 'x-api-key': key, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, aspect_ratio: aspect, image_urls }),
   });
-  const subData = await sub.json();
-  if (!sub.ok) throw new Error((subData.detail && JSON.stringify(subData.detail)) || subData.error || ('Engine HTTP ' + sub.status));
-  const statusUrl = subData.status_url;
-  const responseUrl = subData.response_url;
-  if (!statusUrl) throw new Error('No job started');
-
-  // poll (~2.5 min max)
-  for (let i = 0; i < 60; i++) {
+  const txt = await submit.text();
+  let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
+  if (!submit.ok) throw new Error((j && (j.error || j.message)) || ('Engine HTTP ' + submit.status));
+  const id = j.request_id || j.id;
+  if (!id) throw new Error('Engine did not return a job id');
+  for (let i = 0; i < 85; i++) {
     await new Promise((r) => setTimeout(r, 2500));
-    const st = await fetch(statusUrl, { headers });
-    const sd = await st.json();
-    if (sd.status === 'COMPLETED') {
-      const res = await fetch(responseUrl, { headers });
-      const out = await res.json();
-      const url = out.images && out.images[0] && out.images[0].url;
-      return { url };
-    }
-    if (sd.status === 'FAILED' || sd.status === 'ERROR') throw new Error('Generation failed');
+    const p = await (await fetch(`${MUAPI_BASE}/predictions/${id}/result`, { headers: { 'x-api-key': key } })).json();
+    if (p.status === 'completed') return { url: p.outputs && p.outputs[0], cost_usd: p.cost && p.cost.amount_usd };
+    if (p.status === 'failed' || p.status === 'cancelled') throw new Error('Generation ' + p.status);
   }
   throw new Error('Timed out — please try again');
 }
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
-
-  if (!process.env.FAL_KEY) {
-    return json(503, { error: 'Avatar Studio is being connected — consistent-face generation comes online once your FAL_KEY is added.', code: 'NOT_CONNECTED' });
-  }
+  if (!process.env.MUAPI_KEY) return json(503, { error: 'Engine not connected (MUAPI_KEY missing).' });
 
   const user = await getUser(event);
   if (!user) return json(401, { error: 'Please sign in again.' });
@@ -67,21 +44,21 @@ exports.handler = async (event) => {
   if (!prompt) return json(400, { error: 'Describe the scene you want.' });
 
   const db = admin();
-
-  // Load the avatar (must belong to this user).
-  const { data: avatar } = await db.from('avatars').select('image_url, user_id, name').eq('id', body.avatar_id).maybeSingle();
+  const { data: avatar } = await db.from('avatars').select('image_url, image_urls, user_id').eq('id', body.avatar_id).maybeSingle();
   if (!avatar || avatar.user_id !== user.id) return json(404, { error: 'Avatar not found.' });
+  const imgs = (Array.isArray(avatar.image_urls) && avatar.image_urls.length) ? avatar.image_urls
+    : (avatar.image_url ? [avatar.image_url] : []);
+  if (!imgs.length) return json(400, { error: 'This avatar has no photos.' });
 
-  // Spend credits.
   const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: AVATAR_COST });
   if (balance === null) return json(402, { error: 'Not enough credits.', need: AVATAR_COST, code: 'NO_CREDITS' });
 
   try {
-    const r = await falGenerate({ prompt, reference_image_url: avatar.image_url, image_size: SIZE[aspect] || 'portrait_16_9' });
+    const r = await muapiAvatar({ prompt, image_urls: imgs, aspect });
     if (!r.url) throw new Error('No image returned');
     await db.from('generations').insert({
-      user_id: user.id, type: 'avatar', model: FAL_MODEL, prompt, aspect,
-      output_url: r.url, credits_spent: AVATAR_COST,
+      user_id: user.id, type: 'avatar', model: 'nano-banana', prompt, aspect,
+      output_url: r.url, cost_usd: r.cost_usd, credits_spent: AVATAR_COST,
     });
     return json(200, { url: r.url, credits: balance });
   } catch (e) {

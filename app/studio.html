@@ -76,11 +76,12 @@
     <div class="libgrid" id="avatarList"></div>
 
     <div class="panel" style="margin-top:14px">
-      <h3>➕ Create a new avatar</h3>
-      <p class="muted" style="margin:0 0 10px;font-size:13px">Upload a clear, front-facing selfie (good light, just your face). We lock that identity so every generation looks like you. 🪄</p>
+      <h3>➕ Train a new avatar</h3>
+      <p class="muted" style="margin:0 0 10px;font-size:13px">Upload <b>up to 10 clear photos</b> of yourself (different angles, good light). The more you add, the more consistent your avatar looks. 🪄</p>
       <input id="avNewName" placeholder="Avatar name, e.g. 'Me — pro look'">
-      <input id="avFile" type="file" accept="image/*" style="margin-top:8px;padding:9px">
-      <button class="btn gold block" id="avCreate" style="margin-top:10px">Create avatar</button>
+      <input id="avFile" type="file" accept="image/*" multiple style="margin-top:8px;padding:9px">
+      <div class="muted" id="avCount" style="font-size:12px;margin-top:6px"></div>
+      <button class="btn gold block" id="avCreate" style="margin-top:10px">Train avatar</button>
       <div class="note" id="avNote"></div>
     </div>
 
@@ -103,7 +104,7 @@
       <textarea id="avPrompt" placeholder="e.g. CEO in a modern Lagos office, navy suit, magazine cover lighting"></textarea>
       <label class="fld" for="avAspect">Aspect</label>
       <select id="avAspect"><option value="9:16">9:16 vertical</option><option value="1:1">1:1 square</option><option value="4:5">4:5 portrait</option><option value="16:9">16:9 wide</option></select>
-      <button class="btn gold block" id="avGen" style="margin-top:14px">✨ Generate (12 credits)</button>
+      <button class="btn gold block" id="avGen" style="margin-top:14px">✨ Generate (10 credits)</button>
       <div class="note" id="avGenNote"></div>
       <div class="result" id="avResult" style="margin-top:12px;min-height:300px"><div class="muted">Your consistent-face image appears here.</div></div>
     </div>
@@ -135,10 +136,12 @@
     <div class="studio-head"><div class="ic">🛒</div><div><h2>Preset Marketplace</h2><p>Use community looks · publish yours & earn</p></div></div>
     <div class="panel" style="margin-top:14px">
       <label class="fld">Publish your creation as a preset</label>
-      <div class="muted" id="mpHasMedia" style="font-size:12px;margin-bottom:8px"></div>
       <input id="mpTitle" placeholder="Preset title, e.g. 'Glossy skincare ad'">
       <textarea id="mpPrompt" placeholder="The prompt to share…" style="min-height:70px;margin-top:8px"></textarea>
-      <input id="mpPrice" type="number" min="2" value="10" placeholder="Price in credits" style="margin-top:8px">
+      <label class="fld">Preview image or video (buyers see this)</label>
+      <input id="mpFile" type="file" accept="image/*,video/*" style="padding:9px">
+      <div class="muted" id="mpHasMedia" style="font-size:12px;margin:6px 0"></div>
+      <input id="mpPrice" type="number" min="2" value="10" placeholder="Price in credits" style="margin-top:4px">
       <button class="btn ghost block" id="mpPublish" style="margin-top:10px">Publish preset</button>
       <div class="note" id="mpNote"></div>
       <p class="muted" style="font-size:11px;margin-top:8px">You earn 50% of every sale in credits. 💰</p>
@@ -244,7 +247,7 @@
           </select>
         </div>
       </div>
-      <div class="refbtn" id="refBtn"><span>🖼 Add image reference(s) — up to 3 (optional)</span></div>
+      <div class="refbtn" id="refBtn"><span>🖼 Add image reference(s) — up to 5 (optional)</span></div>
       <input id="refFile" type="file" accept="image/*" multiple style="display:none">
       <div id="refPreview" style="display:none;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap">
         <div id="refThumbs" style="display:flex;gap:8px;flex-wrap:wrap"></div>
@@ -279,19 +282,25 @@
   <section class="view" id="view-community">
     <div class="shead"><h2>Challenges</h2></div>
     <div id="challengeList"></div>
-    <div class="shead"><h2>Earn credits with content</h2></div>
+    <div class="shead"><h2>Earn credits with content 📸</h2></div>
     <div class="panel">
-      <p class="muted" style="margin:0 0 10px;font-size:14px">Post a video/photo made with Fuse Studio, drop the link, and earn credits when it's approved. 🎁</p>
-      <input id="contentUrl" type="url" placeholder="https://tiktok.com/@you/video/…">
-      <button class="btn gold block" id="contentSubmit" style="margin-top:10px">Submit for credits</button>
+      <p class="muted" style="margin:0 0 10px;font-size:14px">Post your Fuse Studio creation on <b>Instagram</b> with <b class="gold">#FuseStudio</b>, drop the link below, and earn credits when it's approved. 🎁</p>
+      <input id="contentUrl" type="url" placeholder="https://instagram.com/p/your-post…">
+      <button class="btn gold block" id="contentSubmit" style="margin-top:10px">Submit my Instagram post</button>
       <div class="note" id="contentNote"></div>
     </div>
   </section>
 
   <!-- ===== LIBRARY ===== -->
   <section class="view" id="view-library">
-    <div class="shead"><h2>Your library</h2></div>
-    <div class="libgrid" id="libGrid"></div>
+    <div class="shead"><h2>Your projects</h2></div>
+    <div class="mtabs" id="libTabs">
+      <button class="mtab active" data-t="all">All</button>
+      <button class="mtab" data-t="image">🖼 Images</button>
+      <button class="mtab" data-t="video">🎬 Videos</button>
+      <button class="mtab" data-t="audio">🎵 Audio</button>
+    </div>
+    <div class="libgrid" id="libGrid" style="margin-top:12px"></div>
   </section>
 
   <!-- ===== PROFILE ===== -->
@@ -315,13 +324,6 @@
       <div class="note" id="payoutNote"></div>
     </div>
 
-    <div class="shead"><h2>Generate on WhatsApp 🤖</h2></div>
-    <div class="panel">
-      <p class="muted" style="margin:0 0 8px;font-size:14px">Link your WhatsApp number, then text prompts to our bot and get images right in your chats.</p>
-      <div class="refbox"><input id="waPhone" placeholder="2348012345678 (country code, no +)"><button class="btn ghost sm" id="waLink">Link</button></div>
-      <div class="note" id="waNote"></div>
-    </div>
-
     <button class="btn ghost block" id="logoutBtn" style="margin-top:18px">Log out</button>
   </section>
 
@@ -333,7 +335,7 @@
     <button class="tab active" data-view="home"><span class="ti">🏠</span>Home</button>
     <button class="tab" data-view="community"><span class="ti">👥</span>Community</button>
     <button class="tab center" data-view="models"><span class="ti">✨</span>Create</button>
-    <button class="tab" data-view="library"><span class="ti">📚</span>Library</button>
+    <button class="tab" data-view="library"><span class="ti">📚</span>Projects</button>
     <button class="tab" data-view="profile"><span class="ti">👤</span>Profile</button>
   </div>
 </nav>
