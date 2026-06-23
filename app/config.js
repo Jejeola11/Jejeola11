@@ -84,15 +84,16 @@ window.FUSE = {
     { label: 'Cinematic portrait', prompt: 'cinematic portrait, dramatic rim lighting, moody atmosphere, film-grade color grade, shallow depth of field, shot on 85mm, ultra-detailed, poster quality' },
   ],
 
-  // Fuse Reactor — the multi-AI hub (renamed, not a Higgsfield copy).
+  // Fuse Reactor — the multi-AI hub (text models, all on MuAPI / your key).
   REACTOR_NAME: 'Fuse Reactor',
   REACTOR_MODELS: [
-    { id: 'anthropic/claude-3.5-sonnet', name: 'Claude',  badge: 'Anthropic', credits: 2, live: true },
-    { id: 'google/gemini-flash-1.5',     name: 'Gemini',  badge: 'Google',    credits: 1, live: true },
-    { id: 'openai/gpt-4o-mini',          name: 'ChatGPT', badge: 'OpenAI',    credits: 1, live: true },
-    { id: 'kling',  name: 'Kling Video',  badge: 'Video', credits: 40, live: false },
-    { id: 'heygen', name: 'HeyGen Avatar',badge: 'Video', credits: 50, live: false },
-    { id: 'veo',    name: 'Google Veo',   badge: 'Video', credits: 60, live: false },
+    { id: 'claude-sonnet-4-5', name: 'Claude Sonnet', badge: 'Anthropic', credits: 2, live: true },
+    { id: 'claude-opus-4-5',   name: 'Claude Opus',   badge: 'Anthropic', credits: 3, live: true },
+    { id: 'claude-haiku-4-5',  name: 'Claude Haiku',  badge: 'Anthropic', credits: 1, live: true },
+    { id: 'gpt-5-5',           name: 'ChatGPT 5.5',   badge: 'OpenAI',    credits: 2, live: true },
+    { id: 'gpt-5-2',           name: 'ChatGPT 5.2',   badge: 'OpenAI',    credits: 1, live: true },
+    { id: 'gemini-2-5-pro',    name: 'Gemini 2.5 Pro', badge: 'Google',   credits: 2, live: true },
+    { id: 'gemini-2-5-flash',  name: 'Gemini Flash',  badge: 'Google',    credits: 1, live: true },
   ],
 
   // Rotating promo pop-up (the Higgsfield-style effect).

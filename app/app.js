@@ -16,6 +16,7 @@ let activeStudio = cfg.STUDIOS[0];
 let lastPrompt = '';
 let lastOutput = '';   // last generated image/video URL (for publishing to marketplace)
 let refUrls = [];   // optional image reference(s) for the main generator (multi)
+let studioVideo = false;  // studio generator mode: image (false) or video (true)
 
 const naira = (n) => '₦' + Number(n).toLocaleString();
 const usd = (n) => '$' + Math.round(n / cfg.USD_RATE);
@@ -88,6 +89,39 @@ function openImageModel(slug) {
 function buildModelSelect() {
   $('model').innerHTML = cfg.IMAGE_MODELS.map((m) => `<option value="${m.slug}">${m.name} (${m.credits})</option>`).join('');
 }
+function buildVideoSelect() {
+  $('model').innerHTML = cfg.VIDEO_MODELS.map((m) => `<option value="${m.slug}">${m.name} (${m.credits})</option>`).join('');
+}
+// Studio mode: every studio can make an image OR a video.
+function setStudioMode(video) {
+  studioVideo = video;
+  $('smImg').classList.toggle('active', !video);
+  $('smVid').classList.toggle('active', video);
+  if (video) { buildVideoSelect(); $('genBtn').textContent = '🎬 Generate video'; }
+  else { buildModelSelect(); $('genBtn').textContent = '✨ Generate'; }
+}
+async function generateStudioVideo(prompt) {
+  const model = $('model').value, aspect = $('aspect').value;
+  const btn = $('genBtn'); btn.disabled = true; btn.textContent = 'Generating…';
+  $('result').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Rendering your video… 1–3 min</div></div>';
+  note('genNote', '');
+  let t = 0; const iv = setInterval(() => { t += 3; const d = $('result').querySelector('div div'); if (d) d.textContent = `Rendering… (${t}s)`; }, 3000);
+  try {
+    const res = await fetch('/.netlify/functions/video-generate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ model, prompt, aspect, image_url: refUrls[0] || undefined }),
+    });
+    const data = await res.json(); clearInterval(iv);
+    if (res.status === 402) { note('genNote', 'Out of credits — top up.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; }
+    else if (!res.ok) throw new Error(data.error || 'Failed');
+    else {
+      lastOutput = data.url; $('creditCount').textContent = data.credits;
+      $('result').innerHTML = `<div><video src="${data.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
+      note('genNote', 'Done ✅', 'ok');
+    }
+  } catch (e) { clearInterval(iv); $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); }
+  btn.disabled = false; btn.textContent = '🎬 Generate video';
+}
 
 // ---------------- video studio ----------------
 let vModel = null, vRefUrl = '';
@@ -153,6 +187,7 @@ function openStudio(key) {
   $('studioDesc').textContent = activeStudio.desc + (activeStudio.advanced ? ' · Beta' : '');
   $('result').innerHTML = '<div>Your creation appears here.<br><span class="muted">Write a prompt and hit Generate ✨</span></div>';
   note('genNote', '');
+  setStudioMode(false);
   showView('studio');
 }
 
@@ -218,6 +253,7 @@ async function generate() {
   if (!raw) return note('genNote', 'Describe what you want to create.', 'err');
   lastPrompt = raw;
   const prompt = activeStudio.template.replace('{input}', raw);
+  if (studioVideo) return generateStudioVideo(prompt);
   const model = $('model').value, aspect = $('aspect').value;
 
   const btn = $('genBtn'); btn.disabled = true; btn.textContent = 'Generating…';
@@ -778,6 +814,8 @@ window.addEventListener('DOMContentLoaded', () => {
   $('refBtn').onclick = () => $('refFile').click();
   $('refFile').onchange = (e) => pickReferences(e.target.files);
   $('refRemove').onclick = removeReference;
+  $('smImg').onclick = () => setStudioMode(false);
+  $('smVid').onclick = () => setStudioMode(true);
   $('toolBack').onclick = () => showView('models');
   $('toolPick').onclick = () => $('toolFile').click();
   $('toolFile').onchange = (e) => pickToolImage(e.target.files[0]);

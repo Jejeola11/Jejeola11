@@ -92,11 +92,16 @@ const VIDEO_MODELS = Object.fromEntries(Object.entries(VIDEO_COST).map(([k, v]) 
 const TOOL_MODELS = Object.fromEntries(Object.entries(TOOL_COST).map(([k, v]) => [k, creditsFor(v, IMAGE_MARGIN)]));
 const MODEL_COST = IMAGE_MODELS; // back-compat alias
 
-// Fuse Reactor — text-AI costs (credits per message). Cheap; included on paid plans.
+// Fuse Reactor — text-AI costs (credits per message). MuAPI charges ~$0 for
+// these, so even 1 credit is almost pure profit.
 const REACTOR_COST = {
-  'anthropic/claude-3.5-sonnet': 2,
-  'google/gemini-flash-1.5': 1,
-  'openai/gpt-4o-mini': 1,
+  'claude-sonnet-4-5': 2,
+  'claude-opus-4-5': 3,
+  'claude-haiku-4-5': 1,
+  'gpt-5-5': 2,
+  'gpt-5-2': 1,
+  'gemini-2-5-pro': 2,
+  'gemini-2-5-flash': 1,
 };
 
 module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST };
