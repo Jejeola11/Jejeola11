@@ -333,6 +333,17 @@
       <div class="note" id="payoutNote"></div>
     </div>
 
+    <div id="adminPanel" style="display:none">
+      <div class="shead"><h2>👑 Admin — grant access</h2></div>
+      <div class="panel">
+        <p class="muted" style="margin:0 0 8px;font-size:13px">Buyer paid by transfer? Enter their email, pick what they bought, tap Grant. 💸</p>
+        <input id="adminEmail" type="email" placeholder="buyer@email.com" autocomplete="off">
+        <select id="adminPack" style="margin-top:8px"></select>
+        <button class="btn gold block" id="adminGrant" style="margin-top:10px">Grant access</button>
+        <div class="note" id="adminNote"></div>
+      </div>
+    </div>
+
     <button class="btn ghost block" id="logoutBtn" style="margin-top:18px">Log out</button>
   </section>
 

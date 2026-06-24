@@ -386,7 +386,7 @@ async function loadProfile() {
     $('pfEmail').textContent = 'preview@fuse'; $('pfPlan').textContent = 'Preview'; $('pfCredits').textContent = '—';
     $('refLink').value = location.origin + '/?ref=YOURCODE'; $('pfAffiliate').textContent = '₦0'; return;
   }
-  const { data } = await sb.from('profiles').select('credits, plan, plan_expires_at, referral_code, affiliate_naira').eq('id', user.id).maybeSingle();
+  const { data } = await sb.from('profiles').select('credits, plan, plan_expires_at, referral_code, affiliate_naira, is_admin').eq('id', user.id).maybeSingle();
   if (!data) return;
   $('pfEmail').textContent = user.email;
   $('pfPlan').textContent = data.plan === 'free' ? 'Free trial' : 'Studio ' + data.plan;
@@ -395,6 +395,30 @@ async function loadProfile() {
   $('planBadge').textContent = data.plan === 'free' ? 'Trial' : data.plan;
   $('refLink').value = `${location.origin}/?ref=${data.referral_code}`;
   $('pfAffiliate').textContent = naira(data.affiliate_naira || 0);
+  // Admin grant panel — only for the owner.
+  if (data.is_admin) {
+    $('adminPanel').style.display = 'block';
+    if (!$('adminPack').children.length) {
+      $('adminPack').innerHTML = cfg.PACKS.map((p) => `<option value="${p.key}">${p.name} — ${naira(p.naira)} (${p.credits} cr)</option>`).join('');
+    }
+  } else { $('adminPanel').style.display = 'none'; }
+}
+async function adminGrant() {
+  const email = $('adminEmail').value.trim();
+  const pack = $('adminPack').value;
+  if (!email) return note('adminNote', 'Enter the buyer\'s email.', 'err');
+  const btn = $('adminGrant'); btn.disabled = true; btn.textContent = 'Granting…';
+  try {
+    const res = await fetch('/.netlify/functions/admin-grant', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ email, pack }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    note('adminNote', `✅ Granted ${d.credits} credits to ${d.email}${d.founding ? ' (incl. 2× founding bonus)' : ''}.`, 'ok');
+    $('adminEmail').value = '';
+  } catch (e) { note('adminNote', e.message || 'Failed', 'err'); }
+  btn.disabled = false; btn.textContent = 'Grant access';
 }
 
 // ---------------- community ----------------
@@ -940,6 +964,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('payoutBtn').onclick = requestPayout;
   $('copyRef').onclick = () => { navigator.clipboard.writeText($('refLink').value); $('copyRef').textContent = 'Copied!'; setTimeout(() => $('copyRef').textContent = 'Copy', 1500); };
   $('logoutBtn').onclick = logout;
+  $('adminGrant').onclick = adminGrant;
   $('lbClose').onclick = () => $('lightbox').style.display = 'none';
   $('lbDl').onclick = () => downloadFile(lbUrl);
   $('authBtn').onclick = doAuth;
