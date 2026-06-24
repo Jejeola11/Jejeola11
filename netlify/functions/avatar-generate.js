@@ -6,6 +6,7 @@
 // Works with your existing MUAPI_KEY — no extra provider needed.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
+const { muapiHostImage } = require('./_muapi');
 
 const AVATAR_COST = 10;
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
@@ -54,7 +55,8 @@ exports.handler = async (event) => {
   if (balance === null) return json(402, { error: 'Not enough credits.', need: AVATAR_COST, code: 'NO_CREDITS' });
 
   try {
-    const r = await muapiAvatar({ prompt, image_urls: imgs, aspect });
+    const hosted = await Promise.all(imgs.map(muapiHostImage));
+    const r = await muapiAvatar({ prompt, image_urls: hosted, aspect });
     if (!r.url) throw new Error('No image returned');
     await db.from('generations').insert({
       user_id: user.id, type: 'avatar', model: 'nano-banana', prompt, aspect,

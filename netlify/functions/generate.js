@@ -8,6 +8,7 @@
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
 const { IMAGE_MODELS } = require('./_packs');
+const { muapiHostImage } = require('./_muapi');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
@@ -101,8 +102,10 @@ exports.handler = async (event) => {
 
   // 2) Generate `count` images in parallel. Refund if all fail.
   try {
+    // Re-host reference images on MuAPI so the engine can always fetch them.
+    const hostedRefs = useRef ? await Promise.all(refs.map(muapiHostImage)) : undefined;
     const jobs = Array.from({ length: count }, () =>
-      muapiGenerate({ prompt, aspect, model, image_urls: useRef ? refs : undefined, resolution: resMult > 1 ? resolution : undefined })
+      muapiGenerate({ prompt, aspect, model, image_urls: hostedRefs, resolution: resMult > 1 ? resolution : undefined })
         .catch(() => null));
     const results = await Promise.all(jobs);
     const urls = results.filter((r) => r && r.url).map((r) => r.url);

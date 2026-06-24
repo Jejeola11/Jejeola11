@@ -6,6 +6,7 @@
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
 const { VIDEO_MODELS } = require('./_packs');
+const { muapiHostImage } = require('./_muapi');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
@@ -36,7 +37,7 @@ exports.handler = async (event) => {
 
   try {
     const payload = { prompt, aspect_ratio: aspect, duration, resolution };
-    if (image_url) payload.images_list = [image_url];
+    if (image_url) payload.images_list = [await muapiHostImage(image_url)];
     const sub = await fetch(`${MUAPI_BASE}/${model}`, {
       method: 'POST',
       headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },

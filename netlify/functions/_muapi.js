@@ -23,4 +23,22 @@ async function muapiGenerate({ prompt, aspect = '9:16', model = 'flux-schnell' }
   throw new Error('Timed out');
 }
 
-module.exports = { muapiGenerate };
+// Re-host a reference image on MuAPI's own CDN so the engine can always fetch
+// it (some external URLs aren't reachable by MuAPI). Returns the cdn.muapi.ai
+// URL, or the original on any failure.
+async function muapiHostImage(srcUrl) {
+  try {
+    const resp = await fetch(srcUrl);
+    if (!resp.ok) return srcUrl;
+    const buf = Buffer.from(await resp.arrayBuffer());
+    const ct = resp.headers.get('content-type') || 'image/jpeg';
+    const ext = ct.includes('png') ? 'png' : ct.includes('webp') ? 'webp' : 'jpg';
+    const fd = new FormData();
+    fd.append('file', new Blob([buf], { type: ct }), 'ref.' + ext);
+    const up = await fetch(`${MUAPI_BASE}/upload_file`, { method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY }, body: fd });
+    const j = await up.json();
+    return (j && j.url) ? j.url : srcUrl;
+  } catch (e) { return srcUrl; }
+}
+
+module.exports = { muapiGenerate, muapiHostImage };
