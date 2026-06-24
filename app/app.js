@@ -97,7 +97,7 @@ function showView(name, opts = {}) {
   if (name === 'profile') loadProfile();
   if (name === 'community') loadChallenges();
   if (name === 'reactor') buildReactor();
-  if (name === 'models') buildModels(modelKind);
+  if (name === 'models') { if (modelKind === 'reactor') modelKind = 'image'; buildModels(modelKind); }
   // Restore previous scroll for this view (top for first visit).
   window.scrollTo(0, scrollMem[name] || 0);
 }
