@@ -438,3 +438,10 @@ textarea{min-height:104px;resize:vertical}
 .fuse-toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(20px);background:var(--panel-2);border:1px solid var(--gold);color:var(--ink);padding:11px 18px;border-radius:999px;font-weight:700;font-size:14px;z-index:90;opacity:0;transition:.25s;box-shadow:var(--shadow);pointer-events:none;white-space:nowrap}
 .fuse-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #imgOpts{display:grid}
+
+/* founding 2x banner + glowing packs */
+.founding-banner{background:linear-gradient(90deg,rgba(231,194,92,.18),rgba(231,194,92,.05));border:1px solid var(--gold);border-radius:12px;padding:10px 12px;font-size:13px;font-weight:700;color:var(--ink);text-align:center;margin:0 0 12px;animation:fglow 1.8s ease-in-out infinite}
+.founding-banner b{color:var(--gold)}
+@keyframes fglow{0%,100%{box-shadow:0 0 0 0 rgba(231,194,92,.0)}50%{box-shadow:0 0 16px 0 rgba(231,194,92,.45)}}
+.pk.founding{position:relative}
+.pk.founding::after{content:"2×";position:absolute;top:-8px;right:-6px;background:var(--gold);color:#1a1205;font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;box-shadow:0 0 12px rgba(231,194,92,.6)}

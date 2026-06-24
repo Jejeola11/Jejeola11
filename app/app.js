@@ -422,8 +422,8 @@ async function requestPayout() {
 function openBuy() { renderPacks(); note('buyNote', ''); $('buyOverlay').style.display = 'grid'; }
 function renderPacks() {
   $('packList').innerHTML = cfg.PACKS.map((p) =>
-    `<div class="pk" data-pack="${p.key}"><div><div class="pkn">${p.name}${p.featured ? ' ⭐' : ''}</div>
-      <div class="pkc">${p.credits} credits · ${p.note}${p.kind === 'sub' ? ' /mo' : ''}</div></div>
+    `<div class="pk founding" data-pack="${p.key}"><div><div class="pkn">${p.name}${p.featured ? ' ⭐' : ''}</div>
+      <div class="pkc">${p.credits} <s style="opacity:.6">→</s> <b class="gold">${p.credits * 2} credits</b> · ${p.note}${p.kind === 'sub' ? ' /mo' : ''}</div></div>
       <div class="pka">${price(p.naira)}</div></div>`).join('');
   $('packList').querySelectorAll('.pk').forEach((el) => el.onclick = () => buy(el.dataset.pack, el));
   $('curToggle').textContent = showUsd ? 'Show ₦' : 'Show $';
@@ -890,7 +890,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (t.dataset.studio) openStudio(t.dataset.studio); else showView(t.dataset.view);
   });
   $('studioBack').onclick = () => showView('home');
-  $('reactorBack').onclick = () => showView('home');
+  $('reactorBack').onclick = () => showView('models');
   $('marketBack').onclick = () => showView('home');
   $('learnBack').onclick = () => showView('home');
   $('avatarBack').onclick = () => showView('home');
