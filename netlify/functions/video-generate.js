@@ -10,6 +10,17 @@ const { muapiHostImage } = require('./_muapi');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
+// Turn a MuAPI error body into a readable string (its `detail` is often an array).
+function muapiError(j, status) {
+  if (j && j.detail) {
+    if (Array.isArray(j.detail)) return j.detail.map((d) => (d && d.msg) || JSON.stringify(d)).join('; ');
+    if (typeof j.detail === 'string') return j.detail;
+    return JSON.stringify(j.detail);
+  }
+  if (j && j.error) return (j.error.message || j.error);
+  return 'Engine HTTP ' + status;
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
 
@@ -36,15 +47,20 @@ exports.handler = async (event) => {
   if (balance === null) return json(402, { error: 'Not enough credits.', code: 'NO_CREDITS' });
 
   try {
-    const payload = { prompt, aspect_ratio: aspect, duration, resolution };
-    if (image_url) payload.images_list = [await muapiHostImage(image_url)];
+    const durInt = parseInt(duration, 10) || 5;            // "5s" -> 5 (MuAPI wants an integer)
+    const payload = { prompt, aspect_ratio: aspect, duration: durInt, resolution };
+    if (image_url) {
+      const hosted = await muapiHostImage(image_url);
+      payload.images_list = [hosted];   // grok / seedance
+      payload.image_url = hosted;        // kling
+    }
     const sub = await fetch(`${MUAPI_BASE}/${model}`, {
       method: 'POST',
       headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
     const j = await sub.json();
-    if (!sub.ok) throw new Error((j && (j.detail || (j.error && j.error.message) || j.error)) || ('Engine HTTP ' + sub.status));
+    if (!sub.ok) throw new Error(muapiError(j, sub.status));
     const id = j.request_id || j.id;
     if (!id) throw new Error('Engine did not start the job');
 

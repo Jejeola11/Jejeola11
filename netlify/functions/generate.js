@@ -25,7 +25,12 @@ async function muapiGenerate({ prompt, aspect, model, image_urls, resolution }) 
   const txt = await submit.text();
   let j;
   try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
-  if (!submit.ok) throw new Error((j && (j.error || j.message)) || ('Engine HTTP ' + submit.status));
+  if (!submit.ok) {
+    let m = 'Engine HTTP ' + submit.status;
+    if (j && j.detail) m = Array.isArray(j.detail) ? j.detail.map((d) => (d && d.msg) || JSON.stringify(d)).join('; ') : (typeof j.detail === 'string' ? j.detail : JSON.stringify(j.detail));
+    else if (j && (j.error || j.message)) m = (j.error && j.error.message) || j.error || j.message;
+    throw new Error(m);
+  }
   const id = j.request_id || j.id;
   if (!id) throw new Error('Engine did not return a job id');
 
