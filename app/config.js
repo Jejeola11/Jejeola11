@@ -58,7 +58,7 @@ window.FUSE = {
     { slug: 'hidream_i1_full_image', name: 'HiDream',        badge: 'HiDream',   credits: 8,  sample: '/app/media/samples/s6.jpg' },
   ],
   VIDEO_MODELS: [
-    { slug: 'grok-imagine-text-to-video',           name: 'Grok Imagine',    badge: 'Cheapest',  credits: 19, sample: '/app/media/ugc.mp4' },
+    { slug: 'grok-imagine-text-to-video',           name: 'Grok Imagine',    badge: 'Cheapest',  credits: 19, sample: '/app/media/samples/serum_video.mp4' },
     { slug: 'seedance-2-mini-text-to-video',        name: 'Seedance 2 Mini', badge: 'Fast',      credits: 50, sample: '/app/media/avatar2.mp4' },
     { slug: 'kling-v3-turbo-standard-text-to-video', name: 'Kling Turbo',    badge: 'Kuaishou',  credits: 70, sample: '/app/media/avatar.mp4' },
     { slug: 'seedance-2-text-to-video',             name: 'Seedance 2',      badge: 'ByteDance', credits: 75, sample: '/app/media/movie.mp4' },
