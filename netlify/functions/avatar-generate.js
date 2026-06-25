@@ -33,6 +33,7 @@ async function muapiAvatar({ prompt, images_list, aspect }) {
 }
 
 exports.handler = async (event) => {
+  try {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
   if (!process.env.MUAPI_KEY) return json(503, { error: 'Engine not connected (MUAPI_KEY missing).' });
 
@@ -69,7 +70,10 @@ exports.handler = async (event) => {
     });
     return json(200, { url: r.url, credits: balance });
   } catch (e) {
-    await db.rpc('add_credits', { uid: user.id, amount: AVATAR_COST, why: 'refund' });
+    try { if (db && user) await db.rpc('add_credits', { uid: user.id, amount: AVATAR_COST, why: 'refund' }); } catch (_) {}
     return json(502, { error: e.message || 'Generation failed', refunded: AVATAR_COST });
+  }
+  } catch (fatal) {
+    return json(500, { error: 'Server error — please try again.' });
   }
 };

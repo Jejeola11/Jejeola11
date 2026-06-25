@@ -22,6 +22,7 @@ function muapiError(j, status) {
 }
 
 exports.handler = async (event) => {
+  try {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
 
   const user = await getUser(event);
@@ -39,7 +40,8 @@ exports.handler = async (event) => {
   if (!VIDEO_MODELS[model]) return json(400, { error: 'Unknown video model.' });
   if (!prompt && !image_url) return json(400, { error: 'Add a prompt or a starting image.' });
 
-  const { plan, isAdmin } = await getPlan(user.id);
+  let plan = 'pro', isAdmin = false;
+  try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
   if (plan === 'free' && !isAdmin && !canUseFree(model)) {
     return json(403, { error: 'Video requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
   }
@@ -72,7 +74,10 @@ exports.handler = async (event) => {
     await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'video', model, prompt, aspect, credits: cost, status: 'processing' });
     return json(200, { request_id: id, credits: balance });
   } catch (e) {
-    await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' });
+    try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
     return json(502, { error: typeof e.message === 'string' ? e.message : 'Could not start video', refunded: cost });
+  }
+  } catch (fatal) {
+    return json(500, { error: 'Server error — please try again.' });
   }
 };

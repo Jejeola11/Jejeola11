@@ -73,6 +73,7 @@ async function falImg2Img({ prompt, image_url, aspect }) {
 }
 
 exports.handler = async (event) => {
+  try {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
 
   const user = await getUser(event);
@@ -93,8 +94,9 @@ exports.handler = async (event) => {
   const base = IMAGE_MODELS[model];
   if (!base) return json(400, { error: 'Unknown model.' });
 
-  // Plan gating — free users only get basic models.
-  const { plan, isAdmin } = await getPlan(user.id);
+  // Plan gating — free users only get basic models. Default to 'pro' on any DB error so generation is never blocked by a plan-check crash.
+  let plan = 'pro', isAdmin = false;
+  try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
   if (plan === 'free' && !isAdmin && !canUseFree(model)) {
     return json(403, { error: 'This model requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
   }
@@ -131,7 +133,10 @@ exports.handler = async (event) => {
 
     return json(200, { urls, url: urls[0], credits: balance + refund, watermark: plan === 'free' && !isAdmin });
   } catch (e) {
-    await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' });
+    try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
     return json(502, { error: e.message || 'Generation failed', refunded: cost });
+  }
+  } catch (fatal) {
+    return json(500, { error: 'Server error — please try again.' });
   }
 };
