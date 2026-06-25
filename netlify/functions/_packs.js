@@ -43,7 +43,7 @@ const USD_RATE = 1550;
 // ============================================================
 const CREDIT_USD = 0.016;   // revenue we get per credit sold
 const IMAGE_MARGIN = 2.5;   // profit multiple on images & tools (lowered from 4 — friendlier pricing, still ~2.5x profit)
-const VIDEO_MARGIN = 2;     // thinner margin on video (it's expensive — stay competitive)
+const VIDEO_MARGIN = 1.5;   // lowered from 2 — video is the headline feature; keep it cheap to drive adoption
 const creditsFor = (cost_usd, margin) => Math.max(1, Math.ceil((cost_usd / CREDIT_USD) * margin));
 
 // IMPORTANT: the keys below are MuAPI endpoint slugs — exactly what we POST to
