@@ -4,8 +4,8 @@
 // SUBMIT here (fast), store a job, and return the request_id. The browser then
 // polls /job-status until it's done.
 // ============================================================
-const { admin, getUser, json } = require('./_supabase');
-const { VIDEO_MODELS } = require('./_packs');
+const { admin, getUser, json, getPlan } = require('./_supabase');
+const { VIDEO_MODELS, canUseFree } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
@@ -38,6 +38,11 @@ exports.handler = async (event) => {
 
   if (!VIDEO_MODELS[model]) return json(400, { error: 'Unknown video model.' });
   if (!prompt && !image_url) return json(400, { error: 'Add a prompt or a starting image.' });
+
+  const { plan, isAdmin } = await getPlan(user.id);
+  if (plan === 'free' && !isAdmin && !canUseFree(model)) {
+    return json(403, { error: 'Video requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
+  }
 
   const durMult = String(duration).startsWith('10') ? 2 : 1;
   const cost = VIDEO_MODELS[model] * durMult;

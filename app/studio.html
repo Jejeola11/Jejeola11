@@ -94,6 +94,12 @@
 
       <label class="fld" for="avPrompt">Describe the scene</label>
       <textarea id="avPrompt" placeholder="e.g. CEO in a modern Lagos office, navy suit, magazine cover lighting"></textarea>
+      <label class="fld">Extra references (props, products — up to 3)</label>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn ghost sm" id="avRefBtn" style="flex-shrink:0">+ Add reference images</button>
+        <input type="file" id="avRefFile" accept="image/*" multiple style="display:none">
+        <div id="avRefPreviews" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
       <label class="fld" for="avAspect">Aspect</label>
       <select id="avAspect"><option value="9:16">9:16 vertical</option><option value="1:1">1:1 square</option><option value="4:5">4:5 portrait</option><option value="16:9">16:9 wide</option></select>
       <button class="btn gold block" id="avGen" style="margin-top:14px">✨ Generate (10 credits)</button>
@@ -116,7 +122,10 @@
       <button class="btn gold block" id="pgGen" style="margin-top:14px">✨ Generate prompt (1 credit)</button>
       <div class="note" id="pgNote"></div>
       <textarea id="pgResult" style="margin-top:12px;min-height:100px" placeholder="Your pro prompt appears here…"></textarea>
-      <button class="btn ghost block" id="pgUse" style="margin-top:8px">Use this prompt to generate →</button>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn ghost block" id="pgCopy">⧉ Copy prompt</button>
+        <button class="btn gold block" id="pgUse">Use this prompt to generate →</button>
+      </div>
     </div>
     <div class="panel" style="margin-top:14px">
       <label class="fld" style="margin:0 0 8px">🕘 Your prompt history</label>

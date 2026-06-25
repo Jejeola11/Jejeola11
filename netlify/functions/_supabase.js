@@ -29,4 +29,10 @@ const json = (statusCode, body) => ({
   body: JSON.stringify(body),
 });
 
-module.exports = { admin, getUser, json };
+// Return the caller's plan + is_admin flag (for plan-gating features).
+async function getPlan(userId) {
+  const { data } = await admin().from('profiles').select('plan, is_admin').eq('id', userId).maybeSingle();
+  return { plan: (data && data.plan) || 'free', isAdmin: !!(data && data.is_admin) };
+}
+
+module.exports = { admin, getUser, json, getPlan };

@@ -12,6 +12,8 @@ const $ = (id) => document.getElementById(id);
 let user = null;
 let preview = false;
 let showUsd = false;
+let userPlan = 'free';   // updated on loadProfile
+let userIsAdmin = false;
 let activeStudio = cfg.STUDIOS[0];
 let lastPrompt = '';
 let lastOutput = '';   // last generated image/video URL (for publishing to marketplace)
@@ -143,6 +145,10 @@ function resumePending() {
 
 // ---------------- model gallery (Image / Video / Reactor) ----------------
 let modelKind = 'image';
+// Free-plan model whitelist (matches _packs.js FREE_* lists).
+const FREE_SLUGS = new Set(['flux-schnell-image', 'qwen-image', 'grok-imagine-text-to-video', 'grok-imagine-image-to-video', 'gpt-5-2', 'gemini-2-5-flash']);
+function isLocked(slug) { return userPlan === 'free' && !userIsAdmin && !FREE_SLUGS.has(slug); }
+
 function buildModels(kind) {
   modelKind = kind || 'image';
   document.querySelectorAll('#view-models .mtab').forEach((t) => t.classList.toggle('active', t.dataset.kind === modelKind));
@@ -151,13 +157,15 @@ function buildModels(kind) {
   const q = ($('modelSearch').value || '').toLowerCase();
   const shown = list.filter((m) => m.name.toLowerCase().includes(q) || m.badge.toLowerCase().includes(q));
   $('modelGrid').innerHTML = shown.map((m) => {
+    const locked = isLocked(m.slug);
     const media = m.sample
       ? (modelKind === 'video' ? `<video src="${m.sample}" autoplay muted loop playsinline preload="auto"></video>` : `<img src="${m.sample}">`)
       : '＋ add sample';
-    return `<div class="mcard" data-slug="${m.slug}"><div class="msample">${media}</div>
+    return `<div class="mcard${locked ? ' locked' : ''}" data-slug="${m.slug}"><div class="msample">${media}${locked ? '<div class="lock-badge">🔒 Pro</div>' : ''}</div>
       <div class="minfo"><div class="mn">${m.name}</div><div class="mb">${m.badge}</div><div class="mc">${m.credits} cr</div></div></div>`;
   }).join('');
   $('modelGrid').querySelectorAll('.mcard').forEach((el) => el.onclick = () => {
+    if (isLocked(el.dataset.slug)) { toast('🔒 Subscribe to unlock this model'); openBuy(); return; }
     if (modelKind === 'video') openVideo(el.dataset.slug);
     else if (modelKind === 'tools') openTool(el.dataset.slug);
     else openImageModel(el.dataset.slug);
@@ -345,13 +353,15 @@ async function generate() {
     });
     const data = await res.json(); clearInterval(iv);
     if (res.status === 402) { note('genNote', 'Out of credits — top up to keep creating.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; }
+    else if (res.status === 403) { note('genNote', data.error || 'Upgrade to unlock this model.', 'err'); openBuy(); $('result').innerHTML = '<div>🔒 This model needs a subscription.</div>'; }
     else if (!res.ok) throw new Error(data.error || 'Generation failed');
     else {
       const urls = data.urls && data.urls.length ? data.urls : [data.url];
       lastOutput = urls[0];
       $('creditCount').textContent = data.credits;
-      const grid = urls.map((u) => `<img src="${u}" onclick="fuseLightbox('${u}','image')" style="cursor:pointer">`).join('');
-      $('result').innerHTML = `<div><div class="${urls.length > 1 ? 'libgrid' : ''}" style="${urls.length > 1 ? 'gap:8px' : ''}">${grid}</div><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${urls[0]}')">⬇ Download</button></div></div>`;
+      const wm = data.watermark;
+      const grid = urls.map((u) => `<div class="gen-wrap">${wm ? '<div class="fuse-wm">Fuse Studio</div>' : ''}<img src="${u}" onclick="fuseLightbox('${u}','image')" style="cursor:pointer"></div>`).join('');
+      $('result').innerHTML = `<div><div class="${urls.length > 1 ? 'libgrid' : ''}" style="${urls.length > 1 ? 'gap:8px' : ''}">${grid}</div><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${urls[0]}')">⬇ Download</button></div>${wm ? '<div class="muted" style="font-size:11px;margin-top:6px">Watermark removed on paid plans</div>' : ''}</div>`;
       note('genNote', `Done ✅${urls.length > 1 ? ` · ${urls.length} variations` : ''}`, 'ok');
     }
   } catch (e) { clearInterval(iv); $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); }
@@ -457,6 +467,8 @@ async function loadProfile() {
   }
   const { data } = await sb.from('profiles').select('credits, plan, plan_expires_at, referral_code, affiliate_naira, is_admin').eq('id', user.id).maybeSingle();
   if (!data) return;
+  userPlan = data.plan || 'free';
+  userIsAdmin = !!data.is_admin;
   $('pfEmail').textContent = user.email;
   $('pfPlan').textContent = data.plan === 'free' ? 'Free trial' : 'Studio ' + data.plan;
   $('pfCredits').textContent = data.credits;
@@ -515,10 +527,14 @@ async function requestPayout() {
 function openBuy() { renderPacks(); note('buyNote', ''); showPackList(); $('buyOverlay').style.display = 'grid'; }
 function showPackList() { $('payManual').style.display = 'none'; $('packList').style.display = ''; const t = $('curToggle'); if (t) t.style.display = ''; }
 function renderPacks() {
-  $('packList').innerHTML = cfg.PACKS.map((p) =>
+  // Free users see only subscription plans (no credit top-ups). Subscribers see everything.
+  const isFree = userPlan === 'free' && !userIsAdmin;
+  const packs = isFree ? cfg.PACKS.filter((p) => p.kind === 'sub' || p.kind === 'course') : cfg.PACKS;
+  $('packList').innerHTML = packs.map((p) =>
     `<div class="pk founding" data-pack="${p.key}"><div><div class="pkn">${p.name}${p.featured ? ' ⭐' : ''}</div>
       <div class="pkc">${p.credits} <s style="opacity:.6">→</s> <b class="gold">${p.credits * 2} credits</b> · ${p.note}${p.kind === 'sub' ? ' /mo' : ''}</div></div>
       <div class="pka">${price(p.naira)}</div></div>`).join('');
+  if (isFree) $('packList').insertAdjacentHTML('afterbegin', '<div class="muted" style="font-size:12px;margin-bottom:8px;text-align:center">Subscribe to unlock all models + credit top-ups</div>');
   $('packList').querySelectorAll('.pk').forEach((el) => el.onclick = () => buy(el.dataset.pack, el));
   $('curToggle').textContent = showUsd ? 'Show ₦' : 'Show $';
 }
@@ -637,6 +653,30 @@ async function createAvatar() {
   } catch (e) { note('avNote', e.message || 'Could not create avatar.', 'err'); }
   $('avCreate').disabled = false;
 }
+let avExtraRefs = [];   // extra reference image URLs for avatar generation (e.g. products, props)
+async function pickAvatarRefs(files) {
+  if (!files || !files.length) return;
+  const limit = 3 - avExtraRefs.length;
+  if (limit <= 0) return note('avGenNote', 'Max 3 extra references.', 'err');
+  note('avGenNote', 'Uploading reference(s)…', 'ok');
+  for (let i = 0; i < Math.min(files.length, limit); i++) {
+    const file = files[i];
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = `${user.id}/avref-${Date.now()}-${i}.${ext}`;
+    const { error } = await sb.storage.from('avatars').upload(path, file);
+    if (error) { note('avGenNote', error.message || 'Upload failed.', 'err'); continue; }
+    avExtraRefs.push(sb.storage.from('avatars').getPublicUrl(path).data.publicUrl);
+  }
+  renderAvatarRefs();
+  note('avGenNote', `✅ ${avExtraRefs.length} reference(s) attached.`, 'ok');
+}
+function renderAvatarRefs() {
+  $('avRefPreviews').innerHTML = avExtraRefs.map((u, i) =>
+    `<div style="position:relative"><img src="${u}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;border:1px solid var(--line)">
+      <span class="ref-x" onclick="window.fuseRemoveAvRef(${i})">✕</span></div>`).join('');
+}
+window.fuseRemoveAvRef = (i) => { avExtraRefs.splice(i, 1); renderAvatarRefs(); };
+
 async function avatarGenerate() {
   if (preview) { showAuth('signup'); return; }
   if (!selectedAvatar) return note('avGenNote', 'Pick an avatar first.', 'err');
@@ -649,7 +689,7 @@ async function avatarGenerate() {
   try {
     const res = await fetch('/.netlify/functions/avatar-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ avatar_id: selectedAvatar, prompt, aspect }),
+      body: JSON.stringify({ avatar_id: selectedAvatar, prompt, aspect, extra_refs: avExtraRefs.length ? avExtraRefs : undefined }),
     });
     const data = await res.json();
     if (res.status === 503) { $('avResult').innerHTML = '<div class="muted">Avatar Studio is being connected.</div>'; note('avGenNote', data.error, 'err'); }
@@ -1036,10 +1076,13 @@ window.addEventListener('DOMContentLoaded', () => {
   $('avatarBack').onclick = () => showView('home');
   $('pgBack').onclick = () => showView('home');
   $('pgGen').onclick = pgGenerate;
+  $('pgCopy').onclick = () => { const t = $('pgResult').value.trim(); if (!t) return note('pgNote', 'Generate a prompt first.', 'err'); navigator.clipboard.writeText(t); $('pgCopy').textContent = '✓ Copied!'; setTimeout(() => $('pgCopy').textContent = '⧉ Copy prompt', 1500); };
   $('pgUse').onclick = pgUse;
   $('avCreate').onclick = createAvatar;
   $('avFile').onchange = () => { const n = Math.min($('avFile').files.length, 10); $('avCount').textContent = n ? `${n} photo${n > 1 ? 's' : ''} selected` : ''; };
   $('avGen').onclick = avatarGenerate;
+  $('avRefBtn').onclick = () => $('avRefFile').click();
+  $('avRefFile').onchange = (e) => pickAvatarRefs(Array.from(e.target.files).slice(0, 3));
   $('bBuild').onclick = buildAvatarPrompt;
   $('qSkip').onclick = skipQuiz;
   $('refBtn').onclick = () => $('refFile').click();

@@ -2,8 +2,8 @@
 // POST /.netlify/functions/avatar-generate   (AI Avatar Studio)
 // Auth required. Body: { avatar_id, prompt, aspect }
 // Generates the user in a new scene while keeping their trained face,
-// using MuAPI Nano Banana with the avatar's reference photos (up to 10).
-// Works with your existing MUAPI_KEY — no extra provider needed.
+// using MuAPI Nano Banana EDIT with the avatar's reference photos + optional extras.
+// IMPORTANT: nano-banana = text-to-image (ignores refs). nano-banana-edit = uses images_list.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
 const { muapiHostImage } = require('./_muapi');
@@ -11,12 +11,12 @@ const { muapiHostImage } = require('./_muapi');
 const AVATAR_COST = 10;
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
-async function muapiAvatar({ prompt, image_urls, aspect }) {
+async function muapiAvatar({ prompt, images_list, aspect }) {
   const key = process.env.MUAPI_KEY;
-  const submit = await fetch(`${MUAPI_BASE}/nano-banana`, {
+  const submit = await fetch(`${MUAPI_BASE}/nano-banana-edit`, {
     method: 'POST',
     headers: { 'x-api-key': key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt, aspect_ratio: aspect, image_urls }),
+    body: JSON.stringify({ prompt, aspect_ratio: aspect, images_list }),
   });
   const txt = await submit.text();
   let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
@@ -44,6 +44,9 @@ exports.handler = async (event) => {
   const aspect = body.aspect || '9:16';
   if (!prompt) return json(400, { error: 'Describe the scene you want.' });
 
+  // Optional extra reference images (e.g. a product bottle, a prop) — up to 3.
+  const extraRefs = (Array.isArray(body.extra_refs) ? body.extra_refs : []).filter(Boolean).slice(0, 3);
+
   const db = admin();
   const { data: avatar } = await db.from('avatars').select('image_url, image_urls, user_id').eq('id', body.avatar_id).maybeSingle();
   if (!avatar || avatar.user_id !== user.id) return json(404, { error: 'Avatar not found.' });
@@ -55,8 +58,10 @@ exports.handler = async (event) => {
   if (balance === null) return json(402, { error: 'Not enough credits.', need: AVATAR_COST, code: 'NO_CREDITS' });
 
   try {
-    const hosted = await Promise.all(imgs.map(muapiHostImage));
-    const r = await muapiAvatar({ prompt, image_urls: hosted, aspect });
+    // Host avatar photos + extra references on MuAPI CDN, then merge them all into images_list.
+    const allRefs = imgs.concat(extraRefs);
+    const hosted = await Promise.all(allRefs.map(muapiHostImage));
+    const r = await muapiAvatar({ prompt, images_list: hosted, aspect });
     if (!r.url) throw new Error('No image returned');
     await db.from('generations').insert({
       user_id: user.id, type: 'avatar', model: 'nano-banana', prompt, aspect,

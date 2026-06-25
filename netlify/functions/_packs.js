@@ -56,6 +56,7 @@ const IMAGE_COST = {
   'flux-dev-image': 0.025,
   'gpt-image-2-text-to-image': 0.04,   // OpenAI GPT Image 2 — most realistic photoreal output
   'nano-banana': 0.039,
+  'nano-banana-edit': 0.039,
   'nano-banana-2': 0.04,
   'qwen-image': 0.02,
   'flux-2-pro': 0.05,
@@ -98,4 +99,14 @@ const REACTOR_COST = {
   'gemini-2-5-flash': 1,
 };
 
-module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST };
+// Plan access tiers. Free users get basic models only. Subscribers get everything.
+// Admin bypasses all restrictions.
+const FREE_IMAGE = ['flux-schnell-image', 'qwen-image'];
+const FREE_VIDEO = ['grok-imagine-text-to-video', 'grok-imagine-image-to-video'];
+const FREE_TOOLS = [];           // free users can't use tools
+const FREE_REACTOR = ['gpt-5-2', 'gemini-2-5-flash'];
+function canUseFree(model) {
+  return FREE_IMAGE.includes(model) || FREE_VIDEO.includes(model) || FREE_REACTOR.includes(model);
+}
+
+module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree };

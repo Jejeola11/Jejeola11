@@ -6,17 +6,17 @@
 //   3. call MuAPI server-side with OUR key (user never sees it)
 //   4. record the generation, return the image URL + new balance
 // ============================================================
-const { admin, getUser, json } = require('./_supabase');
-const { IMAGE_MODELS } = require('./_packs');
+const { admin, getUser, json, getPlan } = require('./_supabase');
+const { IMAGE_MODELS, canUseFree } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
-async function muapiGenerate({ prompt, aspect, model, image_urls, resolution }) {
+async function muapiGenerate({ prompt, aspect, model, images_list, resolution }) {
   const key = process.env.MUAPI_KEY;
   const payload = { prompt, aspect_ratio: aspect };
   if (resolution) payload.resolution = resolution;
-  if (image_urls && image_urls.length) payload.image_urls = image_urls; // reference image(s)
+  if (images_list && images_list.length) payload.images_list = images_list;
   const submit = await fetch(`${MUAPI_BASE}/${model}`, {
     method: 'POST',
     headers: { 'x-api-key': key, 'Content-Type': 'application/json' },
@@ -87,11 +87,17 @@ exports.handler = async (event) => {
   const refs = (Array.isArray(body.reference_image_urls) ? body.reference_image_urls
     : (body.reference_image_url ? [body.reference_image_url] : [])).filter(Boolean);
   const useRef = refs.length > 0;
-  // With references we use Nano Banana (multi-image). Otherwise the chosen model.
-  const model = useRef ? 'nano-banana' : (body.model || 'flux-schnell-image');
+  // With references we use Nano Banana EDIT (multi-image). Plain nano-banana is text-only.
+  const model = useRef ? 'nano-banana-edit' : (body.model || 'flux-schnell-image');
   if (!prompt) return json(400, { error: 'Add a prompt first.' });
   const base = IMAGE_MODELS[model];
   if (!base) return json(400, { error: 'Unknown model.' });
+
+  // Plan gating — free users only get basic models.
+  const { plan, isAdmin } = await getPlan(user.id);
+  if (plan === 'free' && !isAdmin && !canUseFree(model)) {
+    return json(403, { error: 'This model requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
+  }
 
   const count = Math.min(Math.max(parseInt(body.count, 10) || 1, 1), 4);
   const resMult = Math.min(Math.max(parseInt(body.res, 10) || 1, 1), 3);
@@ -110,7 +116,7 @@ exports.handler = async (event) => {
     // Re-host reference images on MuAPI so the engine can always fetch them.
     const hostedRefs = useRef ? await Promise.all(refs.map(muapiHostImage)) : undefined;
     const jobs = Array.from({ length: count }, () =>
-      muapiGenerate({ prompt, aspect, model, image_urls: hostedRefs, resolution: resMult > 1 ? resolution : undefined })
+      muapiGenerate({ prompt, aspect, model, images_list: hostedRefs, resolution: resMult > 1 ? resolution : undefined })
         .catch(() => null));
     const results = await Promise.all(jobs);
     const urls = results.filter((r) => r && r.url).map((r) => r.url);
@@ -123,7 +129,7 @@ exports.handler = async (event) => {
     const refund = (count - urls.length) * base * resMult;
     if (refund > 0) await db.rpc('add_credits', { uid: user.id, amount: refund, why: 'refund' });
 
-    return json(200, { urls, url: urls[0], credits: balance + refund });
+    return json(200, { urls, url: urls[0], credits: balance + refund, watermark: plan === 'free' && !isAdmin });
   } catch (e) {
     await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' });
     return json(502, { error: e.message || 'Generation failed', refunded: cost });
