@@ -19,12 +19,12 @@ window.FUSE = {
   // Flip to 'paystack' once your Paystack account is approved — nothing else changes.
   PAYMENT: {
     mode: 'manual',            // 'manual' | 'paystack'
-    // Your receiving bank account (shown to buyers on the Pay screen). FILL THESE IN.
-    bank: { name: 'Moniepoint MFB', number: '0000000000', holder: 'Ria Digitals' },
+    // Your receiving bank account (shown to buyers on the Pay screen).
+    bank: { name: 'Opay', number: '9127651634', holder: 'Maryam Jejeola Owoyale' },
     // Optional Selar storefront link (leave '' to hide). Selar accepts cards/transfer, no CAC.
     selar: '',
     // WhatsApp number (international format, no +) buyers message after paying.
-    whatsapp: '2340000000000',
+    whatsapp: '2349044558101',
   },
 
   // Buy options. Real prices are enforced server-side in netlify/functions/_packs.js.
