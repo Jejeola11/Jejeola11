@@ -57,13 +57,13 @@ function pollJob(requestId, resultEl, noteId, btn, btnLabel) {
       const r = await fetch(`/.netlify/functions/job-status?id=${requestId}`, { headers: { ...(await authHeader()) } });
       const d = await r.json();
       if (d.status === 'completed') {
-        clearInterval(timer);
+        clearInterval(timer); clearPending();
         lastOutput = d.url;
         resultEl.innerHTML = `<div><video src="${d.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${d.url}')">⬇ Download</button></div></div>`;
         note(noteId, 'Done ✅', 'ok');
         if (btn) { btn.disabled = false; btn.textContent = btnLabel; }
       } else if (d.status === 'failed') {
-        clearInterval(timer);
+        clearInterval(timer); clearPending();
         resultEl.innerHTML = '<div>⚠ ' + (d.error || 'Failed') + '</div>';
         note(noteId, (d.error || 'Failed') + ' — credits refunded.', 'err');
         if (user) loadProfile();
@@ -100,6 +100,45 @@ function showView(name, opts = {}) {
   if (name === 'models') { if (modelKind === 'reactor') modelKind = 'image'; buildModels(modelKind); }
   // Restore previous scroll for this view (top for first visit).
   window.scrollTo(0, scrollMem[name] || 0);
+  saveRoute();
+}
+
+// ---- reload persistence: remember the open view so a refresh doesn't dump you home ----
+function saveRoute() {
+  try {
+    const r = { view: curView };
+    if (curView === 'studio') { r.studio = activeStudio && activeStudio.key; r.video = studioVideo; }
+    else if (curView === 'video') { r.vSlug = vModel && vModel.slug; }
+    else if (curView === 'models') { r.kind = modelKind; }
+    localStorage.setItem('fuse_route', JSON.stringify(r));
+  } catch (e) {}
+}
+function restoreRoute() {
+  let r; try { r = JSON.parse(localStorage.getItem('fuse_route') || 'null'); } catch (e) {}
+  if (!r || !r.view || r.view === 'home') return;
+  const safe = ['library', 'profile', 'community', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor'];
+  if (!safe.includes(r.view)) return;
+  try {
+    if (r.view === 'studio') { openStudio(r.studio || 'generate'); if (r.video) setStudioMode(true); }
+    else if (r.view === 'video') { if (r.vSlug) openVideo(r.vSlug); else showView('video'); }
+    else if (r.view === 'models') { showView('models'); buildModels(r.kind || 'image'); }
+    else if (['market', 'learn', 'avatar', 'promptgen', 'reactor'].includes(r.view)) { openStudio(r.view); }
+    else showView(r.view);
+  } catch (e) {}
+}
+// In-progress video survives a refresh: remember the job and re-attach the poller.
+function savePending(id, where) { try { localStorage.setItem('fuse_pendingVideo', JSON.stringify({ id, where })); } catch (e) {} }
+function clearPending() { try { localStorage.removeItem('fuse_pendingVideo'); } catch (e) {} }
+function resumePending() {
+  let p; try { p = JSON.parse(localStorage.getItem('fuse_pendingVideo') || 'null'); } catch (e) {}
+  if (!p || !p.id) return;
+  const where = p.where === 'video' ? 'video' : 'studio';
+  showView(where);
+  const resultEl = where === 'video' ? $('vResult') : $('result');
+  const noteId = where === 'video' ? 'vNote' : 'genNote';
+  resultEl.innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Resuming your render…</div></div>';
+  note(noteId, 'Reconnected to your render — still working ⏳', 'ok');
+  pollJob(p.id, resultEl, noteId, null, null);
 }
 
 // ---------------- model gallery (Image / Video / Reactor) ----------------
@@ -113,7 +152,7 @@ function buildModels(kind) {
   const shown = list.filter((m) => m.name.toLowerCase().includes(q) || m.badge.toLowerCase().includes(q));
   $('modelGrid').innerHTML = shown.map((m) => {
     const media = m.sample
-      ? (modelKind === 'video' ? `<video src="${m.sample}" muted loop playsinline></video>` : `<img src="${m.sample}">`)
+      ? (modelKind === 'video' ? `<video src="${m.sample}" autoplay muted loop playsinline preload="auto"></video>` : `<img src="${m.sample}">`)
       : '＋ add sample';
     return `<div class="mcard" data-slug="${m.slug}"><div class="msample">${media}</div>
       <div class="minfo"><div class="mn">${m.name}</div><div class="mb">${m.badge}</div><div class="mc">${m.credits} cr</div></div></div>`;
@@ -160,6 +199,7 @@ async function generateStudioVideo(prompt) {
     if (!res.ok) throw new Error(data.error || 'Failed');
     $('creditCount').textContent = data.credits;
     note('genNote', 'Rendering… this can take 1–3 min ⏳', 'ok'); btn.textContent = 'Rendering…';
+    savePending(data.request_id, 'studio');
     pollJob(data.request_id, $('result'), 'genNote', btn, label);
   } catch (e) { $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
@@ -207,6 +247,7 @@ async function videoGenerate() {
     if (!res.ok) throw new Error(data.error || 'Failed');
     $('creditCount').textContent = data.credits;
     note('vNote', 'Rendering… this can take 1–3 min ⏳', 'ok'); btn.textContent = 'Rendering…';
+    savePending(data.request_id, 'video');
     pollJob(data.request_id, $('vResult'), 'vNote', btn, label);
   } catch (e) { $('vResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('vNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
@@ -216,7 +257,7 @@ function openStudio(key) {
   if (key === 'market') { showView('market'); loadMarket(); return; }
   if (key === 'learn') { showView('learn'); buildLessons(); return; }
   if (key === 'avatar') { showView('avatar'); loadAvatars(); return; }
-  if (key === 'promptgen') { buildPromptFields(); showView('promptgen'); return; }
+  if (key === 'promptgen') { buildPromptFields(); showView('promptgen'); loadPromptHistory(); return; }
   activeStudio = cfg.STUDIOS.find((s) => s.key === key) || cfg.STUDIOS[0];
   $('studioIcon').textContent = activeStudio.icon;
   $('studioName').textContent = activeStudio.name;
@@ -353,20 +394,48 @@ async function reactorSend() {
 
 // ---------------- library / recent ----------------
 let libFilter = 'all';
+let libItems = [];   // cached so the project preview can show prompt + settings
 async function loadLibrary() {
   if (preview) return demoGrid('libGrid');
-  let q = sb.from('generations').select('output_url, type').eq('user_id', user.id).order('created_at', { ascending: false }).limit(40);
+  let q = sb.from('generations').select('output_url, type, prompt, model, aspect, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(40);
   if (libFilter !== 'all') q = q.eq('type', libFilter === 'image' ? 'image' : libFilter);
   const { data } = await q;
+  libItems = data || [];
   const g = $('libGrid');
-  if (!data || !data.length) { g.innerHTML = '<div class="empty" style="grid-column:1/-1">Nothing here yet — create something ✨</div>'; return; }
-  g.innerHTML = data.map((x) => {
+  if (!libItems.length) { g.innerHTML = '<div class="empty" style="grid-column:1/-1">Nothing here yet — create something ✨</div>'; return; }
+  g.innerHTML = libItems.map((x, i) => {
     const media = x.type === 'video'
       ? `<video src="${x.output_url}" muted loop playsinline></video>`
       : `<img src="${x.output_url}">`;
-    return `<div class="projitem" onclick="fuseLightbox('${x.output_url}','${x.type}')">${media}</div>`;
+    return `<div class="projitem" onclick="window.fuseProject(${i})">${media}</div>`;
   }).join('');
 }
+// Project preview — shows the creation plus the prompt + settings used to make it.
+window.fuseProject = (i) => {
+  const x = libItems[i]; if (!x) return;
+  lbUrl = x.output_url;
+  const media = (x.type === 'video')
+    ? `<video src="${x.output_url}" controls autoplay loop muted playsinline style="max-width:92vw;max-height:56vh;border-radius:14px"></video>`
+    : `<img src="${x.output_url}" style="max-width:92vw;max-height:56vh;border-radius:14px">`;
+  const modelName = (cfg.IMAGE_MODELS.concat(cfg.VIDEO_MODELS, cfg.TOOL_MODELS).find((m) => m.slug === x.model) || {}).name || x.model || '—';
+  const when = x.created_at ? new Date(x.created_at).toLocaleDateString() : '';
+  const meta = `<div class="projmeta">
+      <div class="pm-row"><span>Model</span><b>${modelName}</b></div>
+      ${x.aspect ? `<div class="pm-row"><span>Aspect</span><b>${x.aspect}</b></div>` : ''}
+      ${when ? `<div class="pm-row"><span>Created</span><b>${when}</b></div>` : ''}
+      ${x.prompt ? `<div class="pm-prompt"><span>Prompt used</span><p>${(x.prompt || '').replace(/</g, '&lt;')}</p>
+        <button class="btn ghost sm" onclick="window.fuseReuse(${i})">↺ Use this prompt again</button></div>` : ''}
+    </div>`;
+  $('lbContent').innerHTML = media + meta;
+  $('lightbox').style.display = 'grid';
+};
+// Re-open the studio with this project's prompt prefilled.
+window.fuseReuse = (i) => {
+  const x = libItems[i]; if (!x) return;
+  $('lightbox').style.display = 'none';
+  openStudio('generate');
+  if (x.prompt) $('prompt').value = x.prompt;
+};
 async function loadRecent() {
   if (preview) return demoGrid('homeRecent');
   // Community showcase — everything made with Fuse Studio (images + videos).
@@ -443,7 +512,8 @@ async function requestPayout() {
 }
 
 // ---------------- buy / Paystack ----------------
-function openBuy() { renderPacks(); note('buyNote', ''); $('buyOverlay').style.display = 'grid'; }
+function openBuy() { renderPacks(); note('buyNote', ''); showPackList(); $('buyOverlay').style.display = 'grid'; }
+function showPackList() { $('payManual').style.display = 'none'; $('packList').style.display = ''; const t = $('curToggle'); if (t) t.style.display = ''; }
 function renderPacks() {
   $('packList').innerHTML = cfg.PACKS.map((p) =>
     `<div class="pk founding" data-pack="${p.key}"><div><div class="pkn">${p.name}${p.featured ? ' ⭐' : ''}</div>
@@ -454,6 +524,9 @@ function renderPacks() {
 }
 async function buy(pack, el) {
   if (preview) { showAuth('signup'); return; }
+  const pay = cfg.PAYMENT || { mode: 'paystack' };
+  // While Paystack is pending, show bank-transfer / Selar instructions instead.
+  if (pay.mode === 'manual') return showManualPay(pack);
   note('buyNote', 'Opening secure checkout…', 'ok'); if (el) el.style.opacity = '.5';
   try {
     const res = await fetch('/.netlify/functions/paystack-init', {
@@ -464,6 +537,31 @@ async function buy(pack, el) {
     if (!res.ok) throw new Error(data.error || 'Could not start payment');
     window.location.href = data.authorization_url;
   } catch (e) { note('buyNote', e.message, 'err'); if (el) el.style.opacity = '1'; }
+}
+// Bank-transfer / Selar stopgap. Buyer pays, messages proof on WhatsApp,
+// you unlock them with Profile → Admin → Grant access.
+function showManualPay(packKey) {
+  const p = cfg.PACKS.find((x) => x.key === packKey) || cfg.PACKS[0];
+  const pay = cfg.PAYMENT || {};
+  const amount = naira(p.naira);
+  const email = (user && user.email) || '';
+  const msg = encodeURIComponent(`Hi! I want to pay for the ${p.name} plan (${amount}) on Fuse Studio.\nMy account email: ${email}\nI'm sending the transfer now and will attach my receipt.`);
+  const wa = pay.whatsapp ? `https://wa.me/${pay.whatsapp}?text=${msg}` : '';
+  const bank = pay.bank || {};
+  const rows = [];
+  if (bank.number) rows.push(`<div class="pm-row"><span>Bank</span><b>${bank.name || ''}</b></div>
+    <div class="pm-row"><span>Account no.</span><b>${bank.number} <a class="gold" style="cursor:pointer" onclick="navigator.clipboard.writeText('${bank.number}');this.textContent='✓'">copy</a></b></div>
+    <div class="pm-row"><span>Account name</span><b>${bank.holder || ''}</b></div>`);
+  $('payDetails').innerHTML = `
+    <div class="pay-amt">${p.name} · <b class="gold">${amount}</b></div>
+    <div class="pm-prompt" style="border:0;padding:0;margin:6px 0 12px"><p style="color:var(--gold)">You get ${p.credits * 2} credits (2× founding bonus)</p></div>
+    ${rows.length ? `<div class="projmeta" style="margin-bottom:12px">${rows.join('')}</div>` : ''}
+    ${pay.selar ? `<a class="btn gold block" href="${pay.selar}" target="_blank" rel="noopener" style="margin-bottom:8px">💳 Pay with card / Selar</a>` : ''}
+    ${wa ? `<a class="btn ${pay.selar ? 'ghost' : 'gold'} block" href="${wa}" target="_blank" rel="noopener">📲 Send payment proof on WhatsApp</a>` : ''}
+    <p class="muted" style="font-size:12px;margin-top:10px">After you pay, send your receipt + this email (<b>${email}</b>) on WhatsApp. Your credits are added within minutes. ⚡</p>`;
+  $('packList').style.display = 'none';
+  const t = $('curToggle'); if (t) t.style.display = 'none';
+  $('payManual').style.display = 'block';
 }
 
 // ---------------- daily streak ----------------
@@ -589,10 +687,25 @@ async function pgGenerate() {
     const d = await res.json();
     if (res.status === 402) { note('pgNote', 'Out of credits — top up.', 'err'); openBuy(); }
     else if (!res.ok) throw new Error(d.error || 'Failed');
-    else { $('pgResult').value = d.prompt; if (d.credits != null) $('creditCount').textContent = d.credits; note('pgNote', '✨ Prompt ready — edit it or use it below.', 'ok'); }
+    else { $('pgResult').value = d.prompt; if (d.credits != null) $('creditCount').textContent = d.credits; note('pgNote', '✨ Prompt ready — edit it or use it below.', 'ok'); loadPromptHistory(); }
   } catch (e) { note('pgNote', e.message || 'Failed', 'err'); }
   btn.disabled = false; btn.textContent = '✨ Generate prompt (1 credit)';
 }
+async function loadPromptHistory() {
+  const wrap = $('pgHistory'); if (!wrap) return;
+  if (preview) { wrap.innerHTML = '<div class="muted" style="font-size:13px">Sign up to save your prompt history.</div>'; return; }
+  const { data } = await sb.from('prompt_history').select('prompt, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20);
+  if (!data || !data.length) { wrap.innerHTML = '<div class="muted" style="font-size:13px">Prompts you generate will be saved here.</div>'; return; }
+  wrap.innerHTML = data.map((h) => {
+    const safe = (h.prompt || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    return `<div class="ph-item"><p>${safe}</p>
+      <div class="ph-actions">
+        <button class="btn ghost sm" onclick="window.fusePhUse(this.dataset.p)" data-p="${safe}">↺ Use</button>
+        <button class="btn ghost sm" onclick="navigator.clipboard.writeText(this.dataset.p);this.textContent='Copied!'" data-p="${safe}">⧉ Copy</button>
+      </div></div>`;
+  }).join('');
+}
+window.fusePhUse = (p) => { $('pgResult').value = p; note('pgNote', 'Loaded from history — tap “Use this prompt” below.', 'ok'); $('pgResult').scrollIntoView({ behavior: 'smooth' }); };
 function pgUse() {
   const p = $('pgResult').value.trim();
   if (!p) return note('pgNote', 'Generate a prompt first.', 'err');
@@ -899,6 +1012,9 @@ async function boot() {
   await loadProfile();
 
   await claimReferral();
+  // Restore the view you were on before a refresh, and re-attach any in-progress render.
+  restoreRoute();
+  resumePending();
   maybePromo();
   // Came from the Atelier page "Get instant access" -> start the course purchase.
   if (new URLSearchParams(location.search).get('buy') === 'course') setTimeout(() => buy('course'), 600);
@@ -957,6 +1073,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('rcSend').onclick = reactorSend;
   $('buyBtn').onclick = openBuy; $('creditPill').onclick = openBuy;
   $('buyClose').onclick = () => $('buyOverlay').style.display = 'none';
+  $('payBack').onclick = showPackList;
   $('curToggle').onclick = () => { showUsd = !showUsd; renderPacks(); };
   $('promoClose').onclick = () => $('promoOverlay').style.display = 'none';
   $('promoCta').onclick = () => { $('promoOverlay').style.display = 'none'; openBuy(); };

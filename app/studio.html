@@ -118,6 +118,10 @@
       <textarea id="pgResult" style="margin-top:12px;min-height:100px" placeholder="Your pro prompt appears here…"></textarea>
       <button class="btn ghost block" id="pgUse" style="margin-top:8px">Use this prompt to generate →</button>
     </div>
+    <div class="panel" style="margin-top:14px">
+      <label class="fld" style="margin:0 0 8px">🕘 Your prompt history</label>
+      <div id="pgHistory"><div class="muted" style="font-size:13px">Prompts you generate will be saved here.</div></div>
+    </div>
   </section>
 
   <!-- ===== MARKETPLACE ===== -->
@@ -400,6 +404,11 @@
       <a id="curToggle" class="gold" style="cursor:pointer;float:right">Show $</a></p>
     <div class="packs" id="packList"></div>
     <div class="note" id="buyNote"></div>
+    <!-- Manual / bank-transfer instructions (shown while Paystack is pending) -->
+    <div id="payManual" style="display:none">
+      <button class="btn ghost sm" id="payBack" style="margin-bottom:10px">← Choose another pack</button>
+      <div class="pay-card" id="payDetails"></div>
+    </div>
   </div>
 </div>
 

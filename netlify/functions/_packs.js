@@ -42,7 +42,7 @@ const USD_RATE = 1550;
 // Update the cost_usd numbers below with MuAPI's exact prices anytime.
 // ============================================================
 const CREDIT_USD = 0.016;   // revenue we get per credit sold
-const IMAGE_MARGIN = 4;     // profit multiple on images & tools
+const IMAGE_MARGIN = 2.5;   // profit multiple on images & tools (lowered from 4 — friendlier pricing, still ~2.5x profit)
 const VIDEO_MARGIN = 2;     // thinner margin on video (it's expensive — stay competitive)
 const creditsFor = (cost_usd, margin) => Math.max(1, Math.ceil((cost_usd / CREDIT_USD) * margin));
 
@@ -54,6 +54,7 @@ const creditsFor = (cost_usd, margin) => Math.max(1, Math.ceil((cost_usd / CREDI
 const IMAGE_COST = {
   'flux-schnell-image': 0.01,
   'flux-dev-image': 0.025,
+  'gpt-image-2-text-to-image': 0.04,   // OpenAI GPT Image 2 — most realistic photoreal output
   'nano-banana': 0.039,
   'nano-banana-2': 0.04,
   'qwen-image': 0.02,

@@ -13,6 +13,20 @@ window.FUSE = {
   // Naira per US dollar — for showing $ prices to foreigners (display only).
   USD_RATE: 1550,
 
+  // ===== Payments =====
+  // While Paystack business verification is pending, set mode:'manual' so buyers
+  // pay by bank transfer / Selar and you unlock them with the Admin → Grant tool.
+  // Flip to 'paystack' once your Paystack account is approved — nothing else changes.
+  PAYMENT: {
+    mode: 'manual',            // 'manual' | 'paystack'
+    // Your receiving bank account (shown to buyers on the Pay screen). FILL THESE IN.
+    bank: { name: 'Moniepoint MFB', number: '0000000000', holder: 'Ria Digitals' },
+    // Optional Selar storefront link (leave '' to hide). Selar accepts cards/transfer, no CAC.
+    selar: '',
+    // WhatsApp number (international format, no +) buyers message after paying.
+    whatsapp: '2340000000000',
+  },
+
   // Buy options. Real prices are enforced server-side in netlify/functions/_packs.js.
   PACKS: [
     { key: 'creator_mo', name: 'Creator',       naira: 9000,  credits: 350,  note: 'All studios · monthly',  kind: 'sub' },
@@ -45,17 +59,18 @@ window.FUSE = {
   // slug must match netlify/functions/_packs.js. `sample` is a placeholder you
   // can later swap for a real sample image/video URL.
   IMAGE_MODELS: [
-    { slug: 'flux-schnell-image',    name: 'Flux Schnell',   badge: 'Fast',      credits: 3,  sample: '/app/media/samples/s1.jpg' },
-    { slug: 'flux-dev-image',        name: 'Flux Dev',       badge: 'Quality',   credits: 7,  sample: '/app/media/samples/s4.jpg' },
-    { slug: 'nano-banana',           name: 'Nano Banana',    badge: 'Google',    credits: 10, sample: '/app/media/samples/s3.jpg' },
-    { slug: 'nano-banana-2',         name: 'Nano Banana 2',  badge: 'Google',    credits: 10, sample: '/app/media/samples/s2.jpg' },
-    { slug: 'qwen-image',            name: 'Qwen Image',     badge: 'Alibaba',   credits: 5,  sample: '/app/media/samples/s5.jpg' },
-    { slug: 'flux-2-pro',            name: 'Flux 2 Pro',     badge: 'Best',      credits: 13, sample: '/app/media/samples/s6.jpg' },
-    { slug: 'seedream-5.0',          name: 'Seedream 5.0',   badge: 'ByteDance', credits: 8,  sample: '/app/media/samples/s3.jpg' },
-    { slug: 'hunyuan-image-3.0',     name: 'Hunyuan 3.0',    badge: 'Tencent',   credits: 8,  sample: '/app/media/samples/s2.jpg' },
-    { slug: 'hunyuan-image-2.1',     name: 'Hunyuan 2.1',    badge: 'Tencent',   credits: 7,  sample: '/app/media/samples/s5.jpg' },
-    { slug: 'google-imagen4-ultra',  name: 'Imagen 4 Ultra', badge: 'Google',    credits: 15, sample: '/app/media/samples/s1.jpg' },
-    { slug: 'hidream_i1_full_image', name: 'HiDream',        badge: 'HiDream',   credits: 8,  sample: '/app/media/samples/s6.jpg' },
+    { slug: 'gpt-image-2-text-to-image', name: 'GPT Image 2',   badge: 'Most realistic', credits: 7, sample: '/app/media/samples/s4.jpg' },
+    { slug: 'flux-schnell-image',    name: 'Flux Schnell',   badge: 'Fast',      credits: 2,  sample: '/app/media/samples/s1.jpg' },
+    { slug: 'flux-dev-image',        name: 'Flux Dev',       badge: 'Quality',   credits: 4,  sample: '/app/media/samples/s4.jpg' },
+    { slug: 'nano-banana',           name: 'Nano Banana',    badge: 'Google',    credits: 7,  sample: '/app/media/samples/s3.jpg' },
+    { slug: 'nano-banana-2',         name: 'Nano Banana 2',  badge: 'Google',    credits: 7,  sample: '/app/media/samples/s2.jpg' },
+    { slug: 'qwen-image',            name: 'Qwen Image',     badge: 'Alibaba',   credits: 4,  sample: '/app/media/samples/s5.jpg' },
+    { slug: 'flux-2-pro',            name: 'Flux 2 Pro',     badge: 'Best',      credits: 8,  sample: '/app/media/samples/s6.jpg' },
+    { slug: 'seedream-5.0',          name: 'Seedream 5.0',   badge: 'ByteDance', credits: 5,  sample: '/app/media/samples/s3.jpg' },
+    { slug: 'hunyuan-image-3.0',     name: 'Hunyuan 3.0',    badge: 'Tencent',   credits: 5,  sample: '/app/media/samples/s2.jpg' },
+    { slug: 'hunyuan-image-2.1',     name: 'Hunyuan 2.1',    badge: 'Tencent',   credits: 4,  sample: '/app/media/samples/s5.jpg' },
+    { slug: 'google-imagen4-ultra',  name: 'Imagen 4 Ultra', badge: 'Google',    credits: 10, sample: '/app/media/samples/s1.jpg' },
+    { slug: 'hidream_i1_full_image', name: 'HiDream',        badge: 'HiDream',   credits: 5,  sample: '/app/media/samples/s6.jpg' },
   ],
   VIDEO_MODELS: [
     { slug: 'grok-imagine-text-to-video',           name: 'Grok Imagine',    badge: 'Cheapest',  credits: 19, sample: '/app/media/samples/vid2.mp4' },
@@ -67,9 +82,9 @@ window.FUSE = {
     { slug: 'seedance-2-vip-text-to-video',         name: 'Seedance 2 VIP',  badge: '4K · premium', credits: 188, sample: '/app/media/samples/vid3.mp4' },
   ],
   TOOL_MODELS: [
-    { slug: 'ai-image-upscale',      name: 'Image Upscale',     badge: 'Enhance', credits: 5,  sample: '/app/media/samples/s2.jpg' },
-    { slug: 'ai-background-remover',  name: 'Remove Background', badge: 'Cutout',  credits: 3,  sample: '/app/media/samples/s6.jpg' },
-    { slug: 'ai-object-eraser',      name: 'Object Eraser',     badge: 'Clean',   credits: 5,  sample: '/app/media/samples/s4.jpg' },
+    { slug: 'ai-image-upscale',      name: 'Image Upscale',     badge: 'Enhance', credits: 4,  sample: '/app/media/samples/s2.jpg' },
+    { slug: 'ai-background-remover',  name: 'Remove Background', badge: 'Cutout',  credits: 2,  sample: '/app/media/samples/s6.jpg' },
+    { slug: 'ai-object-eraser',      name: 'Object Eraser',     badge: 'Clean',   credits: 4,  sample: '/app/media/samples/s4.jpg' },
   ],
 
   // Quick idea chips on Home — tapping fills the FULL prompt (not just the title).

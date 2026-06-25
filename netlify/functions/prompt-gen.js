@@ -35,5 +35,8 @@ exports.handler = async (event) => {
   parts.push('photorealistic, identical consistent face, ultra-detailed skin texture, premium color grade, sharp focus, magazine quality');
   const prompt = parts.join(', ');
 
+  // Save to the user's prompt history (best-effort — never block the response).
+  try { await db.from('prompt_history').insert({ user_id: user.id, prompt, subject: subject || null }); } catch (e) {}
+
   return json(200, { prompt, credits: balance });
 };
