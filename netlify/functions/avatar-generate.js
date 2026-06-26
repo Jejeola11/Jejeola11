@@ -1,9 +1,10 @@
 // ============================================================
-// POST /.netlify/functions/avatar-generate   (AI Avatar Studio)
-// Auth required. Body: { avatar_id, prompt, aspect }
-// Generates the user in a new scene while keeping their trained face,
-// using MuAPI Nano Banana EDIT with the avatar's reference photos + optional extras.
-// IMPORTANT: nano-banana = text-to-image (ignores refs). nano-banana-edit = uses images_list.
+// POST /.netlify/functions/avatar-generate   (AI Avatar Studio — async submit)
+// Auth required. Body: { avatar_id, prompt, aspect, extra_refs[] }
+// nano-banana-edit can take 30-90s, far longer than a function can run. So we
+// SUBMIT here (fast), store a job, and return the request_id. The browser then
+// polls /job-status until it's done — exactly like video.
+// IMPORTANT: nano-banana = text-to-image (ignores refs). nano-banana-edit USES images_list.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
 const { muapiHostImage } = require('./_muapi');
@@ -11,69 +12,70 @@ const { muapiHostImage } = require('./_muapi');
 const AVATAR_COST = 10;
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
-async function muapiAvatar({ prompt, images_list, aspect }) {
-  const key = process.env.MUAPI_KEY;
-  const submit = await fetch(`${MUAPI_BASE}/nano-banana-edit`, {
-    method: 'POST',
-    headers: { 'x-api-key': key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt, aspect_ratio: aspect, images_list }),
-  });
-  const txt = await submit.text();
-  let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
-  if (!submit.ok) throw new Error((j && (j.error || j.message)) || ('Engine HTTP ' + submit.status));
-  const id = j.request_id || j.id;
-  if (!id) throw new Error('Engine did not return a job id');
-  for (let i = 0; i < 85; i++) {
-    await new Promise((r) => setTimeout(r, 2500));
-    const p = await (await fetch(`${MUAPI_BASE}/predictions/${id}/result`, { headers: { 'x-api-key': key } })).json();
-    if (p.status === 'completed') return { url: p.outputs && p.outputs[0], cost_usd: p.cost && p.cost.amount_usd };
-    if (p.status === 'failed' || p.status === 'cancelled') throw new Error('Generation ' + p.status);
+function muapiError(j, status) {
+  if (j && j.detail) {
+    if (Array.isArray(j.detail)) return j.detail.map((d) => (d && d.msg) || JSON.stringify(d)).join('; ');
+    if (typeof j.detail === 'string') return j.detail;
+    return JSON.stringify(j.detail);
   }
-  throw new Error('Timed out — please try again');
+  if (j && j.error) return (j.error.message || j.error);
+  return 'Engine HTTP ' + status;
 }
 
 exports.handler = async (event) => {
+  let db, user, cost = 0;
   try {
-  if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
-  if (!process.env.MUAPI_KEY) return json(503, { error: 'Engine not connected (MUAPI_KEY missing).' });
+    if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
+    if (!process.env.MUAPI_KEY) return json(503, { error: 'Engine not connected (MUAPI_KEY missing).' });
 
-  const user = await getUser(event);
-  if (!user) return json(401, { error: 'Please sign in again.' });
+    user = await getUser(event);
+    if (!user) return json(401, { error: 'Please sign in again.' });
 
-  let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
-  const prompt = (body.prompt || '').trim();
-  const aspect = body.aspect || '9:16';
-  if (!prompt) return json(400, { error: 'Describe the scene you want.' });
+    let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
+    const scene = (body.prompt || '').trim();
+    const aspect = body.aspect || '9:16';
+    if (!scene) return json(400, { error: 'Describe the scene you want.' });
 
-  // Optional extra reference images (e.g. a product bottle, a prop) — up to 3.
-  const extraRefs = (Array.isArray(body.extra_refs) ? body.extra_refs : []).filter(Boolean).slice(0, 3);
+    // Extra reference images (e.g. a product bottle) — up to 3.
+    const extraRefs = (Array.isArray(body.extra_refs) ? body.extra_refs : []).filter(Boolean).slice(0, 3);
 
-  const db = admin();
-  const { data: avatar } = await db.from('avatars').select('image_url, image_urls, user_id').eq('id', body.avatar_id).maybeSingle();
-  if (!avatar || avatar.user_id !== user.id) return json(404, { error: 'Avatar not found.' });
-  const imgs = (Array.isArray(avatar.image_urls) && avatar.image_urls.length) ? avatar.image_urls
-    : (avatar.image_url ? [avatar.image_url] : []);
-  if (!imgs.length) return json(400, { error: 'This avatar has no photos.' });
+    db = admin();
+    const { data: avatar } = await db.from('avatars').select('image_url, image_urls, user_id').eq('id', body.avatar_id).maybeSingle();
+    if (!avatar || avatar.user_id !== user.id) return json(404, { error: 'Avatar not found.' });
+    const faceImgs = (Array.isArray(avatar.image_urls) && avatar.image_urls.length) ? avatar.image_urls
+      : (avatar.image_url ? [avatar.image_url] : []);
+    if (!faceImgs.length) return json(400, { error: 'This avatar has no photos.' });
 
-  const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: AVATAR_COST });
-  if (balance === null) return json(402, { error: 'Not enough credits.', need: AVATAR_COST, code: 'NO_CREDITS' });
+    // nano-banana-edit accepts max 4 reference images. Prioritise face photos,
+    // leaving room for the extra refs. Too many images dilutes face consistency.
+    const faceSlots = Math.max(1, 4 - extraRefs.length);
+    const refs = faceImgs.slice(0, faceSlots).concat(extraRefs);
 
-  try {
-    // Host avatar photos + extra references on MuAPI CDN, then merge them all into images_list.
-    const allRefs = imgs.concat(extraRefs);
-    const hosted = await Promise.all(allRefs.map(muapiHostImage));
-    const r = await muapiAvatar({ prompt, images_list: hosted, aspect });
-    if (!r.url) throw new Error('No image returned');
-    await db.from('generations').insert({
-      user_id: user.id, type: 'avatar', model: 'nano-banana', prompt, aspect,
-      output_url: r.url, cost_usd: r.cost_usd, credits_spent: AVATAR_COST,
+    // Strong identity-preservation prompt — this is what keeps the face consistent.
+    const identity = 'Keep the EXACT same face, identity, bone structure and facial features as the person shown in the reference photos — do not alter their face, only change the scene/outfit/pose as described. Photorealistic, identical consistent face, ultra-detailed natural skin texture, sharp focus.';
+    const extraNote = extraRefs.length ? ' Include the product/object from the additional reference image(s) naturally in the scene.' : '';
+    const prompt = `${scene}. ${identity}${extraNote}`;
+
+    const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: AVATAR_COST });
+    if (balance === null) return json(402, { error: 'Not enough credits.', need: AVATAR_COST, code: 'NO_CREDITS' });
+    cost = AVATAR_COST;
+
+    // Host all refs on MuAPI CDN so the engine can always fetch them, then SUBMIT.
+    const hosted = await Promise.all(refs.map(muapiHostImage));
+    const sub = await fetch(`${MUAPI_BASE}/nano-banana-edit`, {
+      method: 'POST',
+      headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, aspect_ratio: aspect, images_list: hosted }),
     });
-    return json(200, { url: r.url, credits: balance });
+    const j = await sub.json();
+    if (!sub.ok) throw new Error(muapiError(j, sub.status));
+    const id = j.request_id || j.id;
+    if (!id) throw new Error('Engine did not start the job');
+
+    await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'avatar', model: 'nano-banana-edit', prompt: scene, aspect, credits: AVATAR_COST, status: 'processing' });
+    return json(200, { request_id: id, credits: balance });
   } catch (e) {
-    try { if (db && user) await db.rpc('add_credits', { uid: user.id, amount: AVATAR_COST, why: 'refund' }); } catch (_) {}
-    return json(502, { error: e.message || 'Generation failed', refunded: AVATAR_COST });
-  }
-  } catch (fatal) {
-    return json(500, { error: 'Server error — please try again.' });
+    try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
+    return json(502, { error: (e && e.message) || 'Could not start generation', refunded: cost });
   }
 };

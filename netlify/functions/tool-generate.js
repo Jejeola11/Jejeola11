@@ -1,59 +1,62 @@
 // ============================================================
-// POST /.netlify/functions/tool-generate   (utility tools)
+// POST /.netlify/functions/tool-generate   (utility tools — async submit)
 // Auth required. Body: { slug, image_url, prompt? }
-// Runs MuAPI utility tools (upscale, background remove, object erase) on an
-// uploaded image. Same submit + poll pattern.
+// Runs MuAPI utility tools (upscale, background remove, object erase). These can
+// take longer than a function can run, so we SUBMIT and let the browser poll
+// /job-status (same pattern as video + avatar). The input image is re-hosted on
+// MuAPI's CDN so the engine can always fetch it.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
 const { TOOL_MODELS } = require('./_packs');
+const { muapiHostImage } = require('./_muapi');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
-async function muapiTool({ slug, image_url, prompt }) {
-  const key = process.env.MUAPI_KEY;
-  const payload = { image_url };
-  if (prompt) payload.prompt = prompt; // e.g. object eraser target
-  const submit = await fetch(`${MUAPI_BASE}/${slug}`, {
-    method: 'POST', headers: { 'x-api-key': key, 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-  const txt = await submit.text();
-  let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
-  if (!submit.ok) throw new Error((j && (j.error || j.message)) || ('Engine HTTP ' + submit.status));
-  const id = j.request_id || j.id;
-  if (!id) throw new Error('Engine did not return a job id');
-  for (let i = 0; i < 80; i++) {
-    await new Promise((r) => setTimeout(r, 2500));
-    const p = await (await fetch(`${MUAPI_BASE}/predictions/${id}/result`, { headers: { 'x-api-key': key } })).json();
-    if (p.status === 'completed') return { url: p.outputs && p.outputs[0], cost_usd: p.cost && p.cost.amount_usd };
-    if (p.status === 'failed' || p.status === 'cancelled') throw new Error('Tool ' + p.status);
+function muapiError(j, status) {
+  if (j && j.detail) {
+    if (Array.isArray(j.detail)) return j.detail.map((d) => (d && d.msg) || JSON.stringify(d)).join('; ');
+    if (typeof j.detail === 'string') return j.detail;
+    return JSON.stringify(j.detail);
   }
-  throw new Error('Timed out — please try again');
+  if (j && j.error) return (j.error.message || j.error);
+  return 'Engine HTTP ' + status;
 }
 
 exports.handler = async (event) => {
-  if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
-  const user = await getUser(event);
-  if (!user) return json(401, { error: 'Please sign in again.' });
-  let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
-
-  const slug = body.slug;
-  const image_url = (body.image_url || '').trim();
-  const cost = TOOL_MODELS[slug];
-  if (!cost) return json(400, { error: 'Unknown tool.' });
-  if (!image_url) return json(400, { error: 'Upload an image first.' });
-
-  const db = admin();
-  const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
-  if (balance === null) return json(402, { error: 'Not enough credits.', code: 'NO_CREDITS' });
-
+  let db, user, cost = 0;
   try {
-    const r = await muapiTool({ slug, image_url, prompt: body.prompt });
-    if (!r.url) throw new Error('No output returned');
-    await db.from('generations').insert({ user_id: user.id, type: 'tool', model: slug, output_url: r.url, cost_usd: r.cost_usd, credits_spent: cost });
-    return json(200, { url: r.url, credits: balance });
+    if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
+    user = await getUser(event);
+    if (!user) return json(401, { error: 'Please sign in again.' });
+    let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
+
+    const slug = body.slug;
+    const srcUrl = (body.image_url || '').trim();
+    cost = TOOL_MODELS[slug];
+    if (!cost) return json(400, { error: 'Unknown tool.' });
+    if (!srcUrl) return json(400, { error: 'Upload an image first.' });
+
+    db = admin();
+    const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
+    if (balance === null) return json(402, { error: 'Not enough credits.', code: 'NO_CREDITS' });
+
+    // Re-host the input so MuAPI can fetch it, then SUBMIT (no polling here).
+    const image_url = await muapiHostImage(srcUrl);
+    const payload = { image_url, images_list: [image_url] };
+    if (body.prompt) payload.prompt = body.prompt;
+    const sub = await fetch(`${MUAPI_BASE}/${slug}`, {
+      method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const j = await sub.json();
+    if (!sub.ok) throw new Error(muapiError(j, sub.status));
+    const id = j.request_id || j.id;
+    if (!id) throw new Error('Engine did not start the job');
+
+    await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'tool', model: slug, credits: cost, status: 'processing' });
+    return json(200, { request_id: id, credits: balance });
   } catch (e) {
-    await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' });
-    return json(502, { error: e.message || 'Tool failed', refunded: cost });
+    try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
+    return json(502, { error: (e && e.message) || 'Tool failed', refunded: cost });
   }
 };

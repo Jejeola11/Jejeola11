@@ -50,8 +50,8 @@ window.fuseLightbox = (url, type) => {
   document.getElementById('lightbox').style.display = 'grid';
 };
 
-// Poll an async render job until it completes (videos take minutes).
-function pollJob(requestId, resultEl, noteId, btn, btnLabel) {
+// Poll an async render job until it completes. mediaType 'image' or 'video'.
+function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video') {
   let s = 0;
   const timer = setInterval(async () => {
     s += 4;
@@ -61,8 +61,12 @@ function pollJob(requestId, resultEl, noteId, btn, btnLabel) {
       if (d.status === 'completed') {
         clearInterval(timer); clearPending();
         lastOutput = d.url;
-        resultEl.innerHTML = `<div><video src="${d.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${d.url}')">⬇ Download</button></div></div>`;
+        const media = mediaType === 'image'
+          ? `<img src="${d.url}" onclick="fuseLightbox('${d.url}','image')" style="cursor:pointer">`
+          : `<video src="${d.url}" controls autoplay loop muted playsinline></video>`;
+        resultEl.innerHTML = `<div>${media}<div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${d.url}')">⬇ Download</button></div></div>`;
         note(noteId, 'Done ✅', 'ok');
+        if (user) loadProfile();
         if (btn) { btn.disabled = false; btn.textContent = btnLabel; }
       } else if (d.status === 'failed') {
         clearInterval(timer); clearPending();
@@ -76,6 +80,50 @@ function pollJob(requestId, resultEl, noteId, btn, btnLabel) {
     } catch (e) {}
     if (s >= 360) { clearInterval(timer); note(noteId, 'Still rendering — check Projects in a minute.', 'err'); if (btn) { btn.disabled = false; btn.textContent = btnLabel; } }
   }, 4000);
+}
+
+// Poll several image jobs at once, filling a grid as each completes.
+function pollGrid(ids, resultEl, noteId, btn, label, watermark) {
+  const done = new Array(ids.length).fill(null);
+  let finished = 0;
+  resultEl.innerHTML = `<div><div class="${ids.length > 1 ? 'libgrid' : ''}" style="${ids.length > 1 ? 'gap:8px' : ''}">${ids.map((_, i) => `<div class="gen-slot" id="slot${i}"><span class="spin"></span></div>`).join('')}</div><div id="gridFooter" class="muted" style="margin-top:10px">Creating… ⏳</div></div>`;
+  const finish = () => {
+    finished++;
+    if (finished < ids.length) return;
+    clearPending();
+    const urls = done.filter((u) => u && u !== 'failed');
+    const footer = document.getElementById('gridFooter');
+    if (urls.length) {
+      if (footer) footer.outerHTML = `<div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${urls[0]}')">⬇ Download</button></div>${watermark ? '<div class="muted" style="font-size:11px;margin-top:6px">Watermark removed on paid plans</div>' : ''}`;
+      note(noteId, `Done ✅${urls.length > 1 ? ` · ${urls.length} variations` : ''}`, 'ok');
+    } else {
+      if (footer) footer.textContent = '';
+      note(noteId, 'Generation failed — credits refunded.', 'err');
+    }
+    if (user) loadProfile();
+    if (btn) { btn.disabled = false; btn.textContent = label; }
+  };
+  ids.forEach((id, i) => {
+    let s = 0;
+    const t = setInterval(async () => {
+      s += 4;
+      try {
+        const r = await fetch(`/.netlify/functions/job-status?id=${id}`, { headers: { ...(await authHeader()) } });
+        const d = await r.json();
+        if (d.status === 'completed') {
+          clearInterval(t); done[i] = d.url; lastOutput = d.url;
+          const slot = document.getElementById('slot' + i);
+          if (slot) slot.innerHTML = `${watermark ? '<div class="fuse-wm">Fuse Studio</div>' : ''}<img src="${d.url}" onclick="fuseLightbox('${d.url}','image')" style="cursor:pointer">`;
+          finish();
+        } else if (d.status === 'failed') {
+          clearInterval(t); done[i] = 'failed';
+          const slot = document.getElementById('slot' + i); if (slot) slot.innerHTML = '<div class="muted" style="font-size:12px">⚠ failed</div>';
+          finish();
+        }
+      } catch (e) {}
+      if (s >= 360 && done[i] === null) { clearInterval(t); done[i] = 'failed'; finish(); }
+    }, 4000);
+  });
 }
 
 async function authHeader() {
@@ -134,13 +182,18 @@ function clearPending() { try { localStorage.removeItem('fuse_pendingVideo'); } 
 function resumePending() {
   let p; try { p = JSON.parse(localStorage.getItem('fuse_pendingVideo') || 'null'); } catch (e) {}
   if (!p || !p.id) return;
-  const where = p.where === 'video' ? 'video' : 'studio';
-  showView(where);
-  const resultEl = where === 'video' ? $('vResult') : $('result');
-  const noteId = where === 'video' ? 'vNote' : 'genNote';
+  // Map the pending job back to its view + result element + media type.
+  const map = {
+    video:  { view: 'video',  resultId: 'vResult',  noteId: 'vNote',     media: 'video' },
+    avatar: { view: 'avatar', resultId: 'avResult', noteId: 'avGenNote', media: 'image' },
+    studio: { view: 'studio', resultId: 'result',   noteId: 'genNote',   media: 'image' },
+  };
+  const m = map[p.where] || map.studio;
+  if (p.where === 'avatar') { showView('avatar'); } else { showView(m.view); }
+  const resultEl = $(m.resultId); if (!resultEl) return;
   resultEl.innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Resuming your render…</div></div>';
-  note(noteId, 'Reconnected to your render — still working ⏳', 'ok');
-  pollJob(p.id, resultEl, noteId, null, null);
+  note(m.noteId, 'Reconnected to your render — still working ⏳', 'ok');
+  pollJob(p.id, resultEl, m.noteId, null, null, m.media);
 }
 
 // ---------------- model gallery (Image / Video / Reactor) ----------------
@@ -352,20 +405,19 @@ async function generate() {
       body: JSON.stringify({ prompt, model, aspect, count: +$('imgCount').value, res: +$('imgRes').value, reference_image_urls: refUrls.length ? refUrls : undefined }),
     });
     const data = await res.json(); clearInterval(iv);
-    if (res.status === 402) { note('genNote', 'Out of credits — top up to keep creating.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; }
-    else if (res.status === 403) { note('genNote', data.error || 'Upgrade to unlock this model.', 'err'); openBuy(); $('result').innerHTML = '<div>🔒 This model needs a subscription.</div>'; }
+    if (res.status === 402) { note('genNote', 'Out of credits — top up to keep creating.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; btn.disabled = false; btn.textContent = '✨ Generate'; return; }
+    else if (res.status === 403) { note('genNote', data.error || 'Upgrade to unlock this model.', 'err'); openBuy(); $('result').innerHTML = '<div>🔒 This model needs a subscription.</div>'; btn.disabled = false; btn.textContent = '✨ Generate'; return; }
     else if (!res.ok) throw new Error(data.error || 'Generation failed');
     else {
-      const urls = data.urls && data.urls.length ? data.urls : [data.url];
-      lastOutput = urls[0];
+      // Async: every image is a job we poll. Fills the grid as results arrive.
+      const ids = data.request_ids && data.request_ids.length ? data.request_ids : [data.request_id];
       $('creditCount').textContent = data.credits;
-      const wm = data.watermark;
-      const grid = urls.map((u) => `<div class="gen-wrap">${wm ? '<div class="fuse-wm">Fuse Studio</div>' : ''}<img src="${u}" onclick="fuseLightbox('${u}','image')" style="cursor:pointer"></div>`).join('');
-      $('result').innerHTML = `<div><div class="${urls.length > 1 ? 'libgrid' : ''}" style="${urls.length > 1 ? 'gap:8px' : ''}">${grid}</div><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${urls[0]}')">⬇ Download</button></div>${wm ? '<div class="muted" style="font-size:11px;margin-top:6px">Watermark removed on paid plans</div>' : ''}</div>`;
-      note('genNote', `Done ✅${urls.length > 1 ? ` · ${urls.length} variations` : ''}`, 'ok');
+      note('genNote', 'Creating… this can take up to a minute ⏳', 'ok'); btn.textContent = 'Rendering…';
+      if (ids.length === 1) savePending(ids[0], 'studio');
+      pollGrid(ids, $('result'), 'genNote', btn, '✨ Generate', data.watermark);
+      return;
     }
-  } catch (e) { clearInterval(iv); $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); }
-  btn.disabled = false; btn.textContent = '✨ Generate';
+  } catch (e) { clearInterval(iv); $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = '✨ Generate'; }
 }
 
 // ---------------- reactor (multi-AI) ----------------
@@ -683,7 +735,7 @@ async function avatarGenerate() {
   const prompt = $('avPrompt').value.trim();
   if (!prompt) return note('avGenNote', 'Describe the scene.', 'err');
   const aspect = $('avAspect').value;
-  const btn = $('avGen'); btn.disabled = true; btn.textContent = 'Generating…';
+  const btn = $('avGen'); const label = '✨ Generate (10 credits)'; btn.disabled = true; btn.textContent = 'Submitting…';
   $('avResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Locking your face into the scene…</div></div>';
   note('avGenNote', '');
   try {
@@ -692,17 +744,16 @@ async function avatarGenerate() {
       body: JSON.stringify({ avatar_id: selectedAvatar, prompt, aspect, extra_refs: avExtraRefs.length ? avExtraRefs : undefined }),
     });
     const data = await res.json();
-    if (res.status === 503) { $('avResult').innerHTML = '<div class="muted">Avatar Studio is being connected.</div>'; note('avGenNote', data.error, 'err'); }
-    else if (res.status === 402) { note('avGenNote', 'Out of credits — top up.', 'err'); openBuy(); }
+    if (res.status === 503) { $('avResult').innerHTML = '<div class="muted">Avatar Studio is being connected.</div>'; note('avGenNote', data.error, 'err'); btn.disabled = false; btn.textContent = label; }
+    else if (res.status === 402) { note('avGenNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; }
     else if (!res.ok) throw new Error(data.error || 'Failed');
     else {
-      lastOutput = data.url;
       $('creditCount').textContent = data.credits;
-      $('avResult').innerHTML = `<div><img src="${data.url}" alt="avatar"><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
-      note('avGenNote', 'Done ✅', 'ok');
+      note('avGenNote', 'Rendering your avatar… this can take up to a minute ⏳', 'ok'); btn.textContent = 'Rendering…';
+      savePending(data.request_id, 'avatar');
+      pollJob(data.request_id, $('avResult'), 'avGenNote', btn, label, 'image');
     }
-  } catch (e) { $('avResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('avGenNote', e.message || 'Failed — credits not charged.', 'err'); }
-  btn.disabled = false; btn.textContent = '✨ Generate (10 credits)';
+  } catch (e) { $('avResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('avGenNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 
 // ---------------- prompt generator (charged, 1 credit) ----------------
@@ -974,7 +1025,7 @@ async function pickToolImage(file) {
 async function runTool() {
   if (preview) { showAuth('signup'); return; }
   if (!toolImg) return note('toolNote', 'Upload an image first.', 'err');
-  const btn = $('toolRun'); btn.disabled = true; btn.textContent = 'Working…';
+  const btn = $('toolRun'); const label = 'Run tool'; btn.disabled = true; btn.textContent = 'Submitting…';
   $('toolResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Processing…</div></div>';
   try {
     const res = await fetch('/.netlify/functions/tool-generate', {
@@ -982,15 +1033,14 @@ async function runTool() {
       body: JSON.stringify({ slug: toolSlug, image_url: toolImg, prompt: $('toolPrompt').value.trim() || undefined }),
     });
     const data = await res.json();
-    if (res.status === 402) { note('toolNote', 'Out of credits — top up.', 'err'); openBuy(); }
+    if (res.status === 402) { note('toolNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; }
     else if (!res.ok) throw new Error(data.error || 'Failed');
     else {
       $('creditCount').textContent = data.credits;
-      $('toolResult').innerHTML = `<div><img src="${data.url}"><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${data.url}')">⬇ Download</button></div></div>`;
-      note('toolNote', 'Done ✅', 'ok');
+      note('toolNote', 'Processing… ⏳', 'ok'); btn.textContent = 'Processing…';
+      pollJob(data.request_id, $('toolResult'), 'toolNote', btn, label, 'image');
     }
-  } catch (e) { $('toolResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('toolNote', e.message || 'Failed — credits not charged.', 'err'); }
-  btn.disabled = false; btn.textContent = 'Run tool';
+  } catch (e) { $('toolResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('toolNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 
 // ---------------- auth ----------------

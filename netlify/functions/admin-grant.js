@@ -26,9 +26,14 @@ exports.handler = async (event) => {
   const target = rows && rows[0];
   if (!target) return json(404, { error: 'No account with that email yet — ask them to sign up first, then grant.' });
 
-  // First-50 founding 2x bonus (one-time) applies to manual grants too.
+  // First-50 founding 2x bonus applies to manual grants too. claim_founding marks
+  // new founding members (capped at 50). If it returns false because they're ALREADY
+  // a founding member, still honor the 2x on this grant (so re-grants stay 2x).
   let credits = pack.credits, founding = false;
   try { const { data } = await db.rpc('claim_founding', { uid: target.id }); founding = !!data; } catch (e) {}
+  if (!founding) {
+    try { const { data: prof } = await db.from('profiles').select('founding_2x').eq('id', target.id).maybeSingle(); founding = !!(prof && prof.founding_2x); } catch (e) {}
+  }
   if (founding) credits *= 2;
 
   await db.rpc('add_credits', { uid: target.id, amount: credits, why: 'manual_grant' });

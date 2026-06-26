@@ -4,8 +4,8 @@
 // Routes to Claude / ChatGPT / Gemini via MuAPI (your existing MUAPI_KEY),
 // charging credits per message. Same submit + poll pattern as image gen.
 // ============================================================
-const { admin, getUser, json } = require('./_supabase');
-const { REACTOR_COST } = require('./_packs');
+const { admin, getUser, json, getPlan } = require('./_supabase');
+const { REACTOR_COST, canUseFree } = require('./_packs');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
@@ -33,6 +33,13 @@ exports.handler = async (event) => {
   const cost = REACTOR_COST[model];
   if (!prompt) return json(400, { error: 'Type a message first.' });
   if (!cost) return json(400, { error: 'Unknown model.' });
+
+  // Plan gating — free users only get the basic AIs. Default to 'pro' on error.
+  let plan = 'pro', isAdmin = false;
+  try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
+  if (plan === 'free' && !isAdmin && !canUseFree(model)) {
+    return json(403, { error: 'This AI requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
+  }
 
   const db = admin();
   const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });

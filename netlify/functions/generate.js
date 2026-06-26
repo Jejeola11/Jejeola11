@@ -12,6 +12,30 @@ const { muapiHostImage } = require('./_muapi');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
+// Submit a job to MuAPI and return its request_id immediately (no polling here).
+async function muapiSubmit({ prompt, aspect, model, images_list, resolution }) {
+  const key = process.env.MUAPI_KEY;
+  const payload = { prompt, aspect_ratio: aspect };
+  if (resolution) payload.resolution = resolution;
+  if (images_list && images_list.length) payload.images_list = images_list;
+  const submit = await fetch(`${MUAPI_BASE}/${model}`, {
+    method: 'POST',
+    headers: { 'x-api-key': key, 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const txt = await submit.text();
+  let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
+  if (!submit.ok) {
+    let m = 'Engine HTTP ' + submit.status;
+    if (j && j.detail) m = Array.isArray(j.detail) ? j.detail.map((d) => (d && d.msg) || JSON.stringify(d)).join('; ') : (typeof j.detail === 'string' ? j.detail : JSON.stringify(j.detail));
+    else if (j && (j.error || j.message)) m = (j.error && j.error.message) || j.error || j.message;
+    throw new Error(m);
+  }
+  const id = j.request_id || j.id;
+  if (!id) throw new Error('Engine did not return a job id');
+  return id;
+}
+
 async function muapiGenerate({ prompt, aspect, model, images_list, resolution }) {
   const key = process.env.MUAPI_KEY;
   const payload = { prompt, aspect_ratio: aspect };
@@ -101,8 +125,9 @@ exports.handler = async (event) => {
     return json(403, { error: 'This model requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
   }
 
-  const count = Math.min(Math.max(parseInt(body.count, 10) || 1, 1), 4);
-  const resMult = Math.min(Math.max(parseInt(body.res, 10) || 1, 1), 3);
+  // Reference-image editing (nano-banana-edit) is slow — always a single image, run async.
+  const count = useRef ? 1 : Math.min(Math.max(parseInt(body.count, 10) || 1, 1), 4);
+  const resMult = useRef ? 1 : Math.min(Math.max(parseInt(body.res, 10) || 1, 1), 3);
   const resolution = ['1k', '2k', '4k'][resMult - 1];
   const cost = base * count * resMult;
 
@@ -113,28 +138,29 @@ exports.handler = async (event) => {
   if (spendErr) return json(500, { error: 'Could not check your credits.' });
   if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
-  // 2) Generate `count` images in parallel. Refund if all fail.
+  // ASYNC PATH (everything): MuAPI image models can take longer than a function can
+  // run. So we SUBMIT each image as a job and let the browser poll /job-status.
+  // This guarantees the function returns fast (never times out to an HTML error).
   try {
-    // Re-host reference images on MuAPI so the engine can always fetch them.
     const hostedRefs = useRef ? await Promise.all(refs.map(muapiHostImage)) : undefined;
-    const jobs = Array.from({ length: count }, () =>
-      muapiGenerate({ prompt, aspect, model, images_list: hostedRefs, resolution: resMult > 1 ? resolution : undefined })
-        .catch(() => null));
-    const results = await Promise.all(jobs);
-    const urls = results.filter((r) => r && r.url).map((r) => r.url);
-    if (!urls.length) throw new Error('No image returned');
+    const perCredits = Math.max(1, Math.round(cost / count));
+    const submits = await Promise.all(Array.from({ length: count }, () =>
+      muapiSubmit({ prompt, aspect, model, images_list: hostedRefs, resolution: resMult > 1 ? resolution : undefined })
+        .then((id) => id).catch(() => null)));
+    const ids = submits.filter(Boolean);
+    if (!ids.length) throw new Error('Engine did not start the job');
 
-    const rows = urls.map((u) => ({ user_id: user.id, type: 'image', model, prompt, aspect, output_url: u, credits_spent: Math.round(cost / urls.length) }));
-    await db.from('generations').insert(rows);
+    const rows = ids.map((id) => ({ request_id: id, user_id: user.id, kind: 'image', model, prompt, aspect, credits: perCredits, status: 'processing' }));
+    await db.from('jobs').insert(rows);
 
-    // Partial refund if fewer images came back than paid for.
-    const refund = (count - urls.length) * base * resMult;
+    // Refund any submissions that failed to start.
+    const refund = (count - ids.length) * perCredits;
     if (refund > 0) await db.rpc('add_credits', { uid: user.id, amount: refund, why: 'refund' });
 
-    return json(200, { urls, url: urls[0], credits: balance + refund, watermark: plan === 'free' && !isAdmin });
+    return json(200, { request_ids: ids, request_id: ids[0], credits: balance + refund, watermark: plan === 'free' && !isAdmin });
   } catch (e) {
     try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
-    return json(502, { error: e.message || 'Generation failed', refunded: cost });
+    return json(502, { error: (e && e.message) || 'Generation failed', refunded: cost });
   }
   } catch (fatal) {
     return json(500, { error: 'Server error — please try again.' });

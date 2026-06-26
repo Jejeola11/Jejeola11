@@ -476,3 +476,7 @@ textarea{min-height:104px;resize:vertical}
 
 /* ===== Avatar extra ref close button ===== */
 .ref-x{position:absolute;top:-4px;right:-4px;background:rgba(0,0,0,.7);color:#fff;border-radius:50%;width:18px;height:18px;display:grid;place-items:center;font-size:11px;cursor:pointer;line-height:1}
+
+/* ===== Async image grid slots ===== */
+.gen-slot{position:relative;aspect-ratio:1;display:grid;place-items:center;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.gen-slot img{width:100%;height:100%;object-fit:cover}
