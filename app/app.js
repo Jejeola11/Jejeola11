@@ -532,26 +532,37 @@ async function loadProfile() {
   if (data.is_admin) {
     $('adminPanel').style.display = 'block';
     if (!$('adminPack').children.length) {
-      $('adminPack').innerHTML = cfg.PACKS.map((p) => `<option value="${p.key}">${p.name} — ${naira(p.naira)} (${p.credits} cr)</option>`).join('');
+      // Show the doubled credits so it's clear founding members get 2×.
+      $('adminPack').innerHTML = cfg.PACKS.map((p) => `<option value="${p.key}">${p.name} — ${naira(p.naira)} → ${p.credits * 2} cr</option>`).join('');
     }
   } else { $('adminPanel').style.display = 'none'; }
 }
-async function adminGrant() {
+async function adminGrant(custom) {
   const email = $('adminEmail').value.trim();
-  const pack = $('adminPack').value;
   if (!email) return note('adminNote', 'Enter the buyer\'s email.', 'err');
-  const btn = $('adminGrant'); btn.disabled = true; btn.textContent = 'Granting…';
+  const payload = { email };
+  let btn, label;
+  if (custom) {
+    const credits = parseInt($('adminCredits').value, 10) || 0;
+    if (credits <= 0) return note('adminNote', 'Enter a credit amount.', 'err');
+    payload.credits = credits;
+    btn = $('adminGrantCredits'); label = 'Add custom credits';
+  } else {
+    payload.pack = $('adminPack').value;
+    btn = $('adminGrant'); label = 'Grant access (2× founding)';
+  }
+  btn.disabled = true; btn.textContent = 'Granting…';
   try {
     const res = await fetch('/.netlify/functions/admin-grant', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ email, pack }),
+      body: JSON.stringify(payload),
     });
     const d = await res.json();
     if (!res.ok) throw new Error(d.error || 'Failed');
-    note('adminNote', `✅ Granted ${d.credits} credits to ${d.email}${d.founding ? ' (incl. 2× founding bonus)' : ''}.`, 'ok');
-    $('adminEmail').value = '';
+    note('adminNote', `✅ Added ${d.credits} credits to ${d.email}${d.founding ? ' (2× founding)' : ''}.`, 'ok');
+    $('adminEmail').value = ''; $('adminCredits').value = '';
   } catch (e) { note('adminNote', e.message || 'Failed', 'err'); }
-  btn.disabled = false; btn.textContent = 'Grant access';
+  btn.disabled = false; btn.textContent = label;
 }
 
 // ---------------- community ----------------
@@ -1174,7 +1185,8 @@ window.addEventListener('DOMContentLoaded', () => {
   $('payoutBtn').onclick = requestPayout;
   $('copyRef').onclick = () => { navigator.clipboard.writeText($('refLink').value); $('copyRef').textContent = 'Copied!'; setTimeout(() => $('copyRef').textContent = 'Copy', 1500); };
   $('logoutBtn').onclick = logout;
-  $('adminGrant').onclick = adminGrant;
+  $('adminGrant').onclick = () => adminGrant(false);
+  $('adminGrantCredits').onclick = () => adminGrant(true);
   $('lbClose').onclick = () => $('lightbox').style.display = 'none';
   $('lbDl').onclick = () => downloadFile(lbUrl);
   $('authBtn').onclick = doAuth;

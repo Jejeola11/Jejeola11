@@ -352,7 +352,10 @@
         <p class="muted" style="margin:0 0 8px;font-size:13px">Buyer paid by transfer? Enter their email, pick what they bought, tap Grant. 💸</p>
         <input id="adminEmail" type="email" placeholder="buyer@email.com" autocomplete="off">
         <select id="adminPack" style="margin-top:8px"></select>
-        <button class="btn gold block" id="adminGrant" style="margin-top:10px">Grant access</button>
+        <button class="btn gold block" id="adminGrant" style="margin-top:10px">Grant access (2× founding)</button>
+        <p class="muted" style="margin:14px 0 6px;font-size:12px">Or add an exact number of credits (corrections / top-ups):</p>
+        <input id="adminCredits" type="number" min="1" placeholder="e.g. 350" inputmode="numeric">
+        <button class="btn ghost block" id="adminGrantCredits" style="margin-top:8px">Add custom credits</button>
         <div class="note" id="adminNote"></div>
       </div>
     </div>

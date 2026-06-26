@@ -1,53 +1,65 @@
 // ============================================================
 // POST /.netlify/functions/admin-grant   (owner/admin only)
-// Body: { email, pack }. Manually unlocks a buyer who paid by transfer:
-// adds the pack's credits (with the first-50 2x bonus) and sets their plan.
+// Body: { email, pack?, credits? }. Manually fulfils a buyer who paid by transfer.
+//   - pack:    apply a plan/bundle (credits doubled while FOUNDING is on)
+//   - credits: grant an exact number of credits (for corrections / top-ups)
+// At least one of pack or credits is required.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
 const { PACKS } = require('./_packs');
 
+// First-50 founding offer: every grant delivers DOUBLE credits. Set to 1 once the
+// founding promo ends (so a ₦9k Creator stops giving 700 and gives 350 again).
+const FOUNDING_MULTIPLIER = 2;
+
 exports.handler = async (event) => {
-  if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
+  let db;
+  try {
+    if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
 
-  const user = await getUser(event);
-  if (!user) return json(401, { error: 'Please sign in again.' });
+    const user = await getUser(event);
+    if (!user) return json(401, { error: 'Please sign in again.' });
 
-  const db = admin();
-  const { data: me } = await db.from('profiles').select('is_admin').eq('id', user.id).maybeSingle();
-  if (!me || !me.is_admin) return json(403, { error: 'Admins only.' });
+    db = admin();
+    const { data: me } = await db.from('profiles').select('is_admin').eq('id', user.id).maybeSingle();
+    if (!me || !me.is_admin) return json(403, { error: 'Admins only.' });
 
-  let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
-  const email = (body.email || '').trim();
-  const pack = PACKS[body.pack];
-  if (!email || !pack) return json(400, { error: 'Enter an email and pick a pack.' });
+    let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
+    const email = (body.email || '').trim();
+    const pack = body.pack ? PACKS[body.pack] : null;
+    const custom = parseInt(body.credits, 10) || 0;
+    if (!email) return json(400, { error: 'Enter the buyer\'s email.' });
+    if (!pack && custom <= 0) return json(400, { error: 'Pick a pack or enter a credit amount.' });
 
-  // Find the buyer's account by email.
-  const { data: rows } = await db.from('profiles').select('id, email').ilike('email', email).limit(1);
-  const target = rows && rows[0];
-  if (!target) return json(404, { error: 'No account with that email yet — ask them to sign up first, then grant.' });
+    // Find the buyer's account by email.
+    const { data: rows } = await db.from('profiles').select('id, email').ilike('email', email).limit(1);
+    const target = rows && rows[0];
+    if (!target) return json(404, { error: 'No account with that email yet — ask them to sign up first, then grant.' });
 
-  // First-50 founding 2x bonus applies to manual grants too. claim_founding marks
-  // new founding members (capped at 50). If it returns false because they're ALREADY
-  // a founding member, still honor the 2x on this grant (so re-grants stay 2x).
-  let credits = pack.credits, founding = false;
-  try { const { data } = await db.rpc('claim_founding', { uid: target.id }); founding = !!data; } catch (e) {}
-  if (!founding) {
-    try { const { data: prof } = await db.from('profiles').select('founding_2x').eq('id', target.id).maybeSingle(); founding = !!(prof && prof.founding_2x); } catch (e) {}
+    // Credits: exact custom amount, OR the pack's credits doubled (founding).
+    const credits = custom > 0 ? custom : pack.credits * FOUNDING_MULTIPLIER;
+    const doubled = custom <= 0 && FOUNDING_MULTIPLIER > 1;
+
+    await db.rpc('add_credits', { uid: target.id, amount: credits, why: custom > 0 ? 'manual_topup' : 'manual_grant' });
+
+    // Apply plan only when a subscription/course pack was chosen.
+    if (pack && (pack.kind === 'sub' || pack.kind === 'course')) {
+      const plan = pack.plan || 'pro';
+      const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      await db.from('profiles').update({ plan, plan_expires_at: expires }).eq('id', target.id);
+    }
+    // Best-effort: mark them a founding member (ignore if the column doesn't exist).
+    try { await db.from('profiles').update({ founding_2x: true }).eq('id', target.id); } catch (e) {}
+
+    try {
+      await db.from('payments').insert({
+        user_id: target.id, reference: 'manual-' + Date.now() + '-' + email,
+        amount_naira: pack ? pack.amount_naira : 0, pack: body.pack || 'custom', credits_added: credits, status: 'manual',
+      });
+    } catch (e) {}
+
+    return json(200, { ok: true, email: target.email, credits, founding: doubled, plan: pack ? (pack.plan || pack.kind) : 'top-up' });
+  } catch (e) {
+    return json(500, { error: (e && e.message) || 'Grant failed — try again.' });
   }
-  if (founding) credits *= 2;
-
-  await db.rpc('add_credits', { uid: target.id, amount: credits, why: 'manual_grant' });
-
-  if (pack.kind === 'sub' || pack.kind === 'course') {
-    const plan = pack.plan || 'pro';
-    const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-    await db.from('profiles').update({ plan, plan_expires_at: expires }).eq('id', target.id);
-  }
-
-  await db.from('payments').insert({
-    user_id: target.id, reference: 'manual-' + Date.now() + '-' + email,
-    amount_naira: pack.amount_naira, pack: body.pack, credits_added: credits, status: 'manual',
-  });
-
-  return json(200, { ok: true, email: target.email, credits, founding, plan: pack.plan || pack.kind });
 };
