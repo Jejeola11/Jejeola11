@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kiwi Trade — Barter Marketplace for San Diego</title>
+<meta name="description" content="Trade products & services with your community. AI-matched barter marketplace by Kiwi Spa, San Diego.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B1410; --bg2:#0F1C16; --card:#13241C; --line:#21382C;
+    --ink:#EAF3EC; --muted:#8FB3A2; --kiwi:#A8E063; --kiwi2:#C6F542; --kiwi-deep:#6FAE2F;
+    --radius:18px; --shadow:0 18px 50px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:
+    radial-gradient(900px 480px at 80% -8%,rgba(168,224,99,.12),transparent 60%),var(--bg);
+    color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 20px}
+  /* nav */
+  .nav{position:sticky;top:0;z-index:30;background:rgba(11,20,16,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav .in{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}
+  .logo .k{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--kiwi),var(--kiwi-deep));display:grid;place-items:center;color:#0b1410;font-weight:800}
+  .nlinks{display:flex;gap:24px;align-items:center}
+  .nlinks a{color:var(--muted);font-weight:600;font-size:14px}
+  .nlinks a:hover{color:var(--ink)}
+  .btn{display:inline-flex;align-items:center;gap:8px;justify-content:center;font-weight:700;font-size:15px;padding:11px 20px;border-radius:999px;border:1px solid transparent;cursor:pointer;transition:.15s}
+  .btn.kiwi{background:linear-gradient(135deg,var(--kiwi),var(--kiwi-deep));color:#0b1410}
+  .btn.kiwi:hover{filter:brightness(1.08)}
+  .btn.ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+  .btn.sm{padding:8px 15px;font-size:13px}
+  @media(max-width:760px){.nlinks a{display:none}}
+  /* hero */
+  .hero{padding:64px 0 30px;text-align:center}
+  .pill{display:inline-flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;color:var(--muted);margin-bottom:20px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--kiwi);box-shadow:0 0 0 0 rgba(168,224,99,.6);animation:p 2s infinite}
+  @keyframes p{0%{box-shadow:0 0 0 0 rgba(168,224,99,.5)}70%{box-shadow:0 0 0 10px transparent}100%{box-shadow:0 0 0 0 transparent}}
+  h1{font-size:clamp(34px,6.4vw,62px);line-height:1.04;letter-spacing:-.02em;margin:0 0 14px;font-weight:800}
+  h1 .g{color:var(--kiwi)}
+  .lede{max-width:620px;margin:0 auto;color:var(--muted);font-size:18px}
+  /* AI search */
+  .search{max-width:680px;margin:30px auto 0;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:8px 8px 8px 16px;display:flex;gap:10px;align-items:center;box-shadow:var(--shadow)}
+  .search .ai{font-size:12px;font-weight:700;color:var(--kiwi);background:rgba(168,224,99,.12);padding:4px 10px;border-radius:99px;white-space:nowrap}
+  .search input{flex:1;background:transparent;border:0;color:var(--ink);font-size:15px;outline:none;font-family:inherit}
+  .chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+  .chip{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:7px 13px;font-size:13px;color:var(--muted);cursor:pointer}
+  .chip:hover{border-color:var(--kiwi);color:var(--kiwi)}
+  /* sections */
+  .sec{padding:42px 0}
+  .shead{display:flex;align-items:end;justify-content:space-between;margin-bottom:18px}
+  .shead h2{font-size:24px;margin:0;font-weight:800}
+  .shead a{color:var(--kiwi);font-weight:600;font-size:14px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:820px){.grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.grid{grid-template-columns:1fr}}
+  .listing{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;transition:.16s;cursor:pointer}
+  .listing:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--kiwi-deep)}
+  .lphoto{aspect-ratio:4/3;background:linear-gradient(135deg,var(--bg2),var(--card));position:relative;display:grid;place-items:center;font-size:46px}
+  .ltag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.5);border:1px solid var(--line);color:var(--ink);font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px}
+  .ltag.svc{background:var(--kiwi);color:#0b1410;border:0}
+  .linfo{padding:14px}
+  .linfo h3{margin:0 0 4px;font-size:16px}
+  .linfo .by{color:var(--muted);font-size:13px;margin-bottom:8px}
+  .lwant{font-size:13px;color:var(--ink);background:var(--bg2);border:1px dashed var(--line);border-radius:10px;padding:8px 10px}
+  .lwant b{color:var(--kiwi)}
+  /* AI match band */
+  .match{background:linear-gradient(135deg,rgba(168,224,99,.1),rgba(168,224,99,.02));border:1px solid var(--kiwi-deep);border-radius:var(--radius);padding:22px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+  .match .ico{font-size:34px}
+  .match h3{margin:0 0 4px;font-size:19px}
+  .match p{margin:0;color:var(--muted);font-size:14px}
+  .matchrow{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+  .mtag{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:8px 13px;font-size:13px;font-weight:600}
+  .mtag .ar{color:var(--kiwi);margin:0 6px}
+  /* how */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:760px){.steps{grid-template-columns:1fr 1fr}}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+  .step .n{width:30px;height:30px;border-radius:9px;background:rgba(168,224,99,.14);color:var(--kiwi);display:grid;place-items:center;font-weight:800;margin-bottom:10px}
+  .step h4{margin:0 0 4px;font-size:15px}
+  .step p{margin:0;color:var(--muted);font-size:13px}
+  /* members + reviews */
+  .mem{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+  .av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--kiwi),var(--kiwi-deep));display:grid;place-items:center;color:#0b1410;font-weight:800}
+  .mem .nm{font-weight:700;font-size:15px}
+  .mem .mt{color:var(--muted);font-size:13px}
+  .stars{color:var(--kiwi);font-size:13px}
+  /* footer */
+  .foot{border-top:1px solid var(--line);padding:30px 0;color:var(--muted);font-size:13px;text-align:center;margin-top:30px}
+  /* bot */
+  .bot{position:fixed;bottom:18px;right:18px;z-index:40}
+  .botbtn{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--kiwi),var(--kiwi-deep));border:0;color:#0b1410;font-size:24px;cursor:pointer;box-shadow:var(--shadow)}
+  .botcard{position:absolute;bottom:70px;right:0;width:min(320px,86vw);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);display:none}
+  .botcard.open{display:block}
+  .botcard .h{font-weight:800;margin-bottom:4px}
+  .botmsg{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:10px;font-size:13px;color:var(--ink);margin-top:8px}
+</style>
+</head>
+<body>
+
+<header class="nav"><div class="wrap in">
+  <div class="logo"><span class="k">🥝</span> Kiwi Trade</div>
+  <nav class="nlinks">
+    <a href="#browse">Browse</a><a href="#how">How it works</a><a href="#members">Members</a>
+    <a class="btn ghost sm" href="#">Log in</a>
+    <a class="btn kiwi sm" href="#">List an item</a>
+  </nav>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <div class="pill"><span class="dot"></span> San Diego's community barter marketplace · by Kiwi Spa</div>
+  <h1>Trade what you have for <span class="g">what you need.</span></h1>
+  <p class="lede">List your products and services. Our AI finds the perfect trade match in your community — no cash required.</p>
+
+  <div class="search">
+    <span class="ai">✦ AI Search</span>
+    <input id="q" placeholder="Try: “I have facials, I want event photography”">
+    <button class="btn kiwi sm" onclick="aiSearch()">Search</button>
+  </div>
+  <div class="chips">
+    <div class="chip" onclick="setQ('Skincare facials')">💆 Skincare facials</div>
+    <div class="chip" onclick="setQ('Event photography')">📸 Event photography</div>
+    <div class="chip" onclick="setQ('Handmade candles')">🕯 Handmade candles</div>
+    <div class="chip" onclick="setQ('Yoga sessions')">🧘 Yoga sessions</div>
+    <div class="chip" onclick="setQ('Catering')">🍽 Catering</div>
+  </div>
+</div></section>
+
+<!-- AI MATCH -->
+<section class="sec"><div class="wrap">
+  <div class="match">
+    <div class="ico">✦</div>
+    <div style="flex:1;min-width:240px">
+      <h3>AI Match found you a trade</h3>
+      <p>Based on your listings, our engine suggests a high-fit barter:</p>
+      <div class="matchrow">
+        <span class="mtag">Your facials & spa sessions <span class="ar">⇄</span> Maya's event photography</span>
+        <span class="mtag" style="color:var(--kiwi)">96% match</span>
+      </div>
+    </div>
+    <button class="btn kiwi">Propose trade</button>
+  </div>
+</div></section>
+
+<!-- BROWSE -->
+<section class="sec" id="browse"><div class="wrap">
+  <div class="shead"><h2>Featured trades</h2><a href="#">View all →</a></div>
+  <div class="grid" id="listings"></div>
+</div></section>
+
+<!-- HOW -->
+<section class="sec" id="how"><div class="wrap">
+  <div class="shead"><h2>How Kiwi Trade works</h2></div>
+  <div class="steps">
+    <div class="step"><div class="n">1</div><h4>List it</h4><p>Post a product or service and what you'd like in return.</p></div>
+    <div class="step"><div class="n">2</div><h4>Get matched</h4><p>AI suggests members whose needs fit your offer.</p></div>
+    <div class="step"><div class="n">3</div><h4>Message & agree</h4><p>Chat in-app, agree on the trade, set the terms.</p></div>
+    <div class="step"><div class="n">4</div><h4>Trade & review</h4><p>Complete the barter and leave a rating to build trust.</p></div>
+  </div>
+</div></section>
+
+<!-- MEMBERS -->
+<section class="sec" id="members"><div class="wrap">
+  <div class="shead"><h2>Trusted members</h2><a href="#">Join them →</a></div>
+  <div class="grid">
+    <div class="mem"><div class="av">M</div><div><div class="nm">Maya · Kiwi Spa</div><div class="mt">Skincare & spa · 4.9 ★ (38)</div></div></div>
+    <div class="mem"><div class="av">J</div><div><div class="nm">Jordan Reyes</div><div class="mt">Event photography · 5.0 ★ (21)</div></div></div>
+    <div class="mem"><div class="av">A</div><div><div class="nm">Aria Co.</div><div class="mt">Handmade candles · 4.8 ★ (14)</div></div></div>
+  </div>
+</div></section>
+
+<!-- MEMBERSHIP CTA -->
+<section class="sec"><div class="wrap">
+  <div class="match" style="justify-content:space-between">
+    <div><h3>Go Premium — featured listings & priority matches</h3><p>Memberships & featured spots via secure Stripe checkout.</p></div>
+    <button class="btn kiwi">Upgrade — $19/mo</button>
+  </div>
+</div></section>
+
+<footer class="foot"><div class="wrap">
+  🥝 Kiwi Trade — a community barter marketplace by Kiwi Spa, San Diego.<br>
+  <span style="opacity:.7">Concept demo · built by Ria · marketplace · AI search · AI matching · Stripe · admin · messaging · reviews</span>
+</div></footer>
+
+<!-- AI SUPPORT BOT -->
+<div class="bot">
+  <div class="botcard" id="botcard">
+    <div class="h">✦ Kiwi Assistant</div>
+    <div style="font-size:13px;color:var(--muted)">Ask me anything about trading here.</div>
+    <div class="botmsg" id="botmsg">Hi! I can help you list an item, find a trade match, or explain how barter works. Type a question 👇</div>
+    <div class="search" style="margin-top:10px;padding:6px 6px 6px 12px">
+      <input id="botq" placeholder="How do I start a trade?" style="font-size:13px">
+      <button class="btn kiwi sm" onclick="botAsk()">Ask</button>
+    </div>
+  </div>
+  <button class="botbtn" onclick="document.getElementById('botcard').classList.toggle('open')">✦</button>
+</div>
+
+<script>
+  const LISTINGS = [
+    {emoji:'💆', t:'Signature Facial (60 min)', by:'Kiwi Spa', type:'Service', want:'Event photography for a launch party'},
+    {emoji:'📸', t:'Event Photography Package', by:'Jordan R.', type:'Service', want:'Spa sessions or skincare products'},
+    {emoji:'🕯', t:'Hand-poured Soy Candles (x6)', by:'Aria Co.', type:'Product', want:'Social media content or a facial'},
+    {emoji:'🧘', t:'Private Yoga Sessions (x4)', by:'Bel Wellness', type:'Service', want:'Catering for an event'},
+    {emoji:'🍽', t:'Taco Catering for 20', by:'SD Eats', type:'Service', want:'Photography + candles'},
+    {emoji:'💅', t:'Gel Manicure Set', by:'Nailed It SD', type:'Product', want:'Yoga or spa credit'},
+  ];
+  function card(l){return `<div class="listing"><div class="lphoto">${l.emoji}<span class="ltag ${l.type==='Service'?'svc':''}">${l.type}</span></div>
+    <div class="linfo"><h3>${l.t}</h3><div class="by">by ${l.by}</div>
+    <div class="lwant">Wants: <b>${l.want}</b></div></div></div>`;}
+  document.getElementById('listings').innerHTML = LISTINGS.map(card).join('');
+  function setQ(v){document.getElementById('q').value=v; aiSearch();}
+  function aiSearch(){
+    const q=(document.getElementById('q').value||'').toLowerCase();
+    const f=LISTINGS.filter(l=>!q|| (l.t+l.by+l.want+l.type).toLowerCase().includes(q.split(' ').pop()));
+    document.getElementById('listings').innerHTML=(f.length?f:LISTINGS).map(card).join('');
+    document.getElementById('browse').scrollIntoView({behavior:'smooth'});
+  }
+  function botAsk(){
+    const q=document.getElementById('botq').value.trim();
+    const el=document.getElementById('botmsg');
+    if(!q){el.textContent='Type a question and I\'ll help 🙂';return;}
+    el.textContent='Great question! To '+q.replace(/\?/g,'')+', tap “List an item”, describe what you offer and what you want, and I\'ll match you with members in San Diego. Need a human? I\'ll connect you to the Kiwi team.';
+  }
+</script>
+</body>
+</html>
