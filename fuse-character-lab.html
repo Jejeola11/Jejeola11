@@ -8,9 +8,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--teal:#003840;--gold:#FFD700;--cream:#F8F5F0;--midnight:#0A1A2E;--ink:#0c1418;--line:rgba(255,255,255,.10)}
+:root{--teal:#031A16;--teal2:#062A24;--panel:#082A25;--gold:#F5C518;--gold2:#FFD84A;--gold-deep:#D9A91A;--cream:#F6F2E8;--midnight:#02120F;--ink:#0c1418;--line:rgba(255,255,255,.09)}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Archivo',system-ui,sans-serif;background:radial-gradient(130% 90% at 50% 0%,#0d4753 0%,var(--teal) 38%,var(--midnight) 100%);color:var(--cream);min-height:100vh}
+body{font-family:'Archivo',system-ui,sans-serif;color:var(--cream);min-height:100vh;
+  background:
+    radial-gradient(1100px 560px at 82% -8%, rgba(245,197,24,.12), transparent 60%),
+    radial-gradient(820px 480px at -8% 6%, rgba(8,60,52,.6), transparent 62%),
+    linear-gradient(180deg,#062A24 0%,var(--teal) 42%,var(--midnight) 100%)}
 h1,h2,h3,.dsp{font-family:'Bricolage Grotesque',sans-serif;letter-spacing:-.02em}
 .wrap{max-width:920px;margin:0 auto;padding:0 16px}
 a{color:var(--gold)}
@@ -43,7 +47,7 @@ header.top{padding:20px 0 8px;text-align:center}
 .field label{display:block;font-size:11.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);margin-bottom:7px;font-weight:700}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{padding:8px 12px;border-radius:30px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--cream);font-size:13px;cursor:pointer;transition:.12s}
-.chip:hover{border-color:rgba(255,215,0,.5)}
+.chip:hover{border-color:rgba(245,197,24,.5)}
 .chip.sel{background:var(--gold);color:var(--teal);border-color:var(--gold);font-weight:700}
 .field.full{grid-column:1/-1}
 textarea,select{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#fff;font-size:14px;font-family:'Archivo'}
@@ -58,11 +62,11 @@ textarea{resize:vertical;min-height:46px}
 .out{background:rgba(0,0,0,.30);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:30px}
 .out .plat{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
 .out .plat button{padding:7px 13px;border-radius:30px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--cream);font-size:12.5px;cursor:pointer}
-.out .plat button.on{background:rgba(255,215,0,.16);border-color:var(--gold);color:var(--gold);font-weight:700}
+.out .plat button.on{background:rgba(245,197,24,.16);border-color:var(--gold);color:var(--gold);font-weight:700}
 .blk{margin-bottom:16px}
 .blk .h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .blk .h span{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);font-weight:700}
-.copy{background:rgba(255,215,0,.14);border:1px solid rgba(255,215,0,.4);color:var(--gold);font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:20px;cursor:pointer}
+.copy{background:rgba(245,197,24,.14);border:1px solid rgba(245,197,24,.4);color:var(--gold);font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:20px;cursor:pointer}
 .copy.done{background:var(--gold);color:var(--teal)}
 .txt{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:11px;padding:13px;font-size:13.5px;line-height:1.6;white-space:pre-wrap;color:#eef0ee}
 .txt.mini{font-size:12.5px;color:#cfd6d4}
@@ -75,7 +79,7 @@ textarea{resize:vertical;min-height:46px}
 .pcard:hover{border-color:var(--gold);transform:translateY(-2px)}
 .pcard .nm{font-family:'Bricolage Grotesque';font-weight:800;font-size:15px;color:#fff;margin-bottom:4px}
 .pcard .ds{font-size:12px;color:rgba(248,245,240,.7);line-height:1.4}
-.pcard .badge{display:inline-block;margin-top:8px;font-size:10px;letter-spacing:.5px;background:rgba(255,215,0,.15);color:var(--gold);padding:3px 8px;border-radius:20px}
+.pcard .badge{display:inline-block;margin-top:8px;font-size:10px;letter-spacing:.5px;background:rgba(245,197,24,.15);color:var(--gold);padding:3px 8px;border-radius:20px}
 
 /* GUIDE */
 .guide h3{color:var(--gold);font-size:18px;margin:20px 0 8px}
@@ -97,7 +101,7 @@ textarea{resize:vertical;min-height:46px}
 .gal-grid .ov{position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(0,0,0,.8));display:flex;align-items:flex-end;padding:8px;opacity:0;transition:.2s}
 .gal-grid figure:hover .ov{opacity:1}
 .gal-grid .ov span{color:#fff;font-size:11px;font-weight:600}
-.gal-grid .tap{position:absolute;top:7px;right:7px;background:rgba(255,215,0,.92);color:var(--teal);font-size:9.5px;font-weight:800;padding:3px 7px;border-radius:20px}
+.gal-grid .tap{position:absolute;top:7px;right:7px;background:rgba(245,197,24,.92);color:var(--teal);font-size:9.5px;font-weight:800;padding:3px 7px;border-radius:20px}
 
 /* MODAL */
 #modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:150;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(4px)}
@@ -111,7 +115,7 @@ textarea{resize:vertical;min-height:46px}
 .mh span{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);font-weight:700}
 
 /* CTA TOAST (tappable) */
-#toast{position:fixed;left:14px;bottom:16px;z-index:120;display:none;align-items:center;gap:11px;background:rgba(10,26,46,.97);border:1px solid rgba(255,215,0,.32);border-radius:14px;padding:12px 15px;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:300px;text-decoration:none;cursor:pointer}
+#toast{position:fixed;left:14px;bottom:16px;z-index:120;display:none;align-items:center;gap:11px;background:rgba(10,26,46,.97);border:1px solid rgba(245,197,24,.32);border-radius:14px;padding:12px 15px;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:300px;text-decoration:none;cursor:pointer}
 #toast.show{display:flex;animation:slidein .4s ease}
 #toast:hover{border-color:var(--gold)}
 #toast .ico{font-size:20px;flex:0 0 auto}
@@ -130,8 +134,8 @@ textarea{resize:vertical;min-height:46px}
 .genstatus{font-size:12.5px;color:var(--gold);min-height:16px;margin-bottom:8px}
 .genresult{text-align:center}
 .genresult img{width:100%;max-width:300px;border-radius:14px;border:1px solid var(--line);display:block;margin:0 auto 10px}
-.micbtn{background:rgba(255,215,0,.14);border:1px solid rgba(255,215,0,.4);color:var(--gold);font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;cursor:pointer;margin-left:8px}
-.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,215,0,.3);border-top-color:var(--gold);border-radius:50%;animation:sp .8s linear infinite;vertical-align:middle;margin-right:6px}
+.micbtn{background:rgba(245,197,24,.14);border:1px solid rgba(245,197,24,.4);color:var(--gold);font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;cursor:pointer;margin-left:8px}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(245,197,24,.3);border-top-color:var(--gold);border-radius:50%;animation:sp .8s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes sp{to{transform:rotate(360deg)}}
 /* ===== UPGRADES: prompt history, captions, polish ===== */
 .hist-wrap{margin:4px 0 14px}
@@ -140,19 +144,65 @@ textarea{resize:vertical;min-height:46px}
 .hist-item{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:7px}
 .hist-p{flex:1;font-size:12.5px;line-height:1.45;color:rgba(248,245,240,.85);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .hist-acts{flex:0 0 auto}
-.hist-b{background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.3);color:var(--gold);font-size:11.5px;font-weight:700;padding:6px 11px;border-radius:20px;cursor:pointer;white-space:nowrap}
-.hist-b:hover{background:rgba(255,215,0,.2)}
+.hist-b{background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.3);color:var(--gold);font-size:11.5px;font-weight:700;padding:6px 11px;border-radius:20px;cursor:pointer;white-space:nowrap}
+.hist-b:hover{background:rgba(245,197,24,.2)}
 .capcard{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:20px;padding:22px}
 .caplabel{display:block;font-size:11.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);margin:18px 0 8px;font-weight:700}
-.capupload{border:1.5px dashed rgba(255,215,0,.35);border-radius:14px;overflow:hidden;background:rgba(0,0,0,.2)}
+.capupload{border:1.5px dashed rgba(245,197,24,.35);border-radius:14px;overflow:hidden;background:rgba(0,0,0,.2)}
 #capDrop{padding:34px 16px;text-align:center;color:rgba(248,245,240,.6);font-weight:600;cursor:pointer;font-size:14px}
 #capDrop:hover{color:var(--gold)}
 #capVid{width:100%;max-height:360px;display:block;background:#000}
-.btn.gold{box-shadow:0 8px 22px rgba(255,215,0,.22)}
+.btn.gold{box-shadow:0 8px 22px rgba(245,197,24,.22)}
 .btn.gold:hover{filter:brightness(1.05)}
 .blk{background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02))!important;border-radius:16px!important}
-.chip.sel{box-shadow:0 4px 14px rgba(255,215,0,.28)}
-.tabs button.on{box-shadow:0 4px 14px rgba(255,215,0,.3)}
+.chip.sel{box-shadow:0 4px 14px rgba(245,197,24,.28)}
+.tabs button.on{box-shadow:0 4px 14px rgba(245,197,24,.3)}
+
+/* ===== PREMIUM POLISH (deep teal + golden yellow, mature UI) ===== */
+.wrap{max-width:760px}
+header.top{padding:26px 0 10px}
+.brandmark{font-size:22px;letter-spacing:.5px;gap:11px}
+.brandmark .spark{width:16px;height:16px;filter:drop-shadow(0 0 8px rgba(245,197,24,.6))}
+.subtag{font-size:11px;letter-spacing:3px;margin-top:7px;color:rgba(245,197,24,.85)}
+
+/* glassy pill tabs */
+.tabs{gap:4px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);padding:6px;border-radius:44px;max-width:480px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 12px 30px rgba(0,0,0,.35)}
+.tabs button{padding:11px 8px;font-size:13.5px;letter-spacing:.2px;transition:.18s;color:rgba(246,242,232,.62)}
+.tabs button:hover{color:var(--cream)}
+.tabs button.on{background:linear-gradient(135deg,var(--gold2),var(--gold-deep));color:#1a1205;font-weight:800;box-shadow:0 6px 18px rgba(245,197,24,.35)}
+
+/* premium buttons */
+.btn{transition:transform .14s ease,box-shadow .14s ease,filter .14s ease;letter-spacing:.2px}
+.btn.gold{background:linear-gradient(135deg,var(--gold2),var(--gold-deep));color:#1a1205;box-shadow:0 10px 26px rgba(245,197,24,.28)}
+.btn.gold:hover{transform:translateY(-2px);filter:brightness(1.05)}
+.btn.gold:active{transform:translateY(0)}
+.btn.ghost{border-color:rgba(245,197,24,.45);background:rgba(245,197,24,.04)}
+.btn.ghost:hover{background:rgba(245,197,24,.1);border-color:var(--gold)}
+
+/* field chips — softer, interactive */
+.field label{font-size:11px;letter-spacing:1.4px}
+.chip{transition:.16s ease;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02))}
+.chip:hover{transform:translateY(-1px);border-color:rgba(245,197,24,.5)}
+.chip.sel{background:linear-gradient(135deg,var(--gold2),var(--gold-deep));color:#1a1205;border-color:transparent}
+
+/* output + cards: depth & gradient */
+.out,.capcard{background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.015));border:1px solid var(--line);border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.04)}
+.blk{padding:14px;border:1px solid var(--line)}
+.txt{background:rgba(0,0,0,.22);border-color:rgba(255,255,255,.06);border-radius:13px;line-height:1.62}
+.copy{background:rgba(245,197,24,.12);border-color:rgba(245,197,24,.35);transition:.15s}
+.copy:hover{background:rgba(245,197,24,.22)}
+.pcard{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border-radius:16px;transition:.18s ease}
+.pcard:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(0,0,0,.45),0 0 22px rgba(245,197,24,.12);border-color:var(--gold-deep)}
+
+/* gate polish */
+#gate{background:radial-gradient(900px 480px at 50% -10%,rgba(245,197,24,.1),transparent 60%),linear-gradient(180deg,var(--teal2),var(--midnight))}
+#gate input{border-radius:14px;letter-spacing:1px}
+#gate button{border-radius:14px;background:linear-gradient(135deg,var(--gold2),var(--gold-deep));box-shadow:0 12px 30px rgba(245,197,24,.3);transition:.15s}
+#gate button:hover{filter:brightness(1.05)}
+
+/* subtle reveal on panels */
+.panel.on{animation:fadeup .35s ease}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -176,11 +226,11 @@ textarea{resize:vertical;min-height:46px}
 
 <div class="wrap">
   <div class="tabs">
-    <button class="on" data-t="gen">⚡ Generator</button>
-    <button data-t="pre">★ Presets</button>
-    <button data-t="cap">📝 Captions</button>
-    <button data-t="gal">🖼 Gallery</button>
-    <button data-t="how">📘 Guide</button>
+    <button class="on" data-t="gen">Generator</button>
+    <button data-t="pre">Presets</button>
+    <button data-t="cap">Captions</button>
+    <button data-t="gal">Gallery</button>
+    <button data-t="how">Guide</button>
   </div>
 
   <!-- GENERATOR PANEL -->

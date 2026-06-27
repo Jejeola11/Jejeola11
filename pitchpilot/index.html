@@ -131,7 +131,7 @@
     </div>
     <div class="row2">
       <div><label>LinkedIn URL</label><input id="fLinkedin" placeholder="linkedin.com/in/…"></div>
-      <div><label>Instagram</label><input id="fIg" placeholder="@kiwi.spa"></div>
+      <div><label>Instagram (optional)</label><input id="fIg" placeholder="@kiwi.spa"></div>
     </div>
     <div class="row2">
       <div><label>Website</label><input id="fSite" placeholder="kiwi-spa.com"></div>
@@ -169,7 +169,7 @@
   <div style="font-size:34px">✈</div>
   <h2>Unlock PitchPilot Pro</h2>
   <p style="color:var(--muted);margin:0">You've used your 3 free pitches this month.</p>
-  <div class="price">₦10,000 <small>/ month</small></div>
+  <div class="price">₦3,000 <small>/ month</small></div>
   <ul>
     <li>Unlimited pitch kits</li>
     <li>All contact-finder tools</li>
@@ -288,7 +288,7 @@ My offer: AI-generated UGC videos & product ads (faceless, made on phone), 24-48
   };
 
   // ---- SUBSCRIBE ----
-  function subLink(){ const msg=enc('Hi! I want to subscribe to PitchPilot Pro (₦10,000/month). My name: '); return `https://wa.me/${CFG.whatsapp}?text=${msg}`; }
+  function subLink(){ const msg=enc('Hi! I want to subscribe to PitchPilot Pro (₦3,000/month). My name: '); return `https://wa.me/${CFG.whatsapp}?text=${msg}`; }
   $('subBtn').onclick=()=>$('subOv').classList.add('show');
   $('subClose').onclick=()=>$('subOv').classList.remove('show');
   $('subOv').onclick=(e)=>{ if(e.target===$('subOv')) $('subOv').classList.remove('show'); };
