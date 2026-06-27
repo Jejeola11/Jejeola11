@@ -21,10 +21,16 @@
     <a class="brand" href="/app/index.html"><span class="dot">F</span> Fuse&nbsp;Studio</a>
     <div class="hdr-actions">
       <button class="pill streakpill" id="streakBtn" title="Daily reward">🔥 <b id="streakText">0</b></button>
-      <button class="hdr-ic" id="searchBtn" title="Search models" aria-label="Search">🔍</button>
-      <a class="hdr-ic" href="https://instagram.com/fuse_studio2" target="_blank" rel="noopener" title="Instagram @fuse_studio2" aria-label="Instagram">📸</a>
+      <button class="hdr-ic" id="searchBtn" title="Search models" aria-label="Search">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </button>
+      <a class="hdr-ic" href="https://instagram.com/fuse_studio2" target="_blank" rel="noopener" title="Instagram @fuse_studio2" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"></rect><circle cx="12" cy="12" r="4.2"></circle><circle cx="17.6" cy="6.4" r="1.2" fill="currentColor" stroke="none"></circle></svg>
+      </a>
       <span class="pill planpill" id="creditPill"><span id="planBadge" class="muted" style="font-weight:700;font-size:11px">Trial</span> · <b id="creditCount">…</b></span>
-      <button class="hdr-ic" id="menuBtn" title="Menu" aria-label="Menu">☰</button>
+      <button class="hdr-ic" id="menuBtn" title="Menu" aria-label="Menu">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="7" x2="21" y2="7"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="17" x2="21" y2="17"></line></svg>
+      </button>
     </div>
   </div>
 </header>
@@ -76,8 +82,8 @@
     <div class="feat-grid">
       <div class="featbox" data-go="reactor">
         <span class="fb-badge new">NEW</span>
-        <div class="fb-ic">🛰️</div>
-        <div class="fb-name">Supercomputer</div>
+        <div class="fb-ic">⚛️</div>
+        <div class="fb-name">Fuse Reactor</div>
         <div class="fb-desc">Claude · Gemini · GPT — your creative engine</div>
       </div>
       <div class="featbox" data-go="video-seedance">
@@ -108,16 +114,9 @@
       <div class="seed4k-cta">Try now →</div>
     </div>
 
-    <!-- 5. More studios & tools -->
-    <div class="shead"><h2>Studios & tools</h2></div>
-    <div class="tools" id="toolGrid"></div>
-
-    <!-- 4. Quick starts -->
-    <div class="shead"><h2>🇳🇬 Naija packs</h2></div>
-    <div class="chips" id="naijaChips"></div>
-
-    <div class="shead"><h2>Quick ideas</h2></div>
-    <div class="chips" id="presetChips"></div>
+    <!-- 5. Explore more AI features (chip cloud) -->
+    <h2 class="explore-title">EXPLORE MORE AI FEATURES</h2>
+    <div class="feat-chips" id="featChips"></div>
   </section>
 
   <!-- ===== AI AVATAR STUDIO (consistent faces) ===== -->
@@ -226,14 +225,17 @@
 
   <!-- ===== MODEL GALLERY (Image / Video / Reactor) ===== -->
   <section class="view" id="view-models">
-    <div class="mtabs">
-      <button class="mtab active" data-kind="image"><span>🖼</span> Image</button>
-      <button class="mtab" data-kind="video"><span>🎬</span> Video</button>
-      <button class="mtab" data-kind="tools"><span>🛠</span> Tools</button>
-      <button class="mtab" data-kind="reactor"><span>⚛️</span> Reactor</button>
+    <h2 class="create-title">Create</h2>
+    <div class="mtabs create-tabs">
+      <button class="mtab active" data-kind="all">All</button>
+      <button class="mtab" data-kind="new">New</button>
+      <button class="mtab" data-kind="image">Images</button>
+      <button class="mtab" data-kind="video">Videos</button>
+      <button class="mtab" data-kind="tools">Edit</button>
+      <button class="mtab" data-kind="reactor">Reactor</button>
     </div>
     <input id="modelSearch" placeholder="🔍 Search models…">
-    <div id="modelGrid" style="margin-top:12px"></div>
+    <div id="modelGrid" class="create-grid" style="margin-top:14px"></div>
   </section>
 
   <!-- ===== TOOL (upscale / bg-remove / object-erase) ===== -->

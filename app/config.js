@@ -109,6 +109,43 @@ window.FUSE = {
     { id: 'gemini-2-5-flash',  name: 'Gemini Flash',  badge: 'Google',    credits: 1, live: true },
   ],
 
+  // "Explore more AI features" chip cloud (Home). go: routeFeature target.
+  FEATURES: [
+    { label: 'Fuse Reactor', go: 'reactor' },
+    { label: 'Avatar Studio', go: 'avatar' },
+    { label: 'Seedance 2.0', go: 'video:seedance-2-text-to-video' },
+    { label: 'Seedance 4K', go: 'video:seedance-2-vip-text-to-video' },
+    { label: 'GPT Image 2', go: 'image:gpt-image-2-text-to-image' },
+    { label: 'Nano Banana', go: 'image:nano-banana' },
+    { label: 'Kling Turbo Pro', go: 'video:kling-v3-turbo-pro-text-to-video' },
+    { label: 'Google Veo 3', go: 'video:veo3-text-to-video' },
+    { label: 'Grok Imagine', go: 'video:grok-imagine-text-to-video' },
+    { label: 'Flux 2 Pro', go: 'image:flux-2-pro' },
+    { label: 'Imagen 4 Ultra', go: 'image:google-imagen4-ultra' },
+    { label: 'Seedream 5.0', go: 'image:seedream-5.0' },
+    { label: 'Prompt Generator', go: 'promptgen' },
+    { label: 'Image Upscale', go: 'tool:ai-image-upscale' },
+    { label: 'Background Remover', go: 'tool:ai-background-remover' },
+    { label: 'Object Eraser', go: 'tool:ai-object-eraser' },
+    { label: 'Marketplace', go: 'market' },
+    { label: 'Fuse Atelier', go: 'learn' },
+    { label: 'Brand Identity', go: 'studio:brand' },
+    { label: 'Packaging Design', go: 'studio:packaging' },
+    { label: 'UGC Creator', go: 'studio:ugc' },
+    { label: 'Movie Studio', go: 'studio:movie' },
+    { label: 'Naija Packs', go: 'naija' },
+    { label: 'Community', go: 'view:community' },
+    { label: 'Daily Reward', go: 'streak' },
+  ],
+
+  // Standout badges on the Create grid (slug -> tag). Anything tagged shows in "New".
+  MODEL_TAGS: {
+    'gpt-image-2-text-to-image': 'NEW', 'nano-banana': 'CORE', 'nano-banana-2': 'NEW',
+    'flux-2-pro': 'NEW', 'seedream-5.0': 'NEW', 'google-imagen4-ultra': 'TOP', 'flux-schnell-image': 'CORE',
+    'seedance-2-text-to-video': 'TOP', 'seedance-2-vip-text-to-video': '4K', 'grok-imagine-text-to-video': 'NEW',
+    'veo3-text-to-video': 'NEW', 'kling-v3-turbo-pro-text-to-video': 'NEW',
+  },
+
   // Rotating promo pop-up (the Higgsfield-style effect).
   PROMO: {
     title: '🔥 Founding Offer — First 50 only',

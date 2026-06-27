@@ -147,7 +147,7 @@ function showView(name, opts = {}) {
   if (name === 'profile') loadProfile();
   if (name === 'community') { loadChallenges(); loadCommunity(); }
   if (name === 'reactor') buildReactor();
-  if (name === 'models') { if (modelKind === 'reactor') modelKind = 'image'; buildModels(modelKind); }
+  if (name === 'models') { if (modelKind === 'reactor') modelKind = 'all'; buildModels(modelKind); }
   // Restore previous scroll for this view (top for first visit).
   window.scrollTo(0, scrollMem[name] || 0);
   saveRoute();
@@ -171,7 +171,7 @@ function restoreRoute() {
   try {
     if (r.view === 'studio') { openStudio(r.studio || 'generate'); if (r.video) setStudioMode(true); }
     else if (r.view === 'video') { if (r.vSlug) openVideo(r.vSlug); else showView('video'); }
-    else if (r.view === 'models') { showView('models'); buildModels(r.kind || 'image'); }
+    else if (r.view === 'models') { showView('models'); buildModels(r.kind || 'all'); }
     else if (['market', 'learn', 'avatar', 'promptgen', 'reactor'].includes(r.view)) { openStudio(r.view); }
     else showView(r.view);
   } catch (e) {}
@@ -196,32 +196,50 @@ function resumePending() {
   pollJob(p.id, resultEl, m.noteId, null, null, m.media);
 }
 
-// ---------------- model gallery (Image / Video / Reactor) ----------------
-let modelKind = 'image';
+// ---------------- model gallery (Create — Higgsfield-style picker) ----------------
+let modelKind = 'all';
 // Free-plan model whitelist (matches _packs.js FREE_* lists).
 const FREE_SLUGS = new Set(['flux-schnell-image', 'qwen-image', 'grok-imagine-text-to-video', 'grok-imagine-image-to-video', 'gpt-5-2', 'gemini-2-5-flash']);
 function isLocked(slug) { return userPlan === 'free' && !userIsAdmin && !FREE_SLUGS.has(slug); }
 
 function buildModels(kind) {
-  modelKind = kind || 'image';
+  modelKind = kind || 'all';
   document.querySelectorAll('#view-models .mtab').forEach((t) => t.classList.toggle('active', t.dataset.kind === modelKind));
   if (modelKind === 'reactor') { showView('reactor'); return; }
-  const list = modelKind === 'video' ? cfg.VIDEO_MODELS : modelKind === 'tools' ? cfg.TOOL_MODELS : cfg.IMAGE_MODELS;
+
+  const tagOf = (s) => (cfg.MODEL_TAGS || {})[s] || '';
+  const cat = (arr, c) => arr.map((m) => Object.assign({ cat: c }, m));
+  const ALL = cat(cfg.IMAGE_MODELS, 'image').concat(cat(cfg.VIDEO_MODELS, 'video'), cat(cfg.TOOL_MODELS, 'tools'));
+  let list;
+  if (modelKind === 'all') list = ALL;
+  else if (modelKind === 'new') list = ALL.filter((m) => tagOf(m.slug));
+  else if (modelKind === 'video') list = cat(cfg.VIDEO_MODELS, 'video');
+  else if (modelKind === 'tools') list = cat(cfg.TOOL_MODELS, 'tools');
+  else list = cat(cfg.IMAGE_MODELS, 'image');
+
   const q = ($('modelSearch').value || '').toLowerCase();
-  const shown = list.filter((m) => m.name.toLowerCase().includes(q) || m.badge.toLowerCase().includes(q));
+  const shown = list.filter((m) => m.name.toLowerCase().includes(q) || (m.badge || '').toLowerCase().includes(q));
+  const catLabel = { image: '🖼 Image', video: '🎬 Video', tools: '✦ Edit' };
   $('modelGrid').innerHTML = shown.map((m) => {
     const locked = isLocked(m.slug);
+    const t = tagOf(m.slug);
     const media = m.sample
-      ? (modelKind === 'video' ? `<video src="${m.sample}" autoplay muted loop playsinline preload="auto"></video>` : `<img src="${m.sample}">`)
-      : '＋ add sample';
-    return `<div class="mcard${locked ? ' locked' : ''}" data-slug="${m.slug}"><div class="msample">${media}${locked ? '<div class="lock-badge">🔒 Pro</div>' : ''}</div>
-      <div class="minfo"><div class="mn">${m.name}</div><div class="mb">${m.badge}</div><div class="mc">${m.credits} cr</div></div></div>`;
+      ? (m.cat === 'video' ? `<video src="${m.sample}" autoplay muted loop playsinline preload="auto"></video>` : `<img src="${m.sample}">`)
+      : '＋';
+    return `<div class="ccard${locked ? ' locked' : ''}" data-slug="${m.slug}" data-cat="${m.cat}">
+      <div class="cc-media">${media}
+        ${t ? `<span class="cc-tag t-${t.toLowerCase()}">${t}</span>` : ''}
+        <span class="cc-cat">${catLabel[m.cat] || ''}</span>
+        ${locked ? '<span class="lock-badge">🔒 Pro</span>' : ''}</div>
+      <div class="cc-info"><div class="cc-name">${m.name}</div><div class="cc-meta">${m.badge || ''} · ${m.credits} cr</div></div>
+    </div>`;
   }).join('');
-  $('modelGrid').querySelectorAll('.mcard').forEach((el) => el.onclick = () => {
-    if (isLocked(el.dataset.slug)) { toast('🔒 Subscribe to unlock this model'); openBuy(); return; }
-    if (modelKind === 'video') openVideo(el.dataset.slug);
-    else if (modelKind === 'tools') openTool(el.dataset.slug);
-    else openImageModel(el.dataset.slug);
+  $('modelGrid').querySelectorAll('.ccard').forEach((el) => el.onclick = () => {
+    const slug = el.dataset.slug, c = el.dataset.cat;
+    if (isLocked(slug)) { toast('🔒 Subscribe to unlock this model'); openBuy(); return; }
+    if (c === 'video') openVideo(slug);
+    else if (c === 'tools') openTool(slug);
+    else openImageModel(slug);
   });
 }
 function openImageModel(slug) {
@@ -331,32 +349,9 @@ function openStudio(key) {
 
 // ---------------- home builders ----------------
 function buildHome() {
-  // tool cards (studios + reactor + marketplace + academy)
-  const cards = cfg.STUDIOS.filter((s) => s.key !== 'generate').concat([
-    { key: 'promptgen', name: 'Prompt Generator', icon: '🧬', tag: 'NEW', desc: 'Pro prompts in 1 tap · 1 cr' },
-    { key: 'reactor', name: cfg.REACTOR_NAME, icon: '⚛️', tag: 'NEW', desc: 'Claude · Gemini · ChatGPT & more' },
-    { key: 'market',  name: 'Marketplace',     icon: '🛒', tag: '',    desc: 'Use & sell community presets' },
-    { key: 'learn',   name: 'Fuse Atelier',    icon: '🎓', tag: '',    desc: 'Learn & earn 20 credits' },
-  ]);
-  $('toolGrid').innerHTML = cards.map((s) => {
-    const cls = s.tag === 'BETA' ? 'beta' : s.tag === 'TRENDING' ? 'trend' : '';
-    return `<div class="tool" data-studio="${s.key}">
-      ${s.tag ? `<span class="bdg ${cls}">${s.tag}</span>` : ''}
-      <div class="ic">${s.icon}</div><div class="tn">${s.name}</div><div class="td">${s.desc}</div></div>`;
-  }).join('');
-  $('toolGrid').querySelectorAll('.tool').forEach((el) => el.onclick = () => openStudio(el.dataset.studio));
-
-  // quick idea chips — fill the FULL prompt on tap
-  $('presetChips').innerHTML = cfg.PRESETS.map((p, i) => `<div class="chip" data-i="${i}">${p.label}</div>`).join('');
-  $('presetChips').querySelectorAll('.chip').forEach((el) => el.onclick = () => {
-    openStudio('generate'); $('prompt').value = cfg.PRESETS[+el.dataset.i].prompt;
-  });
-
-  // Naija packs
-  $('naijaChips').innerHTML = cfg.NAIJA_PACKS.map((p, i) => `<div class="chip" data-i="${i}">${p.name}</div>`).join('');
-  $('naijaChips').querySelectorAll('.chip').forEach((el) => el.onclick = () => {
-    openStudio('generate'); $('prompt').value = cfg.NAIJA_PACKS[+el.dataset.i].prompt;
-  });
+  // Explore more AI features — chip cloud routing to every studio/model/tool.
+  $('featChips').innerHTML = (cfg.FEATURES || []).map((f, i) => `<div class="feat-chip" data-i="${i}">${f.label}</div>`).join('');
+  $('featChips').querySelectorAll('.feat-chip').forEach((el) => el.onclick = () => routeFeature(cfg.FEATURES[+el.dataset.i].go));
 
   refreshStreak();
 
@@ -403,13 +398,26 @@ async function loadCommunity() {
     : '<div class="empty" style="grid-column:1/-1">Be the first to share your creation ✨</div>';
 }
 
-// Route a home feature box to its destination.
+// Route a home feature box / explore chip to its destination.
 function routeFeature(go) {
-  if (go === 'reactor') return openStudio('reactor');
-  if (go === 'avatar') return openStudio('avatar');
+  if (!go) return;
+  // prefixed forms: image:slug, video:slug, tool:slug, studio:key, view:name
+  const ci = go.indexOf(':');
+  if (ci > -1) {
+    const kind = go.slice(0, ci), val = go.slice(ci + 1);
+    if (kind === 'image') { openImageModel(val); return; }
+    if (kind === 'video') { showView('models'); buildModels('video'); openVideo(val); return; }
+    if (kind === 'tool') { showView('models'); buildModels('tools'); openTool(val); return; }
+    if (kind === 'studio') { openStudio(val); return; }
+    if (kind === 'view') { showView(val); return; }
+  }
+  if (go === 'reactor' || go === 'avatar' || go === 'promptgen' || go === 'market' || go === 'learn') return openStudio(go);
+  if (go === 'community') return showView('community');
+  if (go === 'streak') return claimDaily();
   if (go === 'image-nano') { openImageModel('nano-banana'); return; }
   if (go === 'video-seedance') { showView('models'); buildModels('video'); openVideo('seedance-2-text-to-video'); return; }
   if (go === 'video-seedance4k') { showView('models'); buildModels('video'); openVideo('seedance-2-vip-text-to-video'); return; }
+  if (go === 'naija') { openStudio('generate'); if (cfg.NAIJA_PACKS && cfg.NAIJA_PACKS[0]) $('prompt').value = cfg.NAIJA_PACKS[0].prompt; return; }
 }
 
 // ---------------- countdown ----------------
