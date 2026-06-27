@@ -626,3 +626,31 @@ textarea{min-height:104px;resize:vertical}
 .hf-col a{display:block;color:var(--ink);font-weight:600;font-size:15px;padding:6px 0;cursor:pointer}
 .hf-col a:hover{color:var(--gold)}
 .hf-copy{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:18px}
+
+/* ===== Viral presets (home strip + detail) ===== */
+.vp-grid{display:grid;grid-template-columns:1fr;gap:14px;margin:6px 0 6px}
+@media(min-width:600px){.vp-grid{grid-template-columns:1fr 1fr}}
+.vp-card{position:relative;border-radius:18px;overflow:hidden;cursor:pointer;background:var(--panel);
+  border:1px solid var(--line);box-shadow:0 14px 36px rgba(0,0,0,.5);transition:transform .18s ease,box-shadow .18s ease}
+.vp-card:active{transform:scale(.99)}
+.vp-card:hover{transform:translateY(-3px);box-shadow:0 22px 44px rgba(0,0,0,.55),var(--glow);border-color:var(--gold-deep)}
+.vp-media{position:relative;aspect-ratio:9/16;max-height:520px;overflow:hidden;background:#000}
+.vp-media video,.vp-media img{width:100%;height:100%;object-fit:cover}
+.vp-tag{position:absolute;top:10px;left:10px;background:var(--gold);color:#1a1205;font-weight:900;font-size:11px;letter-spacing:.06em;padding:4px 10px;border-radius:99px;box-shadow:var(--glow)}
+.vp-info{padding:14px 14px 16px}
+.vp-name{font-weight:800;font-size:17px;letter-spacing:-.01em}
+.vp-hook{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.4}
+.vp-cta{margin-top:10px;color:var(--gold);font-weight:800;font-size:14px}
+
+.preset-hero{border-radius:18px;overflow:hidden;background:#000;max-height:60vh}
+.preset-hero video,.preset-hero img{width:100%;max-height:60vh;object-fit:cover;display:block}
+.preset-title{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:26px;letter-spacing:-.01em;margin:14px 0 0}
+.preset-steps{display:flex;flex-direction:column;gap:10px}
+.preset-step{display:flex;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.ps-n{flex:0 0 32px;width:32px;height:32px;border-radius:10px;background:rgba(245,197,24,.14);color:var(--gold);font-weight:800;display:grid;place-items:center}
+.ps-t{font-weight:800;font-size:15px}
+.ps-d{font-size:13px;margin-top:2px}
+.preset-prompt{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:10px}
+.pp-h{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:8px}
+.preset-prompt pre{margin:0 0 10px;font-family:'Liberation Mono',ui-monospace,monospace;font-size:12.5px;line-height:1.5;color:var(--ink);white-space:pre-wrap;word-break:break-word}
+.preset-jumps{display:flex;flex-wrap:wrap;gap:10px;padding-bottom:24px}

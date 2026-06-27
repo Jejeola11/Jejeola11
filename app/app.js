@@ -166,7 +166,7 @@ function saveRoute() {
 function restoreRoute() {
   let r; try { r = JSON.parse(localStorage.getItem('fuse_route') || 'null'); } catch (e) {}
   if (!r || !r.view || r.view === 'home') return;
-  const safe = ['library', 'profile', 'community', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor'];
+  const safe = ['library', 'profile', 'community', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset'];
   if (!safe.includes(r.view)) return;
   try {
     if (r.view === 'studio') { openStudio(r.studio || 'generate'); if (r.video) setStudioMode(true); }
@@ -349,6 +349,22 @@ function openStudio(key) {
 
 // ---------------- home builders ----------------
 function buildHome() {
+  // Viral presets — tap any to see the full recipe.
+  const vp = $('vpGrid');
+  if (vp) {
+    vp.innerHTML = (cfg.VIRAL_PRESETS || []).map((p) =>
+      `<div class="vp-card" data-id="${p.id}">
+        <div class="vp-media">
+          ${p.kind === 'video'
+            ? `<video src="${p.sample}" autoplay muted loop playsinline preload="auto"></video>`
+            : `<img src="${p.sample}">`}
+          <span class="vp-tag">🔥 VIRAL</span>
+        </div>
+        <div class="vp-info"><div class="vp-name">${p.title}</div><div class="vp-hook">${p.hook}</div>
+          <div class="vp-cta">▶ Build it →</div></div>
+       </div>`).join('');
+    vp.querySelectorAll('.vp-card').forEach((el) => el.onclick = () => openPreset(el.dataset.id));
+  }
   // Explore more AI features — chip cloud routing to every studio/model/tool.
   $('featChips').innerHTML = (cfg.FEATURES || []).map((f, i) => `<div class="feat-chip" data-i="${i}">${f.label}</div>`).join('');
   $('featChips').querySelectorAll('.feat-chip').forEach((el) => el.onclick = () => routeFeature(cfg.FEATURES[+el.dataset.i].go));
@@ -380,6 +396,50 @@ function openMenu() {
   requestAnimationFrame(() => $('menuCard').classList.add('open'));
 }
 function closeMenu() { $('menuCard').classList.remove('open'); setTimeout(() => { $('menuOverlay').style.display = 'none'; }, 200); }
+
+// ---------------- viral preset detail ----------------
+function openPreset(id) {
+  const p = (cfg.VIRAL_PRESETS || []).find((x) => x.id === id);
+  if (!p) return;
+  const safe = (s) => (s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  const promptBlock = (label, key, text) => `
+    <div class="preset-prompt"><div class="pp-h">${label}</div>
+      <pre>${safe(text)}</pre>
+      <button class="btn ghost sm" onclick="window.fusePresetCopy(this,'${id}','${key}')">⧉ Copy prompt</button></div>`;
+  $('presetBody').innerHTML = `
+    <div class="preset-hero">
+      ${p.kind === 'video' ? `<video src="${p.sample}" autoplay muted loop playsinline controls></video>` : `<img src="${p.sample}">`}
+    </div>
+    <h2 class="preset-title">${p.title}</h2>
+    <p class="muted" style="margin:4px 0 18px">${p.hook}</p>
+
+    <div class="shead"><h2>The recipe</h2></div>
+    <div class="preset-steps">
+      ${p.steps.map((s) => `<div class="preset-step"><div class="ps-n">${s.num}</div>
+        <div class="ps-body"><div class="ps-t">${s.title}</div><div class="ps-d muted">${s.detail}</div></div></div>`).join('')}
+    </div>
+
+    <div class="shead"><h2>Copy-paste prompts</h2></div>
+    ${p.prompts.bottle ? promptBlock('Product / bottle prompt', 'bottle', p.prompts.bottle) : ''}
+    ${p.prompts.startFrame ? promptBlock('Start-frame prompt (avatar)', 'startFrame', p.prompts.startFrame) : ''}
+    ${p.prompts.motion ? promptBlock('Motion prompt (image → video)', 'motion', p.prompts.motion) : ''}
+
+    <div class="shead"><h2>Start now</h2></div>
+    <div class="preset-jumps">
+      <button class="btn gold" onclick="window.fusePresetGo('avatar')">🧑‍🎨 Open Avatar Studio</button>
+      <button class="btn ghost" onclick="window.fusePresetGo('image:${p.models.product}')">🖼 Open Image (with logo)</button>
+      <button class="btn ghost" onclick="window.fusePresetGo('video:${p.models.video}')">🎬 Open Kling i2v</button>
+    </div>`;
+  showView('preset');
+}
+window.fusePresetCopy = (btn, id, key) => {
+  const p = (cfg.VIRAL_PRESETS || []).find((x) => x.id === id);
+  if (!p || !p.prompts[key]) return;
+  navigator.clipboard.writeText(p.prompts[key]);
+  const orig = btn.textContent; btn.textContent = '✓ Copied!';
+  setTimeout(() => { btn.textContent = orig; }, 1500);
+};
+window.fusePresetGo = (go) => routeFeature(go);
 
 // ---------------- community showcase ----------------
 async function loadCommunity() {
@@ -1190,6 +1250,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   $('studioBack').onclick = () => showView('home');
   $('reactorBack').onclick = () => showView('models');
+  $('presetBack').onclick = () => showView('home');
   $('marketBack').onclick = () => showView('home');
   $('learnBack').onclick = () => showView('home');
   $('avatarBack').onclick = () => showView('home');

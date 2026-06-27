@@ -109,6 +109,30 @@ window.FUSE = {
     { id: 'gemini-2-5-flash',  name: 'Gemini Flash',  badge: 'Google',    credits: 1, live: true },
   ],
 
+  // Viral presets — full creative recipes (each opens a "build it yourself" view).
+  VIRAL_PRESETS: [
+    {
+      id: 'skater-fuse',
+      title: 'AI Skater × Branded Drink',
+      hook: 'Cinematic UGC ad — your face, your product, golden hour Venice Beach',
+      sample: '/app/media/presets/skater-fuse-loop.mp4',
+      kind: 'video',
+      models: { product: 'nano-banana-edit', startFrame: 'nano-banana-edit', video: 'kling-v3-turbo-pro-image-to-video' },
+      steps: [
+        { num: 1, title: 'Train your avatar', detail: 'Avatar Studio → upload 4-6 clear front-facing selfies. (10 cr)' },
+        { num: 2, title: 'Generate the branded drink', detail: 'Image Studio → upload your logo as reference → use the bottle prompt below. (7 cr)' },
+        { num: 3, title: 'Create the start frame', detail: 'Avatar Studio → select your avatar → add the bottle as extra reference → paste the start-frame prompt. (10 cr)' },
+        { num: 4, title: 'Animate to video', detail: 'Create → Kling Turbo Pro · image-to-video, attach the start frame, paste the motion prompt, 10s. (~66 cr)' },
+        { num: 5, title: 'Post + caption', detail: 'Add the on-screen "made with Fuse Studio" caption and post. Tag @fuse_studio2!' },
+      ],
+      prompts: {
+        bottle: 'Premium frosted glass soda bottle, deep teal glass body, glossy metallic gold label, the brand wordmark embossed in gold, ice-cold condensation, studio product lighting, dark teal gradient background, commercial advertising photo, ultra-detailed, 4:5.',
+        startFrame: 'Cinematic golden-hour photo on a Venice Beach skate boardwalk, [me] wearing a stylish white headscarf, a fitted white long-sleeve athletic top, a white pleated sporty skirt over white leggings, white striped socks and pink roller skates, gliding forward holding the branded glass bottle, palm trees and warm sun flare behind, shallow depth of field, 9:16 vertical.',
+        motion: 'She skates smoothly toward the camera at golden hour, lifts the bottle and takes a confident sip, lowers it with a subtle smile, then performs a graceful 360-degree spin as her skirt and scarf flow, the camera orbits around her, warm sun flare, cinematic slow-motion, smooth realistic physics.',
+      },
+    },
+  ],
+
   // "Explore more AI features" chip cloud (Home). go: routeFeature target.
   FEATURES: [
     { label: 'Fuse Reactor', go: 'reactor' },
