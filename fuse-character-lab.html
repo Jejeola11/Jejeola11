@@ -133,6 +133,26 @@ textarea{resize:vertical;min-height:46px}
 .micbtn{background:rgba(255,215,0,.14);border:1px solid rgba(255,215,0,.4);color:var(--gold);font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;cursor:pointer;margin-left:8px}
 .spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,215,0,.3);border-top-color:var(--gold);border-radius:50%;animation:sp .8s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes sp{to{transform:rotate(360deg)}}
+/* ===== UPGRADES: prompt history, captions, polish ===== */
+.hist-wrap{margin:4px 0 14px}
+.hist-head{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.hist-clear{background:transparent;border:0;color:rgba(248,245,240,.5);font-size:11px;cursor:pointer;text-decoration:underline}
+.hist-item{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:7px}
+.hist-p{flex:1;font-size:12.5px;line-height:1.45;color:rgba(248,245,240,.85);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hist-acts{flex:0 0 auto}
+.hist-b{background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.3);color:var(--gold);font-size:11.5px;font-weight:700;padding:6px 11px;border-radius:20px;cursor:pointer;white-space:nowrap}
+.hist-b:hover{background:rgba(255,215,0,.2)}
+.capcard{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:20px;padding:22px}
+.caplabel{display:block;font-size:11.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);margin:18px 0 8px;font-weight:700}
+.capupload{border:1.5px dashed rgba(255,215,0,.35);border-radius:14px;overflow:hidden;background:rgba(0,0,0,.2)}
+#capDrop{padding:34px 16px;text-align:center;color:rgba(248,245,240,.6);font-weight:600;cursor:pointer;font-size:14px}
+#capDrop:hover{color:var(--gold)}
+#capVid{width:100%;max-height:360px;display:block;background:#000}
+.btn.gold{box-shadow:0 8px 22px rgba(255,215,0,.22)}
+.btn.gold:hover{filter:brightness(1.05)}
+.blk{background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02))!important;border-radius:16px!important}
+.chip.sel{box-shadow:0 4px 14px rgba(255,215,0,.28)}
+.tabs button.on{box-shadow:0 4px 14px rgba(255,215,0,.3)}
 </style>
 </head>
 <body>
@@ -158,6 +178,7 @@ textarea{resize:vertical;min-height:46px}
   <div class="tabs">
     <button class="on" data-t="gen">⚡ Generator</button>
     <button data-t="pre">★ Presets</button>
+    <button data-t="cap">📝 Captions</button>
     <button data-t="gal">🖼 Gallery</button>
     <button data-t="how">📘 Guide</button>
   </div>
@@ -173,8 +194,10 @@ textarea{resize:vertical;min-height:46px}
       <button class="btn gold" onclick="generate()">Generate Prompt ⚡</button>
       <button class="btn ghost sm" onclick="randomize()">🎲 Surprise me</button>
       <button class="btn ghost sm" onclick="saveChar()">💾 Save character</button>
+      <button class="btn ghost sm" onclick="copyJSON()">{ } Copy as JSON</button>
     </div>
     <div class="saved-wrap" id="savedWrap"></div>
+    <div class="hist-wrap" id="histWrap"></div>
 
     <div class="out" id="out" style="display:none">
       <div class="plat" id="plats"></div>
@@ -223,6 +246,47 @@ textarea{resize:vertical;min-height:46px}
   <div class="panel" id="pre">
     <p class="note" style="margin:6px 0 18px">Tap a starter character to load it into the Generator, then tweak anything.</p>
     <div class="pgrid" id="pgrid"></div>
+  </div>
+
+  <!-- CAPTION MAKER PANEL -->
+  <div class="panel" id="cap">
+    <div class="capcard">
+      <h3 style="margin-bottom:4px">📝 Viral Caption + Hashtag Maker</h3>
+      <p class="note" style="margin:0 0 16px">Attach your video (just for your preview), pick where you're posting and what it's about — get a scroll-stopping caption and a ready hashtag set. <b>100% free, unlimited.</b></p>
+
+      <label class="caplabel">Your video (optional preview)</label>
+      <div class="capupload" id="capUpload">
+        <input type="file" id="capFile" accept="video/*" hidden>
+        <div id="capDrop">＋ Tap to attach your video</div>
+        <video id="capVid" style="display:none" controls playsinline></video>
+      </div>
+
+      <label class="caplabel">Platform</label>
+      <div class="chips" id="capPlat"></div>
+
+      <label class="caplabel">What's the video about / your niche</label>
+      <input id="capTopic" placeholder="e.g. my new skincare AI ad, a day in my life, AI tutorial…" style="width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#fff;font-family:'Archivo';font-size:14px">
+
+      <label class="caplabel">Vibe</label>
+      <div class="chips" id="capVibe"></div>
+
+      <button class="btn gold" style="margin-top:16px" onclick="makeCaption()">✨ Generate caption</button>
+
+      <div class="out" id="capOut" style="display:none;margin-top:18px">
+        <div class="blk">
+          <div class="h"><span>Your caption</span><button class="copy" data-cap="text">📋 Copy</button></div>
+          <div class="txt" id="capText"></div>
+        </div>
+        <div class="blk">
+          <div class="h"><span>Hashtags</span><button class="copy" data-cap="tags">📋 Copy</button></div>
+          <div class="txt mini" id="capTags"></div>
+        </div>
+        <div class="row-btns" style="margin-top:6px">
+          <button class="btn ghost sm" onclick="makeCaption()">🔄 New version</button>
+          <button class="btn ghost sm" onclick="copyCaptionAll()">📋 Copy caption + tags</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- GALLERY PANEL -->
@@ -522,7 +586,47 @@ function generate(){
   var showNeg = (state.platform==='mj'||state.platform==='soul');
   document.getElementById('negWrap').style.display = showNeg?'block':'none';
   document.getElementById('pNeg').textContent=negPrompt();
+  saveHist(assemble(state.platform,0));
   window.scrollTo({top:document.getElementById('out').offsetTop-20,behavior:'smooth'});
+}
+
+/* ============== PROMPT HISTORY ============== */
+function getHist(){ try{return JSON.parse(localStorage.getItem('fcl_prompthist')||'[]');}catch(e){return[];} }
+function saveHist(p){
+  if(!p) return; var h=getHist();
+  if(h.length && h[0].p===p) { renderHist(); return; } // avoid dupes
+  h.unshift({p:p, t:Date.now()}); h=h.slice(0,20);
+  localStorage.setItem('fcl_prompthist',JSON.stringify(h)); renderHist();
+}
+function renderHist(){
+  var h=getHist(); var w=document.getElementById('histWrap'); if(!w) return;
+  if(!h.length){ w.innerHTML=''; return; }
+  w.innerHTML='<div class="hist-head"><span>🕘 Prompt history</span><button class="hist-clear" onclick="clearHist()">clear</button></div>'+
+    h.map(function(it,i){ return '<div class="hist-item"><div class="hist-p">'+escapeHtml(it.p)+'</div>'+
+      '<div class="hist-acts"><button class="hist-b" data-hc="'+i+'">📋 Copy</button></div></div>'; }).join('');
+  w.querySelectorAll('.hist-b').forEach(function(b){
+    b.onclick=function(){ var p=getHist()[+b.getAttribute('data-hc')].p; navigator.clipboard.writeText(p); var o=b.textContent; b.textContent='✓ Copied'; setTimeout(function(){b.textContent=o;},1200); };
+  });
+}
+function clearHist(){ localStorage.removeItem('fcl_prompthist'); renderHist(); }
+
+/* ============== COPY AS JSON ============== */
+function copyJSON(){
+  var readable={};
+  order.forEach(function(k){ try{ readable[k]=pick(k).label||pick(k).p; }catch(e){ readable[k]=state[k]; } });
+  var data={
+    character: readable,
+    extra: (document.getElementById('extra').value||''),
+    platform: state.platform,
+    prompts: {
+      main: assemble(state.platform,0),
+      consistency: consistencyBlock(),
+      variations: [1,2,3].map(function(i){return assemble(state.platform,i);}),
+      negative: negPrompt()
+    }
+  };
+  var json=JSON.stringify(data,null,2);
+  navigator.clipboard.writeText(json).then(function(){ alert('Character + prompts copied as JSON ✓'); });
 }
 function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -700,8 +804,83 @@ function startVoice(targetId, btnId){
 }
 showStudio();
 
+/* ============== CAPTION + HASHTAG MAKER (template-based, zero cost) ============== */
+var CAP_PLATFORMS=[
+  {k:'ig', label:'📸 Instagram'}, {k:'tiktok', label:'🎵 TikTok'},
+  {k:'yt', label:'▶️ YouTube'}, {k:'linkedin', label:'💼 LinkedIn'}
+];
+var CAP_VIBES=[
+  {k:'bold', label:'🔥 Bold'}, {k:'story', label:'📖 Story'},
+  {k:'edu', label:'🎓 Teach'}, {k:'luxe', label:'✨ Luxe'}, {k:'funny', label:'😄 Fun'}
+];
+var capState={platform:'ig', vibe:'bold'};
+
+var CAP_HOOKS={
+  bold:['Everyone\'s doing it wrong.','This changes everything.','Stop scrolling. You need to see this.','I can\'t believe this is AI.','Nobody is talking about this.'],
+  story:['A year ago I had nothing to show.','I almost gave up on this.','Here\'s how it really happened.','This started as a random idea…','Let me tell you a secret.'],
+  edu:['Save this before it\'s gone.','Here\'s exactly how to do it.','The 3 things nobody tells you.','Steal my entire process.','Watch this if you want to learn fast.'],
+  luxe:['Quiet luxury, loud results.','Made to look expensive.','This is what premium feels like.','Effortless. Elevated. Yours.','When the details do the talking.'],
+  funny:['POV: you just discovered the cheat code.','Tell me you\'re obsessed without telling me.','This took me 5 minutes and a snack.','Me pretending I had a whole film crew.','It\'s giving main character energy.']
+};
+var CAP_CTA={
+  ig:['Comment "FUSE" and I\'ll send you how 👇','Save this for later 🔖','Follow for daily AI magic ✨','Tag someone who needs this 👀','Drop a 🔥 if you want the tutorial'],
+  tiktok:['Follow for part 2 🎬','Comment what I should make next 👇','Save before it\'s gone ⏳','Duet this with your version 🤝','Like if this blew your mind 🤯'],
+  yt:['Subscribe for the full breakdown ▶️','Full tutorial linked below 👇','Comment your questions, I reply to all 💬','Hit the bell so you don\'t miss part 2 🔔','Like to support free tutorials 🙏'],
+  linkedin:['What would you add? Let\'s discuss 👇','Repost if your network should see this ♻️','DM me if you want the full process.','Curious how others approach this — thoughts?','Follow for more on AI + creativity.']
+};
+var CAP_TAGS={
+  ig:'#aivideo #aiugc #contentcreator #aicontent #reels #aitools #createwithai #digitalcreator #aicreator #fusestudio #ugccreator #explorepage #aigenerated #marketing',
+  tiktok:'#aivideo #aitools #fyp #foryou #contentcreator #aiugc #createwithai #techtok #aicreator #learnontiktok #viral #fusestudio',
+  yt:'#aivideo #aitutorial #youtubeshorts #contentcreation #aitools #createwithai #aiugc #shorts #digitalcreator #fusestudio',
+  linkedin:'#ai #artificialintelligence #contentcreation #marketing #creativity #aitools #personalbrand #digitalmarketing #futureofwork'
+};
+function buildCapChips(){
+  document.getElementById('capPlat').innerHTML=CAP_PLATFORMS.map(function(p){return '<span class="chip'+(capState.platform===p.k?' sel':'')+'" data-cp="'+p.k+'">'+p.label+'</span>';}).join('');
+  document.getElementById('capVibe').innerHTML=CAP_VIBES.map(function(v){return '<span class="chip'+(capState.vibe===v.k?' sel':'')+'" data-cv="'+v.k+'">'+v.label+'</span>';}).join('');
+  document.querySelectorAll('#capPlat .chip').forEach(function(c){ c.onclick=function(){ capState.platform=c.getAttribute('data-cp'); buildCapChips(); }; });
+  document.querySelectorAll('#capVibe .chip').forEach(function(c){ c.onclick=function(){ capState.vibe=c.getAttribute('data-cv'); buildCapChips(); }; });
+}
+function rand(a){ return a[Math.floor(Math.random()*a.length)]; }
+function makeCaption(){
+  var topic=(document.getElementById('capTopic').value||'this').trim();
+  var hook=rand(CAP_HOOKS[capState.vibe]);
+  var cta=rand(CAP_CTA[capState.platform]);
+  var bodyOpts=[
+    'Made 100% with AI — no camera, no crew, no studio. Just '+topic+' and a few prompts.',
+    'This is '+topic+', created entirely with AI on my phone. The future of content is here.',
+    'I turned '+topic+' into scroll-stopping content using AI. It took minutes, not days.',
+    topic.charAt(0).toUpperCase()+topic.slice(1)+' — but every frame is AI-generated. Wild what\'s possible now.'
+  ];
+  var body=rand(bodyOpts);
+  var caption;
+  if(capState.platform==='linkedin'){
+    caption=hook+'\n\n'+body+'\n\nThe bottleneck is no longer production — it\'s creative direction.\n\n'+cta;
+  }else{
+    caption=hook+' 👀\n\n'+body+'\n\n'+cta;
+  }
+  document.getElementById('capText').textContent=caption;
+  document.getElementById('capTags').textContent=CAP_TAGS[capState.platform];
+  document.getElementById('capOut').style.display='block';
+}
+function copyCaptionAll(){
+  var t=document.getElementById('capText').textContent+'\n\n'+document.getElementById('capTags').textContent;
+  navigator.clipboard.writeText(t).then(function(){ alert('Caption + hashtags copied ✓'); });
+}
+/* caption copy buttons + video preview */
+document.addEventListener('click',function(e){
+  var b=e.target.closest('.copy[data-cap]'); if(!b) return;
+  var which=b.getAttribute('data-cap');
+  var text = which==='text' ? document.getElementById('capText').textContent : document.getElementById('capTags').textContent;
+  navigator.clipboard.writeText(text).then(function(){ b.classList.add('done'); var o=b.textContent; b.textContent='✓ Copied'; setTimeout(function(){b.classList.remove('done');b.textContent=o;},1300); });
+});
+(function(){
+  var drop=document.getElementById('capDrop'), file=document.getElementById('capFile'), vid=document.getElementById('capVid');
+  if(drop){ drop.onclick=function(){ file.click(); }; }
+  if(file){ file.onchange=function(){ var f=file.files[0]; if(!f) return; vid.src=URL.createObjectURL(f); vid.style.display='block'; drop.style.display='none'; }; }
+})();
+
 /* init */
-buildFields(); buildPlats(); buildPresets(); buildGallery(); renderSaved();
+buildFields(); buildPlats(); buildPresets(); buildGallery(); renderSaved(); renderHist(); buildCapChips();
 </script>
 </body>
 </html>
