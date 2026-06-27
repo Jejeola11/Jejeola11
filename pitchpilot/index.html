@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PitchPilot — From job post to sent pitch in 5 minutes</title>
+<meta name="description" content="Find any client's contact info and write the perfect pitch in minutes. By Fuse.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070F1A; --bg2:#0C1726; --card:#101F33; --card2:#13263E; --line:#21344F;
+    --ink:#EAF1FB; --muted:#8AA0BE; --gold:#F5C518; --gold2:#FFD84A; --gold-deep:#D9A91A;
+    --accent:#4DA3FF; --good:#3DD68C; --radius:18px; --shadow:0 22px 60px rgba(0,0,0,.5);
+    --glow:0 0 30px rgba(245,197,24,.25);
+  }
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:var(--ink);line-height:1.5;
+    background:radial-gradient(900px 480px at 85% -10%,rgba(245,197,24,.10),transparent 60%),
+    radial-gradient(800px 460px at -5% 5%,rgba(77,163,255,.10),transparent 60%),var(--bg);
+    -webkit-font-smoothing:antialiased;min-height:100vh}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:760px;margin:0 auto;padding:0 18px}
+  /* nav */
+  .nav{position:sticky;top:0;z-index:30;background:rgba(7,15,26,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav .in{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px}
+  .logo .m{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-deep));display:grid;place-items:center;color:#1a1205;font-size:18px;box-shadow:var(--glow)}
+  .uses{display:flex;align-items:center;gap:8px}
+  .usepill{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--muted)}
+  .usepill b{color:var(--gold)}
+  .btn{display:inline-flex;align-items:center;gap:8px;justify-content:center;font-weight:700;font-size:14px;padding:10px 16px;border-radius:99px;border:1px solid transparent;cursor:pointer;transition:.15s;font-family:inherit}
+  .btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1205;box-shadow:var(--glow)}
+  .btn.gold:active{transform:scale(.97)}
+  .btn.ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+  .btn.ghost:hover{border-color:var(--gold);color:var(--gold)}
+  .btn.block{width:100%;padding:14px;font-size:15px}
+  .btn.sm{padding:7px 12px;font-size:12px}
+  /* hero */
+  .hero{text-align:center;padding:34px 0 8px}
+  .hero h1{font-size:clamp(28px,6.4vw,42px);line-height:1.08;letter-spacing:-.02em;margin:0 0 10px;font-weight:800}
+  .hero h1 .g{color:var(--gold)}
+  .hero p{color:var(--muted);max-width:520px;margin:0 auto;font-size:16px}
+  /* steps */
+  .step{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin:16px 0;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+  .step-h{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .step-n{flex:0 0 32px;width:32px;height:32px;border-radius:10px;background:rgba(245,197,24,.14);color:var(--gold);font-weight:800;display:grid;place-items:center}
+  .step-t{font-weight:800;font-size:17px}
+  .step-s{font-size:12.5px;color:var(--muted)}
+  label{display:block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:12px 0 5px}
+  input,textarea{width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:11px;color:var(--ink);font-size:15px;padding:11px 13px;font-family:inherit;outline:none}
+  input:focus,textarea:focus{border-color:var(--gold)}
+  textarea{min-height:74px;resize:vertical}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:520px){.row2{grid-template-columns:1fr}}
+  /* find links */
+  .links{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+  @media(max-width:520px){.links{grid-template-columns:1fr}}
+  .lk{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;transition:.15s}
+  .lk:hover{border-color:var(--gold);transform:translateY(-2px)}
+  .lk .e{font-size:20px}
+  .lk .t{font-weight:700;font-size:14px}
+  .lk .d{font-size:11px;color:var(--muted)}
+  .hint{font-size:12px;color:var(--muted);background:rgba(245,197,24,.07);border:1px solid rgba(245,197,24,.25);border-radius:10px;padding:9px 11px;margin-top:10px}
+  /* output */
+  .out{display:none;margin-top:14px}
+  .out.show{display:block}
+  .promptbox{background:var(--bg2);border:1px solid var(--line);border-radius:13px;padding:13px;font-family:ui-monospace,'Liberation Mono',monospace;font-size:12px;line-height:1.55;white-space:pre-wrap;color:var(--ink);max-height:280px;overflow:auto}
+  .checklist{margin-top:12px}
+  .checklist .c{display:flex;gap:9px;align-items:start;padding:7px 0;font-size:14px;color:var(--ink)}
+  .checklist .c .b{color:var(--good);font-weight:800}
+  /* journal */
+  .jrow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:10px 12px;margin-bottom:8px}
+  .jrow .jm{font-size:13px;color:var(--muted)}
+  .jrow select{width:auto;padding:6px 10px;font-size:12px}
+  .empty{color:var(--muted);font-size:13px;text-align:center;padding:14px}
+  /* overlay */
+  .ov{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:none;place-items:center;padding:18px}
+  .ov.show{display:grid}
+  .modal{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--gold-deep);border-radius:20px;padding:26px;max-width:420px;width:100%;box-shadow:var(--shadow);text-align:center}
+  .modal h2{font-size:24px;margin:6px 0 4px}
+  .modal .price{font-size:34px;font-weight:800;color:var(--gold);margin:10px 0}
+  .modal .price small{font-size:14px;color:var(--muted)}
+  .modal ul{list-style:none;padding:0;margin:14px 0;text-align:left}
+  .modal li{padding:6px 0;font-size:14px;color:var(--ink);display:flex;gap:9px}
+  .modal li::before{content:"✓";color:var(--good);font-weight:800}
+  .foot{text-align:center;color:var(--muted);font-size:12px;padding:24px 0 30px}
+</style>
+</head>
+<body>
+
+<header class="nav"><div class="wrap in">
+  <div class="logo"><span class="m">✈</span> PitchPilot</div>
+  <div class="uses">
+    <span class="usepill" id="usePill">Free uses: <b id="useN">3</b>/3</span>
+    <button class="btn gold sm" id="subBtn">Go Pro</button>
+  </div>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>From job post to <span class="g">sent pitch</span><br>in 5 minutes.</h1>
+    <p>Enter what you found on Upwork. PitchPilot finds the client's contacts and writes you a pitch for every platform.</p>
+  </section>
+
+  <!-- STEP 1 -->
+  <section class="step">
+    <div class="step-h"><div class="step-n">1</div><div><div class="step-t">What did you find?</div><div class="step-s">From the Upwork job + the client's feedback history</div></div></div>
+    <div class="row2">
+      <div><label>Client first name</label><input id="cName" placeholder="Sarah"></div>
+      <div><label>Company / brand</label><input id="cCompany" placeholder="Kiwi Spa"></div>
+    </div>
+    <label>Location</label><input id="cLocation" placeholder="San Diego, California">
+    <label>The job details (paste the brief)</label>
+    <textarea id="cBrief" placeholder="They need AI UGC videos for their skincare products, 4 per month…"></textarea>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step">
+    <div class="step-h"><div class="step-n">2</div><div><div class="step-t">Find their contact info</div><div class="step-s">Tap each — they open pre-filled searches</div></div></div>
+    <div class="links" id="findLinks"></div>
+    <div class="hint">💡 Order: Google first (get full name + LinkedIn) → ContactOut / Hunter for email & WhatsApp → check their Instagram. Need all 3 from Step 1 first, or these won't work well.</div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step">
+    <div class="step-h"><div class="step-n">3</div><div><div class="step-t">Found their details? Generate the pitch</div><div class="step-s">Paste what you found — get a ready Claude prompt + plan</div></div></div>
+    <div class="row2">
+      <div><label>Full name</label><input id="fName" placeholder="Sarah Bethke"></div>
+      <div><label>Email</label><input id="fEmail" placeholder="sarah@kiwispa.com"></div>
+    </div>
+    <div class="row2">
+      <div><label>LinkedIn URL</label><input id="fLinkedin" placeholder="linkedin.com/in/…"></div>
+      <div><label>Instagram</label><input id="fIg" placeholder="@kiwi.spa"></div>
+    </div>
+    <div class="row2">
+      <div><label>Website</label><input id="fSite" placeholder="kiwi-spa.com"></div>
+      <div><label>WhatsApp (optional)</label><input id="fWa" placeholder="+1…"></div>
+    </div>
+    <button class="btn gold block" id="genBtn" style="margin-top:16px">✦ Generate my pitch kit</button>
+
+    <div class="out" id="out">
+      <label style="margin-top:18px">① Copy this into Claude (claude.ai) — it writes all 5 messages</label>
+      <div class="promptbox" id="promptBox"></div>
+      <button class="btn ghost sm" id="copyPrompt" style="margin-top:8px">⧉ Copy Claude prompt</button>
+      <a class="btn gold sm" href="https://claude.ai" target="_blank" rel="noopener" style="margin-top:8px;margin-left:8px">Open Claude →</a>
+
+      <label style="margin-top:18px">② How to secure this job</label>
+      <div class="checklist" id="secureList"></div>
+
+      <label style="margin-top:18px">③ Send on these channels (tap to open)</label>
+      <div class="links" id="sendLinks"></div>
+
+      <button class="btn ghost block" id="logBtn" style="margin-top:16px">＋ Save to my pitch journal</button>
+    </div>
+  </section>
+
+  <!-- JOURNAL -->
+  <section class="step">
+    <div class="step-h"><div class="step-n">📒</div><div><div class="step-t">Pitch journal</div><div class="step-s">Track every pitch — aim for 5+ a day</div></div></div>
+    <div id="journal"></div>
+  </section>
+</main>
+
+<footer class="foot">PitchPilot · by Fuse · Find the client. Write the pitch. Land the job.</footer>
+
+<!-- SUBSCRIBE MODAL -->
+<div class="ov" id="subOv"><div class="modal">
+  <div style="font-size:34px">✈</div>
+  <h2>Unlock PitchPilot Pro</h2>
+  <p style="color:var(--muted);margin:0">You've used your 3 free pitches this month.</p>
+  <div class="price">₦10,000 <small>/ month</small></div>
+  <ul>
+    <li>Unlimited pitch kits</li>
+    <li>All contact-finder tools</li>
+    <li>Unlimited pitch journal</li>
+    <li>New templates added monthly</li>
+  </ul>
+  <a class="btn gold block" id="subPay" target="_blank" rel="noopener">📲 Subscribe on WhatsApp</a>
+  <button class="btn ghost block" id="subClose" style="margin-top:8px">Maybe later</button>
+</div></div>
+
+<script>
+  // ---- CONFIG (edit these) ----
+  const CFG = {
+    whatsapp: '2349044558101',      // your WhatsApp for subscriptions
+    freePerMonth: 3,
+  };
+  const $ = (id)=>document.getElementById(id);
+  const enc = encodeURIComponent;
+  const monthKey = ()=>{ const d=new Date(); return 'pp_uses_'+d.getFullYear()+'_'+(d.getMonth()+1); };
+  function usesLeft(){ const u=parseInt(localStorage.getItem(monthKey())||'0',10); return Math.max(0, CFG.freePerMonth-u); }
+  function isPro(){ return localStorage.getItem('pp_pro')==='1'; }
+  function refreshUses(){
+    if(isPro()){ $('usePill').innerHTML='✦ <b>Pro</b> · unlimited'; return; }
+    $('useN').textContent = usesLeft();
+  }
+  function spendUse(){ if(isPro()) return; const k=monthKey(); localStorage.setItem(k, (parseInt(localStorage.getItem(k)||'0',10)+1)); refreshUses(); }
+
+  // ---- STEP 2 find links ----
+  function buildFindLinks(){
+    const n=$('cName').value.trim(), co=$('cCompany').value.trim(), loc=$('cLocation').value.trim();
+    const q = `"${n}" founder of "${co}" "${loc}"`;
+    const links = [
+      {e:'🔎', t:'Google the founder', d:'Full name + LinkedIn + site', u:`https://www.google.com/search?q=${enc(q)}`},
+      {e:'💼', t:'LinkedIn search', d:'Find their profile', u:`https://www.google.com/search?q=${enc(co+' '+n+' linkedin')}`},
+      {e:'📇', t:'ContactOut', d:'Email + phone (paste their LinkedIn)', u:'https://contactout.com/'},
+      {e:'✉️', t:'Hunter.io', d:'Find the company email', u:`https://hunter.io/search/${enc(co)}`},
+      {e:'📸', t:'Instagram', d:'Their brand page', u:`https://www.instagram.com/explore/search/keyword/?q=${enc(co)}`},
+      {e:'🌐', t:'Company website', d:'Contact page', u:`https://www.google.com/search?q=${enc(co+' official website')}`},
+    ];
+    $('findLinks').innerHTML = links.map(l=>`<div class="lk" data-u="${l.u}"><div class="e">${l.e}</div><div><div class="t">${l.t}</div><div class="d">${l.d}</div></div></div>`).join('');
+    $('findLinks').querySelectorAll('.lk').forEach(el=>el.onclick=()=>window.open(el.dataset.u,'_blank'));
+  }
+  ['cName','cCompany','cLocation'].forEach(id=>$(id).addEventListener('input',buildFindLinks));
+  buildFindLinks();
+
+  // ---- STEP 3 generate ----
+  function claudePrompt(d){
+    return `You are an expert AI UGC freelancer pitch writer. From the info below, write FOUR short, personalised outreach messages and a closing plan.
+
+JOB BRIEF: ${d.brief||'—'}
+CLIENT NAME: ${d.name||'—'}   COMPANY: ${d.company||'—'}   LOCATION: ${d.location||'—'}
+WEBSITE: ${d.site||'—'}   LINKEDIN: ${d.linkedin||'—'}   INSTAGRAM: ${d.ig||'—'}
+
+WRITE (clearly labelled, copy-paste ready):
+1) EMAIL — subject line + body, friendly, under 180 words
+2) LINKEDIN MESSAGE — under 220 words
+3) LINKEDIN CONNECTION INVITE — under 200 characters, personal
+4) WHATSAPP / INSTAGRAM DM — under 80 words, casual
+
+Then a SECURE-THE-JOB plan: 3 things to say if they reply, the price to quote, and a soft 24h follow-up message.
+
+My offer: AI-generated UGC videos & product ads (faceless, made on phone), 24-48h turnaround, $50-$200 per video, unlimited revisions. Portfolio: [PASTE YOUR LINK].`;
+  }
+  function sendLinks(d){
+    const out=[];
+    if(d.email) out.push({e:'✉️',t:'Email',d:d.email,u:`mailto:${d.email}?subject=${enc('Quick idea for '+(d.company||'your brand'))}`});
+    if(d.linkedin) out.push({e:'💼',t:'LinkedIn',d:'Message + invite',u:d.linkedin.startsWith('http')?d.linkedin:'https://'+d.linkedin});
+    if(d.ig){ const h=d.ig.replace('@',''); out.push({e:'📸',t:'Instagram DM',d:'@'+h,u:`https://instagram.com/${h}`}); }
+    if(d.wa){ const w=d.wa.replace(/[^0-9]/g,''); out.push({e:'💬',t:'WhatsApp',d:d.wa,u:`https://wa.me/${w}`}); }
+    if(d.site) out.push({e:'🌐',t:'Website',d:d.site,u:d.site.startsWith('http')?d.site:'https://'+d.site});
+    return out;
+  }
+  $('genBtn').onclick=()=>{
+    if(!isPro() && usesLeft()<=0){ $('subOv').classList.add('show'); return; }
+    const d={
+      brief:$('cBrief').value.trim(), name:$('fName').value.trim()||$('cName').value.trim(),
+      company:$('cCompany').value.trim(), location:$('cLocation').value.trim(),
+      email:$('fEmail').value.trim(), linkedin:$('fLinkedin').value.trim(),
+      ig:$('fIg').value.trim(), site:$('fSite').value.trim(), wa:$('fWa').value.trim(),
+    };
+    if(!d.name && !d.company){ alert('Add at least the client name or company first.'); return; }
+    $('promptBox').textContent = claudePrompt(d);
+    $('secureList').innerHTML = [
+      'Reply fast — within 1 hour beats a perfect message sent late.',
+      'Lead with a free sample: "I already made you a quick mockup."',
+      'Quote a clear price ($50-$200) and a 24-48h turnaround.',
+      'If no reply in 24h, send the soft follow-up Claude wrote.',
+      'Always move the chat to a quick 15-min call to close.',
+    ].map(t=>`<div class="c"><span class="b">✓</span><span>${t}</span></div>`).join('');
+    const sl=sendLinks(d);
+    $('sendLinks').innerHTML = sl.length? sl.map(l=>`<div class="lk" data-u="${l.u}"><div class="e">${l.e}</div><div><div class="t">${l.t}</div><div class="d">${l.d}</div></div></div>`).join('')
+      : '<div class="empty">Add their email / LinkedIn / IG above to get one-tap send links.</div>';
+    $('sendLinks').querySelectorAll('.lk').forEach(el=>el.onclick=()=>window.open(el.dataset.u,'_blank'));
+    $('out').classList.add('show');
+    $('out').scrollIntoView({behavior:'smooth'});
+    spendUse();
+    window._lastClient = (d.company||d.name||'Client');
+  };
+  $('copyPrompt').onclick=()=>{ navigator.clipboard.writeText($('promptBox').textContent); $('copyPrompt').textContent='✓ Copied!'; setTimeout(()=>$('copyPrompt').textContent='⧉ Copy Claude prompt',1500); };
+
+  // ---- JOURNAL ----
+  function loadJournal(){
+    let j=[]; try{ j=JSON.parse(localStorage.getItem('pp_journal')||'[]'); }catch(e){}
+    const el=$('journal');
+    if(!j.length){ el.innerHTML='<div class="empty">No pitches logged yet. Generate a kit, then save it here.</div>'; return; }
+    el.innerHTML=j.map((r,i)=>`<div class="jrow"><div><div style="font-weight:700">${r.client}</div><div class="jm">${r.date}</div></div>
+      <select data-i="${i}"><option ${r.status==='Sent'?'selected':''}>Sent</option><option ${r.status==='Replied'?'selected':''}>Replied</option><option ${r.status==='Hired'?'selected':''}>Hired</option><option ${r.status==='Ghosted'?'selected':''}>Ghosted</option></select></div>`).join('');
+    el.querySelectorAll('select').forEach(s=>s.onchange=()=>{ let j=JSON.parse(localStorage.getItem('pp_journal')||'[]'); j[+s.dataset.i].status=s.value; localStorage.setItem('pp_journal',JSON.stringify(j)); });
+  }
+  $('logBtn').onclick=()=>{
+    let j=[]; try{ j=JSON.parse(localStorage.getItem('pp_journal')||'[]'); }catch(e){}
+    const d=new Date(); const ds=d.getDate()+'/'+(d.getMonth()+1);
+    j.unshift({client:window._lastClient||'Client', date:ds, status:'Sent'});
+    localStorage.setItem('pp_journal',JSON.stringify(j)); loadJournal();
+    $('logBtn').textContent='✓ Saved to journal'; setTimeout(()=>$('logBtn').textContent='＋ Save to my pitch journal',1500);
+  };
+
+  // ---- SUBSCRIBE ----
+  function subLink(){ const msg=enc('Hi! I want to subscribe to PitchPilot Pro (₦10,000/month). My name: '); return `https://wa.me/${CFG.whatsapp}?text=${msg}`; }
+  $('subBtn').onclick=()=>$('subOv').classList.add('show');
+  $('subClose').onclick=()=>$('subOv').classList.remove('show');
+  $('subOv').onclick=(e)=>{ if(e.target===$('subOv')) $('subOv').classList.remove('show'); };
+  $('subPay').href=subLink();
+
+  refreshUses(); loadJournal();
+</script>
+</body>
+</html>
