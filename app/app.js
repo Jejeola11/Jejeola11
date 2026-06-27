@@ -352,6 +352,9 @@ function buildHome() {
   // Explore more AI features — chip cloud routing to every studio/model/tool.
   $('featChips').innerHTML = (cfg.FEATURES || []).map((f, i) => `<div class="feat-chip" data-i="${i}">${f.label}</div>`).join('');
   $('featChips').querySelectorAll('.feat-chip').forEach((el) => el.onclick = () => routeFeature(cfg.FEATURES[+el.dataset.i].go));
+  // Footer links
+  document.querySelectorAll('.home-foot a[data-go]').forEach((el) => el.onclick = (e) => { e.preventDefault(); routeFeature(el.dataset.go); });
+  document.querySelectorAll('.home-foot a[data-buy]').forEach((el) => el.onclick = (e) => { e.preventDefault(); openBuy(); });
 
   refreshStreak();
 
