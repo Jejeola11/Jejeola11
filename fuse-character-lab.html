@@ -191,8 +191,22 @@ header.top{padding:26px 0 10px}
 .txt{background:rgba(0,0,0,.22);border-color:rgba(255,255,255,.06);border-radius:13px;line-height:1.62}
 .copy{background:rgba(245,197,24,.12);border-color:rgba(245,197,24,.35);transition:.15s}
 .copy:hover{background:rgba(245,197,24,.22)}
-.pcard{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border-radius:16px;transition:.18s ease}
-.pcard:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(0,0,0,.45),0 0 22px rgba(245,197,24,.12);border-color:var(--gold-deep)}
+/* ===== 3D GOLD PRESET CARDS (attention-grabbing) ===== */
+.pgrid{gap:14px}
+.pcard{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.28);border-radius:18px;padding:16px 15px 15px;cursor:pointer;
+  background:linear-gradient(150deg,#FFE684 0%,#F5C518 46%,#D9A91A 100%);
+  box-shadow:0 14px 30px rgba(245,197,24,.26),0 6px 14px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.55);
+  transform:perspective(720px) translateZ(0);transition:transform .2s cubic-bezier(.2,.7,.3,1),box-shadow .2s ease;will-change:transform}
+.pcard::before{content:"";position:absolute;inset:0;border-radius:18px;background:radial-gradient(120% 70% at 50% -10%,rgba(255,255,255,.5),transparent 55%);pointer-events:none}
+.pcard::after{content:"";position:absolute;top:-30%;left:-40%;width:55%;height:170%;pointer-events:none;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,.55),transparent);transform:rotate(9deg);opacity:0;transition:left .55s ease,opacity .4s ease}
+.pcard:hover{transform:perspective(720px) translateY(-5px) rotateX(5deg) scale(1.015);
+  box-shadow:0 26px 50px rgba(245,197,24,.4),0 12px 22px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.6)}
+.pcard:hover::after{left:130%;opacity:1}
+.pcard:active{transform:perspective(720px) translateY(-1px) scale(.99)}
+.pcard .nm{position:relative;color:#1a1205;font-size:16px;text-shadow:0 1px 0 rgba(255,255,255,.35)}
+.pcard .ds{position:relative;color:rgba(26,18,5,.8);font-size:12px}
+.pcard .badge{position:relative;background:rgba(26,18,5,.16);color:#2c2206;font-weight:800;letter-spacing:.6px;border:1px solid rgba(26,18,5,.12)}
 
 /* gate polish */
 #gate{background:radial-gradient(900px 480px at 50% -10%,rgba(245,197,24,.1),transparent 60%),linear-gradient(180deg,var(--teal2),var(--midnight))}
@@ -374,7 +388,7 @@ header.top{padding:26px 0 10px}
     <p class="note">Want the full A–Z system? → <a href="https://thunderous-gumption-a4631d.netlify.app/">Fuse Atelier</a></p>
   </div>
 
-  <p class="note">Fuse Character Lab · © Fuse Atelier · <a href="https://instagram.com/director_ria">@director_ria</a><br>Your access is personal — please don't share your code. New presets added regularly.</p>
+  <p class="note">Fuse Character Lab · © Fuse Atelier · <a href="https://instagram.com/director_ria">@director_ria</a><br>New presets added regularly.</p>
 </div>
 
 <!-- IMAGE MODAL -->
