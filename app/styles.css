@@ -5,18 +5,19 @@
    their green  -> gold
    ============================================================ */
 :root{
-  --bg:#04231F;          /* deep teal (the "black") */
-  --bg-2:#062A25;
-  --panel:#0A322C;       /* cards / panels */
-  --panel-2:#0D3A33;
-  --line:#14463F;        /* hairlines / borders */
-  --ink:#F4F1E9;         /* warm off-white text */
+  --bg:#031A16;          /* DEEP teal (the "black") */
+  --bg-2:#04221D;
+  --panel:#082A25;       /* cards / panels */
+  --panel-2:#0B342D;
+  --line:#15493F;        /* hairlines / borders */
+  --ink:#F6F2E8;         /* warm off-white text */
   --muted:#8FB3AC;       /* secondary text */
-  --gold:#E7C25C;        /* primary accent / CTA */
-  --gold-2:#F5D272;      /* hover */
-  --gold-deep:#C9A227;
+  --gold:#F5C518;        /* primary accent — vibrant golden yellow */
+  --gold-2:#FFD84A;      /* hover / glow */
+  --gold-deep:#D9A91A;
   --radius:18px;
-  --shadow:0 18px 50px rgba(0,0,0,.45);
+  --shadow:0 18px 50px rgba(0,0,0,.5);
+  --glow:0 0 30px rgba(245,197,24,.28);
   --maxw:1120px;
   font-synthesis:none;
 }
@@ -25,7 +26,7 @@
 html,body{margin:0;padding:0}
 body{
   background:
-    radial-gradient(1200px 600px at 80% -10%, rgba(231,194,92,.10), transparent 60%),
+    radial-gradient(1200px 600px at 80% -10%, rgba(245,197,24,.12), transparent 60%),
     radial-gradient(900px 500px at -10% 10%, rgba(20,70,63,.55), transparent 60%),
     var(--bg);
   color:var(--ink);
@@ -480,3 +481,101 @@ textarea{min-height:104px;resize:vertical}
 /* ===== Async image grid slots ===== */
 .gen-slot{position:relative;aspect-ratio:1;display:grid;place-items:center;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .gen-slot img{width:100%;height:100%;object-fit:cover}
+
+/* ============================================================
+   REDESIGN — header, account menu, 3D feature boxes, Seedance 4K,
+   community showcase. Deep teal + vibrant gold, mobile-first.
+   ============================================================ */
+.hdr-actions{display:flex;align-items:center;gap:7px}
+.hdr-ic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--panel);
+  border:1px solid var(--line);color:var(--ink);font-size:15px;cursor:pointer;flex-shrink:0;transition:.15s}
+.hdr-ic:active{transform:scale(.92)}
+.hdr-ic:hover{border-color:var(--gold);box-shadow:var(--glow)}
+.planpill{background:linear-gradient(135deg,rgba(245,197,24,.16),rgba(245,197,24,.04));
+  border:1px solid var(--gold-deep);font-weight:800;color:var(--gold)}
+
+/* ---- Account menu (slide-down) ---- */
+.menu-overlay{position:fixed;inset:0;z-index:120;background:rgba(0,0,0,.4)}
+.menu-card{position:absolute;top:58px;right:10px;left:auto;width:min(330px,92vw);background:var(--panel);
+  border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px;
+  transform:translateY(-12px) scale(.97);opacity:0;transition:.18s ease}
+.menu-card.open{transform:translateY(0) scale(1);opacity:1}
+.menu-head{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.menu-avatar{width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--gold-2),var(--gold-deep));
+  color:#1a1205;font-weight:800;display:grid;place-items:center;font-size:18px;box-shadow:var(--glow)}
+.menu-name{font-weight:800;font-size:15px}
+.menu-plan{font-size:12px;color:var(--muted)}
+.menu-credits{background:var(--bg-2);border:1px solid var(--line);border-radius:13px;padding:10px 12px;margin-bottom:10px}
+.mc-row{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:7px}
+.mc-bar{height:6px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden}
+.mc-fill{height:100%;width:30%;background:linear-gradient(90deg,var(--gold-deep),var(--gold-2));border-radius:99px}
+.menu-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:11px;
+  background:var(--bg-2);margin-bottom:7px;cursor:pointer;font-size:14px;font-weight:600}
+.menu-row:active{transform:scale(.98)}
+.menu-get{background:var(--gold);color:#1a1205;font-weight:800;font-size:12px;padding:3px 12px;border-radius:99px}
+.menu-div{height:1px;background:var(--line);margin:8px 0}
+.menu-link{padding:11px 12px;border-radius:11px;cursor:pointer;font-size:14px;font-weight:600;color:var(--ink)}
+.menu-link:active{background:var(--bg-2)}
+.menu-link.danger{color:#ff8b8b}
+
+/* ---- 3D hero feature boxes ---- */
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 4px}
+.featbox{position:relative;border-radius:18px;padding:16px 15px 18px;min-height:128px;cursor:pointer;
+  background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--line);
+  box-shadow:0 10px 28px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.05);
+  transform:translateZ(0);transition:transform .18s ease, box-shadow .18s ease;overflow:hidden}
+.featbox::before{content:"";position:absolute;inset:0;background:radial-gradient(120px 80px at 80% 0%,rgba(245,197,24,.12),transparent 70%);pointer-events:none}
+.featbox:active{transform:translateY(2px) scale(.99)}
+.featbox:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(0,0,0,.5),var(--glow)}
+.fb-ic{font-size:30px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.5));margin-bottom:8px}
+.fb-name{font-weight:800;font-size:17px;letter-spacing:-.01em}
+.fb-desc{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.35}
+.fb-badge{position:absolute;top:11px;right:11px;font-size:10px;font-weight:800;padding:3px 9px;border-radius:99px;letter-spacing:.04em}
+.fb-badge.new{background:var(--gold);color:#1a1205}
+.fb-badge.trend{background:#ff3b8b;color:#fff}
+.fb-badge.vid{background:rgba(0,0,0,.45);color:#fff;border:1px solid var(--line)}
+.fb-badge.img{background:rgba(0,0,0,.45);color:#fff;border:1px solid var(--line)}
+
+/* ---- Seedance 4K 3D hero ---- */
+.seed4k{position:relative;margin:14px 0;border-radius:22px;padding:30px 18px 26px;text-align:center;cursor:pointer;overflow:hidden;
+  background:radial-gradient(circle at 50% 0%,#0f4a40,#04231f 70%);border:1px solid var(--gold-deep);
+  box-shadow:0 22px 60px rgba(0,0,0,.55),var(--glow)}
+.seed4k::after{content:"";position:absolute;inset:0;background:
+  repeating-linear-gradient(115deg,transparent 0 14px,rgba(245,197,24,.04) 14px 15px);pointer-events:none}
+.seed4k-badge{position:absolute;top:14px;right:16px;background:var(--gold);color:#1a1205;font-weight:900;
+  font-size:15px;padding:3px 11px;border-radius:9px;box-shadow:var(--glow)}
+.seed4k-title{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:clamp(34px,11vw,58px);
+  letter-spacing:-.02em;line-height:.95;color:var(--gold);
+  text-shadow:0 2px 0 var(--gold-deep),0 5px 18px rgba(245,197,24,.5),0 12px 30px rgba(0,0,0,.6)}
+.seed4k-sub{margin-top:8px;font-weight:800;font-size:12px;letter-spacing:.16em;color:var(--ink);text-transform:uppercase}
+.seed4k-cta{display:inline-block;margin-top:16px;background:var(--gold);color:#1a1205;font-weight:800;
+  padding:10px 26px;border-radius:99px;box-shadow:var(--glow)}
+
+/* ---- 3D promo banner ---- */
+.promo-3d{box-shadow:0 18px 46px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06);
+  transform:perspective(900px) rotateX(.4deg);transition:.2s}
+.promo-3d:hover{transform:perspective(900px) rotateX(0) translateY(-2px)}
+
+/* ---- Community showcase ---- */
+.comm-hero{text-align:center;padding:18px 0 6px}
+.comm-strip{display:flex;gap:8px;justify-content:center;margin-bottom:14px}
+.comm-strip img,.comm-strip video{width:72px;height:96px;object-fit:cover;border-radius:14px;border:1px solid var(--line);
+  box-shadow:0 8px 20px rgba(0,0,0,.45);transform:rotate(-4deg)}
+.comm-strip>*:nth-child(2){transform:rotate(3deg) translateY(-4px)}
+.comm-strip>*:nth-child(3){transform:rotate(-2deg)}
+.comm-strip>*:nth-child(4){transform:rotate(5deg) translateY(-2px)}
+.cs-ph{width:72px;height:96px;border-radius:14px;background:var(--panel);display:grid;place-items:center;font-size:26px;border:1px solid var(--line)}
+.comm-title{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:clamp(20px,5.4vw,30px);
+  text-transform:uppercase;letter-spacing:-.01em;line-height:1.05;margin:0 0 14px}
+.share-btn{max-width:340px;margin:0 auto;box-shadow:var(--glow)}
+
+/* ---- Mobile polish ---- */
+@media (max-width:430px){
+  .topbar .in{padding-left:10px;padding-right:10px}
+  .brand{font-size:15px}
+  .hdr-ic{width:32px;height:32px;font-size:14px}
+  .streakpill{padding:5px 8px}
+  .feat-grid{gap:10px}
+  .featbox{min-height:118px;padding:14px 13px}
+  .fb-name{font-size:16px}
+}

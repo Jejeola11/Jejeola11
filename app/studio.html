@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fuse Studio</title>
-<meta name="theme-color" content="#04231F">
+<meta name="theme-color" content="#031A16">
 <link rel="manifest" href="/app/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/app/icons/apple-touch.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,13 +19,38 @@
 <header class="topbar">
   <div class="in">
     <a class="brand" href="/app/index.html"><span class="dot">F</span> Fuse&nbsp;Studio</a>
-    <div style="display:flex;align-items:center;gap:8px">
+    <div class="hdr-actions">
       <button class="pill streakpill" id="streakBtn" title="Daily reward">🔥 <b id="streakText">0</b></button>
-      <span class="pill" id="creditPill"><span id="planBadge" class="muted" style="font-weight:600;font-size:11px">Trial</span> · <b id="creditCount">…</b> cr</span>
-      <button class="btn gold sm" id="buyBtn">＋ Top up</button>
+      <button class="hdr-ic" id="searchBtn" title="Search models" aria-label="Search">🔍</button>
+      <a class="hdr-ic" href="https://instagram.com/fuse_studio2" target="_blank" rel="noopener" title="Instagram @fuse_studio2" aria-label="Instagram">📸</a>
+      <span class="pill planpill" id="creditPill"><span id="planBadge" class="muted" style="font-weight:700;font-size:11px">Trial</span> · <b id="creditCount">…</b></span>
+      <button class="hdr-ic" id="menuBtn" title="Menu" aria-label="Menu">☰</button>
     </div>
   </div>
 </header>
+
+<!-- ===== Slide-down account menu (Higgsfield-style) ===== -->
+<div class="menu-overlay" id="menuOverlay" style="display:none">
+  <div class="menu-card" id="menuCard">
+    <div class="menu-head">
+      <div class="menu-avatar" id="menuAvatar">R</div>
+      <div><div class="menu-name" id="menuName">…</div><div class="menu-plan" id="menuPlan">Free trial</div></div>
+    </div>
+    <div class="menu-credits">
+      <div class="mc-row"><span>Credits</span><b class="gold" id="menuCredits">…</b></div>
+      <div class="mc-bar"><div class="mc-fill" id="menuCreditBar"></div></div>
+    </div>
+    <div class="menu-row" id="menuTopup"><span>⚡ Top-up credits</span><span class="menu-get">Get</span></div>
+    <div class="menu-row" id="menuStreak"><span>🔥 Daily reward</span><span class="menu-get" id="menuStreakN">0</span></div>
+    <div class="menu-div"></div>
+    <div class="menu-link" id="menuProfile">👤 View profile</div>
+    <div class="menu-link" id="menuProjects">📚 My projects</div>
+    <div class="menu-link" id="menuCommunity">👥 Community</div>
+    <a class="menu-link" href="https://instagram.com/fuse_studio2" target="_blank" rel="noopener">📸 Follow @fuse_studio2</a>
+    <div class="menu-div"></div>
+    <div class="menu-link danger" id="menuLogout">⎋ Sign out</div>
+  </div>
+</div>
 
 <main class="app-shell" id="appMain">
 
@@ -44,10 +69,46 @@
       <div class="showcard"><video src="/app/media/avatar2.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🗣 Talking avatar</div></div>
     </div>
 
-    <!-- 2. Fuse Atelier promo -->
-    <div class="promo-banner" id="homePromo"></div>
+    <!-- 2. Fuse Atelier promo (3D) -->
+    <div class="promo-banner promo-3d" id="homePromo"></div>
 
-    <!-- 3. Features (studios) -->
+    <!-- 3. Hero feature boxes -->
+    <div class="feat-grid">
+      <div class="featbox" data-go="reactor">
+        <span class="fb-badge new">NEW</span>
+        <div class="fb-ic">🛰️</div>
+        <div class="fb-name">Supercomputer</div>
+        <div class="fb-desc">Claude · Gemini · GPT — your creative engine</div>
+      </div>
+      <div class="featbox" data-go="video-seedance">
+        <span class="fb-badge vid">🎬 Video</span>
+        <div class="fb-ic">⚡</div>
+        <div class="fb-name">Seedance 2.0</div>
+        <div class="fb-desc">Cinematic video in seconds</div>
+      </div>
+      <div class="featbox" data-go="image-nano">
+        <span class="fb-badge img">🖼 Image</span>
+        <div class="fb-ic">🍌</div>
+        <div class="fb-name">Nano Banana</div>
+        <div class="fb-desc">High-quality visuals, fast</div>
+      </div>
+      <div class="featbox" data-go="avatar">
+        <span class="fb-badge trend">TRENDING</span>
+        <div class="fb-ic">🧑‍🎨</div>
+        <div class="fb-name">Avatar Studio</div>
+        <div class="fb-desc">Train your face · consistent you</div>
+      </div>
+    </div>
+
+    <!-- 4. Seedance 4K hero (3D text box) -->
+    <div class="seed4k" data-go="video-seedance4k">
+      <div class="seed4k-badge">4K</div>
+      <div class="seed4k-title">SEEDANCE 2.0</div>
+      <div class="seed4k-sub">NOW IN 4K · already on Fuse Studio</div>
+      <div class="seed4k-cta">Try now →</div>
+    </div>
+
+    <!-- 5. More studios & tools -->
     <div class="shead"><h2>Studios & tools</h2></div>
     <div class="tools" id="toolGrid"></div>
 
@@ -302,6 +363,14 @@
 
   <!-- ===== COMMUNITY (challenges + content rewards) ===== -->
   <section class="view" id="view-community">
+    <!-- Community showcase (Higgsfield "Created by the community" style) -->
+    <div class="comm-hero">
+      <div class="comm-strip" id="commStrip"></div>
+      <h2 class="comm-title">CREATED BY THE COMMUNITY<br><span class="gold">POWERED BY FUSE</span></h2>
+      <button class="btn gold block share-btn" id="shareGen">➜ Share your generations</button>
+    </div>
+    <div class="libgrid" id="commGrid" style="margin-top:14px"></div>
+
     <div class="shead"><h2>Challenges</h2></div>
     <div id="challengeList"></div>
     <div class="shead"><h2>Earn credits with content 📸</h2></div>

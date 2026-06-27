@@ -145,7 +145,7 @@ function showView(name, opts = {}) {
   curView = name;
   if (name === 'library') loadLibrary();
   if (name === 'profile') loadProfile();
-  if (name === 'community') loadChallenges();
+  if (name === 'community') { loadChallenges(); loadCommunity(); }
   if (name === 'reactor') buildReactor();
   if (name === 'models') { if (modelKind === 'reactor') modelKind = 'image'; buildModels(modelKind); }
   // Restore previous scroll for this view (top for first visit).
@@ -368,6 +368,48 @@ function buildHome() {
      <span class="countdown" id="bannerCountdown"></span>`;
   $('promoBannerCta').onclick = () => openBuy();
   startCountdown('bannerCountdown', pr.hours);
+
+  // Hero feature boxes + Seedance 4K → route to the right studio.
+  document.querySelectorAll('#view-home [data-go]').forEach((el) => el.onclick = () => routeFeature(el.dataset.go));
+}
+
+// ---------------- account menu (slide-down) ----------------
+function openMenu() {
+  const nm = (user && user.email) ? user.email.split('@')[0] : 'You';
+  $('menuName').textContent = nm;
+  $('menuAvatar').textContent = nm[0] ? nm[0].toUpperCase() : 'F';
+  $('menuOverlay').style.display = 'block';
+  requestAnimationFrame(() => $('menuCard').classList.add('open'));
+}
+function closeMenu() { $('menuCard').classList.remove('open'); setTimeout(() => { $('menuOverlay').style.display = 'none'; }, 200); }
+
+// ---------------- community showcase ----------------
+async function loadCommunity() {
+  if (preview) { $('commGrid').innerHTML = ''; return; }
+  const { data } = await sb.from('public_showcase').select('output_url, type').limit(30);
+  const items = data || [];
+  const strip = items.slice(0, 4);
+  $('commStrip').innerHTML = strip.length
+    ? strip.map((x) => x.type === 'video'
+        ? `<video src="${x.output_url}" muted loop autoplay playsinline></video>`
+        : `<img src="${x.output_url}">`).join('')
+    : '<div class="cs-ph">🖼️</div><div class="cs-ph">🎬</div><div class="cs-ph">✨</div><div class="cs-ph">🎨</div>';
+  const grid = items.slice(4);
+  $('commGrid').innerHTML = grid.length
+    ? grid.map((x) => {
+        const m = x.type === 'video' ? `<video src="${x.output_url}" muted loop playsinline></video>` : `<img src="${x.output_url}">`;
+        return `<div class="projitem" onclick="fuseLightbox('${x.output_url}','${x.type}')">${m}</div>`;
+      }).join('')
+    : '<div class="empty" style="grid-column:1/-1">Be the first to share your creation ✨</div>';
+}
+
+// Route a home feature box to its destination.
+function routeFeature(go) {
+  if (go === 'reactor') return openStudio('reactor');
+  if (go === 'avatar') return openStudio('avatar');
+  if (go === 'image-nano') { openImageModel('nano-banana'); return; }
+  if (go === 'video-seedance') { showView('models'); buildModels('video'); openVideo('seedance-2-text-to-video'); return; }
+  if (go === 'video-seedance4k') { showView('models'); buildModels('video'); openVideo('seedance-2-vip-text-to-video'); return; }
 }
 
 // ---------------- countdown ----------------
@@ -526,6 +568,10 @@ async function loadProfile() {
   $('pfCredits').textContent = data.credits;
   $('creditCount').textContent = data.credits;
   $('planBadge').textContent = data.plan === 'free' ? 'Trial' : data.plan;
+  // Account menu fields.
+  $('menuPlan').textContent = data.plan === 'free' ? 'Free trial' : 'Studio ' + data.plan;
+  $('menuCredits').textContent = data.credits;
+  const bar = $('menuCreditBar'); if (bar) bar.style.width = Math.max(4, Math.min(100, (data.credits / 800) * 100)) + '%';
   $('refLink').value = `${location.origin}/?ref=${data.referral_code}`;
   $('pfAffiliate').textContent = naira(data.affiliate_naira || 0);
   // Admin grant panel — only for the owner.
@@ -650,6 +696,7 @@ async function refreshStreak() {
   if (!data) return;
   const can = !data.last_claim_at || (Date.now() - new Date(data.last_claim_at).getTime()) > 20 * 3600 * 1000;
   $('streakText').textContent = data.streak_days || 0;
+  const msn = $('menuStreakN'); if (msn) msn.textContent = data.streak_days || 0;
   $('streakBtn').classList.toggle('claimable', can);
   $('streakBtn').title = can ? 'Tap to claim today\'s free credit 🎁' : `${data.streak_days || 0}-day streak · come back tomorrow`;
 }
@@ -1165,6 +1212,17 @@ window.addEventListener('DOMContentLoaded', () => {
   $('vRefRemove').onclick = () => { vRefUrl = ''; $('vRefPreview').style.display = 'none'; $('vRefBtn').style.display = 'flex'; $('vRefFile').value = ''; };
   buildModelSelect();
   $('streakBtn').onclick = claimDaily;
+  // Header icons + account menu
+  $('searchBtn').onclick = () => { showView('models'); setTimeout(() => { const s = $('modelSearch'); if (s) s.focus(); }, 50); };
+  $('menuBtn').onclick = openMenu;
+  $('menuOverlay').onclick = (e) => { if (e.target === $('menuOverlay')) closeMenu(); };
+  $('menuTopup').onclick = () => { closeMenu(); openBuy(); };
+  $('menuStreak').onclick = () => { closeMenu(); claimDaily(); };
+  $('menuProfile').onclick = () => { closeMenu(); showView('profile'); };
+  $('menuProjects').onclick = () => { closeMenu(); showView('library'); };
+  $('menuCommunity').onclick = () => { closeMenu(); showView('community'); };
+  $('menuLogout').onclick = () => { closeMenu(); logout(); };
+  $('shareGen').onclick = () => openStudio('market');
   $('mpPublish').onclick = publishPreset;
   $('learnClaim').onclick = claimLearn;
   $('learnCourse').onclick = () => { location.href = '/atelier'; };
@@ -1175,7 +1233,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   $('genBtn').onclick = generate;
   $('rcSend').onclick = reactorSend;
-  $('buyBtn').onclick = openBuy; $('creditPill').onclick = openBuy;
+  { const bb = $('buyBtn'); if (bb) bb.onclick = openBuy; } $('creditPill').onclick = openBuy;
   $('buyClose').onclick = () => $('buyOverlay').style.display = 'none';
   $('payBack').onclick = showPackList;
   $('curToggle').onclick = () => { showUsd = !showUsd; renderPacks(); };

@@ -79,7 +79,7 @@ window.FUSE = {
     { slug: 'seedance-2-text-to-video',             name: 'Seedance 2',      badge: 'ByteDance', credits: 57, sample: '/app/media/samples/vid3.mp4' },
     { slug: 'kling-v3-turbo-pro-text-to-video',     name: 'Kling Turbo Pro', badge: 'Kuaishou',  credits: 66, sample: '/app/media/samples/vid5.mp4' },
     { slug: 'veo3-text-to-video',                   name: 'Veo 3',           badge: 'Google',    credits: 113, sample: '/app/media/samples/vid2.mp4' },
-    { slug: 'seedance-2-vip-text-to-video',         name: 'Seedance 2 VIP',  badge: '4K · premium', credits: 141, sample: '/app/media/samples/vid3.mp4' },
+    { slug: 'seedance-2-vip-text-to-video',         name: 'Seedance 2.0 · 4K',  badge: '4K · premium', credits: 141, sample: '/app/media/samples/vid3.mp4' },
   ],
   TOOL_MODELS: [
     { slug: 'ai-image-upscale',      name: 'Image Upscale',     badge: 'Enhance', credits: 4,  sample: '/app/media/samples/s2.jpg' },
