@@ -166,12 +166,13 @@ function saveRoute() {
 function restoreRoute() {
   let r; try { r = JSON.parse(localStorage.getItem('fuse_route') || 'null'); } catch (e) {}
   if (!r || !r.view || r.view === 'home') return;
-  const safe = ['library', 'profile', 'community', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset'];
+  const safe = ['library', 'profile', 'community', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course'];
   if (!safe.includes(r.view)) return;
   try {
     if (r.view === 'studio') { openStudio(r.studio || 'generate'); if (r.video) setStudioMode(true); }
     else if (r.view === 'video') { if (r.vSlug) openVideo(r.vSlug); else showView('video'); }
     else if (r.view === 'models') { showView('models'); buildModels(r.kind || 'all'); }
+    else if (r.view === 'course') { openCourse(); }
     else if (['market', 'learn', 'avatar', 'promptgen', 'reactor'].includes(r.view)) { openStudio(r.view); }
     else showView(r.view);
   } catch (e) {}
@@ -461,6 +462,147 @@ async function loadCommunity() {
     : '<div class="empty" style="grid-column:1/-1">Be the first to share your creation ✨</div>';
 }
 
+// ---------------- Fuse Atelier course (Whop-style) ----------------
+const COURSE = (window.FUSE_COURSE && window.FUSE_COURSE.pillars) ? window.FUSE_COURSE.pillars : [];
+let courseVideos = {};       // lesson_key -> url
+let courseUnlocks = new Set(); // module_key the user unlocked
+let courseProgress = new Set(); // lesson_key completed
+let coursePillar = COURSE[0] ? COURSE[0].key : 'orient';
+function courseHasFull() { return userIsAdmin || userPlan === 'pro' || userPlan === 'agency'; }
+function moduleUnlocked(mKey, pillarKey) {
+  if (pillarKey === 'orient') return true;       // orientation is free
+  if (courseHasFull()) return true;
+  return courseUnlocks.has(mKey);
+}
+function ytId(u) { const m = u.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{6,})/); return m ? m[1] : ''; }
+function lessonEmbed(url) {
+  if (!url) return '<div class="lp-empty">🎬 Video coming soon</div>';
+  if (/youtube|youtu\.be/.test(url)) return `<iframe src="https://www.youtube.com/embed/${ytId(url)}" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>`;
+  if (/vimeo\.com/.test(url)) { const id = (url.match(/vimeo\.com\/(\d+)/) || [])[1] || ''; return `<iframe src="https://player.vimeo.com/video/${id}" allow="autoplay; fullscreen" allowfullscreen></iframe>`; }
+  return `<video src="${url}" controls playsinline></video>`;
+}
+
+async function openCourse() {
+  showView('course');
+  // Load videos (public), plus unlocks + progress for logged-in users.
+  try {
+    const { data: v } = await sb.from('course_videos').select('lesson_key, url');
+    courseVideos = {}; (v || []).forEach((r) => { courseVideos[r.lesson_key] = r.url; });
+  } catch (e) {}
+  if (user && !preview) {
+    try { const { data: u } = await sb.from('module_unlocks').select('module_key').eq('user_id', user.id); courseUnlocks = new Set((u || []).map((r) => r.module_key)); } catch (e) {}
+    try { const { data: p } = await sb.from('course_progress').select('lesson_key').eq('user_id', user.id); courseProgress = new Set((p || []).map((r) => r.lesson_key)); } catch (e) {}
+  }
+  $('courseLockMsg').innerHTML = courseHasFull()
+    ? '<div class="course-badge ok">✓ Full access unlocked</div>'
+    : '<div class="course-badge">🔒 Unlock modules with credits, or get the full course for ₦60,000 <button class="btn gold sm" id="courseBuy" style="margin-left:8px">Get full access</button></div>';
+  const cb = $('courseBuy'); if (cb) cb.onclick = () => buy('course');
+  // pillar tabs
+  $('pillarTabs').innerHTML = COURSE.map((p) => `<button class="ptab${p.key === coursePillar ? ' active' : ''}" data-p="${p.key}">${p.name}</button>`).join('');
+  $('pillarTabs').querySelectorAll('.ptab').forEach((b) => b.onclick = () => { coursePillar = b.dataset.p; openCourse(); });
+  // progress
+  const totalLessons = COURSE.reduce((a, p) => a + p.modules.reduce((b, m) => b + m.lessons.length, 0), 0);
+  const done = courseProgress.size;
+  $('cpFill').style.width = totalLessons ? Math.round((done / totalLessons) * 100) + '%' : '0%';
+  $('cpText').textContent = `${done}/${totalLessons} lessons complete`;
+  buildCourseBody();
+}
+function buildCourseBody() {
+  const p = COURSE.find((x) => x.key === coursePillar); if (!p) return;
+  $('courseSub') && (void 0);
+  $('courseBody').innerHTML = p.modules.map((m, mi) => {
+    const unlocked = moduleUnlocked(m.key, p.key);
+    const lessons = m.lessons.map((l) => {
+      const hasVid = !!courseVideos[l.key];
+      const doneCls = courseProgress.has(l.key) ? ' done' : '';
+      return `<div class="lrow${doneCls}" data-l="${l.key}" data-locked="${unlocked ? '' : '1'}">
+        <span class="lr-ic">${courseProgress.has(l.key) ? '✓' : (unlocked ? '▶' : '🔒')}</span>
+        <span class="lr-t">${l.n} ${l.title}</span>
+        <span class="lr-d">${hasVid ? '' : '<i>soon</i> '}${l.dur || ''}</span>
+      </div>`;
+    }).join('');
+    return `<div class="cmod">
+      <div class="cmod-h" data-acc="${mi}">
+        <div><div class="cmod-t">${m.title}</div><div class="cmod-s">${m.lessons.length} lessons${unlocked ? '' : ' · 🔒 locked'}</div></div>
+        <span class="cmod-x">${unlocked ? '▾' : `<button class="btn gold sm" data-unlock="${m.key}">Unlock · 100 cr</button>`}</span>
+      </div>
+      <div class="cmod-body" id="acc${mi}" style="display:none">${lessons}</div>
+    </div>`;
+  }).join('');
+  // accordion
+  $('courseBody').querySelectorAll('.cmod-h').forEach((h) => h.onclick = (e) => {
+    if (e.target.closest('[data-unlock]')) return;
+    const b = document.getElementById('acc' + h.dataset.acc);
+    if (b) b.style.display = b.style.display === 'none' ? 'block' : 'none';
+  });
+  $('courseBody').querySelectorAll('[data-unlock]').forEach((b) => b.onclick = (e) => { e.stopPropagation(); unlockModule(b.dataset.unlock); });
+  $('courseBody').querySelectorAll('.lrow').forEach((r) => r.onclick = () => {
+    if (r.dataset.locked) { toast('🔒 Unlock this module first'); return; }
+    openLesson(r.dataset.l);
+  });
+}
+async function unlockModule(mKey) {
+  if (preview) { showAuth('signup'); return; }
+  if (!courseHasFull() && !confirm('Unlock this module for 100 credits?')) return;
+  try {
+    const res = await fetch('/.netlify/functions/unlock-module', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ module_key: mKey }),
+    });
+    const d = await res.json();
+    if (res.status === 402) { toast('Out of credits'); openBuy(); return; }
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    courseUnlocks.add(mKey);
+    if (d.credits != null) $('creditCount').textContent = d.credits;
+    toast('✅ Module unlocked!');
+    buildCourseBody();
+  } catch (e) { toast(e.message || 'Could not unlock'); }
+}
+let curLesson = null;
+function openLesson(key) {
+  // find lesson
+  let found = null, modOf = null;
+  COURSE.forEach((p) => p.modules.forEach((m) => m.lessons.forEach((l) => { if (l.key === key) { found = l; modOf = m; } })));
+  if (!found) return;
+  curLesson = found;
+  $('lessonPlayer').innerHTML = lessonEmbed(courseVideos[key]);
+  $('lessonTitle').textContent = found.n + ' · ' + found.title;
+  $('lessonMeta').innerHTML = `<span class="muted">${modOf.title}${found.dur ? ' · ' + found.dur : ''}</span>`;
+  $('lessonBody').innerHTML = '';
+  // admin video setter
+  if (userIsAdmin) {
+    $('lessonAdmin').innerHTML = `<div class="lesson-admin">
+      <label class="fld">👑 Video URL (YouTube / Vimeo / MP4) — loads for everyone</label>
+      <input id="lvUrl" placeholder="https://youtu.be/… or https://…/video.mp4" value="${(courseVideos[key] || '').replace(/"/g, '&quot;')}">
+      <button class="btn gold sm" id="lvSave" style="margin-top:8px">Save video</button>
+      <span class="note" id="lvNote"></span></div>`;
+    $('lvSave').onclick = async () => {
+      const url = $('lvUrl').value.trim();
+      $('lvSave').disabled = true; $('lvSave').textContent = 'Saving…';
+      try {
+        const res = await fetch('/.netlify/functions/course-set-video', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+          body: JSON.stringify({ lesson_key: key, url }),
+        });
+        const d = await res.json(); if (!res.ok) throw new Error(d.error || 'Failed');
+        courseVideos[key] = url; $('lessonPlayer').innerHTML = lessonEmbed(url);
+        note('lvNote', '✅ Saved & live', 'ok');
+      } catch (e) { note('lvNote', e.message || 'Failed', 'err'); }
+      $('lvSave').disabled = false; $('lvSave').textContent = 'Save video';
+    };
+  } else { $('lessonAdmin').innerHTML = ''; }
+  // mark complete
+  const dn = $('lessonDone');
+  const isDone = courseProgress.has(key);
+  dn.textContent = isDone ? '✓ Completed' : '✅ Mark complete';
+  dn.onclick = async () => {
+    if (preview || !user) { showAuth('signup'); return; }
+    if (courseProgress.has(key)) return;
+    try { await sb.from('course_progress').insert({ user_id: user.id, lesson_key: key }); courseProgress.add(key); dn.textContent = '✓ Completed'; } catch (e) {}
+  };
+  showView('lesson');
+}
+
 // Route a home feature box / explore chip to its destination.
 function routeFeature(go) {
   if (!go) return;
@@ -474,7 +616,8 @@ function routeFeature(go) {
     if (kind === 'studio') { openStudio(val); return; }
     if (kind === 'view') { showView(val); return; }
   }
-  if (go === 'reactor' || go === 'avatar' || go === 'promptgen' || go === 'market' || go === 'learn') return openStudio(go);
+  if (go === 'learn') return openCourse();
+  if (go === 'reactor' || go === 'avatar' || go === 'promptgen' || go === 'market') return openStudio(go);
   if (go === 'community') return showView('community');
   if (go === 'streak') return claimDaily();
   if (go === 'image-nano') { openImageModel('nano-banana'); return; }
@@ -1251,6 +1394,8 @@ window.addEventListener('DOMContentLoaded', () => {
   $('studioBack').onclick = () => showView('home');
   $('reactorBack').onclick = () => showView('models');
   $('presetBack').onclick = () => showView('home');
+  $('courseBack').onclick = () => showView('home');
+  $('lessonBack').onclick = () => openCourse();
   $('marketBack').onclick = () => showView('home');
   $('learnBack').onclick = () => showView('home');
   $('avatarBack').onclick = () => showView('home');

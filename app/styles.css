@@ -654,3 +654,39 @@ textarea{min-height:104px;resize:vertical}
 .pp-h{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:8px}
 .preset-prompt pre{margin:0 0 10px;font-family:'Liberation Mono',ui-monospace,monospace;font-size:12.5px;line-height:1.5;color:var(--ink);white-space:pre-wrap;word-break:break-word}
 .preset-jumps{display:flex;flex-wrap:wrap;gap:10px;padding-bottom:24px}
+
+/* ===== Fuse Atelier course (Whop-style) ===== */
+.course-hero{background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:20px;margin:8px 0 14px;box-shadow:0 14px 36px rgba(0,0,0,.4)}
+.course-kick{font-size:11px;font-weight:800;letter-spacing:.22em;color:var(--gold);text-transform:uppercase}
+.course-title{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:clamp(22px,5vw,30px);margin:6px 0 4px;line-height:1.05}
+.course-sub{color:var(--muted);font-size:14px;margin:0 0 14px}
+.course-prog{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.cp-bar{flex:1;height:7px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
+.cp-fill{height:100%;width:0;background:linear-gradient(90deg,var(--gold-deep),var(--gold-2));border-radius:99px;transition:width .4s}
+.course-badge{font-size:13px;color:var(--ink);background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.course-badge.ok{color:var(--gold);border-color:var(--gold-deep)}
+.pillar-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:none}
+.pillar-tabs::-webkit-scrollbar{display:none}
+.ptab{flex:0 0 auto;border-radius:99px;padding:8px 16px;font-weight:700;font-size:13px;background:var(--panel);border:1px solid var(--line);color:var(--muted);white-space:nowrap;cursor:pointer}
+.ptab.active{background:var(--gold);color:#1a1205;border-color:var(--gold)}
+.cmod{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.cmod-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 15px;cursor:pointer}
+.cmod-t{font-weight:800;font-size:15px}
+.cmod-s{font-size:12px;color:var(--muted);margin-top:2px}
+.cmod-body{border-top:1px solid var(--line)}
+.lrow{display:flex;align-items:center;gap:11px;padding:12px 15px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:.12s}
+.lrow:last-child{border-bottom:0}
+.lrow:hover{background:var(--bg-2)}
+.lr-ic{flex:0 0 18px;color:var(--gold);font-size:13px}
+.lrow.done .lr-ic{color:var(--good,#3DD68C)}
+.lr-t{flex:1;font-size:13.5px;line-height:1.35}
+.lr-d{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.lr-d i{opacity:.7;font-style:normal;color:var(--gold)}
+
+/* lesson player */
+.lesson-player{border-radius:16px;overflow:hidden;background:#000;aspect-ratio:16/9;box-shadow:var(--shadow)}
+.lesson-player iframe,.lesson-player video{width:100%;height:100%;border:0;display:block;object-fit:contain;background:#000}
+.lp-empty{width:100%;height:100%;display:grid;place-items:center;color:var(--muted);font-size:15px}
+.lesson-title{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:20px;margin:14px 0 4px;line-height:1.15}
+.lesson-meta{font-size:13px;margin-bottom:8px}
+.lesson-admin{background:var(--bg-2);border:1px dashed var(--gold-deep);border-radius:12px;padding:12px;margin:12px 0}

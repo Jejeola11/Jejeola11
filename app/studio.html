@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/app/styles.css">
 <script src="/app/config.js"></script>
+<script src="/app/course.js"></script>
 </head>
 <body>
 
@@ -255,6 +256,31 @@
     <button class="btn gold block" id="learnClaim" style="margin-top:8px">✅ I finished — claim my bonus</button>
     <div class="note" id="learnNote"></div>
     <a class="btn ghost block" id="learnCourse" style="margin-top:10px">🎬 Get the full Fuse Atelier course</a>
+  </section>
+
+  <!-- ===== FUSE ATELIER COURSE (Whop-style) ===== -->
+  <section class="view" id="view-course">
+    <div class="backlink" id="courseBack">← Home</div>
+    <div class="course-hero">
+      <div class="course-kick">FUSE ATELIER</div>
+      <h2 class="course-title">The AI Creative Income System</h2>
+      <p class="course-sub" id="courseSub">120 lessons · 5 pillars · from beginner to booked-out AI Creative Director.</p>
+      <div class="course-prog"><div class="cp-bar"><div class="cp-fill" id="cpFill"></div></div><span id="cpText" class="muted" style="font-size:12px"></span></div>
+      <div id="courseLockMsg"></div>
+    </div>
+    <div class="pillar-tabs" id="pillarTabs"></div>
+    <div id="courseBody"></div>
+  </section>
+
+  <!-- ===== LESSON PLAYER ===== -->
+  <section class="view" id="view-lesson">
+    <div class="backlink" id="lessonBack">← Course</div>
+    <div class="lesson-player" id="lessonPlayer"></div>
+    <h2 class="lesson-title" id="lessonTitle"></h2>
+    <div class="lesson-meta" id="lessonMeta"></div>
+    <div id="lessonAdmin"></div>
+    <div class="lesson-body" id="lessonBody"></div>
+    <button class="btn gold block" id="lessonDone" style="margin-top:16px">✅ Mark complete</button>
   </section>
 
   <!-- ===== MODEL GALLERY (Image / Video / Reactor) ===== -->
