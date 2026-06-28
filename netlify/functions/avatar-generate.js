@@ -40,14 +40,17 @@ exports.handler = async (event) => {
     const extraRefs = (Array.isArray(body.extra_refs) ? body.extra_refs : []).filter(Boolean).slice(0, 3);
 
     db = admin();
-    const { data: avatar } = await db.from('avatars').select('image_url, image_urls, user_id').eq('id', body.avatar_id).maybeSingle();
+    const { data: avatar } = await db.from('avatars').select('image_url, image_urls, model_sheet_url, user_id').eq('id', body.avatar_id).maybeSingle();
     if (!avatar || avatar.user_id !== user.id) return json(404, { error: 'Avatar not found.' });
-    const faceImgs = (Array.isArray(avatar.image_urls) && avatar.image_urls.length) ? avatar.image_urls
-      : (avatar.image_url ? [avatar.image_url] : []);
+    // Prefer the model sheet (canonical multi-angle reference) for best consistency.
+    const faceImgs = avatar.model_sheet_url
+      ? [avatar.model_sheet_url]
+      : ((Array.isArray(avatar.image_urls) && avatar.image_urls.length) ? avatar.image_urls
+        : (avatar.image_url ? [avatar.image_url] : []));
     if (!faceImgs.length) return json(400, { error: 'This avatar has no photos.' });
 
-    // nano-banana-edit accepts max 4 reference images. Prioritise face photos,
-    // leaving room for the extra refs. Too many images dilutes face consistency.
+    // nano-banana-edit accepts max 4 reference images. The model sheet counts as one
+    // strong reference; leave room for the extra refs.
     const faceSlots = Math.max(1, 4 - extraRefs.length);
     const refs = faceImgs.slice(0, faceSlots).concat(extraRefs);
 

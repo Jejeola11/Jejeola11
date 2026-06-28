@@ -30,6 +30,12 @@ exports.handler = async (event) => {
   if (p.status === 'completed') {
     const url = p.outputs && p.outputs[0];
     await db.from('jobs').update({ status: 'completed', output_url: url }).eq('request_id', id);
+    // A model sheet isn't a normal gallery item — save it onto the avatar so all
+    // future generations use it as the consistent reference.
+    if (job.kind === 'modelsheet' && job.avatar_id) {
+      await db.from('avatars').update({ model_sheet_url: url }).eq('id', job.avatar_id);
+      return json(200, { status: 'completed', url, kind: 'modelsheet' });
+    }
     await db.from('generations').insert({
       user_id: user.id, type: job.kind, model: job.model, prompt: job.prompt, aspect: job.aspect,
       output_url: url, credits_spent: job.credits, cost_usd: p.cost && p.cost.amount_usd,

@@ -939,11 +939,13 @@ function toast(msg) {
 
 // ---------------- AI Avatar Studio (consistent faces) ----------------
 let selectedAvatar = null;
+let avatarMap = {};   // id -> avatar row (incl. model_sheet_url)
 async function loadAvatars() {
   if (preview) { $('avatarList').innerHTML = '<div class="empty" style="grid-column:1/-1">Sign up to create your avatar</div>'; return; }
-  const { data } = await sb.from('avatars').select('id,name,image_url,status').order('created_at', { ascending: false });
+  const { data } = await sb.from('avatars').select('id,name,image_url,model_sheet_url,status').order('created_at', { ascending: false });
+  avatarMap = {}; (data || []).forEach((a) => { avatarMap[a.id] = a; });
   $('avatarList').innerHTML = (data && data.length)
-    ? data.map((a) => `<div style="text-align:center"><img src="${a.image_url}" data-id="${a.id}" data-name="${a.name}" class="avThumb" style="aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer"><div style="font-size:11px;margin-top:4px" class="muted">${a.name}</div></div>`).join('')
+    ? data.map((a) => `<div style="text-align:center;position:relative"><img src="${a.image_url}" data-id="${a.id}" data-name="${a.name}" class="avThumb" style="aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer">${a.model_sheet_url ? '<span class="av-sheet-badge">📐</span>' : ''}<div style="font-size:11px;margin-top:4px" class="muted">${a.name}</div></div>`).join('')
     : '<div class="empty" style="grid-column:1/-1">No avatars yet — create one below 👇</div>';
   $('avatarList').querySelectorAll('.avThumb').forEach((el) => el.onclick = () => selectAvatar(el.dataset.id, el.dataset.name));
 }
@@ -952,12 +954,63 @@ function selectAvatar(id, name) {
   $('avSelName').textContent = name;
   $('avGenWrap').style.display = 'block';
   $('avResult').innerHTML = '<div class="muted">Your consistent-face image appears here.</div>';
+  renderSheet();
   $('avGenWrap').scrollIntoView({ behavior: 'smooth' });
+}
+function renderSheet() {
+  const a = avatarMap[selectedAvatar] || {};
+  const btn = $('avSheetBtn'), view = $('avSheetView');
+  note('avSheetNote', '');
+  if (a.model_sheet_url) {
+    view.innerHTML = `<img src="${a.model_sheet_url}" style="width:100%;border-radius:12px;border:1px solid var(--gold-deep);margin-bottom:8px"><div class="muted" style="font-size:12px">✅ Active — every generation now uses this sheet for consistency.</div>`;
+    btn.textContent = '🔄 Regenerate model sheet';
+  } else {
+    view.innerHTML = '';
+    btn.textContent = '📐 Generate model sheet';
+  }
+  btn.disabled = false;
+}
+async function generateModelSheet() {
+  if (preview) { showAuth('signup'); return; }
+  if (!selectedAvatar) return note('avSheetNote', 'Pick an avatar first.', 'err');
+  const btn = $('avSheetBtn'); btn.disabled = true; btn.textContent = 'Submitting…';
+  $('avSheetView').innerHTML = '<div style="padding:14px;text-align:center"><span class="spin"></span><div style="margin-top:8px" class="muted">Building your model sheet… up to a minute</div></div>';
+  note('avSheetNote', '', '');
+  try {
+    const res = await fetch('/.netlify/functions/avatar-modelsheet', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ avatar_id: selectedAvatar }),
+    });
+    const d = await res.json();
+    if (res.status === 402) { note('avSheetNote', 'Out of credits — top up.', 'err'); openBuy(); renderSheet(); return; }
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    if (d.credits != null) $('creditCount').textContent = d.credits;
+    note('avSheetNote', 'Generating… ⏳', 'ok');
+    pollSheet(d.request_id);
+  } catch (e) { note('avSheetNote', e.message || 'Failed', 'err'); renderSheet(); }
+}
+function pollSheet(reqId) {
+  let s = 0;
+  const timer = setInterval(async () => {
+    s += 4;
+    try {
+      const r = await fetch(`/.netlify/functions/job-status?id=${reqId}`, { headers: { ...(await authHeader()) } });
+      const d = await r.json();
+      if (d.status === 'completed') {
+        clearInterval(timer);
+        if (avatarMap[selectedAvatar]) avatarMap[selectedAvatar].model_sheet_url = d.url;
+        renderSheet(); note('avSheetNote', '✅ Model sheet ready!', 'ok'); loadAvatars();
+      } else if (d.status === 'failed') {
+        clearInterval(timer); note('avSheetNote', (d.error || 'Failed') + ' — credits refunded.', 'err'); renderSheet(); if (user) loadProfile();
+      }
+    } catch (e) {}
+    if (s >= 240) { clearInterval(timer); note('avSheetNote', 'Still working — check back shortly.', 'err'); renderSheet(); }
+  }, 4000);
 }
 async function createAvatar() {
   if (preview) { showAuth('signup'); return; }
   const name = $('avNewName').value.trim();
-  const files = Array.from($('avFile').files).slice(0, 10);
+  const files = Array.from($('avFile').files).slice(0, 15);
   if (!name || !files.length) return note('avNote', 'Add a name and choose your photos.', 'err');
   $('avCreate').disabled = true; note('avNote', `Uploading ${files.length} photo(s)…`, 'ok');
   try {
@@ -1404,8 +1457,9 @@ window.addEventListener('DOMContentLoaded', () => {
   $('pgCopy').onclick = () => { const t = $('pgResult').value.trim(); if (!t) return note('pgNote', 'Generate a prompt first.', 'err'); navigator.clipboard.writeText(t); $('pgCopy').textContent = '✓ Copied!'; setTimeout(() => $('pgCopy').textContent = '⧉ Copy prompt', 1500); };
   $('pgUse').onclick = pgUse;
   $('avCreate').onclick = createAvatar;
-  $('avFile').onchange = () => { const n = Math.min($('avFile').files.length, 10); $('avCount').textContent = n ? `${n} photo${n > 1 ? 's' : ''} selected` : ''; };
+  $('avFile').onchange = () => { const n = Math.min($('avFile').files.length, 15); $('avCount').textContent = n ? `${n} photo${n > 1 ? 's' : ''} selected` : ''; };
   $('avGen').onclick = avatarGenerate;
+  $('avSheetBtn').onclick = generateModelSheet;
   $('avRefBtn').onclick = () => $('avRefFile').click();
   $('avRefFile').onchange = (e) => pickAvatarRefs(Array.from(e.target.files).slice(0, 3));
   $('bBuild').onclick = buildAvatarPrompt;

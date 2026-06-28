@@ -690,3 +690,8 @@ textarea{min-height:104px;resize:vertical}
 .lesson-title{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:20px;margin:14px 0 4px;line-height:1.15}
 .lesson-meta{font-size:13px;margin-bottom:8px}
 .lesson-admin{background:var(--bg-2);border:1px dashed var(--gold-deep);border-radius:12px;padding:12px;margin:12px 0}
+
+/* ===== Avatar model sheet ===== */
+.sheet-box{background:linear-gradient(160deg,rgba(245,197,24,.07),rgba(255,255,255,.02));border:1px solid var(--gold-deep);border-radius:14px;padding:14px;margin-bottom:14px}
+.sheet-head{font-weight:800;font-size:14px;color:var(--gold)}
+.av-sheet-badge{position:absolute;top:6px;right:6px;background:var(--gold);color:#1a1205;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;box-shadow:var(--glow)}
