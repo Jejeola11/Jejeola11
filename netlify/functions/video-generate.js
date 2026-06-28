@@ -34,8 +34,10 @@ exports.handler = async (event) => {
   const duration = body.duration || '5s';
   const resolution = body.resolution || '480p';
   const image_url = (body.image_url || '').trim() || undefined;
-  // Attaching a start image switches to the image-to-video variant.
-  const model = image_url ? (body.model || '').replace('text-to-video', 'image-to-video') : body.model;
+  // Extra reference images (subject / product / style) — up to 4.
+  const extraRefs = (Array.isArray(body.reference_image_urls) ? body.reference_image_urls : []).filter(Boolean).slice(0, 4);
+  // Attaching a start image OR any reference switches to the image-to-video variant.
+  const model = (image_url || extraRefs.length) ? (body.model || '').replace('text-to-video', 'image-to-video') : body.model;
 
   if (!VIDEO_MODELS[model]) return json(400, { error: 'Unknown video model.' });
   if (!prompt && !image_url) return json(400, { error: 'Add a prompt or a starting image.' });
@@ -56,10 +58,15 @@ exports.handler = async (event) => {
   try {
     const durInt = parseInt(duration, 10) || 5;            // "5s" -> 5 (MuAPI wants an integer)
     const payload = { prompt, aspect_ratio: aspect, duration: durInt, resolution };
-    if (image_url) {
-      const hosted = await muapiHostImage(image_url);
-      payload.images_list = [hosted];   // grok / seedance
-      payload.image_url = hosted;        // kling
+    if (image_url || extraRefs.length) {
+      // Host the start frame first, then the extra references. images_list carries
+      // them all (multi-image models); image_url is the start frame (kling etc).
+      const toHost = [];
+      if (image_url) toHost.push(image_url);
+      extraRefs.forEach((u) => { if (u !== image_url) toHost.push(u); });
+      const hosted = await Promise.all(toHost.map(muapiHostImage));
+      payload.images_list = hosted;                 // grok / seedance (multi-image)
+      payload.image_url = hosted[0];                // kling (start frame)
     }
     const sub = await fetch(`${MUAPI_BASE}/${model}`, {
       method: 'POST',

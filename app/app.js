@@ -285,15 +285,39 @@ async function generateStudioVideo(prompt) {
 }
 
 // ---------------- video studio ----------------
-let vModel = null, vRefUrl = '';
+let vModel = null, vRefUrl = '', vMoreRefs = [];
 function openVideo(slug) {
   vModel = cfg.VIDEO_MODELS.find((m) => m.slug === slug) || cfg.VIDEO_MODELS[0];
   $('vModelName').textContent = vModel.name + ' · ' + vModel.credits + ' cr';
   $('vResult').innerHTML = '<div class="muted">Your video appears here. Video takes a little longer ⏳</div>';
   $('vGen').textContent = `🎬 Generate video (${vModel.credits} credits)`;
   vRefUrl = ''; $('vRefPreview').style.display = 'none'; $('vRefBtn').style.display = 'flex';
+  vMoreRefs = []; renderVideoRefs();
   note('vNote', '');
   showView('video');
+}
+function renderVideoRefs() {
+  const wrap = $('vMoreRefPreviews'); if (!wrap) return;
+  wrap.innerHTML = vMoreRefs.map((u, i) => `<div class="av-th"><img src="${u}"><span class="av-th-x" onclick="window.fuseRmVRef(${i})">✕</span></div>`).join('');
+}
+window.fuseRmVRef = (i) => { vMoreRefs.splice(i, 1); renderVideoRefs(); };
+async function pickVideoMoreRefs(files) {
+  if (preview) { showAuth('signup'); return; }
+  const limit = 4 - vMoreRefs.length;
+  if (limit <= 0) return note('vNote', 'Max 4 reference images.', 'err');
+  note('vNote', 'Uploading reference(s)…', 'ok');
+  for (let i = 0; i < Math.min(files.length, limit); i++) {
+    const file = files[i];
+    try {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${user.id}/vref-${Date.now()}-${i}.${ext}`;
+      const { error } = await sb.storage.from('avatars').upload(path, file);
+      if (error) throw error;
+      vMoreRefs.push(sb.storage.from('avatars').getPublicUrl(path).data.publicUrl);
+    } catch (e) { note('vNote', e.message || 'Upload failed.', 'err'); }
+  }
+  renderVideoRefs();
+  note('vNote', `✅ ${vMoreRefs.length} reference(s) attached.`, 'ok');
 }
 async function pickVideoRef(file) {
   if (preview) { showAuth('signup'); return; }
@@ -320,7 +344,7 @@ async function videoGenerate() {
   try {
     const res = await fetch('/.netlify/functions/video-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ model: vModel.slug, prompt, aspect: $('vAspect').value, duration: $('vDuration').value, resolution: $('vRes').value, image_url: vRefUrl || undefined }),
+      body: JSON.stringify({ model: vModel.slug, prompt, aspect: $('vAspect').value, duration: $('vDuration').value, resolution: $('vRes').value, image_url: vRefUrl || undefined, reference_image_urls: vMoreRefs.length ? vMoreRefs : undefined }),
     });
     const data = await res.json();
     if (res.status === 402) { note('vNote', 'Out of credits — top up.', 'err'); openBuy(); $('vResult').innerHTML = '<div>Out of credits.</div>'; btn.disabled = false; btn.textContent = label; return; }
@@ -1497,6 +1521,8 @@ window.addEventListener('DOMContentLoaded', () => {
   $('vRefBtn').onclick = () => $('vRefFile').click();
   $('vRefFile').onchange = (e) => pickVideoRef(e.target.files[0]);
   $('vRefRemove').onclick = () => { vRefUrl = ''; $('vRefPreview').style.display = 'none'; $('vRefBtn').style.display = 'flex'; $('vRefFile').value = ''; };
+  $('vMoreRefBtn').onclick = () => $('vMoreRefFile').click();
+  $('vMoreRefFile').onchange = (e) => { pickVideoMoreRefs(Array.from(e.target.files)); e.target.value = ''; };
   buildModelSelect();
   $('streakBtn').onclick = claimDaily;
   // Header icons + account menu

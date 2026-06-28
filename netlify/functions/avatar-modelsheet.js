@@ -22,7 +22,8 @@ function muapiError(j, status) {
 }
 
 const SHEET_PROMPT =
-  'Create a professional character model sheet of this EXACT same person. A clean grid showing the identical face and identity from six angles: front view, three-quarter left, left profile, three-quarter right, right profile, and a slight downward look. Neutral calm expression, even soft studio lighting, plain light-grey seamless background, head and shoulders, consistent identical facial features and skin tone in every angle, photorealistic, ultra-detailed, sharp focus. Do not change the person.';
+  'Create a photorealistic character model sheet that EXACTLY duplicates the real face of the person in the reference photos — the same identity, same facial features, same face shape, same skin tone, same eyes, nose and lips. Show this identical person from six angles in a clean even grid: front view, three-quarter left, left profile, three-quarter right, right profile, and a slight downward look. Calm neutral expression, even soft studio lighting, plain light-grey seamless background, head and shoulders, the SAME consistent face in every angle. '
+  + 'CRITICAL REALISM: it must look like a real DSLR photograph, not AI — keep natural skin texture with visible pores, fine lines, subtle blemishes, freckles or marks, realistic facial asymmetry and natural imperfections. No skin smoothing, no airbrushing, no plastic or waxy look, no CGI or 3D-render look, no beautifying. Shot on an 85mm lens, shallow depth of field, true-to-life colour. Do NOT alter, slim, or beautify the person\'s face — duplicate it faithfully.';
 
 exports.handler = async (event) => {
   let db, user, cost = 0;
