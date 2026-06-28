@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PitchPilot — Paste a job, get the pitch</title>
-<meta name="description" content="Paste any job post, find the client's contacts, and get a ready-to-send pitch for every platform. By Fuse.">
+<meta name="description" content="Paste any job, find the client's contacts, pick your best project, and get a ready-to-send pitch for every platform. By Fuse.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -35,7 +35,7 @@
   .btn.ghost:hover{border-color:var(--gold);color:var(--gold)}
   .btn.block{width:100%;padding:14px;font-size:15px}
   .btn.sm{padding:7px 12px;font-size:12px}
-  .hero{text-align:center;padding:30px 0 6px}
+  .hero{text-align:center;padding:26px 0 4px}
   .hero h1{font-size:clamp(26px,6vw,40px);line-height:1.08;letter-spacing:-.02em;margin:0 0 8px;font-weight:800}
   .hero h1 .g{color:var(--gold)}
   .hero p{color:var(--muted);max-width:520px;margin:0 auto;font-size:15px}
@@ -50,14 +50,27 @@
   textarea{min-height:70px;resize:vertical}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   @media(max-width:520px){.row2{grid-template-columns:1fr}}
-  .scanrow{display:flex;gap:8px;margin-top:8px}
-  .scanrow .btn{flex:0 0 auto}
+  .scanrow{display:flex;gap:8px;margin-top:8px} .scanrow .btn{flex:0 0 auto}
   .hint{font-size:12px;color:var(--muted);background:rgba(245,197,24,.07);border:1px solid rgba(245,197,24,.22);border-radius:10px;padding:9px 11px;margin-top:10px}
+  /* profile / projects */
+  details.profile{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--gold-deep);border-radius:var(--radius);padding:6px 18px 16px;margin:14px 0}
+  details.profile>summary{list-style:none;cursor:pointer;padding:12px 0;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:space-between}
+  details.profile>summary::-webkit-details-marker{display:none}
+  details.profile>summary .chev{color:var(--gold);font-size:13px}
+  .projgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  @media(max-width:520px){.projgrid{grid-template-columns:1fr}}
+  .projcard{background:var(--bg2);border:1px solid var(--line);border-radius:12px;overflow:hidden;position:relative}
+  .projcard img{width:100%;height:90px;object-fit:cover;background:#0a1422}
+  .projcard .pb{padding:9px 10px}
+  .projcard .pt{font-weight:700;font-size:13px}
+  .projcard .pd{font-size:11px;color:var(--muted);margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .projcard .px{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;cursor:pointer}
   .links{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
   @media(max-width:520px){.links{grid-template-columns:1fr}}
   .lk{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;transition:.15s}
   .lk:hover{border-color:var(--gold);transform:translateY(-2px)}
   .lk .e{font-size:20px}.lk .t{font-weight:700;font-size:14px}.lk .d{font-size:11px;color:var(--muted)}
+  select{width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:11px;color:var(--ink);font-size:14px;padding:11px 13px;font-family:inherit}
   .out{display:none;margin-top:8px}.out.show{display:block}
   .pitch{background:var(--bg2);border:1px solid var(--line);border-radius:13px;padding:13px;margin-top:12px}
   .pitch .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
@@ -87,29 +100,53 @@
 
 <header class="nav"><div class="wrap in">
   <div class="logo"><span class="m">✈</span> PitchPilot</div>
-  <div class="uses">
-    <span class="usepill" id="usePill">Free uses: <b id="useN">3</b>/3</span>
-    <button class="btn gold sm" id="subBtn">Go Pro</button>
-  </div>
+  <div class="uses"><span class="usepill" id="usePill">Free uses: <b id="useN">3</b>/3</span><button class="btn gold sm" id="subBtn">Go Pro</button></div>
 </div></header>
 
 <main class="wrap">
   <section class="hero">
     <h1>Paste a job. <span class="g">Get the pitch.</span></h1>
-    <p>Drop the job post, find the client's contacts, and get ready-to-send messages for every platform — written for you.</p>
+    <p>Save your portfolio once. Then drop any job, find the client, and get ready-to-send pitches that feature your best matching project.</p>
   </section>
 
-  <!-- STEP 0 -->
-  <section class="step">
-    <div class="step-h"><div class="step-n">1</div><div><div class="step-t">Paste the job post</div><div class="step-s">The job URL, or copy-paste the whole job text</div></div></div>
-    <textarea id="jobInput" placeholder="Paste the Upwork job link here — or paste the full job description + 'About the client' text…"></textarea>
-    <div class="scanrow"><button class="btn gold" id="scanBtn">🔎 Scan job</button><button class="btn ghost" id="clearBtn">Clear</button></div>
-    <div class="hint" id="scanHint">Tip: a link works, but pasting the <b>full job text</b> (description + the client's location/feedback) gives the best auto-fill. You can always edit below.</div>
-  </section>
+  <!-- PROFILE & PORTFOLIO -->
+  <details class="profile" id="profilePanel">
+    <summary>👤 My profile &amp; portfolio <span class="chev" id="profChev">set this up first ▾</span></summary>
+    <label>Your name</label><input id="prName" placeholder="Ria">
+    <label>Your headline / what you do</label><input id="prHead" placeholder="AI UGC creator · product ads from your phone">
+    <label>Your offer one-liner</label><input id="prOffer" placeholder="AI-generated UGC & product-ad videos, 24-48h, $50-$200/video, unlimited revisions">
+    <label>Default portfolio link</label><input id="prPort" placeholder="your-portfolio.com">
+    <button class="btn ghost sm" id="prSave" style="margin-top:10px">💾 Save profile</button>
+
+    <label style="margin-top:18px">Your portfolio projects</label>
+    <p class="hint" style="margin-top:0">Add the work you've done. PitchPilot auto-picks the best matching one for each job and features it in your pitch.</p>
+    <div class="projgrid" id="projGrid"></div>
+    <div style="background:var(--bg2);border:1px dashed var(--line);border-radius:12px;padding:12px;margin-top:10px">
+      <div class="step-t" style="font-size:14px;margin-bottom:6px">➕ Add a project</div>
+      <input id="pjTitle" placeholder="Project title — e.g. Skincare UGC ad">
+      <textarea id="pjDesc" placeholder="What it was / the result — e.g. 5 product videos for a beauty brand, 2x their engagement" style="margin-top:8px;min-height:56px"></textarea>
+      <input id="pjTags" placeholder="Tags (comma): skincare, ugc, beauty, product video" style="margin-top:8px">
+      <input id="pjLink" placeholder="Link to the project (optional)" style="margin-top:8px">
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
+        <button class="btn ghost sm" id="pjPick">📎 Upload a screenshot</button>
+        <input type="file" id="pjFile" accept="image/*" hidden>
+        <span id="pjThumbWrap"></span>
+        <button class="btn gold sm" id="pjAdd" style="margin-left:auto">Add project</button>
+      </div>
+    </div>
+  </details>
 
   <!-- STEP 1 -->
   <section class="step">
-    <div class="step-h"><div class="step-n">2</div><div><div class="step-t">Client details</div><div class="step-s">Auto-filled where possible — top up anything missing</div></div></div>
+    <div class="step-h"><div class="step-n">1</div><div><div class="step-t">Paste the job post</div><div class="step-s">When logged into Upwork, copy the job text and paste it (most reliable)</div></div></div>
+    <textarea id="jobInput" placeholder="Paste the full job text here (title + description + 'About the client' location). A public link also works…"></textarea>
+    <div class="scanrow"><button class="btn gold" id="scanBtn">🔎 Scan job</button><button class="btn ghost" id="clearBtn">Clear</button></div>
+    <div class="hint" id="scanHint">Best results: open the job (you're already logged in), select all, copy, and paste the text here. You can edit anything below.</div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step">
+    <div class="step-h"><div class="step-n">2</div><div><div class="step-t">Client details</div><div class="step-s">Auto-filled where possible</div></div></div>
     <div class="row2">
       <div><label>Client first name</label><input id="cName" placeholder="Sarah"></div>
       <div><label>Company / brand</label><input id="cCompany" placeholder="Kiwi Spa"></div>
@@ -118,11 +155,11 @@
     <label>The job (what they need)</label><textarea id="cBrief" placeholder="AI UGC videos for skincare products, 4 per month…"></textarea>
   </section>
 
-  <!-- STEP 2 -->
+  <!-- STEP 3 -->
   <section class="step">
     <div class="step-h"><div class="step-n">3</div><div><div class="step-t">Find their contact info</div><div class="step-s">Tap each — opens a pre-filled search</div></div></div>
     <div class="links" id="findLinks"></div>
-    <div class="hint">Google first (full name + LinkedIn) → ContactOut / Hunter for email & WhatsApp → check Instagram. Then paste what you find below 👇</div>
+    <div class="hint">Google first (full name + LinkedIn) → ContactOut / Hunter for email & WhatsApp → check Instagram. Paste what you find 👇</div>
     <div class="row2" style="margin-top:12px">
       <div><label>Full name</label><input id="fName" placeholder="Sarah Bethke"></div>
       <div><label>Email</label><input id="fEmail" placeholder="sarah@kiwispa.com"></div>
@@ -137,10 +174,13 @@
     </div>
   </section>
 
-  <!-- STEP 3 -->
+  <!-- STEP 4 -->
   <section class="step">
-    <div class="step-h"><div class="step-n">4</div><div><div class="step-t">Generate my pitch</div><div class="step-s">Ready-to-send copy for every platform</div></div></div>
-    <label>Your portfolio link (optional)</label><input id="fPort" placeholder="your-portfolio.com">
+    <div class="step-h"><div class="step-n">4</div><div><div class="step-t">Generate my pitch</div><div class="step-s">Pick a project to feature + add anything extra</div></div></div>
+    <label>Feature this project</label>
+    <select id="projSelect"></select>
+    <label>Anything else to include? (optional)</label>
+    <textarea id="extraInfo" placeholder="e.g. mention I'm available immediately, I speak Spanish, I'll throw in a free revision, a specific idea for their brand…"></textarea>
     <button class="btn gold block" id="genBtn" style="margin-top:14px">✦ Generate my pitch kit</button>
 
     <div class="out" id="out">
@@ -149,7 +189,6 @@
       <div class="pitch"><div class="ph"><span class="pt">📸 INSTAGRAM DM</span><button class="copy" data-c="ig">⧉ Copy</button></div><pre id="pIg"></pre></div>
       <div class="pitch"><div class="ph"><span class="pt">💼 LINKEDIN MESSAGE</span><button class="copy" data-c="li">⧉ Copy</button></div><pre id="pLi"></pre></div>
       <div class="pitch"><div class="ph"><span class="pt">🔗 LINKEDIN INVITE (under 200 chars)</span><button class="copy" data-c="inv">⧉ Copy</button></div><pre id="pInv"></pre></div>
-
       <label style="margin-top:16px">✅ How to secure this job</label>
       <div class="checklist" id="secureList"></div>
       <label style="margin-top:16px">Send on these channels</label>
@@ -159,7 +198,7 @@
   </section>
 
   <section class="step">
-    <div class="step-h"><div class="step-n">📒</div><div><div class="step-t">Pitch journal</div><div class="step-s">Aim for 5+ pitches a day</div></div></div>
+    <div class="step-h"><div class="step-n">📒</div><div><div class="step-t">Pitch journal</div><div class="step-s">Aim for 5+ a day</div></div></div>
     <div id="journal"></div>
   </section>
 </main>
@@ -171,77 +210,101 @@
   <h2>Unlock PitchPilot Pro</h2>
   <p style="color:var(--muted);margin:0">You've used your 3 free pitches this month.</p>
   <div class="price">₦3,000 <small>/ month</small></div>
-  <ul><li>Unlimited pitch kits</li><li>All contact-finder tools</li><li>Unlimited pitch journal</li><li>New templates monthly</li></ul>
+  <ul><li>Unlimited pitch kits</li><li>Unlimited portfolio projects</li><li>All contact-finder tools</li><li>New templates monthly</li></ul>
   <a class="btn gold block" id="subPay" target="_blank" rel="noopener">📲 Subscribe on WhatsApp</a>
   <button class="btn ghost block" id="subClose" style="margin-top:8px">Maybe later</button>
 </div></div>
 
 <script>
-  const CFG = { whatsapp:'2349044558101', freePerMonth:3 };
-  const $=(id)=>document.getElementById(id); const enc=encodeURIComponent;
+  const CFG={whatsapp:'2349044558101',freePerMonth:3};
+  const $=(id)=>document.getElementById(id); const enc=encodeURIComponent; const rand=(a)=>a[Math.floor(Math.random()*a.length)];
   const monthKey=()=>{const d=new Date();return 'pp_uses_'+d.getFullYear()+'_'+(d.getMonth()+1);};
   function usesLeft(){const u=parseInt(localStorage.getItem(monthKey())||'0',10);return Math.max(0,CFG.freePerMonth-u);}
   function isPro(){return localStorage.getItem('pp_pro')==='1';}
   function refreshUses(){ if(isPro()){$('usePill').innerHTML='✦ <b>Pro</b> · unlimited';return;} $('useN').textContent=usesLeft(); }
   function spendUse(){ if(isPro())return; const k=monthKey(); localStorage.setItem(k,(parseInt(localStorage.getItem(k)||'0',10)+1)); refreshUses(); }
-  const rand=(a)=>a[Math.floor(Math.random()*a.length)];
 
-  // ---------- SCAN (URL or pasted text) ----------
-  const COUNTRIES=['United States','United Kingdom','Canada','Australia','Germany','France','Netherlands','Ireland','Spain','Italy','Sweden','Norway','Denmark','Switzerland','New Zealand','Singapore','United Arab Emirates','Nigeria','South Africa','India'];
-  const US_STATES=['California','Texas','New York','Florida','Washington','Illinois','Georgia','Colorado','Arizona','Massachusetts','Oregon','Nevada','Virginia','Ohio','Michigan'];
+  // ---------- PROFILE ----------
+  function getProfile(){ try{return JSON.parse(localStorage.getItem('pp_profile')||'{}');}catch(e){return{};} }
+  function loadProfile(){ const p=getProfile(); $('prName').value=p.name||''; $('prHead').value=p.head||''; $('prOffer').value=p.offer||''; $('prPort').value=p.port||''; if(p.name) $('profChev').textContent='✓ '+p.name+' ▾'; }
+  $('prSave').onclick=()=>{ const p={name:$('prName').value.trim(),head:$('prHead').value.trim(),offer:$('prOffer').value.trim(),port:$('prPort').value.trim()}; localStorage.setItem('pp_profile',JSON.stringify(p)); $('profChev').textContent='✓ saved ▾'; $('prSave').textContent='✓ Saved'; setTimeout(()=>$('prSave').textContent='💾 Save profile',1400); };
+
+  // ---------- PROJECTS ----------
+  function getProjects(){ try{return JSON.parse(localStorage.getItem('pp_projects')||'[]');}catch(e){return[];} }
+  function saveProjects(a){ try{localStorage.setItem('pp_projects',JSON.stringify(a));}catch(e){ alert('Storage full — remove a project or use smaller screenshots.'); } }
+  function renderProjects(){
+    const ps=getProjects(); const g=$('projGrid');
+    g.innerHTML = ps.length? ps.map((p,i)=>`<div class="projcard">${p.thumb?`<img src="${p.thumb}">`:''}<div class="px" data-x="${i}">✕</div><div class="pb"><div class="pt">${esc(p.title)}</div><div class="pd">${esc(p.desc||'')}</div></div></div>`).join('') : '<div class="empty" style="grid-column:1/-1">No projects yet — add your work below 👇</div>';
+    g.querySelectorAll('.px').forEach(x=>x.onclick=()=>{ const a=getProjects(); a.splice(+x.dataset.x,1); saveProjects(a); renderProjects(); fillProjectSelect(); });
+    fillProjectSelect();
+  }
+  function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+  let pjThumb='';
+  $('pjPick').onclick=()=>$('pjFile').click();
+  $('pjFile').onchange=(e)=>{ const f=e.target.files[0]; if(!f) return; const img=new Image(); const rd=new FileReader();
+    rd.onload=()=>{ img.onload=()=>{ const c=document.createElement('canvas'); const max=200; let w=img.width,h=img.height; const sc=Math.min(max/w,max/h,1); c.width=w*sc; c.height=h*sc; c.getContext('2d').drawImage(img,0,0,c.width,c.height); pjThumb=c.toDataURL('image/jpeg',0.7); $('pjThumbWrap').innerHTML=`<img src="${pjThumb}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;border:1px solid var(--line)">`; }; img.src=rd.result; };
+    rd.readAsDataURL(f); e.target.value=''; };
+  $('pjAdd').onclick=()=>{
+    const t=$('pjTitle').value.trim(); if(!t) return alert('Add a project title.');
+    const a=getProjects(); a.unshift({title:t,desc:$('pjDesc').value.trim(),tags:$('pjTags').value.trim(),link:$('pjLink').value.trim(),thumb:pjThumb});
+    saveProjects(a); renderProjects();
+    $('pjTitle').value='';$('pjDesc').value='';$('pjTags').value='';$('pjLink').value='';pjThumb='';$('pjThumbWrap').innerHTML='';
+  };
+  function fillProjectSelect(){
+    const ps=getProjects(); const sel=$('projSelect');
+    sel.innerHTML='<option value="auto">✨ Auto-pick best match</option>'+ps.map((p,i)=>`<option value="${i}">${esc(p.title)}</option>`).join('')+'<option value="none">— none —</option>';
+  }
+  function pickProject(brief,company){
+    const ps=getProjects(); if(!ps.length) return null;
+    const sel=$('projSelect').value;
+    if(sel==='none') return null;
+    if(sel!=='auto' && ps[+sel]) return ps[+sel];
+    const hay=((brief||'')+' '+(company||'')).toLowerCase();
+    let best=ps[0],score=-1;
+    ps.forEach(p=>{ let s=0; (p.tags||'').toLowerCase().split(/[,\s]+/).forEach(t=>{if(t&&hay.includes(t))s+=3;}); ((p.title||'')+' '+(p.desc||'')).toLowerCase().split(/\W+/).forEach(w=>{if(w.length>3&&hay.includes(w))s+=1;}); if(s>score){score=s;best=p;} });
+    return best;
+  }
+
+  // ---------- SCAN ----------
+  const COUNTRIES=['United States','United Kingdom','Canada','Australia','Germany','France','Netherlands','Ireland','Spain','Italy','Sweden','Norway','Denmark','Switzerland','New Zealand','Singapore','United Arab Emirates','Nigeria','South Africa','India','Belgium','Portugal','Austria'];
+  const US_STATES=['California','Texas','New York','Florida','Washington','Illinois','Georgia','Colorado','Arizona','Massachusetts','Oregon','Nevada','Virginia','Ohio','Michigan','North Carolina','New Jersey'];
   function parseText(t){
-    const out={location:'',company:'',name:'',brief:''};
-    const text=t.replace(/\s+/g,' ').trim();
-    out.brief = t.trim().slice(0,1200);
-    // location
+    const out={location:'',company:'',name:'',brief:''}; const text=t.replace(/\s+/g,' ').trim();
+    out.brief=t.trim().slice(0,1400);
     let loc='';
-    for(const c of COUNTRIES){ if(text.includes(c)){ loc=c; break; } }
-    for(const s of US_STATES){ if(text.includes(s)){ loc = loc?(s+', '+loc):s; break; } }
-    const cityM=text.match(/(?:located in|based in|from)\s+([A-Z][a-zA-Z]+(?:,?\s[A-Z][a-zA-Z]+){0,2})/);
-    if(cityM) loc = cityM[1];
+    for(const c of COUNTRIES){ if(text.includes(c)){loc=c;break;} }
+    for(const s of US_STATES){ if(text.includes(s)){loc=loc?(s+', '+loc):s;break;} }
+    const cityM=text.match(/(?:located in|based in|from)\s+([A-Z][a-zA-Z]+(?:,?\s[A-Z][a-zA-Z]+){0,2})/); if(cityM) loc=cityM[1];
     out.location=loc;
-    // company / brand
-    const compM=text.match(/(?:at|for|brand called|company called|our brand|we['’]re|we are)\s+([A-Z][A-Za-z0-9&'’\.\- ]{2,30}?)(?:[\.,]|\s(?:and|is|are|that|which|—|-))/);
-    if(compM) out.company=compM[1].trim();
-    // name (from feedback "with X" / "Thanks X" / "— X")
-    const nameM=text.match(/(?:working with|thanks to|thank you,?|great working with|—)\s+([A-Z][a-z]+)\b/);
-    if(nameM) out.name=nameM[1];
+    const compM=text.match(/(?:at|for|brand called|company called|our brand|we['’]re|we are)\s+([A-Z][A-Za-z0-9&'’\.\- ]{2,28}?)(?:[\.,]|\s(?:and|is|are|that|which|—|-))/); if(compM) out.company=compM[1].trim();
+    const nameM=text.match(/(?:working with|thanks to|thank you,?|great working with|—)\s+([A-Z][a-z]+)\b/); if(nameM) out.name=nameM[1];
     return out;
   }
   function applyParsed(p){
-    if(p.location && !$('cLocation').value) $('cLocation').value=p.location;
-    if(p.company && !$('cCompany').value) $('cCompany').value=p.company;
-    if(p.name && !$('cName').value) $('cName').value=p.name;
-    if(p.brief && !$('cBrief').value) $('cBrief').value=p.brief;
+    if(p.location&&!$('cLocation').value)$('cLocation').value=p.location;
+    if(p.company&&!$('cCompany').value)$('cCompany').value=p.company;
+    if(p.name&&!$('cName').value)$('cName').value=p.name;
+    if(p.brief&&!$('cBrief').value)$('cBrief').value=p.brief;
     buildFindLinks();
   }
   async function scan(){
-    const raw=$('jobInput').value.trim();
-    if(!raw){ $('scanHint').innerHTML='Paste a job link or the job text first.'; return; }
-    const isUrl=/^https?:\/\//i.test(raw) && raw.length<300 && !raw.includes(' ');
+    const raw=$('jobInput').value.trim(); if(!raw){ $('scanHint').innerHTML='Paste the job text or a link first.'; return; }
+    const isUrl=/^https?:\/\//i.test(raw)&&raw.length<300&&!raw.includes(' ');
     $('scanBtn').disabled=true; $('scanBtn').innerHTML='<span class="spin"></span>Scanning…';
     try{
       if(isUrl){
         try{
-          const r=await fetch('/.netlify/functions/parse-job?url='+enc(raw));
-          const d=await r.json();
-          if(r.ok && d && (d.text||d.location||d.company)){
-            applyParsed(parseText(d.text||'')); if(d.location&&!$('cLocation').value)$('cLocation').value=d.location;
-            $('scanHint').innerHTML='✅ Scanned. Check the details below and fill anything missing.';
-          } else throw new Error('blocked');
-        }catch(e){
-          $('scanHint').innerHTML='⚠ Could not read that link automatically (sites like Upwork block bots). <b>Open the job, copy the full text, and paste it here</b> instead — then tap Scan again.';
-        }
-      } else {
-        applyParsed(parseText(raw));
-        $('scanHint').innerHTML='✅ Scanned from text. Check the details below — the client name usually comes from the feedback section, add it if missing.';
-      }
+          const r=await fetch('/.netlify/functions/parse-job?url='+enc(raw)); const d=await r.json();
+          if(r.ok&&d&&d.ok&&d.text){ applyParsed(parseText(d.text)); $('scanHint').innerHTML='✅ Scanned from the link. Check the details below.'; }
+          else throw new Error('blocked');
+        }catch(e){ $('scanHint').innerHTML='⚠ That link needs a login or blocks bots (normal for Upwork saved jobs). <b>Open the job, select all, copy, and paste the text here</b> — then Scan again. Works every time.'; }
+      } else { applyParsed(parseText(raw)); $('scanHint').innerHTML='✅ Scanned. The client name usually comes from the feedback section — add it if missing.'; }
     } finally { $('scanBtn').disabled=false; $('scanBtn').innerHTML='🔎 Scan job'; }
   }
 
-  // ---------- STEP 2 find links ----------
+  // ---------- FIND LINKS ----------
   function buildFindLinks(){
-    const n=$('cName').value.trim(), co=$('cCompany').value.trim(), loc=$('cLocation').value.trim();
+    const n=$('cName').value.trim(),co=$('cCompany').value.trim(),loc=$('cLocation').value.trim();
     const q=`"${n}" founder of "${co}" "${loc}"`;
     const links=[
       {e:'🔎',t:'Google the founder',d:'Full name + LinkedIn',u:`https://www.google.com/search?q=${enc(q)}`},
@@ -256,93 +319,68 @@
   }
   ['cName','cCompany','cLocation'].forEach(id=>$(id).addEventListener('input',buildFindLinks));
 
-  // ---------- PITCH GENERATOR (writes the copy, no Claude needed) ----------
+  // ---------- PITCH ----------
   function genPitch(d){
-    const name=d.name||'there', co=d.company||'your brand', port=d.port?(' Portfolio: '+d.port):'';
-    const what=d.brief? (d.brief.length>120? 'the content you described':'your '+d.brief.replace(/\.$/,'')) : 'your content';
-    const obsv=rand([
-      `I came across ${co} and loved what you're building`,
-      `I've been following ${co} and the brand really stands out`,
-      `${co} caught my eye — there's so much potential in your content`,
-    ]);
-    const offer=rand([
-      `I make AI-generated UGC videos and product ads (the faceless, made-on-phone kind) — realistic, scroll-stopping, and turned around in 24–48h.`,
-      `I create AI UGC and product-ad videos that look like a real creator made them — fast (24–48h) and built to convert.`,
-    ]);
-    const soft=rand([
-      `Want me to send over a quick free sample made for ${co} so you can see the quality — no obligation?`,
-      `Happy to make you one free sample for ${co} first so you can judge the quality. Interested?`,
-    ]);
-    const email = `Subject: Quick idea for ${co}'s content\n\nHi ${name},\n\n${obsv}. ${offer}\n\nFor ${what}, I can deliver a batch you can post straight away — $50–$200 per video, unlimited revisions.\n\n${soft}${port}\n\nBest,\n[Your name]`;
-    const wa = `Hi ${name}! 👋 ${obsv}. I make AI UGC/product-ad videos (faceless, 24–48h turnaround). ${soft}`;
-    const ig = `Heyy ${name}! 🙌 ${obsv}. I create AI UGC ads that look like a real person made them — quick and high-converting. Mind if I send a free sample for ${co}?`;
-    const li = `Hi ${name},\n\n${obsv}. I help brands like ${co} get scroll-stopping content without a shoot — I produce AI-generated UGC and product-ad videos, 24–48h turnaround, $50–$200 per video.\n\nFor ${what}, I'd love to send a free sample so you can see the quality first. Open to it?${port}\n\nBest,\n[Your name]`;
-    const inv = `Hi ${name}! I make AI UGC & product-ad videos for brands like ${co} — would love to connect and send you a quick free sample. 🎬`.slice(0,199);
+    const prof=getProfile();
+    const name=d.name||'there', co=d.company||'your brand';
+    const myName=prof.name||'[Your name]';
+    const offer=prof.offer||'AI-generated UGC & product-ad videos, 24-48h turnaround, $50-$200 per video, unlimited revisions';
+    const port=d.port||prof.port||''; const portLine=port?(' Portfolio: '+port):'';
+    const what=d.brief? (d.brief.length>110?'the content you described':'your '+d.brief.replace(/\.$/,'')) : 'your content';
+    const proj=d.project;
+    const projLine = proj ? ` I recently made "${proj.title}"${proj.desc?(' — '+proj.desc):''}${proj.link?(' ('+proj.link+')'):''}, which is close to what you need.` : '';
+    const extra = d.extra ? (' '+d.extra.trim()) : '';
+    const obsv=rand([`I came across ${co} and loved what you're building`,`I've been following ${co} and the brand really stands out`,`${co} caught my eye — there's so much potential in your content`]);
+    const soft=rand([`Want me to send a quick free sample made for ${co}, no obligation?`,`Happy to make you one free sample for ${co} first so you can judge the quality. Interested?`]);
+    const email=`Subject: Quick idea for ${co}'s content\n\nHi ${name},\n\n${obsv}. I ${offer}.${projLine} For ${what}, I can deliver a batch you can post straight away.${extra}\n\n${soft}${portLine}\n\nBest,\n${myName}`;
+    const wa=`Hi ${name}! 👋 ${obsv}. I do ${offer}.${proj?(' Recently made "'+proj.title+'".'):''}${extra} ${soft}`;
+    const ig=`Heyy ${name}! 🙌 ${obsv}. I create AI UGC ads that look like a real person made them — quick & high-converting.${proj?(' (e.g. "'+proj.title+'")'):''} Mind if I send a free sample for ${co}?`;
+    const li=`Hi ${name},\n\n${obsv}. I help brands like ${co} get scroll-stopping content without a shoot — I ${offer}.${projLine} For ${what}, I'd love to send a free sample first.${extra}\n\nOpen to it?${portLine}\n\nBest,\n${myName}`;
+    const inv=`Hi ${name}! I make AI UGC & product-ad videos for brands like ${co} — would love to connect and send a quick free sample. 🎬`.slice(0,199);
     return {email,wa,ig,li,inv};
   }
   function sendLinks(d){
     const out=[];
-    if(d.email) out.push({e:'✉️',t:'Email',d:d.email,u:`mailto:${d.email}?subject=${enc('Quick idea for '+(d.company||'your brand'))}`});
-    if(d.linkedin) out.push({e:'💼',t:'LinkedIn',d:'Message + invite',u:d.linkedin.startsWith('http')?d.linkedin:'https://'+d.linkedin});
+    if(d.email)out.push({e:'✉️',t:'Email',d:d.email,u:`mailto:${d.email}?subject=${enc('Quick idea for '+(d.company||'your brand'))}`});
+    if(d.linkedin)out.push({e:'💼',t:'LinkedIn',d:'Message + invite',u:d.linkedin.startsWith('http')?d.linkedin:'https://'+d.linkedin});
     if(d.ig){const h=d.ig.replace('@','');out.push({e:'📸',t:'Instagram DM',d:'@'+h,u:`https://instagram.com/${h}`});}
     if(d.wa){const w=d.wa.replace(/[^0-9]/g,'');out.push({e:'💬',t:'WhatsApp',d:d.wa,u:`https://wa.me/${w}`});}
-    if(d.site) out.push({e:'🌐',t:'Website',d:d.site,u:d.site.startsWith('http')?d.site:'https://'+d.site});
+    if(d.site)out.push({e:'🌐',t:'Website',d:d.site,u:d.site.startsWith('http')?d.site:'https://'+d.site});
     return out;
   }
   $('genBtn').onclick=()=>{
-    if(!isPro() && usesLeft()<=0){ $('subOv').classList.add('show'); return; }
-    const d={ name:$('fName').value.trim()||$('cName').value.trim(), company:$('cCompany').value.trim(),
-      location:$('cLocation').value.trim(), brief:$('cBrief').value.trim(),
-      email:$('fEmail').value.trim(), linkedin:$('fLinkedin').value.trim(), ig:$('fIg').value.trim(),
-      site:$('fSite').value.trim(), wa:$('fWa').value.trim(), port:$('fPort').value.trim() };
-    if(!d.name && !d.company){ alert('Add at least the client name or company first.'); return; }
+    if(!isPro()&&usesLeft()<=0){ $('subOv').classList.add('show'); return; }
+    const d={ name:$('fName').value.trim()||$('cName').value.trim(), company:$('cCompany').value.trim(), location:$('cLocation').value.trim(),
+      brief:$('cBrief').value.trim(), email:$('fEmail').value.trim(), linkedin:$('fLinkedin').value.trim(), ig:$('fIg').value.trim(),
+      site:$('fSite').value.trim(), wa:$('fWa').value.trim(), extra:$('extraInfo').value.trim() };
+    if(!d.name&&!d.company){ alert('Add at least the client name or company first.'); return; }
+    d.project=pickProject(d.brief,d.company);
     const p=genPitch(d);
-    $('pEmail').textContent=p.email; $('pWa').textContent=p.wa; $('pIg').textContent=p.ig; $('pLi').textContent=p.li; $('pInv').textContent=p.inv;
-    $('secureList').innerHTML=[
-      'Reply within the hour — speed beats a perfect message sent late.',
-      'Lead with a free sample: "I already made you a quick one."',
-      'Quote a clear price ($50–$200) + 24–48h turnaround.',
-      'No reply in 24h? Send a one-line friendly nudge.',
-      'Move it to a 15-min call to close.',
-    ].map(t=>`<div class="c"><span class="b">✓</span><span>${t}</span></div>`).join('');
+    $('pEmail').textContent=p.email;$('pWa').textContent=p.wa;$('pIg').textContent=p.ig;$('pLi').textContent=p.li;$('pInv').textContent=p.inv;
+    $('secureList').innerHTML=['Reply within the hour — speed beats a perfect late message.','Lead with a free sample: "I already made you a quick one."','Quote a clear price ($50–$200) + 24–48h turnaround.','No reply in 24h? Send a one-line friendly nudge.','Move it to a 15-min call to close.'].map(t=>`<div class="c"><span class="b">✓</span><span>${t}</span></div>`).join('');
     const sl=sendLinks(d);
-    $('sendLinks').innerHTML=sl.length? sl.map(l=>`<div class="lk" data-u="${l.u}"><div class="e">${l.e}</div><div><div class="t">${l.t}</div><div class="d">${l.d}</div></div></div>`).join('') : '<div class="empty">Add their email / LinkedIn / IG above for one-tap send links.</div>';
+    $('sendLinks').innerHTML=sl.length?sl.map(l=>`<div class="lk" data-u="${l.u}"><div class="e">${l.e}</div><div><div class="t">${l.t}</div><div class="d">${l.d}</div></div></div>`).join('') : '<div class="empty">Add their email / LinkedIn / IG above for one-tap send links.</div>';
     $('sendLinks').querySelectorAll('.lk').forEach(el=>el.onclick=()=>window.open(el.dataset.u,'_blank'));
-    $('out').classList.add('show'); $('out').scrollIntoView({behavior:'smooth'});
-    spendUse(); window._lastClient=(d.company||d.name||'Client');
+    $('out').classList.add('show'); $('out').scrollIntoView({behavior:'smooth'}); spendUse(); window._lastClient=(d.company||d.name||'Client');
   };
-  document.addEventListener('click',(e)=>{
-    const b=e.target.closest('.copy'); if(!b) return;
-    const map={email:'pEmail',wa:'pWa',ig:'pIg',li:'pLi',inv:'pInv'};
-    const txt=$(map[b.getAttribute('data-c')]).textContent;
-    navigator.clipboard.writeText(txt); const o=b.textContent; b.textContent='✓ Copied'; setTimeout(()=>b.textContent=o,1300);
-  });
+  document.addEventListener('click',(e)=>{ const b=e.target.closest('.copy'); if(!b)return; const m={email:'pEmail',wa:'pWa',ig:'pIg',li:'pLi',inv:'pInv'}; navigator.clipboard.writeText($(m[b.getAttribute('data-c')]).textContent); const o=b.textContent;b.textContent='✓ Copied';setTimeout(()=>b.textContent=o,1300); });
 
   // ---------- JOURNAL ----------
-  function loadJournal(){
-    let j=[]; try{j=JSON.parse(localStorage.getItem('pp_journal')||'[]');}catch(e){}
-    const el=$('journal');
+  function loadJournal(){ let j=[];try{j=JSON.parse(localStorage.getItem('pp_journal')||'[]');}catch(e){} const el=$('journal');
     if(!j.length){el.innerHTML='<div class="empty">No pitches logged yet.</div>';return;}
-    el.innerHTML=j.map((r,i)=>`<div class="jrow"><div><div style="font-weight:700">${r.client}</div><div class="jm">${r.date}</div></div><select data-i="${i}"><option ${r.status==='Sent'?'selected':''}>Sent</option><option ${r.status==='Replied'?'selected':''}>Replied</option><option ${r.status==='Hired'?'selected':''}>Hired</option><option ${r.status==='Ghosted'?'selected':''}>Ghosted</option></select></div>`).join('');
-    el.querySelectorAll('select').forEach(s=>s.onchange=()=>{let j=JSON.parse(localStorage.getItem('pp_journal')||'[]');j[+s.dataset.i].status=s.value;localStorage.setItem('pp_journal',JSON.stringify(j));});
-  }
-  $('logBtn').onclick=()=>{
-    let j=[]; try{j=JSON.parse(localStorage.getItem('pp_journal')||'[]');}catch(e){}
-    const d=new Date();
-    j.unshift({client:window._lastClient||'Client',date:d.getDate()+'/'+(d.getMonth()+1),status:'Sent'});
-    localStorage.setItem('pp_journal',JSON.stringify(j)); loadJournal();
-    $('logBtn').textContent='✓ Saved to journal'; setTimeout(()=>$('logBtn').textContent='＋ Save to my pitch journal',1500);
-  };
+    el.innerHTML=j.map((r,i)=>`<div class="jrow"><div><div style="font-weight:700">${esc(r.client)}</div><div class="jm">${r.date}</div></div><select data-i="${i}"><option ${r.status==='Sent'?'selected':''}>Sent</option><option ${r.status==='Replied'?'selected':''}>Replied</option><option ${r.status==='Hired'?'selected':''}>Hired</option><option ${r.status==='Ghosted'?'selected':''}>Ghosted</option></select></div>`).join('');
+    el.querySelectorAll('select').forEach(s=>s.onchange=()=>{let j=JSON.parse(localStorage.getItem('pp_journal')||'[]');j[+s.dataset.i].status=s.value;localStorage.setItem('pp_journal',JSON.stringify(j));}); }
+  $('logBtn').onclick=()=>{ let j=[];try{j=JSON.parse(localStorage.getItem('pp_journal')||'[]');}catch(e){} const d=new Date(); j.unshift({client:window._lastClient||'Client',date:d.getDate()+'/'+(d.getMonth()+1),status:'Sent'}); localStorage.setItem('pp_journal',JSON.stringify(j)); loadJournal(); $('logBtn').textContent='✓ Saved';setTimeout(()=>$('logBtn').textContent='＋ Save to my pitch journal',1400); };
 
   // ---------- wiring ----------
   $('scanBtn').onclick=scan;
-  $('clearBtn').onclick=()=>{ $('jobInput').value=''; $('scanHint').innerHTML='Tip: a link works, but pasting the <b>full job text</b> gives the best auto-fill.'; };
+  $('clearBtn').onclick=()=>{ $('jobInput').value=''; $('scanHint').innerHTML='Best results: open the job, select all, copy, paste the text here.'; };
   function subLink(){const msg=enc('Hi! I want to subscribe to PitchPilot Pro (₦3,000/month). My name: ');return `https://wa.me/${CFG.whatsapp}?text=${msg}`;}
   $('subBtn').onclick=()=>$('subOv').classList.add('show');
   $('subClose').onclick=()=>$('subOv').classList.remove('show');
-  $('subOv').onclick=(e)=>{ if(e.target===$('subOv')) $('subOv').classList.remove('show'); };
+  $('subOv').onclick=(e)=>{ if(e.target===$('subOv'))$('subOv').classList.remove('show'); };
   $('subPay').href=subLink();
-  buildFindLinks(); refreshUses(); loadJournal();
+  loadProfile(); renderProjects(); buildFindLinks(); refreshUses(); loadJournal();
 </script>
 </body>
 </html>
