@@ -1007,10 +1007,25 @@ function pollSheet(reqId) {
     if (s >= 240) { clearInterval(timer); note('avSheetNote', 'Still working — check back shortly.', 'err'); renderSheet(); }
   }, 4000);
 }
+let avTrainFiles = [];   // accumulates across multiple "Add photos" picks
+function renderTrainThumbs() {
+  const n = avTrainFiles.length;
+  $('avCount').textContent = n ? `${n} photo${n > 1 ? 's' : ''} added${n >= 15 ? ' (max)' : ''}` : '';
+  const wrap = $('avThumbs'); if (!wrap) return;
+  wrap.innerHTML = avTrainFiles.map((f, i) => `<div class="av-th"><img src="${URL.createObjectURL(f)}"><span class="av-th-x" onclick="window.fuseRmTrain(${i})">✕</span></div>`).join('');
+}
+window.fuseRmTrain = (i) => { avTrainFiles.splice(i, 1); renderTrainThumbs(); };
+function addTrainFiles(list) {
+  Array.from(list || []).forEach((f) => {
+    if (avTrainFiles.length >= 15) return;
+    if (!avTrainFiles.some((x) => x.name === f.name && x.size === f.size)) avTrainFiles.push(f);
+  });
+  renderTrainThumbs();
+}
 async function createAvatar() {
   if (preview) { showAuth('signup'); return; }
   const name = $('avNewName').value.trim();
-  const files = Array.from($('avFile').files).slice(0, 15);
+  const files = avTrainFiles.slice(0, 15);
   if (!name || !files.length) return note('avNote', 'Add a name and choose your photos.', 'err');
   $('avCreate').disabled = true; note('avNote', `Uploading ${files.length} photo(s)…`, 'ok');
   try {
@@ -1025,7 +1040,7 @@ async function createAvatar() {
     const { error: insErr } = await sb.from('avatars').insert({ user_id: user.id, name, image_url: urls[0], image_urls: urls });
     if (insErr) throw insErr;
     note('avNote', `✅ Avatar trained on ${urls.length} photo(s)! Tap it above to generate.`, 'ok');
-    $('avNewName').value = ''; $('avFile').value = ''; $('avCount').textContent = '';
+    $('avNewName').value = ''; $('avFile').value = ''; avTrainFiles = []; renderTrainThumbs();
     loadAvatars();
   } catch (e) { note('avNote', e.message || 'Could not create avatar.', 'err'); }
   $('avCreate').disabled = false;
@@ -1457,7 +1472,8 @@ window.addEventListener('DOMContentLoaded', () => {
   $('pgCopy').onclick = () => { const t = $('pgResult').value.trim(); if (!t) return note('pgNote', 'Generate a prompt first.', 'err'); navigator.clipboard.writeText(t); $('pgCopy').textContent = '✓ Copied!'; setTimeout(() => $('pgCopy').textContent = '⧉ Copy prompt', 1500); };
   $('pgUse').onclick = pgUse;
   $('avCreate').onclick = createAvatar;
-  $('avFile').onchange = () => { const n = Math.min($('avFile').files.length, 15); $('avCount').textContent = n ? `${n} photo${n > 1 ? 's' : ''} selected` : ''; };
+  $('avPick').onclick = () => $('avFile').click();
+  $('avFile').onchange = (e) => { addTrainFiles(e.target.files); e.target.value = ''; };
   $('avGen').onclick = avatarGenerate;
   $('avSheetBtn').onclick = generateModelSheet;
   $('avRefBtn').onclick = () => $('avRefFile').click();

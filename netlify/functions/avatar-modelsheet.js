@@ -61,7 +61,9 @@ exports.handler = async (event) => {
     const id = j.request_id || j.id;
     if (!id) throw new Error('Engine did not start the job');
 
-    await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'modelsheet', model: 'nano-banana-edit', prompt: 'model sheet', aspect: '1:1', credits: SHEET_COST, status: 'processing', avatar_id: avatarId });
+    // Carry the avatar id inside `prompt` so job-status can save the sheet onto the
+    // avatar without depending on an extra jobs column.
+    await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'modelsheet', model: 'nano-banana-edit', prompt: 'MODELSHEET::' + avatarId, aspect: '1:1', credits: SHEET_COST, status: 'processing' });
     return json(200, { request_id: id, credits: balance });
   } catch (e) {
     try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}

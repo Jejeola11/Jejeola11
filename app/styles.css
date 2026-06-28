@@ -695,3 +695,9 @@ textarea{min-height:104px;resize:vertical}
 .sheet-box{background:linear-gradient(160deg,rgba(245,197,24,.07),rgba(255,255,255,.02));border:1px solid var(--gold-deep);border-radius:14px;padding:14px;margin-bottom:14px}
 .sheet-head{font-weight:800;font-size:14px;color:var(--gold)}
 .av-sheet-badge{position:absolute;top:6px;right:6px;background:var(--gold);color:#1a1205;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;box-shadow:var(--glow)}
+
+/* ===== Avatar training thumbnails (retained across picks) ===== */
+.av-thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.av-th{position:relative;width:54px;height:54px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.av-th img{width:100%;height:100%;object-fit:cover}
+.av-th-x{position:absolute;top:-2px;right:-2px;background:rgba(0,0,0,.7);color:#fff;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;cursor:pointer;line-height:1}

@@ -160,8 +160,10 @@
       <h3>➕ Train a new avatar</h3>
       <p class="muted" style="margin:0 0 10px;font-size:13px">Upload <b>up to 15 clear photos</b> of yourself (different angles, good light). The more you add, the more consistent your avatar looks. 🪄</p>
       <input id="avNewName" placeholder="Avatar name, e.g. 'Me — pro look'">
-      <input id="avFile" type="file" accept="image/*" multiple style="margin-top:8px;padding:9px">
-      <div class="muted" id="avCount" style="font-size:12px;margin-top:6px"></div>
+      <button class="btn ghost sm" id="avPick" style="margin-top:8px">＋ Add photos</button>
+      <input id="avFile" type="file" accept="image/*" multiple hidden>
+      <div class="muted" id="avCount" style="font-size:12px;margin-top:8px"></div>
+      <div id="avThumbs" class="av-thumbs"></div>
       <button class="btn gold block" id="avCreate" style="margin-top:10px">Train avatar</button>
       <div class="note" id="avNote"></div>
     </div>

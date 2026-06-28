@@ -31,9 +31,11 @@ exports.handler = async (event) => {
     const url = p.outputs && p.outputs[0];
     await db.from('jobs').update({ status: 'completed', output_url: url }).eq('request_id', id);
     // A model sheet isn't a normal gallery item — save it onto the avatar so all
-    // future generations use it as the consistent reference.
-    if (job.kind === 'modelsheet' && job.avatar_id) {
-      await db.from('avatars').update({ model_sheet_url: url }).eq('id', job.avatar_id);
+    // future generations use it as the consistent reference. The avatar id is
+    // carried in the prompt as "MODELSHEET::<id>" (or in the avatar_id column).
+    if (job.kind === 'modelsheet') {
+      const avId = job.avatar_id || (job.prompt && job.prompt.indexOf('MODELSHEET::') === 0 ? job.prompt.slice(12) : null);
+      if (avId) { try { await db.from('avatars').update({ model_sheet_url: url }).eq('id', avId); } catch (e) {} }
       return json(200, { status: 'completed', url, kind: 'modelsheet' });
     }
     await db.from('generations').insert({
