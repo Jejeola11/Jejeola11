@@ -1,0 +1,8 @@
+# PitchPilot — deploy this folder to Netlify (drag-drop or connect repo).
+# The function lets the app read a pasted job URL server-side (no browser CORS).
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
