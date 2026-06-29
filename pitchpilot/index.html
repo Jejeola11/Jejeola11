@@ -139,9 +139,9 @@
   <!-- STEP 1 -->
   <section class="step">
     <div class="step-h"><div class="step-n">1</div><div><div class="step-t">Paste the job post</div><div class="step-s">When logged into Upwork, copy the job text and paste it (most reliable)</div></div></div>
-    <textarea id="jobInput" placeholder="Paste the full job text here (title + description + 'About the client' location). A public link also works…"></textarea>
-    <div class="scanrow"><button class="btn gold" id="scanBtn">🔎 Scan job</button><button class="btn ghost" id="clearBtn">Clear</button></div>
-    <div class="hint" id="scanHint">Best results: open the job (you're already logged in), select all, copy, and paste the text here. You can edit anything below.</div>
+    <textarea id="jobInput" placeholder="Paste the full job text here (title + description + 'About the client' location)…"></textarea>
+    <div class="scanrow"><button class="btn gold" id="scanBtn">✨ Generate everything (AI)</button><button class="btn ghost" id="clearBtn">Clear</button></div>
+    <div class="hint" id="scanHint">Paste the job, hit Generate — AI reads it, finds the client's contacts, and writes all your pitches. Open the job (you're logged in), select all, copy, paste here.</div>
   </section>
 
   <!-- STEP 2 -->
@@ -181,7 +181,7 @@
     <select id="projSelect"></select>
     <label>Anything else to include? (optional)</label>
     <textarea id="extraInfo" placeholder="e.g. mention I'm available immediately, I speak Spanish, I'll throw in a free revision, a specific idea for their brand…"></textarea>
-    <button class="btn gold block" id="genBtn" style="margin-top:14px">✦ Generate my pitch kit</button>
+    <button class="btn gold block" id="genBtn" style="margin-top:14px">🔁 Re-write pitches with my edits</button>
 
     <div class="out" id="out">
       <div class="pitch"><div class="ph"><span class="pt">📧 EMAIL</span><button class="copy" data-c="email">⧉ Copy</button></div><pre id="pEmail"></pre></div>
@@ -348,21 +348,70 @@
     if(d.site)out.push({e:'🌐',t:'Website',d:d.site,u:d.site.startsWith('http')?d.site:'https://'+d.site});
     return out;
   }
-  $('genBtn').onclick=()=>{
-    if(!isPro()&&usesLeft()<=0){ $('subOv').classList.add('show'); return; }
-    const d={ name:$('fName').value.trim()||$('cName').value.trim(), company:$('cCompany').value.trim(), location:$('cLocation').value.trim(),
-      brief:$('cBrief').value.trim(), email:$('fEmail').value.trim(), linkedin:$('fLinkedin').value.trim(), ig:$('fIg').value.trim(),
-      site:$('fSite').value.trim(), wa:$('fWa').value.trim(), extra:$('extraInfo').value.trim() };
-    if(!d.name&&!d.company){ alert('Add at least the client name or company first.'); return; }
-    d.project=pickProject(d.brief,d.company);
-    const p=genPitch(d);
-    $('pEmail').textContent=p.email;$('pWa').textContent=p.wa;$('pIg').textContent=p.ig;$('pLi').textContent=p.li;$('pInv').textContent=p.inv;
-    $('secureList').innerHTML=['Reply within the hour — speed beats a perfect late message.','Lead with a free sample: "I already made you a quick one."','Quote a clear price ($50–$200) + 24–48h turnaround.','No reply in 24h? Send a one-line friendly nudge.','Move it to a 15-min call to close.'].map(t=>`<div class="c"><span class="b">✓</span><span>${t}</span></div>`).join('');
-    const sl=sendLinks(d);
-    $('sendLinks').innerHTML=sl.length?sl.map(l=>`<div class="lk" data-u="${l.u}"><div class="e">${l.e}</div><div><div class="t">${l.t}</div><div class="d">${l.d}</div></div></div>`).join('') : '<div class="empty">Add their email / LinkedIn / IG above for one-tap send links.</div>';
+  const SECURE=['Reply within the hour — speed beats a perfect late message.','Lead with a free sample: "I already made you a quick one."','Quote a clear price ($50–$200) + 24–48h turnaround.','No reply in 24h? Send a one-line friendly nudge.','Move it to a 15-min call to close.'];
+  function showPitches(p){
+    $('pEmail').textContent=p.email||''; $('pWa').textContent=p.whatsapp||p.wa||''; $('pIg').textContent=p.instagram||p.ig||'';
+    $('pLi').textContent=p.linkedin||p.li||''; $('pInv').textContent=p.invite||p.inv||'';
+    $('secureList').innerHTML=SECURE.map(t=>`<div class="c"><span class="b">✓</span><span>${t}</span></div>`).join('');
+  }
+  function curContact(){ return { email:$('fEmail').value.trim(), linkedin:$('fLinkedin').value.trim(), ig:$('fIg').value.trim(), site:$('fSite').value.trim(), wa:$('fWa').value.trim(), company:$('cCompany').value.trim() }; }
+  function rebuildSendLinks(){
+    const sl=sendLinks(curContact());
+    $('sendLinks').innerHTML=sl.length?sl.map(l=>`<div class="lk" data-u="${l.u}"><div class="e">${l.e}</div><div><div class="t">${l.t}</div><div class="d">${l.d}</div></div></div>`).join('') : '<div class="empty">Contacts will appear here once found.</div>';
     $('sendLinks').querySelectorAll('.lk').forEach(el=>el.onclick=()=>window.open(el.dataset.u,'_blank'));
-    $('out').classList.add('show'); $('out').scrollIntoView({behavior:'smooth'}); spendUse(); window._lastClient=(d.company||d.name||'Client');
-  };
+  }
+  function setLoading(on,msg){ const b=$('scanBtn'); b.disabled=on; b.innerHTML=on?('<span class="spin"></span>'+(msg||'Working…')):'✨ Generate everything (AI)'; }
+
+  async function findContacts(){
+    const name=$('cName').value.trim(),company=$('cCompany').value.trim(),location=$('cLocation').value.trim();
+    if(!name&&!company) return;
+    try{
+      const r=await fetch('/.netlify/functions/find-contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,company,location})});
+      const d=await r.json();
+      if(d&&d.ok){
+        if(d.email&&!$('fEmail').value)$('fEmail').value=d.email;
+        if(d.linkedin&&!$('fLinkedin').value)$('fLinkedin').value=d.linkedin;
+        if(d.instagram&&!$('fIg').value)$('fIg').value=d.instagram.replace(/https?:\/\/(www\.)?instagram\.com\//,'@').replace(/\/$/,'');
+        if(d.website&&!$('fSite').value)$('fSite').value=d.website;
+        rebuildSendLinks();
+      }
+    }catch(e){}
+  }
+
+  async function aiGenerate(){
+    if(!isPro()&&usesLeft()<=0){ $('subOv').classList.add('show'); return; }
+    const jobText=($('jobInput').value.trim()||$('cBrief').value.trim());
+    if(!jobText){ $('scanHint').innerHTML='Paste the job text first.'; return; }
+    setLoading(true,'Reading the job…');
+    const profile=getProfile();
+    const project=pickProject(jobText,$('cCompany').value.trim());
+    const extra=$('extraInfo').value.trim();
+    try{
+      const r=await fetch('/.netlify/functions/pitch-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jobText,profile,project,extra})});
+      const d=await r.json();
+      if(!r.ok||!d.pitches) throw new Error(d.error||'AI failed');
+      const c=d.client||{};
+      if(c.firstName)$('cName').value=c.firstName;
+      if(c.company)$('cCompany').value=c.company;
+      if(c.location)$('cLocation').value=c.location;
+      if(c.summary&&!$('cBrief').value)$('cBrief').value=c.summary;
+      showPitches(d.pitches); buildFindLinks(); rebuildSendLinks();
+      window._lastClient=($('cCompany').value.trim()||$('cName').value.trim()||'Client');
+      spendUse();
+      $('out').classList.add('show'); $('out').scrollIntoView({behavior:'smooth'});
+      setLoading(true,'Finding contacts…'); await findContacts();
+      $('scanHint').innerHTML='✅ Done — details, pitches and contacts below. Edit anything, then re-write if you like.';
+    }catch(e){
+      // offline fallback: regex parse + template writer
+      applyParsed(parseText(jobText));
+      const d2={ name:$('cName').value.trim()||'there', company:$('cCompany').value.trim(), brief:$('cBrief').value.trim(), extra, project:project };
+      showPitches(genPitch(d2)); buildFindLinks(); rebuildSendLinks();
+      $('out').classList.add('show'); $('out').scrollIntoView({behavior:'smooth'}); spendUse();
+      $('scanHint').innerHTML='⚠ AI not connected on this site (set MUAPI_KEY / SERPER_API_KEY / HUNTER_API_KEY in Netlify) — used the built-in writer. '+(e.message||'');
+    }
+    setLoading(false);
+  }
+  $('genBtn').onclick=aiGenerate;
   document.addEventListener('click',(e)=>{ const b=e.target.closest('.copy'); if(!b)return; const m={email:'pEmail',wa:'pWa',ig:'pIg',li:'pLi',inv:'pInv'}; navigator.clipboard.writeText($(m[b.getAttribute('data-c')]).textContent); const o=b.textContent;b.textContent='✓ Copied';setTimeout(()=>b.textContent=o,1300); });
 
   // ---------- JOURNAL ----------
@@ -373,8 +422,8 @@
   $('logBtn').onclick=()=>{ let j=[];try{j=JSON.parse(localStorage.getItem('pp_journal')||'[]');}catch(e){} const d=new Date(); j.unshift({client:window._lastClient||'Client',date:d.getDate()+'/'+(d.getMonth()+1),status:'Sent'}); localStorage.setItem('pp_journal',JSON.stringify(j)); loadJournal(); $('logBtn').textContent='✓ Saved';setTimeout(()=>$('logBtn').textContent='＋ Save to my pitch journal',1400); };
 
   // ---------- wiring ----------
-  $('scanBtn').onclick=scan;
-  $('clearBtn').onclick=()=>{ $('jobInput').value=''; $('scanHint').innerHTML='Best results: open the job, select all, copy, paste the text here.'; };
+  $('scanBtn').onclick=aiGenerate;
+  $('clearBtn').onclick=()=>{ $('jobInput').value=''; $('scanHint').innerHTML='Paste the job, hit Generate — AI reads it, finds contacts, and writes your pitches.'; };
   function subLink(){const msg=enc('Hi! I want to subscribe to PitchPilot Pro (₦3,000/month). My name: ');return `https://wa.me/${CFG.whatsapp}?text=${msg}`;}
   $('subBtn').onclick=()=>$('subOv').classList.add('show');
   $('subClose').onclick=()=>$('subOv').classList.remove('show');
