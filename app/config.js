@@ -112,6 +112,94 @@ window.FUSE = {
   // Viral presets — full creative recipes (each opens a "build it yourself" view).
   VIRAL_PRESETS: [
     {
+      id: 'aicd-fuse',
+      title: 'AI Creative Director (steal your job)',
+      hook: 'The viral "I\'m going to steal your job" trend — your AI alter-ego, lipsynced',
+      sample: '/app/media/presets/aicd-fuse-loop.mp4',
+      kind: 'video',
+      models: { product: 'nano-banana-edit', startFrame: 'nano-banana-edit', video: 'kling-v3-turbo-pro-image-to-video' },
+      steps: [
+        { num: 1, title: 'Lock your face (model sheet)', detail: 'Avatar Studio → upload up to 15 photos → tap "Generate model sheet" so every frame is the same face. (10 + 15 cr)' },
+        { num: 2, title: 'Generate the 5 frames', detail: 'Avatar Studio → select your avatar → paste each frame prompt below (start frame + 4 cutaways). Black outfit, wine scarf, studio backdrop. (~50 cr)' },
+        { num: 3, title: 'Voice it with Resemble AI', detail: 'In Resemble AI, clone or pick a voice and paste the voice script + delivery notes below. Export the ~28s voiceover.' },
+        { num: 4, title: 'Lipsync with HeyGen', detail: 'In HeyGen → Talking Photo: upload the start frame, drop in the Resemble audio, set 9:16, generate the talking shots.' },
+        { num: 5, title: 'Animate the cutaways (Kling)', detail: 'Create → Kling Turbo Pro · image-to-video: attach each cutaway frame, paste the motion prompt, 3-5s each subtle push-in. (~40 cr)' },
+        { num: 6, title: 'Stitch + red titles', detail: 'In CapCut: cut between the talking shots and cutaways to the voiceover, add the big red "DIRECTOR / RIA" titles + captions, end on the hero frame. Post & tag @director_ria!' },
+      ],
+      promptList: [
+        { key: 'script', label: '🎙 Full script (voiceover)' },
+        { key: 'startFrame', label: 'Frame 1 — Start frame / anchor (avatar)' },
+        { key: 'frame2', label: 'Frame 2 — Extreme close-up' },
+        { key: 'frame3', label: 'Frame 3 — Profile turn, arms crossed' },
+        { key: 'frame4', label: 'Frame 4 — Power pose in armchair' },
+        { key: 'frame5', label: 'Frame 5 — Full-body hero (name card)' },
+        { key: 'motion', label: 'Motion prompt (Kling i2v — the cutaways)' },
+        { key: 'heygen', label: '🎬 HeyGen lipsync setup' },
+        { key: 'resemble', label: '🔊 Resemble AI voice prompt' },
+        { key: 'caption', label: '📣 Caption + hashtags' },
+        { key: 'dm', label: '🤖 Auto-DM (Fuse Auto keyword: DIRECTOR)' },
+      ],
+      prompts: {
+        script:
+`This is a message to all AI creators.
+
+My name is Director Ria.
+
+I'm an AI Creative Director.
+
+And I'm going to steal your job. While you book studios, hire models, and wait days for edits — I create the entire campaign myself. The face. The product. The ad. The voice. All from one phone, in minutes.
+
+But my creator? She'd rather hand that power to you. She built Fuse Studio so you become the director — not the one replaced.
+
+So stop competing with AI. Start directing it. Please follow her — @director_ria.`,
+        startFrame:
+`FACE LOCK — the woman's face must be identical to the face in the first reference image (my model sheet); do NOT beautify, slim, lighten, or change her features, age, or skin tone. Ultra-realistic editorial studio portrait, 9:16 vertical. A confident young Black Nigerian woman seated and turned slightly 3/4 to camera with a soft knowing smile. She wears a deep wine / burgundy satin hijab wrapped elegantly, slim white cat-eye sunglasses, and an all-black outfit: a structured black tailored blazer draped over a black inner top with delicate lace cuffs and black trousers. Intricate dark henna on her hands, a gold wristwatch, gold bangles and gold rings; one hand raised gracefully near her chin. Background: a smooth seamless studio cyclorama, grey graduating into soft lavender, dramatic single key light from above with deep shadow falloff and a gentle vignette (clean minimal "Zach King" studio look). Hyper-real skin with visible pores and natural texture, 85mm lens, shallow depth of field, crisp, cinematic, premium.`,
+        frame2:
+`FACE LOCK to my model sheet — same woman, identical face. Extreme cinematic close-up of her face, 9:16 vertical. White cat-eye sunglasses pushed up onto her forehead, a calm intense gaze straight down the lens, lips closed, serious and powerful. Deep wine hijab framing her face. Very low-key dramatic lighting — a single soft top light catches her eyes and the bridge of her nose while the rest falls into shadow against a near-black background. Hyper-real skin texture, subtle catchlights in the eyes, shot on 85mm macro, moody and intimate.`,
+        frame3:
+`FACE LOCK to my model sheet — same woman, identical face. 9:16 vertical, a dramatic 3/4 back view: she stands with arms crossed confidently and turns her head back toward camera over her shoulder. Black tailored blazer and black top, deep wine hijab, gold bangles visible on her wrist. Seamless grey-to-lavender studio backdrop with a strong side / top key light raking across one side of her face and shoulder, deep shadows, elegant and commanding. Ultra-real skin, editorial fashion lighting, 85mm, cinematic.`,
+        frame4:
+`FACE LOCK to my model sheet — same woman, identical face. 9:16 vertical, seated deep in a sculptural armchair in a powerful, relaxed "throne" pose: hands resting on the armrests, leaning slightly forward, direct confident stare into the lens. All-black tailored outfit, deep wine hijab, white cat-eye sunglasses, gold jewellery and henna hands. Seamless grey-lavender studio cyclorama, soft top key light, gentle vignette, low-key dramatic mood. Hyper-real detail, cinematic editorial portrait, 85mm.`,
+        frame5:
+`FACE LOCK to my model sheet — same woman, identical face. 9:16 vertical, a full-body hero shot: she stands centered, arms crossed, chin slightly up, supremely confident. All-black tailored outfit — structured blazer, black top, black trousers — deep wine hijab, white cat-eye sunglasses, gold jewellery, henna hands. Seamless grey-to-white studio backdrop with even soft studio light and a subtle floor shadow. Leave clean empty negative space at the very top and the very bottom of the frame for large title text. Ultra-real, sharp, magazine-cover quality, 85mm. (In editing, add giant bold red serif titles — "DIRECTOR" across the top, "RIA" across the bottom — layered around her, like the trend.)`,
+        motion:
+`Animate as a cinematic moving portrait: a very subtle, slow camera push-in with gentle parallax. The woman makes one small natural motion — a slow blink, a soft breath, a slight turn of the head, or her eyes drifting to the lens — while the hijab and blazer fabric settle naturally. No warping or morphing of the face, identity locked to the start frame, realistic controlled slow-motion, premium. 3-5 seconds per cutaway.`,
+        heygen:
+`HeyGen → "Talking Photo" (Photo Avatar):
+1) Upload Frame 1 (the start frame) — or Frame 4 (the seated shot) for the main talking moments.
+2) Best result: upload the Resemble AI voice file as the audio and let HeyGen lipsync to it (keeps one consistent voice). Or paste the Full Script as the text.
+3) Settings: aspect 9:16, expression "Expressive", motion "Stable", enable "Match voice emotion".
+4) Generate one talking clip per spoken section. Use the silent cutaways (Frames 2-5 animated in Kling) for the dramatic non-speaking beats, then cut between them in CapCut.`,
+        resemble:
+`Resemble AI → Voice: a warm, confident young Nigerian female voice, lightly accented English — intimate and cinematic, like she's letting you in on a secret.
+Delivery: slow and deliberate. Drop lower and more serious on the "steal your job" lines; soften and warm up on the "my creator" lines; rise with quiet conviction on the final call-to-action. Natural pause at every line break. Tone: composed, powerful, a little playful, self-assured. Target ~28 seconds total to match the video.
+Paste the Full Script (above) as the text. Export the audio and use it as the HeyGen lipsync source and as the voiceover under the silent cutaway frames.`,
+        caption:
+`This is a message to all AI creators 👁️
+
+They said AI would replace creatives. So I became one. 🤖🎬
+Meet Director Ria — my AI Creative Director. The face, the product, the ad, the voice… all made on a phone, in minutes.
+
+While agencies charge millions, you can now direct your own campaigns — from Lagos to LA. 🌍
+I'm not here to take your job. I'm here to hand you mine. 🔥
+
+Comment "DIRECTOR" and I'll DM you the exact preset I used to make this. 👇
+Built with @fuse_studio2 · Fuse Studio.
+
+#AICreator #AICreativeDirector #FuseStudio #AIvideo #AIfilmmaker #ContentCreator #MadeWithAI #CreativeDirector #FacelessCreator #Nigeria #DigitalCreator #AIart`,
+        dm:
+`You just met Director Ria 👁️🎬
+
+Want to make this exact video with YOUR face?
+1️⃣ Open Fuse Studio → https://fuse-studio.netlify.app
+2️⃣ Sign up free (you get free credits to start)
+3️⃣ Go to "Viral Presets" → tap "AI Creative Director"
+4️⃣ Everything's loaded — the frames, the prompts, the voice & lipsync steps. Just follow it 🔥
+
+First 50 people get DOUBLE credits — make yours and tag me @director_ria!`,
+      },
+    },
+    {
       id: 'card-fuse',
       title: 'AI Brand Reveal × Card',
       hook: 'Cinematic street promo — your avatar holding your brand card',
