@@ -7,205 +7,198 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#031A16;--bg2:#04221D;--card:#082A25;--card2:#0B342D;--line:#15493F;--ink:#F6F2E8;--muted:#8FB3AC;--gold:#F5C518;--gold2:#FFD84A;--gold-deep:#D9A91A;--good:#3DD68C;--red:#ff6b6b;--glow:0 0 30px rgba(245,197,24,.25)}
+  :root{--bg:#031A16;--bg2:#04221D;--card:#082A25;--card2:#0B342D;--line:#15493F;--ink:#F6F2E8;--muted:#8FB3AC;--gold:#F5C518;--gold-deep:#D9A91A;--good:#3DD68C;--red:#ff6b6b;--glow:0 0 30px rgba(245,197,24,.25)}
   *{box-sizing:border-box}html,body{margin:0;padding:0}
   body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:var(--ink);line-height:1.55;min-height:100vh;
     background:radial-gradient(900px 480px at 85% -10%,rgba(245,197,24,.12),transparent 60%),radial-gradient(800px 460px at -5% 6%,rgba(8,60,52,.5),transparent 62%),var(--bg)}
   a{color:var(--gold)} .wrap{max-width:760px;margin:0 auto;padding:0 18px}
-  header{text-align:center;padding:34px 0 10px}
+  header{text-align:center;padding:34px 0 6px}
   .logo{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:22px}
   .logo .m{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--gold),var(--gold-deep));display:grid;place-items:center;color:#1a1205;font-size:19px;box-shadow:var(--glow)}
-  h1{font-size:clamp(26px,6vw,36px);margin:14px 0 6px;letter-spacing:-.02em}
+  h1{font-size:clamp(24px,6vw,34px);margin:14px 0 6px;letter-spacing:-.02em}
   .sub{color:var(--muted);max-width:560px;margin:0 auto;font-size:15px}
   .card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:20px;margin:14px 0;box-shadow:0 14px 36px rgba(0,0,0,.4)}
   .step-h{display:flex;align-items:center;gap:12px;margin-bottom:10px}
   .step-n{flex:0 0 32px;width:32px;height:32px;border-radius:10px;background:rgba(245,197,24,.14);color:var(--gold);font-weight:800;display:grid;place-items:center}
   .step-t{font-weight:800;font-size:17px}
-  ol{margin:6px 0 0;padding-left:20px} ol li{margin:8px 0;font-size:14.5px} ul{padding-left:18px;font-size:14px;color:var(--muted)}
+  ol{margin:6px 0 0;padding-left:20px} ol li{margin:8px 0;font-size:14.5px}
   code{background:var(--bg2);border:1px solid var(--line);border-radius:7px;padding:2px 7px;font-size:13px;color:var(--gold)}
-  .kv{background:var(--bg2);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:10px}
-  .kv .r{display:flex;justify-content:space-between;gap:10px;padding:11px 13px;border-bottom:1px solid rgba(255,255,255,.05);font-size:13.5px}
-  .kv .r:last-child{border:0} .kv .r b{color:var(--gold);font-weight:700}
-  .kv .r span{color:var(--muted);text-align:right}
   .url{display:flex;gap:8px;align-items:center;margin-top:10px}
   .url input,.fld input,.fld textarea{flex:1;width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:11px;color:var(--ink);padding:11px 13px;font-size:14px;font-family:inherit}
   .fld{margin-top:10px} .fld label{display:block;font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.03em;margin-bottom:5px;text-transform:uppercase}
-  .fld textarea{min-height:96px;resize:vertical;white-space:pre-wrap}
-  .pill{display:inline-block;background:rgba(61,214,140,.12);border:1px solid rgba(61,214,140,.3);color:var(--good);font-size:12px;font-weight:700;padding:4px 11px;border-radius:99px;margin-top:6px}
+  .fld textarea{min-height:104px;resize:vertical;white-space:pre-wrap}
   .warn{background:rgba(245,197,24,.07);border:1px solid rgba(245,197,24,.25);border-radius:10px;padding:11px 13px;font-size:13px;color:var(--ink);margin-top:10px}
   .foot{text-align:center;color:var(--muted);font-size:12px;padding:24px 0 36px}
-  .btn{display:inline-flex;align-items:center;gap:6px;justify-content:center;font-weight:700;font-size:13.5px;padding:10px 16px;border-radius:99px;border:0;cursor:pointer;background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1205;font-family:inherit}
+  .btn{display:inline-flex;align-items:center;gap:7px;justify-content:center;font-weight:700;font-size:14px;padding:12px 18px;border-radius:99px;border:0;cursor:pointer;background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1205;font-family:inherit}
+  .btn.big{font-size:16px;padding:15px 24px;width:100%}
   .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
-  .btn.sm{font-size:12px;padding:7px 12px}
+  .btn.sm{font-size:12px;padding:8px 13px}
+  .btn:disabled{opacity:.5}
   .copy{background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.35);color:var(--gold);font-size:12px;font-weight:700;padding:6px 11px;border-radius:20px;cursor:pointer}
-  .copy:hover{background:rgba(245,197,24,.22)}
-  .rule{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px;position:relative}
+  .conn{display:flex;align-items:center;gap:10px;justify-content:center;font-weight:700;font-size:15px}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--muted)} .dot.on{background:var(--good);box-shadow:0 0 10px var(--good)}
+  .rule{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px}
   .rule .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
   .rule .nm{font-weight:800;font-size:15px} .rule .x{cursor:pointer;color:var(--red);font-weight:800;font-size:18px;background:none;border:0}
   .rule .lock{font-size:11.5px;color:var(--muted);margin-top:2px}
   .posts{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:9px;margin-top:12px}
-  .post{border:1px solid var(--line);border-radius:11px;overflow:hidden;cursor:pointer;background:var(--bg2);position:relative}
+  .post{border:1px solid var(--line);border-radius:11px;overflow:hidden;cursor:pointer;background:var(--bg2)}
   .post img{width:100%;height:110px;object-fit:cover;display:block}
   .post .cap{font-size:10.5px;color:var(--muted);padding:5px 6px;line-height:1.3;height:38px;overflow:hidden}
   .post.sel{outline:2px solid var(--gold)}
-  .out{background:#02110e;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px;font-size:12px;white-space:pre-wrap;word-break:break-word;max-height:230px;overflow:auto;color:var(--good)}
-  pre{margin:0;white-space:pre-wrap;font-family:inherit}
+  details summary{cursor:pointer;font-weight:700;color:var(--gold);font-size:14px;list-style:none}
+  details summary::-webkit-details-marker{display:none}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0B342D;border:1px solid var(--line);color:var(--ink);padding:12px 18px;border-radius:99px;font-weight:700;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.5);opacity:0;transition:.2s;pointer-events:none}
+  .toast.show{opacity:1}
 </style>
 </head>
 <body>
 <header>
   <div class="logo"><span class="m">⚡</span> Fuse Auto</div>
-  <h1>Your own ManyChat — for all your posts</h1>
-  <p class="sub">Auto-reply to comments and DM the right link on every post — one rule per video, unlimited posts, no monthly fee.</p>
-  <div class="pill" id="liveState">● Checking webhook…</div>
+  <h1>Auto-DM every commenter — free</h1>
+  <p class="sub">Connect once. Add a keyword + message for each video. When someone comments your keyword, they get an instant reply and a DM.</p>
 </header>
 
 <main class="wrap">
 
-  <!-- ONE-TIME SETUP -->
-  <div class="card">
-    <div class="step-h"><div class="step-n">1</div><div class="step-t">One-time setup (do this once)</div></div>
-    <ol>
-      <li><b>Create a free Meta app</b> at <a href="https://developers.facebook.com/apps" target="_blank">developers.facebook.com/apps</a> → <b>Create app</b> → <b>Business</b> → add the <b>Instagram</b> product → <b>API setup with Instagram login</b>. Your IG must be a <b>Business/Creator</b> account.</li>
-      <li><b>Generate a long-lived access token</b> and copy your <b>Instagram user ID</b> (both on the Instagram product page). Add yourself as a <b>tester</b> — in dev mode it works on <b>your own account</b>, no app review. ✅</li>
-      <li>In <b>this Netlify site → Site settings → Environment variables</b>, add the 4 below, then redeploy:</li>
-    </ol>
-    <div class="kv">
-      <div class="r"><b>VERIFY_TOKEN</b><span>any word you choose (e.g. fuse123)</span></div>
-      <div class="r"><b>IG_USER_ID</b><span>your Instagram account id</span></div>
-      <div class="r"><b>IG_ACCESS_TOKEN</b><span>your long-lived token</span></div>
-      <div class="r"><b>FUSE_AUTOMATIONS</b><span>paste the JSON the builder makes below</span></div>
-    </div>
+  <!-- CONNECT -->
+  <div class="card" id="connectCard">
+    <div class="conn"><span class="dot" id="dot"></span><span id="connText">Checking…</span></div>
+    <div id="connectArea" style="margin-top:14px"></div>
   </div>
 
-  <!-- WEBHOOK -->
+  <!-- ONE-TIME SETUP (only the first time) -->
   <div class="card">
-    <div class="step-h"><div class="step-n">2</div><div class="step-t">Connect the webhook (once)</div></div>
-    <ol>
-      <li>Meta app → <b>Instagram → Webhooks</b> → <b>Add callback URL</b>.</li>
-      <li>Paste this Callback URL + your <b>VERIFY_TOKEN</b>, then <b>Subscribe to the <code>comments</code> field</b>. Save.</li>
-    </ol>
-    <div class="url"><input id="hookUrl" readonly value="…"><button class="copy" onclick="copyVal('hookUrl',this)">⧉ Copy</button></div>
+    <details id="setupDetails">
+      <summary>⚙️ First-time setup (tap to open — you only do this once)</summary>
+      <div style="margin-top:12px">
+        <p class="sub" style="text-align:left">Before the button above can connect, your Meta app needs to exist. ~5 minutes, once.</p>
+        <ol>
+          <li>Go to <a href="https://developers.facebook.com/apps" target="_blank">developers.facebook.com/apps</a> → <b>Create app</b> → <b>Business</b> → add the <b>Instagram</b> product. Your IG must be a <b>Business/Creator</b> account.</li>
+          <li>On the Instagram product page, copy your <b>App ID</b> and <b>App secret</b>.</li>
+          <li>In <b>this Netlify site → Site settings → Environment variables</b>, add these 3, then redeploy:
+            <div class="warn"><code>APP_ID</code> = your app id · <code>APP_SECRET</code> = your app secret · <code>VERIFY_TOKEN</code> = any word (e.g. fuse123)</div>
+          </li>
+          <li>In the Meta app → Instagram → <b>set up Instagram login</b> → under <b>Valid OAuth Redirect URIs</b>, paste this and save:
+            <div class="url"><input id="redirUri" readonly value="…"><button class="copy" onclick="cp('redirUri',this)">⧉</button></div>
+          </li>
+          <li>In the Meta app → Instagram → <b>Webhooks</b> → Add callback URL below + your <b>VERIFY_TOKEN</b>, then <b>subscribe to the <code>comments</code> field</b>:
+            <div class="url"><input id="hookUrl" readonly value="…"><button class="copy" onclick="cp('hookUrl',this)">⧉</button></div>
+          </li>
+        </ol>
+        <p class="sub" style="text-align:left">Done with these? Tap <b>Connect Instagram</b> above — no token copying needed. 🎉</p>
+      </div>
+    </details>
   </div>
 
-  <!-- THE BUILDER -->
-  <div class="card">
-    <div class="step-h"><div class="step-n">3</div><div class="step-t">Build an automation for every post</div></div>
-    <p class="sub" style="text-align:left;margin:0 0 8px">Add one rule per video. Lock a rule to a specific post, or use a keyword that works across posts. Your work is saved on this device automatically.</p>
-
+  <!-- BUILDER -->
+  <div class="card" id="builderCard">
+    <div class="step-h"><div class="step-n">➕</div><div class="step-t">Your automations</div></div>
+    <p class="sub" style="text-align:left;margin:0 0 8px">One per video. Give each a <b>keyword</b> (tell viewers “comment DIRECTOR”) and the DM they’ll receive.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">
-      <button class="btn ghost sm" id="loadPosts">📷 Load my posts</button>
-      <button class="btn ghost sm" id="addManual">＋ Add keyword rule</button>
+      <button class="btn ghost sm" id="addBtn">＋ Add automation</button>
+      <button class="btn ghost sm" id="loadPosts">📷 Load my posts (optional)</button>
     </div>
-    <div id="postsWrap" style="display:none">
-      <div class="warn">Tap a post to attach an automation to it. (Needs your token + IG_USER_ID set + redeployed.)</div>
-      <div class="posts" id="posts"></div>
-    </div>
-
+    <div id="postsWrap" style="display:none"><div class="posts" id="posts"></div></div>
     <div id="rules"></div>
-
-    <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn" id="genBtn">⚙️ Generate config JSON</button>
-      <button class="copy" id="copyOut" style="display:none">⧉ Copy JSON</button>
-    </div>
-    <div class="out" id="out" style="display:none"></div>
-    <div class="warn" id="afterGen" style="display:none">Now paste that into the <code>FUSE_AUTOMATIONS</code> environment variable on this Netlify site and <b>redeploy</b>. That's it — every post fires its own DM. 🎉</div>
+    <button class="btn big" id="saveBtn" style="margin-top:16px">💾 Save automations</button>
   </div>
 
 </main>
 <footer class="foot">⚡ Fuse Auto — your own Instagram automation. No monthly fees.</footer>
+<div class="toast" id="toast"></div>
 
 <script>
   const $ = (id) => document.getElementById(id);
-  const base = location.origin;
-  $('hookUrl').value = base + '/.netlify/functions/ig-webhook';
+  $('redirUri').value = location.origin + '/.netlify/functions/oauth';
+  $('hookUrl').value  = location.origin + '/.netlify/functions/ig-webhook';
+  function cp(id,btn){ navigator.clipboard.writeText($(id).value); const o=btn.textContent;btn.textContent='✓';setTimeout(()=>btn.textContent=o,1100); }
+  function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+  function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
 
-  // live check
-  fetch('/.netlify/functions/ig-webhook?hub.mode=subscribe').then(r=>{
-    $('liveState').textContent = (r.status===403||r.status===200) ? '● Webhook is live' : '● Deploy the functions to go live';
-  }).catch(()=>{ $('liveState').textContent='● Deploy this folder (with functions) to go live'; });
-
-  function copyVal(id,btn){ navigator.clipboard.writeText($(id).value); const o=btn.textContent; btn.textContent='✓'; setTimeout(()=>btn.textContent=o,1200); }
-
-  // ---- rule state (persisted on the device) ----
   const DEFAULT_DM =
 `You just met Director Ria 👁️🎬
 
 Want to make this exact video with YOUR face?
 1️⃣ Open Fuse Studio → https://fuse-studio.netlify.app
 2️⃣ Sign up free (free credits to start)
-3️⃣ Go to "Viral Presets" → tap "AI Creative Director"
-4️⃣ Everything's loaded — frames, prompts, voice & lipsync steps. Just follow it 🔥
+3️⃣ Go to "Viral Presets" and follow the steps 🔥
 
 First 50 get DOUBLE credits — make yours and tag me @director_ria!`;
 
   let rules = [];
-  try { rules = JSON.parse(localStorage.getItem('fuseAuto')||'[]'); } catch(e){}
-  if(!rules.length){
-    rules = [{ name:'AI Creative Director', media_id:'', keywords:'director, prompt', replies:'Sent! check your DMs 📩 | On its way 🔥', dm:DEFAULT_DM }];
+
+  // ---- load status + saved rules from the server ----
+  async function boot(){
+    let connected=false, username='';
+    try{
+      const d = await (await fetch('/.netlify/functions/automations')).json();
+      connected = !!d.connected; username = d.username||'';
+      if(Array.isArray(d.automations) && d.automations.length){
+        rules = d.automations.map(r=>({ name:r.name||'', media_id:r.media_id||'',
+          keywords:(r.keywords||[]).join(', '), replies:(r.replies||[]).join(' | '), dm:r.dm||DEFAULT_DM }));
+      }
+    }catch(e){}
+    if(!rules.length){ rules=[{name:'AI Creative Director',media_id:'',keywords:'director, prompt',replies:'Sent! check your DMs 📩 | On its way 🔥',dm:DEFAULT_DM}]; }
+
+    if(connected){
+      $('dot').classList.add('on');
+      $('connText').textContent = username ? ('Connected as @'+username) : 'Instagram connected';
+      $('connectArea').innerHTML = '<button class="btn ghost sm" onclick="location.href=\'/.netlify/functions/oauth?start=1\'">↻ Reconnect</button>';
+    } else {
+      $('connText').textContent = 'Not connected yet';
+      $('connectArea').innerHTML = '<button class="btn big" onclick="location.href=\'/.netlify/functions/oauth?start=1\'">📸 Connect Instagram</button>';
+      $('setupDetails').open = true;
+    }
+    if(new URLSearchParams(location.search).get('connected')) toast('Instagram connected ✓');
+    render();
   }
-  const save = () => localStorage.setItem('fuseAuto', JSON.stringify(rules));
 
   function render(){
     $('rules').innerHTML = rules.map((r,i)=>`
       <div class="rule">
         <div class="top">
-          <div><div class="nm">${esc(r.name)||'Untitled automation'}</div>
-          <div class="lock">${r.media_id? '🔒 Locked to a specific post ('+String(r.media_id).slice(0,8)+'…)':'🌐 Works on any post by keyword'}</div></div>
-          <button class="x" data-x="${i}" title="Delete">×</button>
+          <div><div class="nm">${esc(r.name)||'Untitled'}</div>
+          <div class="lock">${r.media_id?'🔒 Locked to one post':'🌐 Works on any post by keyword'}</div></div>
+          <button class="x" data-x="${i}">×</button>
         </div>
-        <div class="fld"><label>Name (just for you)</label><input data-f="name" data-i="${i}" value="${esc(r.name)}"></div>
-        <div class="fld"><label>Keywords (comma separated)</label><input data-f="keywords" data-i="${i}" value="${esc(r.keywords)}" placeholder="director, prompt, link"></div>
-        <div class="fld"><label>Public replies (one is picked at random, separate with |)</label><input data-f="replies" data-i="${i}" value="${esc(r.replies)}" placeholder="Sent! 📩 | Check your DMs 🔥"></div>
-        <div class="fld"><label>The DM message</label><textarea data-f="dm" data-i="${i}">${esc(r.dm)}</textarea></div>
+        <div class="fld"><label>Name (for you)</label><input data-f="name" data-i="${i}" value="${esc(r.name)}"></div>
+        <div class="fld"><label>Keyword(s) — comma separated</label><input data-f="keywords" data-i="${i}" value="${esc(r.keywords)}" placeholder="director, prompt"></div>
+        <div class="fld"><label>Public replies (one picked at random, split with |)</label><input data-f="replies" data-i="${i}" value="${esc(r.replies)}"></div>
+        <div class="fld"><label>The DM they receive</label><textarea data-f="dm" data-i="${i}">${esc(r.dm)}</textarea></div>
       </div>`).join('');
-    $('rules').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{ rules.splice(+b.dataset.x,1); save(); render(); });
-    $('rules').querySelectorAll('[data-f]').forEach(el=>el.oninput=()=>{ rules[+el.dataset.i][el.dataset.f]=el.value; save(); });
+    $('rules').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{ rules.splice(+b.dataset.x,1); render(); });
+    $('rules').querySelectorAll('[data-f]').forEach(el=>el.oninput=()=>{ rules[+el.dataset.i][el.dataset.f]=el.value; });
   }
-  function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
 
-  $('addManual').onclick=()=>{ rules.push({name:'New automation',media_id:'',keywords:'keyword',replies:'Sent! check your DMs 📩',dm:DEFAULT_DM}); save(); render(); window.scrollTo(0,document.body.scrollHeight); };
+  $('addBtn').onclick=()=>{ rules.push({name:'New automation',media_id:'',keywords:'keyword',replies:'Sent! check your DMs 📩',dm:DEFAULT_DM}); render(); window.scrollTo(0,document.body.scrollHeight); };
 
-  // ---- load posts and attach a rule per post ----
   $('loadPosts').onclick=async()=>{
-    $('postsWrap').style.display='block';
-    $('posts').innerHTML='<div class="sub">Loading…</div>';
+    $('postsWrap').style.display='block'; $('posts').innerHTML='<div class="sub">Loading…</div>';
     try{
-      const r=await fetch('/.netlify/functions/media-list'); const d=await r.json();
-      if(!d.ok||!d.items.length){ $('posts').innerHTML='<div class="sub">Couldn\'t load posts ('+(d.reason||'no posts')+'). Make sure IG_ACCESS_TOKEN + IG_USER_ID are set and you redeployed. You can still add keyword rules above.</div>'; return; }
-      $('posts').innerHTML=d.items.map(m=>`
-        <div class="post" data-id="${m.id}" data-cap="${esc(m.caption)}">
-          ${m.thumb?`<img src="${m.thumb}" loading="lazy">`:'<div style="height:110px;display:grid;place-items:center">🎬</div>'}
-          <div class="cap">${esc(m.caption)||'(no caption)'}</div>
-        </div>`).join('');
-      $('posts').querySelectorAll('.post').forEach(el=>el.onclick=()=>{
-        const id=el.dataset.id; const cap=el.dataset.cap||'';
-        rules.push({ name: cap.slice(0,40)||('Post '+id.slice(0,6)), media_id:id, keywords:'', replies:'Sent! check your DMs 📩 | On its way 🔥', dm:DEFAULT_DM });
-        save(); render(); el.classList.add('sel');
-        $('rules').scrollIntoView({behavior:'smooth'});
-      });
-    }catch(e){ $('posts').innerHTML='<div class="sub">Network error loading posts.</div>'; }
+      const d=await (await fetch('/.netlify/functions/media-list')).json();
+      if(!d.ok||!d.items.length){ $('posts').innerHTML='<div class="sub">Connect Instagram first, then your posts show here. (You can still use keyword rules without this.)</div>'; return; }
+      $('posts').innerHTML=d.items.map(m=>`<div class="post" data-id="${m.id}" data-cap="${esc(m.caption)}">${m.thumb?`<img src="${m.thumb}" loading="lazy">`:'<div style="height:110px;display:grid;place-items:center">🎬</div>'}<div class="cap">${esc(m.caption)||'(no caption)'}</div></div>`).join('');
+      $('posts').querySelectorAll('.post').forEach(el=>el.onclick=()=>{ rules.push({name:(el.dataset.cap||'').slice(0,40)||'Post',media_id:el.dataset.id,keywords:'',replies:'Sent! check your DMs 📩',dm:DEFAULT_DM}); el.classList.add('sel'); render(); $('rules').scrollIntoView({behavior:'smooth'}); });
+    }catch(e){ $('posts').innerHTML='<div class="sub">Network error.</div>'; }
   };
 
-  // ---- generate the env JSON ----
-  $('genBtn').onclick=()=>{
-    const json = JSON.stringify(rules.map(r=>{
-      const o={};
-      if(r.name) o.name=r.name.trim();
-      if(r.media_id) o.media_id=String(r.media_id).trim();
-      const kw=(r.keywords||'').split(',').map(s=>s.trim()).filter(Boolean);
-      if(kw.length) o.keywords=kw;
-      const rep=(r.replies||'').split('|').map(s=>s.trim()).filter(Boolean);
-      if(rep.length) o.replies=rep;
-      o.dm=(r.dm||'').trim();
-      return o;
-    }));
-    $('out').textContent=json; $('out').style.display='block';
-    $('copyOut').style.display='inline-flex'; $('afterGen').style.display='block';
-    $('copyOut').onclick=()=>{ navigator.clipboard.writeText(json); const o=$('copyOut').textContent; $('copyOut').textContent='✓ Copied'; setTimeout(()=>$('copyOut').textContent=o,1300); };
+  $('saveBtn').onclick=async()=>{
+    const payload = rules.map(r=>{
+      const o={}; if(r.name)o.name=r.name.trim(); if(r.media_id)o.media_id=String(r.media_id).trim();
+      const kw=(r.keywords||'').split(',').map(s=>s.trim()).filter(Boolean); if(kw.length)o.keywords=kw;
+      const rep=(r.replies||'').split('|').map(s=>s.trim()).filter(Boolean); if(rep.length)o.replies=rep;
+      o.dm=(r.dm||'').trim(); return o;
+    });
+    $('saveBtn').disabled=true; $('saveBtn').textContent='Saving…';
+    try{
+      const d=await (await fetch('/.netlify/functions/automations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({automations:payload})})).json();
+      toast(d.ok?('Saved '+d.count+' automation'+(d.count===1?'':'s')+' ✓'):'Save failed');
+    }catch(e){ toast('Save failed — is it deployed?'); }
+    $('saveBtn').disabled=false; $('saveBtn').textContent='💾 Save automations';
   };
 
-  render();
+  boot();
 </script>
 </body>
 </html>

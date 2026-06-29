@@ -38,6 +38,38 @@ Make yours and tag me @fuse_studio2!`;
 
 const DEFAULT_REPLIES = ['Just sent it 📩 check your DMs!', "Sent! It's in your messages 👀", 'On its way to your DMs 🔥'];
 
+async function store() {
+  const { getStore } = await import('@netlify/blobs');
+  return getStore('fuse-auto');
+}
+
+function normalizeRules(arr) {
+  return arr.map((r) => ({
+    name: r.name || '',
+    media_id: r.media_id ? String(r.media_id) : '',
+    keywords: (r.keywords || []).map((k) => String(k).trim().toLowerCase()).filter(Boolean),
+    replies: (r.replies && r.replies.length ? r.replies : DEFAULT_REPLIES).map((s) => String(s).trim()).filter(Boolean),
+    dm: r.dm || DEFAULT_DM,
+  }));
+}
+
+// Where do the token + automations come from? Prefer the one-tap "Connect Instagram"
+// store; fall back to the manual env-var setup so older setups keep working.
+async function loadEverything() {
+  let token = process.env.IG_ACCESS_TOKEN || '';
+  let igId = process.env.IG_USER_ID || '';
+  let rules = null;
+  try {
+    const s = await store();
+    const conn = await s.get('conn', { type: 'json' });
+    if (conn && conn.token) { token = conn.token; igId = conn.userId || igId; }
+    const saved = await s.get('automations', { type: 'json' });
+    if (Array.isArray(saved) && saved.length) rules = normalizeRules(saved);
+  } catch (e) { /* blobs unavailable -> env fallback */ }
+  if (!rules) rules = loadAutomations();
+  return { token, igId, rules };
+}
+
 // Build the list of automations from env. Prefer FUSE_AUTOMATIONS (multi-post),
 // fall back to the old single KEYWORDS/DM_TEXT pair so existing setups keep working.
 function loadAutomations() {
@@ -45,15 +77,7 @@ function loadAutomations() {
   if (raw) {
     try {
       const arr = JSON.parse(raw);
-      if (Array.isArray(arr) && arr.length) {
-        return arr.map((r) => ({
-          name: r.name || '',
-          media_id: r.media_id ? String(r.media_id) : '',
-          keywords: (r.keywords || []).map((k) => String(k).trim().toLowerCase()).filter(Boolean),
-          replies: (r.replies && r.replies.length ? r.replies : DEFAULT_REPLIES).map((s) => String(s).trim()).filter(Boolean),
-          dm: r.dm || DEFAULT_DM,
-        }));
-      }
+      if (Array.isArray(arr) && arr.length) return normalizeRules(arr);
     } catch (e) { /* fall through to single mode */ }
   }
   // single-automation fallback
@@ -95,9 +119,7 @@ exports.handler = async (event) => {
   // Always 200 fast; do the work but never throw back to Meta.
   try {
     const body = JSON.parse(event.body || '{}');
-    const token = process.env.IG_ACCESS_TOKEN;
-    const igId = process.env.IG_USER_ID;
-    const rules = loadAutomations();
+    const { token, igId, rules } = await loadEverything();
 
     if (token && igId && body.object === 'instagram') {
       for (const entry of (body.entry || [])) {

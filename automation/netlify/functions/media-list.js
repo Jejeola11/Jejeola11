@@ -4,11 +4,21 @@
 // an automation to each one by its real media id. Token never touches the browser.
 const GRAPH = 'https://graph.instagram.com/v21.0';
 
+async function store() {
+  const { getStore } = await import('@netlify/blobs');
+  return getStore('fuse-auto');
+}
+
 exports.handler = async () => {
-  const token = process.env.IG_ACCESS_TOKEN;
-  const igId = process.env.IG_USER_ID;
+  // Prefer the one-tap connection; fall back to manual env vars.
+  let token = process.env.IG_ACCESS_TOKEN || '';
+  let igId = process.env.IG_USER_ID || '';
+  try {
+    const conn = await (await store()).get('conn', { type: 'json' });
+    if (conn && conn.token) { token = conn.token; igId = conn.userId || igId; }
+  } catch (e) { /* env fallback */ }
   if (!token || !igId) {
-    return json(200, { ok: false, reason: 'missing_env', items: [] });
+    return json(200, { ok: false, reason: 'not_connected', items: [] });
   }
   try {
     const fields = 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp';
