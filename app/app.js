@@ -515,11 +515,9 @@ function openPreset(id) {
     </div>
 
     <div class="shead"><h2>Copy-paste prompts</h2></div>
-    ${(p.promptList
-        ? p.promptList.filter((b) => p.prompts[b.key]).map((b) => promptBlock(b.label, b.key, p.prompts[b.key]))
-        : [['Product / bottle prompt', 'bottle'], ['Start-frame prompt (avatar)', 'startFrame'], ['Motion prompt (image → video)', 'motion']]
-            .filter(([, k]) => p.prompts[k]).map(([l, k]) => promptBlock(l, k, p.prompts[k]))
-      ).join('')}
+    ${p.prompts.bottle ? promptBlock('Product / bottle prompt', 'bottle', p.prompts.bottle) : ''}
+    ${p.prompts.startFrame ? promptBlock('Start-frame prompt (avatar)', 'startFrame', p.prompts.startFrame) : ''}
+    ${p.prompts.motion ? promptBlock('Motion prompt (image → video)', 'motion', p.prompts.motion) : ''}
 
     <div class="shead"><h2>Start now</h2></div>
     <div class="preset-jumps">
