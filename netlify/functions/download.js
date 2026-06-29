@@ -13,23 +13,8 @@ exports.handler = async (event) => {
   const allowed = /(muapi\.ai|supabase\.co|fal\.(run|ai|media)|cdn\.)/i.test(host);
   if (!allowed) return { statusCode: 403, body: 'host not allowed' };
 
-  try {
-    const r = await fetch(url);
-    if (!r.ok) return { statusCode: 502, body: 'fetch failed' };
-    const ct = r.headers.get('content-type') || 'application/octet-stream';
-    const ext = ct.includes('video') ? 'mp4' : ct.includes('png') ? 'png' : ct.includes('webp') ? 'webp' : 'jpg';
-    const buf = Buffer.from(await r.arrayBuffer());
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': ct,
-        'Content-Disposition': `attachment; filename="${name}.${ext}"`,
-        'Cache-Control': 'no-store',
-      },
-      body: buf.toString('base64'),
-      isBase64Encoded: true,
-    };
-  } catch (e) {
-    return { statusCode: 502, body: 'error' };
-  }
+  // Don't buffer the file (Netlify caps function responses at ~6MB, which crashes
+  // on videos). Just redirect the browser to the CDN file. The client handles the
+  // real "save as" via a direct fetch+blob; this is only a safe fallback.
+  return { statusCode: 302, headers: { Location: url, 'Cache-Control': 'no-store' }, body: '' };
 };

@@ -23,12 +23,13 @@ let studioVideo = false;  // studio generator mode: image (false) or video (true
 const naira = (n) => '₦' + Number(n).toLocaleString();
 const usd = (n) => '$' + Math.round(n / cfg.USD_RATE);
 const price = (n) => (showUsd ? usd(n) : naira(n));
-// Download via our proxy so it saves the file directly (no new browser tab).
-const dlHref = (u) => `/.netlify/functions/download?url=${encodeURIComponent(u)}&name=fuse-${Date.now()}`;
+// Download straight from the CDN (the old proxy buffered the whole file and
+// crashed on videos > 6MB — Netlify's function response cap). Fall back to
+// opening the file in a new tab if the CDN blocks a cross-origin fetch.
 async function downloadFile(url) {
   try {
-    const res = await fetch(dlHref(url));
-    if (!res.ok) throw new Error('proxy');
+    const res = await fetch(url, { mode: 'cors' });
+    if (!res.ok) throw new Error('fetch');
     const blob = await res.blob();
     const a = document.createElement('a');
     const o = URL.createObjectURL(blob);
@@ -36,27 +37,37 @@ async function downloadFile(url) {
     a.download = `fuse-${Date.now()}.${blob.type.includes('video') ? 'mp4' : blob.type.includes('png') ? 'png' : 'jpg'}`;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(o), 5000);
-  } catch (e) { window.location.href = dlHref(url); }
+  } catch (e) { window.open(url, '_blank'); }
 }
 window.fuseDownload = downloadFile;
 
 // ---- Extract a frame (start/end) from a generated video ----
-// Fetch through our download proxy first so the <canvas> isn't CORS-tainted.
-async function videoFrameBlob(url, which) {
-  const res = await fetch(`/.netlify/functions/download?url=${encodeURIComponent(url)}`);
-  if (!res.ok) throw new Error('Could not load video');
-  const objUrl = URL.createObjectURL(await res.blob());
+// Load the video DIRECTLY from the CDN (crossOrigin) — no proxy, so no size cap.
+// Try blob-from-CDN first (cleanest), then a direct crossOrigin <video>.
+async function frameFromVideoEl(src, which, revoke) {
+  const v = document.createElement('video');
+  v.muted = true; v.playsInline = true; v.preload = 'auto'; v.crossOrigin = 'anonymous'; v.src = src;
   try {
-    const v = document.createElement('video');
-    v.muted = true; v.playsInline = true; v.preload = 'auto'; v.crossOrigin = 'anonymous'; v.src = objUrl;
-    await new Promise((ok, no) => { v.onloadeddata = ok; v.onerror = () => no(new Error('Video load failed')); });
-    const t = which === 'start' ? 0 : Math.max(0, (v.duration || 1) - 0.06);
-    await new Promise((ok) => { v.onseeked = ok; try { v.currentTime = t; } catch (e) { ok(); } });
+    await new Promise((ok, no) => { v.onloadeddata = ok; v.onerror = () => no(new Error('Video could not load')); setTimeout(() => no(new Error('Video load timed out')), 30000); });
+    const t = which === 'start' ? 0.04 : Math.max(0, (v.duration || 1) - 0.06);
+    await new Promise((ok) => { v.onseeked = ok; try { v.currentTime = t; } catch (e) { ok(); } setTimeout(ok, 4000); });
     const c = document.createElement('canvas');
     c.width = v.videoWidth || 720; c.height = v.videoHeight || 1280;
     c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
-    return await new Promise((ok) => c.toBlob(ok, 'image/jpeg', 0.92));
-  } finally { URL.revokeObjectURL(objUrl); }
+    return await new Promise((ok, no) => { try { c.toBlob((b) => b ? ok(b) : no(new Error('toBlob failed')), 'image/jpeg', 0.92); } catch (e) { no(e); } });
+  } finally { if (revoke) URL.revokeObjectURL(src); }
+}
+async function videoFrameBlob(url, which) {
+  // 1) Fetch the file from the CDN as a same-origin blob (works if CDN allows CORS).
+  try {
+    const res = await fetch(url, { mode: 'cors' });
+    if (res.ok) {
+      const objUrl = URL.createObjectURL(await res.blob());
+      return await frameFromVideoEl(objUrl, which, true);
+    }
+  } catch (e) { /* fall through */ }
+  // 2) Direct crossOrigin video element.
+  return await frameFromVideoEl(url, which, false);
 }
 function ftStatus(msg) { try { toast(msg); } catch (e) {} const n = document.getElementById('ftNote'); if (n) { n.textContent = msg; n.className = 'note ok'; } }
 window.fuseSaveFrame = async (url, which) => {
