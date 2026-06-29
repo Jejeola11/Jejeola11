@@ -40,6 +40,55 @@ async function downloadFile(url) {
 }
 window.fuseDownload = downloadFile;
 
+// ---- Extract a frame (start/end) from a generated video ----
+// Fetch through our download proxy first so the <canvas> isn't CORS-tainted.
+async function videoFrameBlob(url, which) {
+  const res = await fetch(`/.netlify/functions/download?url=${encodeURIComponent(url)}`);
+  if (!res.ok) throw new Error('Could not load video');
+  const objUrl = URL.createObjectURL(await res.blob());
+  try {
+    const v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.preload = 'auto'; v.crossOrigin = 'anonymous'; v.src = objUrl;
+    await new Promise((ok, no) => { v.onloadeddata = ok; v.onerror = () => no(new Error('Video load failed')); });
+    const t = which === 'start' ? 0 : Math.max(0, (v.duration || 1) - 0.06);
+    await new Promise((ok) => { v.onseeked = ok; try { v.currentTime = t; } catch (e) { ok(); } });
+    const c = document.createElement('canvas');
+    c.width = v.videoWidth || 720; c.height = v.videoHeight || 1280;
+    c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+    return await new Promise((ok) => c.toBlob(ok, 'image/jpeg', 0.92));
+  } finally { URL.revokeObjectURL(objUrl); }
+}
+window.fuseSaveFrame = async (url, which) => {
+  note('ftNote', `Extracting ${which} frame…`, 'ok');
+  try {
+    const blob = await videoFrameBlob(url, which);
+    const o = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = o; a.download = `fuse-${which}-frame-${Date.now()}.jpg`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(o), 5000);
+    note('ftNote', `✅ ${which.charAt(0).toUpperCase() + which.slice(1)} frame saved.`, 'ok');
+  } catch (e) { note('ftNote', e.message || 'Could not extract frame.', 'err'); }
+};
+// Extract the end frame, upload it, and load it as the next clip's starting image.
+window.fuseUseEndAsStart = async (url) => {
+  if (preview) { showAuth('signup'); return; }
+  note('ftNote', 'Grabbing end frame…', 'ok');
+  try {
+    const blob = await videoFrameBlob(url, 'end');
+    const path = `${user.id}/endframe-${Date.now()}.jpg`;
+    const { error } = await sb.storage.from('avatars').upload(path, blob, { contentType: 'image/jpeg' });
+    if (error) throw error;
+    const pub = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    // Attach it as the video studio's starting image, ready for the next clip.
+    if (!vModel) vModel = cfg.VIDEO_MODELS.find((m) => m.slug === 'kling-v3-turbo-pro-text-to-video') || cfg.VIDEO_MODELS[0];
+    vRefUrl = pub;
+    showView('video');
+    $('vRefThumb').src = pub; $('vRefPreview').style.display = 'flex'; $('vRefBtn').style.display = 'none';
+    $('vPrompt').value = ''; $('vResult').innerHTML = '<div class="muted">End frame attached as your starting image — describe the next motion and generate to continue the scene. 🎬</div>';
+    note('vNote', '✅ End frame attached — your next clip will continue seamlessly.', 'ok');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (e) { note('ftNote', e.message || 'Could not use end frame.', 'err'); }
+};
+
 // In-app lightbox preview (no new browser tab).
 let lbUrl = '';
 window.fuseLightbox = (url, type) => {
@@ -64,7 +113,15 @@ function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video'
         const media = mediaType === 'image'
           ? `<img src="${d.url}" onclick="fuseLightbox('${d.url}','image')" style="cursor:pointer">`
           : `<video src="${d.url}" controls autoplay loop muted playsinline></video>`;
-        resultEl.innerHTML = `<div>${media}<div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${d.url}')">⬇ Download</button></div></div>`;
+        const frameTools = mediaType === 'video'
+          ? `<div class="frame-tools"><div class="ft-h">🎞 Extract frames (chain your next clip)</div>
+              <div class="ft-row">
+                <button class="btn ghost sm" onclick="fuseSaveFrame('${d.url}','start')">⬇ Start frame</button>
+                <button class="btn ghost sm" onclick="fuseSaveFrame('${d.url}','end')">⬇ End frame</button>
+                <button class="btn gold sm" onclick="fuseUseEndAsStart('${d.url}')">➡ Use end frame as next start</button>
+              </div><div class="note" id="ftNote"></div></div>`
+          : '';
+        resultEl.innerHTML = `<div>${media}<div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${d.url}')">⬇ Download</button></div>${frameTools}</div>`;
         note(noteId, 'Done ✅', 'ok');
         if (user) loadProfile();
         if (btn) { btn.disabled = false; btn.textContent = btnLabel; }
