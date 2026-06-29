@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fuse Auto — your own ManyChat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#031A16;--bg2:#04221D;--card:#082A25;--card2:#0B342D;--line:#15493F;--ink:#F6F2E8;--muted:#8FB3AC;--gold:#F5C518;--gold2:#FFD84A;--gold-deep:#D9A91A;--good:#3DD68C;--glow:0 0 30px rgba(245,197,24,.25)}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:var(--ink);line-height:1.55;min-height:100vh;
+    background:radial-gradient(900px 480px at 85% -10%,rgba(245,197,24,.12),transparent 60%),radial-gradient(800px 460px at -5% 6%,rgba(8,60,52,.5),transparent 62%),var(--bg)}
+  a{color:var(--gold)} .wrap{max-width:740px;margin:0 auto;padding:0 18px}
+  header{text-align:center;padding:34px 0 10px}
+  .logo{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:22px}
+  .logo .m{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--gold),var(--gold-deep));display:grid;place-items:center;color:#1a1205;font-size:19px;box-shadow:var(--glow)}
+  h1{font-size:clamp(26px,6vw,36px);margin:14px 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--muted);max-width:540px;margin:0 auto;font-size:15px}
+  .card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:20px;margin:14px 0;box-shadow:0 14px 36px rgba(0,0,0,.4)}
+  .step-h{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .step-n{flex:0 0 32px;width:32px;height:32px;border-radius:10px;background:rgba(245,197,24,.14);color:var(--gold);font-weight:800;display:grid;place-items:center}
+  .step-t{font-weight:800;font-size:17px}
+  ol{margin:6px 0 0;padding-left:20px} ol li{margin:8px 0;font-size:14.5px}
+  code{background:var(--bg2);border:1px solid var(--line);border-radius:7px;padding:2px 7px;font-size:13px;color:var(--gold)}
+  .kv{background:var(--bg2);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:10px}
+  .kv .r{display:flex;justify-content:space-between;gap:10px;padding:11px 13px;border-bottom:1px solid rgba(255,255,255,.05);font-size:13.5px}
+  .kv .r:last-child{border:0} .kv .r b{color:var(--gold);font-weight:700}
+  .kv .r span{color:var(--muted);text-align:right}
+  .msg{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px}
+  .msg .h{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+  .msg .t{font-weight:800;font-size:12px;color:var(--gold);letter-spacing:.04em}
+  .msg pre{margin:0;white-space:pre-wrap;font-family:inherit;font-size:13.5px;color:var(--ink)}
+  .copy{background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.35);color:var(--gold);font-size:12px;font-weight:700;padding:6px 11px;border-radius:20px;cursor:pointer}
+  .copy:hover{background:rgba(245,197,24,.22)}
+  .url{display:flex;gap:8px;align-items:center;margin-top:10px}
+  .url input{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:11px;color:var(--ink);padding:11px 13px;font-size:14px}
+  .pill{display:inline-block;background:rgba(61,214,140,.12);border:1px solid rgba(61,214,140,.3);color:var(--good);font-size:12px;font-weight:700;padding:4px 11px;border-radius:99px;margin-top:6px}
+  .warn{background:rgba(245,197,24,.07);border:1px solid rgba(245,197,24,.25);border-radius:10px;padding:11px 13px;font-size:13px;color:var(--ink);margin-top:10px}
+  .foot{text-align:center;color:var(--muted);font-size:12px;padding:24px 0 36px}
+  .btn{display:inline-flex;align-items:center;gap:6px;justify-content:center;font-weight:700;font-size:13px;padding:9px 14px;border-radius:99px;border:0;cursor:pointer;background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1205;font-family:inherit}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><span class="m">⚡</span> Fuse Auto</div>
+  <h1>Your own ManyChat — free, no subscription</h1>
+  <p class="sub">Auto-reply to Instagram comments and DM the link, on your own account. One-time setup, then it runs itself.</p>
+  <div class="pill" id="liveState">● Checking webhook…</div>
+</header>
+
+<main class="wrap">
+
+  <div class="card">
+    <div class="step-h"><div class="step-n">1</div><div class="step-t">Create your Meta app (free)</div></div>
+    <ol>
+      <li>Go to <a href="https://developers.facebook.com/apps" target="_blank">developers.facebook.com/apps</a> → <b>Create app</b> → choose <b>Business</b>.</li>
+      <li>Add the product <b>Instagram</b> → <b>API setup with Instagram login</b>.</li>
+      <li>Make sure your Instagram is a <b>Business or Creator</b> account.</li>
+      <li>Add yourself as a <b>tester</b> (Roles → add your IG). In development mode it works on <b>your own account</b> — no app review needed. ✅</li>
+    </ol>
+    <div class="warn">💡 Dev mode = it works on your account immediately. You only need Meta's full app review if you later run it for <i>other</i> people.</div>
+  </div>
+
+  <div class="card">
+    <div class="step-h"><div class="step-n">2</div><div class="step-t">Get your IDs + token, set the env vars</div></div>
+    <ol>
+      <li>In the Instagram product → generate a <b>long-lived access token</b> and copy your <b>Instagram user ID</b>.</li>
+      <li>In <b>this Netlify site → Site settings → Environment variables</b>, add:</li>
+    </ol>
+    <div class="kv">
+      <div class="r"><b>VERIFY_TOKEN</b><span>any word you choose (e.g. fuse123)</span></div>
+      <div class="r"><b>IG_USER_ID</b><span>your Instagram account id</span></div>
+      <div class="r"><b>IG_ACCESS_TOKEN</b><span>your long-lived token</span></div>
+      <div class="r"><b>KEYWORDS</b><span>PROMPT,prompt,Prompt,PROMPTS</span></div>
+    </div>
+    <div class="warn">Optional: <code>DM_TEXT</code> and <code>PUBLIC_REPLIES</code> (pipe | separated) to override the defaults below. Redeploy after adding env vars.</div>
+  </div>
+
+  <div class="card">
+    <div class="step-h"><div class="step-n">3</div><div class="step-t">Connect the webhook</div></div>
+    <ol>
+      <li>In your Meta app → <b>Instagram → Webhooks</b> (or App → Webhooks), click <b>Add callback URL</b>.</li>
+      <li>Paste this Callback URL and your <b>VERIFY_TOKEN</b>:</li>
+    </ol>
+    <div class="url"><input id="hookUrl" readonly value="…"><button class="copy" onclick="copyVal('hookUrl',this)">⧉ Copy</button></div>
+    <ol start="3">
+      <li>Subscribe to the <b>comments</b> field. Save.</li>
+      <li>Done — comment your keyword on one of your posts to test. 🎉</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <div class="step-h"><div class="step-n">✍️</div><div class="step-t">Your messages (defaults — edit if you like)</div></div>
+    <div class="msg"><div class="h"><span class="t">PUBLIC REPLIES (pipe | separated)</span><button class="copy" data-k="rep">⧉ Copy</button></div><pre id="rep">Just sent it 📩 check your DMs! | Sent! It's in your messages 👀 | On its way to your DMs 🔥</pre></div>
+    <div class="msg"><div class="h"><span class="t">DM_TEXT</span><button class="copy" data-k="dm">⧉ Copy</button></div><pre id="dm">Here it is 👇
+
+1️⃣ Open Fuse Studio → https://fuse-studio.netlify.app
+2️⃣ Sign up free (you get free credits to start)
+3️⃣ Go to "Viral Presets" → tap the exact video you saw on my page
+4️⃣ Everything's pre-loaded — the prompts, the look, the steps. Just follow it and make your own 🎬
+
+🔥 First 50 people get DOUBLE credits — don't sleep on it.
+Make yours and tag me @fuse_studio2!</pre></div>
+  </div>
+
+</main>
+<footer class="foot">⚡ Fuse Auto — your own Instagram automation. No monthly fees.</footer>
+
+<script>
+  const base = location.origin;
+  document.getElementById('hookUrl').value = base + '/.netlify/functions/ig-webhook';
+  // live check: GET the webhook (verification will 403 without token, but that proves it's deployed)
+  fetch('/.netlify/functions/ig-webhook?hub.mode=subscribe').then(r=>{
+    document.getElementById('liveState').textContent = (r.status===403||r.status===200) ? '● Webhook is live' : '● Deploy the functions to go live';
+  }).catch(()=>{ document.getElementById('liveState').textContent='● Deploy this folder (with functions) to go live'; });
+  function copyVal(id,btn){ navigator.clipboard.writeText(document.getElementById(id).value); const o=btn.textContent; btn.textContent='✓'; setTimeout(()=>btn.textContent=o,1200); }
+  document.querySelectorAll('.copy[data-k]').forEach(b=>b.onclick=()=>{ navigator.clipboard.writeText(document.getElementById(b.dataset.k).textContent); const o=b.textContent;b.textContent='✓ Copied';setTimeout(()=>b.textContent=o,1300); });
+</script>
+</body>
+</html>
