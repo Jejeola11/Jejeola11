@@ -54,10 +54,15 @@ exports.handler = async (event) => {
     const faceSlots = Math.max(1, 4 - extraRefs.length);
     const refs = faceImgs.slice(0, faceSlots).concat(extraRefs);
 
-    // Strong identity-preservation prompt — this is what keeps the face consistent.
-    const identity = 'Keep the EXACT same face, identity, bone structure and facial features as the person shown in the reference photos — do not alter their face, only change the scene/outfit/pose as described. Photorealistic, identical consistent face, ultra-detailed natural skin texture, sharp focus.';
-    const extraNote = extraRefs.length ? ' Include the product/object from the additional reference image(s) naturally in the scene.' : '';
-    const prompt = `${scene}. ${identity}${extraNote}`;
+    // Strong identity lock — the first reference is the model sheet (or photos);
+    // force the face to match it exactly.
+    const hasSheet = !!avatar.model_sheet_url;
+    const identity = hasSheet
+      ? 'CRITICAL FACE LOCK: the subject\'s face MUST be identical to the face in the first reference image (the character model sheet). Copy that exact face — same face shape, jawline, eyes, eyebrows, nose, lips, skin tone and complexion. Do NOT invent a new face, do NOT beautify, slim, lighten, or change the ethnicity or age. Match it like the same real person photographed again.'
+      : 'CRITICAL: keep the EXACT same face and identity as the person in the reference photos — same facial features, face shape, eyes, nose, lips, skin tone. Do not alter or beautify their face.';
+    const realism = ' Hyper-realistic, like a real DSLR photograph — natural skin texture with visible pores and subtle imperfections, realistic asymmetry, no plastic or airbrushed or AI look, no smoothing. Only change the scene, outfit and pose as described; the face stays the same.';
+    const extraNote = extraRefs.length ? ' Naturally include the product/object shown in the additional reference image(s) in the scene, held or placed realistically.' : '';
+    const prompt = `${scene}. ${identity}${realism}${extraNote}`;
 
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: AVATAR_COST });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: AVATAR_COST, code: 'NO_CREDITS' });

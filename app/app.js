@@ -58,20 +58,22 @@ async function videoFrameBlob(url, which) {
     return await new Promise((ok) => c.toBlob(ok, 'image/jpeg', 0.92));
   } finally { URL.revokeObjectURL(objUrl); }
 }
+function ftStatus(msg) { try { toast(msg); } catch (e) {} const n = document.getElementById('ftNote'); if (n) { n.textContent = msg; n.className = 'note ok'; } }
 window.fuseSaveFrame = async (url, which) => {
-  note('ftNote', `Extracting ${which} frame…`, 'ok');
+  ftStatus(`Extracting ${which} frame…`);
   try {
     const blob = await videoFrameBlob(url, which);
     const o = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = o; a.download = `fuse-${which}-frame-${Date.now()}.jpg`;
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(o), 5000);
-    note('ftNote', `✅ ${which.charAt(0).toUpperCase() + which.slice(1)} frame saved.`, 'ok');
-  } catch (e) { note('ftNote', e.message || 'Could not extract frame.', 'err'); }
+    ftStatus(`✅ ${which.charAt(0).toUpperCase() + which.slice(1)} frame saved to your downloads.`);
+  } catch (e) { ftStatus(e.message || 'Could not extract frame.'); }
 };
 // Extract the end frame, upload it, and load it as the next clip's starting image.
 window.fuseUseEndAsStart = async (url) => {
   if (preview) { showAuth('signup'); return; }
-  note('ftNote', 'Grabbing end frame…', 'ok');
+  if ($('lightbox')) $('lightbox').style.display = 'none';
+  ftStatus('Grabbing end frame…');
   try {
     const blob = await videoFrameBlob(url, 'end');
     const path = `${user.id}/endframe-${Date.now()}.jpg`;
@@ -86,7 +88,7 @@ window.fuseUseEndAsStart = async (url) => {
     $('vPrompt').value = ''; $('vResult').innerHTML = '<div class="muted">End frame attached as your starting image — describe the next motion and generate to continue the scene. 🎬</div>';
     note('vNote', '✅ End frame attached — your next clip will continue seamlessly.', 'ok');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  } catch (e) { note('ftNote', e.message || 'Could not use end frame.', 'err'); }
+  } catch (e) { ftStatus(e.message || 'Could not use end frame.'); }
 };
 
 // In-app lightbox preview (no new browser tab).
@@ -818,6 +820,14 @@ window.fuseProject = (i) => {
     : `<img src="${x.output_url}" style="max-width:92vw;max-height:56vh;border-radius:14px">`;
   const modelName = (cfg.IMAGE_MODELS.concat(cfg.VIDEO_MODELS, cfg.TOOL_MODELS).find((m) => m.slug === x.model) || {}).name || x.model || '—';
   const when = x.created_at ? new Date(x.created_at).toLocaleDateString() : '';
+  const frameTools = (x.type === 'video')
+    ? `<div class="frame-tools"><div class="ft-h">🎞 Extract frames (chain your next clip)</div>
+        <div class="ft-row">
+          <button class="btn ghost sm" onclick="fuseSaveFrame('${x.output_url}','start')">⬇ Start frame</button>
+          <button class="btn ghost sm" onclick="fuseSaveFrame('${x.output_url}','end')">⬇ End frame</button>
+          <button class="btn gold sm" onclick="fuseUseEndAsStart('${x.output_url}')">➡ Use end frame as next start</button>
+        </div><div class="note" id="ftNote"></div></div>`
+    : '';
   const meta = `<div class="projmeta">
       <div class="pm-row"><span>Model</span><b>${modelName}</b></div>
       ${x.aspect ? `<div class="pm-row"><span>Aspect</span><b>${x.aspect}</b></div>` : ''}
@@ -825,7 +835,7 @@ window.fuseProject = (i) => {
       ${x.prompt ? `<div class="pm-prompt"><span>Prompt used</span><p>${(x.prompt || '').replace(/</g, '&lt;')}</p>
         <button class="btn ghost sm" onclick="window.fuseReuse(${i})">↺ Use this prompt again</button></div>` : ''}
     </div>`;
-  $('lbContent').innerHTML = media + meta;
+  $('lbContent').innerHTML = media + frameTools + meta;
   $('lightbox').style.display = 'grid';
 };
 // Re-open the studio with this project's prompt prefilled.
