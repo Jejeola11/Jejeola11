@@ -112,6 +112,26 @@ window.FUSE = {
   // Viral presets — full creative recipes (each opens a "build it yourself" view).
   VIRAL_PRESETS: [
     {
+      id: 'card-fuse',
+      title: 'AI Brand Reveal × Card',
+      hook: 'Cinematic street promo — your avatar holding your brand card',
+      sample: '/app/media/presets/card-fuse-loop.mp4',
+      kind: 'video',
+      models: { product: 'nano-banana-edit', startFrame: 'nano-banana-edit', video: 'kling-v3-turbo-pro-image-to-video' },
+      steps: [
+        { num: 1, title: 'Train your avatar + model sheet', detail: 'Avatar Studio → upload up to 15 photos → tap "Generate model sheet" so your face stays consistent. (10 + 15 cr)' },
+        { num: 2, title: 'Design the brand card', detail: 'Image Studio → upload your logo as reference → use the card prompt below. (7 cr)' },
+        { num: 3, title: 'Create the start frame', detail: 'Avatar Studio → select your avatar → add the card as extra reference → paste the start-frame prompt. (10 cr)' },
+        { num: 4, title: 'Animate to two 10s clips', detail: 'Create → Kling Turbo Pro · image-to-video, attach the start frame, paste motion prompt 1 (10s). Then tap "Use end frame as next start" and paste motion prompt 2 (10s). (~132 cr)' },
+        { num: 5, title: 'Stitch + end card', detail: 'Stitch both clips in CapCut, add a "FUSE STUDIO — now live" end card, post and tag @fuse_studio2!' },
+      ],
+      prompts: {
+        bottle: 'Premium hand-held promo card / placard, deep teal (#04231F) card with an elegant thin gold border, large bold golden-yellow (#F5C518) lettering reading "FUSE STUDIO", smaller gold text beneath "CREATE AI ADS FROM YOUR PHONE", the gold F+S monogram logo centered at the top, luxury editorial design, matte card stock, soft studio lighting, crisp and sharp, 4:5.',
+        startFrame: 'Cinematic street-style editorial photo on a downtown city sidewalk in soft daylight, tall buildings and parked cars softly blurred behind, [me] wearing a deep-teal satin headscarf and a deep-teal inner gown under a flowing gold satin abaya, gold heels, holding the deep-teal and gold "FUSE STUDIO" card, confident elegant pose, hyper-realistic, natural skin texture, shallow depth of field, shot on 85mm, 9:16 vertical.',
+        motion: 'CLIP 1 (10s): she walks slowly forward toward the camera holding the FUSE STUDIO card at her side, gold abaya and teal scarf flowing, camera tracks alongside then eases into a slow push-in; around 6s she glances down at the card then back up with a soft confident expression. CLIP 2 (10s, from the end frame): she stops and turns to face the camera, lifts the card to her chest with both hands and presents it proudly with a warm smile, gentle breeze, camera slowly orbits and pushes in on the card. Cinematic slow motion, realistic motion, face identical to the start frame.',
+      },
+    },
+    {
       id: 'skater-fuse',
       title: 'AI Skater × Branded Drink',
       hook: 'Cinematic UGC ad — your face, your product, golden hour Venice Beach',
