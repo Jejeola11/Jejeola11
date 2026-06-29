@@ -24,6 +24,11 @@
 
 # Short, easy-to-type routes for the study materials.
 [[redirects]]
+  from = "/phys"
+  to = "/PSG281_PHYSIOLOGY_PRACTICAL_GUIDE.html"
+  status = 200
+
+[[redirects]]
   from = "/gst212"
   to = "/GST212_LOGIC_ULTIMATE_GUIDE.html"
   status = 200

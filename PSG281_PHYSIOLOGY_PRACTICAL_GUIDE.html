@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PSG 281 — Physiology Practical | The Ultimate Lab Series</title>
+<style>
+:root{
+  --bg:#0c1014; --panel:#141b22; --panel2:#1b242e; --ink:#e9eef3; --mut:#93a1b0;
+  --acc:#ff5d73; --acc2:#2ec4b6; --acc3:#ffbf69; --acc4:#5bc0eb; --line:#26313d;
+  --good:#2ec4b6; --bad:#ff5d73; --blood:#c1121f;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.65;font-size:16px}
+.progress{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--blood),var(--acc),var(--acc3));z-index:999;transition:width .1s}
+.wrap{display:flex;max-width:1400px;margin:0 auto}
+.side{position:sticky;top:0;height:100vh;overflow-y:auto;width:280px;flex:0 0 280px;background:var(--panel);border-right:1px solid var(--line);padding:18px 14px}
+.side h1{font-size:18px;margin:6px 8px 4px;color:var(--acc)}
+.side .sub{font-size:12px;color:var(--mut);margin:0 8px 16px}
+.side a{display:block;color:var(--mut);text-decoration:none;font-size:13.5px;padding:7px 10px;border-radius:8px;margin:2px 0}
+.side a:hover{background:var(--panel2);color:var(--ink)}
+.side a.active{background:linear-gradient(90deg,rgba(255,93,115,.16),transparent);color:var(--acc);font-weight:700}
+.side .grp{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#5f6b85;margin:14px 10px 4px;font-weight:700}
+.main{flex:1;min-width:0;padding:34px 44px 120px}
+.hero{background:linear-gradient(135deg,#1a1016,#0f1f1d);border:1px solid var(--line);border-radius:20px;padding:34px 30px;margin-bottom:30px;position:relative;overflow:hidden}
+.hero:before{content:"🩸";position:absolute;font-size:150px;right:-10px;top:-20px;opacity:.08}
+.hero h1{margin:0 0 8px;font-size:30px;line-height:1.2}
+.hero p{margin:6px 0;color:var(--mut)}
+.badge{display:inline-block;background:var(--acc);color:#2a0008;font-weight:800;font-size:12px;padding:4px 12px;border-radius:20px;margin-bottom:14px;letter-spacing:.5px}
+section{margin:34px 0;scroll-margin-top:18px}
+.season{background:linear-gradient(135deg,var(--panel),var(--panel2));border:1px solid var(--line);border-left:5px solid var(--acc);border-radius:16px;padding:8px 26px 24px;margin-bottom:26px}
+.season>h2{font-size:23px;color:var(--acc);display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.stag{font-size:12px;background:var(--acc2);color:#04201d;padding:3px 10px;border-radius:12px;font-weight:700;margin-left:auto}
+.ep{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:18px 0}
+.ep h3{margin:0 0 4px;font-size:18px;color:var(--acc4)}
+.ep .hook{color:var(--acc2);font-style:italic;font-size:14px;margin:0 0 12px}
+.ep p{margin:10px 0}
+.key{background:rgba(255,191,105,.09);border-left:3px solid var(--acc3);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.key b{color:var(--acc3)}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14.5px}
+th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+th{background:var(--panel2);color:var(--acc3)}
+tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+.mnem{background:linear-gradient(135deg,rgba(46,196,182,.12),rgba(91,192,235,.08));border:1px dashed var(--acc2);border-radius:10px;padding:12px 16px;margin:14px 0}
+.mnem b{color:var(--acc2)}
+.tip{background:rgba(91,192,235,.08);border-left:3px solid var(--acc4);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.warn{background:rgba(255,93,115,.1);border-left:3px solid var(--acc);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.warn b{color:var(--acc)}
+ul,ol{margin:10px 0;padding-left:24px}
+li{margin:5px 0}
+code{background:#0f161c;padding:2px 7px;border-radius:5px;color:var(--acc2);font-size:14px}
+.steps{counter-reset:st;list-style:none;padding-left:0}
+.steps li{counter-increment:st;position:relative;padding:8px 10px 8px 46px;margin:8px 0;background:var(--panel2);border-radius:8px}
+.steps li::before{content:counter(st);position:absolute;left:10px;top:8px;background:var(--blood);color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+/* layered tube diagram */
+.tube{width:90px;margin:10px auto;border:3px solid #cfd8e0;border-radius:6px 6px 14px 14px;overflow:hidden;font-size:11px;font-weight:700;text-align:center}
+.tube div{padding:10px 4px;color:#0c0c0c}
+.plasma{background:#ffe680}.buffy{background:#f1f1f1}.rbc{background:#c1121f;color:#fff!important}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:18px 0}
+.fc{background:var(--panel2);border:1px solid var(--line);border-radius:12px;min-height:130px;cursor:pointer;perspective:1000px}
+.fc-inner{position:relative;width:100%;height:100%;min-height:130px;transition:transform .5s;transform-style:preserve-3d}
+.fc.flip .fc-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;width:100%;height:100%;min-height:130px;backface-visibility:hidden;padding:16px;display:flex;align-items:center;justify-content:center;text-align:center;border-radius:12px}
+.fc-front{font-weight:700;color:var(--acc3)}
+.fc-back{background:var(--acc2);color:#04201d;transform:rotateY(180deg);font-size:14px;font-weight:600}
+.fc small{position:absolute;bottom:6px;right:10px;font-size:10px;color:var(--mut);font-weight:400}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+.q .qt{font-weight:700;margin-bottom:10px}
+.q label{display:block;padding:9px 12px;border:1px solid var(--line);border-radius:8px;margin:6px 0;cursor:pointer;transition:.15s}
+.q label:hover{background:var(--panel2)}
+.q input{margin-right:10px}
+.q.correct label.sel{background:rgba(46,196,182,.2);border-color:var(--good)}
+.q.wrong label.sel{background:rgba(255,93,115,.2);border-color:var(--bad)}
+.q.correct label.ans,.q.wrong label.ans{background:rgba(46,196,182,.14);border-color:var(--good)}
+.exambtn{background:linear-gradient(90deg,var(--blood),var(--acc));color:#fff;border:none;padding:14px 30px;border-radius:30px;font-size:17px;font-weight:800;cursor:pointer;margin:20px 0}
+.exambtn:hover{filter:brightness(1.1)}
+#score{font-size:22px;font-weight:800;text-align:center;padding:20px;border-radius:14px;margin:18px 0;display:none}
+.reveal{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:12px 0}
+.reveal .rq{font-weight:700;color:var(--ink);margin-bottom:6px}
+.reveal .ra{display:none;margin-top:10px;background:rgba(46,196,182,.08);border-left:3px solid var(--acc2);padding:10px 14px;border-radius:0 8px 8px 0}
+.reveal.open .ra{display:block}
+.rbtn{background:var(--panel2);border:1px solid var(--line);color:var(--acc2);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer}
+.totop{position:fixed;bottom:26px;right:26px;background:var(--acc);color:#fff;width:48px;height:48px;border-radius:50%;display:none;align-items:center;justify-content:center;font-size:22px;cursor:pointer;border:none;font-weight:800;z-index:50}
+@media(max-width:880px){.side{display:none}.main{padding:20px 16px 100px}.hero h1{font-size:23px}}
+</style>
+</head>
+<body>
+<div class="progress" id="prog"></div>
+<div class="wrap">
+<nav class="side">
+  <h1>🩸 PSG 281</h1>
+  <div class="sub">Physiology Practical — The Lab Series (LAUTECH)</div>
+  <a href="#start" class="active">▶️ Start Here</a>
+  <div class="grp">The Episodes</div>
+  <a href="#s1">S1 · The Toolbox (Instruments)</a>
+  <a href="#s2">S2 · Red Gold (PCV)</a>
+  <a href="#s3">S3 · Type Casting (Blood Group)</a>
+  <a href="#s4">S4 · Colour Match (Haemoglobin)</a>
+  <a href="#s5">S5 · The Pressure Room (BP)</a>
+  <a href="#s6">S6 · Bonus Boss Topics</a>
+  <div class="grp">Weapons</div>
+  <a href="#values">📊 Normal Values Table</a>
+  <a href="#mnem">🧠 Mnemonic Vault</a>
+  <a href="#flash">🃏 Flashcards</a>
+  <a href="#cram">⚡ Night-Before Cram</a>
+  <a href="#tips">🏃 Fast-Read & Exam Tips</a>
+  <div class="grp">The Final Boss</div>
+  <a href="#exam">📝 Mock Exam (MCQ+T/F)</a>
+  <a href="#theory">✍️ Theory & Fill-Gap Drills</a>
+  <a href="#res">📺 YouTube & Books</a>
+</nav>
+
+<main class="main">
+<section id="start">
+  <div class="hero">
+    <span class="badge">⚡ BUILT FROM YOUR LAUTECH MANUAL + PAST PAPERS</span>
+    <h1>PSG 281: Physiology Practical 🔬🩸</h1>
+    <p><b>The Ultimate Lab Binge-Series.</b> 6 Seasons. Every instrument, every experiment, every past question.</p>
+    <p style="color:var(--acc2)">I read your full lab manual (instruments, PCV, blood group, haemoglobin, BP) AND both past papers (PSG 281 & 282). This guide covers <b>exactly</b> what your demonstrators ask — procedures, normal values, clinical importance, anticoagulants, the haemocytometer, and heart exam. Let's make it click. 💪</p>
+  </div>
+  <div class="key">
+    <b>📌 How to use this (60-sec read):</b>
+    <ol>
+      <li><b>Cramming?</b> Go to <a href="#cram" style="color:var(--acc4)">⚡ Night-Before Cram</a> + <a href="#values" style="color:var(--acc4)">📊 Normal Values</a> — that's the skeleton of the whole exam.</li>
+      <li><b>Want to understand?</b> Watch Seasons 1→6 in order. Each experiment is a short "episode" with the procedure as numbered steps.</li>
+      <li><b>Then drill:</b> <a href="#flash" style="color:var(--acc4)">🃏 Flashcards</a> → <a href="#exam" style="color:var(--acc4)">📝 Mock Exam</a> → <a href="#theory" style="color:var(--acc4)">✍️ Theory drills</a>.</li>
+    </ol>
+  </div>
+  <div class="tip"><b>🎯 What your exam looks like:</b> A practical written paper — <b>fill-in-the-blanks, "list 4..." questions, short theory, true/false, and MCQs</b>. From your past papers it leans HARD on: <b>instruments & uses, PCV, blood grouping, haemoglobin estimation, BP methods, anticoagulants, haemocytometer, microscope parts, precautions, and normal values.</b> All covered here.</div>
+</section>
+
+<!-- ===== SEASON 1: INSTRUMENTS ===== -->
+<section id="s1">
+<div class="season">
+  <h2>🧰 SEASON 1 — The Toolbox <span class="stag">Instruments & Their Uses</span></h2>
+  <p style="color:var(--mut);margin-top:14px">Your past paper literally says: "<b>List ten (10) physiological equipment and state their uses</b>." This season is that exact answer. Learn the instrument → use pairing.</p>
+
+  <div class="ep">
+    <h3>Episode 1.1 — The 21 Lab Instruments ⭐⭐⭐ GUARANTEED MARKS</h3>
+    <table>
+      <tr><th>Instrument</th><th>Use</th></tr>
+      <tr><td><b>Sphygmomanometer</b></td><td>Measures <b>arterial blood pressure</b></td></tr>
+      <tr><td><b>Stethoscope</b></td><td>Listens to sounds — measures <b>pulse & arterial BP</b> (Korotkoff sounds)</td></tr>
+      <tr><td><b>Haemoglobinometer</b> (Sahli's)</td><td>Measures <b>haemoglobin concentration</b> (pipette + test tube + reagent bottle + comparison box)</td></tr>
+      <tr><td><b>Haemocytometer</b></td><td><b>Counts blood cells</b> (RBC & WBC)</td></tr>
+      <tr><td><b>Westergren apparatus</b></td><td>Determines <b>Erythrocyte Sedimentation Rate (ESR)</b></td></tr>
+      <tr><td><b>Micro-haematocrit centrifuge</b></td><td><b>Spins blood</b> during the PCV experiment</td></tr>
+      <tr><td><b>Micro-haematocrit reader</b></td><td><b>Reads the PCV</b> (packed cell volume)</td></tr>
+      <tr><td><b>Plasticine</b></td><td><b>Seals capillary tubes</b> during PCV</td></tr>
+      <tr><td><b>Capillary tube (RED)</b></td><td>Contains <b>heparin</b> — prevents clotting; collects blood</td></tr>
+      <tr><td><b>Capillary tube (BLUE)</b></td><td><b>Non-heparin</b> (plain) — collects blood</td></tr>
+      <tr><td><b>Toad board</b></td><td>For <b>dissection</b> of mice, rat, frog, toad</td></tr>
+      <tr><td><b>Needle & syringe</b></td><td><b>Collects blood sample</b></td></tr>
+      <tr><td><b>Blood lancet blade</b></td><td><b>Pricks finger</b> to collect blood sample</td></tr>
+      <tr><td><b>Dissecting set/kit</b></td><td>Used during <b>dissection</b></td></tr>
+      <tr><td><b>Peak flow meter</b></td><td>Measures <b>Peak Expiratory Flow Rate (PEFR)</b></td></tr>
+      <tr><td><b>Urinometer</b></td><td>Measures <b>specific gravity of urine</b></td></tr>
+      <tr><td><b>White tile</b></td><td>Surface to <b>determine blood group</b></td></tr>
+      <tr><td><b>Anti-sera (A, B, D)</b></td><td><b>Blood grouping</b> — colour code: A=<b>Blue</b>, B=<b>Yellow</b>, D=<b>Colourless</b></td></tr>
+      <tr><td><b>Snellen chart</b></td><td>Tests <b>visual acuity</b></td></tr>
+      <tr><td><b>Kymograph</b> (inbuilt stimulator)</td><td>Records <b>variation in pressure</b></td></tr>
+      <tr><td><b>Spirometer</b></td><td>Measures <b>lung volumes & capacities</b></td></tr>
+    </table>
+    <div class="mnem"><b>🧠 Colour code for anti-sera — "All Boys Drink":</b> <b>A</b>=Blue · <b>B</b>=Yellow · <b>D</b>=Colourless (clear). (Tip: D for "Done/clear".)</div>
+    <div class="warn"><b>⚠️ Capillary tube trick (commonly tested):</b> <b>RED = heparinised</b> (anti-clotting), <b>BLUE = plain</b> (no heparin). Don't swap them!</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 1.2 — Parts of the Binocular Microscope ⭐ ("List 4 parts")</h3>
+    <p class="hook">Your paper asks: "List at least four (4) parts of a Binocular Microscope." Here's the full set + what each does.</p>
+    <table>
+      <tr><th>Part</th><th>Function</th></tr>
+      <tr><td><b>Eyepiece / Ocular lens</b></td><td>Lens you look through (usually ×10); two of them = binocular</td></tr>
+      <tr><td><b>Diopter adjustment</b></td><td>Balances focus difference between your two eyes</td></tr>
+      <tr><td><b>Nose piece (revolving turret)</b></td><td>Holds & rotates the objective lenses</td></tr>
+      <tr><td><b>Objective lenses</b></td><td>Primary magnifying lenses (×4, ×10, ×40, ×100 oil)</td></tr>
+      <tr><td><b>Stage + slide holder</b></td><td>Platform that holds the specimen slide</td></tr>
+      <tr><td><b>Condenser</b></td><td>Focuses light onto the specimen</td></tr>
+      <tr><td><b>Iris diaphragm</b></td><td>Controls amount of light reaching the specimen</td></tr>
+      <tr><td><b>Light source (illuminator)</b></td><td>Provides light from the base</td></tr>
+      <tr><td><b>Coarse focus knob</b></td><td>Large/rapid focusing (moves stage a lot)</td></tr>
+      <tr><td><b>Fine focus knob</b></td><td>Sharp/precise focusing (small movements)</td></tr>
+      <tr><td><b>Arm</b></td><td>Supports the body tube; used to carry the scope</td></tr>
+      <tr><td><b>Base</b></td><td>Bottom support; holds the illuminator</td></tr>
+    </table>
+    <div class="mnem"><b>🧠 Carry it right:</b> Always lift a microscope with <b>one hand on the ARM, one hand under the BASE</b>. (Classic viva question!)</div>
+  </div>
+</div>
+</section>
+
+<!-- ===== SEASON 2: PCV ===== -->
+<section id="s2">
+<div class="season">
+  <h2>🩸 SEASON 2 — Red Gold <span class="stag">Packed Cell Volume (PCV)</span></h2>
+
+  <div class="ep">
+    <h3>Episode 2.1 — What & Why (Aim)</h3>
+    <p class="hook">Spin blood fast enough and it splits into layers like oil and water. The red layer at the bottom tells a doctor a LOT.</p>
+    <div class="key"><b>AIM:</b> To determine the <b>haematocrit</b> — i.e. measure the <b>percentage volume of red blood cells (RBCs) in whole blood after centrifugation.</b> <i>(This is past-paper Q4 — memorize word-for-word.)</i></div>
+    <p>PCV (a.k.a. <b>haematocrit</b>) = how much of your blood, by volume, is red cells.</p>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 2.2 — The Procedure (Microhaematocrit method) ⭐⭐</h3>
+    <ol class="steps">
+      <li>Clean the prick site (<b>ring finger or thumb</b>) with <b>70% alcohol</b>; let it dry.</li>
+      <li>Prick with a <b>sterile lancet</b> to get a drop of blood.</li>
+      <li>Hold the <b>heparinised capillary tube</b> at a slight angle; touch the <b>red-ring end</b> to the blood — it fills by <b>capillary action</b>.</li>
+      <li>Fill the tube to about <b>¾ full</b>; wipe excess blood off the outside.</li>
+      <li>Seal the <b>dry (non-blood) end</b> by pressing into <b>plasticine</b> 3–4 times.</li>
+      <li>Place in the <b>micro-haematocrit centrifuge</b> with the <b>sealed end facing OUTWARD</b>.</li>
+      <li>Centrifuge at <b>3500 RPM for 10 minutes</b>.</li>
+      <li>Read with the <b>micro-haematocrit reader</b> (or measure columns with a ruler).</li>
+    </ol>
+    <div class="warn"><b>⚠️ Two methods to determine PCV</b> (past-paper Q1 fill-gap): ① <b>Microhaematocrit method</b> (capillary tube + micro-centrifuge) and ② <b>Macrohaematocrit / Wintrobe method</b> (Wintrobe tube).</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 2.3 — The 3 Layers & The Buffy Coat ⭐⭐⭐</h3>
+    <p class="hook">After spinning, blood forms 3 neat layers. This is a FAVOURITE question.</p>
+    <div class="tube">
+      <div class="plasma">TOP<br>Plasma<br>(clear/yellow)</div>
+      <div class="buffy">MIDDLE<br>Buffy coat</div>
+      <div class="rbc">BOTTOM<br>Packed RBCs</div>
+    </div>
+    <table>
+      <tr><th>Layer</th><th>What it is</th></tr>
+      <tr><td><b>Top</b></td><td>Clear/yellowish <b>plasma</b></td></tr>
+      <tr><td><b>Middle</b> (thin)</td><td><b>Buffy coat</b> = <b>White Blood Cells (leukocytes) + Platelets (thrombocytes)</b></td></tr>
+      <tr><td><b>Bottom</b></td><td>Red <b>packed RBCs</b></td></tr>
+    </table>
+    <div class="key"><b>Past-paper Q7:</b> "Buffy coat comprises of ___ and ___" → <b>White blood cells (WBCs)</b> and <b>Platelets</b>.</div>
+    <div class="mnem"><b>🧠 Layers top→bottom — "Please Bring Red":</b> <b>P</b>lasma · <b>B</b>uffy coat · <b>R</b>ed cells. 🩸</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 2.4 — The Formula, Normal Values & Clinical Importance ⭐⭐⭐</h3>
+    <div class="key"><b>FORMULA:</b><br>
+    <code>PCV (%) = (Length of packed RBCs ÷ Total length of blood column) × 100</code></div>
+    <div class="key"><b>NORMAL PCV:</b> Male = <b>40–54%</b> · Female = <b>36–48%</b><br>
+    <b>Low PCV</b> → anaemia, blood loss, nutritional deficiency.<br>
+    <b>High PCV</b> → dehydration, polycythaemia.</div>
+    <p><b>4 Clinical Importance of PCV</b> (past-paper-style "mention four"):</p>
+    <ol>
+      <li><b>Diagnosis of anaemia</b> — low PCV signals reduced RBCs (e.g. iron-deficiency anaemia, blood loss).</li>
+      <li><b>Detection of polycythaemia</b> — high PCV suggests excess RBCs.</li>
+      <li><b>Evaluation of dehydration / fluid status</b> — PCV rises in dehydration (plasma drops, RBC number stays same).</li>
+      <li><b>Monitoring treatment & disease progression</b> — tracks response in anaemia, bleeding disorders, chronic illness, transfusion.</li>
+    </ol>
+    <div class="mnem"><b>🧠 Normal PCV — "Men 40–54, Women 36–48":</b> Women run a bit lower (menstrual loss). Same pattern as Hb!</div>
+  </div>
+</div>
+</section>
+
+<!-- ===== SEASON 3: BLOOD GROUP ===== -->
+<section id="s3">
+<div class="season">
+  <h2>🅰️ SEASON 3 — Type Casting <span class="stag">Blood Group (ABO + Rh)</span></h2>
+
+  <div class="ep">
+    <h3>Episode 3.1 — Aim & The Reagents</h3>
+    <div class="key"><b>AIM:</b> To determine the <b>ABO blood group (A, B, AB, or O)</b> and the <b>Rh factor (positive or negative)</b> of a given blood sample.</div>
+    <p><b>Reagents (anti-sera) and their colour code:</b></p>
+    <table>
+      <tr><th>Anti-serum</th><th>Colour</th><th>Detects antigen</th></tr>
+      <tr><td><b>Anti-A</b></td><td>Blue</td><td>A antigen</td></tr>
+      <tr><td><b>Anti-B</b></td><td>Yellow</td><td>B antigen</td></tr>
+      <tr><td><b>Anti-D</b></td><td>Colourless</td><td>D antigen (Rhesus)</td></tr>
+    </table>
+    <div class="key"><b>Past-paper gaps:</b> "<b>Anti-A</b> and <b>Anti-B</b> reagents determine the ABO blood group" (Q2). "<b>Anti-D (anti-Rh)</b> serum determines the Rhesus factor" (Q5).</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 3.2 — The Procedure</h3>
+    <ol class="steps">
+      <li>Clean the white tile; label/partition <b>3 areas: Anti-A, Anti-B, Anti-D</b>.</li>
+      <li>Clean finger, apply pressure, prick with sterile lancet for <b>2–3 drops</b> of blood.</li>
+      <li>Place a drop of blood in each of the 3 marked areas.</li>
+      <li>Add <b>Anti-A</b> to the 1st, <b>Anti-B</b> to the 2nd, <b>Anti-D</b> to the 3rd drop.</li>
+      <li>Mix each with a <b>separate stirrer/toothpick</b> (never reuse — avoids false results).</li>
+      <li>Time for <b>5 minutes</b>, then observe for <b>agglutination (clumping)</b>.</li>
+    </ol>
+    <div class="key"><b>Reading it:</b> <b>Agglutination (clumping) = POSITIVE (+)</b> for that antigen. <b>Smooth / no clumping = NEGATIVE (−)</b>. For Rh: clumping with <b>Anti-D = Rh positive</b>; no clumping = Rh negative.</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 3.3 — The Master Results Table ⭐⭐⭐</h3>
+    <p class="hook">If you memorize ONE table for blood grouping, make it this. (+ = clumps, − = smooth)</p>
+    <table>
+      <tr><th>Anti-A</th><th>Anti-B</th><th>Anti-D (Rh)</th><th>Blood Group</th></tr>
+      <tr><td>+</td><td>−</td><td>+</td><td><b>A+</b></td></tr>
+      <tr><td>−</td><td>+</td><td>+</td><td><b>B+</b></td></tr>
+      <tr><td>+</td><td>+</td><td>+</td><td><b>AB+</b></td></tr>
+      <tr><td>−</td><td>−</td><td>+</td><td><b>O+</b></td></tr>
+      <tr><td>+</td><td>−</td><td>−</td><td><b>A−</b></td></tr>
+      <tr><td>−</td><td>+</td><td>−</td><td><b>B−</b></td></tr>
+      <tr><td>+</td><td>+</td><td>−</td><td><b>AB−</b></td></tr>
+      <tr><td>−</td><td>−</td><td>−</td><td><b>O−</b> (no clumping anywhere)</td></tr>
+    </table>
+    <div class="mnem"><b>🧠 Logic, not cramming:</b> Clumps with <b>Anti-A only</b> → group <b>A</b>. Anti-B only → <b>B</b>. <b>Both</b> → <b>AB</b>. <b>Neither</b> → <b>O</b>. Add Anti-D: clumps → <b>+</b>, smooth → <b>−</b>. <b>AB = universal recipient, O = universal donor.</b></div>
+  </div>
+</div>
+</section>
+
+<!-- ===== SEASON 4: HAEMOGLOBIN ===== -->
+<section id="s4">
+<div class="season">
+  <h2>🟤 SEASON 4 — The Colour Match <span class="stag">Haemoglobin Estimation (Sahli's)</span></h2>
+
+  <div class="ep">
+    <h3>Episode 4.1 — Aim & Principle</h3>
+    <div class="key"><b>AIM:</b> To determine the <b>haemoglobin concentration of a given blood sample.</b> <i>(Past-paper Q6.)</i></div>
+    <p class="hook">The trick: turn haemoglobin into a brown colour (acid haematin), then dilute until it matches a standard brown reference. The amount of water you add tells you the Hb level.</p>
+    <p><b>Principle (Sahli's / acid haematin method):</b> Blood + dilute HCl → haemoglobin converts to <b>acid haematin</b> (brown). Dilute with distilled water until its colour <b>matches the standard comparison box</b>; read Hb in g/dl off the tube.</p>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 4.2 — Components of the Haemoglobinometer ⭐ ("List 4")</h3>
+    <table>
+      <tr><th>Component</th><th>Role</th></tr>
+      <tr><td><b>Sahli's pipette (Hb pipette)</b></td><td>Measures exactly <b>20 µL (0.02 ml)</b> of blood</td></tr>
+      <tr><td><b>Graduated test tube</b></td><td>Where the reaction happens; read Hb in g/dl</td></tr>
+      <tr><td><b>Comparison / standard colour box</b></td><td>The reference brown colour to match</td></tr>
+      <tr><td><b>Glass stirring rod</b></td><td>Stirs / mixes the solution</td></tr>
+      <tr><td><b>Dropper</b></td><td>Adds distilled water drop-by-drop</td></tr>
+      <tr><td><b>Reagent bottle</b></td><td>Holds the 0.1 N HCl</td></tr>
+    </table>
+    <div class="key"><b>Q3 (list 4 components):</b> pick any four → <b>pipette, graduated test tube, comparison box, glass stirring rod</b> (also dropper, reagent bottle).</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 4.3 — The Procedure</h3>
+    <ol class="steps">
+      <li>Clean materials; freshly prepare <b>0.1 N HCl</b>.</li>
+      <li>Prick finger (after applying pressure) with a sterile lancet.</li>
+      <li>Suck blood up to the <b>20 µL</b> mark using the Sahli's pipette.</li>
+      <li>Disperse blood into the 0.1 N HCl; stir with the glass rod.</li>
+      <li>Set aside <b>5 minutes</b> → complete <b>haemolysis & acid-haematin formation</b> (brown colour).</li>
+      <li>Add <b>distilled water drop-by-drop</b>, stirring, until colour <b>matches the standard box</b>.</li>
+      <li>Read the haemoglobin value (g/dl) from the tube's graduation.</li>
+    </ol>
+    <div class="key"><b>NORMAL Hb:</b> Male = <b>13–18 g/dl</b> · Female = <b>12–16 g/dl</b>.</div>
+    <div class="mnem"><b>🧠 Remember the reagent:</b> "Sahli's needs <b>acid</b>" → <b>0.1 N HCl</b> makes acid haematin. Water only DILUTES to match the colour.</div>
+  </div>
+</div>
+</section>
+
+<!-- ===== SEASON 5: BP ===== -->
+<section id="s5">
+<div class="season">
+  <h2>🫀 SEASON 5 — The Pressure Room <span class="stag">Arterial Blood Pressure & Pulse</span></h2>
+
+  <div class="ep">
+    <h3>Episode 5.1 — Aim, Methods & Korotkoff Sounds ⭐⭐</h3>
+    <div class="key"><b>AIM:</b> To determine the <b>arterial blood pressure</b> of a subject.<br>
+    <b>Equipment:</b> sphygmomanometer, stethoscope, stopwatch, subject.</div>
+    <p><b>Methods (all indirect / non-invasive):</b></p>
+    <table>
+      <tr><th>Method</th><th>How</th><th>Measures</th></tr>
+      <tr><td><b>Palpatory</b></td><td><b>Feel</b> the radial/brachial pulse return on deflation</td><td>Systolic ONLY</td></tr>
+      <tr><td><b>Auscultatory</b></td><td><b>Listen</b> with stethoscope for Korotkoff sounds</td><td>Systolic AND Diastolic</td></tr>
+      <tr><td><b>Oscillometric</b></td><td>Machine senses arterial wall oscillations</td><td>Systolic, Diastolic & pulse</td></tr>
+    </table>
+    <div class="key"><b>Korotkoff sounds:</b> <b>Phase 1</b> (first clear tapping) = <b>SYSTOLIC BP</b>. <b>Phase 5</b> (last sound disappears) = <b>DIASTOLIC BP</b>.</div>
+    <div class="warn"><b>⚠️ Past-paper theory (PSG 282 Q2): Auscultatory vs Palpatory.</b><br>
+    <b>Similarities:</b> both <b>indirect/non-invasive</b>, both use the <b>sphygmomanometer cuff</b>, both occlude the <b>brachial artery</b>, both measure arterial BP.<br>
+    <b>Differences:</b> Palpatory <b>feels the pulse</b> and gives <b>only systolic</b> (less accurate); Auscultatory <b>uses a stethoscope</b> to hear Korotkoff sounds and gives <b>both systolic & diastolic</b> (more accurate).</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 5.2 — The Procedure</h3>
+    <ol class="steps">
+      <li>Subject sits comfortably, <b>arm at heart level</b>, relaxed, legs uncrossed; rest ~2 minutes.</li>
+      <li>Wrap the cuff snugly around the upper arm, <b>2–3 cm above the antecubital fossa</b>.</li>
+      <li>Palpate the <b>brachial artery</b>; place the stethoscope over it.</li>
+      <li>Inflate the cuff, then <b>deflate slowly</b>, listening.</li>
+      <li>First clear tapping sound (<b>Korotkoff phase 1</b>) = <b>Systolic BP</b>.</li>
+      <li>Last faint sound / disappearance (<b>phase 5</b>) = <b>Diastolic BP</b>. Record as Systolic/Diastolic mmHg.</li>
+    </ol>
+    <div class="key"><b>NORMAL BP:</b> ~<b>120/80 mmHg</b> (adult male). Adult female ≈ <b>110/70</b>. Systolic >120, Diastolic >80 noted as raised.</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 5.3 — Pulse Rate</h3>
+    <ul>
+      <li><b>Pulse rate</b> = number of <b>heartbeats per minute</b>, felt as the pulsation of an artery.</li>
+      <li><b>Where to feel it:</b> <b>Radial</b> (wrist), <b>Brachial</b> (arm), <b>Carotid</b> (neck), <b>Femoral</b> (groin), Popliteal (knee).</li>
+      <li><b>Normal:</b> Adult male <b>60–90 bpm</b>; Adult female <b>70–90 bpm</b> (women slightly higher at rest).</li>
+      <li><b>Factors affecting it:</b> emotional stress/pain, medication, dehydration, caffeine, exercise, age.</li>
+      <li><b>Importance:</b> assesses heart function, detects abnormalities, monitors response to exercise/treatment.</li>
+    </ul>
+    <div class="mnem"><b>🧠 Pulse sites — "Really Big CatsFtft... R-B-C-F-P":</b> Radial · Brachial · Carotid · Femoral · Popliteal. 🐱</div>
+  </div>
+</div>
+</section>
+
+<!-- ===== SEASON 6: BONUS ===== -->
+<section id="s6">
+<div class="season">
+  <h2>🏆 SEASON 6 — Bonus Boss Topics <span class="stag">From the Past Papers (researched)</span></h2>
+  <p style="color:var(--mut);margin-top:14px">These weren't fully in your lab notes but they ARE in your past papers (PSG 282). I researched them so you're covered.</p>
+
+  <div class="ep">
+    <h3>Episode 6.1 — Anticoagulants (with examples) ⭐⭐ THEORY FAVOURITE</h3>
+    <p class="hook">An anticoagulant is a substance that <b>prevents blood from clotting</b>. Examiners want examples + how each works + what it's used for.</p>
+    <table>
+      <tr><th>Anticoagulant</th><th>How it works</th><th>Used for (tube)</th></tr>
+      <tr><td><b>EDTA</b></td><td><b>Chelates (binds) calcium</b></td><td>Full Blood Count / haematology (lavender top)</td></tr>
+      <tr><td><b>Heparin</b></td><td>Activates <b>antithrombin III</b> (inhibits thrombin)</td><td>PCV, blood gases, osmotic fragility (green top)</td></tr>
+      <tr><td><b>Sodium citrate</b></td><td>Chelates calcium</td><td>Coagulation studies (PT/APTT) & ESR (blue top)</td></tr>
+      <tr><td><b>Oxalate</b> (Na/K oxalate)</td><td>Chelates calcium</td><td>Glucose (with fluoride), some chemistry</td></tr>
+      <tr><td><b>Sodium fluoride</b></td><td>Inhibits glycolysis (+ weak anticoag)</td><td>Blood glucose (grey top)</td></tr>
+    </table>
+    <div class="key"><b>Key idea:</b> Calcium (Factor IV) is essential for clotting. Most anticoagulants work by <b>removing/binding calcium</b> (EDTA, citrate, oxalate); <b>heparin is the exception</b> — it boosts antithrombin instead.</div>
+    <div class="mnem"><b>🧠 "Every Healthy Cat Outran Fido":</b> <b>E</b>DTA · <b>H</b>eparin · <b>C</b>itrate · <b>O</b>xalate · <b>F</b>luoride.</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 6.2 — The Haemocytometer (Neubauer chamber) ⭐⭐</h3>
+    <p class="hook">PSG 282 asks: "List and discuss the components of Haemocytometer." It's the tool for <b>manually counting blood cells</b>.</p>
+    <table>
+      <tr><th>Component</th><th>Role</th></tr>
+      <tr><td><b>Counting chamber (Neubauer slide)</b></td><td>Thick glass slide with an <b>H-shaped groove</b> forming 2 ruled platforms</td></tr>
+      <tr><td><b>Ruled grid (Improved Neubauer ruling)</b></td><td>Etched squares: <b>4 corner squares = WBC count</b>; <b>central square (with 25 small squares) = RBC count</b></td></tr>
+      <tr><td><b>Cover slip</b></td><td>Special thick coverslip; creates a known depth of <b>0.1 mm</b></td></tr>
+      <tr><td><b>RBC diluting pipette</b></td><td>Has a <b>red bead</b>; dilutes blood 1:200 for RBC counts</td></tr>
+      <tr><td><b>WBC diluting pipette</b></td><td>Has a <b>white bead</b>; dilutes blood 1:20 for WBC counts</td></tr>
+    </table>
+    <div class="key"><b>Remember:</b> chamber depth = <b>0.1 mm</b>; the grid lets you count cells in a known volume and calculate cells per mm³ (per microlitre).</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 6.3 — Clinical Methods to Examine the Heart (IPPA) ⭐</h3>
+    <p class="hook">PSG 282 Q1: "Discuss the clinical methods for examination of the human heart." Four classic steps, in order.</p>
+    <table>
+      <tr><th>Method</th><th>What you do</th></tr>
+      <tr><td><b>Inspection</b></td><td>Look — chest shape, visible apex beat, pulsations, cyanosis</td></tr>
+      <tr><td><b>Palpation</b></td><td>Feel — apex beat (normally 5th intercostal space, midclavicular line), thrills, heaves</td></tr>
+      <tr><td><b>Percussion</b></td><td>Tap — outline the heart borders / cardiac dullness</td></tr>
+      <tr><td><b>Auscultation</b></td><td>Listen with stethoscope — heart sounds <b>S1 ("lub")</b> & <b>S2 ("dub")</b>, murmurs (mitral, tricuspid, aortic, pulmonary areas)</td></tr>
+    </table>
+    <div class="key"><b>Also mention:</b> measuring <b>pulse</b> & <b>blood pressure</b>, and investigations like <b>ECG</b>, echocardiography, chest X-ray.</div>
+    <div class="mnem"><b>🧠 "I Put People to Auscultate" → IPPA:</b> Inspection · Palpation · Percussion · Auscultation.</div>
+  </div>
+
+  <div class="ep">
+    <h3>Episode 6.4 — Lab Safety / Precautions with Blood ⭐ ("List 4")</h3>
+    <p class="hook">Past-paper Q8: "List four precautionary measures when working on blood samples."</p>
+    <ol>
+      <li><b>Wear gloves</b> (and lab coat) — treat ALL samples as potentially infectious.</li>
+      <li>Use a <b>sterile, disposable lancet — one per person</b>, never shared.</li>
+      <li>Clean the prick site with <b>70% alcohol</b> and let it dry.</li>
+      <li><b>Dispose of sharps/lancets in a sharps (biohazard) container</b>; never recap needles.</li>
+      <li><b>No mouth-pipetting</b>; wash hands after; clean spills with disinfectant; label samples properly.</li>
+    </ol>
+  </div>
+</div>
+</section>
+
+<!-- ===== NORMAL VALUES ===== -->
+<section id="values">
+<div class="season" style="border-left-color:var(--acc3)">
+  <h2 style="color:var(--acc3)">📊 NORMAL VALUES — The Cheat Table</h2>
+  <p style="color:var(--mut)">If they ask one number, it's probably here. Screenshot this.</p>
+  <table>
+    <tr><th>Parameter</th><th>Male</th><th>Female</th></tr>
+    <tr><td><b>PCV (Haematocrit)</b></td><td>40–54%</td><td>36–48%</td></tr>
+    <tr><td><b>Haemoglobin (Hb)</b></td><td>13–18 g/dl</td><td>12–16 g/dl</td></tr>
+    <tr><td><b>Blood Pressure</b></td><td>≈120/80 mmHg</td><td>≈110/70 mmHg</td></tr>
+    <tr><td><b>Pulse rate</b></td><td>60–90 bpm</td><td>70–90 bpm</td></tr>
+  </table>
+  <table>
+    <tr><th>Other key numbers</th><th>Value</th></tr>
+    <tr><td>PCV centrifuge speed / time</td><td><b>3500 RPM × 10 min</b></td></tr>
+    <tr><td>Blood volume in Sahli's pipette</td><td><b>20 µL (0.02 ml)</b></td></tr>
+    <tr><td>HCl used in Hb estimation</td><td><b>0.1 N HCl</b></td></tr>
+    <tr><td>Haemocytometer chamber depth</td><td><b>0.1 mm</b></td></tr>
+    <tr><td>Blood-group reaction time</td><td><b>5 minutes</b></td></tr>
+    <tr><td>Cuff position above antecubital fossa</td><td><b>2–3 cm</b></td></tr>
+  </table>
+</div>
+</section>
+
+<!-- ===== MNEMONICS ===== -->
+<section id="mnem">
+<div class="season" style="border-left-color:var(--acc2)">
+  <h2 style="color:var(--acc2)">🧠 THE MNEMONIC VAULT</h2>
+  <table>
+    <tr><th>To remember…</th><th>Use this</th></tr>
+    <tr><td>PCV layers (top→bottom)</td><td>"<b>Please Bring Red</b>" = Plasma, Buffy coat, Red cells</td></tr>
+    <tr><td>Buffy coat contents</td><td>WBCs + Platelets ("buffy = the <b>defence + clotting</b> layer")</td></tr>
+    <tr><td>Anti-sera colours</td><td>A=<b>Blue</b>, B=<b>Yellow</b>, D=<b>Colourless</b></td></tr>
+    <tr><td>Blood group logic</td><td>Anti-A clumps→A; Anti-B clumps→B; both→AB; neither→O. Anti-D clumps→Rh+</td></tr>
+    <tr><td>Capillary tubes</td><td><b>Red = heparin</b> (no clot); <b>Blue = plain</b></td></tr>
+    <tr><td>Anticoagulants</td><td>"<b>Every Healthy Cat Outran Fido</b>" = EDTA, Heparin, Citrate, Oxalate, Fluoride</td></tr>
+    <tr><td>Heart exam steps</td><td><b>IPPA</b> = Inspection, Palpation, Percussion, Auscultation</td></tr>
+    <tr><td>Korotkoff</td><td>Phase <b>1</b> = Systolic (first); Phase <b>5</b> = Diastolic (silence)</td></tr>
+    <tr><td>Pulse sites</td><td>Radial, Brachial, Carotid, Femoral, Popliteal</td></tr>
+    <tr><td>Normal PCV/Hb</td><td>Women always a bit LOWER than men (menstrual loss)</td></tr>
+  </table>
+</div>
+</section>
+
+<!-- ===== FLASHCARDS ===== -->
+<section id="flash">
+<div class="season" style="border-left-color:var(--acc4)">
+  <h2 style="color:var(--acc4)">🃏 FLASHCARDS — Tap to Flip</h2>
+  <p style="color:var(--mut)">Click a card to reveal the answer. Loop until every one is instant.</p>
+  <div class="fc-grid" id="fcgrid"></div>
+</div>
+</section>
+
+<!-- ===== CRAM ===== -->
+<section id="cram">
+<div class="season" style="border-left-color:var(--acc)">
+  <h2 style="color:var(--acc)">⚡ NIGHT-BEFORE CRAM SHEET</h2>
+  <div class="key">
+  <b>PCV:</b> = haematocrit = % RBC volume after spinning. Microhaematocrit (capillary+centrifuge, 3500 RPM ×10 min) or Wintrobe method. 3 layers: plasma (top), buffy coat = WBC+platelets (middle), packed RBC (bottom). PCV% = (RBC column ÷ total column)×100. Normal: M 40–54%, F 36–48%. Low→anaemia/blood loss; High→dehydration/polycythaemia.<br><br>
+  <b>BLOOD GROUP:</b> anti-A(blue), anti-B(yellow), anti-D(colourless) on white tile, 5 min, agglutination=+. Anti-A clumps→A; anti-B→B; both→AB; neither→O. Anti-D clumps→Rh+. AB=universal recipient, O=universal donor.<br><br>
+  <b>HAEMOGLOBIN (Sahli's):</b> 20µL blood + 0.1N HCl → acid haematin (brown), wait 5 min, add distilled water till colour matches standard box, read g/dl. Normal: M 13–18, F 12–16 g/dl. Components: pipette, graduated tube, comparison box, glass rod, dropper.<br><br>
+  <b>BLOOD PRESSURE:</b> sphygmomanometer + stethoscope. Methods: palpatory (systolic only), auscultatory (both, Korotkoff), oscillometric. K1=systolic, K5=diastolic. Cuff 2–3cm above antecubital fossa. Normal 120/80 (M), 110/70 (F).<br><br>
+  <b>ANTICOAGULANTS:</b> EDTA (FBC), Heparin (PCV/gases), Citrate (clotting/ESR), Oxalate, Fluoride (glucose). Most bind calcium; heparin boosts antithrombin.<br><br>
+  <b>HAEMOCYTOMETER:</b> Neubauer counting chamber (depth 0.1mm), ruled grid (corners=WBC, centre=RBC), coverslip, RBC pipette (red bead, 1:200), WBC pipette (white bead, 1:20).<br><br>
+  <b>HEART EXAM:</b> Inspection, Palpation, Percussion, Auscultation (S1 "lub", S2 "dub") + pulse, BP, ECG.<br><br>
+  <b>MICROSCOPE PARTS:</b> eyepiece, objective lens, nose piece, stage, condenser, iris diaphragm, coarse & fine focus, arm, base, light source. Carry: hand on ARM + under BASE.<br><br>
+  <b>SAFETY:</b> gloves, sterile one-use lancet, 70% alcohol, sharps bin, no mouth-pipetting.
+  </div>
+</div>
+</section>
+
+<!-- ===== TIPS ===== -->
+<section id="tips">
+<div class="season" style="border-left-color:var(--acc3)">
+  <h2>🏃 FAST-READING & EXAM TIPS</h2>
+  <div class="ep">
+    <h3>⚡ Speed-Study</h3>
+    <ul>
+      <li><b>Tables = exam answers.</b> Master the instrument table, blood-group table, and normal-values table first.</li>
+      <li><b>Procedures as steps:</b> read the numbered steps out loud once; you only need the key landmarks (reagent, time, RPM, what you observe).</li>
+      <li><b>Numbers are easy marks:</b> drill the Normal Values table till you can recite it cold.</li>
+      <li><b>Teach-back:</b> explain each experiment to a friend in 4 sentences (Aim → key reagent → procedure → normal value).</li>
+    </ul>
+  </div>
+  <div class="ep">
+    <h3>✍️ In the Practical Exam</h3>
+    <ul>
+      <li><b>Fill-gaps:</b> they come straight from the manual (methods, reagents, aims) — the flashcards cover these.</li>
+      <li><b>"List 4…" questions:</b> just give 4 clean bullet points; don't over-explain.</li>
+      <li><b>Theory ("discuss"):</b> define → give examples → state uses/importance. Use the structure shown in Season 6.</li>
+      <li><b>True/False:</b> watch absolute words ("always", "only"). Know that <b>validity of values (40–54% etc.) is sex-specific.</b></li>
+      <li><b>Diagrams:</b> be ready to label the microscope and the 3 PCV layers.</li>
+      <li>Manage time, attempt every question, never leave blanks.</li>
+    </ul>
+  </div>
+</div>
+</section>
+
+<!-- ===== EXAM ===== -->
+<section id="exam">
+<div class="season" style="border-left-color:var(--blood)">
+  <h2 style="color:var(--acc)">📝 MOCK EXAM — MCQ + True/False (auto-scored)</h2>
+  <p style="color:var(--mut)">Pick an answer for each, then hit Submit. Aim for 90%+. Retake till you crush it. (Theory & fill-gap drills are in the next section.)</p>
+  <div id="exambox"></div>
+  <div style="text-align:center"><button class="exambtn" onclick="grade()">✅ Submit & Score Me</button></div>
+  <div id="score"></div>
+</div>
+</section>
+
+<!-- ===== THEORY DRILLS ===== -->
+<section id="theory">
+<div class="season" style="border-left-color:var(--acc2)">
+  <h2 style="color:var(--acc2)">✍️ THEORY & FILL-THE-GAP DRILLS</h2>
+  <p style="color:var(--mut)">These mirror your real past papers. Try to answer, then tap <b>Show model answer</b>.</p>
+  <div id="theorybox"></div>
+</div>
+</section>
+
+<!-- ===== RESOURCES ===== -->
+<section id="res">
+<div class="season" style="border-left-color:var(--acc2)">
+  <h2 style="color:var(--acc2)">📺 YOUTUBE & 📚 BOOK RESOURCES</h2>
+  <div class="ep">
+    <h3>📺 YouTube (search these)</h3>
+    <ul>
+      <li><b>"Packed cell volume / haematocrit microhaematocrit method"</b> — watch a real spin & read.</li>
+      <li><b>"ABO blood grouping slide method"</b> — see the agglutination live.</li>
+      <li><b>"Sahli's haemoglobinometer method"</b> — the colour-match in action.</li>
+      <li><b>"Blood pressure measurement auscultatory method Korotkoff sounds"</b>.</li>
+      <li><b>"Neubauer chamber / haemocytometer cell counting"</b> and <b>"parts of compound microscope"</b>.</li>
+      <li>Channels: <b>Ninja Nerd</b> (physiology gold), <b>Armando Hasudungan</b> (drawn explanations), <b>Osmosis</b>, <b>Dr. Najeeb</b> (deep dives).</li>
+    </ul>
+  </div>
+  <div class="ep">
+    <h3>📚 Books</h3>
+    <ul>
+      <li>Your <b>LAUTECH Physiology lab manual</b> (primary — this guide matches it).</li>
+      <li><b>Guyton & Hall — Textbook of Medical Physiology</b> (the bible for the theory behind each test).</li>
+      <li><b>Ganong's Review of Medical Physiology</b>.</li>
+      <li><b>Practical Physiology — C.L. Ghai</b> (a classic practical manual: PCV, Hb, blood grouping, haemocytometer — exactly your syllabus).</li>
+      <li><b>Sembulingam — Essentials of Medical Physiology</b> (clear & student-friendly).</li>
+    </ul>
+  </div>
+  <div class="key"><b>🎓 You've got this.</b> Run the flashcards, ace the mock exam, and recite the Normal Values table. Walk in confident — every question on your past papers is covered above. 🔥🩸</div>
+</div>
+</section>
+
+</main>
+</div>
+<button class="totop" id="totop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+/* ---------- Flashcards ---------- */
+const cards=[
+["Aim of PCV?","Measure % volume of RBCs in whole blood (haematocrit)"],
+["PCV formula?","(Length of packed RBCs ÷ total blood column) × 100"],
+["PCV centrifuge speed & time?","3500 RPM for 10 minutes"],
+["Normal PCV (M / F)?","Male 40–54% · Female 36–48%"],
+["Low PCV indicates?","Anaemia, blood loss, nutritional deficiency"],
+["High PCV indicates?","Dehydration, polycythaemia"],
+["The 3 PCV layers (top→bottom)?","Plasma · Buffy coat · Packed RBCs"],
+["Buffy coat comprises?","White blood cells + Platelets"],
+["2 methods to determine PCV?","Microhaematocrit & Macrohaematocrit (Wintrobe)"],
+["Red capillary tube contains?","Heparin (prevents clotting)"],
+["Blue capillary tube?","Plain / non-heparin"],
+["Aim of blood grouping?","Determine ABO group + Rh factor"],
+["Anti-A / Anti-B / Anti-D colours?","Blue / Yellow / Colourless"],
+["Agglutination means?","Positive (+) for that antigen"],
+["Clumps with anti-A only = group?","A"],
+["Clumps with both anti-A & anti-B = group?","AB"],
+["Clumps with neither = group?","O"],
+["Clumps with anti-D = ?","Rh positive"],
+["Universal donor / recipient?","O = donor · AB = recipient"],
+["Reagent for Rh factor?","Anti-D (anti-Rh) serum"],
+["Aim of Hb estimation?","Determine haemoglobin concentration of blood"],
+["Sahli's method principle?","Hb + HCl → acid haematin (brown), match to standard"],
+["Acid used in Hb estimation?","0.1 N HCl"],
+["Blood volume drawn for Sahli's?","20 µL (0.02 ml)"],
+["4 components of haemoglobinometer?","Pipette, graduated tube, comparison box, glass rod"],
+["Normal Hb (M / F)?","Male 13–18 · Female 12–16 g/dl"],
+["Equipment for BP?","Sphygmomanometer, stethoscope, stopwatch"],
+["Palpatory method measures?","Systolic BP only"],
+["Auscultatory method measures?","Both systolic & diastolic"],
+["Korotkoff phase 1 = ?","Systolic BP"],
+["Korotkoff phase 5 = ?","Diastolic BP"],
+["Normal BP (M / F)?","≈120/80 · ≈110/70 mmHg"],
+["Cuff position?","2–3 cm above the antecubital fossa"],
+["Normal pulse (M / F)?","60–90 · 70–90 bpm"],
+["Name 3 pulse sites?","Radial, Brachial, Carotid (also femoral, popliteal)"],
+["5 anticoagulants?","EDTA, Heparin, Citrate, Oxalate, Fluoride"],
+["How does EDTA work?","Chelates (binds) calcium"],
+["How does heparin work?","Activates antithrombin III"],
+["EDTA is used for?","Full Blood Count (haematology)"],
+["Haemocytometer counts?","Blood cells (RBC & WBC)"],
+["Neubauer chamber depth?","0.1 mm"],
+["RBC pipette dilution / bead?","1:200, red bead"],
+["WBC pipette dilution / bead?","1:20, white bead"],
+["4 methods to examine the heart?","Inspection, Palpation, Percussion, Auscultation"],
+["S1 & S2 heart sounds?","'Lub' (S1) & 'Dub' (S2)"],
+["4 precautions with blood?","Gloves, sterile lancet, 70% alcohol, sharps bin"],
+["Westergren apparatus measures?","Erythrocyte Sedimentation Rate (ESR)"],
+["Urinometer measures?","Specific gravity of urine"],
+["Spirometer measures?","Lung volumes & capacities"],
+["How to carry a microscope?","One hand on the ARM, one under the BASE"]
+];
+const grid=document.getElementById('fcgrid');
+cards.forEach(c=>{
+  const d=document.createElement('div');d.className='fc';
+  d.innerHTML=`<div class="fc-inner"><div class="fc-front">${c[0]}<small>tap</small></div><div class="fc-back">${c[1]}</div></div>`;
+  d.onclick=()=>d.classList.toggle('flip');
+  grid.appendChild(d);
+});
+
+/* ---------- Mock Exam (MCQ + True/False) ---------- */
+const exam=[
+["The aim of PCV is to measure:",["% volume of RBCs in whole blood","Number of WBCs","Blood glucose","Urine specific gravity"],0],
+["PCV is centrifuged at:",["1000 RPM for 2 min","3500 RPM for 10 min","5000 RPM for 30 min","500 RPM for 1 hr"],1],
+["After centrifuging blood, the MIDDLE layer (buffy coat) contains:",["Plasma","RBCs only","WBCs and platelets","Water"],2],
+["Normal PCV for an adult male is:",["20–30%","40–54%","60–70%","10–15%"],1],
+["A high PCV most likely indicates:",["Anaemia","Dehydration / polycythaemia","Low protein","Normal hydration"],1],
+["The red-ringed capillary tube contains:",["Plain glass","Heparin","Distilled water","HCl"],1],
+["Which anti-serum is colour-coded YELLOW?",["Anti-A","Anti-B","Anti-D","Anti-O"],1],
+["Agglutination (clumping) in a blood-group test means:",["Negative","Positive for that antigen","Test failed","Rh negative"],1],
+["A sample clumps with Anti-A and Anti-D only. Blood group is:",["B+","O−","A+","AB−"],2],
+["A sample that clumps with NONE of the anti-sera is:",["AB+","O−","A−","B+"],1],
+["Clumping with Anti-D indicates:",["Rh negative","Rh positive","Group O","Group AB"],1],
+["The reagent used to determine the Rhesus factor is:",["Anti-A","Anti-B","Anti-D","HCl"],2],
+["Haemoglobin estimation by Sahli's method uses:",["0.1 N HCl","Distilled water only","Heparin","EDTA"],0],
+["In Sahli's method, Hb is converted to:",["Oxyhaemoglobin","Acid haematin (brown)","Methaemoglobin","Carboxyhaemoglobin"],1],
+["Normal haemoglobin for an adult female is:",["6–9 g/dl","12–16 g/dl","20–24 g/dl","2–4 g/dl"],1],
+["The instrument that measures arterial blood pressure is:",["Spirometer","Sphygmomanometer","Urinometer","Kymograph"],1],
+["The palpatory method of BP measures:",["Diastolic only","Both systolic & diastolic","Systolic only","Pulse pressure only"],2],
+["Korotkoff phase 1 (first tapping sound) corresponds to:",["Diastolic BP","Systolic BP","Mean BP","Pulse rate"],1],
+["Normal blood pressure is approximately:",["80/40 mmHg","120/80 mmHg","200/120 mmHg","60/30 mmHg"],1],
+["The auscultatory method uses a:",["Finger to feel pulse","Stethoscope to hear Korotkoff sounds","Spirometer","Urinometer"],1],
+["Which anticoagulant works by activating antithrombin III?",["EDTA","Sodium citrate","Heparin","Oxalate"],2],
+["EDTA prevents clotting by:",["Binding calcium","Adding calcium","Heating blood","Diluting blood"],0],
+["The anticoagulant of choice for a Full Blood Count is:",["Heparin","EDTA","Fluoride","Citrate"],1],
+["The haemocytometer is used to:",["Measure BP","Count blood cells","Spin blood","Measure urine"],1],
+["The depth of the Neubauer counting chamber is:",["1 mm","0.1 mm","10 mm","0.5 mm"],1],
+["Which is NOT a clinical method of examining the heart?",["Inspection","Palpation","Centrifugation","Auscultation"],2],
+["The Westergren apparatus is used to determine:",["PCV","ESR","Blood group","Hb"],1],
+["You should carry a microscope by holding the:",["Eyepiece and stage","Arm and base","Objective and condenser","Light source"],1],
+["Which instrument measures lung volumes?",["Spirometer","Sphygmomanometer","Urinometer","Snellen chart"],0],
+["The Snellen chart tests:",["Hearing","Visual acuity","Blood group","Lung volume"],1],
+["TRUE/FALSE: In blood grouping, a smooth (no clumping) reaction means positive.",["True","False"],1],
+["TRUE/FALSE: PCV is higher in dehydration.",["True","False"],0],
+["TRUE/FALSE: Heparin works by binding calcium.",["True","False"],1],
+["TRUE/FALSE: O is the universal donor and AB the universal recipient.",["True","False"],0],
+["TRUE/FALSE: The buffy coat is made of red blood cells.",["True","False"],1]
+];
+const box=document.getElementById('exambox');
+exam.forEach((q,i)=>{
+  let opts=q[1].map((o,j)=>`<label><input type="radio" name="q${i}" value="${j}">${String.fromCharCode(65+j)}. ${o}</label>`).join('');
+  box.innerHTML+=`<div class="q" id="q${i}"><div class="qt">${i+1}. ${q[0]}</div>${opts}</div>`;
+});
+function grade(){
+  let s=0;
+  exam.forEach((q,i)=>{
+    const qd=document.getElementById('q'+i);
+    qd.classList.remove('correct','wrong');
+    const labels=qd.querySelectorAll('label');
+    labels.forEach(l=>l.classList.remove('sel','ans'));
+    labels[q[2]].classList.add('ans');
+    const ch=qd.querySelector('input:checked');
+    if(ch){const v=+ch.value;ch.parentElement.classList.add('sel');
+      if(v===q[2]){s++;qd.classList.add('correct');}else{qd.classList.add('wrong');}
+    }else{qd.classList.add('wrong');}
+  });
+  const sc=document.getElementById('score');
+  const pct=Math.round(s/exam.length*100);
+  let msg,col;
+  if(pct>=90){msg="🏆 LAB-READY! Go pass that practical.";col="var(--good)";}
+  else if(pct>=70){msg="💪 Strong! Review the red ones & retake.";col="var(--acc3)";}
+  else if(pct>=50){msg="📚 Re-watch the seasons, then retry.";col="var(--acc4)";}
+  else{msg="🔁 Hit the Cram Sheet + flashcards, then come back.";col="var(--bad)";}
+  sc.style.display="block";sc.style.background="rgba(255,255,255,.04)";sc.style.color=col;
+  sc.innerHTML=`You scored <b>${s}/${exam.length}</b> (${pct}%)<br><span style="font-size:16px">${msg}</span>`;
+  sc.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+/* ---------- Theory & Fill-gap drills (reveal) ---------- */
+const theory=[
+["Fill: ____ and ____ methods can be used to determine Packed Cell Volume.","Microhaematocrit method and Macrohaematocrit (Wintrobe) method."],
+["Fill: ____ and ____ reagents can be used to determine the ABO blood group.","Anti-A serum and Anti-B serum (Anti-D for the Rh factor)."],
+["List four (4) components of a haemoglobinometer.","1) Sahli's pipette  2) Graduated test tube  3) Comparison (standard colour) box  4) Glass stirring rod (also: dropper, reagent bottle)."],
+["The aim of determining PCV is ____.","To determine the haematocrit — the percentage volume of red blood cells in whole blood after centrifugation."],
+["____ reagent can be used to determine the Rhesus factor of a blood sample.","Anti-D (anti-Rh) serum."],
+["The aim of determining the haemoglobin value of a blood sample is ____.","To determine the haemoglobin concentration (in g/dl) of the given blood sample."],
+["Buffy coat comprises of ____ and ____.","White blood cells (leukocytes) and platelets (thrombocytes)."],
+["List four (4) precautionary measures when working on blood samples.","1) Wear gloves & lab coat (treat all samples as infectious). 2) Use a sterile, single-use lancet (never shared). 3) Clean site with 70% alcohol. 4) Dispose sharps in a biohazard/sharps container; no mouth-pipetting; wash hands."],
+["List four (4) parts of a binocular microscope.","Any four: eyepiece/ocular lens, objective lens, stage, condenser, iris diaphragm, coarse focus, fine focus, arm, base, nose piece, light source."],
+["List ten (10) physiological equipment and state their uses.","Sphygmomanometer (BP); Stethoscope (heart/BP sounds); Haemoglobinometer (Hb); Haemocytometer (count cells); Westergren apparatus (ESR); Micro-haematocrit centrifuge (spin for PCV); Micro-haematocrit reader (read PCV); Capillary tubes (collect blood); White tile + anti-sera (blood group); Spirometer (lung volumes); Peak flow meter (PEFR); Urinometer (urine specific gravity); Snellen chart (visual acuity); Kymograph (record pressure changes)."],
+["Explain the differences and similarities between Auscultatory and Palpatory methods of BP measurement.","SIMILARITIES: both are indirect/non-invasive; both use the sphygmomanometer cuff to occlude the brachial artery; both measure arterial BP. DIFFERENCES: Palpatory feels the radial/brachial pulse on deflation and gives ONLY systolic BP (less accurate); Auscultatory uses a stethoscope to hear Korotkoff sounds and gives BOTH systolic (phase 1) and diastolic (phase 5) — more accurate."],
+["With relevant examples, discuss anticoagulants.","An anticoagulant prevents blood from clotting. Examples: EDTA (binds calcium; used for Full Blood Count); Heparin (activates antithrombin III; used for PCV/blood gases); Sodium citrate (binds calcium; coagulation studies & ESR); Oxalate (binds calcium); Sodium fluoride (preserves glucose). Most act by removing/binding calcium; heparin is the exception."],
+["List and discuss the components of a haemocytometer.","1) Counting chamber (Neubauer slide) — thick glass with an H-groove forming 2 platforms, depth 0.1 mm. 2) Ruled grid — corner squares for WBC count, central square for RBC count. 3) Cover slip — sets the fixed depth. 4) RBC diluting pipette (red bead, 1:200). 5) WBC diluting pipette (white bead, 1:20). Used to manually count RBCs/WBCs per unit volume."],
+["Discuss the clinical methods for examination of the human heart.","Inspection (chest shape, apex beat, pulsations, cyanosis); Palpation (apex beat at 5th intercostal space midclavicular line, thrills, heaves); Percussion (heart borders/cardiac dullness); Auscultation (heart sounds S1 'lub' & S2 'dub', murmurs at mitral/tricuspid/aortic/pulmonary areas). Plus pulse, BP and investigations (ECG, echocardiography, chest X-ray)."]
+];
+const tb=document.getElementById('theorybox');
+theory.forEach((t,i)=>{
+  const d=document.createElement('div');d.className='reveal';
+  d.innerHTML=`<div class="rq">${i+1}. ${t[0]}</div><button class="rbtn">Show model answer</button><div class="ra">${t[1]}</div>`;
+  d.querySelector('.rbtn').onclick=()=>{d.classList.toggle('open');d.querySelector('.rbtn').textContent=d.classList.contains('open')?'Hide answer':'Show model answer';};
+  tb.appendChild(d);
+});
+
+/* ---------- Progress bar, active nav, to-top ---------- */
+const prog=document.getElementById('prog'),totop=document.getElementById('totop');
+const links=[...document.querySelectorAll('.side a')];
+const secs=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement,st=h.scrollTop,sh=h.scrollHeight-h.clientHeight;
+  prog.style.width=(st/sh*100)+'%';
+  totop.style.display=st>500?'flex':'none';
+  let cur=secs[0];
+  secs.forEach(s=>{if(s.getBoundingClientRect().top<140)cur=s;});
+  links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur.id));
+});
+</script>
+</body>
+</html>
