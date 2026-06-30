@@ -140,10 +140,15 @@ Want to make this exact video with YOUR face?
 
 First 50 get DOUBLE credits — make yours and tag me @director_ria!`;
 
-  const DEFAULT_FOLLOW_DM =
+  const DEFAULT_OPEN_DM =
 `Hey! 👁️ You asked for it — here's exactly how I made that video with AI.
 
-The link is especially for my followers — follow me, then tap the button below and I'll send it straight to you 🔥`;
+Tap the button below and I'll send you the link 👇`;
+
+  const DEFAULT_FOLLOW_DM =
+`Nearly there! 🔒 This link is just for my followers.
+
+Follow me, then tap the button below and I'll send it straight to you 🔥`;
 
   const DEFAULT_REMINDER_DM =
 `Just checking — did you want that link? 👀 Tap below and I'll send it right over.`;
@@ -160,7 +165,7 @@ The link is especially for my followers — follow me, then tap the button below
         rules = d.automations.map(r=>({
           id: r.id || uid(), name:r.name||'', media_id:r.media_id||'',
           keywords:(r.keywords||[]).join(', '), replies:(r.replies||[]).join(' | '), dm:r.dm||DEFAULT_DM,
-          askFollow: !!r.askFollow, followDm: r.followDm || DEFAULT_FOLLOW_DM,
+          askFollow: !!r.askFollow, openDm: r.openDm || DEFAULT_OPEN_DM, followDm: r.followDm || DEFAULT_FOLLOW_DM,
           buttons: Array.isArray(r.buttons) && r.buttons.length ? r.buttons : [],
           remindOn: !!r.reminderDm, reminderDm: r.reminderDm || DEFAULT_REMINDER_DM, reminderMinutes: r.reminderMinutes || 60,
         }));
@@ -184,7 +189,7 @@ The link is especially for my followers — follow me, then tap the button below
   function newRule(name, keywords){
     return { id: uid(), name: name||'New automation', media_id:'', keywords: keywords||'keyword',
       replies:'Sent! check your DMs 📩 | On its way 🔥', dm:DEFAULT_DM,
-      askFollow:false, followDm:DEFAULT_FOLLOW_DM, buttons:[],
+      askFollow:false, openDm:DEFAULT_OPEN_DM, followDm:DEFAULT_FOLLOW_DM, buttons:[],
       remindOn:false, reminderDm:DEFAULT_REMINDER_DM, reminderMinutes:60 };
   }
 
@@ -210,11 +215,14 @@ The link is especially for my followers — follow me, then tap the button below
 
         <div class="sect">
           <label class="toggle"><input type="checkbox" data-tog="askFollow" data-i="${i}" ${r.askFollow?'checked':''}> 🔒 Ask them to follow you before sending the link</label>
-          <div class="sect-h" style="margin-top:4px"><small>Like ManyChat: sends a DM with a "Send me the LINK" button. Instagram can't actually verify a follow — this is the honor-system tap-to-get-it flow, same as ManyChat itself uses.</small></div>
-          ${r.askFollow ? `<div class="fld"><label>Follow-ask message</label><textarea data-f="followDm" data-i="${i}">${esc(r.followDm)}</textarea></div>` : ''}
+          <div class="sect-h" style="margin-top:4px"><small>Exactly like ManyChat: a 3-tap sequence. Honest note — Instagram's API can't actually verify a follow (no automation tool can); this is the same honor-system tap-to-confirm flow ManyChat itself uses.</small></div>
+          ${r.askFollow ? `
+            <div class="fld"><label>Step 1 — Opening DM (sent the moment they comment, button: "Send me the LINK")</label><textarea data-f="openDm" data-i="${i}">${esc(r.openDm)}</textarea></div>
+            <div class="fld"><label>Step 2 — Follow-ask DM (sent when they tap step 1, button: "I've followed, send it")</label><textarea data-f="followDm" data-i="${i}">${esc(r.followDm)}</textarea></div>
+          ` : ''}
         </div>
 
-        <div class="fld"><label>The DM they receive (after they tap the button, or right away if no follow-gate)</label><textarea data-f="dm" data-i="${i}">${esc(r.dm)}</textarea></div>
+        <div class="fld"><label>${r.askFollow ? 'Step 3 — The link DM (sent when they tap step 2)' : 'The DM they receive'}</label><textarea data-f="dm" data-i="${i}">${esc(r.dm)}</textarea></div>
 
         <div class="sect">
           <div class="sect-h">🔗 Link buttons in that DM <small>(optional — up to 3, shown as tappable buttons)</small></div>
@@ -257,7 +265,7 @@ The link is especially for my followers — follow me, then tap the button below
       const kw=(r.keywords||'').split(',').map(s=>s.trim()).filter(Boolean); if(kw.length)o.keywords=kw;
       const rep=(r.replies||'').split('|').map(s=>s.trim()).filter(Boolean); if(rep.length)o.replies=rep;
       o.dm=(r.dm||'').trim();
-      if(r.askFollow){ o.askFollow=true; o.followDm=(r.followDm||'').trim(); }
+      if(r.askFollow){ o.askFollow=true; o.openDm=(r.openDm||'').trim(); o.followDm=(r.followDm||'').trim(); }
       const btns=(r.buttons||[]).filter(b=>b && b.url && b.url.trim()).map(b=>({title:(b.title||'Open').trim(),url:b.url.trim()}));
       if(btns.length) o.buttons=btns;
       if(r.remindOn){ o.reminderDm=(r.reminderDm||'').trim(); o.reminderMinutes=Math.max(5,+r.reminderMinutes||60); }

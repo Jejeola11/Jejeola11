@@ -1,14 +1,18 @@
 // ============================================================
 // Fuse Auto — your own ManyChat. Instagram comment -> auto public reply + DM.
 // Handles UNLIMITED posts: each post can have its own keyword + DM ("automation").
-// Supports a ManyChat-style "ask them to follow first" gate: send a DM with a
-// "Send me the LINK" button; only when they tap it do we send the real link DM.
-// (Instagram's API can't actually verify a follow — this is the same honor-system
-// button-tap flow ManyChat itself uses.) Optional reminder DM if they never tap.
+//
+// 3-step ManyChat-style follow gate (Instagram's API cannot verify a real
+// follow for an arbitrary commenter — no automation tool can. This matches
+// ManyChat's own honor-system flow exactly):
+//   1) Opening DM   — sent the moment they comment. Button: "Send me the LINK"
+//   2) Follow-ask DM — sent when they tap that. Button: "I've followed, send it"
+//   3) Link DM      — sent when they tap that. The real link + buttons.
+// Optional reminder DM if they go quiet at either step.
 //
 //   GET  : Meta webhook verification (hub.challenge)
-//   POST : comment events  -> match a rule -> public reply + DM (or follow-ask DM)
-//          messaging events -> "Send me the LINK" button tap -> send the real DM
+//   POST : comment events  -> match a rule -> public reply + opening/link DM
+//          messaging events -> button taps -> advance to the next step
 //
 // Env vars (only needed as a fallback if you didn't use "Connect Instagram"):
 //   VERIFY_TOKEN, IG_USER_ID, IG_ACCESS_TOKEN, FUSE_AUTOMATIONS, KEYWORDS, DM_TEXT, PUBLIC_REPLIES
@@ -42,6 +46,7 @@ function normalizeRules(arr) {
     replies: (r.replies && r.replies.length ? r.replies : DEFAULT_REPLIES).map((s) => String(s).trim()).filter(Boolean),
     dm: r.dm || DEFAULT_DM,
     askFollow: !!r.askFollow,
+    openDm: r.openDm || '',
     followDm: r.followDm || '',
     buttons: Array.isArray(r.buttons) ? r.buttons.filter((b) => b && b.url).slice(0, 3) : [],
     reminderDm: r.reminderDm || '',
@@ -84,7 +89,7 @@ function loadAutomations() {
     keywords: (process.env.KEYWORDS || 'PROMPT,prompt,Prompt,PROMPTS').split(',').map((k) => k.trim().toLowerCase()).filter(Boolean),
     replies: (process.env.PUBLIC_REPLIES ? process.env.PUBLIC_REPLIES.split('|') : DEFAULT_REPLIES).map((s) => s.trim()).filter(Boolean),
     dm: process.env.DM_TEXT || DEFAULT_DM,
-    askFollow: false, followDm: '', buttons: [], reminderDm: '', reminderMinutes: 60,
+    askFollow: false, openDm: '', followDm: '', buttons: [], reminderDm: '', reminderMinutes: 60,
   }];
 }
 
@@ -107,8 +112,11 @@ function linkMessage(rule) {
   }
   return { text: rule.dm || DEFAULT_DM };
 }
+function openMessage(rule) {
+  return { attachment: { type: 'template', payload: { template_type: 'button', text: String(rule.openDm || '').slice(0, 640), buttons: [{ type: 'postback', title: 'Send me the LINK', payload: `WANT_LINK:${rule.id}` }] } } };
+}
 function followAskMessage(rule) {
-  return { attachment: { type: 'template', payload: { template_type: 'button', text: String(rule.followDm || '').slice(0, 640), buttons: [{ type: 'postback', title: 'Send me the LINK', payload: `GET_LINK:${rule.id}` }] } } };
+  return { attachment: { type: 'template', payload: { template_type: 'button', text: String(rule.followDm || '').slice(0, 640), buttons: [{ type: 'postback', title: "I've followed, send it", payload: `CONFIRM_FOLLOW:${rule.id}` }] } } };
 }
 async function sendMessage(igId, token, recipient, message) {
   return safeJson(fetch(`${GRAPH}/${igId}/messages`, {
@@ -118,6 +126,14 @@ async function sendMessage(igId, token, recipient, message) {
 }
 async function safeJson(p) { try { const r = await p; return await r.json(); } catch (e) { return null; } }
 async function safe(p) { try { return await p; } catch (e) { return null; } }
+async function setPending(psid, patch) {
+  try {
+    const s = await store();
+    const pending = (await s.get('pending', { type: 'json' })) || {};
+    pending[psid] = { ...(pending[psid] || {}), ...patch };
+    await s.setJSON('pending', pending);
+  } catch (e) { /* reminder just won't fire — buttons still work */ }
+}
 
 exports.handler = async (event) => {
   // ---- Webhook verification (Meta calls this once when you subscribe) ----
@@ -158,38 +174,45 @@ exports.handler = async (event) => {
           }));
         }
 
-        if (rule.askFollow && rule.followDm) {
-          // Send the "follow me first" DM with a tap-to-get-link button.
-          const resp = await sendMessage(igId, token, { comment_id: commentId }, followAskMessage(rule));
-          const psid = resp && (resp.recipient_id || (resp.recipient && resp.recipient.id));
-          if (psid) {
-            try {
-              const s = await store();
-              const pending = (await s.get('pending', { type: 'json' })) || {};
-              pending[psid] = { ruleId: rule.id, sentAt: Date.now(), completed: false, reminded: false };
-              await s.setJSON('pending', pending);
-            } catch (e) { /* reminder just won't fire — link button still works */ }
-          }
+        let resp, stage;
+        if (rule.askFollow && rule.openDm) {
+          // Step 1 of 3: opening DM with "Send me the LINK".
+          resp = await sendMessage(igId, token, { comment_id: commentId }, openMessage(rule));
+          stage = 'opened';
+        } else if (rule.askFollow && rule.followDm) {
+          // Legacy 2-step (no opening message configured): go straight to the follow-ask.
+          resp = await sendMessage(igId, token, { comment_id: commentId }, followAskMessage(rule));
+          stage = 'asked_follow';
         } else {
           await sendMessage(igId, token, { comment_id: commentId }, linkMessage(rule));
+          continue;
         }
+        const psid = resp && (resp.recipient_id || (resp.recipient && resp.recipient.id));
+        if (psid) await setPending(psid, { ruleId: rule.id, stage, sentAt: Date.now(), completed: false, reminded: false });
       }
 
-      // ----- "Send me the LINK" button taps -----
+      // ----- button taps (advance to the next step) -----
       for (const m of (entry.messaging || [])) {
         const payload = m.postback && m.postback.payload;
-        if (!payload || !payload.startsWith('GET_LINK:')) continue;
-        const ruleId = payload.slice('GET_LINK:'.length);
+        if (!payload) continue;
+        const sep = payload.indexOf(':');
+        if (sep < 0) continue;
+        const action = payload.slice(0, sep);
+        const ruleId = payload.slice(sep + 1);
         const psid = m.sender && m.sender.id;
         if (!psid) continue;
-
         const rule = rules.find((r) => r.id === ruleId);
-        await sendMessage(igId, token, { id: psid }, rule ? linkMessage(rule) : { text: DEFAULT_DM });
-        try {
-          const s = await store();
-          const pending = (await s.get('pending', { type: 'json' })) || {};
-          if (pending[psid]) { pending[psid].completed = true; await s.setJSON('pending', pending); }
-        } catch (e) {}
+        if (!rule) continue;
+
+        if (action === 'WANT_LINK') {
+          // Step 2 of 3: ask them to follow, with "I've followed" button.
+          await sendMessage(igId, token, { id: psid }, followAskMessage(rule));
+          await setPending(psid, { ruleId: rule.id, stage: 'asked_follow', sentAt: Date.now(), completed: false, reminded: false });
+        } else if (action === 'CONFIRM_FOLLOW') {
+          // Step 3 of 3: send the real link.
+          await sendMessage(igId, token, { id: psid }, linkMessage(rule));
+          await setPending(psid, { completed: true });
+        }
       }
     }
   } catch (e) { /* swallow — Meta must get a 200 */ }
