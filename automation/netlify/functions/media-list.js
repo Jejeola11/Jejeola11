@@ -15,7 +15,7 @@ async function store() {
   return getStore('fuse-auto');
 }
 
-exports.handler = async () => {
+exports.handler = async (event) => {
   // Prefer the one-tap connection; fall back to manual env vars.
   let token = process.env.IG_ACCESS_TOKEN || '';
   let igId = process.env.IG_USER_ID || '';
@@ -27,8 +27,13 @@ exports.handler = async () => {
     return json(200, { ok: false, reason: 'not_connected', items: [] });
   }
   try {
+    // No cap on how many posts you can browse — paginate with ?after=<cursor>
+    // (the dashboard's "Load more" button supplies this). Automations themselves
+    // are never limited regardless of how you pick the post.
+    const after = (event.queryStringParameters || {}).after || '';
     const fields = 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp';
-    const url = `${GRAPH}/${igId}/media?fields=${encodeURIComponent(fields)}&limit=30&access_token=${token}`;
+    let url = `${GRAPH}/${igId}/media?fields=${encodeURIComponent(fields)}&limit=50&access_token=${token}`;
+    if (after) url += `&after=${encodeURIComponent(after)}`;
     const r = await fetch(url);
     const data = await r.json();
     if (data.error) return json(200, { ok: false, reason: data.error.message || 'api_error', items: [] });
@@ -39,7 +44,8 @@ exports.handler = async () => {
       permalink: m.permalink || '',
       type: m.media_type || '',
     }));
-    return json(200, { ok: true, items });
+    const next = data.paging && data.paging.cursors && data.paging.next ? data.paging.cursors.after : '';
+    return json(200, { ok: true, items, next });
   } catch (e) {
     return json(200, { ok: false, reason: String(e), items: [] });
   }

@@ -49,7 +49,9 @@ function normalizeRules(arr) {
     name: r.name || '',
     media_id: r.media_id ? String(r.media_id) : '',
     keywords: (r.keywords || []).map((k) => String(k).trim().toLowerCase()).filter(Boolean),
-    replies: (r.replies && r.replies.length ? r.replies : DEFAULT_REPLIES).map((s) => String(s).trim()).filter(Boolean),
+    // An explicit empty array means "no public reply" (the dashboard's toggle is off) —
+    // only fall back to the default replies when the key is missing entirely (legacy rules).
+    replies: (Array.isArray(r.replies) ? r.replies : DEFAULT_REPLIES).map((s) => String(s).trim()).filter(Boolean),
     dm: r.dm || DEFAULT_DM,
     askFollow: !!r.askFollow,
     openDm: r.openDm || '',
@@ -180,13 +182,17 @@ exports.handler = async (event) => {
           }));
         }
 
+        // openDm and askFollow are independent toggles (like ManyChat's "an opening DM"
+        // and "a DM asking to follow you" are separate switches):
+        //   openDm only        -> open DM -> tap -> link directly
+        //   askFollow only     -> follow-ask DM -> tap -> link directly
+        //   both               -> open DM -> tap -> follow-ask DM -> tap -> link
+        //   neither            -> link sent immediately, no gate
         let resp, stage;
-        if (rule.askFollow && rule.openDm) {
-          // Step 1 of 3: opening DM with "Send me the LINK".
+        if (rule.openDm) {
           resp = await sendMessage(igId, token, { comment_id: commentId }, openMessage(rule));
           stage = 'opened';
         } else if (rule.askFollow && rule.followDm) {
-          // Legacy 2-step (no opening message configured): go straight to the follow-ask.
           resp = await sendMessage(igId, token, { comment_id: commentId }, followAskMessage(rule));
           stage = 'asked_follow';
         } else {
@@ -211,11 +217,16 @@ exports.handler = async (event) => {
         if (!rule) continue;
 
         if (action === 'WANT_LINK') {
-          // Step 2 of 3: ask them to follow, with "I've followed" button.
-          await sendMessage(igId, token, { id: psid }, followAskMessage(rule));
-          await setPending(psid, { ruleId: rule.id, stage: 'asked_follow', sentAt: Date.now(), completed: false, reminded: false });
+          if (rule.askFollow && rule.followDm) {
+            // Follow-gate is on: ask them to follow, with "I've followed" button.
+            await sendMessage(igId, token, { id: psid }, followAskMessage(rule));
+            await setPending(psid, { ruleId: rule.id, stage: 'asked_follow', sentAt: Date.now(), completed: false, reminded: false });
+          } else {
+            // No follow-gate: opening DM was just for warmth — send the link now.
+            await sendMessage(igId, token, { id: psid }, linkMessage(rule));
+            await setPending(psid, { completed: true });
+          }
         } else if (action === 'CONFIRM_FOLLOW') {
-          // Step 3 of 3: send the real link.
           await sendMessage(igId, token, { id: psid }, linkMessage(rule));
           await setPending(psid, { completed: true });
         }
