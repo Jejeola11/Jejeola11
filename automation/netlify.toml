@@ -5,3 +5,7 @@
 
 [functions]
   node_bundler = "esbuild"
+
+# Checks every 30 min for "follow-ask" DMs nobody tapped, sends the reminder.
+[functions."reminder"]
+  schedule = "*/30 * * * *"

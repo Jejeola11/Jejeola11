@@ -50,6 +50,18 @@
   details summary::-webkit-details-marker{display:none}
   .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0B342D;border:1px solid var(--line);color:var(--ink);padding:12px 18px;border-radius:99px;font-weight:700;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.5);opacity:0;transition:.2s;pointer-events:none}
   .toast.show{opacity:1}
+  .sect{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+  .sect-h{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--ink)}
+  .sect-h small{color:var(--muted);font-weight:500;font-size:11.5px}
+  .toggle{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13.5px;font-weight:700}
+  .toggle input{width:18px;height:18px;accent-color:var(--gold)}
+  .btnrow{display:flex;gap:7px;margin-top:7px}
+  .btnrow input{background:var(--bg2);border:1px solid var(--line);border-radius:9px;color:var(--ink);padding:9px 10px;font-size:13px;font-family:inherit}
+  .btnrow .lbl{flex:0 0 34%}
+  .btnrow .lnk{flex:1}
+  .btnrow .rm{flex:0 0 30px;background:none;border:1px solid var(--line);border-radius:9px;color:var(--red);cursor:pointer;font-weight:800}
+  .addlink{font-size:12px;color:var(--gold);cursor:pointer;margin-top:7px;display:inline-block;font-weight:700}
+  .num{width:80px}
 </style>
 </head>
 <body>
@@ -82,9 +94,10 @@
           <li>In the Meta app → Instagram → <b>set up Instagram login</b> → under <b>Valid OAuth Redirect URIs</b>, paste this and save:
             <div class="url"><input id="redirUri" readonly value="…"><button class="copy" onclick="cp('redirUri',this)">⧉</button></div>
           </li>
-          <li>In the Meta app → Instagram → <b>Webhooks</b> → Add callback URL below + your <b>VERIFY_TOKEN</b>, then <b>subscribe to the <code>comments</code> field</b>:
+          <li>In the Meta app → Instagram → <b>Webhooks</b> → Add callback URL below + your <b>VERIFY_TOKEN</b>, then <b>subscribe to both the <code>comments</code> AND <code>messaging_postbacks</code> fields</b> (the second one is needed for "Send me the LINK" buttons to work):
             <div class="url"><input id="hookUrl" readonly value="…"><button class="copy" onclick="cp('hookUrl',this)">⧉</button></div>
           </li>
+          <li>One Instagram account needs a <b>role on the app</b> before it can connect (you'll see "insufficient developer role" otherwise). On <a href="https://developers.facebook.com/apps" target="_blank">developers.facebook.com/apps</a> → your app → left menu <b>App roles → Roles</b> → <b>Add Instagram Testers</b> → type your IG username → Submit. Then open the <b>Instagram app on your phone</b> → your profile → <b>Settings → Apps and websites → Tester invites</b> → Accept. (Nothing will show there until you've sent the invite from this step first.)</li>
         </ol>
         <p class="sub" style="text-align:left">Done with these? Tap <b>Connect Instagram</b> above — no token copying needed. 🎉</p>
       </div>
@@ -94,7 +107,7 @@
   <!-- BUILDER -->
   <div class="card" id="builderCard">
     <div class="step-h"><div class="step-n">➕</div><div class="step-t">Your automations</div></div>
-    <p class="sub" style="text-align:left;margin:0 0 8px">One per video. Give each a <b>keyword</b> (tell viewers “comment DIRECTOR”) and the DM they’ll receive.</p>
+    <p class="sub" style="text-align:left;margin:0 0 8px">One per video. Give each a <b>keyword</b> (tell viewers "comment DIRECTOR") and the DM they'll receive. Optionally ask them to follow you first, ManyChat-style.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">
       <button class="btn ghost sm" id="addBtn">＋ Add automation</button>
       <button class="btn ghost sm" id="loadPosts">📷 Load my posts (optional)</button>
@@ -115,6 +128,7 @@
   function cp(id,btn){ navigator.clipboard.writeText($(id).value); const o=btn.textContent;btn.textContent='✓';setTimeout(()=>btn.textContent=o,1100); }
   function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
   function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+  function uid(){ return (crypto.randomUUID ? crypto.randomUUID() : ('r'+Date.now()+Math.random().toString(36).slice(2))); }
 
   const DEFAULT_DM =
 `You just met Director Ria 👁️🎬
@@ -126,6 +140,14 @@ Want to make this exact video with YOUR face?
 
 First 50 get DOUBLE credits — make yours and tag me @director_ria!`;
 
+  const DEFAULT_FOLLOW_DM =
+`Hey! 👁️ You asked for it — here's exactly how I made that video with AI.
+
+The link is especially for my followers — follow me, then tap the button below and I'll send it straight to you 🔥`;
+
+  const DEFAULT_REMINDER_DM =
+`Just checking — did you want that link? 👀 Tap below and I'll send it right over.`;
+
   let rules = [];
 
   // ---- load status + saved rules from the server ----
@@ -135,11 +157,16 @@ First 50 get DOUBLE credits — make yours and tag me @director_ria!`;
       const d = await (await fetch('/.netlify/functions/automations')).json();
       connected = !!d.connected; username = d.username||'';
       if(Array.isArray(d.automations) && d.automations.length){
-        rules = d.automations.map(r=>({ name:r.name||'', media_id:r.media_id||'',
-          keywords:(r.keywords||[]).join(', '), replies:(r.replies||[]).join(' | '), dm:r.dm||DEFAULT_DM }));
+        rules = d.automations.map(r=>({
+          id: r.id || uid(), name:r.name||'', media_id:r.media_id||'',
+          keywords:(r.keywords||[]).join(', '), replies:(r.replies||[]).join(' | '), dm:r.dm||DEFAULT_DM,
+          askFollow: !!r.askFollow, followDm: r.followDm || DEFAULT_FOLLOW_DM,
+          buttons: Array.isArray(r.buttons) && r.buttons.length ? r.buttons : [],
+          remindOn: !!r.reminderDm, reminderDm: r.reminderDm || DEFAULT_REMINDER_DM, reminderMinutes: r.reminderMinutes || 60,
+        }));
       }
     }catch(e){}
-    if(!rules.length){ rules=[{name:'AI Creative Director',media_id:'',keywords:'director, prompt',replies:'Sent! check your DMs 📩 | On its way 🔥',dm:DEFAULT_DM}]; }
+    if(!rules.length){ rules=[newRule('AI Creative Director','director, prompt')]; }
 
     if(connected){
       $('dot').classList.add('on');
@@ -154,6 +181,21 @@ First 50 get DOUBLE credits — make yours and tag me @director_ria!`;
     render();
   }
 
+  function newRule(name, keywords){
+    return { id: uid(), name: name||'New automation', media_id:'', keywords: keywords||'keyword',
+      replies:'Sent! check your DMs 📩 | On its way 🔥', dm:DEFAULT_DM,
+      askFollow:false, followDm:DEFAULT_FOLLOW_DM, buttons:[],
+      remindOn:false, reminderDm:DEFAULT_REMINDER_DM, reminderMinutes:60 };
+  }
+
+  function buttonRow(r,i,bi,b){
+    return `<div class="btnrow" data-bi="${bi}">
+      <input class="lbl" data-bf="title" data-i="${i}" data-bi="${bi}" value="${esc(b.title)}" placeholder="Try Fuse Studio">
+      <input class="lnk" data-bf="url" data-i="${i}" data-bi="${bi}" value="${esc(b.url)}" placeholder="https://fuse-studio.netlify.app">
+      <button class="rm" data-rmbtn="${i}:${bi}">×</button>
+    </div>`;
+  }
+
   function render(){
     $('rules').innerHTML = rules.map((r,i)=>`
       <div class="rule">
@@ -165,13 +207,39 @@ First 50 get DOUBLE credits — make yours and tag me @director_ria!`;
         <div class="fld"><label>Name (for you)</label><input data-f="name" data-i="${i}" value="${esc(r.name)}"></div>
         <div class="fld"><label>Keyword(s) — comma separated</label><input data-f="keywords" data-i="${i}" value="${esc(r.keywords)}" placeholder="director, prompt"></div>
         <div class="fld"><label>Public replies (one picked at random, split with |)</label><input data-f="replies" data-i="${i}" value="${esc(r.replies)}"></div>
-        <div class="fld"><label>The DM they receive</label><textarea data-f="dm" data-i="${i}">${esc(r.dm)}</textarea></div>
+
+        <div class="sect">
+          <label class="toggle"><input type="checkbox" data-tog="askFollow" data-i="${i}" ${r.askFollow?'checked':''}> 🔒 Ask them to follow you before sending the link</label>
+          <div class="sect-h" style="margin-top:4px"><small>Like ManyChat: sends a DM with a "Send me the LINK" button. Instagram can't actually verify a follow — this is the honor-system tap-to-get-it flow, same as ManyChat itself uses.</small></div>
+          ${r.askFollow ? `<div class="fld"><label>Follow-ask message</label><textarea data-f="followDm" data-i="${i}">${esc(r.followDm)}</textarea></div>` : ''}
+        </div>
+
+        <div class="fld"><label>The DM they receive (after they tap the button, or right away if no follow-gate)</label><textarea data-f="dm" data-i="${i}">${esc(r.dm)}</textarea></div>
+
+        <div class="sect">
+          <div class="sect-h">🔗 Link buttons in that DM <small>(optional — up to 3, shown as tappable buttons)</small></div>
+          <div data-btns="${i}">${r.buttons.map((b,bi)=>buttonRow(r,i,bi,b)).join('')}</div>
+          ${r.buttons.length<3 ? `<span class="addlink" data-addbtn="${i}">＋ Add a button</span>` : ''}
+        </div>
+
+        <div class="sect">
+          <label class="toggle"><input type="checkbox" data-tog="remindOn" data-i="${i}" ${r.remindOn?'checked':''}> ⏰ Send a reminder if they don't tap the link</label>
+          ${r.remindOn ? `
+            <div class="fld"><label>Reminder message</label><textarea data-f="reminderDm" data-i="${i}">${esc(r.reminderDm)}</textarea></div>
+            <div class="fld"><label>Wait how long first? (minutes)</label><input class="num" type="number" min="5" data-f="reminderMinutes" data-i="${i}" value="${r.reminderMinutes}"></div>
+          ` : ''}
+        </div>
       </div>`).join('');
+
     $('rules').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{ rules.splice(+b.dataset.x,1); render(); });
     $('rules').querySelectorAll('[data-f]').forEach(el=>el.oninput=()=>{ rules[+el.dataset.i][el.dataset.f]=el.value; });
+    $('rules').querySelectorAll('[data-tog]').forEach(el=>el.onchange=()=>{ rules[+el.dataset.i][el.dataset.tog]=el.checked; render(); });
+    $('rules').querySelectorAll('[data-bf]').forEach(el=>el.oninput=()=>{ rules[+el.dataset.i].buttons[+el.dataset.bi][el.dataset.bf]=el.value; });
+    $('rules').querySelectorAll('[data-rmbtn]').forEach(el=>el.onclick=()=>{ const [i,bi]=el.dataset.rmbtn.split(':').map(Number); rules[i].buttons.splice(bi,1); render(); });
+    $('rules').querySelectorAll('[data-addbtn]').forEach(el=>el.onclick=()=>{ rules[+el.dataset.addbtn].buttons.push({title:'',url:''}); render(); });
   }
 
-  $('addBtn').onclick=()=>{ rules.push({name:'New automation',media_id:'',keywords:'keyword',replies:'Sent! check your DMs 📩',dm:DEFAULT_DM}); render(); window.scrollTo(0,document.body.scrollHeight); };
+  $('addBtn').onclick=()=>{ rules.push(newRule()); render(); window.scrollTo(0,document.body.scrollHeight); };
 
   $('loadPosts').onclick=async()=>{
     $('postsWrap').style.display='block'; $('posts').innerHTML='<div class="sub">Loading…</div>';
@@ -179,16 +247,21 @@ First 50 get DOUBLE credits — make yours and tag me @director_ria!`;
       const d=await (await fetch('/.netlify/functions/media-list')).json();
       if(!d.ok||!d.items.length){ $('posts').innerHTML='<div class="sub">Connect Instagram first, then your posts show here. (You can still use keyword rules without this.)</div>'; return; }
       $('posts').innerHTML=d.items.map(m=>`<div class="post" data-id="${m.id}" data-cap="${esc(m.caption)}">${m.thumb?`<img src="${m.thumb}" loading="lazy">`:'<div style="height:110px;display:grid;place-items:center">🎬</div>'}<div class="cap">${esc(m.caption)||'(no caption)'}</div></div>`).join('');
-      $('posts').querySelectorAll('.post').forEach(el=>el.onclick=()=>{ rules.push({name:(el.dataset.cap||'').slice(0,40)||'Post',media_id:el.dataset.id,keywords:'',replies:'Sent! check your DMs 📩',dm:DEFAULT_DM}); el.classList.add('sel'); render(); $('rules').scrollIntoView({behavior:'smooth'}); });
+      $('posts').querySelectorAll('.post').forEach(el=>el.onclick=()=>{ const r=newRule((el.dataset.cap||'').slice(0,40)||'Post',''); r.media_id=el.dataset.id; rules.push(r); el.classList.add('sel'); render(); $('rules').scrollIntoView({behavior:'smooth'}); });
     }catch(e){ $('posts').innerHTML='<div class="sub">Network error.</div>'; }
   };
 
   $('saveBtn').onclick=async()=>{
     const payload = rules.map(r=>{
-      const o={}; if(r.name)o.name=r.name.trim(); if(r.media_id)o.media_id=String(r.media_id).trim();
+      const o={ id:r.id }; if(r.name)o.name=r.name.trim(); if(r.media_id)o.media_id=String(r.media_id).trim();
       const kw=(r.keywords||'').split(',').map(s=>s.trim()).filter(Boolean); if(kw.length)o.keywords=kw;
       const rep=(r.replies||'').split('|').map(s=>s.trim()).filter(Boolean); if(rep.length)o.replies=rep;
-      o.dm=(r.dm||'').trim(); return o;
+      o.dm=(r.dm||'').trim();
+      if(r.askFollow){ o.askFollow=true; o.followDm=(r.followDm||'').trim(); }
+      const btns=(r.buttons||[]).filter(b=>b && b.url && b.url.trim()).map(b=>({title:(b.title||'Open').trim(),url:b.url.trim()}));
+      if(btns.length) o.buttons=btns;
+      if(r.remindOn){ o.reminderDm=(r.reminderDm||'').trim(); o.reminderMinutes=Math.max(5,+r.reminderMinutes||60); }
+      return o;
     });
     $('saveBtn').disabled=true; $('saveBtn').textContent='Saving…';
     try{
