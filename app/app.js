@@ -772,32 +772,82 @@ async function generate() {
 
 // ---------------- reactor (multi-AI) ----------------
 let rcModel = null;
+let rcRefs = [];   // attached image URLs (vision for text models, reference for image models)
 function buildReactor() {
   $('reactorTitle').textContent = cfg.REACTOR_NAME;
   $('reactorList').innerHTML = cfg.REACTOR_MODELS.map((m) =>
     `<div class="rcard ${m.live ? '' : 'soon'}" data-id="${m.id}">
        <div class="rn">${m.name}</div><div class="rb">${m.badge}</div>
-       <div class="rc">${m.live ? m.credits + ' cr / msg' : 'Coming soon'}</div></div>`).join('');
+       <div class="rc">${m.live ? m.credits + (m.kind === 'image' ? ' cr / image' : ' cr / msg') : 'Coming soon'}</div></div>`).join('');
   $('reactorList').querySelectorAll('.rcard').forEach((el) => el.onclick = () => {
     const m = cfg.REACTOR_MODELS.find((x) => x.id === el.dataset.id);
-    if (!m.live) { note('rcNote', `${m.name} comes online soon — video AIs are being connected.`, 'err'); $('reactorChat').style.display = 'block'; $('rcName').textContent = m.name; $('rcCost').textContent = 'Coming soon'; $('rcOut').textContent=''; return; }
-    rcModel = m; $('reactorChat').style.display = 'block';
-    $('rcName').textContent = m.name; $('rcCost').textContent = m.credits + ' credits per message'; $('rcOut').textContent = ''; note('rcNote', '');
+    $('reactorChat').style.display = 'block'; rcRefs = []; renderRcThumbs(); $('rcOut').innerHTML = ''; note('rcNote', '');
+    if (!m.live) { note('rcNote', `${m.name} comes online soon — video AIs are being connected.`, 'err'); $('rcName').textContent = m.name; $('rcCost').textContent = 'Coming soon'; return; }
+    rcModel = m;
+    const isImg = m.kind === 'image';
+    $('rcName').textContent = m.name;
+    $('rcCost').textContent = isImg ? (m.credits + ' credits per image · attach a photo to edit it') : (m.credits + ' credits per message');
+    $('rcInput').placeholder = isImg ? 'Describe the image to create — or attach a photo and say how to change it…' : 'Ask anything — captions, scripts, product names, ad copy… (attach an image to ask about it)';
+    $('rcAspect').style.display = isImg ? 'inline-block' : 'none';
+    $('rcAttachBtn').textContent = isImg ? '📎 Add reference photo' : '📎 Add image';
   });
+}
+function renderRcThumbs() {
+  const box = $('rcThumbs'); if (!box) return;
+  box.innerHTML = rcRefs.map((u, i) =>
+    `<div style="position:relative"><img src="${u}" style="width:54px;height:54px;object-fit:cover;border-radius:10px;border:1px solid var(--line)">
+       <button onclick="window.rcDropRef(${i})" style="position:absolute;top:-6px;right:-6px;background:#b3261e;color:#fff;border:0;border-radius:50%;width:20px;height:20px;font-weight:800;cursor:pointer">×</button></div>`).join('');
+}
+window.rcDropRef = (i) => { rcRefs.splice(i, 1); renderRcThumbs(); };
+async function rcAttach(files) {
+  if (preview) { showAuth('signup'); return; }
+  for (const file of files) {
+    try {
+      const path = `${user.id}/rc-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.jpg`;
+      const { error } = await sb.storage.from('avatars').upload(path, file, { contentType: file.type || 'image/jpeg' });
+      if (error) throw error;
+      rcRefs.push(sb.storage.from('avatars').getPublicUrl(path).data.publicUrl);
+      renderRcThumbs();
+    } catch (e) { note('rcNote', 'Upload failed: ' + (e.message || e), 'err'); }
+  }
 }
 async function reactorSend() {
   if (preview) { showAuth('signup'); return; }
   if (!rcModel) return;
   const prompt = $('rcInput').value.trim(); if (!prompt) return note('rcNote', 'Type a message.', 'err');
-  const btn = $('rcSend'); btn.disabled = true; btn.textContent = 'Thinking…'; note('rcNote', '');
+  const btn = $('rcSend');
+
+  // ----- Image models: generate / edit a picture right here (reuses the proven engine) -----
+  if (rcModel.kind === 'image') {
+    btn.disabled = true; btn.textContent = 'Creating…'; note('rcNote', 'Sending to the engine…', 'ok');
+    $('rcOut').innerHTML = '<div><span class="spin"></span></div>';
+    try {
+      const res = await fetch('/.netlify/functions/generate', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+        body: JSON.stringify({ prompt, model: rcModel.slug, aspect: $('rcAspect').value || '9:16', count: 1, res: 1, reference_image_urls: rcRefs.length ? rcRefs : undefined }),
+      });
+      const data = await res.json();
+      if (res.status === 402) { note('rcNote', 'Out of credits.', 'err'); openBuy(); $('rcOut').innerHTML = ''; btn.disabled = false; btn.textContent = 'Send'; return; }
+      if (res.status === 403) { note('rcNote', data.error || 'Upgrade to unlock this model.', 'err'); openBuy(); $('rcOut').innerHTML = ''; btn.disabled = false; btn.textContent = 'Send'; return; }
+      if (!res.ok) throw new Error(data.error || 'Generation failed');
+      const ids = data.request_ids && data.request_ids.length ? data.request_ids : [data.request_id];
+      $('creditCount').textContent = data.credits;
+      pollGrid(ids, $('rcOut'), 'rcNote', btn, 'Send', data.watermark);
+    } catch (e) { $('rcOut').innerHTML = ''; note('rcNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = 'Send'; }
+    return;
+  }
+
+  // ----- Text models: chat (and read any attached images) -----
+  btn.disabled = true; btn.textContent = 'Thinking…'; note('rcNote', '');
   try {
     const res = await fetch('/.netlify/functions/ai-chat', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ model: rcModel.id, prompt }),
+      body: JSON.stringify({ model: rcModel.id, prompt, images: rcRefs.length ? rcRefs : undefined }),
     });
     const data = await res.json();
     if (res.status === 503) note('rcNote', data.error, 'err');
     else if (res.status === 402) { note('rcNote', 'Out of credits.', 'err'); openBuy(); }
+    else if (res.status === 403) { note('rcNote', data.error || 'Upgrade to unlock this model.', 'err'); openBuy(); }
     else if (!res.ok) throw new Error(data.error || 'AI error');
     else { $('rcOut').textContent = data.text; $('creditCount').textContent = data.credits; }
   } catch (e) { note('rcNote', e.message, 'err'); }
@@ -1624,6 +1674,8 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   $('genBtn').onclick = generate;
   $('rcSend').onclick = reactorSend;
+  { const ab = $('rcAttachBtn'), rf = $('rcFile');
+    if (ab && rf) { ab.onclick = () => rf.click(); rf.onchange = (e) => { rcAttach(Array.from(e.target.files || [])); e.target.value = ''; }; } }
   { const bb = $('buyBtn'); if (bb) bb.onclick = openBuy; } $('creditPill').onclick = openBuy;
   $('buyClose').onclick = () => $('buyOverlay').style.display = 'none';
   $('payBack').onclick = showPackList;

@@ -97,16 +97,22 @@ window.FUSE = {
     { label: 'Cinematic portrait', prompt: 'cinematic portrait, dramatic rim lighting, moody atmosphere, film-grade color grade, shallow depth of field, shot on 85mm, ultra-detailed, poster quality' },
   ],
 
-  // Fuse Reactor — the multi-AI hub (text models, all on MuAPI / your key).
+  // Fuse Reactor — the multi-AI hub. Text models chat (and can read images you
+  // attach); image models generate/edit pictures right inside the Reactor.
+  // kind:'text' (default) -> ai-chat. kind:'image' -> generate (slug = image model).
   REACTOR_NAME: 'Fuse Reactor',
   REACTOR_MODELS: [
-    { id: 'claude-sonnet-4-5', name: 'Claude Sonnet', badge: 'Anthropic', credits: 2, live: true },
-    { id: 'claude-opus-4-5',   name: 'Claude Opus',   badge: 'Anthropic', credits: 3, live: true },
-    { id: 'claude-haiku-4-5',  name: 'Claude Haiku',  badge: 'Anthropic', credits: 1, live: true },
-    { id: 'gpt-5-5',           name: 'ChatGPT 5.5',   badge: 'OpenAI',    credits: 2, live: true },
-    { id: 'gpt-5-2',           name: 'ChatGPT 5.2',   badge: 'OpenAI',    credits: 1, live: true },
-    { id: 'gemini-2-5-pro',    name: 'Gemini 2.5 Pro', badge: 'Google',   credits: 2, live: true },
-    { id: 'gemini-2-5-flash',  name: 'Gemini Flash',  badge: 'Google',    credits: 1, live: true },
+    { id: 'claude-sonnet-4-5', name: 'Claude Sonnet', badge: 'Anthropic', credits: 2, live: true, kind: 'text', vision: true },
+    { id: 'claude-opus-4-5',   name: 'Claude Opus',   badge: 'Anthropic', credits: 3, live: true, kind: 'text', vision: true },
+    { id: 'claude-haiku-4-5',  name: 'Claude Haiku',  badge: 'Anthropic', credits: 1, live: true, kind: 'text', vision: true },
+    { id: 'gpt-5-5',           name: 'ChatGPT 5.5',   badge: 'OpenAI',    credits: 2, live: true, kind: 'text', vision: true },
+    { id: 'gpt-5-2',           name: 'ChatGPT 5.2',   badge: 'OpenAI',    credits: 1, live: true, kind: 'text', vision: true },
+    { id: 'gemini-2-5-pro',    name: 'Gemini 2.5 Pro', badge: 'Google',   credits: 2, live: true, kind: 'text', vision: true },
+    { id: 'gemini-2-5-flash',  name: 'Gemini Flash',  badge: 'Google',    credits: 1, live: true, kind: 'text', vision: true },
+    // --- Image AIs: generate or edit pictures in the Reactor (charged like Image Studio) ---
+    { id: 'nano-banana',          name: 'Gemini Image (Nano Banana)', badge: 'Google · image', credits: 7,  live: true, kind: 'image', slug: 'nano-banana' },
+    { id: 'gpt-image-2',          name: 'GPT Image 2',                badge: 'OpenAI · image', credits: 7,  live: true, kind: 'image', slug: 'gpt-image-2-text-to-image' },
+    { id: 'google-imagen4-ultra', name: 'Imagen 4 Ultra',            badge: 'Google · image', credits: 10, live: true, kind: 'image', slug: 'google-imagen4-ultra' },
   ],
 
   // Viral presets — full creative recipes (each opens a "build it yourself" view).

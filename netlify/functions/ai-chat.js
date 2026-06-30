@@ -30,6 +30,7 @@ exports.handler = async (event) => {
   let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
   const model = body.model || 'gemini-2-5-flash';
   const prompt = (body.prompt || '').trim();
+  const images = (Array.isArray(body.images) ? body.images : []).filter((u) => typeof u === 'string' && u).slice(0, 4);
   const cost = REACTOR_COST[model];
   if (!prompt) return json(400, { error: 'Type a message first.' });
   if (!cost) return json(400, { error: 'Unknown model.' });
@@ -47,10 +48,14 @@ exports.handler = async (event) => {
 
   const key = process.env.MUAPI_KEY;
   try {
+    // Text prompt, plus any attached images so vision-capable models can "see" them.
+    // We send the images under a few common field names; models that don't use them ignore them.
+    const payload = { prompt };
+    if (images.length) { payload.images = images; payload.image_urls = images; payload.images_list = images; }
     const submit = await fetch(`${MUAPI_BASE}/${model}`, {
       method: 'POST',
       headers: { 'x-api-key': key, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify(payload),
     });
     const txt = await submit.text();
     let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }

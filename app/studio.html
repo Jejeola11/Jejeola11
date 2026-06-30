@@ -435,6 +435,14 @@
     <div class="panel" id="reactorChat" style="margin-top:14px;display:none">
       <div class="studio-head" style="margin-top:0"><div class="ic" id="rcIcon">🤖</div><div><h2 id="rcName">Claude</h2><p id="rcCost"></p></div></div>
       <textarea id="rcInput" placeholder="Ask anything — captions, scripts, product names, ad copy…"></textarea>
+      <div id="rcTools" style="display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap">
+        <input type="file" id="rcFile" accept="image/*" multiple hidden>
+        <button class="btn ghost sm" id="rcAttachBtn" type="button">📎 Add image</button>
+        <select id="rcAspect" style="display:none;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-family:inherit;font-size:13px">
+          <option value="9:16">9:16 ↕</option><option value="1:1">1:1 ◻</option><option value="4:5">4:5</option><option value="16:9">16:9 ↔</option>
+        </select>
+      </div>
+      <div id="rcThumbs" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
       <button class="btn gold block" id="rcSend" style="margin-top:12px">Send</button>
       <div class="note" id="rcNote"></div>
       <div id="rcOut" style="margin-top:12px;white-space:pre-wrap;font-size:14px;color:var(--ink)"></div>
