@@ -94,6 +94,20 @@
     <div id="connectArea" style="margin-top:14px"></div>
   </div>
 
+  <!-- HEALTH CHECK + COMMENT TESTER -->
+  <div class="card">
+    <div class="step-h"><div class="step-n">🩺</div><div class="step-t">Check my setup</div></div>
+    <p class="sub" style="text-align:left;margin:0 0 8px">If a comment isn't getting a reply, check here first — no need to guess.</p>
+    <button class="btn ghost sm" id="checkBtn">Run check</button>
+    <div id="healthOut" style="margin-top:12px;display:none"></div>
+
+    <div class="fld" style="margin-top:16px"><label>Test a comment</label>
+      <input id="testText" placeholder="Type a sample comment, e.g. director" style="width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:11px;color:var(--ink);padding:11px 13px;font-size:14px">
+    </div>
+    <button class="btn ghost sm" id="testBtn" style="margin-top:8px">Test match</button>
+    <div id="testOut" style="margin-top:10px;font-size:13.5px"></div>
+  </div>
+
   <!-- ONE-TIME SETUP (only the first time) -->
   <div class="card">
     <details id="setupDetails">
@@ -269,6 +283,7 @@ Right after you follow me, I'll send you the guide so you can dive straight in! 
             <div class="summary">${summaryLine(r)}</div>
           </div>
           <div class="acts">
+            <button class="btn ghost sm" data-rename="${i}" title="Rename">🖊️</button>
             <button class="btn ghost sm" data-edit="${i}">✏️ Edit</button>
             <button class="btn ghost sm" data-dup="${i}">⧉</button>
             <button class="x" data-x="${i}">×</button>
@@ -351,6 +366,7 @@ Right after you follow me, I'll send you the guide so you can dive straight in! 
     $('rules').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{ const idx=+b.dataset.edit; rules[idx]._open=true; render(); requestAnimationFrame(()=>{ const el=$('rules').querySelector('[data-card="'+idx+'"]'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }); });
     $('rules').querySelectorAll('[data-collapse]').forEach(b=>b.onclick=()=>{ rules[+b.dataset.collapse]._open=false; render(); });
     $('rules').querySelectorAll('[data-dup]').forEach(b=>b.onclick=()=>{ duplicateRule(+b.dataset.dup); });
+    $('rules').querySelectorAll('[data-rename]').forEach(b=>b.onclick=()=>{ renameRule(+b.dataset.rename); });
     $('rules').querySelectorAll('[data-f]').forEach(el=>el.oninput=()=>{ rules[+el.dataset.i][el.dataset.f]=el.value; });
     $('rules').querySelectorAll('[data-tog][type=checkbox]').forEach(el=>el.onchange=()=>{ rules[+el.dataset.i][el.dataset.tog]=el.checked; render(); });
     $('rules').querySelectorAll('[data-tog][type=radio]').forEach(el=>el.onchange=()=>{ if(el.checked) rules[+el.dataset.i][el.dataset.tog]=el.dataset.val; render(); });
@@ -366,15 +382,34 @@ Right after you follow me, I'll send you the guide so you can dive straight in! 
   $('addBtn').onclick=()=>{ rules.push(newRule()); render(); window.scrollTo(0,document.body.scrollHeight); };
   $('search').oninput=()=>render();
 
+  // Strips any existing "(copy)" / "(copy 3)" suffix, then finds a fresh unique
+  // name — so duplicating a duplicate never stacks into "(copy) (copy) (copy)".
+  function dedupeCopyName(base){
+    const stripped = (base || 'Automation').replace(/\s*\(copy(\s+\d+)?\)\s*$/i, '').trim() || 'Automation';
+    const existing = new Set(rules.map(r=>r.name));
+    let candidate = stripped + ' (copy)', n = 2;
+    while(existing.has(candidate)){ candidate = stripped + ' (copy ' + n + ')'; n++; }
+    return candidate;
+  }
+
   function duplicateRule(i){
     const copy = JSON.parse(JSON.stringify(rules[i]));
     copy.id = uid();
-    copy.name = (copy.name || 'Automation') + ' (copy)';
+    copy.name = dedupeCopyName(rules[i].name);
     copy._open = true;
     rules.splice(i+1, 0, copy);
     render();
     requestAnimationFrame(()=>{ const el=$('rules').querySelector('[data-card="'+(i+1)+'"]'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); });
-    toast('Duplicated ✓ — edit and save');
+    toast('Duplicated ✓ — rename it, edit, then Save');
+  }
+
+  function renameRule(i){
+    const cur = rules[i].name || '';
+    const next = prompt('Rename this automation:', cur);
+    if(next === null) return;
+    const trimmed = next.trim();
+    if(trimmed) rules[i].name = trimmed;
+    render();
   }
 
   async function openPosts(after){
@@ -421,9 +456,55 @@ Right after you follow me, I'll send you the guide so you can dive straight in! 
     $('saveBtn').disabled=true; $('saveBtn').textContent='Saving…';
     try{
       const d=await (await fetch('/.netlify/functions/automations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({automations:payload})})).json();
-      toast(d.ok?('Saved '+d.count+' automation'+(d.count===1?'':'s')+' ✓'):'Save failed');
-    }catch(e){ toast('Save failed — is it deployed?'); }
+      toast(d.ok?('Saved '+d.count+' automation'+(d.count===1?'':'s')+' ✓'):('Save failed: '+(d.error||'unknown error')));
+    }catch(e){ toast('Save failed — network error or not deployed yet.'); }
     $('saveBtn').disabled=false; $('saveBtn').textContent='💾 Save automations';
+  };
+
+  // ---- health check + comment tester ----
+  $('checkBtn').onclick=async()=>{
+    $('checkBtn').disabled=true; $('checkBtn').textContent='Checking…';
+    $('healthOut').style.display='block'; $('healthOut').innerHTML='<div class="sub">Checking your connection and webhook subscription…</div>';
+    try{
+      const d=await (await fetch('/.netlify/functions/health')).json();
+      const rows=[];
+      rows.push(row('Connected to Instagram', d.connected, d.connected?('@'+(d.username||'?')):'Not connected — tap Connect Instagram above'));
+      if(d.connected){
+        const s=d.subscription||{};
+        rows.push(row('Webhook subscribed: comments', s.comments, s.comments?'':'This is why comments do not trigger anything — tap "Fix it" below'));
+        rows.push(row('Webhook subscribed: button taps', s.messaging_postbacks, s.messaging_postbacks?'':'Send me the LINK buttons will not work without this'));
+      }
+      rows.push(row('Automations saved on server', d.automationCount>0, d.automationCount+' automation'+(d.automationCount===1?'':'s')+' found'));
+      const needsFix = d.connected && d.subscription && (!d.subscription.comments || !d.subscription.messaging_postbacks);
+      $('healthOut').innerHTML = rows.join('') + (needsFix ? '<button class="btn gold sm" id="fixSubBtn" style="margin-top:10px">🔧 Fix webhook subscription</button>' : '');
+      if(needsFix) $('fixSubBtn').onclick=async()=>{
+        $('fixSubBtn').disabled=true; $('fixSubBtn').textContent='Fixing…';
+        const r=await (await fetch('/.netlify/functions/health',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'resubscribe'})})).json();
+        toast(r.ok?'Fixed ✓ — try commenting again':'Still failing — see details below');
+        if(!r.ok) $('healthOut').innerHTML += '<div class="warn" style="margin-top:8px">'+esc(JSON.stringify(r.detail))+'</div>';
+        $('checkBtn').onclick();
+      };
+    }catch(e){ $('healthOut').innerHTML='<div class="sub">Check failed — is the site deployed?</div>'; }
+    $('checkBtn').disabled=false; $('checkBtn').textContent='Run check';
+  };
+  function row(label, ok, note){
+    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)">
+      <span style="font-size:15px">${ok?'✅':'❌'}</span>
+      <div><div style="font-size:13.5px;font-weight:700">${label}</div>${note?`<div style="font-size:11.5px;color:var(--muted)">${esc(note)}</div>`:''}</div>
+    </div>`;
+  }
+
+  $('testBtn').onclick=async()=>{
+    const text=$('testText').value.trim();
+    if(!text){ $('testOut').textContent='Type a sample comment first.'; return; }
+    $('testOut').textContent='Testing…';
+    try{
+      const d=await (await fetch('/.netlify/functions/health?text='+encodeURIComponent(text))).json();
+      const t=d.test;
+      $('testOut').innerHTML = t && t.matched
+        ? `✅ Would match: <b>${esc(t.name)}</b>`
+        : `❌ No automation would fire for this — check your keywords (remember "any word" automations always catch unmatched comments if you have one).`;
+    }catch(e){ $('testOut').textContent='Test failed — network error.'; }
   };
 
   boot();

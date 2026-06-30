@@ -5,16 +5,7 @@
 // No env-var JSON pasting — the dashboard saves straight here.
 // ============================================================
 const crypto = require('crypto');
-async function store() {
-  const { getStore } = await import('@netlify/blobs');
-  // Netlify's automatic Blobs context occasionally fails to attach to a function
-  // invocation (a known platform quirk -> MissingBlobsEnvironmentError). Fall back
-  // to explicit config using the auto-injected SITE_ID + a manual access token.
-  const siteID = process.env.SITE_ID || process.env.NETLIFY_SITE_ID;
-  const token = process.env.NETLIFY_BLOBS_TOKEN;
-  if (siteID && token) return getStore({ name: 'fuse-auto', siteID, token });
-  return getStore('fuse-auto');
-}
+const { store } = require('./_lib');
 function json(code, obj) {
   return { statusCode: code, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, body: JSON.stringify(obj) };
 }
@@ -51,6 +42,7 @@ exports.handler = async (event) => {
 
     return json(405, { ok: false, error: 'method' });
   } catch (e) {
+    console.error('[automations] handler error', String(e));
     return json(200, { ok: false, error: String(e), connected: false, automations: [] });
   }
 };

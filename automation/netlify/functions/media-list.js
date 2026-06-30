@@ -2,18 +2,8 @@
 // Returns your recent Instagram posts (id, caption, thumbnail, permalink) using the
 // server-side IG_ACCESS_TOKEN — so the builder can show your posts and you can attach
 // an automation to each one by its real media id. Token never touches the browser.
+const { store } = require('./_lib');
 const GRAPH = 'https://graph.instagram.com/v21.0';
-
-async function store() {
-  const { getStore } = await import('@netlify/blobs');
-  // Netlify's automatic Blobs context occasionally fails to attach to a function
-  // invocation (a known platform quirk -> MissingBlobsEnvironmentError). Fall back
-  // to explicit config using the auto-injected SITE_ID + a manual access token.
-  const siteID = process.env.SITE_ID || process.env.NETLIFY_SITE_ID;
-  const token = process.env.NETLIFY_BLOBS_TOKEN;
-  if (siteID && token) return getStore({ name: 'fuse-auto', siteID, token });
-  return getStore('fuse-auto');
-}
 
 exports.handler = async (event) => {
   // Prefer the one-tap connection; fall back to manual env vars.

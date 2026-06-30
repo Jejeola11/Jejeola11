@@ -11,18 +11,8 @@
 // (Also add this exact URL to the app's "Valid OAuth Redirect URIs":
 //   https://YOUR-SITE/.netlify/functions/oauth )
 // ============================================================
+const { store } = require('./_lib');
 const SCOPE = 'instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments';
-
-async function store() {
-  const { getStore } = await import('@netlify/blobs');
-  // Netlify's automatic Blobs context occasionally fails to attach to a function
-  // invocation (a known platform quirk -> MissingBlobsEnvironmentError). Fall back
-  // to explicit config using the auto-injected SITE_ID + a manual access token.
-  const siteID = process.env.SITE_ID || process.env.NETLIFY_SITE_ID;
-  const token = process.env.NETLIFY_BLOBS_TOKEN;
-  if (siteID && token) return getStore({ name: 'fuse-auto', siteID, token });
-  return getStore('fuse-auto');
-}
 function siteUrl(event) {
   if (process.env.URL) return process.env.URL;
   const h = (event.headers && (event.headers['x-forwarded-host'] || event.headers.host)) || '';
@@ -77,8 +67,20 @@ exports.handler = async (event) => {
       username = d3.username || ''; userId = String(d3.user_id || userId);
     } catch (e) {}
 
+    // Crucial step that's easy to miss: getting a token only lets us CALL the API.
+    // The account also has to be explicitly subscribed, or Instagram never sends
+    // comment/message events to our webhook at all (verification still passes either way).
+    let subscribed = false, subscribeError = '';
+    try {
+      const r4 = await fetch(`https://graph.instagram.com/v21.0/${userId}/subscribed_apps?subscribed_fields=comments,messaging_postbacks&access_token=${encodeURIComponent(token)}`, { method: 'POST' });
+      const d4 = await r4.json();
+      subscribed = !!d4.success;
+      if (!subscribed) subscribeError = JSON.stringify(d4);
+    } catch (e) { subscribeError = String(e); }
+
     const s = await store();
-    await s.setJSON('conn', { token, userId, username, ts: Date.now() });
+    await s.setJSON('conn', { token, userId, username, subscribed, subscribeError, ts: Date.now() });
+    if (!subscribed) return page(`<h2>Connected, but one step failed</h2><p>Your Instagram is linked, but the webhook subscription call didn't succeed:</p><p style="color:#ff6b6b;font-size:13px">${subscribeError}</p><p>Try the <b>"Check my setup"</b> button on the dashboard — it can retry just this step without reconnecting.</p>`);
     return redirect('/?connected=1');
   } catch (e) {
     if (String(e).includes('MissingBlobsEnvironmentError')) {

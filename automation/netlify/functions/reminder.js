@@ -1,18 +1,8 @@
 // Scheduled function (see netlify.toml: runs every 30 min) — sends the
 // "did you forget?" follow-up DM to anyone who got a follow-ask DM but never
 // tapped "Send me the LINK".
+const { store } = require('./_lib');
 const GRAPH = 'https://graph.instagram.com/v21.0';
-
-async function store() {
-  const { getStore } = await import('@netlify/blobs');
-  // Netlify's automatic Blobs context occasionally fails to attach to a function
-  // invocation (a known platform quirk -> MissingBlobsEnvironmentError). Fall back
-  // to explicit config using the auto-injected SITE_ID + a manual access token.
-  const siteID = process.env.SITE_ID || process.env.NETLIFY_SITE_ID;
-  const token = process.env.NETLIFY_BLOBS_TOKEN;
-  if (siteID && token) return getStore({ name: 'fuse-auto', siteID, token });
-  return getStore('fuse-auto');
-}
 
 exports.handler = async () => {
   try {
