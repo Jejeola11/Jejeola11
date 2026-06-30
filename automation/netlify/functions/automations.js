@@ -7,6 +7,12 @@
 const crypto = require('crypto');
 async function store() {
   const { getStore } = await import('@netlify/blobs');
+  // Netlify's automatic Blobs context occasionally fails to attach to a function
+  // invocation (a known platform quirk -> MissingBlobsEnvironmentError). Fall back
+  // to explicit config using the auto-injected SITE_ID + a manual access token.
+  const siteID = process.env.SITE_ID || process.env.NETLIFY_SITE_ID;
+  const token = process.env.NETLIFY_BLOBS_TOKEN;
+  if (siteID && token) return getStore({ name: 'fuse-auto', siteID, token });
   return getStore('fuse-auto');
 }
 function json(code, obj) {

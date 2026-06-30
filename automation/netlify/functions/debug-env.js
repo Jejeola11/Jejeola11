@@ -24,6 +24,8 @@ exports.handler = async () => {
       APP_SECRET: probe('APP_SECRET'),
       IG_USER_ID: probe('IG_USER_ID'),
       IG_ACCESS_TOKEN: probe('IG_ACCESS_TOKEN'),
+      NETLIFY_BLOBS_TOKEN: probe('NETLIFY_BLOBS_TOKEN'),
+      SITE_ID_auto_injected: probe('SITE_ID'),
       deployedAt: process.env.DEPLOY_ID || 'unknown',
     }, null, 2),
   };

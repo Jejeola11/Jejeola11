@@ -15,6 +15,12 @@ const SCOPE = 'instagram_business_basic,instagram_business_manage_messages,insta
 
 async function store() {
   const { getStore } = await import('@netlify/blobs');
+  // Netlify's automatic Blobs context occasionally fails to attach to a function
+  // invocation (a known platform quirk -> MissingBlobsEnvironmentError). Fall back
+  // to explicit config using the auto-injected SITE_ID + a manual access token.
+  const siteID = process.env.SITE_ID || process.env.NETLIFY_SITE_ID;
+  const token = process.env.NETLIFY_BLOBS_TOKEN;
+  if (siteID && token) return getStore({ name: 'fuse-auto', siteID, token });
   return getStore('fuse-auto');
 }
 function siteUrl(event) {
@@ -75,6 +81,9 @@ exports.handler = async (event) => {
     await s.setJSON('conn', { token, userId, username, ts: Date.now() });
     return redirect('/?connected=1');
   } catch (e) {
+    if (String(e).includes('MissingBlobsEnvironmentError')) {
+      return page('<h2>One more env var needed</h2><p>Add <b>NETLIFY_BLOBS_TOKEN</b> in this site\'s Netlify environment variables (a Personal Access Token from <b>app.netlify.com → your avatar → User settings → Applications → New access token</b>), then redeploy and tap Connect Instagram again.</p>');
+    }
     return page('<h2>Something went wrong</h2><p>' + String(e) + '</p>');
   }
 };

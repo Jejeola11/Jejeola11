@@ -88,8 +88,9 @@
         <ol>
           <li>Go to <a href="https://developers.facebook.com/apps" target="_blank">developers.facebook.com/apps</a> → <b>Create app</b> → <b>Business</b> → add the <b>Instagram</b> product. Your IG must be a <b>Business/Creator</b> account.</li>
           <li>On the Instagram product page, copy your <b>App ID</b> and <b>App secret</b>.</li>
-          <li>In <b>this Netlify site → Site settings → Environment variables</b>, add these 3, then redeploy:
-            <div class="warn"><code>APP_ID</code> = your app id · <code>APP_SECRET</code> = your app secret · <code>VERIFY_TOKEN</code> = any word (e.g. fuse123)</div>
+          <li>In <b>this Netlify site → Site settings → Environment variables</b>, add these 4, then redeploy:
+            <div class="warn"><code>APP_ID</code> = your app id · <code>APP_SECRET</code> = your app secret · <code>VERIFY_TOKEN</code> = any word (e.g. fuse123)<br><br>
+            <code>NETLIFY_BLOBS_TOKEN</code> = a Netlify Personal Access Token, needed for saving your connection/automations. Get one at <b>app.netlify.com → your avatar (top right) → User settings → Applications → Personal access tokens → New access token</b>. Name it anything, generate, and paste the value here (you only see it once).</div>
           </li>
           <li>In the Meta app → Instagram → <b>set up Instagram login</b> → under <b>Valid OAuth Redirect URIs</b>, paste this and save:
             <div class="url"><input id="redirUri" readonly value="…"><button class="copy" onclick="cp('redirUri',this)">⧉</button></div>
