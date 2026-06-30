@@ -72,6 +72,11 @@
   .mediapick .cap2{flex:1;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .replybox{display:flex;gap:7px;margin-top:7px;align-items:center}
   .replybox input{flex:1}
+  .rule.collapsed{padding:13px 16px}
+  .rule .summary{font-size:12px;color:var(--muted);margin-top:3px}
+  .rule .acts{display:flex;gap:6px;flex-shrink:0}
+  .search{width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:11px;color:var(--ink);padding:11px 13px;font-size:14px;font-family:inherit;margin-top:10px}
+  .rulecount{font-size:12.5px;color:var(--muted);margin-top:6px}
 </style>
 </head>
 <body>
@@ -128,6 +133,8 @@
       <div class="posts" id="posts"></div>
       <div style="text-align:center;margin-top:10px"><button class="btn ghost sm" id="loadMorePosts" style="display:none">Load more posts</button></div>
     </div>
+    <input class="search" id="search" placeholder="🔍 Search your automations by name or keyword…">
+    <div class="rulecount" id="ruleCount"></div>
     <div id="rules"></div>
     <button class="btn big" id="saveBtn" style="margin-top:18px">💾 Save automations</button>
   </div>
@@ -199,7 +206,7 @@ Right after you follow me, I'll send you the guide so you can dive straight in! 
 
   function fromServer(r){
     return {
-      id: r.id || uid(), name: r.name || '',
+      id: r.id || uid(), name: r.name || '', _open: false,
       mediaMode: r.media_id ? 'specific' : 'any', media_id: r.media_id || '', mediaCap: '', mediaThumb: '',
       keywordMode: (r.keywords && r.keywords.length) ? 'specific' : 'any', keywords: (r.keywords||[]).join(', '),
       repliesOn: !!(r.replies && r.replies.length), replies: (r.replies && r.replies.length) ? r.replies.slice(0,3) : ['Sent! check your DMs 📩','On its way 🔥'],
@@ -211,7 +218,7 @@ Right after you follow me, I'll send you the guide so you can dive straight in! 
   }
 
   function newRule(name, keywords){
-    return { id: uid(), name: name||'New automation',
+    return { id: uid(), name: name||'New automation', _open: true,
       mediaMode:'any', media_id:'', mediaCap:'', mediaThumb:'',
       keywordMode:'specific', keywords: keywords||'keyword',
       repliesOn:true, replies:['Sent! check your DMs 📩','On its way 🔥'],
@@ -235,12 +242,48 @@ Right after you follow me, I'll send you the guide so you can dive straight in! 
     </div>`;
   }
 
+  function summaryLine(r){
+    const post = r.mediaMode==='specific' ? (r.media_id?'🔒 specific post':'🔒 specific post (none chosen)') : '🌐 any post';
+    const kw = r.keywordMode==='specific' ? ('"'+((r.keywords||'').split(',').map(s=>s.trim()).filter(Boolean).join(', ')||'—')+'"') : 'any word';
+    const gate = (r.openOn||r.askFollow) ? ' · 🎯 gated DM' : '';
+    const rem = r.remindOn ? ' · ⏰ reminder' : '';
+    return `${post} · ${kw}${gate}${rem}`;
+  }
+
+  function matchesSearch(r, q){
+    if(!q) return true;
+    q = q.toLowerCase();
+    return (r.name||'').toLowerCase().includes(q) || (r.keywords||'').toLowerCase().includes(q);
+  }
+
   function render(){
-    $('rules').innerHTML = rules.map((r,i)=>`
-      <div class="rule">
+    const q = ($('search')||{}).value || '';
+    $('ruleCount').textContent = `${rules.length} automation${rules.length===1?'':'s'}${q?` · showing matches for "${q}"`:''}`;
+    $('rules').innerHTML = rules.map((r,i)=>{
+      if(!matchesSearch(r,q)) return '';
+      if(!r._open) return `
+      <div class="rule collapsed" data-card="${i}">
+        <div class="top">
+          <div style="overflow:hidden">
+            <div class="nm">${esc(r.name)||'Untitled'}</div>
+            <div class="summary">${summaryLine(r)}</div>
+          </div>
+          <div class="acts">
+            <button class="btn ghost sm" data-edit="${i}">✏️ Edit</button>
+            <button class="btn ghost sm" data-dup="${i}">⧉</button>
+            <button class="x" data-x="${i}">×</button>
+          </div>
+        </div>
+      </div>`;
+      return `
+      <div class="rule" data-card="${i}">
         <div class="top">
           <input class="nmedit" data-f="name" data-i="${i}" value="${esc(r.name)}" placeholder="Automation name">
-          <button class="x" data-x="${i}">×</button>
+          <div class="acts">
+            <button class="btn ghost sm" data-collapse="${i}">▲ Collapse</button>
+            <button class="btn ghost sm" data-dup="${i}">⧉ Duplicate</button>
+            <button class="x" data-x="${i}">×</button>
+          </div>
         </div>
 
         <div class="mc-h">When someone comments on</div>
@@ -301,9 +344,13 @@ Right after you follow me, I'll send you the guide so you can dive straight in! 
             <div class="fld"><label>Wait how long first? (minutes)</label><input class="num" type="number" min="5" data-f="reminderMinutes" data-i="${i}" value="${r.reminderMinutes}"></div>
           ` : ''}
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
 
     $('rules').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{ rules.splice(+b.dataset.x,1); render(); });
+    $('rules').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{ const idx=+b.dataset.edit; rules[idx]._open=true; render(); requestAnimationFrame(()=>{ const el=$('rules').querySelector('[data-card="'+idx+'"]'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }); });
+    $('rules').querySelectorAll('[data-collapse]').forEach(b=>b.onclick=()=>{ rules[+b.dataset.collapse]._open=false; render(); });
+    $('rules').querySelectorAll('[data-dup]').forEach(b=>b.onclick=()=>{ duplicateRule(+b.dataset.dup); });
     $('rules').querySelectorAll('[data-f]').forEach(el=>el.oninput=()=>{ rules[+el.dataset.i][el.dataset.f]=el.value; });
     $('rules').querySelectorAll('[data-tog][type=checkbox]').forEach(el=>el.onchange=()=>{ rules[+el.dataset.i][el.dataset.tog]=el.checked; render(); });
     $('rules').querySelectorAll('[data-tog][type=radio]').forEach(el=>el.onchange=()=>{ if(el.checked) rules[+el.dataset.i][el.dataset.tog]=el.dataset.val; render(); });
@@ -317,6 +364,18 @@ Right after you follow me, I'll send you the guide so you can dive straight in! 
   };
 
   $('addBtn').onclick=()=>{ rules.push(newRule()); render(); window.scrollTo(0,document.body.scrollHeight); };
+  $('search').oninput=()=>render();
+
+  function duplicateRule(i){
+    const copy = JSON.parse(JSON.stringify(rules[i]));
+    copy.id = uid();
+    copy.name = (copy.name || 'Automation') + ' (copy)';
+    copy._open = true;
+    rules.splice(i+1, 0, copy);
+    render();
+    requestAnimationFrame(()=>{ const el=$('rules').querySelector('[data-card="'+(i+1)+'"]'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); });
+    toast('Duplicated ✓ — edit and save');
+  }
 
   async function openPosts(after){
     $('postsWrap').style.display='block';
@@ -334,7 +393,7 @@ Right after you follow me, I'll send you the guide so you can dive straight in! 
           const r=rules[pickingFor]; r.media_id=el.dataset.id; r.mediaCap=el.dataset.cap; r.mediaThumb=el.dataset.thumb; r.mediaMode='specific';
           pickingFor=-1; render(); toast('Post attached ✓');
         } else {
-          const r=newRule((el.dataset.cap||'').slice(0,40)||'Post',''); r.mediaMode='specific'; r.media_id=el.dataset.id; r.mediaCap=el.dataset.cap; r.mediaThumb=el.dataset.thumb; r.keywordMode='any';
+          const r=newRule((el.dataset.cap||'').slice(0,40)||'Post',''); r.mediaMode='specific'; r.media_id=el.dataset.id; r.mediaCap=el.dataset.cap; r.mediaThumb=el.dataset.thumb; r.keywordMode='any'; r._open=false;
           rules.push(r); el.classList.add('sel'); render(); $('rules').scrollIntoView({behavior:'smooth'});
         }
       });
