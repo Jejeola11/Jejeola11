@@ -95,4 +95,16 @@ function matchAutomation(rules, text, mediaId) {
   return rules.find((x) => !x.media_id && x.keywords.length === 0) || null;
 }
 
-module.exports = { DEFAULT_DM, DEFAULT_REPLIES, store, normalizeRules, loadAutomationsFromEnv, loadEverything, matchAutomation };
+// Rolling log of real webhook activity (last 40 events), visible from the
+// dashboard's "Check my setup" panel — so "is Instagram even reaching us"
+// is something you can see, not something you have to take on faith.
+async function logActivity(entry) {
+  try {
+    const s = await store();
+    const log = (await s.get('activity', { type: 'json' })) || [];
+    log.unshift({ ts: Date.now(), ...entry });
+    await s.setJSON('activity', log.slice(0, 40));
+  } catch (e) { console.error('[_lib] logActivity failed', String(e)); }
+}
+
+module.exports = { DEFAULT_DM, DEFAULT_REPLIES, store, normalizeRules, loadAutomationsFromEnv, loadEverything, matchAutomation, logActivity };

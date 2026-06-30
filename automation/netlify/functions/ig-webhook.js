@@ -21,7 +21,7 @@
 // in Netlify → this site → Functions → ig-webhook → Logs. Or use the
 // dashboard's "Check my setup" / "Test a comment" tools (health.js).
 // ============================================================
-const { DEFAULT_DM, store, loadEverything, matchAutomation } = require('./_lib');
+const { DEFAULT_DM, store, loadEverything, matchAutomation, logActivity } = require('./_lib');
 
 const GRAPH = 'https://graph.instagram.com/v21.0';
 
@@ -76,9 +76,10 @@ exports.handler = async (event) => {
   try {
     const body = JSON.parse(event.body || '{}');
     console.log('[ig-webhook] event received', body.object, 'entries:', (body.entry || []).length);
+    await logActivity({ kind: 'received', object: body.object, entries: (body.entry || []).length });
     const { token, igId, rules } = await loadEverything();
     console.log('[ig-webhook] loaded', rules.length, 'rule(s), token:', !!token, 'igId:', !!igId);
-    if (!token || !igId) { console.error('[ig-webhook] missing token/igId — not connected, or env vars missing'); return { statusCode: 200, body: 'EVENT_RECEIVED' }; }
+    if (!token || !igId) { console.error('[ig-webhook] missing token/igId — not connected, or env vars missing'); await logActivity({ kind: 'error', note: 'missing token/igId — not connected' }); return { statusCode: 200, body: 'EVENT_RECEIVED' }; }
     if (body.object !== 'instagram') { console.log('[ig-webhook] ignoring non-instagram object:', body.object); return { statusCode: 200, body: 'EVENT_RECEIVED' }; }
 
     for (const entry of (body.entry || [])) {
@@ -94,8 +95,13 @@ exports.handler = async (event) => {
         if (!commentId) { console.log('[ig-webhook] no comment id, skipping'); continue; }
 
         const rule = matchAutomation(rules, text, mediaId);
-        if (!rule) { console.log('[ig-webhook] no rule matched this comment'); continue; }
+        if (!rule) {
+          console.log('[ig-webhook] no rule matched this comment');
+          await logActivity({ kind: 'comment', text, mediaId, matched: false });
+          continue;
+        }
         console.log('[ig-webhook] matched rule:', rule.name || rule.id);
+        await logActivity({ kind: 'comment', text, mediaId, matched: true, ruleName: rule.name || rule.id });
 
         if (rule.replies.length) {
           const reply = rule.replies[Math.floor(Math.random() * rule.replies.length)];
@@ -137,8 +143,9 @@ exports.handler = async (event) => {
         const psid = m.sender && m.sender.id;
         if (!psid) continue;
         const rule = rules.find((r) => r.id === ruleId);
-        if (!rule) { console.log('[ig-webhook] postback for unknown/deleted rule', ruleId); continue; }
+        if (!rule) { console.log('[ig-webhook] postback for unknown/deleted rule', ruleId); await logActivity({ kind: 'postback', action, matched: false }); continue; }
         console.log('[ig-webhook] postback', action, 'rule:', rule.name || rule.id);
+        await logActivity({ kind: 'postback', action, matched: true, ruleName: rule.name || rule.id });
 
         if (action === 'WANT_LINK') {
           if (rule.askFollow && rule.followDm) {

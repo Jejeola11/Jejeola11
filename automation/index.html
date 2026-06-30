@@ -104,6 +104,9 @@
     <div class="fld" style="margin-top:16px"><label>Test a comment</label>
       <input id="testText" placeholder="Type a sample comment, e.g. director" style="width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:11px;color:var(--ink);padding:11px 13px;font-size:14px">
     </div>
+    <div class="fld"><label>On which post? (only matters if that automation is locked to a specific post)</label>
+      <select id="testPost" style="width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:11px;color:var(--ink);padding:11px 13px;font-size:14px;font-family:inherit"></select>
+    </div>
     <button class="btn ghost sm" id="testBtn" style="margin-top:8px">Test match</button>
     <div id="testOut" style="margin-top:10px;font-size:13.5px"></div>
   </div>
@@ -377,6 +380,7 @@ Right after you follow me, I'll send you the guide so you can dive straight in! 
     $('rules').querySelectorAll('[data-rmbtn]').forEach(el=>el.onclick=()=>{ const [i,bi]=el.dataset.rmbtn.split(':').map(Number); rules[i].buttons.splice(bi,1); render(); });
     $('rules').querySelectorAll('[data-addbtn]').forEach(el=>el.onclick=()=>{ rules[+el.dataset.addbtn].buttons.push({title:'',url:''}); render(); });
     $('rules').querySelectorAll('[data-pickpost]').forEach(el=>el.onclick=()=>{ pickingFor=+el.dataset.pickpost; openPosts(); });
+    fillTestPostSelect();
   };
 
   $('addBtn').onclick=()=>{ rules.push(newRule()); render(); window.scrollTo(0,document.body.scrollHeight); };
@@ -476,7 +480,8 @@ Right after you follow me, I'll send you the guide so you can dive straight in! 
       }
       rows.push(row('Automations saved on server', d.automationCount>0, d.automationCount+' automation'+(d.automationCount===1?'':'s')+' found'));
       const needsFix = d.connected && d.subscription && (!d.subscription.comments || !d.subscription.messaging_postbacks);
-      $('healthOut').innerHTML = rows.join('') + (needsFix ? '<button class="btn gold sm" id="fixSubBtn" style="margin-top:10px">🔧 Fix webhook subscription</button>' : '');
+      const activityHtml = renderActivity(d.activity||[]);
+      $('healthOut').innerHTML = rows.join('') + (needsFix ? '<button class="btn gold sm" id="fixSubBtn" style="margin-top:10px">🔧 Fix webhook subscription</button>' : '') + activityHtml;
       if(needsFix) $('fixSubBtn').onclick=async()=>{
         $('fixSubBtn').disabled=true; $('fixSubBtn').textContent='Fixing…';
         const r=await (await fetch('/.netlify/functions/health',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'resubscribe'})})).json();
@@ -487,6 +492,29 @@ Right after you follow me, I'll send you the guide so you can dive straight in! 
     }catch(e){ $('healthOut').innerHTML='<div class="sub">Check failed — is the site deployed?</div>'; }
     $('checkBtn').disabled=false; $('checkBtn').textContent='Run check';
   };
+  function timeAgo(ts){
+    const s = Math.max(1, Math.round((Date.now()-ts)/1000));
+    if(s<60) return s+'s ago'; if(s<3600) return Math.round(s/60)+'m ago'; return Math.round(s/3600)+'h ago';
+  }
+  function renderActivity(activity){
+    let body;
+    if(!activity.length){
+      body = '<div class="sub" style="text-align:left">No events received yet. Comment on your post now, then tap "Run check" again — if nothing appears here after a minute, Instagram isn\'t delivering events to us at all (a Meta-side config issue, not your automations).</div>';
+    } else {
+      body = activity.map(a=>{
+        if(a.kind==='received') return logLine(timeAgo(a.ts), `📡 Event received (${a.entries} item${a.entries===1?'':'s'})`, '');
+        if(a.kind==='comment') return logLine(timeAgo(a.ts), a.matched?`💬 "${esc(a.text)}" → matched "${esc(a.ruleName)}"`:`💬 "${esc(a.text)}" → no match`, a.matched?'good':'bad');
+        if(a.kind==='postback') return logLine(timeAgo(a.ts), a.matched?`👆 ${a.action} → "${esc(a.ruleName)}"`:`👆 ${a.action} → unknown rule`, a.matched?'good':'bad');
+        if(a.kind==='error') return logLine(timeAgo(a.ts), '⚠️ '+esc(a.note), 'bad');
+        return '';
+      }).join('');
+    }
+    return `<div class="mc-h" style="margin-top:18px">Recent webhook activity</div><div class="mc-box">${body}</div>`;
+  }
+  function logLine(time, text, cls){
+    const color = cls==='good' ? 'var(--good)' : cls==='bad' ? 'var(--red)' : 'var(--ink)';
+    return `<div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--line);color:${color}">${text} <span style="color:var(--muted)">· ${time}</span></div>`;
+  }
   function row(label, ok, note){
     return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)">
       <span style="font-size:15px">${ok?'✅':'❌'}</span>
@@ -494,16 +522,26 @@ Right after you follow me, I'll send you the guide so you can dive straight in! 
     </div>`;
   }
 
+  function fillTestPostSelect(){
+    const sel = $('testPost'); if(!sel) return;
+    const cur = sel.value;
+    const locked = rules.filter(r=>r.mediaMode==='specific' && r.media_id);
+    sel.innerHTML = '<option value="">(no specific post — only tests "any post" automations)</option>'
+      + locked.map(r=>`<option value="${esc(r.media_id)}">${esc(r.name)||'Untitled'} — ${esc((r.mediaCap||'').slice(0,30))||r.media_id.slice(0,10)+'…'}</option>`).join('');
+    if(locked.some(r=>r.media_id===cur)) sel.value = cur;
+  }
+
   $('testBtn').onclick=async()=>{
     const text=$('testText').value.trim();
     if(!text){ $('testOut').textContent='Type a sample comment first.'; return; }
+    const mediaId = $('testPost').value || '';
     $('testOut').textContent='Testing…';
     try{
-      const d=await (await fetch('/.netlify/functions/health?text='+encodeURIComponent(text))).json();
+      const d=await (await fetch('/.netlify/functions/health?text='+encodeURIComponent(text)+(mediaId?('&media_id='+encodeURIComponent(mediaId)):''))).json();
       const t=d.test;
       $('testOut').innerHTML = t && t.matched
         ? `✅ Would match: <b>${esc(t.name)}</b>`
-        : `❌ No automation would fire for this — check your keywords (remember "any word" automations always catch unmatched comments if you have one).`;
+        : `❌ No automation would fire for this${mediaId?' on that post':''} — check your keywords${mediaId?'':' (and pick a post above if this automation is locked to one)'}.`;
     }catch(e){ $('testOut').textContent='Test failed — network error.'; }
   };
 

@@ -10,7 +10,7 @@
 //                                      call using the already-stored token
 //                                      (no reconnect needed).
 // ============================================================
-const { loadEverything, matchAutomation } = require('./_lib');
+const { loadEverything, matchAutomation, store } = require('./_lib');
 const GRAPH = 'https://graph.instagram.com/v21.0';
 
 function json(code, obj) {
@@ -72,10 +72,16 @@ exports.handler = async (event) => {
       test = rule ? { matched: true, name: rule.name || '(untitled)', id: rule.id } : { matched: false };
     }
 
+    let activity = [];
+    try {
+      const s = await store();
+      activity = ((await s.get('activity', { type: 'json' })) || []).slice(0, 15);
+    } catch (e) { /* non-fatal */ }
+
     return json(200, {
       connected, username: conn ? conn.username : '',
       automationCount: rules.length, automations: summary,
-      subscription, test,
+      subscription, test, activity,
     });
   } catch (e) {
     return json(200, { ok: false, error: String(e) });
