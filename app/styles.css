@@ -706,3 +706,35 @@ textarea{min-height:104px;resize:vertical}
 .frame-tools{margin-top:14px;background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:12px}
 .ft-h{font-size:12px;font-weight:800;letter-spacing:.03em;color:var(--gold);margin-bottom:10px}
 .ft-row{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ===== The $500 Week — AI UGC course ===== */
+.wk-lab-banner{display:flex;align-items:center;gap:12px;text-decoration:none;background:linear-gradient(120deg,rgba(245,197,24,.16),rgba(245,197,24,.04));border:1px solid rgba(245,197,24,.4);border-radius:16px;padding:13px 15px;margin:8px 0 14px;box-shadow:0 8px 26px rgba(0,0,0,.35)}
+.wk-lab-ic{font-size:24px;flex:0 0 auto}
+.wk-lab-txt{flex:1;display:flex;flex-direction:column;line-height:1.25}
+.wk-lab-txt b{color:var(--ink);font-size:14px}
+.wk-lab-txt span{color:var(--muted);font-size:12px}
+.wk-lab-arrow{color:var(--gold);font-weight:800;font-size:18px}
+.wk-pay{background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 14px;text-align:center}
+.wk-pay h3{margin:0 0 4px;font-size:18px}
+.wk-pay .price{font-size:30px;font-weight:800;color:var(--gold);margin:6px 0}
+.wk-pay .btn{margin-top:6px}
+.wk-pay .wk-or{color:var(--muted);font-size:12px;margin:10px 0 6px}
+.wk-code{display:flex;gap:8px;margin-top:10px}
+.wk-code input{flex:1;background:var(--bg,#04221D);border:1px solid var(--line);border-radius:11px;color:var(--ink);padding:11px 13px;font-size:14px}
+.wk-join{background:linear-gradient(160deg,rgba(61,214,140,.12),rgba(61,214,140,.03));border:1px solid rgba(61,214,140,.35);border-radius:16px;padding:18px;margin:0 0 14px;text-align:center}
+.wk-join h3{margin:0 0 6px}
+.wk-day{background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:15px 16px;margin:0 0 12px;cursor:pointer;transition:.15s}
+.wk-day.locked{opacity:.55;cursor:default}
+.wk-day:not(.locked):hover{border-color:rgba(245,197,24,.5)}
+.wk-day-top{display:flex;align-items:center;gap:12px}
+.wk-day-n{flex:0 0 42px;height:42px;border-radius:11px;background:rgba(245,197,24,.14);color:var(--gold);font-weight:800;display:grid;place-items:center;font-size:13px;text-align:center;line-height:1.1}
+.wk-day-t{font-weight:800;font-size:15px;line-height:1.2}
+.wk-day-m{color:var(--muted);font-size:12px;margin-top:2px;display:flex;gap:8px;align-items:center}
+.wk-vid-tag{background:rgba(245,197,24,.16);color:var(--gold);font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:6px}
+.wk-call{background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.28);border-radius:10px;padding:11px 13px;font-size:14px;margin:12px 0}
+.wk-lesson-body h3{font-size:16px;margin:16px 0 6px;color:var(--ink)}
+.wk-lesson-body p{font-size:14.5px;line-height:1.6;color:var(--ink);margin:6px 0}
+.wk-lesson-body ul,.wk-lesson-body ol{padding-left:20px;font-size:14.5px;line-height:1.6}
+.wk-lesson-body li{margin:5px 0}
+.wk-vid-slot{width:100%;aspect-ratio:9/16;max-height:60vh;background:#02110e;border:1px dashed var(--line);border-radius:14px;display:grid;place-items:center;color:var(--muted);font-size:13px;text-align:center;margin:10px 0}
+.wk-vid-slot video{width:100%;height:100%;object-fit:contain;border-radius:14px}

@@ -236,7 +236,7 @@ function saveRoute() {
 function restoreRoute() {
   let r; try { r = JSON.parse(localStorage.getItem('fuse_route') || 'null'); } catch (e) {}
   if (!r || !r.view || r.view === 'home') return;
-  const safe = ['library', 'profile', 'community', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course'];
+  const safe = ['library', 'profile', 'community', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course', 'week'];
   if (!safe.includes(r.view)) return;
   try {
     if (r.view === 'studio') { openStudio(r.studio || 'generate'); if (r.video) setStudioMode(true); }
@@ -711,6 +711,7 @@ function routeFeature(go) {
     if (kind === 'view') { showView(val); return; }
   }
   if (go === 'learn') return openCourse();
+  if (go === 'week' || go === '500week') return openWeek();
   if (go === 'reactor' || go === 'avatar' || go === 'promptgen' || go === 'market') return openStudio(go);
   if (go === 'community') return showView('community');
   if (go === 'streak') return claimDaily();
@@ -768,6 +769,164 @@ async function generate() {
       return;
     }
   } catch (e) { clearInterval(iv); $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = '✨ Generate'; }
+}
+
+// ---------------- The $500 Week — AI UGC course ----------------
+const WK = (window.FUSE_5WEEK) ? window.FUSE_5WEEK : { days: [] };
+let weekVideos = {};          // wk-key -> video url
+let weekUnlocked = false;     // paid / plan / code
+const WK_JOIN_KEY = 'fuse_wk_joined';
+const WK_DONE_KEY = 'fuse_wk_done';
+function weekJoined() { try { return localStorage.getItem(WK_JOIN_KEY) === '1'; } catch (e) { return false; } }
+function weekDoneSet() { try { return new Set(JSON.parse(localStorage.getItem(WK_DONE_KEY) || '[]')); } catch (e) { return new Set(); } }
+function fmtN(n) { return '₦' + Number(n || 0).toLocaleString('en-NG'); }
+
+async function openWeek() {
+  showView('week');
+  const lab = $('weekLabBanner'); if (lab) lab.href = WK.charLabUrl || '#';
+  weekUnlocked = courseHasFull();
+  if (!preview && user) {
+    try { const { data: v } = await sb.from('course_videos').select('lesson_key, url'); weekVideos = {}; (v || []).forEach((r) => { if (String(r.lesson_key).startsWith('wk-')) weekVideos[r.lesson_key] = r.url; }); } catch (e) {}
+    if (!weekUnlocked) { try { const { data: u } = await sb.from('module_unlocks').select('module_key').eq('user_id', user.id).eq('module_key', 'wk-course').maybeSingle(); if (u) weekUnlocked = true; } catch (e) {} }
+  }
+  renderWeek();
+}
+
+function renderWeek() {
+  const done = weekDoneSet();
+  const total = WK.days.length || 1;
+  $('wkFill') && ($('wkFill').style.width = Math.round((done.size / total) * 100) + '%');
+  $('wkText') && ($('wkText').textContent = weekUnlocked ? `${done.size}/${total} days done` : '');
+  $('weekLockMsg').innerHTML = weekUnlocked
+    ? '<div class="course-badge ok">✓ You have full access to The $500 Week</div>'
+    : '<div class="course-badge">🔒 Paid course — unlock below to start</div>';
+
+  // ----- access gate -----
+  if (!weekUnlocked) {
+    $('weekGate').innerHTML = `
+      <div class="wk-pay">
+        <h3>Get instant access</h3>
+        <div class="price">${fmtN(WK.price)}</div>
+        <button class="btn gold block" id="wkSelar">💳 Pay on Selar →</button>
+        <div class="wk-or">— or —</div>
+        <button class="btn ghost block" id="wkCredits">Unlock with ${WK.creditsCost} credits</button>
+        <div class="wk-code">
+          <input id="wkCode" placeholder="Paid on Selar? Enter your access code">
+          <button class="btn gold sm" id="wkRedeem">Unlock</button>
+        </div>
+        <div class="note" id="wkPayNote"></div>
+      </div>`;
+    $('wkSelar').onclick = () => { if (WK.selar) window.open(WK.selar, '_blank'); else note('wkPayNote', 'Selar link not set yet — add it in fiveweek.js.', 'err'); };
+    $('wkCredits').onclick = weekUnlockCredits;
+    $('wkRedeem').onclick = weekRedeemCode;
+    $('weekBody').innerHTML = weekLockedPreview();
+    return;
+  }
+
+  // ----- WhatsApp join gate -----
+  if (!weekJoined()) {
+    $('weekGate').innerHTML = `
+      <div class="wk-join">
+        <h3>One quick step first 👋</h3>
+        <p class="muted" style="font-size:14px;margin:0 0 12px">Join the private WhatsApp discussion group — that's where you get feedback, resources and support all week. The lessons unlock the moment you're in.</p>
+        <button class="btn gold block" id="wkJoin">💬 Join the WhatsApp group</button>
+        <button class="btn ghost block" id="wkJoined" style="margin-top:8px">✓ I've joined — open my course</button>
+      </div>`;
+    $('wkJoin').onclick = () => { if (WK.whatsapp) window.open(WK.whatsapp, '_blank'); else toast('WhatsApp link not set yet'); };
+    $('wkJoined').onclick = () => { try { localStorage.setItem(WK_JOIN_KEY, '1'); } catch (e) {} toast('Welcome in! 🎉'); renderWeek(); };
+    $('weekBody').innerHTML = weekLockedPreview();
+    return;
+  }
+
+  // ----- full access + joined: the 7 days -----
+  $('weekGate').innerHTML = '';
+  $('weekBody').innerHTML = WK.days.map((d) => {
+    const isDone = done.has(d.key);
+    return `<div class="wk-day" data-wk="${d.key}">
+      <div class="wk-day-top">
+        <div class="wk-day-n">DAY<br>${d.day}</div>
+        <div style="flex:1">
+          <div class="wk-day-t">${isDone ? '✅ ' : ''}${d.title}</div>
+          <div class="wk-day-m"><span>${d.dur}</span>${d.video ? '<span class="wk-vid-tag">🎥 VIDEO</span>' : ''}</div>
+        </div>
+        <div style="color:var(--gold);font-weight:800">›</div>
+      </div>
+    </div>`;
+  }).join('');
+  $('weekBody').querySelectorAll('.wk-day').forEach((el) => el.onclick = () => openWeekLesson(el.dataset.wk));
+}
+
+function weekLockedPreview() {
+  return '<div style="opacity:.5;pointer-events:none">' + WK.days.map((d) =>
+    `<div class="wk-day locked"><div class="wk-day-top"><div class="wk-day-n">DAY<br>${d.day}</div>
+      <div style="flex:1"><div class="wk-day-t">${d.title}</div><div class="wk-day-m"><span>${d.dur}</span>${d.video ? '<span class="wk-vid-tag">🎥 VIDEO</span>' : ''}</div></div>
+      <div>🔒</div></div></div>`).join('') + '</div>';
+}
+
+function openWeekLesson(key) {
+  const d = WK.days.find((x) => x.key === key); if (!d) return;
+  const done = weekDoneSet();
+  const vid = d.video
+    ? `<div class="wk-vid-slot">${weekVideos[key] ? lessonEmbed(weekVideos[key]) : '🎥 Video lesson — uploading soon. The written lesson below is ready now.'}</div>`
+    : '';
+  const adminSet = userIsAdmin && d.video ? `<div class="lesson-admin" style="margin:8px 0">
+      <label class="fld">👑 Video URL for Day ${d.day} (YouTube unlisted / MP4)</label>
+      <input id="wkvUrl" placeholder="https://youtu.be/…" value="${(weekVideos[key] || '').replace(/"/g, '&quot;')}">
+      <button class="btn gold sm" id="wkvSave" style="margin-top:8px">Save video</button><span class="note" id="wkvNote"></span></div>` : '';
+  $('weekGate').innerHTML = '';
+  $('weekBody').innerHTML = `
+    <div class="backlink" id="wkLessonBack" style="cursor:pointer">← All lessons</div>
+    <div class="course-kick" style="margin-top:6px">DAY ${d.day}</div>
+    <h2 class="course-title" style="font-size:22px">${d.title}</h2>
+    <div class="wk-day-m" style="margin:2px 0 12px"><span>${d.dur}</span></div>
+    ${vid}${adminSet}
+    <div class="wk-lesson-body">${d.notes}</div>
+    <button class="btn ${done.has(key) ? 'ghost' : 'gold'} block" id="wkDone" style="margin-top:18px">${done.has(key) ? '✓ Completed — tap to undo' : '✅ Mark Day ' + d.day + ' complete'}</button>`;
+  $('wkLessonBack').onclick = () => renderWeek();
+  $('wkDone').onclick = () => {
+    const s = weekDoneSet(); if (s.has(key)) s.delete(key); else s.add(key);
+    try { localStorage.setItem(WK_DONE_KEY, JSON.stringify([...s])); } catch (e) {}
+    openWeekLesson(key);
+  };
+  if (adminSet) {
+    $('wkvSave').onclick = async () => {
+      const url = $('wkvUrl').value.trim(); $('wkvSave').disabled = true; $('wkvSave').textContent = 'Saving…';
+      try {
+        const res = await fetch('/.netlify/functions/course-set-video', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ lesson_key: key, url }) });
+        if (!res.ok) throw new Error('Save failed');
+        weekVideos[key] = url; note('wkvNote', 'Saved ✓', 'ok');
+      } catch (e) { note('wkvNote', e.message, 'err'); }
+      $('wkvSave').disabled = false; $('wkvSave').textContent = 'Save video';
+    };
+  }
+  window.scrollTo(0, 0);
+}
+
+async function weekRedeemCode() {
+  if (preview) { showAuth('signup'); return; }
+  const code = $('wkCode').value.trim(); if (!code) return note('wkPayNote', 'Enter the code you got after paying.', 'err');
+  $('wkRedeem').disabled = true;
+  try {
+    const res = await fetch('/.netlify/functions/unlock-module', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ module_key: 'wk-course', code }) });
+    const d = await res.json();
+    if (res.status === 403) { note('wkPayNote', d.error || 'Invalid code.', 'err'); $('wkRedeem').disabled = false; return; }
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    weekUnlocked = true; toast('Unlocked! 🎉'); renderWeek();
+  } catch (e) { note('wkPayNote', e.message || 'Could not unlock', 'err'); $('wkRedeem').disabled = false; }
+}
+
+async function weekUnlockCredits() {
+  if (preview) { showAuth('signup'); return; }
+  if (!confirm(`Unlock The $500 Week for ${WK.creditsCost} credits?`)) return;
+  $('wkCredits').disabled = true;
+  try {
+    const res = await fetch('/.netlify/functions/unlock-module', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ module_key: 'wk-course' }) });
+    const d = await res.json();
+    if (res.status === 402) { note('wkPayNote', 'Not enough credits — top up or pay on Selar.', 'err'); openBuy(); $('wkCredits').disabled = false; return; }
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    if (d.credits != null) $('creditCount').textContent = d.credits;
+    weekUnlocked = true; toast('Unlocked! 🎉'); renderWeek();
+  } catch (e) { note('wkPayNote', e.message || 'Could not unlock', 'err'); $('wkCredits').disabled = false; }
 }
 
 // ---------------- reactor (multi-AI) ----------------
@@ -1616,6 +1775,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('presetBack').onclick = () => showView('home');
   $('courseBack').onclick = () => showView('home');
   $('lessonBack').onclick = () => openCourse();
+  { const wb = $('weekBack'); if (wb) wb.onclick = () => showView('home'); }
   $('marketBack').onclick = () => showView('home');
   $('learnBack').onclick = () => showView('home');
   $('avatarBack').onclick = () => showView('home');

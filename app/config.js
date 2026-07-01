@@ -178,6 +178,7 @@ window.FUSE = {
     { label: 'Background Remover', go: 'tool:ai-background-remover' },
     { label: 'Object Eraser', go: 'tool:ai-object-eraser' },
     { label: 'Marketplace', go: 'market' },
+    { label: 'The $500 Week', go: 'week' },
     { label: 'Fuse Atelier', go: 'learn' },
     { label: 'Brand Identity', go: 'studio:brand' },
     { label: 'Packaging Design', go: 'studio:packaging' },
