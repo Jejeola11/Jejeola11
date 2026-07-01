@@ -76,7 +76,13 @@ exports.handler = async (event) => {
   try {
     const body = JSON.parse(event.body || '{}');
     console.log('[ig-webhook] event received', body.object, 'entries:', (body.entry || []).length);
-    await logActivity({ kind: 'received', object: body.object, entries: (body.entry || []).length });
+    console.log('[ig-webhook] raw payload', JSON.stringify(body));
+    // Log the exact fields Meta sent, plus a truncated raw dump — so if a real
+    // comment's payload shape differs from what we expect, it's visible here
+    // instead of us having to guess blind again.
+    const fieldsSeen = (body.entry || []).flatMap((e) => (e.changes || []).map((c) => c.field));
+    const messagingSeen = (body.entry || []).reduce((n, e) => n + (e.messaging || []).length, 0);
+    await logActivity({ kind: 'received', object: body.object, entries: (body.entry || []).length, fields: fieldsSeen, messagingCount: messagingSeen, raw: JSON.stringify(body).slice(0, 1800) });
     const { token, igId, rules } = await loadEverything();
     console.log('[ig-webhook] loaded', rules.length, 'rule(s), token:', !!token, 'igId:', !!igId);
     if (!token || !igId) { console.error('[ig-webhook] missing token/igId — not connected, or env vars missing'); await logActivity({ kind: 'error', note: 'missing token/igId — not connected' }); return { statusCode: 200, body: 'EVENT_RECEIVED' }; }

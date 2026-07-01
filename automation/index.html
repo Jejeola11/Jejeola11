@@ -502,7 +502,10 @@ Right after you follow me, I'll send you the guide so you can dive straight in! 
       body = '<div class="sub" style="text-align:left">No events received yet. Comment on your post now, then tap "Run check" again — if nothing appears here after a minute, Instagram isn\'t delivering events to us at all (a Meta-side config issue, not your automations).</div>';
     } else {
       body = activity.map(a=>{
-        if(a.kind==='received') return logLine(timeAgo(a.ts), `📡 Event received (${a.entries} item${a.entries===1?'':'s'})`, '');
+        if(a.kind==='received'){
+          const fieldsTxt = (a.fields&&a.fields.length) ? a.fields.join(', ') : (a.messagingCount ? 'messaging' : '(no comment/messaging fields — see raw below)');
+          return logLine(timeAgo(a.ts), `📡 Event received — fields: ${esc(fieldsTxt)}`, a.fields&&a.fields.includes('comments')?'good':'') + rawDetails(a.raw);
+        }
         if(a.kind==='comment') return logLine(timeAgo(a.ts), a.matched?`💬 "${esc(a.text)}" → matched "${esc(a.ruleName)}"`:`💬 "${esc(a.text)}" → no match`, a.matched?'good':'bad');
         if(a.kind==='postback') return logLine(timeAgo(a.ts), a.matched?`👆 ${a.action} → "${esc(a.ruleName)}"`:`👆 ${a.action} → unknown rule`, a.matched?'good':'bad');
         if(a.kind==='error') return logLine(timeAgo(a.ts), '⚠️ '+esc(a.note), 'bad');
@@ -514,6 +517,10 @@ Right after you follow me, I'll send you the guide so you can dive straight in! 
   function logLine(time, text, cls){
     const color = cls==='good' ? 'var(--good)' : cls==='bad' ? 'var(--red)' : 'var(--ink)';
     return `<div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--line);color:${color}">${text} <span style="color:var(--muted)">· ${time}</span></div>`;
+  }
+  function rawDetails(raw){
+    if(!raw) return '';
+    return `<details style="margin:2px 0 6px"><summary style="font-size:11px;color:var(--muted);font-weight:400">Show raw payload (for debugging)</summary><pre style="white-space:pre-wrap;word-break:break-all;font-size:10.5px;color:var(--muted);background:#02110e;border-radius:8px;padding:8px;margin-top:6px">${esc(raw)}</pre></details>`;
   }
   function row(label, ok, note){
     return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)">
