@@ -236,7 +236,7 @@ function saveRoute() {
 function restoreRoute() {
   let r; try { r = JSON.parse(localStorage.getItem('fuse_route') || 'null'); } catch (e) {}
   if (!r || !r.view || r.view === 'home') return;
-  const safe = ['library', 'profile', 'community', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course', 'week'];
+  const safe = ['library', 'profile', 'community', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course', 'week', 'omni'];
   if (!safe.includes(r.view)) return;
   try {
     if (r.view === 'studio') { openStudio(r.studio || 'generate'); if (r.video) setStudioMode(true); }
@@ -432,6 +432,7 @@ function openStudio(key) {
   if (key === 'learn') { showView('learn'); buildLessons(); return; }
   if (key === 'avatar') { showView('avatar'); loadAvatars(); return; }
   if (key === 'promptgen') { buildPromptFields(); showView('promptgen'); loadPromptHistory(); return; }
+  if (key === 'omni') { showView('omni'); return; }
   activeStudio = cfg.STUDIOS.find((s) => s.key === key) || cfg.STUDIOS[0];
   $('studioIcon').textContent = activeStudio.icon;
   $('studioName').textContent = activeStudio.name;
@@ -1025,6 +1026,139 @@ async function reactorSend() {
     else { $('rcOut').textContent = data.text; $('creditCount').textContent = data.credits; }
   } catch (e) { note('rcNote', e.message, 'err'); }
   btn.disabled = false; btn.textContent = 'Send';
+}
+
+// ---------------- Omni Studio (Gemini Omni Edit · Seedance 2 Omni · Talking Avatar) ----------------
+let omniEditClips = [];   // uploaded video clip URLs (up to 10)
+let omniEditAudio = '';   // optional audio URL
+let omniRefImages = [];   // up to 9
+let omniRefAudios = [];   // up to 3
+let omniAvatarImg = '';
+let omniAvatarAudio = '';
+
+function omniSwitch(tab) {
+  document.querySelectorAll('[data-omni]').forEach((b) => b.classList.toggle('active', b.dataset.omni === tab));
+  $('omniEditPane').style.display = tab === 'edit' ? 'block' : 'none';
+  $('omniRefPane').style.display = tab === 'ref' ? 'block' : 'none';
+  $('omniAvatarPane').style.display = tab === 'avatar' ? 'block' : 'none';
+}
+
+async function omniUpload(file, kind) {
+  const ext = (file.name.split('.').pop() || (kind === 'audio' ? 'mp3' : kind === 'video' ? 'mp4' : 'jpg')).toLowerCase();
+  const path = `${user.id}/omni-${kind}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
+  const { error } = await sb.storage.from('avatars').upload(path, file);
+  if (error) throw error;
+  return sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+}
+
+async function omniEditPickClips(files) {
+  if (preview) { showAuth('signup'); return; }
+  const limit = 10 - omniEditClips.length;
+  if (limit <= 0) return note('omniEditNote', 'Max 10 clips.', 'err');
+  note('omniEditNote', 'Uploading…', 'ok');
+  for (let i = 0; i < Math.min(files.length, limit); i++) {
+    try { omniEditClips.push(await omniUpload(files[i], 'video')); } catch (e) { note('omniEditNote', e.message || 'Upload failed', 'err'); }
+  }
+  $('omniEditCount').textContent = `${omniEditClips.length}/10 clips added`;
+  $('omniEditThumbs').innerHTML = omniEditClips.map((u, i) => `<video src="${u}" muted style="width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--line)"></video>`).join('');
+  note('omniEditNote', '');
+}
+async function omniEditPickAudio(files) {
+  if (!files || !files[0]) return;
+  note('omniEditNote', 'Uploading audio…', 'ok');
+  try { omniEditAudio = await omniUpload(files[0], 'audio'); $('omniEditAudioName').textContent = '🎵 ' + files[0].name; note('omniEditNote', ''); }
+  catch (e) { note('omniEditNote', e.message || 'Upload failed', 'err'); }
+}
+async function omniEditGenerate() {
+  if (preview) { showAuth('signup'); return; }
+  const instructions = $('omniEditPrompt').value.trim();
+  if (!instructions) return note('omniEditNote', 'Describe the edit you want.', 'err');
+  if (!omniEditClips.length) return note('omniEditNote', 'Add at least one clip.', 'err');
+  const btn = $('omniEditGen'); btn.disabled = true; btn.textContent = 'Starting…'; note('omniEditNote', '');
+  try {
+    const res = await fetch('/.netlify/functions/omni-video-edit', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ instructions, video_urls: omniEditClips, audio_url: omniEditAudio || undefined }),
+    });
+    const data = await res.json();
+    if (res.status === 402) { note('omniEditNote', 'Out of credits.', 'err'); openBuy(); }
+    else if (res.status === 403) { note('omniEditNote', data.error || 'Upgrade to unlock this model.', 'err'); openBuy(); }
+    else if (!res.ok) throw new Error(data.error || 'Could not start the edit');
+    else { $('creditCount').textContent = data.credits; pollGrid([data.request_id], $('omniEditResult'), 'omniEditNote', btn, '✨ Edit videos'); return; }
+  } catch (e) { note('omniEditNote', e.message || 'Failed', 'err'); }
+  btn.disabled = false; btn.textContent = '✨ Edit videos';
+}
+
+async function omniRefPickImages(files) {
+  if (preview) { showAuth('signup'); return; }
+  const limit = 9 - omniRefImages.length;
+  if (limit <= 0) return note('omniRefNote', 'Max 9 image references.', 'err');
+  note('omniRefNote', 'Uploading…', 'ok');
+  for (let i = 0; i < Math.min(files.length, limit); i++) {
+    try { omniRefImages.push(await omniUpload(files[i], 'image')); } catch (e) { note('omniRefNote', e.message || 'Upload failed', 'err'); }
+  }
+  $('omniRefImgThumbs').innerHTML = omniRefImages.map((u) => `<img src="${u}" style="width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--line)">`).join('');
+  note('omniRefNote', '');
+}
+async function omniRefPickAudios(files) {
+  if (preview) { showAuth('signup'); return; }
+  const limit = 3 - omniRefAudios.length;
+  if (limit <= 0) return note('omniRefNote', 'Max 3 audio references.', 'err');
+  note('omniRefNote', 'Uploading…', 'ok');
+  for (let i = 0; i < Math.min(files.length, limit); i++) {
+    try { omniRefAudios.push(await omniUpload(files[i], 'audio')); } catch (e) { note('omniRefNote', e.message || 'Upload failed', 'err'); }
+  }
+  $('omniRefAudioNames').textContent = omniRefAudios.length ? `🎵 ${omniRefAudios.length} audio file(s) added` : '';
+  note('omniRefNote', '');
+}
+async function omniRefGenerate() {
+  if (preview) { showAuth('signup'); return; }
+  const prompt = $('omniRefPrompt').value.trim();
+  if (!prompt) return note('omniRefNote', 'Describe the video you want.', 'err');
+  const btn = $('omniRefGen'); btn.disabled = true; btn.textContent = 'Starting…'; note('omniRefNote', '');
+  try {
+    const res = await fetch('/.netlify/functions/omni-reference', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ prompt, image_urls: omniRefImages, audio_urls: omniRefAudios, aspect: $('omniRefAspect').value }),
+    });
+    const data = await res.json();
+    if (res.status === 402) { note('omniRefNote', 'Out of credits.', 'err'); openBuy(); }
+    else if (res.status === 403) { note('omniRefNote', data.error || 'Upgrade to unlock this model.', 'err'); openBuy(); }
+    else if (!res.ok) throw new Error(data.error || 'Could not start the generation');
+    else { $('creditCount').textContent = data.credits; pollGrid([data.request_id], $('omniRefResult'), 'omniRefNote', btn, '✨ Generate'); return; }
+  } catch (e) { note('omniRefNote', e.message || 'Failed', 'err'); }
+  btn.disabled = false; btn.textContent = '✨ Generate';
+}
+
+async function omniAvatarPickImg(files) {
+  if (!files || !files[0]) return;
+  note('omniAvatarNote', 'Uploading…', 'ok');
+  try { omniAvatarImg = await omniUpload(files[0], 'image'); $('omniAvatarImgPreview').innerHTML = `<img src="${omniAvatarImg}" style="width:80px;height:80px;object-fit:cover;border-radius:10px;border:1px solid var(--line)">`; note('omniAvatarNote', ''); }
+  catch (e) { note('omniAvatarNote', e.message || 'Upload failed', 'err'); }
+}
+async function omniAvatarPickAudio(files) {
+  if (!files || !files[0]) return;
+  note('omniAvatarNote', 'Uploading…', 'ok');
+  try { omniAvatarAudio = await omniUpload(files[0], 'audio'); $('omniAvatarAudioName').textContent = '🎵 ' + files[0].name; note('omniAvatarNote', ''); }
+  catch (e) { note('omniAvatarNote', e.message || 'Upload failed', 'err'); }
+}
+async function omniAvatarGenerate() {
+  if (preview) { showAuth('signup'); return; }
+  if (!omniAvatarImg) return note('omniAvatarNote', 'Add a portrait image.', 'err');
+  if (!omniAvatarAudio) return note('omniAvatarNote', 'Add an audio clip.', 'err');
+  const btn = $('omniAvatarGen'); btn.disabled = true; btn.textContent = 'Starting…'; note('omniAvatarNote', '');
+  try {
+    const res = await fetch('/.netlify/functions/talking-avatar', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ model: $('omniAvatarModel').value, image_url: omniAvatarImg, audio_url: omniAvatarAudio }),
+    });
+    const data = await res.json();
+    if (res.status === 402) { note('omniAvatarNote', 'Out of credits.', 'err'); openBuy(); }
+    else if (res.status === 403) { note('omniAvatarNote', data.error || 'Upgrade to unlock this model.', 'err'); openBuy(); }
+    else if (!res.ok) throw new Error(data.error || 'Could not start the video');
+    else { $('creditCount').textContent = data.credits; pollGrid([data.request_id], $('omniAvatarResult'), 'omniAvatarNote', btn, '✨ Generate talking video'); return; }
+  } catch (e) { note('omniAvatarNote', e.message || 'Failed', 'err'); }
+  btn.disabled = false; btn.textContent = '✨ Generate talking video';
 }
 
 // ---------------- library / recent ----------------
@@ -1826,6 +1960,24 @@ window.addEventListener('DOMContentLoaded', () => {
   $('avRefBtn').onclick = () => $('avRefFile').click();
   $('avRefFile').onchange = (e) => pickAvatarRefs(Array.from(e.target.files).slice(0, 3));
   $('bBuild').onclick = buildAvatarPrompt;
+  // Omni Studio
+  { const ob = $('omniBack'); if (ob) ob.onclick = () => showView('home'); }
+  document.querySelectorAll('[data-omni]').forEach((b) => b.onclick = () => omniSwitch(b.dataset.omni));
+  { const p = $('omniEditPick'); if (p) p.onclick = () => $('omniEditFile').click(); }
+  { const f = $('omniEditFile'); if (f) f.onchange = (e) => { omniEditPickClips(e.target.files); e.target.value = ''; }; }
+  { const p = $('omniEditAudioPick'); if (p) p.onclick = () => $('omniEditAudioFile').click(); }
+  { const f = $('omniEditAudioFile'); if (f) f.onchange = (e) => { omniEditPickAudio(e.target.files); e.target.value = ''; }; }
+  { const g = $('omniEditGen'); if (g) g.onclick = omniEditGenerate; }
+  { const p = $('omniRefImgPick'); if (p) p.onclick = () => $('omniRefImgFile').click(); }
+  { const f = $('omniRefImgFile'); if (f) f.onchange = (e) => { omniRefPickImages(e.target.files); e.target.value = ''; }; }
+  { const p = $('omniRefAudioPick'); if (p) p.onclick = () => $('omniRefAudioFile').click(); }
+  { const f = $('omniRefAudioFile'); if (f) f.onchange = (e) => { omniRefPickAudios(e.target.files); e.target.value = ''; }; }
+  { const g = $('omniRefGen'); if (g) g.onclick = omniRefGenerate; }
+  { const p = $('omniAvatarImgPick'); if (p) p.onclick = () => $('omniAvatarImgFile').click(); }
+  { const f = $('omniAvatarImgFile'); if (f) f.onchange = (e) => { omniAvatarPickImg(e.target.files); e.target.value = ''; }; }
+  { const p = $('omniAvatarAudioPick'); if (p) p.onclick = () => $('omniAvatarAudioFile').click(); }
+  { const f = $('omniAvatarAudioFile'); if (f) f.onchange = (e) => { omniAvatarPickAudio(e.target.files); e.target.value = ''; }; }
+  { const g = $('omniAvatarGen'); if (g) g.onclick = omniAvatarGenerate; }
   $('qSkip').onclick = skipQuiz;
   $('refBtn').onclick = () => $('refFile').click();
   $('refFile').onchange = (e) => pickReferences(e.target.files);

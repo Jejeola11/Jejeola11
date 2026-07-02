@@ -74,6 +74,12 @@ const VIDEO_COST = {        // real MuAPI $ cost (seedance-vip + grok verified l
   'kling-v3-turbo-pro-text-to-video': 0.70,    'kling-v3-turbo-pro-image-to-video': 0.70,
   'grok-imagine-text-to-video': 0.15,          'grok-imagine-image-to-video': 0.15,
   'veo3-text-to-video': 1.20,                  'veo3-image-to-video': 1.20,
+  // Omni Studio (verified live against MuAPI's catalog + validation endpoints)
+  'gemini-omni-video-edit': 2.40,              // needs a Pro/Business MuAPI plan — see omni-video-edit.js
+  'seedance-2-omni-reference-no-video': 1.25,
+  'omnihuman-1-5': 0.25,
+  'kling-v2-avatar-pro': 0.75,
+  'kling-v2-avatar-standard': 0.35,
 };
 const TOOL_COST = {         // utility tools (take an input image -> output)
   'ai-image-upscale': 0.02,

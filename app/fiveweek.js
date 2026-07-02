@@ -20,7 +20,7 @@
 window.FUSE_5WEEK = {
   price: 5000,                  // ₦ course price
   buyWhatsapp: 'https://wa.me/2349044558101?text=Hi%20Ria%21%20I%20want%20to%20join%20The%20%24500%20Week%20course%20%28AI%20UGC%20%26%20AI%20Influencer%29.%20Please%20send%20me%20the%20payment%20details%20%F0%9F%99%8F',
-  whatsapp: '',                 // paste your WhatsApp GROUP invite link here (separate from the buy link above)
+  whatsapp: 'https://chat.whatsapp.com/JMVhLvgCs40JXtNv7Yf1zI?s=cl&p=a&mlu=1&amv=2', // course discussion group
   accessCode: 'UGC500',         // code you can hand out manually if you ever want a self-serve unlock
   creditsCost: 250,             // in-app credit price to unlock (optional path, ~ same value as ₦5,000)
   charLabUrl: 'https://fuse-character-lab.netlify.app', // Character Lab banner link

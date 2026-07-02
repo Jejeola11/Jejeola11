@@ -222,6 +222,82 @@
     </div>
   </section>
 
+  <!-- ===== OMNI STUDIO (Gemini Omni Edit · Seedance 2 Omni · Talking Avatar) ===== -->
+  <section class="view" id="view-omni">
+    <div class="backlink" id="omniBack">← Studios</div>
+    <div class="studio-head"><div class="ic">🌀</div><div><h2>Omni Studio</h2><p>Multimodal editing & talking avatars</p></div></div>
+
+    <div class="mtabs" style="margin:10px 0 14px">
+      <button class="mtab active" data-omni="edit">🎞️ Gemini Omni Edit</button>
+      <button class="mtab" data-omni="ref">🖼 Seedance 2 Omni</button>
+      <button class="mtab" data-omni="avatar">🗣 Talking Avatar</button>
+    </div>
+
+    <!-- Gemini Omni Video Edit -->
+    <div class="panel omni-pane" id="omniEditPane">
+      <h3>🎞️ Gemini Omni Video Edit</h3>
+      <p class="muted" style="margin:0 0 10px;font-size:13px">Restyle, relight, swap subjects or rewrite scenes across up to <b>10 clips</b> with one instruction — natively multimodal, keeps motion & audio continuity.</p>
+      <label class="fld">Clips (up to 10)</label>
+      <button class="btn ghost sm" id="omniEditPick">＋ Add clips</button>
+      <input type="file" id="omniEditFile" accept="video/*" multiple hidden>
+      <div class="muted" id="omniEditCount" style="font-size:12px;margin-top:6px"></div>
+      <div id="omniEditThumbs" class="av-thumbs"></div>
+      <label class="fld" for="omniEditPrompt">Editing instructions</label>
+      <textarea id="omniEditPrompt" placeholder="e.g. Restyle every clip to a warm cinematic golden-hour look, keep the same motion and framing"></textarea>
+      <label class="fld">Audio (optional)</label>
+      <button class="btn ghost sm" id="omniEditAudioPick">🎵 Add audio</button>
+      <input type="file" id="omniEditAudioFile" accept="audio/*" hidden>
+      <div class="muted" id="omniEditAudioName" style="font-size:12px;margin-top:6px"></div>
+      <button class="btn gold block" id="omniEditGen" style="margin-top:14px">✨ Edit videos (~225 credits)</button>
+      <div class="note" id="omniEditNote"></div>
+      <div class="result" id="omniEditResult" style="margin-top:12px;min-height:200px"><div class="muted">Your edited video appears here.</div></div>
+    </div>
+
+    <!-- Seedance 2 Omni Reference -->
+    <div class="panel omni-pane" id="omniRefPane" style="display:none">
+      <h3>🖼 Seedance 2 Omni Reference</h3>
+      <p class="muted" style="margin:0 0 10px;font-size:13px">Visually consistent video from up to <b>9 image references</b> and up to <b>3 audio references</b> — keeps character identity, style and scene continuity.</p>
+      <label class="fld" for="omniRefPrompt">Prompt</label>
+      <textarea id="omniRefPrompt" placeholder="e.g. @image1 walking through a neon-lit night market, cinematic, @audio1 playing softly"></textarea>
+      <label class="fld">Image references (up to 9)</label>
+      <button class="btn ghost sm" id="omniRefImgPick">＋ Add images</button>
+      <input type="file" id="omniRefImgFile" accept="image/*" multiple hidden>
+      <div id="omniRefImgThumbs" class="av-thumbs"></div>
+      <label class="fld">Audio references (up to 3)</label>
+      <button class="btn ghost sm" id="omniRefAudioPick">🎵 Add audio</button>
+      <input type="file" id="omniRefAudioFile" accept="audio/*" multiple hidden>
+      <div class="muted" id="omniRefAudioNames" style="font-size:12px;margin-top:6px"></div>
+      <label class="fld" for="omniRefAspect">Aspect</label>
+      <select id="omniRefAspect"><option value="9:16">9:16 vertical</option><option value="1:1">1:1 square</option><option value="16:9">16:9 wide</option></select>
+      <button class="btn gold block" id="omniRefGen" style="margin-top:14px">✨ Generate (~118 credits)</button>
+      <div class="note" id="omniRefNote"></div>
+      <div class="result" id="omniRefResult" style="margin-top:12px;min-height:200px"><div class="muted">Your video appears here.</div></div>
+    </div>
+
+    <!-- AI Talking Avatar -->
+    <div class="panel omni-pane" id="omniAvatarPane" style="display:none">
+      <h3>🗣 AI Talking Avatar</h3>
+      <p class="muted" style="margin:0 0 10px;font-size:13px">Turn a portrait photo + an audio clip into a talking-head video.</p>
+      <label class="fld" for="omniAvatarModel">Model</label>
+      <select id="omniAvatarModel">
+        <option value="omnihuman-1-5">OmniHuman 1.5 — fast & cheap (~24 cr)</option>
+        <option value="kling-v2-avatar-standard">Kling Avatar Standard — mid tier (~33 cr)</option>
+        <option value="kling-v2-avatar-pro">Kling Avatar Pro — premium fidelity (~71 cr)</option>
+      </select>
+      <label class="fld">Portrait image</label>
+      <button class="btn ghost sm" id="omniAvatarImgPick">＋ Add photo</button>
+      <input type="file" id="omniAvatarImgFile" accept="image/*" hidden>
+      <div id="omniAvatarImgPreview" style="margin-top:8px"></div>
+      <label class="fld">Audio clip</label>
+      <button class="btn ghost sm" id="omniAvatarAudioPick">🎵 Add audio</button>
+      <input type="file" id="omniAvatarAudioFile" accept="audio/*" hidden>
+      <div class="muted" id="omniAvatarAudioName" style="font-size:12px;margin-top:6px"></div>
+      <button class="btn gold block" id="omniAvatarGen" style="margin-top:14px">✨ Generate talking video</button>
+      <div class="note" id="omniAvatarNote"></div>
+      <div class="result" id="omniAvatarResult" style="margin-top:12px;min-height:200px"><div class="muted">Your talking avatar video appears here.</div></div>
+    </div>
+  </section>
+
   <!-- ===== VIRAL PRESET DETAIL ===== -->
   <section class="view" id="view-preset">
     <div class="backlink" id="presetBack">← Home</div>

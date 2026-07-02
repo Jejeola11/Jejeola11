@@ -23,16 +23,17 @@ async function muapiGenerate({ prompt, aspect = '9:16', model = 'flux-schnell' }
   throw new Error('Timed out');
 }
 
-// Re-host a reference image on MuAPI's own CDN so the engine can always fetch
-// it (some external URLs aren't reachable by MuAPI). Returns the cdn.muapi.ai
-// URL, or the original on any failure.
-async function muapiHostImage(srcUrl) {
+// Re-host any reference file (image / audio / video) on MuAPI's own CDN so the
+// engine can always fetch it (some external URLs, e.g. Supabase storage, aren't
+// reachable by MuAPI). Returns the cdn.muapi.ai URL, or the original on failure.
+async function muapiHostFile(srcUrl, kind = 'image') {
   try {
     const resp = await fetch(srcUrl);
     if (!resp.ok) return srcUrl;
     const buf = Buffer.from(await resp.arrayBuffer());
-    const ct = resp.headers.get('content-type') || 'image/jpeg';
-    const ext = ct.includes('png') ? 'png' : ct.includes('webp') ? 'webp' : 'jpg';
+    const ct = resp.headers.get('content-type') || (kind === 'audio' ? 'audio/mpeg' : kind === 'video' ? 'video/mp4' : 'image/jpeg');
+    const extMap = { 'image/png': 'png', 'image/webp': 'webp', 'audio/mpeg': 'mp3', 'audio/mp4': 'm4a', 'audio/wav': 'wav', 'video/mp4': 'mp4', 'video/quicktime': 'mov' };
+    const ext = extMap[ct] || (kind === 'audio' ? 'mp3' : kind === 'video' ? 'mp4' : 'jpg');
     const fd = new FormData();
     fd.append('file', new Blob([buf], { type: ct }), 'ref.' + ext);
     const up = await fetch(`${MUAPI_BASE}/upload_file`, { method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY }, body: fd });
@@ -40,5 +41,6 @@ async function muapiHostImage(srcUrl) {
     return (j && j.url) ? j.url : srcUrl;
   } catch (e) { return srcUrl; }
 }
+async function muapiHostImage(srcUrl) { return muapiHostFile(srcUrl, 'image'); } // back-compat alias
 
-module.exports = { muapiGenerate, muapiHostImage };
+module.exports = { muapiGenerate, muapiHostImage, muapiHostFile };

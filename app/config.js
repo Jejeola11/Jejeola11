@@ -162,6 +162,7 @@ window.FUSE = {
   // "Explore more AI features" chip cloud (Home). go: routeFeature target.
   FEATURES: [
     { label: 'Fuse Reactor', go: 'reactor' },
+    { label: 'Omni Studio', go: 'studio:omni' },
     { label: 'Avatar Studio', go: 'avatar' },
     { label: 'Seedance 2.0', go: 'video:seedance-2-text-to-video' },
     { label: 'Seedance 4K', go: 'video:seedance-2-vip-text-to-video' },
