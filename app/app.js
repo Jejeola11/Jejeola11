@@ -789,6 +789,12 @@ async function openWeek() {
     try { const { data: v } = await sb.from('course_videos').select('lesson_key, url'); weekVideos = {}; (v || []).forEach((r) => { if (String(r.lesson_key).startsWith('wk-')) weekVideos[r.lesson_key] = r.url; }); } catch (e) {}
     if (!weekUnlocked) { try { const { data: u } = await sb.from('module_unlocks').select('module_key').eq('user_id', user.id).eq('module_key', 'wk-course').maybeSingle(); if (u) weekUnlocked = true; } catch (e) {} }
   }
+  // Selar's post-purchase redirect can send buyers straight back here as
+  // .../?view=week&wkcode=UGC500 — auto-redeem so they land unlocked, no manual step.
+  if (!weekUnlocked && !preview && user) {
+    const qCode = new URLSearchParams(location.search).get('wkcode');
+    if (qCode) { const ok = await redeemWeekCode(qCode); if (ok) toast('Payment confirmed — welcome in! 🎉'); }
+  }
   renderWeek();
 }
 
@@ -902,17 +908,24 @@ function openWeekLesson(key) {
   window.scrollTo(0, 0);
 }
 
+// Core redeem call — reused by the manual "Unlock" button and by the
+// automatic Selar-redirect flow in openWeek(). Returns true/false, no DOM assumptions.
+async function redeemWeekCode(code) {
+  if (!code) return false;
+  try {
+    const res = await fetch('/.netlify/functions/unlock-module', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ module_key: 'wk-course', code }) });
+    if (!res.ok) return false;
+    weekUnlocked = true;
+    return true;
+  } catch (e) { return false; }
+}
 async function weekRedeemCode() {
   if (preview) { showAuth('signup'); return; }
   const code = $('wkCode').value.trim(); if (!code) return note('wkPayNote', 'Enter the code you got after paying.', 'err');
   $('wkRedeem').disabled = true;
-  try {
-    const res = await fetch('/.netlify/functions/unlock-module', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ module_key: 'wk-course', code }) });
-    const d = await res.json();
-    if (res.status === 403) { note('wkPayNote', d.error || 'Invalid code.', 'err'); $('wkRedeem').disabled = false; return; }
-    if (!res.ok) throw new Error(d.error || 'Failed');
-    weekUnlocked = true; toast('Unlocked! 🎉'); renderWeek();
-  } catch (e) { note('wkPayNote', e.message || 'Could not unlock', 'err'); $('wkRedeem').disabled = false; }
+  const ok = await redeemWeekCode(code);
+  if (ok) { toast('Unlocked! 🎉'); renderWeek(); }
+  else { note('wkPayNote', 'That code is not valid.', 'err'); $('wkRedeem').disabled = false; }
 }
 
 async function weekUnlockCredits() {
@@ -1759,6 +1772,10 @@ async function boot() {
   maybePromo();
   // Came from the Atelier page "Get instant access" -> start the course purchase.
   if (new URLSearchParams(location.search).get('buy') === 'course') setTimeout(() => buy('course'), 600);
+  // Came from an external link (e.g. Selar's post-purchase redirect) with ?view=week —
+  // open straight to that view. wkcode (if present) is picked up inside openWeek().
+  const qView = new URLSearchParams(location.search).get('view');
+  if (qView === 'week') setTimeout(() => routeFeature('week'), 400);
 }
 
 // ---------------- wire up ----------------
