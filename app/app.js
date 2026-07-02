@@ -1148,6 +1148,23 @@ async function adminGrant(custom) {
   } catch (e) { note('adminNote', e.message || 'Failed', 'err'); }
   btn.disabled = false; btn.textContent = label;
 }
+async function adminGrantCourse() {
+  const email = $('adminEmail').value.trim();
+  if (!email) return note('adminNote', 'Enter the buyer\'s email.', 'err');
+  const course = $('adminCourse').value;
+  const btn = $('adminGrantCourse'); btn.disabled = true; btn.textContent = 'Unlocking…';
+  try {
+    const res = await fetch('/.netlify/functions/admin-grant', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ email, course }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    note('adminNote', `✅ Course unlocked for ${d.email}.`, 'ok');
+    $('adminEmail').value = '';
+  } catch (e) { note('adminNote', e.message || 'Failed', 'err'); }
+  btn.disabled = false; btn.textContent = 'Unlock course for this email';
+}
 
 // ---------------- community ----------------
 async function loadChallenges() {
@@ -1865,6 +1882,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('logoutBtn').onclick = logout;
   $('adminGrant').onclick = () => adminGrant(false);
   $('adminGrantCredits').onclick = () => adminGrant(true);
+  { const gc = $('adminGrantCourse'); if (gc) gc.onclick = adminGrantCourse; }
   $('lbClose').onclick = () => $('lightbox').style.display = 'none';
   $('lbDl').onclick = () => downloadFile(lbUrl);
   $('authBtn').onclick = doAuth;

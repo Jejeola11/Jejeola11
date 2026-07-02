@@ -28,13 +28,25 @@ exports.handler = async (event) => {
     const email = (body.email || '').trim();
     const pack = body.pack ? PACKS[body.pack] : null;
     const custom = parseInt(body.credits, 10) || 0;
+    // course: unlock a specific course by its module key (e.g. 'wk-course' = The $500 Week).
+    const course = (body.course || '').trim();
     if (!email) return json(400, { error: 'Enter the buyer\'s email.' });
-    if (!pack && custom <= 0) return json(400, { error: 'Pick a pack or enter a credit amount.' });
+    if (!pack && custom <= 0 && !course) return json(400, { error: 'Pick a pack, a course, or enter a credit amount.' });
 
     // Find the buyer's account by email.
     const { data: rows } = await db.from('profiles').select('id, email').ilike('email', email).limit(1);
     const target = rows && rows[0];
     if (!target) return json(404, { error: 'No account with that email yet — ask them to sign up first, then grant.' });
+
+    // Course-only grant: unlock the course for this buyer and return (no credits/plan change).
+    if (course && !pack && custom <= 0) {
+      const { data: existing } = await db.from('module_unlocks').select('module_key').eq('user_id', target.id).eq('module_key', course).maybeSingle();
+      if (!existing) await db.from('module_unlocks').insert({ user_id: target.id, module_key: course });
+      try {
+        await db.from('payments').insert({ user_id: target.id, reference: 'course-' + Date.now() + '-' + email, amount_naira: 0, pack: course, credits_added: 0, status: 'manual' });
+      } catch (e) {}
+      return json(200, { ok: true, email: target.email, course, credits: 0, granted: 'course' });
+    }
 
     // Credits: exact custom amount, OR the pack's credits doubled (founding).
     const credits = custom > 0 ? custom : pack.credits * FOUNDING_MULTIPLIER;
