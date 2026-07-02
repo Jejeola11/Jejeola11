@@ -39,8 +39,3 @@
   to = "/app/index.html"
   status = 200
 
-# Old funnels stay reachable for reference / paid traffic already in flight.
-[[redirects]]
-  from = "/legacy"
-  to = "/index.html"
-  status = 200
