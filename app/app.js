@@ -813,16 +813,17 @@ function renderWeek() {
       <div class="wk-pay">
         <h3>Get instant access</h3>
         <div class="price">${fmtN(WK.price)}</div>
-        <button class="btn gold block" id="wkSelar">💳 Pay on Selar →</button>
+        <button class="btn gold block" id="wkBuy">💬 Message me on WhatsApp to pay →</button>
+        <p class="muted" style="font-size:12px;margin-top:8px">I'll send you account details. Once you've paid, send me your email and I'll unlock the course for you.</p>
         <div class="wk-or">— or —</div>
         <button class="btn ghost block" id="wkCredits">Unlock with ${WK.creditsCost} credits</button>
         <div class="wk-code">
-          <input id="wkCode" placeholder="Paid on Selar? Enter your access code">
+          <input id="wkCode" placeholder="Already have an access code?">
           <button class="btn gold sm" id="wkRedeem">Unlock</button>
         </div>
         <div class="note" id="wkPayNote"></div>
       </div>`;
-    $('wkSelar').onclick = () => { if (WK.selar) window.open(WK.selar, '_blank'); else note('wkPayNote', 'Selar link not set yet — add it in fiveweek.js.', 'err'); };
+    $('wkBuy').onclick = () => { if (WK.buyWhatsapp) window.open(WK.buyWhatsapp, '_blank'); else note('wkPayNote', 'WhatsApp link not set yet — add it in fiveweek.js.', 'err'); };
     $('wkCredits').onclick = weekUnlockCredits;
     $('wkRedeem').onclick = weekRedeemCode;
     $('weekBody').innerHTML = weekLockedPreview();
@@ -935,7 +936,7 @@ async function weekUnlockCredits() {
   try {
     const res = await fetch('/.netlify/functions/unlock-module', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ module_key: 'wk-course' }) });
     const d = await res.json();
-    if (res.status === 402) { note('wkPayNote', 'Not enough credits — top up or pay on Selar.', 'err'); openBuy(); $('wkCredits').disabled = false; return; }
+    if (res.status === 402) { note('wkPayNote', 'Not enough credits — top up, or message me on WhatsApp to pay directly.', 'err'); openBuy(); $('wkCredits').disabled = false; return; }
     if (!res.ok) throw new Error(d.error || 'Failed');
     if (d.credits != null) $('creditCount').textContent = d.credits;
     weekUnlocked = true; toast('Unlocked! 🎉'); renderWeek();

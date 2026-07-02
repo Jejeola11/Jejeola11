@@ -3,20 +3,26 @@
 // A separate, self-contained course from Fuse Atelier. 7 days of text lessons
 // plus 3 video walkthroughs (Day 2, 3, 5). Rendered by openWeek() in app.js.
 //
-// Access:  full-plan/admin  OR  a valid access code (given after Selar payment)
-//          OR  unlocked with in-app credits.  First step after access is the
+// Access:  full-plan/admin  OR  a valid access code (given after you manually
+//          grant them in Admin -> "Unlock course for this email")  OR
+//          unlocked with in-app credits.  First step after access is the
 //          WhatsApp-group gate.
+//
+// Payment: buyers tap "Message me on WhatsApp" (prefilled purchase message,
+// same as the landing page) -> you send account details -> they pay -> you
+// take their email -> Admin panel -> "Unlock course for this email". No
+// Selar right now.
 //
 // Video slots: set a URL per day key ('wk-2','wk-3','wk-5') in the course_videos
 // table (same admin flow as Atelier) and it appears automatically. Until then a
 // "coming soon" placeholder shows and the text lesson still works.
 // ============================================================
 window.FUSE_5WEEK = {
-  price: 15000,                 // ₦ course price (edit freely)
-  selar: '',                    // paste your Selar checkout link here
-  whatsapp: '',                 // paste your WhatsApp group invite link here
-  accessCode: 'UGC500',         // code you give buyers after Selar payment (change anytime)
-  creditsCost: 900,             // in-app credit price to unlock (optional path)
+  price: 5000,                  // ₦ course price
+  buyWhatsapp: 'https://wa.me/2349044558101?text=Hi%20Ria%21%20I%20want%20to%20join%20The%20%24500%20Week%20course%20%28AI%20UGC%20%26%20AI%20Influencer%29.%20Please%20send%20me%20the%20payment%20details%20%F0%9F%99%8F',
+  whatsapp: '',                 // paste your WhatsApp GROUP invite link here (separate from the buy link above)
+  accessCode: 'UGC500',         // code you can hand out manually if you ever want a self-serve unlock
+  creditsCost: 250,             // in-app credit price to unlock (optional path, ~ same value as ₦5,000)
   charLabUrl: 'https://fuse-character-lab.netlify.app', // Character Lab banner link
 
   days: [

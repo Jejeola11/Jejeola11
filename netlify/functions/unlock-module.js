@@ -8,7 +8,7 @@ const { admin, getUser, json, getPlan } = require('./_supabase');
 
 const MODULE_COST = 100; // credits to unlock one Atelier module
 // Per-key credit price overrides (server-controlled). 'wk-course' = The $500 Week.
-const KEY_COST = { 'wk-course': 900 };
+const KEY_COST = { 'wk-course': 250 }; // ~ same value as the ₦5,000 course price
 function costFor(key) { return KEY_COST[key] || MODULE_COST; }
 
 exports.handler = async (event) => {

@@ -535,6 +535,7 @@ textarea{min-height:104px;resize:vertical}
 .fb-badge.trend{background:#ff3b8b;color:#fff}
 .fb-badge.vid{background:rgba(0,0,0,.45);color:#fff;border:1px solid var(--line)}
 .fb-badge.img{background:rgba(0,0,0,.45);color:#fff;border:1px solid var(--line)}
+.fb-badge.course{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1205}
 
 /* ---- Seedance 4K 3D hero ---- */
 .seed4k{position:relative;margin:14px 0;border-radius:22px;padding:30px 18px 26px;text-align:center;cursor:pointer;overflow:hidden;
