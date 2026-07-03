@@ -784,10 +784,9 @@ function fmtN(n) { return '₦' + Number(n || 0).toLocaleString('en-NG'); }
 
 async function openWeek() {
   showView('week');
-  const lab = $('weekLabBanner'); if (lab) lab.href = WK.charLabUrl || '#';
   weekUnlocked = courseHasFull();
   if (!preview && user) {
-    try { const { data: v } = await sb.from('course_videos').select('lesson_key, url'); weekVideos = {}; (v || []).forEach((r) => { if (String(r.lesson_key).startsWith('wk-')) weekVideos[r.lesson_key] = r.url; }); } catch (e) {}
+    try { const { data: v } = await sb.from('course_videos').select('lesson_key, url'); weekVideos = { 'wk-2': WK.day2VideoUrl || '' }; (v || []).forEach((r) => { if (String(r.lesson_key).startsWith('wk-')) weekVideos[r.lesson_key] = r.url; }); } catch (e) {}
     if (!weekUnlocked) { try { const { data: u } = await sb.from('module_unlocks').select('module_key').eq('user_id', user.id).eq('module_key', 'wk-course').maybeSingle(); if (u) weekUnlocked = true; } catch (e) {} }
   }
   // Selar's post-purchase redirect can send buyers straight back here as
@@ -877,6 +876,12 @@ function openWeekLesson(key) {
   const vid = d.video
     ? `<div class="wk-vid-slot">${weekVideos[key] ? lessonEmbed(weekVideos[key]) : '🎥 Video lesson — uploading soon. The written lesson below is ready now.'}</div>`
     : '';
+  const labBanner = key === 'wk-2' ? `
+    <a href="${WK.charLabUrl || '#'}" target="_blank" class="wk-lab-banner">
+      <div class="wk-lab-ic">🧬</div>
+      <div class="wk-lab-txt"><b>Fuse Character Lab</b><span>The prompt-generator for your scene — tap to open</span></div>
+      <div class="wk-lab-arrow">→</div>
+    </a>` : '';
   const adminSet = userIsAdmin && d.video ? `<div class="lesson-admin" style="margin:8px 0">
       <label class="fld">👑 Video URL for Day ${d.day} (YouTube unlisted / MP4)</label>
       <input id="wkvUrl" placeholder="https://youtu.be/…" value="${(weekVideos[key] || '').replace(/"/g, '&quot;')}">
@@ -887,7 +892,7 @@ function openWeekLesson(key) {
     <div class="course-kick" style="margin-top:6px">DAY ${d.day}</div>
     <h2 class="course-title" style="font-size:22px">${d.title}</h2>
     <div class="wk-day-m" style="margin:2px 0 12px"><span>${d.dur}</span></div>
-    ${vid}${adminSet}
+    ${vid}${labBanner}${adminSet}
     <div class="wk-lesson-body">${d.notes}</div>
     <button class="btn ${done.has(key) ? 'ghost' : 'gold'} block" id="wkDone" style="margin-top:18px">${done.has(key) ? '✓ Completed — tap to undo' : '✅ Mark Day ' + d.day + ' complete'}</button>`;
   $('wkLessonBack').onclick = () => renderWeek();

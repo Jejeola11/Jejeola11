@@ -23,7 +23,8 @@ window.FUSE_5WEEK = {
   whatsapp: 'https://chat.whatsapp.com/JMVhLvgCs40JXtNv7Yf1zI?s=cl&p=a&mlu=1&amv=2', // course discussion group
   accessCode: 'UGC500',         // code you can hand out manually if you ever want a self-serve unlock
   creditsCost: 250,             // in-app credit price to unlock (optional path, ~ same value as ₦5,000)
-  charLabUrl: 'https://fuse-character-lab.netlify.app', // Character Lab banner link
+  charLabUrl: 'https://fuse-character-lab.netlify.app', // Character Lab banner link (Day 2 only)
+  day2VideoUrl: 'https://youtu.be/ezhNZtSZVDo?si=RSFSkzjlCM3wb5wW', // default Day 2 video, overridable in Admin
 
   days: [
     {
@@ -45,7 +46,7 @@ window.FUSE_5WEEK = {
         </ul>
         <h3>Your 7-day map</h3>
         <ul>
-          <li>Day 2 — Build your AI face / Character Lab model 🎥</li>
+          <li>Day 2 — Build your consistent AI face 🎥</li>
           <li>Day 3 — Create your first AI UGC video 🎥</li>
           <li>Day 4 — Package it as a service (Upwork profile + portfolio)</li>
           <li>Day 5 — Pitch and land your first client 🎥</li>
@@ -55,31 +56,46 @@ window.FUSE_5WEEK = {
         <p><b>Today's action:</b> introduce yourself in the WhatsApp group and write down the single income number you want by Day 7.</p>`,
     },
     {
-      key: 'wk-2', day: 2, title: 'Build your AI face — the Character Lab model',
+      key: 'wk-2', day: 2, title: 'Build your consistent AI face',
       dur: '15 min + video', video: true,
       notes: `
         <h3>Your model is your product's foundation</h3>
-        <p>Everything you'll sell starts with one consistent AI character. In Fuse Character Lab you build a <b>model sheet</b> — a locked face that stays the same across every video, so your content looks like one real creator, not random AI images.</p>
+        <p>Everything you'll sell starts with one consistent AI character — a face that stays the same across every image and video, so your content looks like one real creator, not random AI images.</p>
+        <p>This is built entirely inside <b>Fuse Studio</b>, using <b>Avatar Studio</b> (for your own face) or <b>Nano Banana</b> (for a brand-new AI face). <b>Fuse Character Lab</b> is a separate, linked tool that only helps you write the scene prompt — it doesn't train or generate your avatar itself.</p>
         <h3>Two paths — pick one</h3>
         <ul>
-          <li><b>Your own face</b> — upload a few clear selfies and Character Lab builds your consistent AI twin.</li>
-          <li><b>A brand-new AI face</b> — no selfies at all. Generate a fresh persona you fully own (best if you want to stay faceless).</li>
+          <li><b>Your own face</b> — train Fuse Studio's Avatar Studio on your real photos.</li>
+          <li><b>A brand-new AI face</b> — no selfies at all. Generate a fresh persona you fully own with Nano Banana (best if you want to stay faceless).</li>
         </ul>
-        <div class="wk-call">🎥 Watch the video walkthrough above — it shows the exact taps from upload to a finished model sheet.</div>
-        <h3>Steps</h3>
+        <div class="wk-call">🎥 Watch the video walkthrough above — it shows the exact taps for both paths, from upload to a finished, consistent avatar.</div>
+
+        <h3>Path 1 — Your own face (Avatar Studio)</h3>
         <ol>
-          <li>Open Fuse Character Lab (banner at the top of this page).</li>
-          <li>Choose "own face" (upload photos) or "new AI face".</li>
-          <li>Pick a niche/style — beauty, fashion, food, fitness, faceless-luxury.</li>
-          <li>Generate the model sheet. Save it — this is your reusable identity.</li>
+          <li>In Fuse Studio, open <b>Avatar Studio</b>.</li>
+          <li>Upload up to 15 clear photos of your face and tap <b>Train avatar</b> (takes about 15 minutes).</li>
+          <li>Once it's trained, tap your avatar, then tap <b>Generate model sheet</b> — this gives you multi-angle reference shots of your locked face.</li>
+          <li>To write the scene you want (outfit, setting, lighting), open <b>Fuse Character Lab</b> and use its guided prompt builder: pick gender, ethnicity, hairstyle, look/style (e.g. editorial), setting (e.g. interior) and lighting (e.g. cinematic). It hands you a detailed prompt, a reusable <b>consistency block</b>, and a <b>negative prompt</b>.</li>
+          <li>Copy that prompt back into Avatar Studio's <b>"Describe the scene"</b> field. Optionally add a reference image, choose your aspect ratio, then tap <b>Generate</b> (10 credits).</li>
         </ol>
-        <h3>What makes a model that sells</h3>
+        <p class="muted" style="font-size:13.5px">No Character Lab access? Open Fuse Reactor and ask Gemini to write the scene prompt for you instead — it works the same way.</p>
+
+        <h3>Path 2 — A brand-new AI face (Nano Banana)</h3>
+        <ol>
+          <li>Open <b>Fuse Character Lab</b> and build a full character brief: ethnicity, hairstyle, vibe/style, outfit, setting. There's also a <b>"Surprise me"</b> button if you want random variations.</li>
+          <li>Copy the prompt it gives you.</li>
+          <li>In Fuse Studio, open <b>Nano Banana</b> (image generation) — not Avatar Studio, since this isn't a real face.</li>
+          <li>Paste the prompt, optionally add up to 5 reference images, and tap Generate.</li>
+          <li>To keep this new face consistent going forward: reuse your <b>first generated image</b> as a reference image every time you generate with the same prompt. Character Lab's consistency block plus that reference image is what locks the face in place.</li>
+        </ol>
+
+        <h3>More inside Fuse Character Lab</h3>
         <ul>
-          <li>One clear niche — a "beauty creator" beats a "general AI person".</li>
-          <li>Consistent face across angles (that's what the model sheet locks).</li>
-          <li>Realistic skin and lighting — avoid the plastic AI look.</li>
+          <li><b>Presets</b> — ready-made looks (e.g. "fitness coach", "rooftop") you can tap straight into the generator.</li>
+          <li><b>Gallery</b> — browse styles and open any of them directly into the prompt generator.</li>
+          <li><b>Guide</b> — teaches the consistency technique in more depth.</li>
+          <li><b>Caption Generator</b> — upload a finished video, pick the platform, get a ready caption.</li>
         </ul>
-        <p><b>Today's action:</b> generate one model sheet and post it in the group for feedback.</p>`,
+        <p><b>Today's action:</b> generate your consistent AI face — either path — and post it in the group for feedback.</p>`,
     },
     {
       key: 'wk-3', day: 3, title: 'Create your first AI UGC video',
