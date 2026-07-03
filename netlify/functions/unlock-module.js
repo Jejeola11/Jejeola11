@@ -7,8 +7,16 @@
 const { admin, getUser, json, getPlan } = require('./_supabase');
 
 const MODULE_COST = 100; // credits to unlock one Atelier module
-// Per-key credit price overrides (server-controlled). 'wk-course' = The $500 Week.
-const KEY_COST = { 'wk-course': 250 }; // ~ same value as the ₦5,000 course price
+// Per-key credit price overrides (server-controlled). 'wk-course' = The $500 Week
+// (whole course); 'wk-1'..'wk-7' = single $500 Week days, unlockable one at a time.
+const KEY_COST = {
+  'wk-course': 250, // ~ same value as the ₦5,000 course price
+  'wk-1': 50, 'wk-2': 50, 'wk-3': 50, 'wk-4': 50, 'wk-5': 50, 'wk-6': 50, 'wk-7': 50,
+};
+// Buying the full $500 Week course comes with a 100-credit creation bonus —
+// that's the "free credits to create with" promise, for buyers only (the
+// normal signup trial stays at 12).
+const WK_COURSE_BONUS = 100;
 function costFor(key) { return KEY_COST[key] || MODULE_COST; }
 
 exports.handler = async (event) => {
@@ -52,7 +60,12 @@ exports.handler = async (event) => {
     }
 
     await db.from('module_unlocks').insert({ user_id: user.id, module_key });
-    return json(200, { ok: true, credits, cost: (fullAccess || byCode) ? 0 : cost, byCode });
+
+    // Full-course buyers get the 100-credit creation bonus (however they unlocked).
+    if (module_key === 'wk-course') {
+      try { const { data: nb } = await db.rpc('add_credits', { uid: user.id, amount: WK_COURSE_BONUS, why: 'wk-course-bonus' }); if (nb !== null && nb !== undefined) credits = nb; } catch (e) {}
+    }
+    return json(200, { ok: true, credits, cost: (fullAccess || byCode) ? 0 : cost, byCode, bonus: module_key === 'wk-course' ? WK_COURSE_BONUS : 0 });
   } catch (e) {
     return json(500, { error: (e && e.message) || 'Could not unlock module.' });
   }

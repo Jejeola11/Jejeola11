@@ -31,7 +31,13 @@ window.FUSE_5WEEK = {
   creditsCost: 250,             // in-app credit price to unlock (optional path, ~ same value as ₦5,000)
   charLabBuyUrl: 'https://fusecharacterlabpage.netlify.app/', // purchase / sales page (Day 2 banner + promo card)
   charLabLoginUrl: 'https://fuse-character-lab.netlify.app/', // the actual tool — only unlocks for buyers' emails
-  day2VideoUrl: 'https://youtu.be/ezhNZtSZVDo?si=RSFSkzjlCM3wb5wW', // default Day 2 video, overridable in Admin
+  landingUrl: 'https://500-dollar-week.netlify.app', // sales page shown to locked users
+  dayCredits: 50, // credits to unlock a single day (must match KEY_COST in unlock-module.js)
+  // Default lesson videos (overridable per-day in Admin via course_videos).
+  dayVideos: {
+    'wk-2': 'https://youtu.be/ezhNZtSZVDo?si=RSFSkzjlCM3wb5wW',
+    'wk-3': 'https://youtu.be/MwfxFIkJWJ4?si=icDIL5LJRPVMgrxs',
+  },
 
   days: [
     {
@@ -167,33 +173,53 @@ Skin tone: [e.g. "deep brown, warm undertone"]</div>
         </ul>
         <p>You're going to create one sample of each today. These three samples become your portfolio — the thing clients see before they hire you.</p>
 
-        <h3>Sample 1 — Talking-Head Testimonial (15–30 seconds)</h3>
-        <p><b>Step A — write the script.</b> Open Fuse Reactor and prompt it:</p>
-        <div class="wk-call" style="white-space:pre-wrap">"Write a 20-second UGC testimonial script for a skincare serum. The speaker is a young woman in her mid-20s. She should sound natural, enthusiastic but not fake, like she's talking to a friend on FaceTime. Include a hook in the first 2 seconds, the product benefit, and a soft CTA. No brand name needed — this is a portfolio sample."</div>
-        <p><b>Step B — generate the talking video.</b> In Fuse Studio's image-to-video tools, upload your desk/home-office reference image from Day 2, and describe the motion:</p>
-        <div class="wk-call" style="white-space:pre-wrap">"The woman speaks naturally to the camera with expressive hand gestures near her chest, slight head movements, warm engaging smile, as if talking to a friend on a video call. Subtle, natural movement only — no dramatic motion. 9:16 vertical."</div>
-        <p class="muted" style="font-size:13.5px">Note: without a dedicated lipsync model, motion won't match specific words — that's fine for portfolio samples, add captions in CapCut so the "talking" reads visually. When you land a paying client and need real lipsync, use Fuse Studio's Talking Avatar tools.</p>
-        <p><b>Step C — edit in CapCut.</b> Import the clip, add your script as auto-captions (edit the text to match exactly), add a subtle trending sound at 10–15% volume, bold white 2–3-word captions centered lower-third, export at 1080×1920.</p>
+        <h3>Step 0 — Get a real product</h3>
+        <p>Grab any product around you — skincare, anything in your room — and snap it with your phone. That photo becomes your reference, and this becomes a real portfolio piece.</p>
 
-        <h3>Sample 2 — Product Showcase / Lifestyle (5–10 seconds)</h3>
-        <p>Use your outdoor/street reference image. This is a silent lifestyle video — no speech, just an aspirational setting with text overlay.</p>
-        <div class="wk-call" style="white-space:pre-wrap">"The woman walks slowly forward on a sunlit cobblestone street, holding [product] in her right hand, looking at camera with a warm relaxed smile, natural wind in her clothing, golden-hour sunlight, candid travel photography style. 9:16 vertical."</div>
-        <p>In CapCut, add a text overlay like "This serum changed my morning routine ✨" + trending sound + subtle zoom.</p>
+        <h3>Step 1 — Let Fuse Reactor write both prompts</h3>
+        <p>Open <b>Fuse Reactor</b>, pick <b>Claude Sonnet</b>, and <b>attach your product photo</b> so it can see exactly what you're promoting. Then prompt it:</p>
+        <div class="wk-call" style="white-space:pre-wrap">"Write a 10-second UGC testimonial script for the uploaded skincare product. The speaker is a young woman in her mid-20s. She should sound natural, enthusiastic but not fake, like she's talking to a friend on FaceTime. Include a hook in the first 2 seconds, the product benefit, and a soft CTA. First I'll need a start frame of her holding the product, then the start frame will be converted to a 10-second video — give me the detailed realistic prompts for both, and include the script inside the video prompt so the video can lip-sync to it."</div>
+        <p class="muted" style="font-size:13.5px">That last part matters: tell Claude to put the script <b>inside the video prompt</b> — that's what makes your avatar actually say the words.</p>
+        <p>Claude hands you three things: the script, a <b>start-frame prompt</b> (your avatar holding the product) and a <b>video prompt</b> (with the script baked in). Copy both prompts.</p>
 
-        <h3>Sample 3 — Before/After Demo (15–20 seconds)</h3>
-        <p>Split-screen format. Generate two images of your character: <b>Before</b> — plain setting, casual outfit, no-makeup look, neutral expression. <b>After</b> — styled setting, polished outfit, glowing, confident. Animate each, then combine in CapCut with a dramatic transition. Text: "Before [Product]" → transition → "After 2 weeks" + trending sound.</p>
+        <h3>Step 2 — Generate the start frame</h3>
+        <ul>
+          <li><b>Using your trained avatar:</b> open <b>Avatar Studio</b> → your avatar (your model sheet from Day 2 is saved there and reusable forever). Paste the start-frame prompt, add your <b>product photo as the reference image</b>, and add this line to the prompt: <i>"Make sure the facial identity and skin tone are exactly as the model sheet."</i> Set 9:16 and generate.</li>
+          <li><b>Using an AI character (no trained avatar):</b> open <b>Nano Banana Pro / Nano Banana 2</b> and add <b>two reference images</b> — your character image (to lock the face) and your product photo. Paste the prompt and generate.</li>
+        </ul>
+        <p>Download the start frame once you're happy with it.</p>
 
-        <h3>The 3-part UGC formula (applies to all three)</h3>
+        <h3>Step 3 — Turn the frame into a talking video</h3>
         <ol>
-          <li><b>Hook (0–2s)</b> — a bold line or visual that stops the scroll.</li>
-          <li><b>Value / demo (2–20s)</b> — your model shows or talks about the product.</li>
-          <li><b>CTA (last 3s)</b> — "comment a word", "tap the link", "follow for more".</li>
+          <li>Go to <b>Create → Videos</b> and pick <b>Kling</b> (Seedance or Gemini/Veo also work — Kling has been giving the best results for this).</li>
+          <li>Paste your video prompt — the one with the script inside for lip-sync.</li>
+          <li>Duration: <b>10 seconds</b>. Resolution: <b>480p</b> is fine and charges less credits.</li>
+          <li>Attach your downloaded start frame as the starting image — no other reference needed.</li>
+          <li>Generate. You'll get your avatar speaking the script with real lip-sync.</li>
+        </ol>
+        <div class="wk-call">💡 <b>Make it longer with no cuts:</b> extract the END frame of your clip and use it as the START frame of the next generation — the clips join seamlessly.</div>
+
+        <h3>Step 4 — Polish in CapCut</h3>
+        <ul>
+          <li>Talking too fast? Don't regenerate — just <b>reduce the speed slightly in CapCut</b> and she'll sound natural.</li>
+          <li>Add captions, a trending sound, a subtle zoom, and light effects to make it pop.</li>
+          <li>Export at 1080×1920 (9:16).</li>
+        </ul>
+
+        <h3>The 3-part UGC formula (check your video against it)</h3>
+        <ol>
+          <li><b>Hook (0–2s)</b> — a bold opening line ("Okay wait—") that stops the scroll.</li>
+          <li><b>Value (middle)</b> — your model shows or talks about the product.</li>
+          <li><b>CTA (last seconds)</b> — a soft recommendation ("just try it, thank me later").</li>
         </ol>
 
+        <h3>Your other two formats (homework for the portfolio)</h3>
+        <p>Today's walkthrough builds the <b>talking-head testimonial</b>. For your portfolio you'll also create a <b>product showcase</b> and a <b>before/after</b> using the exact same workflow — new prompt from Reactor, start frame, video. With all three in your portfolio, you can take clients in all three niches.</p>
+
         <h3>Batch like a pro</h3>
-        <p>Once one works, change only the hook and product — you can produce 5–10 videos from the same model in an afternoon. Volume is how you hit $500.</p>
-        <p class="muted" style="font-size:13.5px"><b>Portfolio quality check:</b> watch all 3 samples on your phone, full screen, sound on. Ask yourself: "If I were a brand manager, would I pay $100 for this?" If not, regenerate the weakest one — your portfolio is your first impression.</p>
-        <p><b>Today's action:</b> make one finished UGC video and drop it in the group.</p>`,
+        <p>Once one video works, keep the winning prompt and change only the <b>hook</b> and the <b>product</b> — you can produce 5–10 videos on different products from the same avatar. Volume is how you hit $500.</p>
+        <p class="muted" style="font-size:13.5px"><b>Portfolio quality check:</b> watch your samples on your phone, full screen, sound on. Ask yourself: "If I were a brand manager, would I pay $100 for this?" If not, regenerate the weakest one — your portfolio is your first impression.</p>
+        <p><b>Today's action:</b> generate your start frame and one finished testimonial video, and submit it in the discussion group.</p>`,
     },
     {
       key: 'wk-4', day: 4, title: 'Package it as a service — Upwork profile + portfolio',

@@ -38,14 +38,23 @@ exports.handler = async (event) => {
     const target = rows && rows[0];
     if (!target) return json(404, { error: 'No account with that email yet — ask them to sign up first, then grant.' });
 
-    // Course-only grant: unlock the course for this buyer and return (no credits/plan change).
+    // Course-only grant: unlock the course for this buyer and return (no plan change).
+    // The $500 Week comes with a 100-credit creation bonus for buyers — that's the
+    // "free credits to create with" promise (the normal signup trial stays at 12).
     if (course && !pack && custom <= 0) {
       const { data: existing } = await db.from('module_unlocks').select('module_key').eq('user_id', target.id).eq('module_key', course).maybeSingle();
-      if (!existing) await db.from('module_unlocks').insert({ user_id: target.id, module_key: course });
+      let bonus = 0;
+      if (!existing) {
+        await db.from('module_unlocks').insert({ user_id: target.id, module_key: course });
+        if (course === 'wk-course') {
+          bonus = 100;
+          try { await db.rpc('add_credits', { uid: target.id, amount: bonus, why: 'wk-course-bonus' }); } catch (e) { bonus = 0; }
+        }
+      }
       try {
-        await db.from('payments').insert({ user_id: target.id, reference: 'course-' + Date.now() + '-' + email, amount_naira: 0, pack: course, credits_added: 0, status: 'manual' });
+        await db.from('payments').insert({ user_id: target.id, reference: 'course-' + Date.now() + '-' + email, amount_naira: 0, pack: course, credits_added: bonus, status: 'manual' });
       } catch (e) {}
-      return json(200, { ok: true, email: target.email, course, credits: 0, granted: 'course' });
+      return json(200, { ok: true, email: target.email, course, credits: bonus, granted: 'course' });
     }
 
     // Credits: exact custom amount, OR the pack's credits doubled (founding).

@@ -676,12 +676,17 @@ async function unlockModule(mKey) {
 }
 let curLesson = null;
 function openLesson(key) {
-  // find lesson
-  let found = null, modOf = null;
-  COURSE.forEach((p) => p.modules.forEach((m) => m.lessons.forEach((l) => { if (l.key === key) { found = l; modOf = m; } })));
+  // find lesson (and its module + pillar, so the lock check can't be skipped
+  // by calling this directly — the row click handler isn't the only gate)
+  let found = null, modOf = null, pillarOf = null;
+  COURSE.forEach((p) => p.modules.forEach((m) => m.lessons.forEach((l) => { if (l.key === key) { found = l; modOf = m; pillarOf = p; } })));
   if (!found) return;
+  if (!moduleUnlocked(modOf.key, pillarOf.key)) { toast('🔒 Unlock this module first'); return; }
   curLesson = found;
-  $('lessonPlayer').innerHTML = lessonEmbed(courseVideos[key]);
+  // Shield over the video's top strip: blocks the YouTube title/logo link so
+  // students can't tap through and copy the raw URL. Controls stay usable.
+  $('lessonPlayer').innerHTML = lessonEmbed(courseVideos[key]) + '<div style="position:absolute;top:0;left:0;right:0;height:56px;z-index:5"></div>';
+  $('lessonPlayer').style.position = 'relative';
   $('lessonTitle').textContent = found.n + ' · ' + found.title;
   $('lessonMeta').innerHTML = `<span class="muted">${modOf.title}${found.dur ? ' · ' + found.dur : ''}</span>`;
   $('lessonBody').innerHTML = '';
@@ -796,19 +801,25 @@ async function generate() {
 // ---------------- The $500 Week — AI UGC course ----------------
 const WK = (window.FUSE_5WEEK) ? window.FUSE_5WEEK : { days: [] };
 let weekVideos = {};          // wk-key -> video url
-let weekUnlocked = false;     // paid / plan / code
+let weekUnlocked = false;     // paid / plan / code (whole course)
+let weekDayUnlocks = new Set(); // single days bought with credits ('wk-1'..'wk-7')
 const WK_JOIN_KEY = 'fuse_wk_joined';
 const WK_DONE_KEY = 'fuse_wk_done';
 function weekJoined() { try { return localStorage.getItem(WK_JOIN_KEY) === '1'; } catch (e) { return false; } }
 function weekDoneSet() { try { return new Set(JSON.parse(localStorage.getItem(WK_DONE_KEY) || '[]')); } catch (e) { return new Set(); } }
 function fmtN(n) { return '₦' + Number(n || 0).toLocaleString('en-NG'); }
+function weekCanOpen(key) { return weekUnlocked || weekDayUnlocks.has(key); }
 
 async function openWeek() {
   showView('week');
   weekUnlocked = courseHasFull();
+  weekDayUnlocks = new Set();
   if (!preview && user) {
-    try { const { data: v } = await sb.from('course_videos').select('lesson_key, url'); weekVideos = { 'wk-2': WK.day2VideoUrl || '' }; (v || []).forEach((r) => { if (String(r.lesson_key).startsWith('wk-')) weekVideos[r.lesson_key] = r.url; }); } catch (e) {}
-    if (!weekUnlocked) { try { const { data: u } = await sb.from('module_unlocks').select('module_key').eq('user_id', user.id).eq('module_key', 'wk-course').maybeSingle(); if (u) weekUnlocked = true; } catch (e) {} }
+    try { const { data: v } = await sb.from('course_videos').select('lesson_key, url'); weekVideos = Object.assign({}, WK.dayVideos || {}); (v || []).forEach((r) => { if (String(r.lesson_key).startsWith('wk-')) weekVideos[r.lesson_key] = r.url; }); } catch (e) {}
+    try {
+      const { data: u } = await sb.from('module_unlocks').select('module_key').eq('user_id', user.id).like('module_key', 'wk-%');
+      (u || []).forEach((r) => { if (r.module_key === 'wk-course') weekUnlocked = true; else weekDayUnlocks.add(r.module_key); });
+    } catch (e) {}
   }
   // Selar's post-purchase redirect can send buyers straight back here as
   // .../?view=week&wkcode=UGC500 — auto-redeem so they land unlocked, no manual step.
@@ -835,9 +846,11 @@ function renderWeek() {
         <h3>Get instant access</h3>
         <div class="price">${fmtN(WK.price)}</div>
         <button class="btn gold block" id="wkBuy">💬 Message me on WhatsApp to pay →</button>
-        <p class="muted" style="font-size:12px;margin-top:8px">I'll send you account details. Once you've paid, send me your email and I'll unlock the course for you.</p>
+        <p class="muted" style="font-size:12px;margin-top:8px">I'll send you account details. Once you've paid, send me your email and I'll unlock the course for you — <b class="gold">plus 100 bonus credits</b> to create with.</p>
+        <a class="btn ghost block" id="wkLanding" href="${WK.landingUrl || '#'}" target="_blank" rel="noopener" style="margin-top:8px">👀 See everything inside the course →</a>
         <div class="wk-or">— or —</div>
-        <button class="btn ghost block" id="wkCredits">Unlock with ${WK.creditsCost} credits</button>
+        <button class="btn ghost block" id="wkCredits">Unlock the full course with ${WK.creditsCost} credits</button>
+        <p class="muted" style="font-size:12px;margin-top:8px">Not ready for the full course? Tap any day below to unlock just that day for ${WK.dayCredits || 50} credits.</p>
         <div class="wk-code">
           <input id="wkCode" placeholder="Already have an access code?">
           <button class="btn gold sm" id="wkRedeem">Unlock</button>
@@ -848,6 +861,11 @@ function renderWeek() {
     $('wkCredits').onclick = weekUnlockCredits;
     $('wkRedeem').onclick = weekRedeemCode;
     $('weekBody').innerHTML = weekLockedPreview();
+    $('weekBody').querySelectorAll('.wk-day').forEach((el) => el.onclick = () => {
+      const k = el.dataset.wk;
+      if (weekDayUnlocks.has(k)) openWeekLesson(k);
+      else weekUnlockDay(k);
+    });
     return;
   }
 
@@ -885,17 +903,43 @@ function renderWeek() {
 }
 
 function weekLockedPreview() {
-  return '<div style="opacity:.5;pointer-events:none">' + WK.days.map((d) =>
-    `<div class="wk-day locked"><div class="wk-day-top"><div class="wk-day-n">DAY<br>${d.day}</div>
-      <div style="flex:1"><div class="wk-day-t">${d.title}</div><div class="wk-day-m"><span>${d.dur}</span>${d.video ? '<span class="wk-vid-tag">🎥 VIDEO</span>' : ''}</div></div>
-      <div>🔒</div></div></div>`).join('') + '</div>';
+  // Locked-course day list. Days stay TAPPABLE: an unlocked single day opens,
+  // a locked one offers a per-day credit unlock (wired by the caller).
+  return WK.days.map((d) => {
+    const owned = weekDayUnlocks.has(d.key);
+    return `<div class="wk-day ${owned ? '' : 'locked'}" data-wk="${d.key}" style="${owned ? '' : 'opacity:.75'};cursor:pointer">
+      <div class="wk-day-top"><div class="wk-day-n">DAY<br>${d.day}</div>
+      <div style="flex:1"><div class="wk-day-t">${owned ? '✓ ' : ''}${d.title}</div>
+        <div class="wk-day-m"><span>${d.dur}</span>${d.video ? '<span class="wk-vid-tag">🎥 VIDEO</span>' : ''}${owned ? '<span class="wk-vid-tag" style="background:rgba(61,214,140,.15);color:#3DD68C">UNLOCKED</span>' : `<span class="wk-vid-tag">🔓 ${WK.dayCredits || 50} cr</span>`}</div></div>
+      <div>${owned ? '<span style="color:var(--gold);font-weight:800">›</span>' : '🔒'}</div></div></div>`;
+  }).join('');
+}
+
+async function weekUnlockDay(key) {
+  if (preview) { showAuth('signup'); return; }
+  const d = WK.days.find((x) => x.key === key); if (!d) return;
+  const cost = WK.dayCredits || 50;
+  if (!confirm(`Unlock Day ${d.day} — "${d.title}" — for ${cost} credits?\n\n(Tip: the full course is ${WK.creditsCost} credits for all 7 days + 100 bonus credits.)`)) return;
+  try {
+    const res = await fetch('/.netlify/functions/unlock-module', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ module_key: key }) });
+    const data = await res.json();
+    if (res.status === 402) { note('wkPayNote', `Not enough credits (need ${cost}) — top up, or message me on WhatsApp to get the full course.`, 'err'); openBuy(); return; }
+    if (!res.ok) throw new Error(data.error || 'Failed');
+    if (data.credits != null) $('creditCount').textContent = data.credits;
+    weekDayUnlocks.add(key); toast(`Day ${d.day} unlocked! 🎉`);
+    openWeekLesson(key);
+  } catch (e) { note('wkPayNote', e.message || 'Could not unlock', 'err'); }
 }
 
 function openWeekLesson(key) {
   const d = WK.days.find((x) => x.key === key); if (!d) return;
+  if (!weekCanOpen(key)) { weekUnlockDay(key); return; }
   const done = weekDoneSet();
+  // The shield div sits over the video's top strip so students can't tap the
+  // YouTube title/logo link and copy the raw video URL. Playback controls at
+  // the bottom stay fully usable.
   const vid = d.video
-    ? `<div class="wk-vid-slot">${weekVideos[key] ? lessonEmbed(weekVideos[key]) : '🎥 Video lesson — uploading soon. The written lesson below is ready now.'}</div>`
+    ? `<div class="wk-vid-slot" style="position:relative">${weekVideos[key] ? lessonEmbed(weekVideos[key]) + '<div style="position:absolute;top:0;left:0;right:0;height:56px;z-index:5"></div>' : '🎥 Video lesson — uploading soon. The written lesson below is ready now.'}</div>`
     : '';
   const labBanner = key === 'wk-2' ? `
     <div class="wk-lab-banner" style="display:block;padding:13px 15px">
@@ -920,7 +964,8 @@ function openWeekLesson(key) {
     <div class="wk-day-m" style="margin:2px 0 12px"><span>${d.dur}</span></div>
     ${vid}${labBanner}${adminSet}
     <div class="wk-lesson-body">${d.notes}</div>
-    <button class="btn ${done.has(key) ? 'ghost' : 'gold'} block" id="wkDone" style="margin-top:18px">${done.has(key) ? '✓ Completed — tap to undo' : '✅ Mark Day ' + d.day + ' complete'}</button>`;
+    <button class="btn ${done.has(key) ? 'ghost' : 'gold'} block" id="wkDone" style="margin-top:18px">${done.has(key) ? '✓ Completed — tap to undo' : '✅ Mark Day ' + d.day + ' complete'}</button>
+    <a class="btn ghost block" href="${WK.whatsapp || '#'}" target="_blank" rel="noopener" style="margin-top:8px">📤 Submit today's task in the discussion group →</a>`;
   $('wkLessonBack').onclick = () => renderWeek();
   $('wkDone').onclick = () => {
     const s = weekDoneSet(); if (s.has(key)) s.delete(key); else s.add(key);
