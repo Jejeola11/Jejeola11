@@ -49,9 +49,20 @@ exports.handler = async (event) => {
   const key = process.env.MUAPI_KEY;
   try {
     // Text prompt, plus any attached images so vision-capable models can "see" them.
-    // We send the images under a few common field names; models that don't use them ignore them.
+    // MuAPI's exact field name for vision on chat models (as opposed to their
+    // image-generation models, which are confirmed to use images_list) isn't
+    // documented, so we send every reasonable alias — the model ignores names
+    // it doesn't recognise, and this maximises the chance one of them lands.
     const payload = { prompt };
-    if (images.length) { payload.images = images; payload.image_urls = images; payload.images_list = images; }
+    if (images.length) {
+      payload.images = images;
+      payload.image_urls = images;
+      payload.images_list = images;
+      payload.image_url = images[0];   // singular — some vision endpoints only take one
+      payload.attachments = images;
+      payload.files = images;
+    }
+    console.log('[ai-chat] model:', model, '| images attached:', images.length, images.length ? images : '');
     const submit = await fetch(`${MUAPI_BASE}/${model}`, {
       method: 'POST',
       headers: { 'x-api-key': key, 'Content-Type': 'application/json' },
@@ -59,7 +70,7 @@ exports.handler = async (event) => {
     });
     const txt = await submit.text();
     let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
-    if (!submit.ok) throw new Error((j && (j.error || j.message)) || ('Engine HTTP ' + submit.status));
+    if (!submit.ok) { console.error('[ai-chat] MuAPI rejected the request:', txt.slice(0, 500)); throw new Error((j && (j.error || j.message)) || ('Engine HTTP ' + submit.status)); }
 
     // Some text models return immediately; others need a poll.
     let text = extractText(j);
