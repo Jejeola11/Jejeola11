@@ -572,7 +572,7 @@ function moduleUnlocked(mKey, pillarKey) {
 function ytId(u) { const m = u.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{6,})/); return m ? m[1] : ''; }
 function lessonEmbed(url) {
   if (!url) return '<div class="lp-empty">🎬 Video coming soon</div>';
-  if (/youtube|youtu\.be/.test(url)) return `<iframe src="https://www.youtube.com/embed/${ytId(url)}" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>`;
+  if (/youtube|youtu\.be/.test(url)) return `<iframe src="https://www.youtube-nocookie.com/embed/${ytId(url)}?rel=0&modestbranding=1" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>`;
   if (/vimeo\.com/.test(url)) { const id = (url.match(/vimeo\.com\/(\d+)/) || [])[1] || ''; return `<iframe src="https://player.vimeo.com/video/${id}" allow="autoplay; fullscreen" allowfullscreen></iframe>`; }
   return `<video src="${url}" controls playsinline></video>`;
 }
@@ -877,11 +877,16 @@ function openWeekLesson(key) {
     ? `<div class="wk-vid-slot">${weekVideos[key] ? lessonEmbed(weekVideos[key]) : '🎥 Video lesson — uploading soon. The written lesson below is ready now.'}</div>`
     : '';
   const labBanner = key === 'wk-2' ? `
-    <a href="${WK.charLabUrl || '#'}" target="_blank" class="wk-lab-banner">
-      <div class="wk-lab-ic">🧬</div>
-      <div class="wk-lab-txt"><b>Fuse Character Lab</b><span>The prompt-generator for your scene — tap to open</span></div>
-      <div class="wk-lab-arrow">→</div>
-    </a>` : '';
+    <div class="wk-lab-banner" style="display:block;padding:13px 15px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div class="wk-lab-ic">🧬</div>
+        <div class="wk-lab-txt"><b>Fuse Character Lab</b><span>The prompt-generator for your scene</span></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="${WK.charLabBuyUrl || '#'}" target="_blank" class="btn gold sm" style="flex:1">🛒 Get access</a>
+        <a href="${WK.charLabLoginUrl || '#'}" target="_blank" class="btn ghost sm" style="flex:1">🔑 Already purchased? Log in</a>
+      </div>
+    </div>` : '';
   const adminSet = userIsAdmin && d.video ? `<div class="lesson-admin" style="margin:8px 0">
       <label class="fld">👑 Video URL for Day ${d.day} (YouTube unlisted / MP4)</label>
       <input id="wkvUrl" placeholder="https://youtu.be/…" value="${(weekVideos[key] || '').replace(/"/g, '&quot;')}">

@@ -685,7 +685,7 @@ textarea{min-height:104px;resize:vertical}
 .lr-d i{opacity:.7;font-style:normal;color:var(--gold)}
 
 /* lesson player */
-.lesson-player{border-radius:16px;overflow:hidden;background:#000;aspect-ratio:16/9;box-shadow:var(--shadow)}
+.lesson-player{border-radius:16px;overflow:hidden;background:#000;aspect-ratio:9/16;max-height:70vh;max-width:400px;margin:0 auto;box-shadow:var(--shadow)}
 .lesson-player iframe,.lesson-player video{width:100%;height:100%;border:0;display:block;object-fit:contain;background:#000}
 .lp-empty{width:100%;height:100%;display:grid;place-items:center;color:var(--muted);font-size:15px}
 .lesson-title{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:20px;margin:14px 0 4px;line-height:1.15}
@@ -737,5 +737,5 @@ textarea{min-height:104px;resize:vertical}
 .wk-lesson-body p{font-size:14.5px;line-height:1.6;color:var(--ink);margin:6px 0}
 .wk-lesson-body ul,.wk-lesson-body ol{padding-left:20px;font-size:14.5px;line-height:1.6}
 .wk-lesson-body li{margin:5px 0}
-.wk-vid-slot{width:100%;aspect-ratio:9/16;max-height:60vh;background:#02110e;border:1px dashed var(--line);border-radius:14px;display:grid;place-items:center;color:var(--muted);font-size:13px;text-align:center;margin:10px 0}
-.wk-vid-slot video{width:100%;height:100%;object-fit:contain;border-radius:14px}
+.wk-vid-slot{width:100%;max-width:400px;aspect-ratio:9/16;max-height:70vh;background:#02110e;border:1px dashed var(--line);border-radius:14px;display:grid;place-items:center;color:var(--muted);font-size:13px;text-align:center;margin:10px auto;overflow:hidden}
+.wk-vid-slot video,.wk-vid-slot iframe{width:100%;height:100%;border:0;display:block;object-fit:contain;border-radius:14px}

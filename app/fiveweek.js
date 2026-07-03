@@ -3,6 +3,12 @@
 // A separate, self-contained course from Fuse Atelier. 7 days of text lessons
 // plus 3 video walkthroughs (Day 2, 3, 5). Rendered by openWeek() in app.js.
 //
+// This course is the full replacement for the old $500 Week ebook — every
+// template, script, table and checklist that used to live in the PDF now
+// lives here, rewritten for Fuse Studio's tools (Avatar Studio, Nano Banana,
+// Fuse Character Lab, Fuse Reactor) instead of the old external tool stack
+// (Ideogram / Kling / Claude).
+//
 // Access:  full-plan/admin  OR  a valid access code (given after you manually
 //          grant them in Admin -> "Unlock course for this email")  OR
 //          unlocked with in-app credits.  First step after access is the
@@ -23,7 +29,8 @@ window.FUSE_5WEEK = {
   whatsapp: 'https://chat.whatsapp.com/JMVhLvgCs40JXtNv7Yf1zI?s=cl&p=a&mlu=1&amv=2', // course discussion group
   accessCode: 'UGC500',         // code you can hand out manually if you ever want a self-serve unlock
   creditsCost: 250,             // in-app credit price to unlock (optional path, ~ same value as ₦5,000)
-  charLabUrl: 'https://fuse-character-lab.netlify.app', // Character Lab banner link (Day 2 only)
+  charLabBuyUrl: 'https://fusecharacterlabpage.netlify.app/', // purchase / sales page (Day 2 banner + promo card)
+  charLabLoginUrl: 'https://fuse-character-lab.netlify.app/', // the actual tool — only unlocks for buyers' emails
   day2VideoUrl: 'https://youtu.be/ezhNZtSZVDo?si=RSFSkzjlCM3wb5wW', // default Day 2 video, overridable in Admin
 
   days: [
@@ -35,15 +42,35 @@ window.FUSE_5WEEK = {
         <p>Over the next 7 days you'll build one rare, high-value skill: making <b>AI UGC and AI influencer content</b> — the short, native-looking videos brands and creators pay for — and turning it into income on <b>Upwork</b> and <b>Instagram</b> inside a week.</p>
         <p>No camera. No real face needed. No filming. Just your phone and the tools inside Fuse Studio.</p>
         <div class="wk-call">💡 The goal isn't to "learn AI." It's to make your first $500. Every lesson exists only to move you toward that.</div>
+
+        <h3>Who's teaching you this</h3>
+        <p>I'm Ria — an AI creative director. I create AI-generated content (UGC ads, brand identities, AI avatars, social content) for international clients and get paid in dollars. I started with zero experience, zero following and zero clients. Since then I've closed <b>12 Upwork contracts totaling over $7,170</b> — including a $3,500 active retainer for AI character creation for a finance brand — all with AI content that brands pay for. This course is the exact 7-day sprint I'd follow if I had to start over today, with $0 and no connections.</p>
+
+        <h3>What you'll have by Day 7</h3>
+        <ul>
+          <li>✅ A consistent AI character you can use for any client</li>
+          <li>✅ 3 polished UGC video samples in your portfolio</li>
+          <li>✅ A live Upwork profile with real work to show</li>
+          <li>✅ At least 10 pitches sent to real clients across multiple channels</li>
+          <li>✅ Direct outreach to 5+ brands on Instagram</li>
+          <li>✅ Your first invoice — $100 to $500+</li>
+        </ul>
+
         <h3>What "AI UGC" actually means</h3>
-        <p><b>UGC</b> = user-generated content: the casual, authentic-looking clips that outperform polished ads. <b>AI UGC</b> is the same thing, produced with AI faces, voices and product shots — so you can create 20 pieces in the time it used to take to film one.</p>
+        <p><b>UGC</b> = user-generated content: the casual, authentic-looking clips that outperform polished ads. Brands pay for UGC because it converts 2–4x better than traditional ads. <b>AI UGC</b> is the same thing, produced with AI faces, voices and product shots — so you can create 20 pieces in the time it used to take to film one. You never touch a camera, and the viewer can't tell the difference.</p>
         <p>An <b>AI influencer</b> is a consistent AI persona (a face + voice + style) that posts content and builds an audience — without ever needing a real person on camera.</p>
+
         <h3>Who pays for this — and how much</h3>
         <ul>
-          <li><b>Upwork clients</b> — brands and agencies paying $50–$500+ per UGC video or per batch.</li>
+          <li><b>Upwork clients</b> — brands and agencies paying <b>$50–$500 per AI UGC video</b> depending on quality, length and budget. Full AI content packages (multiple videos + images + brand kit) go for <b>$500–$2,000+</b>.</li>
           <li><b>Instagram</b> — you grow a page, then sell your own products, promos or shout-outs.</li>
           <li><b>Local businesses</b> — restaurants, salons, skincare brands who need ad content weekly.</li>
         </ul>
+
+        <h3>The mindset reset</h3>
+        <p>You are not "trying to learn AI." You are building a freelance business that uses AI as its production tool. The skill is not "knowing how to prompt" — it's knowing what clients need and delivering it fast. The whole formula:</p>
+        <div class="wk-call">Client has a problem (needs content) + You solve it with AI (fast, cheap, good) = You get paid.</div>
+
         <h3>Your 7-day map</h3>
         <ul>
           <li>Day 2 — Build your consistent AI face 🎥</li>
@@ -62,6 +89,10 @@ window.FUSE_5WEEK = {
         <h3>Your model is your product's foundation</h3>
         <p>Everything you'll sell starts with one consistent AI character — a face that stays the same across every image and video, so your content looks like one real creator, not random AI images.</p>
         <p>This is built entirely inside <b>Fuse Studio</b>, using <b>Avatar Studio</b> (for your own face) or <b>Nano Banana</b> (for a brand-new AI face). <b>Fuse Character Lab</b> is a separate, linked tool that only helps you write the scene prompt — it doesn't train or generate your avatar itself.</p>
+
+        <h3>Why character consistency matters</h3>
+        <p>The single biggest difference between amateur AI content and professional AI UGC is consistency. Your character must look like the same person across every image and video. If the face, skin tone or body type shifts between shots, the content looks fake — and clients won't pay for fake-looking work.</p>
+
         <h3>Two paths — pick one</h3>
         <ul>
           <li><b>Your own face</b> — train Fuse Studio's Avatar Studio on your real photos.</li>
@@ -77,7 +108,7 @@ window.FUSE_5WEEK = {
           <li>To write the scene you want (outfit, setting, lighting), open <b>Fuse Character Lab</b> and use its guided prompt builder: pick gender, ethnicity, hairstyle, look/style (e.g. editorial), setting (e.g. interior) and lighting (e.g. cinematic). It hands you a detailed prompt, a reusable <b>consistency block</b>, and a <b>negative prompt</b>.</li>
           <li>Copy that prompt back into Avatar Studio's <b>"Describe the scene"</b> field. Optionally add a reference image, choose your aspect ratio, then tap <b>Generate</b> (10 credits).</li>
         </ol>
-        <p class="muted" style="font-size:13.5px">No Character Lab access? Open Fuse Reactor and ask Gemini to write the scene prompt for you instead — it works the same way.</p>
+        <p class="muted" style="font-size:13.5px">No Character Lab access? Open Fuse Reactor and ask it to write the scene prompt for you instead — it works the same way.</p>
 
         <h3>Path 2 — A brand-new AI face (Nano Banana)</h3>
         <ol>
@@ -87,6 +118,29 @@ window.FUSE_5WEEK = {
           <li>Paste the prompt, optionally add up to 5 reference images, and tap Generate.</li>
           <li>To keep this new face consistent going forward: reuse your <b>first generated image</b> as a reference image every time you generate with the same prompt. Character Lab's consistency block plus that reference image is what locks the face in place.</li>
         </ol>
+
+        <h3>Prefer to write your own brief? Use this template</h3>
+        <p>If you'd rather define the character by hand (or want to understand what Character Lab is doing for you under the hood), paste this into every prompt — it never changes. Only outfit, setting and pose change from image to image.</p>
+        <div class="wk-call" style="white-space:pre-wrap">CHARACTER BRIEF TEMPLATE:
+Name: [Choose a name]
+Ethnicity: [Be specific — it prevents the AI from randomizing]
+Age range: [e.g. "mid-20s"]
+Face shape: [e.g. "oval face, high cheekbones, warm brown eyes"]
+Body type: [e.g. "medium build, athletic"]
+Hair: [e.g. "long dark wavy hair parted in the middle"]
+Signature accessories: [e.g. "gold hoop earrings, thin gold bracelet"]
+Skin tone: [e.g. "deep brown, warm undertone"]</div>
+        <p class="muted" style="font-size:13.5px">Two ready-made example briefs to copy and adapt — <b>Female:</b> "A confident young woman in her mid-20s, light brown skin, oval face, high cheekbones, warm brown eyes, long dark wavy hair parted in the middle, natural makeup, small gold hoop earrings." <b>Male:</b> "A young man in his late 20s, dark brown skin, strong jawline, short fade haircut, neat trimmed beard, warm confident expression, athletic build." Generate either in 3 settings using the exact same brief every time — only the setting, outfit and pose change.</p>
+
+        <h3>Generate 5 reference images — these become your portfolio</h3>
+        <ol>
+          <li><b>Home office / desk setup</b> — professional UGC, talking-head content</li>
+          <li><b>Casual / lifestyle</b> — product reviews, lifestyle brands</li>
+          <li><b>Outdoor / street</b> — travel, fashion, lifestyle content</li>
+          <li><b>Studio / clean background</b> — beauty, skincare, product demos</li>
+          <li><b>Close-up / selfie style</b> — talking-to-camera reels</li>
+        </ol>
+        <p class="muted" style="font-size:13.5px"><b>Quality check before proceeding:</b> look at all 5 images side by side. Can you tell it's the same person? If the face shifts significantly, regenerate using a more detailed brief. Consistency is non-negotiable — it's the skill that separates free content from paid content.</p>
 
         <h3>More inside Fuse Character Lab</h3>
         <ul>
@@ -102,23 +156,43 @@ window.FUSE_5WEEK = {
       dur: '18 min + video', video: true,
       notes: `
         <h3>From a still model to a scroll-stopping clip</h3>
-        <p>Now you turn your Character Lab model into a moving, talking piece of content — the exact kind clients pay for.</p>
+        <p>Now you turn your consistent AI face into moving, talking pieces of content — the exact kind clients pay for.</p>
         <div class="wk-call">🎥 The video above walks through one full UGC video, start to finish.</div>
-        <h3>The 3-part UGC formula</h3>
+
+        <h3>The 3 UGC formats brands actually buy</h3>
+        <ul>
+          <li><b>Talking-Head Testimonial</b> — your character speaks directly to camera about a product. <b>$50–$200/video.</b></li>
+          <li><b>Product Showcase / Lifestyle</b> — your character uses or displays a product in a lifestyle setting. <b>$75–$300/video.</b></li>
+          <li><b>Before/After or Demo</b> — your character shows a transformation or result. <b>$100–$500/video.</b></li>
+        </ul>
+        <p>You're going to create one sample of each today. These three samples become your portfolio — the thing clients see before they hire you.</p>
+
+        <h3>Sample 1 — Talking-Head Testimonial (15–30 seconds)</h3>
+        <p><b>Step A — write the script.</b> Open Fuse Reactor and prompt it:</p>
+        <div class="wk-call" style="white-space:pre-wrap">"Write a 20-second UGC testimonial script for a skincare serum. The speaker is a young woman in her mid-20s. She should sound natural, enthusiastic but not fake, like she's talking to a friend on FaceTime. Include a hook in the first 2 seconds, the product benefit, and a soft CTA. No brand name needed — this is a portfolio sample."</div>
+        <p><b>Step B — generate the talking video.</b> In Fuse Studio's image-to-video tools, upload your desk/home-office reference image from Day 2, and describe the motion:</p>
+        <div class="wk-call" style="white-space:pre-wrap">"The woman speaks naturally to the camera with expressive hand gestures near her chest, slight head movements, warm engaging smile, as if talking to a friend on a video call. Subtle, natural movement only — no dramatic motion. 9:16 vertical."</div>
+        <p class="muted" style="font-size:13.5px">Note: without a dedicated lipsync model, motion won't match specific words — that's fine for portfolio samples, add captions in CapCut so the "talking" reads visually. When you land a paying client and need real lipsync, use Fuse Studio's Talking Avatar tools.</p>
+        <p><b>Step C — edit in CapCut.</b> Import the clip, add your script as auto-captions (edit the text to match exactly), add a subtle trending sound at 10–15% volume, bold white 2–3-word captions centered lower-third, export at 1080×1920.</p>
+
+        <h3>Sample 2 — Product Showcase / Lifestyle (5–10 seconds)</h3>
+        <p>Use your outdoor/street reference image. This is a silent lifestyle video — no speech, just an aspirational setting with text overlay.</p>
+        <div class="wk-call" style="white-space:pre-wrap">"The woman walks slowly forward on a sunlit cobblestone street, holding [product] in her right hand, looking at camera with a warm relaxed smile, natural wind in her clothing, golden-hour sunlight, candid travel photography style. 9:16 vertical."</div>
+        <p>In CapCut, add a text overlay like "This serum changed my morning routine ✨" + trending sound + subtle zoom.</p>
+
+        <h3>Sample 3 — Before/After Demo (15–20 seconds)</h3>
+        <p>Split-screen format. Generate two images of your character: <b>Before</b> — plain setting, casual outfit, no-makeup look, neutral expression. <b>After</b> — styled setting, polished outfit, glowing, confident. Animate each, then combine in CapCut with a dramatic transition. Text: "Before [Product]" → transition → "After 2 weeks" + trending sound.</p>
+
+        <h3>The 3-part UGC formula (applies to all three)</h3>
         <ol>
           <li><b>Hook (0–2s)</b> — a bold line or visual that stops the scroll.</li>
           <li><b>Value / demo (2–20s)</b> — your model shows or talks about the product.</li>
           <li><b>CTA (last 3s)</b> — "comment a word", "tap the link", "follow for more".</li>
         </ol>
-        <h3>Steps in Fuse Studio</h3>
-        <ol>
-          <li>Take your model sheet into the image tools; place it with a product or in a scene.</li>
-          <li>Animate it (image-to-video) with a short, natural motion prompt.</li>
-          <li>Add a voice (Resemble AI or the in-app options) and lip-sync if it's a talking piece.</li>
-          <li>Export 9:16, add captions in CapCut.</li>
-        </ol>
+
         <h3>Batch like a pro</h3>
         <p>Once one works, change only the hook and product — you can produce 5–10 videos from the same model in an afternoon. Volume is how you hit $500.</p>
+        <p class="muted" style="font-size:13.5px"><b>Portfolio quality check:</b> watch all 3 samples on your phone, full screen, sound on. Ask yourself: "If I were a brand manager, would I pay $100 for this?" If not, regenerate the weakest one — your portfolio is your first impression.</p>
         <p><b>Today's action:</b> make one finished UGC video and drop it in the group.</p>`,
     },
     {
@@ -126,22 +200,53 @@ window.FUSE_5WEEK = {
       dur: '14 min read', video: false,
       notes: `
         <h3>Turn a skill into an offer people can buy</h3>
-        <p>Clients don't buy "AI" — they buy "3 UGC ads for my skincare brand by Friday". Today you package it.</p>
-        <h3>Your Upwork profile (the essentials)</h3>
+        <p>Clients don't buy "AI" — they buy "3 UGC ads for my skincare brand by Friday". Today you package it: a portfolio, then an Upwork profile built around it.</p>
+
+        <h3>Part 1 — Build your portfolio (in Canva, free)</h3>
+        <p>Your portfolio needs exactly 5 things: (1) your 3 UGC video samples from Day 3, (2) 3–5 still images of your AI character in different settings from Day 2, (3) a one-paragraph bio, (4) your service menu + pricing, (5) contact information.</p>
+        <div class="wk-call" style="white-space:pre-wrap">Canva page-by-page structure:
+Page 1: Cover — "AI Content Creator | [Your Name]" + your best character image
+Page 2: About — your one-paragraph bio + a character image
+Page 3–5: Video samples — thumbnails with "▶ Watch Sample" + Google Drive links
+Page 6: Services + Pricing
+Page 7: Contact — email, Upwork profile link</div>
+        <p>Upload your 3 video samples to Google Drive (free, 15GB), set sharing to "Anyone with the link can view", and use those links in your portfolio and Upwork profile. Download the Canva deck as PDF and also grab the shareable Canva link.</p>
+
+        <h3>Pricing guide (for beginners)</h3>
         <ul>
-          <li><b>Title:</b> "AI UGC Creator | Short-Form Video Ads for Brands".</li>
-          <li><b>Overview:</b> lead with the result you deliver, not the tools you use.</li>
-          <li><b>Portfolio:</b> the videos you made Day 3 — 3 to 6 strong pieces.</li>
-          <li><b>Rate:</b> start reachable, raise it after your first 5-star review.</li>
+          <li><b>1 AI UGC video (15–30 sec):</b> $50–$75 to start, $100–$200 after 3+ clients</li>
+          <li><b>3-video content pack:</b> $120–$180 → $250–$500</li>
+          <li><b>AI character creation (consistent):</b> $75–$100 → $150–$300</li>
+          <li><b>Full AI content package (5 videos + images + character):</b> $200–$350 → $500–$1,000</li>
+          <li><b>Monthly content retainer (10+ pieces/month):</b> $300–$500 → $750–$2,000</li>
         </ul>
-        <h3>Your service menu</h3>
-        <ul>
-          <li>Single UGC video</li>
-          <li>Pack of 3 / 5 videos (best seller)</li>
-          <li>Monthly content retainer (the real money)</li>
-        </ul>
+        <div class="wk-call">💡 Start lower than the market to get your first 2–3 reviews. Once you have proof (reviews + portfolio), raise prices. Your first 3 clients are buying your FUTURE — invest in those relationships.</div>
+
+        <h3>Part 2 — Your Upwork profile</h3>
+        <p>Most freelancers write generic profiles and wonder why no one hires them. Your profile must answer ONE question in the first two lines: "What specific result do I deliver for my client?"</p>
+        <p><b>Title formula:</b> "AI [Content Type] Creator | [Specific Result] for [Client Type]". Examples: <i>"AI UGC Video Creator | Scroll-Stopping Ads for E-Commerce Brands"</i> · <i>"AI Content Creator | Professional UGC Videos — No Filming Needed"</i> · <i>"AI Avatar & UGC Specialist | Faceless Content That Converts"</i></p>
+        <p><b>Overview — copy and customize:</b></p>
+        <div class="wk-call" style="white-space:pre-wrap">"Need high-converting UGC content but don't want to manage influencers or film yourself? I create professional AI-generated UGC videos and content that look indistinguishable from real creator content — delivered in 48 hours, not 2 weeks.
+
+WHAT I DELIVER:
+→ AI UGC testimonial videos (15–60 sec)
+→ Product showcase and lifestyle content
+→ Consistent AI characters tailored to your brand
+→ Before/after and demo-style content
+→ Full content packages (video + images + scripts)
+
+WHY CLIENTS CHOOSE ME:
+✓ Consistent, photorealistic AI characters (no uncanny valley)
+✓ Fast turnaround — 48-hour delivery on most projects
+✓ Revision-friendly — changes in hours, not days
+✓ No influencer fees, no scheduling conflicts
+
+I've delivered [X] projects for brands in [industries]. Let's discuss your content needs — message me to get started."</div>
+        <p><b>Tags & skills to add</b> (they determine which searches you appear in): AI Content Creation · UGC · Video Production · AI Video · Content Creation · Social Media Content · Ad Creative · Short-form Video · AI Avatar · Product Photography · Brand Content · Reels · TikTok Content</p>
+        <p><b>Portfolio section:</b> upload your 3 video sample thumbnails + link to your Google Drive videos, titled clearly: "AI UGC Testimonial — Skincare" / "AI Lifestyle Content — Fashion" / "AI Before/After — Wellness".</p>
+        <p class="muted" style="font-size:13.5px"><b>Before you publish:</b> search "AI UGC" on Upwork and look at the top 5 freelancers. Is your profile as good as theirs? If not, refine it — your profile competes directly against these people for the same clients.</p>
         <div class="wk-call">💡 Nigerians: set up your ID/TIN properly so you keep your earnings — this is covered in the group resources.</div>
-        <p><b>Today's action:</b> publish your Upwork profile with at least 3 portfolio videos.</p>`,
+        <p><b>Today's action:</b> publish your Upwork profile with at least 3 portfolio videos, and finish your Canva portfolio deck.</p>`,
     },
     {
       key: 'wk-5', day: 5, title: 'Pitch and land your first client',
@@ -150,12 +255,53 @@ window.FUSE_5WEEK = {
         <h3>The pitch is where the money is decided</h3>
         <p>A great video with a weak pitch gets ignored. Today you learn to write proposals that get replies — fast.</p>
         <div class="wk-call">🎥 The video above shows a real pitch being written and sent in under 5 minutes.</div>
-        <h3>The winning proposal structure</h3>
+
+        <h3>Finding the right jobs</h3>
+        <p>Search Upwork for these terms, in order of conversion likelihood: <b>1. "AI UGC"</b> (direct match, highest conversion) <b>2. "UGC video"</b> (many clients are open to AI UGC but don't know it exists yet) <b>3. "AI content creation"</b> (broader, good volume) <b>4. "AI avatar"</b> (character creation specifically) <b>5. "product video"</b> (pitch AI UGC as a faster/cheaper alternative).</p>
+
+        <h3>Red flags vs. green flags</h3>
+        <ul>
+          <li>✅ Budget $100+ listed &nbsp;·&nbsp; ✕ Budget under $25</li>
+          <li>✅ Client has payment history &nbsp;·&nbsp; ✕ Client has $0 spent, 0 hires</li>
+          <li>✅ "Looking for AI content" mentioned &nbsp;·&nbsp; ✕ "Need this in 2 hours"</li>
+          <li>✅ Clear brief with brand details &nbsp;·&nbsp; ✕ Vague "I need content" with no details</li>
+          <li>✅ Rating 4.5+ from past freelancers &nbsp;·&nbsp; ✕ Multiple negative reviews from freelancers</li>
+        </ul>
+
+        <h3>The proposal template — copy + customize per job</h3>
+        <div class="wk-call" style="white-space:pre-wrap">Subject: Your AI UGC — delivered in 48 hours, no filming needed
+
+Hi [Client name],
+
+I see you're looking for [specific thing from their job post]. I specialize in exactly this — AI-generated UGC content that looks indistinguishable from real creator content, delivered in 48 hours.
+
+HERE'S WHAT I'D CREATE FOR YOU:
+→ [Specific deliverable matching their brief]
+→ [Number] of UGC videos in [style they described]
+→ Consistent AI character matched to your brand aesthetic
+→ Full revision until you're happy
+
+I've attached [1–2] samples similar to what you're looking for. [Link to Google Drive portfolio]
+
+My process is simple:
+1. You share your brand/product details
+2. I create the character + script draft (24h)
+3. You approve → I deliver final content (24h)
+4. Unlimited revisions until it's perfect
+
+Happy to hop on a quick call or answer any questions here.
+
+Best,
+[Your name]</div>
+        <p class="muted" style="font-size:13.5px"><b>The secret to proposals:</b> personalize the first 2 lines. Reference something specific from THEIR job post. Generic proposals get ignored — specific ones get hired. Spend 3 minutes reading their brief before writing. Want this automated? Fuse PitchPilot reads the job for you and writes this exact pitch — plus your LinkedIn, WhatsApp, Instagram and email versions — in one tap.</p>
+
+        <h3>Daily pitch routine (do this every day after today)</h3>
         <ol>
-          <li><b>Hook line</b> — reference their exact job/brand in the first sentence.</li>
-          <li><b>Proof</b> — "here's a UGC video I made that fits your product" (attach one).</li>
-          <li><b>The offer</b> — what they get, by when, for how much.</li>
-          <li><b>One clear CTA</b> — "want me to send 2 sample cuts today?"</li>
+          <li>Open Upwork → search your 5 keywords</li>
+          <li>Filter by "Posted in last 24 hours"</li>
+          <li>Read each job post — skip red flags</li>
+          <li>Send 3–5 personalized proposals per day</li>
+          <li>Total time: 30–45 minutes/day</li>
         </ol>
         <h3>Speed wins</h3>
         <p>Apply within the first hour a job is posted. Personalise the first line. Keep it short. Attach one relevant sample. That's it.</p>
@@ -166,20 +312,50 @@ window.FUSE_5WEEK = {
       dur: '13 min read', video: false,
       notes: `
         <h3>The parallel income engine</h3>
-        <p>Upwork gets you paid this week. Instagram builds an audience that pays you for months. Run both.</p>
-        <h3>Post like a strategist</h3>
+        <p>Upwork gets you paid this week. Instagram builds an audience — and direct brand relationships — that pay you for months. Run both.</p>
+
+        <h3>Why direct outreach wins</h3>
+        <p>On Upwork, you compete with 20–50 other freelancers for each job. With direct outreach on Instagram, you compete with <b>zero</b> — because you're reaching brands that haven't posted a job yet. You're creating demand, not responding to it. This is the method that lands the biggest contracts, including retainers worth thousands a month.</p>
+
+        <h3>Find brands that need AI UGC</h3>
+        <ul>
+          <li>Small-to-medium e-commerce brands (5K–100K followers) — they need content but can't afford agencies</li>
+          <li>Brands that post inconsistently (gaps in their feed = they need help)</li>
+          <li>Brands with good products but mediocre visuals</li>
+          <li>Look in: skincare, supplements, fashion, wellness, food, SaaS</li>
+        </ul>
+
+        <h3>Create a custom sample first (15–30 minutes per brand)</h3>
+        <p>This is the move that separates you from everyone else. Before you pitch, create a free sample of what you'd make for them: study their brand colors/aesthetic/products, generate one AI character image that fits their brand, create one 5–10 second video sample using their product/aesthetic. It's a 15–30 minute investment that pays back 10x.</p>
+
+        <h3>The DM / email template</h3>
+        <div class="wk-call" style="white-space:pre-wrap">DM:
+Hi [Brand name] team 👋
+I'm an AI content creator and I made a quick sample for [Brand name] — wanted to share it with you before anyone else:
+[Attach or link your custom sample video]
+This is AI-generated UGC — no influencer, no filming, no scheduling. I can create content like this for your brand at a fraction of what traditional UGC costs, with 48-hour turnaround.
+If this is interesting, I'd love to chat about how it could work for your content calendar.
+— [Your name]
+
+EMAIL:
+Subject: Quick sample I made for [Brand Name]
+Hi [Name],
+I'm an AI UGC creator and I put together a quick content sample for [Brand Name] — I think it fits your brand aesthetic perfectly.
+Here's the sample: [Google Drive link]
+This is fully AI-generated — no influencer coordination, no filming days, 48-hour delivery. I create UGC-style ads, testimonials and lifestyle content for e-commerce brands starting at $75/video.
+Would love to chat if you're open to it. No pressure either way — the sample is yours to keep regardless.
+Best,
+[Your name] · [Upwork/portfolio link]</div>
+        <p class="muted" style="font-size:13.5px"><b>Response-rate reality:</b> expect 1–2 replies out of 5. That's normal — most brand outreach has a 15–30% response rate. The ones who respond are warm leads. Follow up once after 3 days if no response.</p>
+
+        <h3>Post like a strategist (grow your own page too)</h3>
         <ul>
           <li>Lead every reel with a strong <b>hook</b> in the first 1–2 seconds.</li>
-          <li>Post consistently — your Character Lab model makes this effortless.</li>
+          <li>Post consistently — your consistent AI character makes this effortless.</li>
           <li>End with a <b>comment-to-DM</b> CTA ("comment a word for the link").</li>
+          <li>Optimise your bio: what you do + one clear link. Show finished work — proof sells faster than promises.</li>
         </ul>
-        <h3>Convert viewers to buyers</h3>
-        <ul>
-          <li>Optimise your bio: what you do + one clear link.</li>
-          <li>Use the comment-to-DM flow to send offers automatically.</li>
-          <li>Show finished work — proof sells faster than promises.</li>
-        </ul>
-        <p><b>Today's action:</b> post one AI UGC reel with a comment-to-DM CTA.</p>`,
+        <p><b>Today's action:</b> find 5 brands, create 5 custom samples, send 5 DMs or emails. This is the non-negotiable minimum — plus post one AI UGC reel with a comment-to-DM CTA.</p>`,
     },
     {
       key: 'wk-7', day: 7, title: 'Scale — pricing, delivery, repeat clients',
@@ -187,18 +363,48 @@ window.FUSE_5WEEK = {
       notes: `
         <h3>From first sale to steady income</h3>
         <p>You've made content, packaged it, pitched it and posted it. Day 7 is about turning a one-off into a repeatable business.</p>
+
+        <h3>When a client says "I'm interested"</h3>
+        <p>This is the moment most beginners freeze. Here's the exact conversation flow:</p>
+        <ol>
+          <li>Thank them and ask one question: <i>"Great! Could you share your brand guidelines or product photos so I can tailor the content to your exact aesthetic?"</i></li>
+          <li>Agree on scope: <i>"For [X videos], my rate is [$Y]. I'll deliver in [48 hours] with [2 rounds of revisions]. Sound good?"</i></li>
+          <li>Get payment secured first: on Upwork, the milestone system handles this. For direct clients, use Paypal, Payoneer, or request 50% upfront via bank transfer.</li>
+          <li>Deliver and overdeliver: send one extra piece they didn't ask for. This earns 5-star reviews and repeat business.</li>
+        </ol>
+
+        <h3>Delivery checklist</h3>
+        <ul>
+          <li>☐ Videos exported at 1080×1920 (or client's requested size)</li>
+          <li>☐ MP4 format, high bitrate</li>
+          <li>☐ Captions embedded (if requested) or provided as a separate SRT file</li>
+          <li>☐ Character images provided separately (PNG, high-res)</li>
+          <li>☐ All files organized in a labeled Google Drive folder</li>
+          <li>☐ Brief message: "Here's everything — let me know if you'd like any changes!"</li>
+        </ul>
+
+        <h3>After delivery — the review request</h3>
+        <div class="wk-call" style="white-space:pre-wrap">"I'm so glad you're happy with the content! If you have a moment, a review on Upwork would mean the world to me — it helps other brands find me. And if you need more content in the future, I'd love to continue working together. I also offer monthly content retainers if that's useful."</div>
+
         <h3>Raise your prices the right way</h3>
         <ul>
           <li>After each 5-star review, nudge your rate up.</li>
           <li>Move clients from single videos to <b>monthly retainers</b> — predictable income.</li>
         </ul>
+
+        <h3>Scaling beyond $500</h3>
+        <ul>
+          <li><b>First 3 clients:</b> $150–$500/month — low prices, building reviews</li>
+          <li><b>After 5+ reviews:</b> $500–$1,500/month — raise prices 50%, start retainers</li>
+          <li><b>After 10+ reviews:</b> $1,500–$3,500/month — premium pricing, recurring retainers, referrals</li>
+        </ul>
+
         <h3>Deliver so they come back</h3>
         <ul>
           <li>Send more than promised on the first job.</li>
           <li>Hit deadlines. Communicate clearly. Ask for the review.</li>
           <li>Offer a "next month" package before the current job ends.</li>
         </ul>
-        <h3>Your next 30 days</h3>
         <p>Keep the model, keep batching, keep pitching daily. The people who win aren't the most talented — they're the most consistent.</p>
         <div class="wk-call">🎓 Ready to go deeper? Fuse Atelier is the full AI Creative Income System — ask in the group about upgrading.</div>
         <p><b>Today's action:</b> pitch the retainer to your first client, and set your 30-day income target.</p>`,
