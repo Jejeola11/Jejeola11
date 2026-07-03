@@ -973,7 +973,7 @@ function buildReactor() {
     $('rcCost').textContent = isImg ? (m.credits + ' credits per image · attach a photo to edit it') : (m.credits + ' credits per message');
     $('rcInput').placeholder = isImg ? 'Describe the image to create — or attach a photo and say how to change it…' : 'Ask anything — captions, scripts, product names, ad copy… (attach an image to ask about it)';
     $('rcAspect').style.display = isImg ? 'inline-block' : 'none';
-    $('rcAttachBtn').textContent = isImg ? '📎 Add reference photo' : '📎 Add image';
+    $('rcAttachBtn').textContent = isImg ? '📎 Add reference photo' : '📎 Add image (1 max)';
   });
 }
 function renderRcThumbs() {
@@ -985,7 +985,11 @@ function renderRcThumbs() {
 window.rcDropRef = (i) => { rcRefs.splice(i, 1); renderRcThumbs(); };
 async function rcAttach(files) {
   if (preview) { showAuth('signup'); return; }
-  for (const file of files) {
+  // Text models only support ONE image per message (MuAPI's image_url field is
+  // singular) — image-gen models take several reference photos. Cap accordingly.
+  const isImg = rcModel && rcModel.kind === 'image';
+  const room = isImg ? Infinity : Math.max(0, 1 - rcRefs.length);
+  for (const file of Array.from(files).slice(0, room)) {
     try {
       const path = `${user.id}/rc-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.jpg`;
       const { error } = await sb.storage.from('avatars').upload(path, file, { contentType: file.type || 'image/jpeg' });
@@ -994,6 +998,7 @@ async function rcAttach(files) {
       renderRcThumbs();
     } catch (e) { note('rcNote', 'Upload failed: ' + (e.message || e), 'err'); }
   }
+  if (!isImg && files.length > room) note('rcNote', 'This AI can only read one image per message — using your latest photo.', '');
 }
 async function reactorSend() {
   if (preview) { showAuth('signup'); return; }

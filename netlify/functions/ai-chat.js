@@ -30,7 +30,7 @@ exports.handler = async (event) => {
   let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
   const model = body.model || 'gemini-2-5-flash';
   const prompt = (body.prompt || '').trim();
-  const images = (Array.isArray(body.images) ? body.images : []).filter((u) => typeof u === 'string' && u).slice(0, 4);
+  const images = (Array.isArray(body.images) ? body.images : []).filter((u) => typeof u === 'string' && u).slice(0, 1);
   const cost = REACTOR_COST[model];
   if (!prompt) return json(400, { error: 'Type a message first.' });
   if (!cost) return json(400, { error: 'Unknown model.' });
@@ -48,21 +48,14 @@ exports.handler = async (event) => {
 
   const key = process.env.MUAPI_KEY;
   try {
-    // Text prompt, plus any attached images so vision-capable models can "see" them.
-    // MuAPI's exact field name for vision on chat models (as opposed to their
-    // image-generation models, which are confirmed to use images_list) isn't
-    // documented, so we send every reasonable alias — the model ignores names
-    // it doesn't recognise, and this maximises the chance one of them lands.
+    // Text prompt, plus one attached image so vision-capable models can "see" it.
+    // Confirmed against MuAPI's own /models/{slug} schema for every Reactor text
+    // model (claude-sonnet-4-5, claude-opus-4-5, claude-haiku-4-5, gpt-5-5,
+    // gpt-5-2, gemini-2-5-pro, gemini-2-5-flash): the only image field they accept
+    // is a SINGULAR "image_url" string — none take an array, so only the first
+    // attached photo is ever usable (the frontend now caps uploads to 1 too).
     const payload = { prompt };
-    if (images.length) {
-      payload.images = images;
-      payload.image_urls = images;
-      payload.images_list = images;
-      payload.image_url = images[0];   // singular — some vision endpoints only take one
-      payload.attachments = images;
-      payload.files = images;
-    }
-    console.log('[ai-chat] model:', model, '| images attached:', images.length, images.length ? images : '');
+    if (images.length) payload.image_url = images[0];
     const submit = await fetch(`${MUAPI_BASE}/${model}`, {
       method: 'POST',
       headers: { 'x-api-key': key, 'Content-Type': 'application/json' },
