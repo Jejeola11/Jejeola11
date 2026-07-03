@@ -196,6 +196,27 @@ function pollGrid(ids, resultEl, noteId, btn, label, watermark) {
   });
 }
 
+function pollChat(id, outEl, noteId, btn, label) {
+  let s = 0;
+  const t = setInterval(async () => {
+    s += 2;
+    try {
+      const r = await fetch(`/.netlify/functions/job-status?id=${id}`, { headers: { ...(await authHeader()) } });
+      const d = await r.json();
+      if (d.status === 'completed') {
+        clearInterval(t); outEl.textContent = d.text || ''; note(noteId, '');
+        if (user) loadProfile();
+        if (btn) { btn.disabled = false; btn.textContent = label; }
+      } else if (d.status === 'failed') {
+        clearInterval(t); note(noteId, (d.error || 'AI failed') + ' — credits refunded.', 'err');
+        if (user) loadProfile();
+        if (btn) { btn.disabled = false; btn.textContent = label; }
+      }
+    } catch (e) {}
+    if (s >= 180 && outEl.textContent === '') { clearInterval(t); note(noteId, 'Taking too long — try again.', 'err'); if (btn) { btn.disabled = false; btn.textContent = label; } }
+  }, 2000);
+}
+
 async function authHeader() {
   const { data } = await sb.auth.getSession();
   const t = data.session && data.session.access_token;
@@ -1027,19 +1048,27 @@ async function reactorSend() {
   }
 
   // ----- Text models: chat (and read any attached images) -----
+  // Submits and returns fast — a long Claude/GPT/Gemini reply (especially with
+  // an image attached) can outlast a serverless function's execution limit, so
+  // the actual answer is fetched by polling job-status.js, same as video does.
   btn.disabled = true; btn.textContent = 'Thinking…'; note('rcNote', '');
+  $('rcOut').innerHTML = '<span class="spin"></span>';
   try {
     const res = await fetch('/.netlify/functions/ai-chat', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
       body: JSON.stringify({ model: rcModel.id, prompt, images: rcRefs.length ? rcRefs : undefined }),
     });
     const data = await res.json();
-    if (res.status === 503) note('rcNote', data.error, 'err');
-    else if (res.status === 402) { note('rcNote', 'Out of credits.', 'err'); openBuy(); }
-    else if (res.status === 403) { note('rcNote', data.error || 'Upgrade to unlock this model.', 'err'); openBuy(); }
+    if (res.status === 503) { note('rcNote', data.error, 'err'); $('rcOut').innerHTML = ''; }
+    else if (res.status === 402) { note('rcNote', 'Out of credits.', 'err'); openBuy(); $('rcOut').innerHTML = ''; }
+    else if (res.status === 403) { note('rcNote', data.error || 'Upgrade to unlock this model.', 'err'); openBuy(); $('rcOut').innerHTML = ''; }
     else if (!res.ok) throw new Error(data.error || 'AI error');
-    else { $('rcOut').textContent = data.text; $('creditCount').textContent = data.credits; }
-  } catch (e) { note('rcNote', e.message, 'err'); }
+    else {
+      $('rcOut').textContent = ''; $('creditCount').textContent = data.credits;
+      pollChat(data.request_id, $('rcOut'), 'rcNote', btn, 'Send');
+      return; // pollChat re-enables the button when it finishes
+    }
+  } catch (e) { note('rcNote', e.message, 'err'); $('rcOut').innerHTML = ''; }
   btn.disabled = false; btn.textContent = 'Send';
 }
 
