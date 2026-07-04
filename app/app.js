@@ -116,7 +116,7 @@ window.fuseLightbox = (url, type) => {
 function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video') {
   let s = 0;
   const timer = setInterval(async () => {
-    s += 4;
+    s += 8;
     try {
       const r = await fetch(`/.netlify/functions/job-status?id=${requestId}`, { headers: { ...(await authHeader()) } });
       const d = await r.json();
@@ -149,7 +149,7 @@ function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video'
       }
     } catch (e) {}
     if (s >= 360) { clearInterval(timer); note(noteId, 'Still rendering — check Projects in a minute.', 'err'); if (btn) { btn.disabled = false; btn.textContent = btnLabel; } }
-  }, 4000);
+  }, 8000);
 }
 
 // Poll several image jobs at once, filling a grid as each completes.
@@ -173,10 +173,12 @@ function pollGrid(ids, resultEl, noteId, btn, label, watermark) {
     if (user) loadProfile();
     if (btn) { btn.disabled = false; btn.textContent = label; }
   };
+  // Poll every 8s (not 4) — each poll is a billed Netlify function invocation,
+  // and this loop was one of the biggest credit burners on the free plan.
   ids.forEach((id, i) => {
     let s = 0;
     const t = setInterval(async () => {
-      s += 4;
+      s += 8;
       try {
         const r = await fetch(`/.netlify/functions/job-status?id=${id}`, { headers: { ...(await authHeader()) } });
         const d = await r.json();
@@ -192,14 +194,14 @@ function pollGrid(ids, resultEl, noteId, btn, label, watermark) {
         }
       } catch (e) {}
       if (s >= 360 && done[i] === null) { clearInterval(t); done[i] = 'failed'; finish(); }
-    }, 4000);
+    }, 8000);
   });
 }
 
 function pollChat(id, outEl, noteId, btn, label) {
   let s = 0;
   const t = setInterval(async () => {
-    s += 2;
+    s += 4;
     try {
       const r = await fetch(`/.netlify/functions/job-status?id=${id}`, { headers: { ...(await authHeader()) } });
       const d = await r.json();
@@ -214,7 +216,7 @@ function pollChat(id, outEl, noteId, btn, label) {
       }
     } catch (e) {}
     if (s >= 180 && outEl.textContent === '') { clearInterval(t); note(noteId, 'Taking too long — try again.', 'err'); if (btn) { btn.disabled = false; btn.textContent = label; } }
-  }, 2000);
+  }, 4000);
 }
 
 async function authHeader() {
@@ -1557,7 +1559,7 @@ async function generateModelSheet() {
 function pollSheet(reqId) {
   let s = 0;
   const timer = setInterval(async () => {
-    s += 4;
+    s += 8;
     try {
       const r = await fetch(`/.netlify/functions/job-status?id=${reqId}`, { headers: { ...(await authHeader()) } });
       const d = await r.json();
@@ -1570,7 +1572,7 @@ function pollSheet(reqId) {
       }
     } catch (e) {}
     if (s >= 240) { clearInterval(timer); note('avSheetNote', 'Still working — check back shortly.', 'err'); renderSheet(); }
-  }, 4000);
+  }, 8000);
 }
 let avTrainFiles = [];   // accumulates across multiple "Add photos" picks
 function renderTrainThumbs() {

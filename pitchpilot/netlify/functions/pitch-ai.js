@@ -1,18 +1,17 @@
 // ============================================================
-// POST /.netlify/functions/pitch-ai
-// Body: { jobText, client:{name,company,location,history}, prevJobs:[..],
-//         profile, projects, project, extra }
-// You fill in the client details by hand now (no auto-extract, no Serper).
-// One strong Claude model (Sonnet 4.5 via your MuAPI key) reads everything and
-// writes the 4 outreach messages: EMAIL, WHATSAPP, INSTAGRAM, LINKEDIN
-// (+ a short LinkedIn connect note). Built for personal outreach — you find the
-// client's contact details yourself and reach out directly, not Upwork proposals.
-// Requires env var: MUAPI_KEY
+// POST /.netlify/functions/pitch-ai   (auth required, spends 1 use)
+// Two modes:
+//   mode:'job'       — { jobText, client:{name,company,location,history}, prevJobs:[..] }
+//   mode:'instagram' — { ig:{username, website, about, pitching, goal} }
+// Plus: { profile, projects, project, extra } in both modes.
+// Claude Sonnet 4.5 (via MUAPI_KEY) writes 4 outreach messages + a LinkedIn
+// connect note. Every generation costs 1 use — new accounts get 5 free,
+// plans top up the allowance (see pp-grant.js).
+// Env needed on this site: MUAPI_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
 // ============================================================
+const { admin, getUser, spendUse, refundUse, json } = require('./_pp');
+
 const MUAPI = 'https://api.muapi.ai/api/v1';
-// Strongest pitch-writer available on MuAPI. ("Claude Fable 5" is the chat model
-// you talk to in Claude — it isn't offered as an API model on MuAPI, so the app
-// uses Claude Sonnet 4.5, the best writer their API exposes.)
 const MODEL = 'claude-sonnet-4-5';
 
 function extractText(p) {
@@ -59,35 +58,62 @@ function parseJSON(s) {
 }
 
 exports.handler = async (event) => {
-  try {
-    if (event.httpMethod !== 'POST') return resp(405, { error: 'Method not allowed' });
-    let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return resp(400, { error: 'Bad request' }); }
-    const jobText = (body.jobText || '').slice(0, 6000);
-    if (!jobText.trim()) return resp(400, { error: 'Paste the job post first.' });
+  if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
 
+  const user = await getUser(event);
+  if (!user) return json(401, { error: 'Please sign in.' });
+
+  let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
+  const mode = body.mode === 'instagram' ? 'instagram' : 'job';
+
+  // ---- build the target-specific context ----
+  let targetBlock = '';
+  if (mode === 'job') {
+    const jobText = (body.jobText || '').slice(0, 6000);
+    if (!jobText.trim()) return json(400, { error: 'Paste the job post first.' });
     const c = body.client || {};
     const prevJobs = (Array.isArray(body.prevJobs) ? body.prevJobs : []).filter((x) => x && x.trim()).slice(0, 2);
-    const pf = body.profile || {};
-    const projects = Array.isArray(body.projects) ? body.projects.slice(0, 20) : [];
-    const pinned = body.project || null;
-    const extra = (body.extra || '').slice(0, 600);
-
-    const projList = projects.length
-      ? projects.map((p, i) => `${i + 1}. "${p.title}" - ${p.desc || ''}${p.tags ? ` [${p.tags}]` : ''}${p.link ? ` (${p.link})` : ''}`).join('\n')
-      : '(none saved)';
-
-    const prompt =
-`You are an elite freelance outreach writer. You study what actually books high-paying clients through DIRECT personal outreach (not Upwork proposals) - a specific, personal opening that proves you researched THEM, one clear value point tied to their exact need, social proof, and a single low-friction call to action. You write like a real person who genuinely wants to help this specific business, never like a mass template. Out of every 10 messages you write, at least 1 should get a reply that turns into a paid client.
-
-THE JOB / WHAT THEY NEED:
+    targetBlock =
+`THE JOB / WHAT THEY NEED:
 """${jobText}"""
 
 THE CLIENT (filled in by the freelancer):
 - Name: ${c.name || '(unknown - address warmly as "there" / "hi team")'}
 - Company: ${c.company || '(unknown)'}
 - Location: ${c.location || '(unknown)'}
-- What we know about them (history / context): ${c.history || '(none given)'}
-${prevJobs.length ? `- Other jobs this client has posted before (use these to show you understand their bigger picture and recurring needs):\n${prevJobs.map((p, i) => `   Previous job ${i + 1}: ${p}`).join('\n')}` : ''}
+- What we know about them: ${c.history || '(none given)'}
+${prevJobs.length ? `- Other jobs this client posted before (use these to show you understand their recurring needs):\n${prevJobs.map((p, i) => `   Previous job ${i + 1}: ${p}`).join('\n')}` : ''}`;
+  } else {
+    const ig = body.ig || {};
+    if (!(ig.username || '').trim()) return json(400, { error: 'Enter their Instagram username first.' });
+    targetBlock =
+`THE TARGET (an Instagram business/creator the freelancer wants to pitch — there is no job post; this is proactive outreach):
+- Instagram: @${(ig.username || '').replace(/^@/, '')}
+- Their website: ${ig.website || '(none found — that itself may be the opportunity)'}
+- What we know about them (from their page/bio/posts): ${ig.about || '(none given)'}
+- What the freelancer wants to pitch them: ${ig.pitching || 'a new website / content'}
+- The freelancer's goal with this outreach: ${ig.goal || 'land them as a paying client'}
+The INSTAGRAM DM is the most important message here — it's the first touch. Reference something real about their page so it never reads like spam.`;
+  }
+
+  const pf = body.profile || {};
+  const projects = Array.isArray(body.projects) ? body.projects.slice(0, 20) : [];
+  const pinned = body.project || null;
+  const extra = (body.extra || '').slice(0, 600);
+  const projList = projects.length
+    ? projects.map((p, i) => `${i + 1}. "${p.title}" - ${p.desc || ''}${p.tags ? ` [${p.tags}]` : ''}${p.link ? ` (${p.link})` : ''}`).join('\n')
+    : '(none saved)';
+
+  // ---- spend a use (refund on failure) ----
+  const db = admin();
+  const usesLeft = await spendUse(db, user.id);
+  if (usesLeft === null) return json(402, { error: 'You have used all your pitches. Upgrade to keep going.', code: 'NO_USES' });
+
+  try {
+    const prompt =
+`You are an elite freelance outreach writer. You study what actually books high-paying clients through DIRECT personal outreach - a specific, personal opening that proves you researched THEM, one clear value point tied to their exact situation, social proof, and a single low-friction call to action. You write like a real person who genuinely wants to help this specific business, never like a mass template.
+
+${targetBlock}
 
 THE FREELANCER (the sender):
 - Name: ${pf.name || '[Your name]'}
@@ -100,30 +126,27 @@ ${projList}
 ${pinned ? `\nThe freelancer wants to feature this project: "${pinned.title}" - ${pinned.desc || ''}` : ''}
 ${extra ? `\nExtra to weave in naturally: ${extra}` : ''}
 
-Write FOUR outreach messages plus one short LinkedIn connect note. Each must feel freshly written for THIS client - reference their company, their need, and (if given) their previous jobs. Return ONLY valid minified JSON (no prose, no markdown):
+Write FOUR outreach messages plus one short LinkedIn connect note. Each must feel freshly written for THIS target. Return ONLY valid minified JSON (no prose, no markdown):
 
 {"projectSuggestion":"",
 "pitches":{"email":"","whatsapp":"","instagram":"","linkedin":"","connect":""}}
 
 Rules:
-- projectSuggestion: one sentence naming which saved project best fits this job and why - or, if none fit, what kind of demo/sample to create for them before reaching out.
-- email: a "Subject:" line then the body. Personal, specific to their business, proves you looked at them, one clear value point, social proof, and a soft CTA to hop on a quick call or reply. Under 170 words. No "I hope this email finds you well".
-- whatsapp: warm, human, under 70 words, first person, like a real message not an ad.
-- instagram: casual DM tone, under 70 words, can use one emoji, references their page/brand.
-- linkedin: professional but personable, under 200 words, references their company/role.
+- projectSuggestion: one sentence naming which saved project best fits and why - or, if none fit, what kind of demo/sample to create for them before reaching out.
+- email: a "Subject:" line then the body. Personal, specific, proves you looked at them, one clear value point, social proof, soft CTA to a quick call or reply. Under 170 words. No "I hope this finds you well".
+- whatsapp: warm, human, under 70 words, first person.
+- instagram: casual DM tone, under 80 words, can use one emoji, must reference something real about their page/brand.
+- linkedin: professional but personable, under 200 words.
 - connect: a LinkedIn connection request note, UNDER 200 characters.
-- Address the client by first name if known, else a warm neutral ("there" / "hi team"). Never invent a fake fact, email, phone number, or result not given above.
+- Address them by first name if known, else warm neutral. Never invent a fake fact, email, phone number, or result not given above.
 - Output JSON ONLY.`;
 
     const raw = await claude(prompt);
     const data = parseJSON(raw);
-    if (!data || !data.pitches) return resp(502, { error: 'AI did not return usable output - tap generate again.', raw: raw.slice(0, 300) });
-    return resp(200, { ok: true, projectSuggestion: data.projectSuggestion || '', pitches: data.pitches });
+    if (!data || !data.pitches) { await refundUse(db, user.id); return json(502, { error: 'AI did not return usable output - tap generate again (use refunded).' }); }
+    return json(200, { ok: true, projectSuggestion: data.projectSuggestion || '', pitches: data.pitches, uses_left: usesLeft });
   } catch (e) {
-    return resp(500, { error: (e && e.message) || 'pitch-ai failed' });
+    await refundUse(db, user.id);
+    return json(500, { error: (e && e.message) || 'pitch-ai failed (use refunded)' });
   }
 };
-
-function resp(statusCode, b) {
-  return { statusCode, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify(b) };
-}

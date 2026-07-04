@@ -1,28 +1,38 @@
-# PitchPilot — private outreach writer (v3)
+# PitchPilot v4 — pitch any client, land the job
 
-Paste a job, type what you know about the client (name, company, location,
-history, up to 2 of their previous jobs), and get 4 ready-to-send outreach
-messages — EMAIL, WHATSAPP, INSTAGRAM, LINKEDIN (+ a LinkedIn connect note) —
-written by Claude Sonnet 4.5. Built for reaching clients directly, not Upwork
-proposals. No auto-extract, no Serper, no Hunter — just your input + Claude.
+Two modes:
+- **💼 Job post** — paste the job, type the client's name/company/location/history
+  + up to 2 previous jobs they posted.
+- **📸 Instagram client** — their @username, website (if any), what you found
+  about them, what you're pitching, and your goal.
 
-## Deploy (same repo, its own Netlify site)
+Either way you get 4 ready-to-send messages (Email, WhatsApp, Instagram,
+LinkedIn) + a LinkedIn connect note, written by Claude Sonnet 4.5.
 
-1. app.netlify.com → Add new site → Import an existing project → GitHub → your
-   Jejeola11 repo, same branch
-2. **Base directory:** `pitchpilot`
-3. Environment variables → add ONE:
-   - `MUAPI_KEY` = your MuAPI key   (this is all it needs now)
-4. Deploy.
+## Accounts & plans
+- Sign up with email + password (Supabase — SAME project as Fuse Studio, so
+  one account works across both apps).
+- Every new account gets **5 free pitches**.
+- Plans (paid via WhatsApp for now; the in-app payment platform comes later):
+  - Starter — ₦5,000/mo → 100 pitches
+  - Pro — ₦12,000/mo → 300 pitches
+  - Agency — ₦25,000/mo → 1,000 pitches
+- **Activating a buyer:** sign in with your admin account → the 👑 Admin box
+  appears at the bottom → enter their email + plan → Activate. (Your Fuse
+  Studio admin flag powers this.)
 
-## Private access
-
-The app is passcode-gated so only you can use it. Default passcode: **ria2026**
-(change it in index.html — search `gate:'ria2026'`). To make it public later,
-set `gate:''` (empty) and it opens to everyone.
+## One-time setup
+1. Run `supabase-pitchpilot.sql` in the Supabase SQL Editor (same project as
+   Fuse Studio).
+2. On the PitchPilot Netlify site → Environment variables, add:
+   - `MUAPI_KEY`
+   - `SUPABASE_URL` (copy from the Fuse Studio site's env)
+   - `SUPABASE_SERVICE_ROLE_KEY` (copy from the Fuse Studio site's env)
+3. Netlify build settings: Base directory = `pitchpilot`.
 
 ## Files
-- index.html — the whole app (passcode gate, profile+portfolio, job+client
-  inputs, 4-message output, channel tracker, pitch journal)
-- netlify/functions/pitch-ai.js — Claude Sonnet 4.5 writes the 4 messages
-- netlify.toml — build config
+- `index.html` — app (auth, mode tabs, plans, admin box, pitch journal)
+- `netlify/functions/pitch-ai.js` — writes the 4 messages, spends 1 use per run
+- `netlify/functions/pp-grant.js` — admin plan activation
+- `netlify/functions/_pp.js` — shared Supabase/usage helpers
+- `supabase-pitchpilot.sql` — the pp_usage table

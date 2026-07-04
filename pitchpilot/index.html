@@ -95,19 +95,26 @@
   .spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(245,197,24,.3);border-top-color:var(--gold);border-radius:50%;animation:sp .8s linear infinite;vertical-align:middle;margin-right:6px}
   @keyframes sp{to{transform:rotate(360deg)}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
 <header class="nav"><div class="wrap in">
   <div class="logo"><span class="m">✈</span> PitchPilot</div>
-  <div class="uses"><span class="usepill" id="usePill">✦ <b>Private</b></span><button class="btn gold sm" id="subBtn" style="display:none">Go Pro</button></div>
+  <div class="uses"><span class="usepill" id="usePill">…</span><button class="btn gold sm" id="subBtn">Upgrade</button><button class="btn ghost sm" id="outBtn" style="display:none">Sign out</button></div>
 </div></header>
 
 <main class="wrap">
   <section class="hero">
-    <h1>Paste a job. <span class="g">Get the pitch.</span></h1>
-    <p>Save your portfolio once. Then drop any job, find the client, and get ready-to-send pitches that feature your best matching project.</p>
+    <h1>Pitch any client. <span class="g">Land the job.</span></h1>
+    <p>Save your portfolio once. Then pitch Upwork jobs or Instagram brands — and get a ready-to-send email, WhatsApp, Instagram and LinkedIn message every time.</p>
   </section>
+
+  <!-- MODE TABS -->
+  <div style="display:flex;gap:8px;margin:14px 0 0">
+    <button class="btn gold" id="tabJob" style="flex:1">💼 Job post</button>
+    <button class="btn ghost" id="tabIg" style="flex:1">📸 Instagram client</button>
+  </div>
 
   <!-- PROFILE & PORTFOLIO -->
   <details class="profile" id="profilePanel">
@@ -133,29 +140,47 @@
     </div>
   </details>
 
-  <!-- STEP 1 -->
-  <section class="step">
-    <div class="step-h"><div class="step-n">1</div><div><div class="step-t">Paste the job post</div><div class="step-s">The job or project they need done</div></div></div>
-    <textarea id="jobInput" placeholder="Paste the full job / project description here…"></textarea>
-  </section>
+  <!-- JOB MODE -->
+  <div id="modeJob">
+    <section class="step">
+      <div class="step-h"><div class="step-n">1</div><div><div class="step-t">Paste the job post</div><div class="step-s">The job or project they need done</div></div></div>
+      <textarea id="jobInput" placeholder="Paste the full job / project description here…"></textarea>
+    </section>
+    <section class="step">
+      <div class="step-h"><div class="step-n">2</div><div><div class="step-t">The client</div><div class="step-s">Type in what you know — the more you add, the sharper the pitch</div></div></div>
+      <div class="row2">
+        <div><label>Client name</label><input id="cName" placeholder="Sarah"></div>
+        <div><label>Company / brand</label><input id="cCompany" placeholder="Kiwi Spa"></div>
+      </div>
+      <label>Location (city + country)</label><input id="cLocation" placeholder="London, United Kingdom">
+      <label>Client history / what you know about them</label>
+      <textarea id="cHistory" placeholder="e.g. small skincare brand, posts inconsistently, hired 3 freelancers before, spends ~$500/project, friendly tone…" style="min-height:56px"></textarea>
+      <label style="margin-top:12px">Previous job they posted #1 (optional)</label>
+      <textarea id="cPrev1" placeholder="Paste one of their earlier job posts — helps the AI understand their bigger picture" style="min-height:48px"></textarea>
+      <label style="margin-top:8px">Previous job they posted #2 (optional)</label>
+      <textarea id="cPrev2" placeholder="A second earlier job post (optional)" style="min-height:48px"></textarea>
+    </section>
+  </div>
 
-  <!-- STEP 2 -->
-  <section class="step">
-    <div class="step-h"><div class="step-n">2</div><div><div class="step-t">The client</div><div class="step-s">Type in what you know — the more you add, the sharper the pitch</div></div></div>
-    <div class="row2">
-      <div><label>Client name</label><input id="cName" placeholder="Sarah"></div>
-      <div><label>Company / brand</label><input id="cCompany" placeholder="Kiwi Spa"></div>
-    </div>
-    <label>Location (city + country)</label><input id="cLocation" placeholder="London, United Kingdom">
-    <label>Client history / what you know about them</label>
-    <textarea id="cHistory" placeholder="e.g. small skincare brand, posts inconsistently, hired 3 freelancers before, spends ~$500/project, friendly tone…" style="min-height:56px"></textarea>
-    <label style="margin-top:12px">Previous job they posted #1 (optional)</label>
-    <textarea id="cPrev1" placeholder="Paste one of their earlier job posts — helps the AI understand their bigger picture" style="min-height:48px"></textarea>
-    <label style="margin-top:8px">Previous job they posted #2 (optional)</label>
-    <textarea id="cPrev2" placeholder="A second earlier job post (optional)" style="min-height:48px"></textarea>
-    <div class="scanrow"><button class="btn gold" id="scanBtn">✨ Write my 4 outreach messages</button><button class="btn ghost" id="clearBtn">Clear</button></div>
-    <div class="hint" id="scanHint">Fill in the job + whatever you know about the client, then generate — you'll get a ready email, WhatsApp, Instagram and LinkedIn message to send them directly.</div>
-  </section>
+  <!-- INSTAGRAM MODE -->
+  <div id="modeIg" style="display:none">
+    <section class="step">
+      <div class="step-h"><div class="step-n">1</div><div><div class="step-t">The Instagram client</div><div class="step-s">A brand or creator you want to pitch — no job post needed</div></div></div>
+      <div class="row2">
+        <div><label>Their IG username</label><input id="igUser" placeholder="@kiwi.spa"></div>
+        <div><label>Their website (if any)</label><input id="igWebsite" placeholder="kiwi-spa.com or none"></div>
+      </div>
+      <label>What you found about them</label>
+      <textarea id="igAbout" placeholder="e.g. 12k followers, skincare brand in London, nice products but their link-in-bio is just a linktree, no real website, posts get good engagement…" style="min-height:56px"></textarea>
+      <label>What you're pitching them</label>
+      <textarea id="igPitching" placeholder="e.g. a modern 3D interactive website with online booking, or a batch of AI UGC ads…" style="min-height:48px"></textarea>
+      <label>Your goal with this outreach</label>
+      <input id="igGoal" placeholder="e.g. get them on a 15-min call / send them a free demo site / close a $300 project">
+    </section>
+  </div>
+
+  <div class="scanrow" style="margin:0 0 6px"><button class="btn gold" id="scanBtn" style="flex:1">✨ Write my 4 outreach messages</button><button class="btn ghost" id="clearBtn">Clear</button></div>
+  <div class="hint" id="scanHint">Fill in what you know, then generate — you'll get a ready email, WhatsApp, Instagram and LinkedIn message to send them directly.</div>
 
   <!-- STEP 3 -->
   <section class="step">
@@ -192,38 +217,106 @@
 
 <footer class="foot">PitchPilot · by Fuse · Paste the job. Get the pitch. Land the job.</footer>
 
-<div class="ov" id="subOv"><div class="modal">
-  <div style="font-size:34px">✈</div>
-  <h2>Unlock PitchPilot Pro</h2>
-  <p style="color:var(--muted);margin:0">You've used your 3 free pitches this month.</p>
-  <div class="price">₦3,000 <small>/ month</small></div>
-  <ul><li>Unlimited pitch kits</li><li>Unlimited portfolio projects</li><li>All contact-finder tools</li><li>New templates monthly</li></ul>
-  <a class="btn gold block" id="subPay" target="_blank" rel="noopener">📲 Subscribe on WhatsApp</a>
-  <button class="btn ghost block" id="subClose" style="margin-top:8px">Maybe later</button>
+<!-- PLANS -->
+<div class="ov" id="subOv"><div class="modal" style="max-width:460px;text-align:left">
+  <div style="text-align:center"><div style="font-size:30px">✈</div>
+  <h2 style="text-align:center">Upgrade PitchPilot</h2>
+  <p style="color:var(--muted);margin:0 0 12px;text-align:center;font-size:13px">Every new account gets 5 free pitches. Pick a plan to keep landing clients 👇</p></div>
+  <div style="display:grid;gap:10px">
+    <div style="background:var(--bg2);border:1px solid var(--line);border-radius:13px;padding:13px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><b>Starter</b><b style="color:var(--gold)">₦5,000<small style="color:var(--muted)">/mo</small></b></div>
+      <div style="font-size:12.5px;color:var(--muted);margin:3px 0 8px">100 pitches / month · all 4 channels · pitch journal</div>
+      <a class="btn gold sm block" href="https://wa.me/2349044558101?text=Hi%20Ria%21%20I%20want%20the%20PitchPilot%20STARTER%20plan%20%28%E2%82%A65%2C000%2Fmonth%2C%20100%20pitches%29.%20My%20PitchPilot%20email%20is%3A%20" target="_blank" rel="noopener">Get Starter</a>
+    </div>
+    <div style="background:var(--bg2);border:1.5px solid var(--gold-deep);border-radius:13px;padding:13px;position:relative">
+      <span style="position:absolute;top:-9px;right:12px;background:var(--gold);color:#1a1205;font-size:10px;font-weight:800;padding:2px 9px;border-radius:20px">MOST POPULAR</span>
+      <div style="display:flex;justify-content:space-between;align-items:center"><b>Pro</b><b style="color:var(--gold)">₦12,000<small style="color:var(--muted)">/mo</small></b></div>
+      <div style="font-size:12.5px;color:var(--muted);margin:3px 0 8px">300 pitches / month · everything in Starter</div>
+      <a class="btn gold sm block" href="https://wa.me/2349044558101?text=Hi%20Ria%21%20I%20want%20the%20PitchPilot%20PRO%20plan%20%28%E2%82%A612%2C000%2Fmonth%2C%20300%20pitches%29.%20My%20PitchPilot%20email%20is%3A%20" target="_blank" rel="noopener">Get Pro</a>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--line);border-radius:13px;padding:13px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><b>Agency</b><b style="color:var(--gold)">₦25,000<small style="color:var(--muted)">/mo</small></b></div>
+      <div style="font-size:12.5px;color:var(--muted);margin:3px 0 8px">1,000 pitches / month · for teams & heavy hitters</div>
+      <a class="btn gold sm block" href="https://wa.me/2349044558101?text=Hi%20Ria%21%20I%20want%20the%20PitchPilot%20AGENCY%20plan%20%28%E2%82%A625%2C000%2Fmonth%2C%201%2C000%20pitches%29.%20My%20PitchPilot%20email%20is%3A%20" target="_blank" rel="noopener">Get Agency</a>
+    </div>
+  </div>
+  <p style="font-size:11px;color:var(--muted);margin:10px 0 0;text-align:center">Pay via WhatsApp for now — your plan is activated on your email within minutes of payment.</p>
+  <button class="btn ghost block" id="subClose" style="margin-top:10px">Maybe later</button>
 </div></div>
 
+<!-- AUTH -->
+<div class="ov show" id="authOv"><div class="modal" style="max-width:380px">
+  <div style="font-size:32px">✈</div>
+  <h2 id="authTitle">Create your account</h2>
+  <p style="color:var(--muted);margin:0 0 14px;font-size:13.5px">🎁 New accounts get <b style="color:var(--gold)">5 free pitches</b>.</p>
+  <input id="authEmail" type="email" placeholder="you@email.com" autocomplete="email" style="text-align:left">
+  <input id="authPass" type="password" placeholder="Password (6+ characters)" autocomplete="current-password" style="margin-top:8px;text-align:left">
+  <button class="btn gold block" id="authGo" style="margin-top:12px">Create account</button>
+  <p style="font-size:12.5px;color:var(--muted);margin:10px 0 0">Already have an account? <a id="authSwap" style="color:var(--gold);cursor:pointer">Sign in</a></p>
+  <div id="authErr" style="color:#ff8080;font-size:13px;min-height:18px;margin-top:8px"></div>
+</div></div>
+
+<!-- ADMIN (visible to Ria only) -->
+<section class="step" id="adminBox" style="display:none;max-width:760px;margin:14px auto">
+  <div class="step-h"><div class="step-n">👑</div><div><div class="step-t">Admin — activate a buyer</div><div class="step-s">After they pay on WhatsApp</div></div></div>
+  <div class="row2">
+    <div><label>Buyer's email</label><input id="adEmail" placeholder="buyer@email.com"></div>
+    <div><label>Plan</label><select id="adPlan"><option value="starter">Starter · 100</option><option value="pro">Pro · 300</option><option value="agency">Agency · 1000</option><option value="free5">Reset to free 5</option></select></div>
+  </div>
+  <button class="btn gold sm" id="adGrant" style="margin-top:10px">Activate plan</button>
+  <span class="hint" id="adNote" style="display:inline-block;margin-left:8px;padding:6px 10px"></span>
+</section>
+
 <script>
-  // Private gate — only people with this passcode can use the tool.
-  // Change 'ria2026' to any code you like; share it only with yourself/your team.
-  const CFG={whatsapp:'2349044558101',freePerMonth:9999,gate:'ria2026'};
-  function gateInit(){
-    if(!CFG.gate){ return; } // no gate set = open to all
-    try{ if(localStorage.getItem('pp_gate_ok')===CFG.gate){ return; } }catch(e){}
-    const ov=document.createElement('div');
-    ov.style.cssText='position:fixed;inset:0;z-index:999;background:var(--bg);display:grid;place-items:center;padding:24px';
-    ov.innerHTML='<div style="max-width:340px;text-align:center"><div style="font-size:40px">✈️</div><h2 style="margin:8px 0 4px">PitchPilot</h2><p style="color:var(--muted);font-size:14px;margin:0 0 16px">Private tool — enter your passcode.</p><input id="gateInput" type="password" placeholder="Passcode" style="width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:11px;color:var(--ink);font-size:16px;padding:13px;text-align:center;margin-bottom:10px"><button id="gateBtn" class="btn gold block">Unlock</button><div id="gateErr" style="color:#ff8080;font-size:13px;height:18px;margin-top:8px"></div></div>';
-    document.body.appendChild(ov);
-    const tryUnlock=()=>{ const v=document.getElementById('gateInput').value.trim(); if(v===CFG.gate){ try{localStorage.setItem('pp_gate_ok',CFG.gate);}catch(e){} ov.remove(); } else { document.getElementById('gateErr').textContent='Wrong passcode'; } };
-    document.getElementById('gateBtn').onclick=tryUnlock;
-    document.getElementById('gateInput').addEventListener('keydown',(e)=>{ if(e.key==='Enter') tryUnlock(); });
-    document.getElementById('gateInput').focus();
-  }
   const $=(id)=>document.getElementById(id); const enc=encodeURIComponent; const rand=(a)=>a[Math.floor(Math.random()*a.length)];
-  const monthKey=()=>{const d=new Date();return 'pp_uses_'+d.getFullYear()+'_'+(d.getMonth()+1);};
-  function usesLeft(){const u=parseInt(localStorage.getItem(monthKey())||'0',10);return Math.max(0,CFG.freePerMonth-u);}
-  function isPro(){return localStorage.getItem('pp_pro')==='1';}
-  function refreshUses(){ $('usePill').innerHTML='✦ <b>Private</b>'; }
-  function spendUse(){ if(isPro())return; const k=monthKey(); localStorage.setItem(k,(parseInt(localStorage.getItem(k)||'0',10)+1)); refreshUses(); }
+  // Same Supabase project as Fuse Studio — one account works on both apps.
+  const SUPA_URL='https://rimsktvqmwmxchhivgmt.supabase.co';
+  const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpbXNrdHZxbXdteGNoaGl2Z210Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMDEzNDEsImV4cCI6MjA5NzU3NzM0MX0.cbA2fw-WBjGLR3NGp-8_kcE2oA1NdnN-CcxaeFsrNyY';
+  const sb=window.supabase.createClient(SUPA_URL,SUPA_KEY);
+  let me=null, myUsage=null, authMode='signup';
+
+  async function authHeader(){ const {data}=await sb.auth.getSession(); return data&&data.session?{Authorization:'Bearer '+data.session.access_token}:{}; }
+  function planLabel(p){ return p==='starter'?'Starter':p==='pro'?'Pro':p==='agency'?'Agency':'Free'; }
+  function refreshUses(){
+    if(!me){ $('usePill').innerHTML='Not signed in'; return; }
+    const u=myUsage||{uses_left:5,plan:'free'};
+    $('usePill').innerHTML=`✦ <b>${planLabel(u.plan)}</b> · ${u.uses_left} pitch${u.uses_left===1?'':'es'} left`;
+  }
+  async function loadUsage(){
+    if(!me) return;
+    try{ const {data}=await sb.from('pp_usage').select('*').eq('user_id',me.id).maybeSingle(); if(data) myUsage=data; else myUsage={uses_left:5,plan:'free'}; }catch(e){ myUsage={uses_left:5,plan:'free'}; }
+    refreshUses();
+  }
+  async function checkAdmin(){
+    if(!me) return;
+    try{ const {data}=await sb.from('profiles').select('is_admin').eq('id',me.id).maybeSingle(); if(data&&data.is_admin) $('adminBox').style.display='block'; }catch(e){}
+  }
+  async function authInit(){
+    const {data}=await sb.auth.getSession();
+    if(data&&data.session){ me=data.session.user; $('authOv').classList.remove('show'); $('outBtn').style.display='inline-flex'; await loadUsage(); checkAdmin(); }
+    else { me=null; $('authOv').classList.add('show'); refreshUses(); }
+  }
+  function swapAuth(){ authMode=authMode==='signup'?'signin':'signup';
+    $('authTitle').textContent=authMode==='signup'?'Create your account':'Welcome back';
+    $('authGo').textContent=authMode==='signup'?'Create account':'Sign in';
+    $('authSwap').textContent=authMode==='signup'?'Sign in':'Create one';
+    $('authErr').textContent=''; }
+  async function authGo(){
+    const email=$('authEmail').value.trim(), pass=$('authPass').value;
+    if(!email||pass.length<6){ $('authErr').textContent='Enter your email and a password of 6+ characters.'; return; }
+    $('authGo').disabled=true; $('authGo').textContent='One sec…';
+    try{
+      let res = authMode==='signup' ? await sb.auth.signUp({email,password:pass}) : await sb.auth.signInWithPassword({email,password:pass});
+      if(res.error) throw res.error;
+      if(authMode==='signup' && res.data && !res.data.session){
+        // fall back to sign-in if the account already existed
+        res = await sb.auth.signInWithPassword({email,password:pass});
+        if(res.error) throw new Error('Check your email to confirm your account, then sign in.');
+      }
+      await authInit();
+    }catch(e){ $('authErr').textContent=e.message||'Could not sign you in.'; }
+    $('authGo').disabled=false; $('authGo').textContent=authMode==='signup'?'Create account':'Sign in';
+  }
 
   // ---------- PROFILE ----------
   function getProfile(){ try{return JSON.parse(localStorage.getItem('pp_profile')||'{}');}catch(e){return{};} }
@@ -282,29 +375,41 @@
   function sentChannels(){ return Array.from($('chanTrack').querySelectorAll('.chanBox:checked')).map(cb=>cb.dataset.k); }
   function setLoading(on,msg){ const b=$('scanBtn'); b.disabled=on; b.innerHTML=on?('<span class="spin"></span>'+(msg||'Writing…')):'✨ Write my 4 outreach messages'; }
 
+  let mode='job';
   async function aiGenerate(){
-    if(!isPro()&&usesLeft()<=0){ $('subOv').classList.add('show'); return; }
-    const jobText=$('jobInput').value.trim();
-    if(!jobText){ $('scanHint').innerHTML='Paste the job post first.'; return; }
+    if(!me){ $('authOv').classList.add('show'); return; }
+    const payload={mode, profile:getProfile(), projects:getProjects(), extra:$('extraInfo').value.trim()};
+    let pickKey='';
+    if(mode==='job'){
+      const jobText=$('jobInput').value.trim();
+      if(!jobText){ $('scanHint').innerHTML='Paste the job post first.'; return; }
+      payload.jobText=jobText;
+      payload.client={ name:$('cName').value.trim(), company:$('cCompany').value.trim(), location:$('cLocation').value.trim(), history:$('cHistory').value.trim() };
+      payload.prevJobs=[$('cPrev1').value.trim(), $('cPrev2').value.trim()].filter(Boolean);
+      payload.project=pickProject(jobText,payload.client.company);
+      pickKey=payload.client.company||payload.client.name;
+    } else {
+      const igUser=$('igUser').value.trim();
+      if(!igUser){ $('scanHint').innerHTML='Enter their Instagram username first.'; return; }
+      payload.ig={ username:igUser, website:$('igWebsite').value.trim(), about:$('igAbout').value.trim(), pitching:$('igPitching').value.trim(), goal:$('igGoal').value.trim() };
+      payload.project=pickProject(payload.ig.about+' '+payload.ig.pitching, igUser);
+      pickKey=igUser;
+    }
     setLoading(true,'Writing your messages…');
-    const profile=getProfile();
-    const projects=getProjects();
-    const project=pickProject(jobText,$('cCompany').value.trim());
-    const extra=$('extraInfo').value.trim();
-    const client={ name:$('cName').value.trim(), company:$('cCompany').value.trim(), location:$('cLocation').value.trim(), history:$('cHistory').value.trim() };
-    const prevJobs=[$('cPrev1').value.trim(), $('cPrev2').value.trim()].filter(Boolean);
     try{
-      const r=await fetch('/.netlify/functions/pitch-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jobText,client,prevJobs,profile,projects,project,extra})});
+      const r=await fetch('/.netlify/functions/pitch-ai',{method:'POST',headers:{'Content-Type':'application/json',...(await authHeader())},body:JSON.stringify(payload)});
       const d=await r.json();
+      if(r.status===401){ $('authOv').classList.add('show'); throw new Error('Please sign in.'); }
+      if(r.status===402){ $('subOv').classList.add('show'); throw new Error('You\'ve used all your pitches — pick a plan to continue.'); }
       if(!r.ok||!d.pitches) throw new Error(d.error||'AI failed');
+      if(typeof d.uses_left==='number'&&myUsage){ myUsage.uses_left=d.uses_left; refreshUses(); }
       if(d.projectSuggestion){ $('projSuggest').style.display='block'; $('projSuggest').innerHTML='💡 <b>Claude suggests:</b> '+esc(d.projectSuggestion); }
       showPitches(d.pitches);
-      window._lastClient=(client.company||client.name||'Client');
-      spendUse();
+      window._lastClient=pickKey||'Client';
       $('out').classList.add('show'); $('out').scrollIntoView({behavior:'smooth'});
-      $('scanHint').innerHTML='✅ Done — your 4 messages are below. Edit the details and re-write anytime. Reach out on at least 3 channels per client.';
+      $('scanHint').innerHTML='✅ Done — your 4 messages are below. Edit anything and re-write anytime. Reach out on at least 3 channels per client.';
     }catch(e){
-      $('scanHint').innerHTML='⚠ '+(e.message||'Could not generate')+' — check MUAPI_KEY is set on this Netlify site, then try again.';
+      $('scanHint').innerHTML='⚠ '+(e.message||'Could not generate');
     }
     setLoading(false);
   }
@@ -326,13 +431,33 @@
 
   // ---------- wiring ----------
   $('scanBtn').onclick=aiGenerate;
-  $('clearBtn').onclick=()=>{ ['jobInput','cName','cCompany','cLocation','cHistory','cPrev1','cPrev2','extraInfo'].forEach(id=>{const el=$(id); if(el) el.value='';}); $('projSuggest').style.display='none'; $('out').classList.remove('show'); $('scanHint').innerHTML='Fill in the job + whatever you know about the client, then generate your 4 messages.'; };
-  function subLink(){const msg=enc('Hi! I want to subscribe to PitchPilot Pro (₦3,000/month). My name: ');return `https://wa.me/${CFG.whatsapp}?text=${msg}`;}
+  $('clearBtn').onclick=()=>{ ['jobInput','cName','cCompany','cLocation','cHistory','cPrev1','cPrev2','extraInfo','igUser','igWebsite','igAbout','igPitching','igGoal'].forEach(id=>{const el=$(id); if(el) el.value='';}); $('projSuggest').style.display='none'; $('out').classList.remove('show'); $('scanHint').innerHTML='Fill in what you know, then generate your 4 messages.'; };
+  function setMode(m){ mode=m;
+    $('modeJob').style.display=m==='job'?'block':'none';
+    $('modeIg').style.display=m==='instagram'?'block':'none';
+    $('tabJob').className='btn '+(m==='job'?'gold':'ghost');
+    $('tabIg').className='btn '+(m==='instagram'?'gold':'ghost');
+  }
+  $('tabJob').onclick=()=>setMode('job');
+  $('tabIg').onclick=()=>setMode('instagram');
   $('subBtn').onclick=()=>$('subOv').classList.add('show');
   $('subClose').onclick=()=>$('subOv').classList.remove('show');
   $('subOv').onclick=(e)=>{ if(e.target===$('subOv'))$('subOv').classList.remove('show'); };
-  $('subPay').href=subLink();
-  loadProfile(); renderProjects(); refreshUses(); loadJournal(); gateInit();
+  $('authGo').onclick=authGo;
+  $('authSwap').onclick=swapAuth;
+  $('authPass').addEventListener('keydown',(e)=>{ if(e.key==='Enter') authGo(); });
+  $('outBtn').onclick=async()=>{ await sb.auth.signOut(); location.reload(); };
+  $('adGrant').onclick=async()=>{
+    const email=$('adEmail').value.trim(); if(!email){ $('adNote').textContent='Enter the buyer email'; return; }
+    $('adGrant').disabled=true; $('adGrant').textContent='Activating…';
+    try{
+      const r=await fetch('/.netlify/functions/pp-grant',{method:'POST',headers:{'Content-Type':'application/json',...(await authHeader())},body:JSON.stringify({email,plan:$('adPlan').value})});
+      const d=await r.json();
+      $('adNote').textContent=r.ok?('✅ '+d.email+' → '+d.plan+' ('+d.uses+' pitches)'):('⚠ '+(d.error||'failed'));
+    }catch(e){ $('adNote').textContent='⚠ '+e.message; }
+    $('adGrant').disabled=false; $('adGrant').textContent='Activate plan';
+  };
+  loadProfile(); renderProjects(); loadJournal(); setMode('job'); authInit();
 </script>
 </body>
 </html>
