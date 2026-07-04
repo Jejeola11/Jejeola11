@@ -100,7 +100,7 @@
 
 <header class="nav"><div class="wrap in">
   <div class="logo"><span class="m">✈</span> PitchPilot</div>
-  <div class="uses"><span class="usepill" id="usePill">Free uses: <b id="useN">3</b>/3</span><button class="btn gold sm" id="subBtn">Go Pro</button></div>
+  <div class="uses"><span class="usepill" id="usePill">✦ <b>Private</b></span><button class="btn gold sm" id="subBtn" style="display:none">Go Pro</button></div>
 </div></header>
 
 <main class="wrap">
@@ -135,77 +135,51 @@
 
   <!-- STEP 1 -->
   <section class="step">
-    <div class="step-h"><div class="step-n">1</div><div><div class="step-t">Paste the job post</div><div class="step-s">When logged into Upwork, copy the job text and paste it (most reliable)</div></div></div>
-    <textarea id="jobInput" placeholder="Paste the full job text here (title + description + 'About the client' location)…"></textarea>
-
-    <label style="margin-top:14px">Other job posts from this client (optional)</label>
-    <p class="hint" style="margin-top:0">Paste up to 4 of their other posts — the AI checks all of them for a recurring company name.</p>
-    <textarea id="otherPosts" placeholder="Paste other job posts from the same client here…" style="min-height:56px"></textarea>
-
-    <label style="margin-top:14px">Client's feedback / reviews section (optional)</label>
-    <p class="hint" style="margin-top:0">On their Upwork profile, copy the "Feedback given" section — it often reveals their real name and how other freelancers address them.</p>
-    <textarea id="feedbackText" placeholder="Paste the client's feedback/reviews section here…" style="min-height:56px"></textarea>
-
-    <div class="scanrow"><button class="btn gold" id="scanBtn">✨ Generate everything (AI)</button><button class="btn ghost" id="clearBtn">Clear</button></div>
-    <div class="hint" id="scanHint">Paste the job (and the extra context above if you have it), hit Generate — AI reads it all, finds the client's contacts, and writes all 6 pitches. Open the job (you're logged in), select all, copy, paste here.</div>
+    <div class="step-h"><div class="step-n">1</div><div><div class="step-t">Paste the job post</div><div class="step-s">The job or project they need done</div></div></div>
+    <textarea id="jobInput" placeholder="Paste the full job / project description here…"></textarea>
   </section>
 
   <!-- STEP 2 -->
   <section class="step">
-    <div class="step-h"><div class="step-n">2</div><div><div class="step-t">Client details</div><div class="step-s">Auto-filled where possible</div></div></div>
+    <div class="step-h"><div class="step-n">2</div><div><div class="step-t">The client</div><div class="step-s">Type in what you know — the more you add, the sharper the pitch</div></div></div>
     <div class="row2">
-      <div><label>Client first name</label><input id="cName" placeholder="Sarah"></div>
+      <div><label>Client name</label><input id="cName" placeholder="Sarah"></div>
       <div><label>Company / brand</label><input id="cCompany" placeholder="Kiwi Spa"></div>
     </div>
-    <label>Location (state/city + country — fill in what you found)</label><input id="cLocation" placeholder="San Diego, California, United States">
-    <label>The job (what they need)</label><textarea id="cBrief" placeholder="AI UGC videos for skincare products, 4 per month…"></textarea>
+    <label>Location (city + country)</label><input id="cLocation" placeholder="London, United Kingdom">
+    <label>Client history / what you know about them</label>
+    <textarea id="cHistory" placeholder="e.g. small skincare brand, posts inconsistently, hired 3 freelancers before, spends ~$500/project, friendly tone…" style="min-height:56px"></textarea>
+    <label style="margin-top:12px">Previous job they posted #1 (optional)</label>
+    <textarea id="cPrev1" placeholder="Paste one of their earlier job posts — helps the AI understand their bigger picture" style="min-height:48px"></textarea>
+    <label style="margin-top:8px">Previous job they posted #2 (optional)</label>
+    <textarea id="cPrev2" placeholder="A second earlier job post (optional)" style="min-height:48px"></textarea>
+    <div class="scanrow"><button class="btn gold" id="scanBtn">✨ Write my 4 outreach messages</button><button class="btn ghost" id="clearBtn">Clear</button></div>
+    <div class="hint" id="scanHint">Fill in the job + whatever you know about the client, then generate — you'll get a ready email, WhatsApp, Instagram and LinkedIn message to send them directly.</div>
   </section>
 
   <!-- STEP 3 -->
   <section class="step">
-    <div class="step-h"><div class="step-n">3</div><div><div class="step-t">Find their contact info</div><div class="step-s">Tap each — opens a pre-filled search</div></div></div>
-    <div class="links" id="findLinks"></div>
-    <div class="hint">Google first (full name + LinkedIn) → ContactOut / Hunter for email & WhatsApp → check Instagram. Paste what you find 👇</div>
-    <div class="row2" style="margin-top:12px">
-      <div><label>Full name</label><input id="fName" placeholder="Sarah Bethke"></div>
-      <div><label>Email</label><input id="fEmail" placeholder="sarah@kiwispa.com"></div>
-    </div>
-    <div class="row2">
-      <div><label>LinkedIn URL</label><input id="fLinkedin" placeholder="linkedin.com/in/…"></div>
-      <div><label>Instagram (optional)</label><input id="fIg" placeholder="@kiwi.spa"></div>
-    </div>
-    <div class="row2">
-      <div><label>Website</label><input id="fSite" placeholder="kiwi-spa.com"></div>
-      <div><label>WhatsApp (optional)</label><input id="fWa" placeholder="+1…"></div>
-    </div>
-  </section>
-
-  <!-- STEP 4 -->
-  <section class="step">
-    <div class="step-h"><div class="step-n">4</div><div><div class="step-t">Generate my pitch</div><div class="step-s">Pick a project to feature + add anything extra</div></div></div>
+    <div class="step-h"><div class="step-n">3</div><div><div class="step-t">Your 4 outreach messages</div><div class="step-s">Pick a project to feature + add anything extra</div></div></div>
     <div class="hint" id="projSuggest" style="display:none"></div>
     <label>Feature this project</label>
     <select id="projSelect"></select>
     <label>Anything else to include? (optional)</label>
-    <textarea id="extraInfo" placeholder="e.g. mention I'm available immediately, I speak Spanish, I'll throw in a free revision, a specific idea for their brand…"></textarea>
-    <button class="btn gold block" id="genBtn" style="margin-top:14px">🔁 Re-write pitches with my edits</button>
+    <textarea id="extraInfo" placeholder="e.g. I can start immediately, I'll send a free demo of their site, a specific idea for their brand…"></textarea>
+    <button class="btn gold block" id="genBtn" style="margin-top:14px">🔁 Re-write messages with my edits</button>
 
     <div class="out" id="out">
-      <div class="pitch"><div class="ph"><span class="pt">📋 UPWORK PROPOSAL</span><button class="copy" data-c="upwork">⧉ Copy</button></div><pre id="pUpwork"></pre></div>
-      <div class="pitch"><div class="ph"><span class="pt">💼 LINKEDIN — LONG DM</span><button class="copy" data-c="li">⧉ Copy</button></div><pre id="pLi"></pre></div>
-      <div class="pitch"><div class="ph"><span class="pt">🔗 LINKEDIN — CONNECT NOTE (under 200 chars)</span><button class="copy" data-c="inv">⧉ Copy</button></div><pre id="pInv"></pre></div>
+      <div class="pitch"><div class="ph"><span class="pt">📧 EMAIL</span><button class="copy" data-c="email">⧉ Copy</button></div><pre id="pEmail"></pre></div>
       <div class="pitch"><div class="ph"><span class="pt">💬 WHATSAPP</span><button class="copy" data-c="wa">⧉ Copy</button></div><pre id="pWa"></pre></div>
       <div class="pitch"><div class="ph"><span class="pt">📸 INSTAGRAM DM</span><button class="copy" data-c="ig">⧉ Copy</button></div><pre id="pIg"></pre></div>
-      <div class="pitch"><div class="ph"><span class="pt">📧 EMAIL</span><button class="copy" data-c="email">⧉ Copy</button></div><pre id="pEmail"></pre></div>
+      <div class="pitch"><div class="ph"><span class="pt">💼 LINKEDIN MESSAGE</span><button class="copy" data-c="li">⧉ Copy</button></div><pre id="pLi"></pre></div>
+      <div class="pitch"><div class="ph"><span class="pt">🔗 LINKEDIN CONNECT NOTE (under 200 chars)</span><button class="copy" data-c="inv">⧉ Copy</button></div><pre id="pInv"></pre></div>
 
-      <label style="margin-top:16px">✅ How to secure this job</label>
+      <label style="margin-top:16px">✅ How to secure this client</label>
       <div class="checklist" id="secureList"></div>
 
-      <label style="margin-top:16px">Channels sent — aim for at least 3 of 6 per job <span id="chanCount" style="color:var(--gold)"></span></label>
+      <label style="margin-top:16px">Channels sent — aim for 3+ per client <span id="chanCount" style="color:var(--gold)"></span></label>
       <div class="checklist" id="chanTrack"></div>
 
-      <label style="margin-top:16px">Send on these channels</label>
-      <div class="links" id="sendLinks"></div>
       <button class="btn ghost block" id="logBtn" style="margin-top:14px">＋ Save to my pitch journal</button>
     </div>
   </section>
@@ -229,12 +203,26 @@
 </div></div>
 
 <script>
-  const CFG={whatsapp:'2349044558101',freePerMonth:3};
+  // Private gate — only people with this passcode can use the tool.
+  // Change 'ria2026' to any code you like; share it only with yourself/your team.
+  const CFG={whatsapp:'2349044558101',freePerMonth:9999,gate:'ria2026'};
+  function gateInit(){
+    if(!CFG.gate){ return; } // no gate set = open to all
+    try{ if(localStorage.getItem('pp_gate_ok')===CFG.gate){ return; } }catch(e){}
+    const ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;z-index:999;background:var(--bg);display:grid;place-items:center;padding:24px';
+    ov.innerHTML='<div style="max-width:340px;text-align:center"><div style="font-size:40px">✈️</div><h2 style="margin:8px 0 4px">PitchPilot</h2><p style="color:var(--muted);font-size:14px;margin:0 0 16px">Private tool — enter your passcode.</p><input id="gateInput" type="password" placeholder="Passcode" style="width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:11px;color:var(--ink);font-size:16px;padding:13px;text-align:center;margin-bottom:10px"><button id="gateBtn" class="btn gold block">Unlock</button><div id="gateErr" style="color:#ff8080;font-size:13px;height:18px;margin-top:8px"></div></div>';
+    document.body.appendChild(ov);
+    const tryUnlock=()=>{ const v=document.getElementById('gateInput').value.trim(); if(v===CFG.gate){ try{localStorage.setItem('pp_gate_ok',CFG.gate);}catch(e){} ov.remove(); } else { document.getElementById('gateErr').textContent='Wrong passcode'; } };
+    document.getElementById('gateBtn').onclick=tryUnlock;
+    document.getElementById('gateInput').addEventListener('keydown',(e)=>{ if(e.key==='Enter') tryUnlock(); });
+    document.getElementById('gateInput').focus();
+  }
   const $=(id)=>document.getElementById(id); const enc=encodeURIComponent; const rand=(a)=>a[Math.floor(Math.random()*a.length)];
   const monthKey=()=>{const d=new Date();return 'pp_uses_'+d.getFullYear()+'_'+(d.getMonth()+1);};
   function usesLeft(){const u=parseInt(localStorage.getItem(monthKey())||'0',10);return Math.max(0,CFG.freePerMonth-u);}
   function isPro(){return localStorage.getItem('pp_pro')==='1';}
-  function refreshUses(){ if(isPro()){$('usePill').innerHTML='✦ <b>Pro</b> · unlimited';return;} $('useN').textContent=usesLeft(); }
+  function refreshUses(){ $('usePill').innerHTML='✦ <b>Private</b>'; }
   function spendUse(){ if(isPro())return; const k=monthKey(); localStorage.setItem(k,(parseInt(localStorage.getItem(k)||'0',10)+1)); refreshUses(); }
 
   // ---------- PROFILE ----------
@@ -273,95 +261,12 @@
     return best;
   }
 
-  // ---------- SCAN ----------
-  const COUNTRIES=['United States','United Kingdom','Canada','Australia','Germany','France','Netherlands','Ireland','Spain','Italy','Sweden','Norway','Denmark','Switzerland','New Zealand','Singapore','United Arab Emirates','Nigeria','South Africa','India','Belgium','Portugal','Austria'];
-  const US_STATES=['California','Texas','New York','Florida','Washington','Illinois','Georgia','Colorado','Arizona','Massachusetts','Oregon','Nevada','Virginia','Ohio','Michigan','North Carolina','New Jersey'];
-  function parseText(t){
-    const out={location:'',company:'',name:'',brief:''}; const text=t.replace(/\s+/g,' ').trim();
-    out.brief=t.trim().slice(0,1400);
-    let loc='';
-    for(const c of COUNTRIES){ if(text.includes(c)){loc=c;break;} }
-    for(const s of US_STATES){ if(text.includes(s)){loc=loc?(s+', '+loc):s;break;} }
-    const cityM=text.match(/(?:located in|based in|from)\s+([A-Z][a-zA-Z]+(?:,?\s[A-Z][a-zA-Z]+){0,2})/); if(cityM) loc=cityM[1];
-    out.location=loc;
-    const compM=text.match(/(?:at|for|brand called|company called|our brand|we['’]re|we are)\s+([A-Z][A-Za-z0-9&'’\.\- ]{2,28}?)(?:[\.,]|\s(?:and|is|are|that|which|—|-))/); if(compM) out.company=compM[1].trim();
-    const nameM=text.match(/(?:working with|thanks to|thank you,?|great working with|—)\s+([A-Z][a-z]+)\b/); if(nameM) out.name=nameM[1];
-    return out;
-  }
-  function applyParsed(p){
-    if(p.location&&!$('cLocation').value)$('cLocation').value=p.location;
-    if(p.company&&!$('cCompany').value)$('cCompany').value=p.company;
-    if(p.name&&!$('cName').value)$('cName').value=p.name;
-    if(p.brief&&!$('cBrief').value)$('cBrief').value=p.brief;
-    buildFindLinks();
-  }
-  async function scan(){
-    const raw=$('jobInput').value.trim(); if(!raw){ $('scanHint').innerHTML='Paste the job text or a link first.'; return; }
-    const isUrl=/^https?:\/\//i.test(raw)&&raw.length<300&&!raw.includes(' ');
-    $('scanBtn').disabled=true; $('scanBtn').innerHTML='<span class="spin"></span>Scanning…';
-    try{
-      if(isUrl){
-        try{
-          const r=await fetch('/.netlify/functions/parse-job?url='+enc(raw)); const d=await r.json();
-          if(r.ok&&d&&d.ok&&d.text){ applyParsed(parseText(d.text)); $('scanHint').innerHTML='✅ Scanned from the link. Check the details below.'; }
-          else throw new Error('blocked');
-        }catch(e){ $('scanHint').innerHTML='⚠ That link needs a login or blocks bots (normal for Upwork saved jobs). <b>Open the job, select all, copy, and paste the text here</b> — then Scan again. Works every time.'; }
-      } else { applyParsed(parseText(raw)); $('scanHint').innerHTML='✅ Scanned. The client name usually comes from the feedback section — add it if missing.'; }
-    } finally { $('scanBtn').disabled=false; $('scanBtn').innerHTML='🔎 Scan job'; }
-  }
-
-  // ---------- FIND LINKS ----------
-  function buildFindLinks(){
-    const n=$('cName').value.trim(),co=$('cCompany').value.trim(),loc=$('cLocation').value.trim();
-    const q=`"${n}" founder of "${co}" "${loc}"`;
-    const links=[
-      {e:'🔎',t:'Google the founder',d:'Full name + LinkedIn',u:`https://www.google.com/search?q=${enc(q)}`},
-      {e:'💼',t:'LinkedIn search',d:'Their profile',u:`https://www.google.com/search?q=${enc(co+' '+n+' linkedin')}`},
-      {e:'📇',t:'ContactOut',d:'Email + phone',u:'https://contactout.com/'},
-      {e:'✉️',t:'Hunter.io',d:'Company email',u:`https://hunter.io/search/${enc(co)}`},
-      {e:'📸',t:'Instagram',d:'Brand page',u:`https://www.instagram.com/explore/search/keyword/?q=${enc(co)}`},
-      {e:'🌐',t:'Company website',d:'Contact page',u:`https://www.google.com/search?q=${enc(co+' official website')}`},
-    ];
-    $('findLinks').innerHTML=links.map(l=>`<div class="lk" data-u="${l.u}"><div class="e">${l.e}</div><div><div class="t">${l.t}</div><div class="d">${l.d}</div></div></div>`).join('');
-    $('findLinks').querySelectorAll('.lk').forEach(el=>el.onclick=()=>window.open(el.dataset.u,'_blank'));
-  }
-  ['cName','cCompany','cLocation'].forEach(id=>$(id).addEventListener('input',buildFindLinks));
-
   // ---------- PITCH ----------
-  function genPitch(d){
-    const prof=getProfile();
-    const name=d.name||'there', co=d.company||'your brand';
-    const myName=prof.name||'[Your name]';
-    const offer=prof.offer||'AI-generated UGC & product-ad videos, 24-48h turnaround, $50-$200 per video, unlimited revisions';
-    const port=d.port||prof.port||''; const portLine=port?(' Portfolio: '+port):'';
-    const what=d.brief? (d.brief.length>110?'the content you described':'your '+d.brief.replace(/\.$/,'')) : 'your content';
-    const proj=d.project;
-    const projLine = proj ? ` I recently made "${proj.title}"${proj.desc?(' — '+proj.desc):''}${proj.link?(' ('+proj.link+')'):''}, which is close to what you need.` : '';
-    const extra = d.extra ? (' '+d.extra.trim()) : '';
-    const obsv=rand([`I came across ${co} and loved what you're building`,`I've been following ${co} and the brand really stands out`,`${co} caught my eye — there's so much potential in your content`]);
-    const soft=rand([`Want me to send a quick free sample made for ${co}, no obligation?`,`Happy to make you one free sample for ${co} first so you can judge the quality. Interested?`]);
-    const email=`Subject: Quick idea for ${co}'s content\n\nHi ${name},\n\n${obsv}. I ${offer}.${projLine} For ${what}, I can deliver a batch you can post straight away.${extra}\n\n${soft}${portLine}\n\nBest,\n${myName}`;
-    const wa=`Hi ${name}! 👋 ${obsv}. I do ${offer}.${proj?(' Recently made "'+proj.title+'".'):''}${extra} ${soft}`;
-    const ig=`Heyy ${name}! 🙌 ${obsv}. I create AI UGC ads that look like a real person made them — quick & high-converting.${proj?(' (e.g. "'+proj.title+'")'):''} Mind if I send a free sample for ${co}?`;
-    const li=`Hi ${name},\n\n${obsv}. I help brands like ${co} get scroll-stopping content without a shoot — I ${offer}.${projLine} For ${what}, I'd love to send a free sample first.${extra}\n\nOpen to it?${portLine}\n\nBest,\n${myName}`;
-    const inv=`Hi ${name}! I make AI UGC & product-ad videos for brands like ${co} — would love to connect and send a quick free sample. 🎬`.slice(0,199);
-    const upwork=`Hi ${name},\n\nI see you're looking for ${what}. I ${offer}.${projLine}\n\nHERE'S WHAT I'D CREATE FOR YOU:\n→ Content matched to your exact brief\n→ Consistent AI character tailored to your brand\n→ Fast turnaround, unlimited revisions until it's right\n\n${soft}${portLine}\n\nMy process: you share brand/product details → I send a draft in 24h → you approve → final delivery in 24h.\n\nBest,\n${myName}`;
-    return {email,wa,ig,li,inv,upwork};
-  }
-  function sendLinks(d){
-    const out=[];
-    if(d.email)out.push({e:'✉️',t:'Email',d:d.email,u:`mailto:${d.email}?subject=${enc('Quick idea for '+(d.company||'your brand'))}`});
-    if(d.linkedin)out.push({e:'💼',t:'LinkedIn',d:'Message + invite',u:d.linkedin.startsWith('http')?d.linkedin:'https://'+d.linkedin});
-    if(d.ig){const h=d.ig.replace('@','');out.push({e:'📸',t:'Instagram DM',d:'@'+h,u:`https://instagram.com/${h}`});}
-    if(d.wa){const w=d.wa.replace(/[^0-9]/g,'');out.push({e:'💬',t:'WhatsApp',d:d.wa,u:`https://wa.me/${w}`});}
-    if(d.site)out.push({e:'🌐',t:'Website',d:d.site,u:d.site.startsWith('http')?d.site:'https://'+d.site});
-    return out;
-  }
-  const SECURE=['Reply within the hour — speed beats a perfect late message.','Lead with a free sample: "I already made you a quick one."','Quote a clear price ($50–$200) + 24–48h turnaround.','No reply in 24h? Send a one-line friendly nudge.','Move it to a 15-min call to close.'];
-  const CHANNELS=[{k:'upwork',e:'📋',t:'Upwork proposal'},{k:'li',e:'💼',t:'LinkedIn DM'},{k:'inv',e:'🔗',t:'LinkedIn connect'},{k:'wa',e:'💬',t:'WhatsApp'},{k:'ig',e:'📸',t:'Instagram'},{k:'email',e:'📧',t:'Email'}];
+  const SECURE=['Personalise the first line — prove you looked at THEIR business.','Lead with value: offer a free demo/mockup of their site.','Reply fast — speed beats a perfect late message.','No reply in 2-3 days? Send one friendly nudge.','Move it to a 15-min call to close.'];
+  const CHANNELS=[{k:'email',e:'📧',t:'Email'},{k:'wa',e:'💬',t:'WhatsApp'},{k:'ig',e:'📸',t:'Instagram'},{k:'li',e:'💼',t:'LinkedIn'}];
   function showPitches(p){
-    $('pUpwork').textContent=p.upwork||''; $('pEmail').textContent=p.email||''; $('pWa').textContent=p.whatsapp||p.wa||''; $('pIg').textContent=p.instagram||p.ig||'';
-    $('pLi').textContent=p.linkedin||p.li||''; $('pInv').textContent=p.invite||p.inv||'';
+    $('pEmail').textContent=p.email||''; $('pWa').textContent=p.whatsapp||p.wa||''; $('pIg').textContent=p.instagram||p.ig||'';
+    $('pLi').textContent=p.linkedin||p.li||''; $('pInv').textContent=p.connect||p.invite||p.inv||'';
     $('secureList').innerHTML=SECURE.map(t=>`<div class="c"><span class="b">✓</span><span>${t}</span></div>`).join('');
     renderChanTrack();
   }
@@ -372,83 +277,48 @@
   }
   function updateChanCount(){
     const n=$('chanTrack').querySelectorAll('.chanBox:checked').length;
-    $('chanCount').textContent=`(${n}/6)`+(n>=3?' ✅':'');
+    $('chanCount').textContent=`(${n}/4)`+(n>=3?' ✅':'');
   }
   function sentChannels(){ return Array.from($('chanTrack').querySelectorAll('.chanBox:checked')).map(cb=>cb.dataset.k); }
-  function curContact(){ return { email:$('fEmail').value.trim(), linkedin:$('fLinkedin').value.trim(), ig:$('fIg').value.trim(), site:$('fSite').value.trim(), wa:$('fWa').value.trim(), company:$('cCompany').value.trim() }; }
-  function rebuildSendLinks(){
-    const sl=sendLinks(curContact());
-    $('sendLinks').innerHTML=sl.length?sl.map(l=>`<div class="lk" data-u="${l.u}"><div class="e">${l.e}</div><div><div class="t">${l.t}</div><div class="d">${l.d}</div></div></div>`).join('') : '<div class="empty">Contacts will appear here once found.</div>';
-    $('sendLinks').querySelectorAll('.lk').forEach(el=>el.onclick=()=>window.open(el.dataset.u,'_blank'));
-  }
-  function setLoading(on,msg){ const b=$('scanBtn'); b.disabled=on; b.innerHTML=on?('<span class="spin"></span>'+(msg||'Working…')):'✨ Generate everything (AI)'; }
-
-  async function findContacts(){
-    const name=$('cName').value.trim(),company=$('cCompany').value.trim(),location=$('cLocation').value.trim();
-    if(!name&&!company) return;
-    try{
-      const r=await fetch('/.netlify/functions/find-contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,company,location})});
-      const d=await r.json();
-      if(d&&d.ok){
-        if(d.email&&!$('fEmail').value)$('fEmail').value=d.email;
-        if(d.linkedin&&!$('fLinkedin').value)$('fLinkedin').value=d.linkedin;
-        if(d.instagram&&!$('fIg').value)$('fIg').value=d.instagram.replace(/https?:\/\/(www\.)?instagram\.com\//,'@').replace(/\/$/,'');
-        if(d.website&&!$('fSite').value)$('fSite').value=d.website;
-        rebuildSendLinks();
-      }
-    }catch(e){}
-  }
+  function setLoading(on,msg){ const b=$('scanBtn'); b.disabled=on; b.innerHTML=on?('<span class="spin"></span>'+(msg||'Writing…')):'✨ Write my 4 outreach messages'; }
 
   async function aiGenerate(){
     if(!isPro()&&usesLeft()<=0){ $('subOv').classList.add('show'); return; }
-    const jobText=($('jobInput').value.trim()||$('cBrief').value.trim());
-    if(!jobText){ $('scanHint').innerHTML='Paste the job text first.'; return; }
-    setLoading(true,'Reading the job…');
+    const jobText=$('jobInput').value.trim();
+    if(!jobText){ $('scanHint').innerHTML='Paste the job post first.'; return; }
+    setLoading(true,'Writing your messages…');
     const profile=getProfile();
     const projects=getProjects();
     const project=pickProject(jobText,$('cCompany').value.trim());
     const extra=$('extraInfo').value.trim();
-    const otherPosts=$('otherPosts').value.trim();
-    const feedbackText=$('feedbackText').value.trim();
-    const location=$('cLocation').value.trim();
+    const client={ name:$('cName').value.trim(), company:$('cCompany').value.trim(), location:$('cLocation').value.trim(), history:$('cHistory').value.trim() };
+    const prevJobs=[$('cPrev1').value.trim(), $('cPrev2').value.trim()].filter(Boolean);
     try{
-      const r=await fetch('/.netlify/functions/pitch-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jobText,otherPosts,feedbackText,location,profile,projects,project,extra})});
+      const r=await fetch('/.netlify/functions/pitch-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jobText,client,prevJobs,profile,projects,project,extra})});
       const d=await r.json();
       if(!r.ok||!d.pitches) throw new Error(d.error||'AI failed');
-      const c=d.client||{};
-      if(c.firstName)$('cName').value=c.firstName;
-      if(c.company)$('cCompany').value=c.company;
-      if(c.location&&!location)$('cLocation').value=c.location;
-      if(c.summary&&!$('cBrief').value)$('cBrief').value=c.summary;
       if(d.projectSuggestion){ $('projSuggest').style.display='block'; $('projSuggest').innerHTML='💡 <b>Claude suggests:</b> '+esc(d.projectSuggestion); }
-      showPitches(d.pitches); buildFindLinks(); rebuildSendLinks();
-      window._lastClient=($('cCompany').value.trim()||$('cName').value.trim()||'Client');
+      showPitches(d.pitches);
+      window._lastClient=(client.company||client.name||'Client');
       spendUse();
       $('out').classList.add('show'); $('out').scrollIntoView({behavior:'smooth'});
-      setLoading(true,'Finding contacts…'); await findContacts();
-      $('scanHint').innerHTML='✅ Done — details, pitches and contacts below. Edit anything, then re-write if you like. Pitch on at least 3 of the 6 channels for this job.';
+      $('scanHint').innerHTML='✅ Done — your 4 messages are below. Edit the details and re-write anytime. Reach out on at least 3 channels per client.';
     }catch(e){
-      // offline fallback: regex parse + template writer
-      applyParsed(parseText(jobText));
-      const d2={ name:$('cName').value.trim()||'there', company:$('cCompany').value.trim(), brief:$('cBrief').value.trim(), extra, project:project };
-      $('projSuggest').style.display='none';
-      showPitches(genPitch(d2)); buildFindLinks(); rebuildSendLinks();
-      $('out').classList.add('show'); $('out').scrollIntoView({behavior:'smooth'}); spendUse();
-      $('scanHint').innerHTML='⚠ AI not connected on this site (set MUAPI_KEY in Netlify) — used the built-in writer. '+(e.message||'');
+      $('scanHint').innerHTML='⚠ '+(e.message||'Could not generate')+' — check MUAPI_KEY is set on this Netlify site, then try again.';
     }
     setLoading(false);
   }
   $('genBtn').onclick=aiGenerate;
-  document.addEventListener('click',(e)=>{ const b=e.target.closest('.copy'); if(!b)return; const m={upwork:'pUpwork',email:'pEmail',wa:'pWa',ig:'pIg',li:'pLi',inv:'pInv'}; navigator.clipboard.writeText($(m[b.getAttribute('data-c')]).textContent); const o=b.textContent;b.textContent='✓ Copied';setTimeout(()=>b.textContent=o,1300); });
+  document.addEventListener('click',(e)=>{ const b=e.target.closest('.copy'); if(!b)return; const m={email:'pEmail',wa:'pWa',ig:'pIg',li:'pLi',inv:'pInv'}; navigator.clipboard.writeText($(m[b.getAttribute('data-c')]).textContent); const o=b.textContent;b.textContent='✓ Copied';setTimeout(()=>b.textContent=o,1300); });
 
   // ---------- JOURNAL ----------
   function loadJournal(){ let j=[];try{j=JSON.parse(localStorage.getItem('pp_journal')||'[]');}catch(e){} const el=$('journal');
     if(!j.length){el.innerHTML='<div class="empty">No pitches logged yet.</div>';return;}
-    el.innerHTML=j.map((r,i)=>`<div class="jrow"><div><div style="font-weight:700">${esc(r.client)}</div><div class="jm">${r.date} · ${(r.channels||[]).length}/6 channels</div></div><select data-i="${i}"><option ${r.status==='Sent'?'selected':''}>Sent</option><option ${r.status==='Replied'?'selected':''}>Replied</option><option ${r.status==='Hired'?'selected':''}>Hired</option><option ${r.status==='Ghosted'?'selected':''}>Ghosted</option></select></div>`).join('');
+    el.innerHTML=j.map((r,i)=>`<div class="jrow"><div><div style="font-weight:700">${esc(r.client)}</div><div class="jm">${r.date} · ${(r.channels||[]).length}/4 channels</div></div><select data-i="${i}"><option ${r.status==='Sent'?'selected':''}>Sent</option><option ${r.status==='Replied'?'selected':''}>Replied</option><option ${r.status==='Hired'?'selected':''}>Hired</option><option ${r.status==='Ghosted'?'selected':''}>Ghosted</option></select></div>`).join('');
     el.querySelectorAll('select').forEach(s=>s.onchange=()=>{let j=JSON.parse(localStorage.getItem('pp_journal')||'[]');j[+s.dataset.i].status=s.value;localStorage.setItem('pp_journal',JSON.stringify(j));}); }
   $('logBtn').onclick=()=>{
     const channels=sentChannels();
-    if(channels.length<3&&!confirm(`You've only checked ${channels.length}/6 channels sent. Aim for at least 3 per job — save anyway?`)) return;
+    if(channels.length<3&&!confirm(`You've only checked ${channels.length}/4 channels sent. Aim for at least 3 per client — save anyway?`)) return;
     let j=[];try{j=JSON.parse(localStorage.getItem('pp_journal')||'[]');}catch(e){} const d=new Date();
     j.unshift({client:window._lastClient||'Client',date:d.getDate()+'/'+(d.getMonth()+1),status:'Sent',channels});
     localStorage.setItem('pp_journal',JSON.stringify(j)); loadJournal(); $('logBtn').textContent='✓ Saved';setTimeout(()=>$('logBtn').textContent='＋ Save to my pitch journal',1400);
@@ -456,13 +326,13 @@
 
   // ---------- wiring ----------
   $('scanBtn').onclick=aiGenerate;
-  $('clearBtn').onclick=()=>{ $('jobInput').value=''; $('otherPosts').value=''; $('feedbackText').value=''; $('projSuggest').style.display='none'; $('scanHint').innerHTML='Paste the job, hit Generate — AI reads it, finds contacts, and writes your pitches.'; };
+  $('clearBtn').onclick=()=>{ ['jobInput','cName','cCompany','cLocation','cHistory','cPrev1','cPrev2','extraInfo'].forEach(id=>{const el=$(id); if(el) el.value='';}); $('projSuggest').style.display='none'; $('out').classList.remove('show'); $('scanHint').innerHTML='Fill in the job + whatever you know about the client, then generate your 4 messages.'; };
   function subLink(){const msg=enc('Hi! I want to subscribe to PitchPilot Pro (₦3,000/month). My name: ');return `https://wa.me/${CFG.whatsapp}?text=${msg}`;}
   $('subBtn').onclick=()=>$('subOv').classList.add('show');
   $('subClose').onclick=()=>$('subOv').classList.remove('show');
   $('subOv').onclick=(e)=>{ if(e.target===$('subOv'))$('subOv').classList.remove('show'); };
   $('subPay').href=subLink();
-  loadProfile(); renderProjects(); buildFindLinks(); refreshUses(); loadJournal();
+  loadProfile(); renderProjects(); refreshUses(); loadJournal(); gateInit();
 </script>
 </body>
 </html>

@@ -1,38 +1,28 @@
-# PitchPilot — deploy guide (same repo, its own Netlify site)
+# PitchPilot — private outreach writer (v3)
 
-PitchPilot lives in this `pitchpilot/` folder of the Fuse Studio repo, but deploys
-as its OWN separate Netlify site. The two sites never mix — Fuse Studio's site
-ignores this folder's Netlify config, and PitchPilot's site only builds this folder.
+Paste a job, type what you know about the client (name, company, location,
+history, up to 2 of their previous jobs), and get 4 ready-to-send outreach
+messages — EMAIL, WHATSAPP, INSTAGRAM, LINKEDIN (+ a LinkedIn connect note) —
+written by Claude Sonnet 4.5. Built for reaching clients directly, not Upwork
+proposals. No auto-extract, no Serper, no Hunter — just your input + Claude.
 
-## Connect it on Netlify (one time)
+## Deploy (same repo, its own Netlify site)
 
-1. app.netlify.com → **Add new site → Import an existing project → GitHub**
-2. Pick the SAME repo you already use for Fuse Studio (`Jejeola11/Jejeola11`)
-3. Pick the same branch Fuse Studio deploys from
-4. **Base directory:** type `pitchpilot`  ← this is the key step; it scopes the
-   site to this folder only (publish directory and functions are picked up
-   automatically from this folder's netlify.toml)
-5. BEFORE deploying, open **Site configuration → Environment variables** and add:
-   - `MUAPI_KEY` = your MuAPI key  ← **required** (powers the Haiku + Sonnet pitch AI)
-   - `SERPER_API_KEY` = (optional) a serper.dev key — auto-finds LinkedIn/website/Instagram
-   - `HUNTER_API_KEY` = (optional) a hunter.io key — auto-finds the client's email
-6. **Deploy site** → rename it (e.g. `fuse-pitchpilot`) in Site settings
+1. app.netlify.com → Add new site → Import an existing project → GitHub → your
+   Jejeola11 repo, same branch
+2. **Base directory:** `pitchpilot`
+3. Environment variables → add ONE:
+   - `MUAPI_KEY` = your MuAPI key   (this is all it needs now)
+4. Deploy.
 
-Without the two optional keys everything still works — the app shows Google-search
-shortcut buttons for finding contacts manually instead of auto-filling them.
+## Private access
 
-## Updating later
+The app is passcode-gated so only you can use it. Default passcode: **ria2026**
+(change it in index.html — search `gate:'ria2026'`). To make it public later,
+set `gate:''` (empty) and it opens to everyone.
 
-Any push to this folder redeploys the PitchPilot site automatically.
-
-## What's inside
-
-- `index.html` — the whole app (profile + portfolio, job scanner, 6-pitch output,
-  channel tracker, pitch journal)
-- `netlify/functions/pitch-ai.js` — Claude Haiku extracts the client
-  (name/company/location/pain points/tone), then Claude Sonnet suggests the best
-  portfolio project and writes all 6 pitches (Upwork proposal, LinkedIn DM,
-  LinkedIn connect note, WhatsApp, Instagram, email) — via your MuAPI key
-- `netlify/functions/find-contacts.js` — optional auto contact finder (Serper + Hunter)
-- `netlify/functions/parse-job.js` — reads a pasted job URL server-side
-- `netlify.toml` — build config for THIS site (paths are relative to the base directory)
+## Files
+- index.html — the whole app (passcode gate, profile+portfolio, job+client
+  inputs, 4-message output, channel tracker, pitch journal)
+- netlify/functions/pitch-ai.js — Claude Sonnet 4.5 writes the 4 messages
+- netlify.toml — build config
