@@ -38,6 +38,7 @@ window.FUSE_5WEEK = {
   dayVideos: {
     'wk-2': 'https://youtu.be/ezhNZtSZVDo?si=RSFSkzjlCM3wb5wW',
     'wk-3': 'https://youtu.be/MwfxFIkJWJ4?si=icDIL5LJRPVMgrxs',
+    'wk-5': 'https://youtu.be/F7jFea3e4ok?si=jQDfim8_o29qe2W_',
   },
 
   days: [
@@ -82,10 +83,10 @@ window.FUSE_5WEEK = {
         <ul>
           <li>Day 2 — Build your consistent AI face 🎥</li>
           <li>Day 3 — Create your first AI UGC video 🎥</li>
-          <li>Day 4 — Package it as a service (Upwork profile + portfolio)</li>
+          <li>Day 4 — Package it as a service — Upwork profile + portfolio</li>
           <li>Day 5 — Pitch and land your first client 🎥</li>
           <li>Day 6 — Grow on Instagram with AI content</li>
-          <li>Day 7 — Scale: pricing, delivery, repeat clients</li>
+          <li>Day 7 — Scale — pricing, delivery, repeat clients</li>
         </ul>
         <p><b>Today's action:</b> introduce yourself in the WhatsApp group and write down the single income number you want by Day 7.</p>`,
     },
