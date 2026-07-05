@@ -1,7 +1,8 @@
 // Shared helpers for PitchPilot functions — Supabase admin client, auth, usage.
-// Uses the SAME Supabase project as Fuse Studio (shared accounts): set
-// SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY on this Netlify site (copy the
-// values from the Fuse Studio site's environment variables).
+// PitchPilot has its OWN Supabase project — fully separate from Fuse Studio,
+// so public sign-ups here never touch or share Fuse Studio accounts. Set
+// SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY on this Netlify site to THIS
+// project's values (Settings → API in your new Supabase project).
 const { createClient } = require('@supabase/supabase-js');
 
 function admin() {
@@ -21,11 +22,11 @@ async function getUser(event) {
   return data.user;
 }
 
-// Fetch (or create with the 5 free uses) this user's usage row.
+// Fetch (or create with the 3 free uses) this user's usage row.
 async function getUsage(db, uid) {
   const { data } = await db.from('pp_usage').select('*').eq('user_id', uid).maybeSingle();
   if (data) return data;
-  const fresh = { user_id: uid, uses_left: 5, plan: 'free' };
+  const fresh = { user_id: uid, uses_left: 3, plan: 'free' };
   await db.from('pp_usage').insert(fresh);
   return fresh;
 }

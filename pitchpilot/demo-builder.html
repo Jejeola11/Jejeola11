@@ -59,9 +59,13 @@ input:focus,textarea:focus{border-color:var(--gold)}
     <label>Accent colour</label>
     <div class="swatches" id="swatches"></div>
     <button class="btn gold" id="makeBtn">⚒️ Forge the demo</button>
-    <button class="btn ghost" id="prevBtn" style="display:none">👁 Preview in new tab</button>
     <button class="btn ghost" id="dlBtn" style="display:none">⬇ Download HTML file</button>
     <div class="hint">Then: <b>dash.cloudflare.com → Workers &amp; Pages → Create → Pages → Upload assets</b> → drag the downloaded file (rename it <b>index.html</b> first) → your demo is live on a free link like <i>lahore-demo.pages.dev</i>. 2 minutes, ₦0, unlimited bandwidth.</div>
+  </div>
+
+  <div class="panel" id="prevPanel" style="display:none;padding:0;overflow:hidden">
+    <div style="padding:12px 14px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)">👁 Live preview — scroll inside the box below</div>
+    <iframe id="prevFrame" style="width:100%;height:70vh;border:0;display:block;background:#fff"></iframe>
   </div>
 </div>
 
@@ -171,14 +175,24 @@ if('IntersectionObserver' in window){
 setTimeout(()=>els.forEach(el=>el.classList.add('in')),1500);
 <\/script>
 </body></html>`;
-  $('prevBtn').style.display='inline-flex';
   $('dlBtn').style.display='inline-flex';
-  $('makeBtn').textContent='✅ Forged — preview or download below';
+  $('makeBtn').textContent='✅ Forged — see the preview below';
   setTimeout(()=>$('makeBtn').textContent='⚒️ Forge the demo',2000);
+  // Inline iframe preview — reliable on every browser, including mobile
+  // Safari/in-app WebViews where window.open()/document.write() gets blocked.
+  $('prevPanel').style.display='block';
+  $('prevFrame').srcdoc=lastHTML;
+  $('prevPanel').scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('makeBtn').onclick=forge;
-$('prevBtn').onclick=()=>{const w=window.open('about:blank');w.document.write(lastHTML);w.document.close();};
-$('dlBtn').onclick=()=>{const b=new Blob([lastHTML],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=lastName+'-demo.html';a.click();};
+$('dlBtn').onclick=()=>{
+  const b=new Blob([lastHTML],{type:'text/html'});
+  const url=URL.createObjectURL(b);
+  const a=document.createElement('a');
+  a.href=url;a.download=lastName+'-demo.html';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),4000);
+};
 </script>
 </body>
 </html>
