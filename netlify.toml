@@ -2,6 +2,11 @@
 [build]
   publish = "."
   functions = "netlify/functions"
+  # Build isolation: skip the Fuse Studio build entirely when a push only
+  # touched pitchpilot/ (PitchPilot deploys as its own site with its own base
+  # dir and auto-skips when pitchpilot/ is untouched). Every skipped build =
+  # build-minute credits saved on the free plan.
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ':(exclude)pitchpilot'"
 
 [build.environment]
   # The Supabase anon key + URL are PUBLIC by design (front-end safe; the
