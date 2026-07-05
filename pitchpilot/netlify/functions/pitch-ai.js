@@ -85,15 +85,19 @@ THE CLIENT (filled in by the freelancer):
 ${prevJobs.length ? `- Other jobs this client posted before (use these to show you understand their recurring needs):\n${prevJobs.map((p, i) => `   Previous job ${i + 1}: ${p}`).join('\n')}` : ''}`;
   } else {
     const ig = body.ig || {};
-    if (!(ig.username || '').trim()) return json(400, { error: 'Enter their Instagram username first.' });
+    const biz = (ig.business || '').trim();
+    const uname = (ig.username || '').trim();
+    if (!biz && !uname) return json(400, { error: 'Enter the business name or their Instagram username first.' });
     targetBlock =
-`THE TARGET (an Instagram business/creator the freelancer wants to pitch — there is no job post; this is proactive outreach):
-- Instagram: @${(ig.username || '').replace(/^@/, '')}
-- Their website: ${ig.website || '(none found — that itself may be the opportunity)'}
-- What we know about them (from their page/bio/posts): ${ig.about || '(none given)'}
+`THE TARGET (a business/brand the freelancer found directly — via Instagram, Google Maps, or elsewhere — and wants to pitch; there is no job post, this is proactive outreach):
+- Business/brand name: ${biz || '(unknown — use their Instagram handle as the name)'}
+- Instagram: ${uname ? '@' + uname.replace(/^@/, '') : '(not found/used — found via other means, e.g. Google Maps)'}
+- Website: ${ig.website || '(none found — that itself may be the opportunity)'}
+- Location: ${ig.city || '(unknown)'}
+- What we know about them: ${ig.about || '(none given)'}
 - What the freelancer wants to pitch them: ${ig.pitching || 'a new website / content'}
 - The freelancer's goal with this outreach: ${ig.goal || 'land them as a paying client'}
-The INSTAGRAM DM is the most important message here — it's the first touch. Reference something real about their page so it never reads like spam.`;
+${uname ? 'The INSTAGRAM DM is the most important message here — reference something real about their page so it never reads like spam.' : 'No Instagram handle was given, so lean on EMAIL as the primary channel — the instagram field can restate the same message in a casual DM style in case one is found later.'}`;
   }
 
   const pf = body.profile || {};

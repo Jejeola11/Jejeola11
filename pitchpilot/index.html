@@ -108,13 +108,13 @@
 <main class="wrap">
   <section class="hero">
     <h1>Pitch any client. <span class="g">Land the job.</span></h1>
-    <p>Save your portfolio once. Then pitch Upwork jobs or Instagram brands — and get a ready-to-send email, WhatsApp, Instagram and LinkedIn message every time.</p>
+    <p>Save your portfolio once. Then pitch Upwork jobs or brands you found directly (Instagram, Google Maps, anywhere) — and get a ready-to-send email, WhatsApp, Instagram and LinkedIn message every time.</p>
   </section>
 
   <!-- MODE TABS -->
   <div style="display:flex;gap:8px;margin:14px 0 0">
     <button class="btn gold" id="tabJob" style="flex:1">💼 Job post</button>
-    <button class="btn ghost" id="tabIg" style="flex:1">📸 Instagram client</button>
+    <button class="btn ghost" id="tabIg" style="flex:1">🎯 Direct outreach</button>
   </div>
 
   <!-- PROFILE & PORTFOLIO -->
@@ -163,16 +163,20 @@
     </section>
   </div>
 
-  <!-- INSTAGRAM MODE -->
+  <!-- DIRECT OUTREACH MODE (Instagram, Google Maps, anywhere you found a brand) -->
   <div id="modeIg" style="display:none">
     <section class="step">
-      <div class="step-h"><div class="step-n">1</div><div><div class="step-t">The Instagram client</div><div class="step-s">A brand or creator you want to pitch — no job post needed</div></div></div>
+      <div class="step-h"><div class="step-n">1</div><div><div class="step-t">The brand or business</div><div class="step-s">Found on Instagram, Google Maps, or anywhere else — no job post needed</div></div></div>
       <div class="row2">
-        <div><label>Their IG username</label><input id="igUser" placeholder="@kiwi.spa"></div>
+        <div><label>Business / brand name</label><input id="igBiz" placeholder="Kiwi Spa"></div>
+        <div><label>Their IG username (if known)</label><input id="igUser" placeholder="@kiwi.spa or leave blank"></div>
+      </div>
+      <div class="row2">
         <div><label>Their website (if any)</label><input id="igWebsite" placeholder="kiwi-spa.com or none"></div>
+        <div><label>City / area</label><input id="igCity" placeholder="London, United Kingdom"></div>
       </div>
       <label>What you found about them</label>
-      <textarea id="igAbout" placeholder="e.g. 12k followers, skincare brand in London, nice products but their link-in-bio is just a linktree, no real website, posts get good engagement…" style="min-height:56px"></textarea>
+      <textarea id="igAbout" placeholder="e.g. 12k followers, skincare brand in London, no real website — only a Google Maps listing, or: outdated site with no online booking…" style="min-height:56px"></textarea>
       <label>What you're pitching them</label>
       <textarea id="igPitching" placeholder="e.g. a modern 3D interactive website with online booking, or a batch of AI UGC ads…" style="min-height:48px"></textarea>
       <label>Your goal with this outreach</label>
@@ -211,7 +215,7 @@
   </section>
 
   <section class="step">
-    <div class="step-h"><div class="step-n">📒</div><div><div class="step-t">Pitch journal</div><div class="step-s">Aim for 5+ a day</div></div></div>
+    <div class="step-h"><div class="step-n">📒</div><div><div class="step-t">Pitch history &amp; journal</div><div class="step-s">Every pitch you generate is saved here — aim for 5+ a day</div></div></div>
     <div id="journal"></div>
   </section>
 </main>
@@ -395,11 +399,11 @@
       payload.project=pickProject(jobText,payload.client.company);
       pickKey=payload.client.company||payload.client.name;
     } else {
-      const igUser=$('igUser').value.trim();
-      if(!igUser){ $('scanHint').innerHTML='Enter their Instagram username first.'; return; }
-      payload.ig={ username:igUser, website:$('igWebsite').value.trim(), about:$('igAbout').value.trim(), pitching:$('igPitching').value.trim(), goal:$('igGoal').value.trim() };
-      payload.project=pickProject(payload.ig.about+' '+payload.ig.pitching, igUser);
-      pickKey=igUser;
+      const igBiz=$('igBiz').value.trim(), igUser=$('igUser').value.trim();
+      if(!igBiz&&!igUser){ $('scanHint').innerHTML='Enter the business name or their Instagram username first.'; return; }
+      payload.ig={ business:igBiz, username:igUser, website:$('igWebsite').value.trim(), city:$('igCity').value.trim(), about:$('igAbout').value.trim(), pitching:$('igPitching').value.trim(), goal:$('igGoal').value.trim() };
+      payload.project=pickProject(payload.ig.about+' '+payload.ig.pitching, igBiz||igUser);
+      pickKey=igBiz||igUser;
     }
     setLoading(true,'Writing your messages…');
     try{
@@ -412,8 +416,9 @@
       if(d.projectSuggestion){ $('projSuggest').style.display='block'; $('projSuggest').innerHTML='💡 <b>Claude suggests:</b> '+esc(d.projectSuggestion); }
       showPitches(d.pitches);
       window._lastClient=pickKey||'Client';
+      saveToHistory(pickKey||'Client', mode, d.pitches, d.projectSuggestion);
       $('out').classList.add('show'); $('out').scrollIntoView({behavior:'smooth'});
-      $('scanHint').innerHTML='✅ Done — your 4 messages are below. Edit anything and re-write anytime. Reach out on at least 3 channels per client.';
+      $('scanHint').innerHTML='✅ Done — your 4 messages are below, and saved to your history so you can find them again anytime. Reach out on at least 3 channels per client.';
     }catch(e){
       $('scanHint').innerHTML='⚠ '+(e.message||'Could not generate');
     }
@@ -422,22 +427,53 @@
   $('genBtn').onclick=aiGenerate;
   document.addEventListener('click',(e)=>{ const b=e.target.closest('.copy'); if(!b)return; const m={email:'pEmail',wa:'pWa',ig:'pIg',li:'pLi',inv:'pInv'}; navigator.clipboard.writeText($(m[b.getAttribute('data-c')]).textContent); const o=b.textContent;b.textContent='✓ Copied';setTimeout(()=>b.textContent=o,1300); });
 
-  // ---------- JOURNAL ----------
-  function loadJournal(){ let j=[];try{j=JSON.parse(localStorage.getItem('pp_journal')||'[]');}catch(e){} const el=$('journal');
-    if(!j.length){el.innerHTML='<div class="empty">No pitches logged yet.</div>';return;}
-    el.innerHTML=j.map((r,i)=>`<div class="jrow"><div><div style="font-weight:700">${esc(r.client)}</div><div class="jm">${r.date} · ${(r.channels||[]).length}/4 channels</div></div><select data-i="${i}"><option ${r.status==='Sent'?'selected':''}>Sent</option><option ${r.status==='Replied'?'selected':''}>Replied</option><option ${r.status==='Hired'?'selected':''}>Hired</option><option ${r.status==='Ghosted'?'selected':''}>Ghosted</option></select></div>`).join('');
-    el.querySelectorAll('select').forEach(s=>s.onchange=()=>{let j=JSON.parse(localStorage.getItem('pp_journal')||'[]');j[+s.dataset.i].status=s.value;localStorage.setItem('pp_journal',JSON.stringify(j));}); }
+  // ---------- HISTORY & JOURNAL ----------
+  // Every generation is auto-saved here — full pitch text included — so past
+  // pitches can be reopened and copied anytime, whether or not you tap "Save".
+  function getHistory(){ try{return JSON.parse(localStorage.getItem('pp_journal')||'[]');}catch(e){return [];} }
+  function setHistory(j){ try{localStorage.setItem('pp_journal',JSON.stringify(j));}catch(e){} }
+  function saveToHistory(client,mode,pitches,suggestion){
+    const j=getHistory(); const d=new Date();
+    const entry={id:'h'+Math.random().toString(36).slice(2,10),client,mode,pitches,suggestion:suggestion||'',date:d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear(),status:'Generated',channels:[]};
+    j.unshift(entry); if(j.length>200) j.length=200; setHistory(j);
+    window._lastEntryId=entry.id;
+    loadJournal();
+  }
+  function loadJournal(){
+    const j=getHistory(); const el=$('journal');
+    if(!j.length){el.innerHTML='<div class="empty">No pitches yet — generate one above and it\'ll show up here.</div>';return;}
+    el.innerHTML=j.map((r,i)=>`
+      <div class="jrow" style="display:block">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <div><div style="font-weight:700">${esc(r.client)}</div><div class="jm">${r.date} · ${(r.channels||[]).length}/4 channels · ${r.mode==='instagram'?'Direct outreach':'Job post'}</div></div>
+          <select data-i="${i}" style="width:auto;padding:6px 10px;font-size:12px"><option ${r.status==='Generated'?'selected':''}>Generated</option><option ${r.status==='Sent'?'selected':''}>Sent</option><option ${r.status==='Replied'?'selected':''}>Replied</option><option ${r.status==='Hired'?'selected':''}>Hired</option><option ${r.status==='Ghosted'?'selected':''}>Ghosted</option></select>
+        </div>
+        <button class="btn ghost sm" data-view="${i}" style="margin-top:8px">👁 View &amp; copy pitches</button>
+        <div id="jview${i}" style="display:none;margin-top:10px"></div>
+      </div>`).join('');
+    el.querySelectorAll('select').forEach(s=>s.onchange=()=>{const j=getHistory();j[+s.dataset.i].status=s.value;setHistory(j);});
+    el.querySelectorAll('[data-view]').forEach(btn=>btn.onclick=()=>{
+      const i=+btn.dataset.view; const box=$('jview'+i); const r=getHistory()[i]; if(!r) return;
+      if(box.style.display!=='none'){ box.style.display='none'; return; }
+      const p=r.pitches||{}; const M=[['upwork','📋 Upwork proposal',p.upwork],['email','📧 Email',p.email],['wa','💬 WhatsApp',p.whatsapp||p.wa],['ig','📸 Instagram',p.instagram||p.ig],['li','💼 LinkedIn',p.linkedin||p.li],['inv','🔗 Connect note',p.connect||p.invite||p.inv]];
+      box.innerHTML=M.filter(m=>m[2]).map(m=>`<div class="pitch"><div class="ph"><span class="pt">${m[1]}</span><button class="copy" data-hview="${m[2].replace(/"/g,'&quot;')}">⧉ Copy</button></div><pre>${esc(m[2])}</pre></div>`).join('')
+        + (r.suggestion?`<div class="hint" style="margin-top:8px">💡 ${esc(r.suggestion)}</div>`:'');
+      box.style.display='block';
+    });
+  }
+  document.addEventListener('click',(e)=>{ const b=e.target.closest('[data-hview]'); if(!b)return; navigator.clipboard.writeText(b.getAttribute('data-hview')); const o=b.textContent;b.textContent='✓ Copied';setTimeout(()=>b.textContent=o,1300); });
   $('logBtn').onclick=()=>{
     const channels=sentChannels();
     if(channels.length<3&&!confirm(`You've only checked ${channels.length}/4 channels sent. Aim for at least 3 per client — save anyway?`)) return;
-    let j=[];try{j=JSON.parse(localStorage.getItem('pp_journal')||'[]');}catch(e){} const d=new Date();
-    j.unshift({client:window._lastClient||'Client',date:d.getDate()+'/'+(d.getMonth()+1),status:'Sent',channels});
-    localStorage.setItem('pp_journal',JSON.stringify(j)); loadJournal(); $('logBtn').textContent='✓ Saved';setTimeout(()=>$('logBtn').textContent='＋ Save to my pitch journal',1400);
+    const j=getHistory();
+    const idx=j.findIndex(r=>r.id===window._lastEntryId);
+    if(idx>-1){ j[idx].channels=channels; j[idx].status='Sent'; setHistory(j); loadJournal(); }
+    $('logBtn').textContent='✓ Saved';setTimeout(()=>$('logBtn').textContent='＋ Save to my pitch journal',1400);
   };
 
   // ---------- wiring ----------
   $('scanBtn').onclick=aiGenerate;
-  $('clearBtn').onclick=()=>{ ['jobInput','cName','cCompany','cLocation','cHistory','cPrev1','cPrev2','extraInfo','igUser','igWebsite','igAbout','igPitching','igGoal'].forEach(id=>{const el=$(id); if(el) el.value='';}); $('projSuggest').style.display='none'; $('out').classList.remove('show'); $('scanHint').innerHTML='Fill in what you know, then generate your 4 messages.'; };
+  $('clearBtn').onclick=()=>{ ['jobInput','cName','cCompany','cLocation','cHistory','cPrev1','cPrev2','extraInfo','igBiz','igUser','igWebsite','igCity','igAbout','igPitching','igGoal'].forEach(id=>{const el=$(id); if(el) el.value='';}); $('projSuggest').style.display='none'; $('out').classList.remove('show'); $('scanHint').innerHTML='Fill in what you know, then generate your 4 messages.'; };
   function setMode(m){ mode=m;
     $('modeJob').style.display=m==='job'?'block':'none';
     $('modeIg').style.display=m==='instagram'?'block':'none';
