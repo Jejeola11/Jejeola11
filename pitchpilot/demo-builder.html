@@ -25,6 +25,13 @@ input:focus,textarea:focus{border-color:var(--gold)}
 .swatches{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 .sw{width:40px;height:40px;border-radius:10px;cursor:pointer;border:2px solid transparent}
 .sw.on{border-color:#fff}
+.dlrow{display:flex;gap:8px;flex-wrap:wrap}
+.dlrow .btn{width:auto;flex:1;margin-top:16px;min-width:140px;font-size:13.5px;padding:12px 14px}
+.rcard{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.rmeta{display:flex;flex-direction:column;gap:2px;font-size:13px}
+.rmeta span{color:var(--muted);font-size:11.5px}
+.ractions{display:flex;gap:6px;flex-wrap:wrap}
+.ractions .btn{width:auto;margin:0;padding:7px 11px;font-size:11.5px}
 </style>
 </head>
 <body>
@@ -59,13 +66,22 @@ input:focus,textarea:focus{border-color:var(--gold)}
     <label>Accent colour</label>
     <div class="swatches" id="swatches"></div>
     <button class="btn gold" id="makeBtn">⚒️ Forge the demo</button>
-    <button class="btn ghost" id="dlBtn" style="display:none">⬇ Download HTML file</button>
-    <div class="hint">Then: <b>dash.cloudflare.com → Workers &amp; Pages → Create → Pages → Upload assets</b> → drag the downloaded file (rename it <b>index.html</b> first) → your demo is live on a free link like <i>lahore-demo.pages.dev</i>. 2 minutes, ₦0, unlimited bandwidth.</div>
+    <div class="dlrow" id="dlRow" style="display:none">
+      <button class="btn ghost" id="dlBtn">⬇ Download index.html</button>
+      <button class="btn ghost" id="dlZipBtn">⬇ Download as .zip (folder)</button>
+    </div>
+    <div class="hint"><b>Netlify (app.netlify.com/drop):</b> drag the <b>.zip</b> straight onto the drop zone — it unpacks itself and goes live instantly. <b>Cloudflare Pages:</b> unzip it first (you'll get a folder with <b>index.html</b> inside) → <b>dash.cloudflare.com → Workers &amp; Pages → Create → Pages → Upload assets</b> → drag that folder in. Either way the file is already named <b>index.html</b>, so it serves correctly at the root link — no renaming needed.</div>
   </div>
 
   <div class="panel" id="prevPanel" style="display:none;padding:0;overflow:hidden">
     <div style="padding:12px 14px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)">👁 Live preview — scroll inside the box below</div>
     <iframe id="prevFrame" style="width:100%;height:70vh;border:0;display:block;background:#fff"></iframe>
+  </div>
+
+  <div class="panel" id="recentPanel">
+    <div style="font-weight:800;font-size:15px;margin-bottom:2px">📂 Recent projects</div>
+    <div class="sub" style="margin-bottom:6px">Your last few forged demos, saved on this device — reopen or redownload anytime.</div>
+    <div id="recentBox"></div>
   </div>
 </div>
 
@@ -89,6 +105,75 @@ const NICHE={
 
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
 let lastHTML='', lastName='demo';
+
+// ---------- minimal dependency-free ZIP writer (STORE method, no compression) ----------
+let CRC_TABLE=null;
+function crc32(bytes){
+  if(!CRC_TABLE){ CRC_TABLE=[]; for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c=c&1?(0xEDB88320^(c>>>1)):(c>>>1); CRC_TABLE[n]=c>>>0; } }
+  let crc=0^(-1);
+  for(let i=0;i<bytes.length;i++) crc=(crc>>>8)^CRC_TABLE[(crc^bytes[i])&0xFF];
+  return (crc^(-1))>>>0;
+}
+function makeZipBlob(filename, text){
+  const nameBytes=new TextEncoder().encode(filename);
+  const data=new TextEncoder().encode(text);
+  const crc=crc32(data), size=data.length;
+  const lh=new DataView(new ArrayBuffer(30));
+  lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true); lh.setUint16(6,0,true); lh.setUint16(8,0,true);
+  lh.setUint16(10,0,true); lh.setUint16(12,0x21,true); lh.setUint32(14,crc,true);
+  lh.setUint32(18,size,true); lh.setUint32(22,size,true); lh.setUint16(26,nameBytes.length,true); lh.setUint16(28,0,true);
+  const localHeader=new Uint8Array(lh.buffer);
+  const ch=new DataView(new ArrayBuffer(46));
+  ch.setUint32(0,0x02014b50,true); ch.setUint16(4,20,true); ch.setUint16(6,20,true); ch.setUint16(8,0,true);
+  ch.setUint16(10,0,true); ch.setUint16(12,0,true); ch.setUint16(14,0x21,true); ch.setUint32(16,crc,true);
+  ch.setUint32(20,size,true); ch.setUint32(24,size,true); ch.setUint16(28,nameBytes.length,true); ch.setUint16(30,0,true);
+  ch.setUint16(32,0,true); ch.setUint16(34,0,true); ch.setUint16(36,0,true); ch.setUint32(38,0,true); ch.setUint32(42,0,true);
+  const centralHeader=new Uint8Array(ch.buffer);
+  const localOffset=0;
+  const centralOffset=localHeader.length+nameBytes.length+data.length;
+  const centralSize=centralHeader.length+nameBytes.length;
+  const end=new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true); end.setUint16(4,0,true); end.setUint16(6,0,true);
+  end.setUint16(8,1,true); end.setUint16(10,1,true); end.setUint32(12,centralSize,true); end.setUint32(16,centralOffset,true); end.setUint16(20,0,true);
+  return new Blob([localHeader,nameBytes,data,centralHeader,nameBytes,new Uint8Array(end.buffer)],{type:'application/zip'});
+}
+function triggerDownload(blob, filename){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),4000);
+}
+
+// ---------- recent projects (localStorage) ----------
+const REC_KEY='df_recent';
+function getRecent(){ try{ return JSON.parse(localStorage.getItem(REC_KEY)||'[]'); }catch(e){ return []; } }
+function saveRecent(a){ try{ localStorage.setItem(REC_KEY,JSON.stringify(a)); }catch(e){ a.pop(); try{ localStorage.setItem(REC_KEY,JSON.stringify(a)); }catch(e2){} } }
+function pushRecent(entry){ const a=getRecent(); a.unshift(entry); while(a.length>6) a.pop(); saveRecent(a); renderRecent(); }
+function renderRecent(){
+  const a=getRecent(); const box=$('recentBox');
+  if(!a.length){ box.innerHTML='<div class="hint">No demos forged yet on this device — build one above and it\'ll show up here.</div>'; return; }
+  box.innerHTML=a.map((r,i)=>`
+    <div class="rcard">
+      <div class="rmeta"><b>${esc(r.name)}</b><span>${esc(r.nicheLabel)} · ${esc(r.city)} · ${esc(r.date)}</span></div>
+      <div class="ractions">
+        <button class="btn ghost" data-rv="${i}">👁 View</button>
+        <button class="btn ghost" data-rh="${i}">⬇ HTML</button>
+        <button class="btn ghost" data-rz="${i}">⬇ ZIP</button>
+        <button class="btn ghost" data-rd="${i}">🗑</button>
+      </div>
+    </div>`).join('');
+  box.querySelectorAll('[data-rv]').forEach(b=>b.onclick=()=>{
+    const r=getRecent()[+b.dataset.rv]; if(!r) return;
+    lastHTML=r.html; lastName=r.slug;
+    $('dlRow').style.display='flex';
+    $('prevPanel').style.display='block'; $('prevFrame').srcdoc=r.html;
+    $('prevPanel').scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  box.querySelectorAll('[data-rh]').forEach(b=>b.onclick=()=>{ const r=getRecent()[+b.dataset.rh]; if(r) triggerDownload(new Blob([r.html],{type:'text/html'}),'index.html'); });
+  box.querySelectorAll('[data-rz]').forEach(b=>b.onclick=()=>{ const r=getRecent()[+b.dataset.rz]; if(r) triggerDownload(makeZipBlob('index.html',r.html), r.slug+'-demo.zip'); });
+  box.querySelectorAll('[data-rd]').forEach(b=>b.onclick=()=>{ const a=getRecent(); a.splice(+b.dataset.rd,1); saveRecent(a); renderRecent(); });
+}
+renderRecent();
 
 function forge(){
   const name=$('fName').value.trim()||'Your Business';
@@ -175,7 +260,7 @@ if('IntersectionObserver' in window){
 setTimeout(()=>els.forEach(el=>el.classList.add('in')),1500);
 <\/script>
 </body></html>`;
-  $('dlBtn').style.display='inline-flex';
+  $('dlRow').style.display='flex';
   $('makeBtn').textContent='✅ Forged — see the preview below';
   setTimeout(()=>$('makeBtn').textContent='⚒️ Forge the demo',2000);
   // Inline iframe preview — reliable on every browser, including mobile
@@ -183,16 +268,11 @@ setTimeout(()=>els.forEach(el=>el.classList.add('in')),1500);
   $('prevPanel').style.display='block';
   $('prevFrame').srcdoc=lastHTML;
   $('prevPanel').scrollIntoView({behavior:'smooth',block:'start'});
+  pushRecent({name, nicheLabel:$('fNiche').selectedOptions[0].text, city, slug:lastName, html:lastHTML, date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'})});
 }
 $('makeBtn').onclick=forge;
-$('dlBtn').onclick=()=>{
-  const b=new Blob([lastHTML],{type:'text/html'});
-  const url=URL.createObjectURL(b);
-  const a=document.createElement('a');
-  a.href=url;a.download=lastName+'-demo.html';
-  document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),4000);
-};
+$('dlBtn').onclick=()=>triggerDownload(new Blob([lastHTML],{type:'text/html'}),'index.html');
+$('dlZipBtn').onclick=()=>triggerDownload(makeZipBlob('index.html',lastHTML), lastName+'-demo.zip');
 </script>
 </body>
 </html>
