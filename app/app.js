@@ -586,7 +586,10 @@ let courseVideos = {};       // lesson_key -> url
 let courseUnlocks = new Set(); // module_key the user unlocked
 let courseProgress = new Set(); // lesson_key completed
 let coursePillar = COURSE[0] ? COURSE[0].key : 'orient';
-function courseHasFull() { return userIsAdmin || userPlan === 'pro' || userPlan === 'agency'; }
+// Courses are purchase-only now — a Pro/Agency image-credits plan does NOT
+// grant course access on its own. Only admin (for testing) or an explicit
+// module_unlocks row (real payment) unlocks a course.
+function courseHasFull() { return userIsAdmin; }
 function moduleUnlocked(mKey, pillarKey) {
   if (pillarKey === 'orient') return true;       // orientation is free
   if (courseHasFull()) return true;
@@ -953,6 +956,13 @@ function openWeekLesson(key) {
         <a href="${WK.charLabBuyUrl || '#'}" target="_blank" class="btn gold sm" style="flex:1">🛒 Get access</a>
         <a href="${WK.charLabLoginUrl || '#'}" target="_blank" class="btn ghost sm" style="flex:1">🔑 Already purchased? Log in</a>
       </div>
+    </div>` : (key === 'wk-5' || key === 'wk-6') ? `
+    <div class="wk-lab-banner" style="display:block;padding:13px 15px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div class="wk-lab-ic">✈️</div>
+        <div class="wk-lab-txt"><b>Fuse PitchPilot</b><span>Writes your email, WhatsApp, Instagram & LinkedIn pitch in one tap</span></div>
+      </div>
+      <a href="${WK.pitchPilotUrl || '#'}" target="_blank" class="btn gold sm block">🚀 Open PitchPilot — 3 free pitches</a>
     </div>` : '';
   const adminSet = userIsAdmin && d.video ? `<div class="lesson-admin" style="margin:8px 0">
       <label class="fld">👑 Video URL for Day ${d.day} (YouTube unlisted / MP4)</label>
@@ -1342,8 +1352,7 @@ async function loadProfile() {
   if (data.is_admin) {
     $('adminPanel').style.display = 'block';
     if (!$('adminPack').children.length) {
-      // Show the doubled credits so it's clear founding members get 2×.
-      $('adminPack').innerHTML = cfg.PACKS.map((p) => `<option value="${p.key}">${p.name} — ${naira(p.naira)} → ${p.credits * 2} cr</option>`).join('');
+      $('adminPack').innerHTML = cfg.PACKS.map((p) => `<option value="${p.key}">${p.name} — ${naira(p.naira)} → ${p.credits} cr</option>`).join('');
     }
   } else { $('adminPanel').style.display = 'none'; }
 }
@@ -1359,7 +1368,7 @@ async function adminGrant(custom) {
     btn = $('adminGrantCredits'); label = 'Add custom credits';
   } else {
     payload.pack = $('adminPack').value;
-    btn = $('adminGrant'); label = 'Grant access (2× founding)';
+    btn = $('adminGrant'); label = 'Grant access';
   }
   btn.disabled = true; btn.textContent = 'Granting…';
   try {
@@ -1369,7 +1378,7 @@ async function adminGrant(custom) {
     });
     const d = await res.json();
     if (!res.ok) throw new Error(d.error || 'Failed');
-    note('adminNote', `✅ Added ${d.credits} credits to ${d.email}${d.founding ? ' (2× founding)' : ''}.`, 'ok');
+    note('adminNote', `✅ Added ${d.credits} credits to ${d.email}.`, 'ok');
     $('adminEmail').value = ''; $('adminCredits').value = '';
   } catch (e) { note('adminNote', e.message || 'Failed', 'err'); }
   btn.disabled = false; btn.textContent = label;
@@ -1421,8 +1430,8 @@ function renderPacks() {
   const isFree = userPlan === 'free' && !userIsAdmin;
   const packs = isFree ? cfg.PACKS.filter((p) => p.kind === 'sub' || p.kind === 'course') : cfg.PACKS;
   $('packList').innerHTML = packs.map((p) =>
-    `<div class="pk founding" data-pack="${p.key}"><div><div class="pkn">${p.name}${p.featured ? ' ⭐' : ''}</div>
-      <div class="pkc">${p.credits} <s style="opacity:.6">→</s> <b class="gold">${p.credits * 2} credits</b> · ${p.note}${p.kind === 'sub' ? ' /mo' : ''}</div></div>
+    `<div class="pk" data-pack="${p.key}"><div><div class="pkn">${p.name}${p.featured ? ' ⭐' : ''}</div>
+      <div class="pkc"><b class="gold">${p.credits} credits</b> · ${p.note}${p.kind === 'sub' ? ' /mo' : ''}</div></div>
       <div class="pka">${price(p.naira)}</div></div>`).join('');
   if (isFree) $('packList').insertAdjacentHTML('afterbegin', '<div class="muted" style="font-size:12px;margin-bottom:8px;text-align:center">Subscribe to unlock all models + credit top-ups</div>');
   $('packList').querySelectorAll('.pk').forEach((el) => el.onclick = () => buy(el.dataset.pack, el));
@@ -1460,7 +1469,7 @@ function showManualPay(packKey) {
     <div class="pm-row"><span>Account name</span><b>${bank.holder || ''}</b></div>`);
   $('payDetails').innerHTML = `
     <div class="pay-amt">${p.name} · <b class="gold">${amount}</b></div>
-    <div class="pm-prompt" style="border:0;padding:0;margin:6px 0 12px"><p style="color:var(--gold)">You get ${p.credits * 2} credits (2× founding bonus)</p></div>
+    <div class="pm-prompt" style="border:0;padding:0;margin:6px 0 12px"><p style="color:var(--gold)">You get ${p.credits} credits</p></div>
     ${rows.length ? `<div class="projmeta" style="margin-bottom:12px">${rows.join('')}</div>` : ''}
     ${pay.selar ? `<a class="btn gold block" href="${pay.selar}" target="_blank" rel="noopener" style="margin-bottom:8px">💳 Pay with card / Selar</a>` : ''}
     ${wa ? `<a class="btn ${pay.selar ? 'ghost' : 'gold'} block" href="${wa}" target="_blank" rel="noopener">📲 Send payment proof on WhatsApp</a>` : ''}

@@ -18,13 +18,6 @@
 </head>
 <body>
 
-<!-- ===== Promo bar with countdown ===== -->
-<div class="promobar">
-  🔥 FIRST 50 GET 2× CREDITS
-  <span class="tag">on any plan</span>
-  <span class="cd" id="topCd">EXPIRES IN 23:59:59</span>
-</div>
-
 <!-- ===== Nav ===== -->
 <nav class="nav">
   <div class="wrap">
@@ -171,14 +164,9 @@
 
 <script>
   document.getElementById('yr').textContent = new Date().getFullYear();
-  // top countdown
+  // gift-strip countdown (below hero) — the top 2x-credits promo bar has ended and was removed
   (function(){
-    var end = Date.now() + 24*3600*1000;
     function p(n){return String(n).padStart(2,'0');}
-    setInterval(function(){
-      var s=Math.max(0,Math.floor((end-Date.now())/1000));
-      document.getElementById('topCd').textContent='EXPIRES IN '+p(s/3600|0)+':'+p((s%3600)/60|0)+':'+p(s%60);
-    },1000);
     var g=600;
     setInterval(function(){ g=g>0?g-1:0; var el=document.getElementById('giftCd'); if(el) el.textContent=p(g/60|0)+':'+p(g%60); },1000);
   })();

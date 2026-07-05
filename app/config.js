@@ -198,11 +198,13 @@ window.FUSE = {
     'veo3-text-to-video': 'NEW', 'kling-v3-turbo-pro-text-to-video': 'NEW',
   },
 
-  // Rotating promo pop-up (the Higgsfield-style effect).
+  // Home-page promo banner + popup — both buttons open the credit top-up
+  // modal. (The old "2× founding credits" offer has ended — this is the
+  // evergreen replacement. Edit freely for future promos.)
   PROMO: {
-    title: '🔥 Founding Offer — First 50 only',
-    body: 'The first 50 members get DOUBLE credits on any plan — a one-time founding bonus. Get in early.',
-    cta: 'Claim 2× credits',
+    title: '✨ Build your consistent AI face',
+    body: 'Train your avatar once, then generate yourself in any scene — same face, every time. Top up and start creating.',
+    cta: 'Top up credits',
     pack: 'pro_mo',
     hours: 48, // countdown length
   },

@@ -31,6 +31,7 @@ window.FUSE_5WEEK = {
   creditsCost: 250,             // in-app credit price to unlock (optional path, ~ same value as ₦5,000)
   charLabBuyUrl: 'https://fusecharacterlabpage.netlify.app/', // purchase / sales page (Day 2 banner + promo card)
   charLabLoginUrl: 'https://fuse-character-lab.netlify.app/', // the actual tool — only unlocks for buyers' emails
+  pitchPilotUrl: 'https://pitch-pilot2.netlify.app/', // Day 5 + Day 6 banner — sign up free, 3 free pitches
   landingUrl: 'https://500-dollar-week.netlify.app', // sales page shown to locked users
   dayCredits: 50, // credits to unlock a single day (must match KEY_COST in unlock-module.js)
   // Default lesson videos (overridable per-day in Admin via course_videos).
@@ -90,7 +91,7 @@ window.FUSE_5WEEK = {
     },
     {
       key: 'wk-2', day: 2, title: 'Build your consistent AI face',
-      dur: '15 min + video', video: true,
+      dur: '12 min + video', video: true,
       notes: `
         <h3>Your model is your product's foundation</h3>
         <p>Everything you'll sell starts with one consistent AI character — a face that stays the same across every image and video, so your content looks like one real creator, not random AI images.</p>
@@ -159,7 +160,7 @@ Skin tone: [e.g. "deep brown, warm undertone"]</div>
     },
     {
       key: 'wk-3', day: 3, title: 'Create your first AI UGC video',
-      dur: '18 min + video', video: true,
+      dur: '11 min + video', video: true,
       notes: `
         <h3>From a still model to a scroll-stopping clip</h3>
         <p>Now you turn your consistent AI face into moving, talking pieces of content — the exact kind clients pay for.</p>
@@ -276,7 +277,7 @@ I've delivered [X] projects for brands in [industries]. Let's discuss your conte
     },
     {
       key: 'wk-5', day: 5, title: 'Pitch and land your first client',
-      dur: '16 min + video', video: true,
+      dur: '15 min + video', video: true,
       notes: `
         <h3>The pitch is where the money is decided</h3>
         <p>A great video with a weak pitch gets ignored. Today you learn to write proposals that get replies — fast.</p>
@@ -331,7 +332,51 @@ Best,
         </ol>
         <h3>Speed wins</h3>
         <p>Apply within the first hour a job is posted. Personalise the first line. Keep it short. Attach one relevant sample. That's it.</p>
-        <p><b>Today's action:</b> send 5 tailored pitches. Track replies in the group.</p>`,
+
+        <h3>The exact method — using Upwork as a lead source, then pitching the client directly</h3>
+        <p>Here's the real move: you're not always submitting a formal Upwork proposal. You're using Upwork's job board to <b>find</b> the client, then reaching out to them <b>directly</b> — email, WhatsApp, LinkedIn, Instagram — using Fuse PitchPilot to write it. No proposal fee, no competing with 50 other applicants.</p>
+
+        <h3>Set your Upwork search filters right</h3>
+        <ul>
+          <li><b>Experience level:</b> Entry + Intermediate (skip Advanced while you're starting out)</li>
+          <li><b>Job type:</b> Fixed price, $100–$500 (skip hourly jobs — more competition)</li>
+          <li><b>Number of proposals:</b> 10–20 (anything past 20–50 is already crowded)</li>
+          <li><b>Payment verified:</b> ON — always. Never pitch an unverified client.</li>
+          <li><b>Client history:</b> 1–9 hours or 10+ hours (shows they've actually hired before)</li>
+        </ul>
+        <p>Read the full job post before deciding — make sure it's genuinely something you can deliver.</p>
+
+        <h3>Finding the client's real name and company</h3>
+        <p>The job post itself rarely names the client or their brand — so you dig for it in the <b>feedback/reviews section</b>:</p>
+        <ol>
+          <li>Scroll to the reviews other freelancers left. Client names often surface in a freelancer's own review of the client — e.g. "I really enjoyed working with <b>Dennis</b>" tells you the client's first name is Dennis.</li>
+          <li><b>Verify before trusting it</b> — find the same name mentioned 2–3 times across different reviews. One mention could be a fluke; three confirms it.</li>
+          <li>Watch which side of the review you're reading — the one always at the top of each pair is the <b>freelancer's review of the client</b> (what you want); don't confuse it with the client's review of the freelancer.</li>
+          <li>Company/brand names surface the same way — phrases like "great working with [Company]" in a review.</li>
+        </ol>
+
+        <h3>Turning a name into a full contact profile</h3>
+        <ol>
+          <li>Google search: <i>"[Name] founder of [Company] [Location]"</i> — the location is always shown on the job post, so you don't need to guess it.</li>
+          <li>This usually surfaces their LinkedIn profile — confirm it's the right person by matching their role/company.</li>
+          <li>Go to <b>contactout.com</b>, search the same name + company, and tap their profile — it surfaces their <b>email</b> and <b>phone number</b> where available, plus a direct link to their LinkedIn.</li>
+          <li>Not every number is on WhatsApp — check before assuming. If it's not, you simply pitch on whichever channels you did find (e.g. just email + LinkedIn is completely fine).</li>
+        </ol>
+
+        <h3>Now bring it all into Fuse PitchPilot</h3>
+        <ol>
+          <li>Set up your profile + portfolio once (name, headline, offer, portfolio link, sample projects) — PitchPilot reuses this for every pitch.</li>
+          <li>Paste the full job post text into the <b>Job post</b> field.</li>
+          <li>Type in the client's name, company and location you found, plus anything you learned about them (their brief, tone, what they need) under "client history."</li>
+          <li>If you found one of their older job posts, paste it in too — it helps PitchPilot understand their bigger picture.</li>
+          <li>Tap <b>Write my 4 outreach messages</b>. You'll get a ready Email, WhatsApp, Instagram and LinkedIn message, plus a LinkedIn connect note — all personalised to that client.</li>
+          <li>Copy whichever ones match the contact channels you actually found, and send. If they're not connected on LinkedIn yet, send the connect note first — once accepted, follow up with the full message.</li>
+          <li>Log the pitch in your <b>Pitch Journal</b> (tick the channels you sent on) so you can track replies and outcomes — and revisit the exact text anytime from your <b>pitch history</b>.</li>
+        </ol>
+        <p class="muted" style="font-size:13.5px"><b>Out of free pitches and not ready to subscribe?</b> Open Fuse Reactor, paste in everything you found about the client, and ask it to write the same 4 messages by hand — it works the same way, just one extra step.</p>
+        <p class="muted" style="font-size:13.5px">This really is a numbers game — the more real profiles you build and pitch, the higher your odds. Once you've pitched one lead, go straight back and find the next.</p>
+
+        <p><b>Today's action:</b> send 5 tailored pitches — a mix of Upwork proposals and direct outreach. Track replies in the group.</p>`,
     },
     {
       key: 'wk-6', day: 6, title: 'Grow on Instagram with AI content',
@@ -350,6 +395,16 @@ Best,
           <li>Brands with good products but mediocre visuals</li>
           <li>Look in: skincare, supplements, fashion, wellness, food, SaaS</li>
         </ul>
+
+        <h3>Also search Google Maps / Google directly — not just Instagram</h3>
+        <p>Instagram isn't the only place to find brands. Real local and small businesses live on <b>Google Maps</b> too — restaurants, salons, clinics, gyms, hotels, trades, anything with a physical presence. This is entirely manual research (no AI search tool needed) — just you, Google, and your eyes:</p>
+        <ol>
+          <li>Open <b>Google Maps</b> and search a niche + city (e.g. "beauty salon London" or "dental clinic Birmingham"). Scroll through real listings.</li>
+          <li>For each business, check: do they have a real website? Is it outdated, slow, or missing entirely (some only list a Facebook/Instagram page as their "website")? That gap is your opening.</li>
+          <li>Tap into their listing/website to find their <b>email address</b> and <b>phone number</b> — most publish a contact page or "info@" address.</li>
+          <li>No email listed? Search "<i>[Business name] [City] contact email</i>" on Google, or check <b>contactout.com</b> the same way you did for Upwork clients on Day 5.</li>
+          <li>Note what's weak about their current site/presence — no online booking, no mobile version, ugly design, nothing at all — that becomes your opening line.</li>
+        </ol>
 
         <h3>Create a custom sample first (15–30 minutes per brand)</h3>
         <p>This is the move that separates you from everyone else. Before you pitch, create a free sample of what you'd make for them: study their brand colors/aesthetic/products, generate one AI character image that fits their brand, create one 5–10 second video sample using their product/aesthetic. It's a 15–30 minute investment that pays back 10x.</p>
@@ -373,6 +428,7 @@ Would love to chat if you're open to it. No pressure either way — the sample i
 Best,
 [Your name] · [Upwork/portfolio link]</div>
         <p class="muted" style="font-size:13.5px"><b>Response-rate reality:</b> expect 1–2 replies out of 5. That's normal — most brand outreach has a 15–30% response rate. The ones who respond are warm leads. Follow up once after 3 days if no response.</p>
+        <p class="muted" style="font-size:13.5px"><b>Let Fuse PitchPilot write these for you:</b> whether you found the brand on Instagram or Google Maps, open PitchPilot's outreach mode and fill in their name/business, website, what you found about them, what you're pitching, and your goal — it writes the email, WhatsApp, Instagram and LinkedIn versions in one tap, personalised to that exact brand.</p>
 
         <h3>Post like a strategist (grow your own page too)</h3>
         <ul>
@@ -381,7 +437,7 @@ Best,
           <li>End with a <b>comment-to-DM</b> CTA ("comment a word for the link").</li>
           <li>Optimise your bio: what you do + one clear link. Show finished work — proof sells faster than promises.</li>
         </ul>
-        <p><b>Today's action:</b> find 5 brands, create 5 custom samples, send 5 DMs or emails. This is the non-negotiable minimum — plus post one AI UGC reel with a comment-to-DM CTA.</p>`,
+        <p><b>Today's action:</b> find 5 brands (Instagram, Google Maps, or both), create 5 custom samples, send 5 DMs or emails via PitchPilot. This is the non-negotiable minimum — plus post one AI UGC reel with a comment-to-DM CTA.</p>`,
     },
     {
       key: 'wk-7', day: 7, title: 'Scale — pricing, delivery, repeat clients',
@@ -432,8 +488,20 @@ Best,
           <li>Offer a "next month" package before the current job ends.</li>
         </ul>
         <p>Keep the model, keep batching, keep pitching daily. The people who win aren't the most talented — they're the most consistent.</p>
-        <div class="wk-call">🎓 Ready to go deeper? Fuse Atelier is the full AI Creative Income System — ask in the group about upgrading.</div>
-        <p><b>Today's action:</b> pitch the retainer to your first client, and set your 30-day income target.</p>`,
+
+        <h3>🎓 You've done the sprint. Here's the full system.</h3>
+        <p>The $500 Week taught you one real skill: AI UGC content + landing your first client. That's the doorway. <b>Fuse Atelier</b> is the complete system that turns this into a real, compounding income — not just one client, a whole creative business.</p>
+        <ul>
+          <li><b>THE SPARK</b> — director-level AI content: CGI ads, product visuals, 50+ premium prompts. <span class="muted">$500–$2,000/project</span></li>
+          <li><b>THE HOUSE</b> — full brand identity systems: logos, social kits, packaging. <span class="muted">$500–$2,000/project</span></li>
+          <li><b>THE GOLD</b> — international clients, Upwork retainers, the exact dollar-earning system. <span class="muted">$1,000–$3,500/month</span></li>
+          <li><b>THE STAGE</b> — your personal brand, content funnels, ManyChat automation. <span class="muted">Compounding growth</span></li>
+        </ul>
+        <p>Plus 12 bonus vault resources (prompt vaults, proposal swipe files, a 90-day roadmap) and <b>500 Fuse Studio credits</b> included on day one.</p>
+        <div class="wk-call">🔥 Founding price: <b>₦60,000</b> lifetime access (first 50 students) — then ₦90,000. You already proved you can do this in 7 days. Now scale it.</div>
+        <a class="btn gold block" href="https://fuse-atelier.netlify.app" target="_blank" rel="noopener" style="margin-top:6px">🎬 See Fuse Atelier — join at the founding price →</a>
+
+        <p><b>Today's action:</b> pitch the retainer to your first client, set your 30-day income target, and take a look at Fuse Atelier while the founding price is still open.</p>`,
     },
   ],
 };

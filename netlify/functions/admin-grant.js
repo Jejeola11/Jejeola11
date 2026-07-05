@@ -8,9 +8,10 @@
 const { admin, getUser, json } = require('./_supabase');
 const { PACKS } = require('./_packs');
 
-// First-50 founding offer: every grant delivers DOUBLE credits. Set to 1 once the
-// founding promo ends (so a ₦9k Creator stops giving 700 and gives 350 again).
-const FOUNDING_MULTIPLIER = 2;
+// First-50 founding offer has ended — grants now deliver the normal credit
+// amount (a ₦9k Creator gives 350, not 700). Bump back to 2 only if you run
+// this promo again.
+const FOUNDING_MULTIPLIER = 1;
 
 exports.handler = async (event) => {
   let db;

@@ -48,15 +48,10 @@ exports.handler = async (event) => {
     .from('payments').select('id').eq('reference', reference).maybeSingle();
   if (existing) return { statusCode: 200, body: 'already processed' };
 
-  // 3) Credit the user — first 50 paying members get a one-time 2x bonus.
-  let credits = pack.credits;
-  let founding = false;
-  try {
-    const { data } = await db.rpc('claim_founding', { uid: userId });
-    founding = !!data;
-  } catch (e) {}
-  if (founding) credits *= 2;
-  await db.rpc('add_credits', { uid: userId, amount: credits, why: founding ? 'founding_2x' : 'purchase' });
+  // 3) Credit the user the normal amount. (The first-50-payers 2x founding
+  // bonus has ended — it used to double credits via claim_founding here.)
+  const credits = pack.credits;
+  await db.rpc('add_credits', { uid: userId, amount: credits, why: 'purchase' });
 
   // 4) Subscription packs also extend plan access by 30 days.
   if (pack.kind === 'sub') {
