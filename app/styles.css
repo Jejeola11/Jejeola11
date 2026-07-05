@@ -567,11 +567,20 @@ textarea{min-height:104px;resize:vertical}
 @media (max-width:430px){
   .topbar .in{padding-left:10px;padding-right:10px}
   .brand{font-size:15px}
+  .hdr-actions{gap:5px}
   .hdr-ic{width:32px;height:32px;font-size:14px}
   .streakpill{padding:5px 8px}
+  .planpill{padding:5px 9px;font-size:12px}
   .feat-grid{gap:10px}
   .featbox{min-height:118px;padding:14px 13px}
   .fb-name{font-size:16px}
+}
+/* Small phones: keep the header on one line — drop the Instagram shortcut
+   (it's also in the footer) and collapse the brand to just the F mark. */
+@media (max-width:390px){
+  .hdr-actions a.hdr-ic[href*="instagram"]{display:none}
+  .brand{font-size:0;gap:0}
+  .brand .dot{font-size:15px}
 }
 
 /* ===== Explore more AI features (chip cloud) ===== */

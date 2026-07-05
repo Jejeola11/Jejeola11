@@ -292,9 +292,12 @@ function resumePending() {
 
 // ---------------- model gallery (Create — Higgsfield-style picker) ----------------
 let modelKind = 'all';
-// Free-plan model whitelist (matches _packs.js FREE_* lists).
-const FREE_SLUGS = new Set(['flux-schnell-image', 'qwen-image', 'grok-imagine-text-to-video', 'grok-imagine-image-to-video', 'gpt-5-2', 'gemini-2-5-flash']);
-function isLocked(slug) { return userPlan === 'free' && !userIsAdmin && !FREE_SLUGS.has(slug); }
+// Free plan can generate with ANY image or video model — credits are the only
+// limiter (matches _packs.js canUseFree). Only tools stay subscription-gated.
+function isLocked(slug) {
+  if (userPlan !== 'free' || userIsAdmin) return false;
+  return (cfg.TOOL_MODELS || []).some((m) => m.slug === slug);
+}
 
 function buildModels(kind) {
   modelKind = kind || 'all';

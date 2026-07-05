@@ -105,14 +105,15 @@ const REACTOR_COST = {
   'gemini-2-5-flash': 1,
 };
 
-// Plan access tiers. Free users get basic models only. Subscribers get everything.
+// Plan access tiers. Free users can generate with ANY image or video model —
+// their credit balance is the only limiter. Tools still need a subscription.
 // Admin bypasses all restrictions.
-const FREE_IMAGE = ['flux-schnell-image', 'qwen-image'];
-const FREE_VIDEO = ['grok-imagine-text-to-video', 'grok-imagine-image-to-video'];
+const FREE_IMAGE = Object.keys(IMAGE_MODELS);
+const FREE_VIDEO = Object.keys(VIDEO_MODELS);
 const FREE_TOOLS = [];           // free users can't use tools
 const FREE_REACTOR = ['gpt-5-2', 'gemini-2-5-flash'];
 function canUseFree(model) {
-  return FREE_IMAGE.includes(model) || FREE_VIDEO.includes(model) || FREE_REACTOR.includes(model);
+  return (model in IMAGE_MODELS) || (model in VIDEO_MODELS) || FREE_REACTOR.includes(model);
 }
 
 module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree };
