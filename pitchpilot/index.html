@@ -273,7 +273,11 @@
   // PitchPilot's OWN Supabase project — fully separate from Fuse Studio.
   // Set the real values in config.js (never here) — see that file's comment.
   const CFGV=window.PP_CONFIG||{};
-  const sb=window.supabase.createClient(CFGV.SUPABASE_URL,CFGV.SUPABASE_ANON_KEY);
+  // Defensive: strip a trailing /rest/v1, /auth/v1 or slash if someone pastes
+  // the wrong Supabase URL variant into config.js — the client needs the bare
+  // project URL only (https://xxxx.supabase.co), nothing appended.
+  const PP_URL=(CFGV.SUPABASE_URL||'').trim().replace(/\/(rest|auth)\/v1\/?$/,'').replace(/\/+$/,'');
+  const sb=window.supabase.createClient(PP_URL,CFGV.SUPABASE_ANON_KEY);
   let me=null, myUsage=null, authMode='signup';
 
   async function authHeader(){ const {data}=await sb.auth.getSession(); return data&&data.session?{Authorization:'Bearer '+data.session.access_token}:{}; }
