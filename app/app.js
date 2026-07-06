@@ -259,7 +259,7 @@ function saveRoute() {
 function restoreRoute() {
   let r; try { r = JSON.parse(localStorage.getItem('fuse_route') || 'null'); } catch (e) {}
   if (!r || !r.view || r.view === 'home') return;
-  const safe = ['library', 'profile', 'community', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course', 'week', 'omni'];
+  const safe = ['library', 'profile', 'community', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course', 'week', 'omni', 'mini'];
   if (!safe.includes(r.view)) return;
   try {
     if (r.view === 'studio') { openStudio(r.studio || 'generate'); if (r.video) setStudioMode(true); }
@@ -732,6 +732,114 @@ function openLesson(key) {
   showView('lesson');
 }
 
+// ---------------- Mini Masterclasses (₦1,000 one-video courses) ----------------
+const MINI = cfg.MINI_COURSES || [];
+let miniVideos = {};        // 'mini-<key>' -> video url
+let miniUnlocks = new Set(); // 'mini-<key>' unlocked for this user
+let curMini = null;
+function miniUnlocked(key) { return userIsAdmin || miniUnlocks.has('mini-' + key); }
+async function openMiniHub() {
+  showView('mini');
+  try { const { data: v } = await sb.from('course_videos').select('lesson_key, url').like('lesson_key', 'mini-%'); miniVideos = {}; (v || []).forEach((r) => { miniVideos[r.lesson_key] = r.url; }); } catch (e) {}
+  if (user && !preview) {
+    try { const { data: u } = await sb.from('module_unlocks').select('module_key').eq('user_id', user.id).like('module_key', 'mini-%'); miniUnlocks = new Set((u || []).map((r) => r.module_key)); } catch (e) {}
+  }
+  $('miniGrid').innerHTML = MINI.map((m) => `
+    <div class="mini-card" data-mk="${m.key}">
+      <div class="mini-ic">${m.emo}</div>
+      <div class="mini-t">${m.title}</div>
+      <div class="mini-d">${m.teaser}</div>
+      <div class="mini-f">${miniUnlocked(m.key) ? '<span class="mini-owned">✓ Unlocked</span>' : `<b>₦${(cfg.MINI_PRICE_NAIRA || 1000).toLocaleString()}</b>`}</div>
+    </div>`).join('');
+  $('miniGrid').querySelectorAll('.mini-card').forEach((c) => c.onclick = () => openMiniCourse(c.dataset.mk));
+}
+function openMiniCourse(key) {
+  const m = MINI.find((x) => x.key === key); if (!m) return;
+  curMini = m;
+  const mkey = 'mini-' + key;
+  const unlocked = miniUnlocked(key);
+  $('miniTitle').textContent = m.emo + ' ' + m.title;
+  $('miniMeta').textContent = m.teaser;
+  if (unlocked) {
+    $('miniBody').innerHTML = `<div id="miniPlayer" class="lesson-player" style="position:relative">${lessonEmbed(miniVideos[mkey])}<div style="position:absolute;top:0;left:0;right:0;height:56px;z-index:5"></div></div>
+      <div class="mini-upsell">
+        <div class="mini-upsell-t">🎬 Want the full system, not just one video?</div>
+        <p>Fuse Atelier is the complete AI Creative Income System — every skill like this one, all in one place, plus 500 Fuse Studio credits.</p>
+        <a class="btn gold block" href="https://fuse-atelier.netlify.app" target="_blank" rel="noopener">See Fuse Atelier — join at the founding price →</a>
+      </div>
+      ${userIsAdmin ? adminMiniVideoBox(mkey) : ''}`;
+    wireMiniAdminSave(mkey);
+  } else {
+    $('miniBody').innerHTML = `<div class="mini-lock">
+      <div style="font-size:32px">🔒</div>
+      <p>Unlock this masterclass for <b>₦${(cfg.MINI_PRICE_NAIRA || 1000).toLocaleString()}</b>. Already paid on Selar? Enter the code you were given.</p>
+      <input id="miniCode" placeholder="Enter your code">
+      <button class="btn gold block" id="miniRedeem" style="margin-top:8px">Unlock with code</button>
+      <div class="note" id="miniNote"></div>
+      <button class="btn ghost block" id="miniCredits" style="margin-top:14px">Or unlock with 30 credits</button>
+    </div>
+    ${userIsAdmin ? adminMiniVideoBox(mkey) : ''}`;
+    $('miniRedeem').onclick = () => redeemMini(mkey, $('miniCode').value.trim());
+    $('miniCredits').onclick = () => redeemMini(mkey, '');
+    wireMiniAdminSave(mkey);
+  }
+  showView('mini-lesson');
+}
+function adminMiniVideoBox(mkey) {
+  return `<div class="lesson-admin">
+    <label class="fld">👑 Video URL (YouTube / Vimeo / MP4) — loads for everyone</label>
+    <input id="mvUrl" placeholder="https://youtu.be/… or https://…/video.mp4" value="${(miniVideos[mkey] || '').replace(/"/g, '&quot;')}">
+    <button class="btn gold sm" id="mvSave" style="margin-top:8px">Save video</button>
+    <span class="note" id="mvNote"></span></div>`;
+}
+function wireMiniAdminSave(mkey) {
+  const btn = $('mvSave'); if (!btn) return;
+  btn.onclick = async () => {
+    const url = $('mvUrl').value.trim();
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try {
+      const res = await fetch('/.netlify/functions/course-set-video', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+        body: JSON.stringify({ lesson_key: mkey, url }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+      miniVideos[mkey] = url; note('mvNote', '✅ Saved — live now.', 'ok');
+    } catch (e) { note('mvNote', e.message || 'Could not save', 'err'); }
+    btn.disabled = false; btn.textContent = 'Save video';
+  };
+}
+async function redeemMini(mkey, code) {
+  if (preview || !user) { showAuth('signup'); return; }
+  const btn = $('miniRedeem') || $('miniCredits');
+  if (btn) { btn.disabled = true; btn.textContent = 'Checking…'; }
+  try {
+    const res = await fetch('/.netlify/functions/unlock-module', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ module_key: mkey, code }),
+    });
+    const d = await res.json();
+    if (res.status === 402) { note('miniNote', 'Out of credits.', 'err'); openBuy(); if (btn) { btn.disabled = false; btn.textContent = code ? 'Unlock with code' : 'Or unlock with 30 credits'; } return; }
+    if (res.status === 403) { note('miniNote', d.error || 'That code is not valid.', 'err'); if (btn) { btn.disabled = false; btn.textContent = 'Unlock with code'; } return; }
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    miniUnlocks.add(mkey);
+    toast('✅ Unlocked!');
+    openMiniCourse(mkey.replace(/^mini-/, ''));
+  } catch (e) {
+    note('miniNote', e.message || 'Could not unlock', 'err');
+    if (btn) { btn.disabled = false; btn.textContent = code ? 'Unlock with code' : 'Or unlock with 30 credits'; }
+  }
+}
+// .../?view=mini&mkey=avatar&code=AVATAR1K — auto-redeem straight from the
+// Selar "thank you" redirect, so buyers land unlocked with no manual step.
+async function maybeAutoRedeemMini() {
+  const qs = new URLSearchParams(location.search);
+  const mkey = qs.get('mkey'), code = qs.get('code');
+  if (qs.get('view') === 'mini' && mkey && user) {
+    openMiniCourse(mkey);
+    if (code && !miniUnlocked(mkey)) await redeemMini('mini-' + mkey, code);
+  }
+}
+
 // Route a home feature box / explore chip to its destination.
 function routeFeature(go) {
   if (!go) return;
@@ -747,6 +855,7 @@ function routeFeature(go) {
   }
   if (go === 'learn') return openCourse();
   if (go === 'week' || go === '500week') return openWeek();
+  if (go === 'mini') return openMiniHub();
   if (go === 'reactor' || go === 'avatar' || go === 'promptgen' || go === 'market') return openStudio(go);
   if (go === 'community') return showView('community');
   if (go === 'streak') return claimDaily();
@@ -2031,6 +2140,8 @@ async function boot() {
   // open straight to that view. wkcode (if present) is picked up inside openWeek().
   const qView = new URLSearchParams(location.search).get('view');
   if (qView === 'week') setTimeout(() => routeFeature('week'), 400);
+  // Same pattern for the ₦1,000 Mini Masterclasses: .../?view=mini&mkey=avatar&code=AVATAR1K
+  if (qView === 'mini') setTimeout(() => { openMiniHub(); maybeAutoRedeemMini(); }, 400);
 }
 
 // ---------------- wire up ----------------
@@ -2048,6 +2159,8 @@ window.addEventListener('DOMContentLoaded', () => {
   $('courseBack').onclick = () => showView('home');
   $('lessonBack').onclick = () => openCourse();
   { const wb = $('weekBack'); if (wb) wb.onclick = () => showView('home'); }
+  { const mb = $('miniBack'); if (mb) mb.onclick = () => showView('home'); }
+  { const mlb = $('miniLessonBack'); if (mlb) mlb.onclick = () => openMiniHub(); }
   $('marketBack').onclick = () => showView('home');
   $('learnBack').onclick = () => showView('home');
   $('avatarBack').onclick = () => showView('home');

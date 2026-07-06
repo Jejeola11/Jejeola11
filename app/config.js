@@ -161,6 +161,7 @@ window.FUSE = {
 
   // "Explore more AI features" chip cloud (Home). go: routeFeature target.
   FEATURES: [
+    { label: '🎬 Mini Masterclasses', go: 'mini' },
     { label: 'Fuse Reactor', go: 'reactor' },
     { label: 'Omni Studio', go: 'studio:omni' },
     { label: 'Avatar Studio', go: 'avatar' },
@@ -218,6 +219,25 @@ window.FUSE = {
     { name: 'Church / event flyer',    prompt: 'clean modern church program flyer background, elegant, spiritual, space for text, gold and deep teal accents' },
     { name: 'Small-biz WhatsApp DP',   prompt: 'professional friendly Nigerian entrepreneur portrait, clean background, trustworthy, profile photo, soft studio light' },
   ],
+
+  // 🎬 Mini Masterclasses — ₦1,000 one-video courses sold via Selar/WhatsApp
+  // carousels, delivered inside Fuse Studio. Each buyer redeems a code (given
+  // after Selar payment) which auto-unlocks via unlock-module.js's KEY_CODE map
+  // (module_key = 'mini-<key>'). No video yet? It shows "coming soon" — safe to
+  // go live with the page before the video is recorded.
+  MINI_COURSES: [
+    { key: 'avatar',    emo: '🧑‍🎨', title: 'AI Avatar Images',      teaser: 'Build one consistent AI face you can reuse in any scene, forever.' },
+    { key: 'talkinghead', emo: '🎙️', title: 'AI Talking-Head Video', teaser: 'Turn a script into a realistic talking presenter — no camera, no studio.' },
+    { key: 'productad', emo: '📦', title: 'AI Product Ad',           teaser: 'Studio-grade product ads clients pay $200+ for, from your phone.' },
+    { key: 'movie',     emo: '🎬', title: 'AI Movie',                teaser: 'Direct a short AI film — scenes, characters and story that hold together.' },
+    { key: 'socialdesign', emo: '🎨', title: 'AI Social Media Design', teaser: 'Scroll-stopping post & story designs in your brand, in minutes.' },
+    { key: 'packaging', emo: '🧴', title: 'AI Product Packaging',    teaser: 'Photoreal packaging concepts before a single physical sample exists.' },
+    { key: 'ugc',       emo: '📱', title: 'AI Product UGC Videos',   teaser: 'The "customer testimonial" ad style brands can\'t get enough of.' },
+    { key: 'cgi',       emo: '🧪', title: 'CGI Ads',                 teaser: 'The $500–$2,000/video CGI ad look — without a 3D team.' },
+    { key: 'motion',    emo: '🌀', title: 'AI Motion Graphics',      teaser: 'Kinetic type and animated graphics that make static posts move.' },
+    { key: 'logo',      emo: '🔤', title: 'AI Logo',                 teaser: 'Sharp, professional logo concepts clients approve on the first pass.' },
+  ],
+  MINI_PRICE_NAIRA: 1000,
 
   // 🎓 Earn-while-you-learn — finishing these unlocks a 20-credit bonus.
   LESSONS: [
