@@ -239,6 +239,39 @@ window.FUSE = {
   ],
   MINI_PRICE_NAIRA: 1000,
 
+  // Fuse Character Lab links — the prompt-builder companion tool. Reused by the
+  // AI Avatar mini-course banner (new buyer → sales page, existing → the tool).
+  CHARLAB_BUY_URL: 'https://fusecharacterlabpage.netlify.app/',
+  CHARLAB_TOOL_URL: 'https://fuse-character-lab.netlify.app/',
+
+  // Written step-by-step lesson notes shown UNDER each mini-course video. Keyed
+  // by course key (matches MINI_COURSES). Written from the real tutorial videos
+  // so the text tracks exactly what's demonstrated on screen. `charlab: true`
+  // adds the Fuse Character Lab two-button banner (Avatar course uses it).
+  MINI_CONTENT: {
+    avatar: {
+      charlab: true,
+      steps: [
+        ['Open AI Avatar Studio', 'In Fuse Studio tap <b>Create → Avatar Studio</b> ("generate yourself in any scene"). This is where your reusable AI face lives.'],
+        ['Train your avatar', 'Tap <b>Train a new avatar</b> and upload <b>10–20 clear photos of yourself</b> from different angles in good light. The more varied the photos, the more consistent your AI face. Give it a name and tap <b>Train avatar</b>.'],
+        ['Generate your Consistency Model Sheet', 'Once training finishes, tap <b>Generate model sheet</b>. This builds a multi-angle sheet that <b>locks your face</b> so every image you make afterwards is unmistakably the same person.'],
+        ['Describe the scene (or build it in Fuse Character Lab)', 'Type your scene in the box — e.g. <i>"CEO in a modern Lagos office, navy suit, magazine-cover lighting"</i> — or open <b>Fuse Character Lab</b> to build a detailed prompt from menus (heritage, hair, vibe, outfit, setting, lighting, shot type) and paste it in. You can add up to 3 reference images for props or products.'],
+        ['Set 9:16 and Generate', 'Choose <b>9:16 vertical</b> and tap <b>Generate</b>. You get yourself in that exact scene — same face, every time.'],
+        ['Reuse it forever', 'Your trained avatar stays saved. Generate unlimited new scenes, outfits and campaigns on demand — no photoshoot, no studio, no waiting.'],
+      ],
+    },
+    productad: {
+      steps: [
+        ['Get your brand brief from Fuse Reactor', 'Open <b>Create → Fuse Reactor</b> and pick <b>Claude Sonnet</b>. Ask it for a <i>full project brief for 5 product renders</i> — give it a niche (e.g. luxury beauty) and it returns a real brand, exact colour codes, one hero product, five render concepts, and ready-to-paste prompts.'],
+        ['Generate your reference product', 'Go to <b>Create → Image</b>, engine <b>Nano Banana</b>, aspect <b>9:16</b>. Paste the "isolated product on pure white background" prompt from your brief. This clean shot becomes your <b>consistent reference product</b>.'],
+        ['Render each scene', 'For each of the 5 concepts, add your reference product as an <b>image reference</b>, paste that scene\'s prompt (deep-sea origin, champagne vanity, submerged luxury, minimalist editorial, gold-hour opulence…) and generate. Run 3–4 variations and keep the best.'],
+        ['Keep the product accurate', 'When using the reference, keep <b>style strength around 70–85%</b> — high enough that the scene transforms, low enough that your product stays true to the original.'],
+        ['Polish for delivery', 'Colour-grade each render to your brand hex codes, sharpen the label, add a subtle vignette on the darker renders, then export web-optimized JPGs (1500×1500).'],
+        ['That\'s a full ad set', 'One product, five studio-grade ads — no studio, no photographer, no shoot day. This is exactly the work brands pay <b>$200–$2,000</b> for.'],
+      ],
+    },
+  },
+
   // 🎓 Earn-while-you-learn — finishing these unlocks a 20-credit bonus.
   LESSONS: [
     { t: 'Direct like a pro', b: 'Craft cinematic AI photos & videos that look agency-made — characters, products, ads and scenes.' },

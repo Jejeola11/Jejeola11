@@ -721,6 +721,19 @@ textarea{min-height:104px;resize:vertical}
 .mini-upsell{background:linear-gradient(160deg,rgba(245,197,24,.1),rgba(255,255,255,.02));border:1px solid var(--gold-deep);border-radius:14px;padding:16px;margin-top:16px}
 .mini-upsell-t{font-weight:800;font-size:15px;margin-bottom:6px}
 .mini-upsell p{color:var(--muted);font-size:13px;margin-bottom:12px}
+.mini-steps{margin-top:16px}
+.mini-steps-h{font-weight:800;font-size:15px;margin-bottom:12px}
+.mini-step{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.mini-step:last-child{border-bottom:0}
+.mini-step-n{flex:0 0 26px;height:26px;border-radius:8px;background:rgba(245,197,24,.14);color:var(--gold);font-weight:800;display:grid;place-items:center;font-size:13px}
+.mini-step b{font-size:14.5px}
+.mini-step p{color:var(--muted);font-size:13px;margin-top:3px;line-height:1.5}
+.mini-tool{background:linear-gradient(160deg,rgba(77,163,255,.08),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:16px}
+.mini-tool-h{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.mini-tool-ic{font-size:26px}
+.mini-tool-h b{font-size:14.5px;display:block}
+.mini-tool-h span{color:var(--muted);font-size:12px}
+.mini-tool-btns{display:flex;gap:8px;flex-wrap:wrap}
 
 /* ===== Avatar model sheet ===== */
 .sheet-box{background:linear-gradient(160deg,rgba(245,197,24,.07),rgba(255,255,255,.02));border:1px solid var(--gold-deep);border-radius:14px;padding:14px;margin-bottom:14px}

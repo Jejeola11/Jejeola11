@@ -764,7 +764,23 @@ function openMiniCourse(key) {
   $('miniTitle').textContent = m.emo + ' ' + m.title;
   $('miniMeta').textContent = m.teaser;
   if (unlocked) {
+    const content = (cfg.MINI_CONTENT || {})[key];
+    const steps = content && content.steps ? `
+      <div class="mini-steps">
+        <div class="mini-steps-h">📋 The steps — follow along with the video</div>
+        ${content.steps.map((s, i) => `<div class="mini-step"><span class="mini-step-n">${i + 1}</span><div><b>${s[0]}</b><p>${s[1]}</p></div></div>`).join('')}
+      </div>` : '';
+    const charlab = content && content.charlab ? `
+      <div class="mini-tool">
+        <div class="mini-tool-h"><span class="mini-tool-ic">🧬</span><div><b>Fuse Character Lab</b><span>The prompt-builder for your avatar scenes</span></div></div>
+        <div class="mini-tool-btns">
+          <a class="btn gold sm" style="flex:1" href="${cfg.CHARLAB_BUY_URL || '#'}" target="_blank" rel="noopener">🛒 Get access</a>
+          <a class="btn ghost sm" style="flex:1" href="${cfg.CHARLAB_TOOL_URL || '#'}" target="_blank" rel="noopener">🔑 Already purchased? Open it</a>
+        </div>
+      </div>` : '';
     $('miniBody').innerHTML = `<div id="miniPlayer" class="lesson-player" style="position:relative">${lessonEmbed(miniVideos[mkey])}<div style="position:absolute;top:0;left:0;right:0;height:56px;z-index:5"></div></div>
+      ${steps}
+      ${charlab}
       <div class="mini-upsell">
         <div class="mini-upsell-t">🎬 Want the full system, not just one video?</div>
         <p>Fuse Atelier is the complete AI Creative Income System — every skill like this one, all in one place, plus 500 Fuse Studio credits.</p>
