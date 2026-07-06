@@ -225,10 +225,14 @@ window.FUSE = {
   // after Selar payment) which auto-unlocks via unlock-module.js's KEY_CODE map
   // (module_key = 'mini-<key>'). No video yet? It shows "coming soon" — safe to
   // go live with the page before the video is recorded.
+  // `hostedVideo:true` means the lesson auto-loads its video from Supabase
+  // Storage at course-videos/mini-<key>.mp4 (public bucket) when no explicit
+  // course_videos row is set — so uploading a correctly-named file into that
+  // bucket is all it takes to make the video appear, no admin step needed.
   MINI_COURSES: [
-    { key: 'avatar',    emo: '🧑‍🎨', title: 'AI Avatar Images',      teaser: 'Build one consistent AI face you can reuse in any scene, forever.' },
+    { key: 'avatar',    emo: '🧑‍🎨', title: 'AI Avatar Images',      teaser: 'Build one consistent AI face you can reuse in any scene, forever.', hostedVideo: true },
     { key: 'talkinghead', emo: '🎙️', title: 'AI Talking-Head Video', teaser: 'Turn a script into a realistic talking presenter — no camera, no studio.' },
-    { key: 'productad', emo: '📦', title: 'AI Product Ad',           teaser: 'Studio-grade product ads clients pay $200+ for, from your phone.' },
+    { key: 'productad', emo: '📦', title: 'AI Product Ad',           teaser: 'Studio-grade product ads clients pay $200+ for, from your phone.', hostedVideo: true },
     { key: 'movie',     emo: '🎬', title: 'AI Movie',                teaser: 'Direct a short AI film — scenes, characters and story that hold together.' },
     { key: 'socialdesign', emo: '🎨', title: 'AI Social Media Design', teaser: 'Scroll-stopping post & story designs in your brand, in minutes.' },
     { key: 'packaging', emo: '🧴', title: 'AI Product Packaging',    teaser: 'Photoreal packaging concepts before a single physical sample exists.' },

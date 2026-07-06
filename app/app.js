@@ -741,6 +741,19 @@ let miniVideos = {};        // 'mini-<key>' -> video url
 let miniUnlocks = new Set(); // 'mini-<key>' unlocked for this user
 let curMini = null;
 function miniUnlocked(key) { return userIsAdmin || miniUnlocks.has('mini-' + key); }
+// Resolve a mini-course's video: an explicit course_videos row wins; otherwise,
+// courses flagged hostedVideo fall back to the conventional public Storage URL
+// (course-videos/mini-<key>.mp4), so dropping a correctly-named file into that
+// bucket is enough to make the lesson play — no DB row or admin step required.
+function miniVideoUrl(key) {
+  const mkey = 'mini-' + key;
+  if (miniVideos[mkey]) return miniVideos[mkey];
+  const m = MINI.find((x) => x.key === key);
+  if (m && m.hostedVideo && cfg.SUPABASE_URL) {
+    return cfg.SUPABASE_URL.replace(/\/$/, '') + '/storage/v1/object/public/course-videos/' + mkey + '.mp4';
+  }
+  return '';
+}
 async function openMiniHub() {
   showView('mini');
   try { const { data: v } = await sb.from('course_videos').select('lesson_key, url').like('lesson_key', 'mini-%'); miniVideos = {}; (v || []).forEach((r) => { miniVideos[r.lesson_key] = r.url; }); } catch (e) {}
@@ -778,7 +791,7 @@ function openMiniCourse(key) {
           <a class="btn ghost sm" style="flex:1" href="${cfg.CHARLAB_TOOL_URL || '#'}" target="_blank" rel="noopener">🔑 Already purchased? Open it</a>
         </div>
       </div>` : '';
-    $('miniBody').innerHTML = `<div id="miniPlayer" class="lesson-player" style="position:relative">${lessonEmbed(miniVideos[mkey])}<div style="position:absolute;top:0;left:0;right:0;height:56px;z-index:5"></div></div>
+    $('miniBody').innerHTML = `<div id="miniPlayer" class="lesson-player" style="position:relative">${lessonEmbed(miniVideoUrl(key))}<div style="position:absolute;top:0;left:0;right:0;height:56px;z-index:5"></div></div>
       ${steps}
       ${charlab}
       <div class="mini-upsell">
