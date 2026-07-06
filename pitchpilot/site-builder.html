@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fuse SiteForge — client website builder</title>
+<meta name="robots" content="noindex,nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070F1A;--bg2:#0C1726;--card:#101F33;--line:#21344F;--ink:#EAF1FB;--muted:#8AA0BE;--gold:#F5C518;--gold-deep:#D9A91A}
+*{box-sizing:border-box}body{margin:0;font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+.wrap{max-width:860px;margin:0 auto;padding:24px 18px 60px}
+h1{font-size:26px;margin:10px 0 4px}h1 .g{color:var(--gold)}
+.sub{color:var(--muted);font-size:14px;margin:0 0 22px}
+h2.sec{font-size:15px;margin:22px 0 2px;color:var(--gold)}
+.secd{color:var(--muted);font-size:12.5px;margin:0 0 8px}
+label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:14px 0 5px}
+label small{text-transform:none;font-weight:400;letter-spacing:0}
+input,select,textarea{width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:11px;color:var(--ink);font-size:15px;padding:11px 13px;font-family:inherit;outline:none}
+input:focus,textarea:focus{border-color:var(--gold)}
+textarea{min-height:64px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:560px){.row,.row3{grid-template-columns:1fr}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:15px;padding:14px 20px;border-radius:99px;border:0;cursor:pointer;width:100%;margin-top:16px;font-family:inherit}
+.btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1205}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:14px 0}
+.hint{font-size:12.5px;color:var(--muted);background:rgba(245,197,24,.07);border:1px solid rgba(245,197,24,.22);border-radius:10px;padding:9px 11px;margin-top:12px}
+.svc-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+@media(max-width:560px){.svc-tabs{grid-template-columns:1fr 1fr}}
+.svc{background:var(--bg2);border:1.5px solid var(--line);border-radius:13px;padding:12px 10px;text-align:center;cursor:pointer;font-size:12.5px;font-weight:700}
+.svc small{display:block;color:var(--muted);font-weight:400;font-size:10.5px;margin-top:2px}
+.svc.on{border-color:var(--gold);background:rgba(245,197,24,.08)}
+.feats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+@media(max-width:560px){.feats{grid-template-columns:1fr}}
+.feat{display:flex;gap:9px;align-items:center;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:13px;cursor:pointer}
+.feat input{width:auto}
+.swatches{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.sw{width:40px;height:40px;border-radius:10px;cursor:pointer;border:2px solid transparent}
+.sw.on{border-color:#fff}
+.dlrow{display:flex;gap:8px;flex-wrap:wrap}
+.dlrow .btn{width:auto;flex:1;margin-top:16px;min-width:140px;font-size:13.5px;padding:12px 14px}
+.rcard{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.rmeta{display:flex;flex-direction:column;gap:2px;font-size:13px}
+.rmeta span{color:var(--muted);font-size:11.5px}
+.ractions{display:flex;gap:6px;flex-wrap:wrap}
+.ractions .btn{width:auto;margin:0;padding:7px 11px;font-size:11.5px}
+.tst{border:1px dashed var(--line);border-radius:12px;padding:12px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🏗️ Fuse <span class="g">SiteForge</span></h1>
+  <p class="sub">Your client-website builder. Fill in everything you got from the client → get a polished, ready-to-refine final draft as a single deployable file. Every field doubles as your client questionnaire — if it's empty, ask the client.</p>
+
+  <!-- SERVICE -->
+  <div class="panel">
+    <h2 class="sec" style="margin-top:0">1 · What did they buy?</h2>
+    <p class="secd">This picks the site structure + the feature checklist below.</p>
+    <div class="svc-tabs" id="svcTabs">
+      <div class="svc on" data-s="landing">🎯 Landing Page<small>$150–250 · one goal</small></div>
+      <div class="svc" data-s="business">🏪 Business Site<small>$300–500 · full presence</small></div>
+      <div class="svc" data-s="premium">💎 Premium<small>$500–900 · motion + wow</small></div>
+      <div class="svc" data-s="redesign">🔄 Redesign<small>from $200 · reuse content</small></div>
+    </div>
+    <label style="margin-top:14px">Sections to include <small>— pre-set for this service; untick anything the client doesn't need</small></label>
+    <div class="feats" id="featBox"></div>
+  </div>
+
+  <!-- CLIENT BASICS -->
+  <div class="panel">
+    <h2 class="sec" style="margin-top:0">2 · The business</h2>
+    <div class="row">
+      <div><label>Business name *</label><input id="fName" placeholder="Lahore Kebab House"></div>
+      <div><label>Business type</label>
+        <select id="fNiche">
+          <option value="restaurant">Restaurant / Grill</option>
+          <option value="cafe">Café / Bakery</option>
+          <option value="salon">Beauty Salon / Spa</option>
+          <option value="dental">Dental / Clinic</option>
+          <option value="hotel">Hotel / B&amp;B</option>
+          <option value="trade">Trades (plumber/electrician…)</option>
+          <option value="gym">Gym / Fitness</option>
+          <option value="barber">Barbershop</option>
+          <option value="other">Other / Custom</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div><label>City / area</label><input id="fCity" placeholder="Whitechapel, London"></div>
+      <div><label>Year established <small>(optional)</small></label><input id="fYear" placeholder="1972"></div>
+    </div>
+    <label>Tagline <small>— auto-written from type if empty</small></label>
+    <input id="fTag" placeholder="Legendary Pakistani grill since 1972">
+    <label>About / their story <small>— 2-4 sentences from the client</small></label>
+    <textarea id="fAbout" placeholder="Family-run since 1972. Everything cooked fresh over charcoal…"></textarea>
+    <label>Special offer / announcement <small>(optional — shows as a banner)</small></label>
+    <input id="fOffer" placeholder="e.g. 10% off first online booking">
+  </div>
+
+  <!-- SERVICES -->
+  <div class="panel">
+    <h2 class="sec" style="margin-top:0">3 · What they offer</h2>
+    <p class="secd">One per line as <b>Name — short description — price (optional)</b>. 3–6 works best.</p>
+    <textarea id="fServices" style="min-height:110px" placeholder="Charcoal grills — lamb chops, seekh kebab, chicken tikka — from £9
+Karahi classics — cooked to order in the pan — from £12
+Family feasts — platters for 4+ — from £40"></textarea>
+    <label>Opening hours <small>— one per line, e.g. Mon–Fri: 9am–6pm</small></label>
+    <textarea id="fHours" placeholder="Mon–Sat: 12pm–11pm
+Sun: 12pm–10pm"></textarea>
+  </div>
+
+  <!-- CONTACT + SOCIAL -->
+  <div class="panel">
+    <h2 class="sec" style="margin-top:0">4 · Contact &amp; links</h2>
+    <div class="row">
+      <div><label>Phone</label><input id="fPhone" placeholder="020 7481 9737"></div>
+      <div><label>WhatsApp <small>(intl, digits only)</small></label><input id="fWa" placeholder="447481123456"></div>
+    </div>
+    <div class="row">
+      <div><label>Email</label><input id="fEmail" placeholder="info@business.com"></div>
+      <div><label>Street address</label><input id="fAddr" placeholder="2-10 Umberston St, London E1 1PY"></div>
+    </div>
+    <div class="row">
+      <div><label>Instagram <small>(username)</small></label><input id="fIg" placeholder="lahorekebabhouse"></div>
+      <div><label>Facebook / other URL</label><input id="fFb" placeholder="facebook.com/…"></div>
+    </div>
+    <label>Booking / ordering link <small>(optional — booking engine, Booksy, OpenTable… CTA points here; else contact section)</small></label>
+    <input id="fBook" placeholder="https://…">
+  </div>
+
+  <!-- SOCIAL PROOF -->
+  <div class="panel">
+    <h2 class="sec" style="margin-top:0">5 · Social proof</h2>
+    <p class="secd">Testimonials/reviews — one per line as <b>Quote — Name</b>. Ask the client for their 2-3 best Google reviews.</p>
+    <textarea id="fTst" style="min-height:90px" placeholder="Best kebab in London, hands down — Sarah M.
+We drive 40 minutes every week just for this — Imran K."></textarea>
+    <div class="row">
+      <div><label>Google rating <small>(optional)</small></label><input id="fRating" placeholder="4.8"></div>
+      <div><label>Review count <small>(optional)</small></label><input id="fReviews" placeholder="2,300"></div>
+    </div>
+  </div>
+
+  <!-- LOOK -->
+  <div class="panel">
+    <h2 class="sec" style="margin-top:0">6 · The look</h2>
+    <div class="row">
+      <div>
+        <label>Font vibe</label>
+        <select id="fFont">
+          <option value="elegant">Elegant — serif headlines (restaurants, hotels, salons)</option>
+          <option value="modern">Modern — clean sans (clinics, gyms, trades)</option>
+          <option value="bold">Bold — loud display (barbers, gyms, streetwear)</option>
+        </select>
+      </div>
+      <div>
+        <label>Theme</label>
+        <select id="fTheme">
+          <option value="light">Light — warm paper background</option>
+          <option value="dark">Dark — premium night look</option>
+        </select>
+      </div>
+    </div>
+    <label>Accent colour</label>
+    <div class="swatches" id="swatches"></div>
+    <label>Photos <small>— the draft uses styled placeholders; swap in client photos before delivery</small></label>
+    <div class="hint" style="margin-top:4px">Ask the client for: 1 hero shot, 3–6 work/product photos, logo (if any). Placeholders are labelled so you know exactly where each goes.</div>
+  </div>
+
+  <button class="btn gold" id="makeBtn">🏗️ Forge the draft</button>
+  <div class="dlrow" id="dlRow" style="display:none">
+    <button class="btn ghost" id="dlBtn">⬇ Download index.html</button>
+    <button class="btn ghost" id="dlZipBtn">⬇ Download as .zip (folder)</button>
+  </div>
+  <div class="hint">Deploy the .zip on <b>app.netlify.com/drop</b> for the client preview link, exactly like your demo flow. When they approve, refine the draft, swap real photos in, and point their domain at it.</div>
+
+  <div class="panel" id="prevPanel" style="display:none;padding:0;overflow:hidden">
+    <div style="padding:12px 14px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)">👁 Live preview — scroll inside the box</div>
+    <iframe id="prevFrame" style="width:100%;height:74vh;border:0;display:block;background:#fff"></iframe>
+  </div>
+
+  <div class="panel">
+    <div style="font-weight:800;font-size:15px;margin-bottom:2px">📂 Recent client drafts</div>
+    <div class="sub" style="margin-bottom:6px">Saved on this device — reopen, tweak inputs, re-forge, redownload.</div>
+    <div id="recentBox"></div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const COLORS=['#C8102E','#0E7C5A','#B8860B','#6D28D9','#0369A1','#BE185D','#EA580C','#111827'];
+let color=COLORS[1];
+$('swatches').innerHTML=COLORS.map((c,i)=>`<div class="sw${i===1?' on':''}" style="background:${c}" data-c="${c}"></div>`).join('');
+document.querySelectorAll('.sw').forEach(s=>s.onclick=()=>{document.querySelectorAll('.sw').forEach(x=>x.classList.remove('on'));s.classList.add('on');color=s.dataset.c;});
+
+// ---------- services & feature checklists ----------
+const FEATURES={
+  hero:'Hero + main call-to-action', about:'About / story', services:'Services / menu grid',
+  gallery:'Photo gallery strip', testimonials:'Testimonials', stats:'Stats / trust bar',
+  offer:'Offer banner', hours:'Opening hours', map:'Location + map link',
+  contact:'Contact section (call / WhatsApp / email)', form:'Enquiry form (opens their email)',
+  faq:'FAQ accordion', anim:'Scroll animations + motion', social:'Social links footer'
+};
+const SERVICE_SETS={
+  landing:  ['hero','offer','services','testimonials','stats','contact','social'],
+  business: ['hero','about','services','gallery','testimonials','hours','map','contact','form','social'],
+  premium:  ['hero','about','services','gallery','testimonials','stats','offer','hours','map','contact','form','faq','anim','social'],
+  redesign: ['hero','about','services','gallery','testimonials','hours','map','contact','social']
+};
+let service='landing';
+function renderFeats(){
+  const set=new Set(SERVICE_SETS[service]);
+  $('featBox').innerHTML=Object.entries(FEATURES).map(([k,label])=>
+    `<label class="feat"><input type="checkbox" data-f="${k}" ${set.has(k)?'checked':''}> ${label}</label>`).join('');
+}
+document.querySelectorAll('#svcTabs .svc').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('#svcTabs .svc').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on'); service=t.dataset.s; renderFeats();
+});
+renderFeats();
+function feats(){ const o={}; document.querySelectorAll('#featBox input').forEach(c=>o[c.dataset.f]=c.checked); return o; }
+
+// ---------- niche defaults ----------
+const NICHE={
+  restaurant:{tag:c=>`The taste ${c} talks about`,cta:'Book a table',emo:'🍽️',sec:'Our menu'},
+  cafe:{tag:c=>`${c}'s cosiest coffee stop`,cta:'Find us today',emo:'☕',sec:'What we make'},
+  salon:{tag:()=>'Look incredible. Feel unstoppable.',cta:'Book your appointment',emo:'💇🏽‍♀️',sec:'Our treatments'},
+  dental:{tag:()=>'Modern care, gentle hands',cta:'Book an appointment',emo:'🦷',sec:'Our treatments'},
+  hotel:{tag:c=>`Your home in ${c}`,cta:'Check availability',emo:'🛎️',sec:'Rooms & stays'},
+  trade:{tag:c=>`${c}'s trusted local experts`,cta:'Get a free quote',emo:'🔧',sec:'What we do'},
+  gym:{tag:()=>'Stronger every session',cta:'Start free trial',emo:'💪',sec:'Train with us'},
+  barber:{tag:()=>'Sharp cuts. No shortcuts.',cta:'Book your chair',emo:'💈',sec:'The services'},
+  other:{tag:c=>`Proudly serving ${c}`,cta:'Get in touch',emo:'✨',sec:'What we offer'}
+};
+const FONTS={
+  elegant:{link:'family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Plus+Jakarta+Sans:wght@400;600;700',head:'"Fraunces",serif',body:'"Plus Jakarta Sans",sans-serif'},
+  modern:{link:'family=Sora:wght@600;800&family=Inter:wght@400;500;600',head:'"Sora",sans-serif',body:'"Inter",sans-serif'},
+  bold:{link:'family=Space+Grotesk:wght@500;700&family=Unbounded:wght@600;800',head:'"Unbounded",sans-serif',body:'"Space Grotesk",sans-serif'}
+};
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function lines(v){return (v||'').split('\n').map(s=>s.trim()).filter(Boolean);}
+
+// ---------- the generator ----------
+let lastHTML='', lastSlug='draft';
+function forge(){
+  const F=feats();
+  const name=$('fName').value.trim()||'Your Business';
+  const nkey=$('fNiche').value, n=NICHE[nkey];
+  const city=$('fCity').value.trim()||'your city';
+  const year=$('fYear').value.trim();
+  const tag=$('fTag').value.trim()||n.tag(city);
+  const about=$('fAbout').value.trim()||`${name} is proudly independent — honest service, real quality, and customers who keep coming back. That's been the promise from day one${year?` since ${year}`:''}.`;
+  const offer=$('fOffer').value.trim();
+  const svc=lines($('fServices').value).map(l=>{const p=l.split('—').map(x=>x.trim());return {t:p[0]||'Great service',d:p[1]||'Done properly, every single time.',pr:p[2]||''};});
+  while(svc.length<3)svc.push({t:'Great service',d:'Done properly, every single time.',pr:''});
+  const hours=lines($('fHours').value);
+  const phone=$('fPhone').value.trim(), wa=$('fWa').value.replace(/\D/g,''), email=$('fEmail').value.trim();
+  const addr=$('fAddr').value.trim(), ig=$('fIg').value.replace(/^@/,'').trim(), fb=$('fFb').value.trim();
+  const book=$('fBook').value.trim();
+  const tst=lines($('fTst').value).map(l=>{const p=l.split('—').map(x=>x.trim());return {q:p[0]||l,a:p[1]||'A happy customer'};});
+  const rating=$('fRating').value.trim(), reviews=$('fReviews').value.trim();
+  const font=FONTS[$('fFont').value];
+  const dark=$('fTheme').value==='dark';
+  const C=color;
+  lastSlug=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'draft';
+
+  const paper=dark?'#0D0F12':'#FAF7F2', ink=dark?'#F2EFE8':'#141414', mut=dark?'#9aa3ad':'#6b6b6b',
+        card=dark?'#16191E':'#ffffff', line=dark?'#242830':'#e8e2d8';
+  const ctaHref = book || (F.contact?'#contact':'#top');
+  const anim = F.anim;
+  const mapsQ = encodeURIComponent(name+' '+addr);
+
+  const svcCards = svc.slice(0,6).map((s,i)=>`
+    <div class="card${anim?' reveal':''}"><div class="n">${['⭐',n.emo,'✨','🏆','💛','🔥'][i]||'⭐'}</div>
+      <h3>${esc(s.t)}</h3><p>${esc(s.d)}</p>${s.pr?`<div class="pr">${esc(s.pr)}</div>`:''}</div>`).join('');
+
+  const tstBlocks = (tst.length?tst:[{q:'Absolutely brilliant — wouldn’t go anywhere else.',a:'A happy customer'}]).slice(0,4).map(t=>`
+    <div class="tcard${anim?' reveal':''}">"${esc(t.q)}"<span>— ${esc(t.a)}</span></div>`).join('');
+
+  const html=`<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(name)} — ${esc(city)}</title>
+<meta name="description" content="${esc(tag)} · ${esc(name)}, ${esc(city)}.">
+<link href="https://fonts.googleapis.com/css2?${font.link}&display=swap" rel="stylesheet">
+<style>
+:root{--c:${C};--ink:${ink};--paper:${paper};--muted:${mut};--card:${card};--line:${line}}
+*{box-sizing:border-box;margin:0}html{scroll-behavior:smooth}
+body{font-family:${font.body};color:var(--ink);background:var(--paper);line-height:1.6}
+h1,h2,h3{font-family:${font.head};line-height:1.08}
+.wrap{max-width:1020px;margin:0 auto;padding:0 22px}
+nav{position:sticky;top:0;z-index:50;background:${dark?'rgba(13,15,18,.92)':'rgba(250,247,242,.92)'};backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .in{display:flex;justify-content:space-between;align-items:center;height:64px;gap:10px}
+.logo{font-family:${font.head};font-weight:800;font-size:19px;white-space:nowrap}
+.navbtn{background:var(--c);color:#fff;padding:10px 18px;border-radius:99px;text-decoration:none;font-weight:700;font-size:13.5px;white-space:nowrap}
+header{padding:88px 0 64px;text-align:center;position:relative;overflow:hidden}
+header::before{content:"";position:absolute;inset:-40%;background:radial-gradient(600px 400px at 70% 20%,color-mix(in srgb,var(--c) 16%,transparent),transparent 70%)${anim?';animation:float 9s ease-in-out infinite alternate':''}}
+${anim?'@keyframes float{to{transform:translate(-40px,30px) scale(1.08)}}':''}
+.kick{color:var(--c);font-weight:700;letter-spacing:3px;text-transform:uppercase;font-size:12px;position:relative}
+header h1{font-size:clamp(38px,8vw,68px);margin:14px 0 12px;position:relative}
+header p{font-size:clamp(16px,3vw,20px);color:var(--muted);max-width:560px;margin:0 auto 28px;position:relative}
+.cta{display:inline-block;background:var(--c);color:#fff;padding:16px 36px;border-radius:99px;text-decoration:none;font-weight:800;font-size:16.5px;box-shadow:0 16px 40px color-mix(in srgb,var(--c) 35%,transparent);transition:.2s;position:relative}
+.cta:hover{transform:translateY(-3px)}
+section{padding:64px 0}
+.sec-t{text-align:center;font-size:clamp(27px,5vw,40px);margin-bottom:36px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:720px){.cards{grid-template-columns:1fr}}
+.card{background:var(--card);border-radius:20px;padding:28px 22px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,${dark?'.35':'.06'});border:1px solid var(--line);transition:.25s}
+.card:hover{transform:translateY(-6px)}
+.card .n{width:52px;height:52px;border-radius:14px;background:color-mix(in srgb,var(--c) 12%,var(--card));display:grid;place-items:center;margin:0 auto 12px;font-size:24px}
+.card h3{font-size:19px;margin-bottom:7px}.card p{color:var(--muted);font-size:14px}
+.card .pr{margin-top:10px;font-weight:800;color:var(--c)}
+.about{background:${dark?'#101318':'var(--ink)'};color:#fff;border-radius:28px;padding:54px 36px;text-align:center;position:relative;overflow:hidden}
+.about::after{content:"${n.emo}";position:absolute;font-size:170px;opacity:.07;right:-18px;bottom:-36px;transform:rotate(-12deg)}
+.about h2{font-size:clamp(25px,4.5vw,36px);margin-bottom:12px}
+.about p{color:#cfcfcf;max-width:620px;margin:0 auto;font-size:16px}
+.strip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:720px){.strip{grid-template-columns:1fr 1fr}}
+.ph{aspect-ratio:4/3;border-radius:18px;display:grid;place-items:center;color:#fff;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(135deg,color-mix(in srgb,var(--c) 55%,#000),color-mix(in srgb,var(--c) 25%,#666))}
+.ph:nth-child(2){background:linear-gradient(135deg,color-mix(in srgb,var(--c) 30%,#333),color-mix(in srgb,var(--c) 65%,#111))}
+.ph:nth-child(3){background:linear-gradient(135deg,color-mix(in srgb,var(--c) 70%,#222),color-mix(in srgb,var(--c) 20%,#999))}
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:840px;margin:0 auto}
+@media(max-width:640px){.tgrid{grid-template-columns:1fr}}
+.tcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;font-size:15px;font-style:italic}
+.tcard span{display:block;margin-top:10px;font-style:normal;font-weight:700;color:var(--c);font-size:13px}
+.statbar{display:flex;gap:30px;justify-content:center;flex-wrap:wrap;text-align:center}
+.statbar b{display:block;font-family:${font.head};font-size:clamp(24px,5vw,34px);color:var(--c)}
+.statbar span{color:var(--muted);font-size:12.5px}
+.offerbar{background:var(--c);color:#fff;text-align:center;padding:12px 18px;font-weight:800;font-size:14.5px}
+.hrs{max-width:420px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px}
+.hrs .hr{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14.5px}
+.hrs .hr:last-child{border:0}
+.faq{max-width:640px;margin:0 auto}
+.faq details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:10px}
+.faq summary{font-weight:700;cursor:pointer;font-size:15px}
+.faq p{color:var(--muted);font-size:14px;margin-top:8px}
+.book{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:46px 28px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,${dark?'.4':'.07'})}
+.book h2{font-size:clamp(25px,4.5vw,36px)}
+.book p{color:var(--muted);margin:10px 0 24px}
+.cbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.cbtn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:99px;text-decoration:none;font-weight:800;font-size:14.5px;border:1.5px solid var(--c);color:var(--c)}
+.cbtn.solid{background:var(--c);color:#fff}
+.formbox{max-width:520px;margin:26px auto 0;text-align:left}
+.formbox label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:12px 0 5px}
+.formbox input,.formbox textarea{width:100%;background:var(--paper);border:1px solid var(--line);border-radius:11px;color:var(--ink);font-size:15px;padding:11px 13px;font-family:inherit;outline:none}
+.formbox button{margin-top:14px;width:100%;background:var(--c);color:#fff;border:0;padding:14px;border-radius:99px;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit}
+footer{padding:36px 0 30px;text-align:center;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+footer b{color:var(--ink)}
+footer .soc{margin-bottom:10px}
+footer .soc a{color:var(--c);font-weight:700;text-decoration:none;margin:0 8px}
+${anim?`.reveal{opacity:0;transform:translateY(24px);transition:.7s}
+.reveal.in{opacity:1;transform:none}`:''}
+</style></head><body id="top">
+${offer&&F.offer?`<div class="offerbar">🎉 ${esc(offer)}</div>`:''}
+<nav><div class="wrap in"><span class="logo">${esc(name)}</span><a class="navbtn" href="${esc(ctaHref)}">${n.cta}</a></div></nav>
+${F.hero?`<header><div class="wrap">
+  <div class="kick">${esc(city)}${year?` · est. ${esc(year)}`:''}</div>
+  <h1>${esc(name)}</h1>
+  <p>${esc(tag)}</p>
+  <a class="cta" href="${esc(ctaHref)}">${n.cta} →</a>
+</div></header>`:''}
+${F.stats&&(rating||reviews||year)?`<section class="wrap"><div class="statbar">
+  ${rating?`<div><b>★ ${esc(rating)}</b><span>Google rating</span></div>`:''}
+  ${reviews?`<div><b>${esc(reviews)}+</b><span>happy reviews</span></div>`:''}
+  ${year?`<div><b>${new Date().getFullYear()-parseInt(year)||''}+ yrs</b><span>serving ${esc(city)}</span></div>`:''}
+</div></section>`:''}
+${F.services?`<section class="wrap"><h2 class="sec-t">${n.sec}</h2><div class="cards">${svcCards}</div></section>`:''}
+${F.about?`<section class="wrap${anim?' reveal':''}"><div class="about"><h2>Why people choose us</h2><p>${esc(about)}</p></div></section>`:''}
+${F.gallery?`<section class="wrap${anim?' reveal':''}"><h2 class="sec-t">A look inside</h2><div class="strip"><div class="ph">Photo 1 — hero shot</div><div class="ph">Photo 2 — the work</div><div class="ph">Photo 3 — the space</div></div></section>`:''}
+${F.testimonials?`<section class="wrap${anim?' reveal':''}"><h2 class="sec-t">What customers say</h2><div class="tgrid">${tstBlocks}</div></section>`:''}
+${F.hours&&hours.length?`<section class="wrap${anim?' reveal':''}"><h2 class="sec-t">Opening hours</h2><div class="hrs">${hours.map(h=>{const p=h.split(':');return `<div class="hr"><b>${esc(p[0])}</b><span>${esc(p.slice(1).join(':').trim())}</span></div>`}).join('')}</div></section>`:''}
+${F.faq?`<section class="wrap${anim?' reveal':''}"><h2 class="sec-t">Questions, answered</h2><div class="faq">
+  <details><summary>Do I need to book ahead?</summary><p>Walk-ins are welcome, but booking guarantees your spot — especially weekends.</p></details>
+  <details><summary>Where exactly are you?</summary><p>${esc(addr||city)} — easy to reach, with parking and transport nearby.</p></details>
+  <details><summary>How do I get in touch fastest?</summary><p>${wa?'WhatsApp is quickest — tap the button below and we reply fast.':phone?`Call us on ${esc(phone)} — we answer during opening hours.`:'Use the contact section below — we reply the same day.'}</p></details>
+</div></section>`:''}
+${F.contact?`<section class="wrap${anim?' reveal':''}" id="contact"><div class="book">
+  <h2>Ready when you are</h2>
+  <p>${phone?`Call us on <b>${esc(phone)}</b>, or `:''}reach us any way below — we reply fast.</p>
+  <div class="cbtns">
+    ${book?`<a class="cbtn solid" href="${esc(book)}" target="_blank" rel="noopener">${n.cta} →</a>`:''}
+    ${phone?`<a class="cbtn${book?'':' solid'}" href="tel:${esc(phone.replace(/\\s+/g,''))}">📞 Call us</a>`:''}
+    ${wa?`<a class="cbtn" href="https://wa.me/${wa}" target="_blank" rel="noopener">💬 WhatsApp</a>`:''}
+    ${email?`<a class="cbtn" href="mailto:${esc(email)}">📧 Email</a>`:''}
+    ${addr&&F.map?`<a class="cbtn" href="https://maps.google.com/?q=${mapsQ}" target="_blank" rel="noopener">📍 Find us</a>`:''}
+  </div>
+  ${F.form&&email?`<form class="formbox" action="mailto:${esc(email)}" method="get" enctype="text/plain">
+    <label>Your name</label><input name="subject" placeholder="Your name" required>
+    <label>Your message</label><textarea name="body" rows="4" placeholder="Hi! I'd like to ask about…" required></textarea>
+    <button type="submit">Send enquiry →</button>
+  </form>`:''}
+</div></section>`:''}
+<footer><div class="wrap">
+  ${F.social&&(ig||fb)?`<div class="soc">${ig?`<a href="https://instagram.com/${esc(ig)}" target="_blank" rel="noopener">Instagram</a>`:''}${fb?`<a href="${esc(fb.startsWith('http')?fb:'https://'+fb)}" target="_blank" rel="noopener">Facebook</a>`:''}</div>`:''}
+  © ${new Date().getFullYear()} <b>${esc(name)}</b>${addr?`, ${esc(addr)}`:`, ${esc(city)}`}${phone?` · ${esc(phone)}`:''}<br>
+  <span style="font-size:11.5px">Website by Ria · riadigitals0@gmail.com</span>
+</div></footer>
+${anim?`<script>
+const els=document.querySelectorAll('.reveal');
+if('IntersectionObserver' in window){
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+  els.forEach(el=>io.observe(el));
+}
+setTimeout(()=>els.forEach(el=>el.classList.add('in')),1500);
+<\/script>`:''}
+</body></html>`;
+
+  lastHTML=html;
+  $('dlRow').style.display='flex';
+  $('makeBtn').textContent='✅ Forged — preview below';
+  setTimeout(()=>$('makeBtn').textContent='🏗️ Forge the draft',2000);
+  $('prevPanel').style.display='block';
+  $('prevFrame').srcdoc=lastHTML;
+  $('prevPanel').scrollIntoView({behavior:'smooth',block:'start'});
+  pushRecent({name, service, city, slug:lastSlug, html:lastHTML,
+    inputs:collectInputs(), date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'})});
+}
+function collectInputs(){
+  const o={service, color};
+  ['fName','fNiche','fCity','fYear','fTag','fAbout','fOffer','fServices','fHours','fPhone','fWa','fEmail','fAddr','fIg','fFb','fBook','fTst','fRating','fReviews','fFont','fTheme'].forEach(id=>o[id]=$(id).value);
+  o.feats=feats();
+  return o;
+}
+function restoreInputs(o){
+  if(!o) return;
+  service=o.service||'landing';
+  document.querySelectorAll('#svcTabs .svc').forEach(x=>x.classList.toggle('on',x.dataset.s===service));
+  renderFeats();
+  Object.entries(o.feats||{}).forEach(([k,v])=>{const c=document.querySelector(`#featBox input[data-f="${k}"]`);if(c)c.checked=v;});
+  ['fName','fNiche','fCity','fYear','fTag','fAbout','fOffer','fServices','fHours','fPhone','fWa','fEmail','fAddr','fIg','fFb','fBook','fTst','fRating','fReviews','fFont','fTheme'].forEach(id=>{if(o[id]!==undefined)$(id).value=o[id];});
+  if(o.color){color=o.color;document.querySelectorAll('.sw').forEach(x=>x.classList.toggle('on',x.dataset.c===o.color));}
+}
+
+// ---------- zip writer (store method, no deps) ----------
+let CRC_TABLE=null;
+function crc32(bytes){
+  if(!CRC_TABLE){CRC_TABLE=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?(0xEDB88320^(c>>>1)):(c>>>1);CRC_TABLE[n]=c>>>0;}}
+  let crc=0^(-1);for(let i=0;i<bytes.length;i++)crc=(crc>>>8)^CRC_TABLE[(crc^bytes[i])&0xFF];return (crc^(-1))>>>0;
+}
+function makeZipBlob(filename,text){
+  const nameBytes=new TextEncoder().encode(filename),data=new TextEncoder().encode(text);
+  const crc=crc32(data),size=data.length;
+  const lh=new DataView(new ArrayBuffer(30));
+  lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(12,0x21,true);lh.setUint32(14,crc,true);
+  lh.setUint32(18,size,true);lh.setUint32(22,size,true);lh.setUint16(26,nameBytes.length,true);
+  const localHeader=new Uint8Array(lh.buffer);
+  const ch=new DataView(new ArrayBuffer(46));
+  ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint16(14,0x21,true);ch.setUint32(16,crc,true);
+  ch.setUint32(20,size,true);ch.setUint32(24,size,true);ch.setUint16(28,nameBytes.length,true);
+  const centralHeader=new Uint8Array(ch.buffer);
+  const centralOffset=localHeader.length+nameBytes.length+data.length;
+  const centralSize=centralHeader.length+nameBytes.length;
+  const end=new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true);end.setUint16(8,1,true);end.setUint16(10,1,true);
+  end.setUint32(12,centralSize,true);end.setUint32(16,centralOffset,true);
+  return new Blob([localHeader,nameBytes,data,centralHeader,nameBytes,new Uint8Array(end.buffer)],{type:'application/zip'});
+}
+function triggerDownload(blob,filename){
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
+}
+
+// ---------- recent drafts ----------
+const REC_KEY='sf_recent';
+function getRecent(){try{return JSON.parse(localStorage.getItem(REC_KEY)||'[]');}catch(e){return [];}}
+function saveRecent(a){try{localStorage.setItem(REC_KEY,JSON.stringify(a));}catch(e){a.pop();try{localStorage.setItem(REC_KEY,JSON.stringify(a));}catch(e2){}}}
+function pushRecent(entry){const a=getRecent();a.unshift(entry);while(a.length>8)a.pop();saveRecent(a);renderRecent();}
+function renderRecent(){
+  const a=getRecent();const box=$('recentBox');
+  if(!a.length){box.innerHTML='<div class="hint">No drafts yet — forge one above and it\'ll be saved here.</div>';return;}
+  const SVC={landing:'Landing Page',business:'Business Site',premium:'Premium',redesign:'Redesign'};
+  box.innerHTML=a.map((r,i)=>`
+    <div class="rcard">
+      <div class="rmeta"><b>${esc(r.name)}</b><span>${SVC[r.service]||r.service} · ${esc(r.city)} · ${esc(r.date)}</span></div>
+      <div class="ractions">
+        <button class="btn ghost" data-re="${i}">✏️ Load inputs</button>
+        <button class="btn ghost" data-rv="${i}">👁 View</button>
+        <button class="btn ghost" data-rh="${i}">⬇ HTML</button>
+        <button class="btn ghost" data-rz="${i}">⬇ ZIP</button>
+        <button class="btn ghost" data-rd="${i}">🗑</button>
+      </div>
+    </div>`).join('');
+  box.querySelectorAll('[data-re]').forEach(b=>b.onclick=()=>{const r=getRecent()[+b.dataset.re];if(r){restoreInputs(r.inputs);window.scrollTo({top:0,behavior:'smooth'});}});
+  box.querySelectorAll('[data-rv]').forEach(b=>b.onclick=()=>{const r=getRecent()[+b.dataset.rv];if(!r)return;
+    lastHTML=r.html;lastSlug=r.slug;$('dlRow').style.display='flex';
+    $('prevPanel').style.display='block';$('prevFrame').srcdoc=r.html;
+    $('prevPanel').scrollIntoView({behavior:'smooth',block:'start'});});
+  box.querySelectorAll('[data-rh]').forEach(b=>b.onclick=()=>{const r=getRecent()[+b.dataset.rh];if(r)triggerDownload(new Blob([r.html],{type:'text/html'}),'index.html');});
+  box.querySelectorAll('[data-rz]').forEach(b=>b.onclick=()=>{const r=getRecent()[+b.dataset.rz];if(r)triggerDownload(makeZipBlob('index.html',r.html),r.slug+'-site.zip');});
+  box.querySelectorAll('[data-rd]').forEach(b=>b.onclick=()=>{const a=getRecent();a.splice(+b.dataset.rd,1);saveRecent(a);renderRecent();});
+}
+renderRecent();
+
+$('makeBtn').onclick=forge;
+$('dlBtn').onclick=()=>triggerDownload(new Blob([lastHTML],{type:'text/html'}),'index.html');
+$('dlZipBtn').onclick=()=>triggerDownload(makeZipBlob('index.html',lastHTML),lastSlug+'-site.zip');
+</script>
+</body>
+</html>
