@@ -259,13 +259,16 @@ function saveRoute() {
 function restoreRoute() {
   let r; try { r = JSON.parse(localStorage.getItem('fuse_route') || 'null'); } catch (e) {}
   if (!r || !r.view || r.view === 'home') return;
-  const safe = ['library', 'profile', 'community', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course', 'week', 'omni', 'mini'];
+  const safe = ['library', 'profile', 'community', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course', 'week', 'omni', 'mini', 'all-courses'];
   if (!safe.includes(r.view)) return;
   try {
     if (r.view === 'studio') { openStudio(r.studio || 'generate'); if (r.video) setStudioMode(true); }
     else if (r.view === 'video') { if (r.vSlug) openVideo(r.vSlug); else showView('video'); }
     else if (r.view === 'models') { showView('models'); buildModels(r.kind || 'all'); }
     else if (r.view === 'course') { openCourse(); }
+    else if (r.view === 'week') { openWeek(); }
+    else if (r.view === 'mini') { openMiniHub(); }
+    else if (r.view === 'all-courses') { openAllCourses(); }
     else if (['market', 'learn', 'avatar', 'promptgen', 'reactor'].includes(r.view)) { openStudio(r.view); }
     else showView(r.view);
   } catch (e) {}
@@ -838,6 +841,38 @@ async function maybeAutoRedeemMini() {
     openMiniCourse(mkey);
     if (code && !miniUnlocked(mkey)) await redeemMini('mini-' + mkey, code);
   }
+}
+
+// ---------------- All Courses hub ----------------
+async function openAllCourses() {
+  showView('all-courses');
+  let unlocks = new Set();
+  if (user && !preview) {
+    try { const { data: u } = await sb.from('module_unlocks').select('module_key').eq('user_id', user.id); unlocks = new Set((u || []).map((r) => r.module_key)); } catch (e) {}
+  }
+  const rows = [];
+  rows.push({
+    title: '🏛️ Fuse Atelier', sub: 'The AI Creative Income System — 120 lessons, 5 pillars.',
+    owned: userIsAdmin, price: '₦60,000', go: () => routeFeature('learn'),
+  });
+  rows.push({
+    title: '💵 The $500 Week', sub: 'AI UGC & influencer income — 7-day course.',
+    owned: userIsAdmin || unlocks.has('wk-course'),
+    partial: !userIsAdmin && !unlocks.has('wk-course') && [...unlocks].some((k) => k.startsWith('wk-')),
+    price: '₦5,000', go: () => routeFeature('week'),
+  });
+  MINI.forEach((m) => {
+    rows.push({
+      title: m.emo + ' ' + m.title, sub: m.teaser, owned: userIsAdmin || unlocks.has('mini-' + m.key),
+      price: '₦' + (cfg.MINI_PRICE_NAIRA || 1000).toLocaleString(), go: () => openMiniCourse(m.key),
+    });
+  });
+  $('allCoursesBody').innerHTML = rows.map((r) => `
+    <div class="ac-row" data-go="${rows.indexOf(r)}">
+      <div class="ac-main"><div class="ac-t">${r.title}</div><div class="ac-s">${r.sub}</div></div>
+      <div class="ac-state">${r.owned ? '<span class="ac-owned">✓ Owned</span>' : r.partial ? '<span class="ac-partial">◐ Some days</span>' : `<span class="ac-price">${r.price}</span>`}</div>
+    </div>`).join('');
+  $('allCoursesBody').querySelectorAll('.ac-row').forEach((el, i) => el.onclick = () => rows[i].go());
 }
 
 // Route a home feature box / explore chip to its destination.
@@ -2161,6 +2196,7 @@ window.addEventListener('DOMContentLoaded', () => {
   { const wb = $('weekBack'); if (wb) wb.onclick = () => showView('home'); }
   { const mb = $('miniBack'); if (mb) mb.onclick = () => showView('home'); }
   { const mlb = $('miniLessonBack'); if (mlb) mlb.onclick = () => openMiniHub(); }
+  { const acb = $('allCoursesBack'); if (acb) acb.onclick = () => showView('home'); }
   $('marketBack').onclick = () => showView('home');
   $('learnBack').onclick = () => showView('home');
   $('avatarBack').onclick = () => showView('home');
@@ -2222,6 +2258,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('menuOverlay').onclick = (e) => { if (e.target === $('menuOverlay')) closeMenu(); };
   $('menuTopup').onclick = () => { closeMenu(); openBuy(); };
   $('menuStreak').onclick = () => { closeMenu(); claimDaily(); };
+  $('menuCourses').onclick = () => { closeMenu(); openAllCourses(); };
   $('menuProfile').onclick = () => { closeMenu(); showView('profile'); };
   $('menuProjects').onclick = () => { closeMenu(); showView('library'); };
   $('menuCommunity').onclick = () => { closeMenu(); showView('community'); };

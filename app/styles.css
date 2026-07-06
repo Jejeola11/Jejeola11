@@ -694,6 +694,17 @@ textarea{min-height:104px;resize:vertical}
 .lesson-meta{font-size:13px;margin-bottom:8px}
 .lesson-admin{background:var(--bg-2);border:1px dashed var(--gold-deep);border-radius:12px;padding:12px;margin:12px 0}
 
+/* ===== All Courses hub ===== */
+.ac-row{display:flex;justify-content:space-between;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px 16px;margin-bottom:10px;cursor:pointer;transition:.12s}
+.ac-row:hover{border-color:var(--gold-deep)}
+.ac-row:active{transform:scale(.99)}
+.ac-t{font-weight:800;font-size:15px;margin-bottom:3px}
+.ac-s{font-size:12.5px;color:var(--muted);line-height:1.4}
+.ac-state{flex:0 0 auto;text-align:right}
+.ac-owned{color:var(--good,#3DD68C);font-size:13px;font-weight:700;white-space:nowrap}
+.ac-partial{color:var(--gold);font-size:13px;font-weight:700;white-space:nowrap}
+.ac-price{color:var(--gold);font-size:14px;font-weight:800;white-space:nowrap}
+
 /* ===== Mini Masterclasses (₦1,000 one-video courses) ===== */
 .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:480px){.mini-grid{grid-template-columns:1fr}}
