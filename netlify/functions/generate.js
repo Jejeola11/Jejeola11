@@ -12,12 +12,19 @@ const { muapiHostImage } = require('./_muapi');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
+// OpenAI's real image API takes a `size` string (e.g. "1024x1536"), not an
+// aspect-ratio string — MuAPI's gpt-image-2 endpoint expects that native param.
+// Every other model here works fine on aspect_ratio alone, so this is additive,
+// scoped to gpt-image-2 only, and never removes the aspect_ratio field.
+const OPENAI_SIZE = { '1:1': '1024x1024', '9:16': '1024x1536', '4:5': '1024x1536', '16:9': '1536x1024' };
+
 // Submit a job to MuAPI and return its request_id immediately (no polling here).
 async function muapiSubmit({ prompt, aspect, model, images_list, resolution }) {
   const key = process.env.MUAPI_KEY;
   const payload = { prompt, aspect_ratio: aspect };
   if (resolution) payload.resolution = resolution;
   if (images_list && images_list.length) payload.images_list = images_list;
+  if (model.startsWith('gpt-image-2') && OPENAI_SIZE[aspect]) payload.size = OPENAI_SIZE[aspect];
   const submit = await fetch(`${MUAPI_BASE}/${model}`, {
     method: 'POST',
     headers: { 'x-api-key': key, 'Content-Type': 'application/json' },
@@ -144,11 +151,14 @@ exports.handler = async (event) => {
   try {
     const hostedRefs = useRef ? await Promise.all(refs.map(muapiHostImage)) : undefined;
     const perCredits = Math.max(1, Math.round(cost / count));
+    let firstError = null;
     const submits = await Promise.all(Array.from({ length: count }, () =>
       muapiSubmit({ prompt, aspect, model, images_list: hostedRefs, resolution: resMult > 1 ? resolution : undefined })
-        .then((id) => id).catch(() => null)));
+        .then((id) => id).catch((e) => { if (!firstError) firstError = e; return null; })));
     const ids = submits.filter(Boolean);
-    if (!ids.length) throw new Error('Engine did not start the job');
+    // Surface the real engine error (e.g. a param the model rejected) instead of
+    // a generic message — critical for spotting a genuinely broken model fast.
+    if (!ids.length) throw firstError || new Error('Engine did not start the job');
 
     const rows = ids.map((id) => ({ request_id: id, user_id: user.id, kind: 'image', model, prompt, aspect, credits: perCredits, status: 'processing' }));
     await db.from('jobs').insert(rows);

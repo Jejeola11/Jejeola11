@@ -229,6 +229,13 @@ function note(id, msg, kind) { const e = $(id); e.textContent = msg || ''; e.cla
 // ---------------- view routing ----------------
 let curView = 'home';
 const scrollMem = {};
+// Keeps the top sub-nav strip (Explore/Image/Video/Audio/Reactor/Courses)
+// highlighted correctly no matter which path got you there (tap it directly,
+// the bottom tab bar, a chip, a menu link…). A `go` with no matching tab
+// (e.g. 'profile') simply clears the highlight, which is the right look.
+function syncSubnav(go) {
+  document.querySelectorAll('.subnav-tab').forEach((t) => t.classList.toggle('active', t.dataset.go === go));
+}
 function showView(name, opts = {}) {
   scrollMem[curView] = window.scrollY;          // remember where we were
   document.querySelectorAll('.view').forEach((v) => v.classList.remove('active'));
@@ -241,6 +248,10 @@ function showView(name, opts = {}) {
   if (name === 'community') { loadChallenges(); loadCommunity(); }
   if (name === 'reactor') buildReactor();
   if (name === 'models') { if (modelKind === 'reactor') modelKind = 'all'; buildModels(modelKind); }
+  if (name === 'home') syncSubnav('explore');
+  else if (name === 'reactor') syncSubnav('tab-reactor');
+  else if (name === 'all-courses' || name === 'mini') syncSubnav('tab-courses');
+  else if (name !== 'models') syncSubnav('');
   // Restore previous scroll for this view (top for first visit).
   window.scrollTo(0, scrollMem[name] || 0);
   saveRoute();
@@ -305,6 +316,7 @@ function isLocked(slug) {
 function buildModels(kind) {
   modelKind = kind || 'all';
   document.querySelectorAll('#view-models .mtab').forEach((t) => t.classList.toggle('active', t.dataset.kind === modelKind));
+  syncSubnav(modelKind === 'image' ? 'tab-image' : modelKind === 'video' ? 'tab-video' : '');
   if (modelKind === 'reactor') { showView('reactor'); return; }
 
   const tagOf = (s) => (cfg.MODEL_TAGS || {})[s] || '';
@@ -2288,6 +2300,16 @@ window.addEventListener('DOMContentLoaded', () => {
   $('menuTopup').onclick = () => { closeMenu(); openBuy(); };
   $('menuStreak').onclick = () => { closeMenu(); claimDaily(); };
   $('menuCourses').onclick = () => { closeMenu(); openAllCourses(); };
+  document.querySelectorAll('.subnav-tab').forEach((t) => t.onclick = () => {
+    const go = t.dataset.go;
+    if (go === 'tab-image') { showView('models'); buildModels('image'); }
+    else if (go === 'tab-video') { showView('models'); buildModels('video'); }
+    else if (go === 'tab-audio') { toast('🎧 Audio generation is coming soon!'); }
+    else if (go === 'tab-reactor') { openStudio('reactor'); }
+    else if (go === 'tab-courses') { openAllCourses(); }
+    else { showView('home'); }
+    syncSubnav(go);
+  });
   $('menuProfile').onclick = () => { closeMenu(); showView('profile'); };
   $('menuProjects').onclick = () => { closeMenu(); showView('library'); };
   $('menuCommunity').onclick = () => { closeMenu(); showView('community'); };
