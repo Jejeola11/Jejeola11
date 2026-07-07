@@ -607,7 +607,7 @@ let coursePillar = COURSE[0] ? COURSE[0].key : 'orient';
 // Courses are purchase-only now — a Pro/Agency image-credits plan does NOT
 // grant course access on its own. Only admin (for testing) or an explicit
 // module_unlocks row (real payment) unlocks a course.
-function courseHasFull() { return userIsAdmin; }
+function courseHasFull() { return userIsAdmin || courseUnlocks.has('atelier-full'); }
 function moduleUnlocked(mKey, pillarKey) {
   if (pillarKey === 'orient') return true;       // orientation is free
   if (courseHasFull()) return true;
@@ -712,7 +712,9 @@ function openLesson(key) {
   $('lessonPlayer').style.position = 'relative';
   $('lessonTitle').textContent = found.n + ' · ' + found.title;
   $('lessonMeta').innerHTML = `<span class="muted">${modOf.title}${found.dur ? ' · ' + found.dur : ''}</span>`;
-  $('lessonBody').innerHTML = '';
+  $('lessonBody').innerHTML = found.notes
+    ? `<div class="vault-note"><div class="vault-h">📚 The Vault — read the lesson</div>${found.notes}</div>`
+    : '';
   // admin video setter
   if (userIsAdmin) {
     $('lessonAdmin').innerHTML = `<div class="lesson-admin">
@@ -893,8 +895,8 @@ async function openAllCourses() {
   }
   const rows = [];
   rows.push({
-    title: '🏛️ Fuse Atelier', sub: 'The AI Creative Income System — 120 lessons, 5 pillars.',
-    owned: userIsAdmin, price: '₦60,000', go: () => routeFeature('learn'),
+    title: '🏛️ Fuse Atelier', sub: 'The AI Creative Income System — 70 lessons, 4 pillars.',
+    owned: courseHasFull(), price: '₦60,000', go: () => routeFeature('learn'),
   });
   rows.push({
     title: '💵 The $500 Week', sub: 'AI UGC & influencer income — 7-day course.',
@@ -1575,16 +1577,17 @@ async function adminGrantCourse() {
   const email = $('adminEmail').value.trim();
   if (!email) return note('adminNote', 'Enter the buyer\'s email.', 'err');
   const course = $('adminCourse').value;
+  const bonus_credits = $('adminCourseBonus').checked ? 500 : 0;
   const btn = $('adminGrantCourse'); btn.disabled = true; btn.textContent = 'Unlocking…';
   try {
     const res = await fetch('/.netlify/functions/admin-grant', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ email, course }),
+      body: JSON.stringify({ email, course, bonus_credits }),
     });
     const d = await res.json();
     if (!res.ok) throw new Error(d.error || 'Failed');
-    note('adminNote', `✅ Course unlocked for ${d.email}.`, 'ok');
-    $('adminEmail').value = '';
+    note('adminNote', `✅ Course unlocked for ${d.email}${d.credits ? ` (+${d.credits} credits)` : ''}.`, 'ok');
+    $('adminEmail').value = ''; $('adminCourseBonus').checked = false;
   } catch (e) { note('adminNote', e.message || 'Failed', 'err'); }
   btn.disabled = false; btn.textContent = 'Unlock course for this email';
 }

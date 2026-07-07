@@ -702,6 +702,15 @@ textarea{min-height:104px;resize:vertical}
 .lesson-meta{font-size:13px;margin-bottom:8px}
 .lesson-admin{background:var(--bg-2);border:1px dashed var(--gold-deep);border-radius:12px;padding:12px;margin:12px 0}
 
+/* vault notes — the in-app readable lesson content */
+.vault-note{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:14px 0 24px;font-size:14.5px;line-height:1.65}
+.vault-note .vault-h{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:15px;color:var(--gold);margin-bottom:10px}
+.vault-note h4{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--gold);margin:16px 0 6px}
+.vault-note h4:first-child{margin-top:0}
+.vault-note p{margin:0 0 10px}
+.vault-note .vault-action{background:var(--bg-2);border-left:3px solid var(--gold-deep);border-radius:8px;padding:10px 12px;margin-top:14px}
+.vault-note .vault-tag{display:inline-block;font-size:11px;color:var(--muted);background:var(--bg-2);border-radius:20px;padding:2px 10px;margin-bottom:10px}
+
 /* ===== All Courses hub ===== */
 .ac-row{display:flex;justify-content:space-between;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px 16px;margin-bottom:10px;cursor:pointer;transition:.12s}
 .ac-row:hover{border-color:var(--gold-deep)}

@@ -59,6 +59,12 @@ exports.handler = async (event) => {
     await db.from('profiles').update({ plan: pack.plan, plan_expires_at: expires }).eq('id', userId);
   }
 
+  // 4b) The Fuse Atelier course pack unlocks the whole course (courseHasFull()
+  // checks this module_unlocks row) — buying it must actually grant access.
+  if (pack.kind === 'course') {
+    try { await db.from('module_unlocks').insert({ user_id: userId, module_key: 'atelier-full' }); } catch (e) {}
+  }
+
   // 5) Record the payment.
   await db.from('payments').insert({
     user_id: userId,

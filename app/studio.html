@@ -391,7 +391,7 @@
     <div class="course-hero">
       <div class="course-kick">FUSE ATELIER</div>
       <h2 class="course-title">The AI Creative Income System</h2>
-      <p class="course-sub" id="courseSub">120 lessons · 5 pillars · from beginner to booked-out AI Creative Director.</p>
+      <p class="course-sub" id="courseSub">70 lessons · 4 pillars · from beginner to booked-out AI Creative Director.</p>
       <div class="course-prog"><div class="cp-bar"><div class="cp-fill" id="cpFill"></div></div><span id="cpText" class="muted" style="font-size:12px"></span></div>
       <div id="courseLockMsg"></div>
     </div>
@@ -669,7 +669,13 @@
         <select id="adminPack" style="margin-top:8px"></select>
         <button class="btn gold block" id="adminGrant" style="margin-top:10px">Grant access</button>
         <p class="muted" style="margin:14px 0 6px;font-size:12px">Unlock a course for a buyer (after WhatsApp payment):</p>
-        <select id="adminCourse" style="margin-bottom:8px"><option value="wk-course">The $500 Week course</option></select>
+        <select id="adminCourse" style="margin-bottom:8px">
+          <option value="atelier-full">Fuse Atelier course</option>
+          <option value="wk-course">The $500 Week course</option>
+        </select>
+        <label class="muted" style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:8px">
+          <input id="adminCourseBonus" type="checkbox" style="width:auto"> Also give 500 bonus credits
+        </label>
         <button class="btn ghost block" id="adminGrantCourse">Unlock course for this email</button>
         <p class="muted" style="margin:14px 0 6px;font-size:12px">Or add an exact number of credits (corrections / top-ups):</p>
         <input id="adminCredits" type="number" min="1" placeholder="e.g. 350" inputmode="numeric">

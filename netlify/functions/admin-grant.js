@@ -40,16 +40,18 @@ exports.handler = async (event) => {
     if (!target) return json(404, { error: 'No account with that email yet — ask them to sign up first, then grant.' });
 
     // Course-only grant: unlock the course for this buyer and return (no plan change).
-    // The $500 Week comes with a 100-credit creation bonus for buyers — that's the
-    // "free credits to create with" promise (the normal signup trial stays at 12).
+    // The $500 Week comes with a 100-credit creation bonus by default. For other
+    // courses (e.g. Fuse Atelier), the caller decides the bonus via bonus_credits —
+    // "not all of em gets the 500 credits" — it's an option per grant, not automatic.
+    const bonusCredits = parseInt(body.bonus_credits, 10) || 0;
     if (course && !pack && custom <= 0) {
       const { data: existing } = await db.from('module_unlocks').select('module_key').eq('user_id', target.id).eq('module_key', course).maybeSingle();
       let bonus = 0;
       if (!existing) {
         await db.from('module_unlocks').insert({ user_id: target.id, module_key: course });
-        if (course === 'wk-course') {
-          bonus = 100;
-          try { await db.rpc('add_credits', { uid: target.id, amount: bonus, why: 'wk-course-bonus' }); } catch (e) { bonus = 0; }
+        bonus = bonusCredits > 0 ? bonusCredits : (course === 'wk-course' ? 100 : 0);
+        if (bonus > 0) {
+          try { await db.rpc('add_credits', { uid: target.id, amount: bonus, why: course + '-bonus' }); } catch (e) { bonus = 0; }
         }
       }
       try {
