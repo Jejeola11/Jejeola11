@@ -14,7 +14,7 @@
 create table if not exists public.profiles (
   id              uuid primary key references auth.users(id) on delete cascade,
   email           text,
-  credits         integer not null default 12,         -- trial credits on signup
+  credits         integer not null default 25,         -- trial credits on signup
   plan            text    not null default 'free',      -- 'free' | 'lite' | 'pro'
   plan_expires_at timestamptz,                          -- for monthly subscriptions
   created_at      timestamptz not null default now()
@@ -73,11 +73,11 @@ security definer set search_path = public
 as $$
 begin
   insert into public.profiles (id, email, credits)
-  values (new.id, new.email, 12)
+  values (new.id, new.email, 25)
   on conflict (id) do nothing;
 
   insert into public.transactions (user_id, delta, reason)
-  values (new.id, 12, 'trial');
+  values (new.id, 25, 'trial');
 
   return new;
 end;
