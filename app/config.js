@@ -40,8 +40,9 @@ window.FUSE = {
 
   // Launch promo — mirrors netlify/functions/_packs.js exactly (dates + multipliers
   // must match, or the buy modal and the actual grant will disagree). Auto-expires
-  // at endsAt; nothing to remember to turn off.
-  PROMO: {
+  // at endsAt; nothing to remember to turn off. Named LAUNCH_PROMO (not PROMO) —
+  // PROMO below is the older home-banner config, a different, unrelated shape.
+  LAUNCH_PROMO: {
     label: 'Fuse Studio Full Launch',
     startsAt: '2026-07-08T00:00:00+01:00',
     endsAt: '2026-07-10T00:00:00+01:00',
