@@ -2206,12 +2206,14 @@ async function doAuth() {
       const { error } = await sb.auth.signUp({ email, password: pass });
       if (error) throw error;
       const { data } = await sb.auth.getSession();
+      // No session yet (email confirmation required) — the referral code stays
+      // in localStorage and gets claimed the moment they actually log in below.
       if (!data.session) { note('authNote', '✅ Account created — check your email to confirm, then log in.', 'ok'); setAuthMode('login'); $('authBtn').disabled = false; return; }
-      await claimReferral();
     } else {
       const { error } = await sb.auth.signInWithPassword({ email, password: pass });
       if (error) throw error;
     }
+    await claimReferral();
     await boot();
   } catch (e) { note('authNote', e.message || 'Something went wrong.', 'err'); }
   $('authBtn').disabled = false;
