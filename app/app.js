@@ -1650,15 +1650,33 @@ async function requestPayout() {
 // ---------------- buy / Paystack ----------------
 function openBuy() { renderPacks(); note('buyNote', ''); showPackList(); $('buyOverlay').style.display = 'grid'; }
 function showPackList() { $('payManual').style.display = 'none'; $('packList').style.display = ''; const t = $('curToggle'); if (t) t.style.display = ''; }
+// Launch promo — same window/multipliers as _packs.js. Purely a display
+// helper; the server always decides the real amount granted.
+function promoActive() {
+  const p = cfg.PROMO; if (!p) return false;
+  const now = Date.now();
+  return now >= Date.parse(p.startsAt) && now < Date.parse(p.endsAt);
+}
+function promoCreditsFor(pack) {
+  if (!promoActive()) return pack.credits;
+  if (pack.key === 'course') return cfg.PROMO.courseCredits;
+  const mult = cfg.PROMO.subMultiplier[pack.key];
+  return mult ? pack.credits * mult : pack.credits;
+}
 function renderPacks() {
   // Free users see only subscription plans (no credit top-ups). Subscribers see everything.
   const isFree = userPlan === 'free' && !userIsAdmin;
   const packs = isFree ? cfg.PACKS.filter((p) => p.kind === 'sub' || p.kind === 'course') : cfg.PACKS;
-  $('packList').innerHTML = packs.map((p) =>
-    `<div class="pk" data-pack="${p.key}"><div><div class="pkn">${p.name}${p.featured ? ' ⭐' : ''}</div>
-      <div class="pkc"><b class="gold">${p.credits} credits</b> · ${p.note}${p.kind === 'sub' ? ' /mo' : ''}</div></div>
-      <div class="pka">${price(p.naira)}</div></div>`).join('');
-  if (isFree) $('packList').insertAdjacentHTML('afterbegin', '<div class="muted" style="font-size:12px;margin-bottom:8px;text-align:center">Subscribe to unlock all models + credit top-ups</div>');
+  const promo = promoActive();
+  $('packList').innerHTML = packs.map((p) => {
+    const credits = promoCreditsFor(p);
+    const boosted = promo && credits !== p.credits;
+    return `<div class="pk" data-pack="${p.key}"><div><div class="pkn">${p.name}${p.featured ? ' ⭐' : ''}${boosted ? ' <span class="gold">🎉 LAUNCH</span>' : ''}</div>
+      <div class="pkc"><b class="gold">${credits} credits</b>${boosted ? ` <span class="muted" style="text-decoration:line-through">${p.credits}</span>` : ''} · ${p.note}${p.kind === 'sub' ? ' /mo' : ''}</div></div>
+      <div class="pka">${price(p.naira)}</div></div>`;
+  }).join('');
+  if (promo) $('packList').insertAdjacentHTML('afterbegin', '<div class="muted" style="font-size:12px;margin-bottom:8px;text-align:center">🎉 Full launch promo — boosted credits, 2 days only</div>');
+  else if (isFree) $('packList').insertAdjacentHTML('afterbegin', '<div class="muted" style="font-size:12px;margin-bottom:8px;text-align:center">Subscribe to unlock all models + credit top-ups</div>');
   $('packList').querySelectorAll('.pk').forEach((el) => el.onclick = () => buy(el.dataset.pack, el));
   $('curToggle').textContent = showUsd ? 'Show ₦' : 'Show $';
 }

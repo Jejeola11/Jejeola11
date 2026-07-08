@@ -27,6 +27,33 @@ const PACKS = {
   bundle_750: { label: '750 credits', amount_naira: 15000, credits: 750, kind: 'pack' },
 };
 
+// ============================================================
+// LAUNCH PROMO — full Fuse Studio launch, 2 days only.
+//   Subscription plans (NOT one-time top-up packs) get a credit
+//   multiplier; the Fuse Atelier course gets a flat bonus instead of
+//   its normal 500. Auto-expires at endsAt — nothing to remember to
+//   turn off. Change/extend by editing the dates below only.
+// ============================================================
+const PROMO = {
+  label: 'Fuse Studio Full Launch',
+  startsAt: '2026-07-08T00:00:00+01:00',
+  endsAt: '2026-07-10T00:00:00+01:00',       // 2 days — WAT
+  subMultiplier: { creator_mo: 2, pro_mo: 3, agency_mo: 4 },
+  courseCredits: 2500,
+};
+function promoActive() {
+  const now = Date.now();
+  return now >= Date.parse(PROMO.startsAt) && now < Date.parse(PROMO.endsAt);
+}
+// Only subscription packs (creator_mo/pro_mo/agency_mo) and the course pack are
+// affected — one-time top-up packs (starter/creator/pro/bundle_*) are untouched.
+function creditsForPack(packKey, baseCredits) {
+  if (!promoActive()) return baseCredits;
+  if (packKey === 'course') return PROMO.courseCredits;
+  const mult = PROMO.subMultiplier[packKey];
+  return mult ? baseCredits * mult : baseCredits;
+}
+
 // Referral rewards (credits).
 const REFERRAL = { reward: 30, bonus: 15 };
 
@@ -116,4 +143,4 @@ function canUseFree(model) {
   return (model in IMAGE_MODELS) || (model in VIDEO_MODELS) || FREE_REACTOR.includes(model);
 }
 
-module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree };
+module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree, PROMO, promoActive, creditsForPack };

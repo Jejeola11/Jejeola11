@@ -6,12 +6,7 @@
 // At least one of pack or credits is required.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
-const { PACKS } = require('./_packs');
-
-// First-50 founding offer has ended — grants now deliver the normal credit
-// amount (a ₦9k Creator gives 350, not 700). Bump back to 2 only if you run
-// this promo again.
-const FOUNDING_MULTIPLIER = 1;
+const { PACKS, creditsForPack, promoActive, PROMO } = require('./_packs');
 
 exports.handler = async (event) => {
   let db;
@@ -49,7 +44,9 @@ exports.handler = async (event) => {
       let bonus = 0;
       if (!existing) {
         await db.from('module_unlocks').insert({ user_id: target.id, module_key: course });
-        bonus = bonusCredits > 0 ? bonusCredits : (course === 'wk-course' ? 100 : 0);
+        bonus = bonusCredits > 0
+          ? (course === 'atelier-full' && promoActive() ? PROMO.courseCredits : bonusCredits)
+          : (course === 'wk-course' ? 100 : 0);
         if (bonus > 0) {
           try { await db.rpc('add_credits', { uid: target.id, amount: bonus, why: course + '-bonus' }); } catch (e) { bonus = 0; }
         }
@@ -60,9 +57,11 @@ exports.handler = async (event) => {
       return json(200, { ok: true, email: target.email, course, credits: bonus, granted: 'course' });
     }
 
-    // Credits: exact custom amount, OR the pack's credits doubled (founding).
-    const credits = custom > 0 ? custom : pack.credits * FOUNDING_MULTIPLIER;
-    const doubled = custom <= 0 && FOUNDING_MULTIPLIER > 1;
+    // Credits: exact custom amount, OR the pack's normal credits — multiplied
+    // during the launch promo for subscription packs, or overridden to a flat
+    // bonus for the course pack (see creditsForPack in _packs.js).
+    const credits = custom > 0 ? custom : creditsForPack(body.pack, pack.credits);
+    const promoApplied = custom <= 0 && credits !== pack.credits;
 
     await db.rpc('add_credits', { uid: target.id, amount: credits, why: custom > 0 ? 'manual_topup' : 'manual_grant' });
 
@@ -72,9 +71,6 @@ exports.handler = async (event) => {
       const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
       await db.from('profiles').update({ plan, plan_expires_at: expires }).eq('id', target.id);
     }
-    // Best-effort: mark them a founding member (ignore if the column doesn't exist).
-    try { await db.from('profiles').update({ founding_2x: true }).eq('id', target.id); } catch (e) {}
-
     try {
       await db.from('payments').insert({
         user_id: target.id, reference: 'manual-' + Date.now() + '-' + email,
@@ -82,7 +78,7 @@ exports.handler = async (event) => {
       });
     } catch (e) {}
 
-    return json(200, { ok: true, email: target.email, credits, founding: doubled, plan: pack ? (pack.plan || pack.kind) : 'top-up' });
+    return json(200, { ok: true, email: target.email, credits, promo: promoApplied, plan: pack ? (pack.plan || pack.kind) : 'top-up' });
   } catch (e) {
     return json(500, { error: (e && e.message) || 'Grant failed — try again.' });
   }

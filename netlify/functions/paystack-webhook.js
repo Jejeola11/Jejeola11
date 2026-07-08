@@ -8,7 +8,7 @@
 // ============================================================
 const crypto = require('crypto');
 const { admin } = require('./_supabase');
-const { PACKS } = require('./_packs');
+const { PACKS, creditsForPack } = require('./_packs');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method not allowed' };
@@ -48,9 +48,9 @@ exports.handler = async (event) => {
     .from('payments').select('id').eq('reference', reference).maybeSingle();
   if (existing) return { statusCode: 200, body: 'already processed' };
 
-  // 3) Credit the user the normal amount. (The first-50-payers 2x founding
-  // bonus has ended — it used to double credits via claim_founding here.)
-  const credits = pack.credits;
+  // 3) Credit the user — multiplied during the launch promo for subscription
+  // packs, or overridden to a flat bonus for the course pack (see _packs.js).
+  const credits = creditsForPack(meta.pack, pack.credits);
   await db.rpc('add_credits', { uid: userId, amount: credits, why: 'purchase' });
 
   // 4) Subscription packs also extend plan access by 30 days.
