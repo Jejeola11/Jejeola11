@@ -1,47 +1,11 @@
 -- ============================================================
--- Fuse Studio — Phase 13: Free trial credits weren't enough to cover ANY
---   video model (cheapest video = 15 credits, old trial = 12 credits), so
---   brand-new free members could only ever afford image generations even
---   though isLocked() already allowed them to pick video. Bumping the
---   signup trial to 25 credits fixes that, and this also tops up existing
---   free members who are still sitting on their untouched 12-credit trial
---   balance so today's already-affected members are fixed immediately.
--- Run after earlier files. Safe to re-run.
+-- Fuse Studio — Phase 13: log failed generation attempts.
+--   Free/paid users hitting a real engine failure (MuAPI 4xx/5xx,
+--   timeout, etc.) were refunded correctly, but the failure itself
+--   left no trace anywhere — impossible to diagnose after the fact.
+--   This adds a place to record the actual error text so the next
+--   failure is diagnosable from the DB instead of guesswork.
+-- Run after earlier files. Safe to re-run. (Applied directly via
+-- Supabase MCP on 2026-07-08 — this file just documents it.)
 -- ============================================================
-
--- New signups from now on get 25 trial credits instead of 12.
-alter table public.profiles alter column credits set default 25;
-
-create or replace function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer set search_path = public
-as $$
-begin
-  insert into public.profiles (id, email, credits)
-  values (new.id, new.email, 25)
-  on conflict (id) do nothing;
-
-  insert into public.transactions (user_id, delta, reason)
-  values (new.id, 25, 'trial');
-
-  return new;
-end;
-$$;
-
--- Top up existing free members who are still on the old, untouched
--- 12-credit trial balance (never bought a pack, never redeemed a code) —
--- so members who already joined and hit this bug are fixed right away.
-update public.profiles
-   set credits = credits + 13
- where plan = 'free'
-   and credits = 12
-   and not is_admin;
-
-insert into public.transactions (user_id, delta, reason)
-select id, 13, 'trial_topup'
-  from public.profiles
- where plan = 'free'
-   and credits = 25   -- just topped up above (was 12, now 25)
-   and not is_admin
-   and id not in (select user_id from public.transactions where reason = 'trial_topup');
+alter table public.jobs add column if not exists error_message text;

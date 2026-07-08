@@ -81,8 +81,16 @@ exports.handler = async (event) => {
     await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'video', model, prompt, aspect, credits: cost, status: 'processing' });
     return json(200, { request_id: id, credits: balance });
   } catch (e) {
+    const msg = typeof e.message === 'string' ? e.message : 'Could not start video';
     try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
-    return json(502, { error: typeof e.message === 'string' ? e.message : 'Could not start video', refunded: cost });
+    try {
+      if (db && user) await db.from('jobs').insert({
+        request_id: 'failed-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+        user_id: user.id, kind: 'video', model, prompt, aspect, credits: cost,
+        status: 'failed', error_message: msg,
+      });
+    } catch (_) {}
+    return json(502, { error: msg, refunded: cost });
   }
   } catch (fatal) {
     return json(500, { error: 'Server error — please try again.' });

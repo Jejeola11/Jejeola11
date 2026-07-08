@@ -70,8 +70,10 @@ exports.handler = async (event) => {
       await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'video', model, prompt: '(talking avatar)', aspect: '9:16', credits: cost, status: 'processing' });
       return json(200, { request_id: id, credits: balance });
     } catch (e) {
+      const msg = e.message || 'Could not start the video';
       try { await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
-      return json(502, { error: e.message || 'Could not start the video', refunded: cost });
+      try { await db.from('jobs').insert({ request_id: 'failed-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8), user_id: user.id, kind: 'video', model, prompt: '(talking avatar)', aspect: '9:16', credits: cost, status: 'failed', error_message: msg }); } catch (_) {}
+      return json(502, { error: msg, refunded: cost });
     }
   } catch (fatal) {
     return json(500, { error: 'Server error — please try again.' });
