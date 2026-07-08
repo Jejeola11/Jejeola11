@@ -714,9 +714,12 @@ function openLesson(key) {
   $('lessonPlayer').classList.toggle('wide', found.aspect === '16:9');
   $('lessonTitle').textContent = found.n + ' · ' + found.title;
   $('lessonMeta').innerHTML = `<span class="muted">${modOf.title}${found.dur ? ' · ' + found.dur : ''}</span>`;
-  $('lessonBody').innerHTML = found.notes
+  const hasTask = /vault-action/.test(found.notes || '');
+  $('lessonBody').innerHTML = (found.notes
     ? `<div class="vault-note"><div class="vault-h">📚 The Vault — read the lesson</div>${found.notes}</div>`
-    : '';
+    : '') + (hasTask
+    ? `<a class="btn gold block" href="${ATELIER_WHATSAPP}" target="_blank" style="margin:4px 0 18px">💬 Submit this task in the discussion group</a>`
+    : '');
   // admin video setter
   if (userIsAdmin) {
     $('lessonAdmin').innerHTML = `<div class="lesson-admin">
@@ -751,59 +754,33 @@ function openLesson(key) {
   showView('lesson');
 }
 
-// ---------------- The Lab & The Arena (Atelier submissions) ----------------
-let atelierKind = 'lab';
+// ---------------- The Arena (Ria posts challenges; everyone participates in the WhatsApp group) ----------------
+const ATELIER_WHATSAPP = 'https://chat.whatsapp.com/Fv4cRzOoWUi6m0tRF7vBka';
 async function loadAtelierFeed() {
-  $('atelierTabs').querySelectorAll('.mtab').forEach((t) => t.onclick = () => { atelierKind = t.dataset.k; loadAtelierFeed(); });
-  $('atelierSubmitBtn').onclick = submitAtelierWork;
-  $('atelierTabs').querySelectorAll('.mtab').forEach((t) => t.classList.toggle('active', t.dataset.k === atelierKind));
-  $('atelierSub').textContent = atelierKind === 'lab'
-    ? 'Share your deliverable from any lesson — Ria reviews and leaves feedback.'
-    : 'Submit your challenge entry — Ria reviews and picks winners.';
-  let rows = [];
-  try {
-    const { data } = await sb.from('atelier_submissions').select('*').eq('kind', atelierKind).order('created_at', { ascending: false }).limit(50);
-    rows = data || [];
-  } catch (e) {}
-  $('atelierFeed').innerHTML = rows.length ? rows.map((r) => `
-    <div class="atelier-sub" data-id="${r.id}">
-      <div class="as-h"><span>${r.lesson_key ? 'Lesson ' + r.lesson_key : 'Submission'} · ${new Date(r.created_at).toLocaleDateString()}</span><span>${r.reviewed ? '✅ Reviewed' : '⏳ Pending'}</span></div>
-      ${r.caption ? `<div class="as-cap">${r.caption}</div>` : ''}
-      ${r.content_url ? `<a class="as-link" href="${r.content_url}" target="_blank" rel="noopener">${r.content_url}</a>` : ''}
-      ${r.review_note ? `<div class="as-review">💬 ${r.review_note}</div>` : (userIsAdmin ? '' : '<div class="as-pending">Awaiting review</div>')}
-      ${userIsAdmin && !r.reviewed ? `<div class="as-admin"><input placeholder="Leave feedback…" class="asRevNote"><button class="btn gold sm asRevBtn">Review</button></div>` : ''}
-    </div>`).join('') : '<div class="empty">Nothing submitted here yet.</div>';
-  $('atelierFeed').querySelectorAll('.asRevBtn').forEach((b) => b.onclick = async () => {
-    const card = b.closest('.atelier-sub'); const id = card.dataset.id;
-    const note = card.querySelector('.asRevNote').value.trim();
-    b.disabled = true; b.textContent = 'Saving…';
-    try {
-      const res = await fetch('/.netlify/functions/atelier-review', {
-        method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-        body: JSON.stringify({ id, review_note: note }),
-      });
-      if (!res.ok) throw new Error((await res.json()).error || 'Failed');
-      loadAtelierFeed();
-    } catch (e) { toast(e.message || 'Could not save review'); b.disabled = false; b.textContent = 'Review'; }
-  });
-}
-async function submitAtelierWork() {
-  if (preview || !user) { showAuth('signup'); return; }
-  const content_url = $('atelierUrl').value.trim();
-  const caption = $('atelierCaption').value.trim();
-  if (!content_url && !caption) return note('atelierNote', 'Add a link or a note about your work.', 'err');
-  const btn = $('atelierSubmitBtn'); btn.disabled = true; btn.textContent = 'Submitting…';
-  try {
-    const res = await fetch('/.netlify/functions/atelier-submit', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ kind: atelierKind, content_url, caption }),
-    });
-    if (!res.ok) throw new Error((await res.json()).error || 'Failed');
-    $('atelierUrl').value = ''; $('atelierCaption').value = '';
-    note('atelierNote', '✅ Submitted!', 'ok');
-    loadAtelierFeed();
-  } catch (e) { note('atelierNote', e.message || 'Could not submit', 'err'); }
-  btn.disabled = false; btn.textContent = 'Submit';
+  const { data } = await sb.from('challenges').select('*').eq('active', true).order('created_at', { ascending: false });
+  $('challengeList').innerHTML = (data && data.length) ? data.map((c) =>
+    `<div class="chal"><h3>${c.title}</h3><p class="muted" style="margin:0 0 6px;font-size:14px">${c.brief || ''}</p>
+      <div class="prize">🏆 ${c.prize || ''}</div></div>`).join('')
+    : '<div class="empty">No active challenge right now — check back soon.</div>';
+  if (!userIsAdmin) { $('atelierAdmin').style.display = 'none'; return; }
+  $('atelierAdmin').style.display = 'block';
+  $('atelierAdmin').innerHTML = `<div class="shead"><h2>👑 Post a challenge</h2></div>
+    <div class="panel">
+      <input id="chalTitle" placeholder="Challenge title">
+      <input id="chalBrief" placeholder="What should they do?" style="margin-top:8px">
+      <input id="chalPrize" placeholder="Prize (e.g. ₦20,000 + 500 credits)" style="margin-top:8px">
+      <button class="btn gold block" id="chalPost" style="margin-top:10px">Post challenge</button>
+      <div class="note" id="chalNote"></div>
+    </div>`;
+  $('chalPost').onclick = async () => {
+    const title = $('chalTitle').value.trim(); if (!title) return note('chalNote', 'Add a title.', 'err');
+    const brief = $('chalBrief').value.trim(); const prize = $('chalPrize').value.trim();
+    $('chalPost').disabled = true;
+    const { error } = await sb.from('challenges').insert({ title, brief, prize, active: true });
+    note('chalNote', error ? error.message : '✅ Posted!', error ? 'err' : 'ok');
+    if (!error) { $('chalTitle').value = ''; $('chalBrief').value = ''; $('chalPrize').value = ''; loadAtelierFeed(); }
+    $('chalPost').disabled = false;
+  };
 }
 
 // ---------------- Mini Masterclasses (₦1,000 one-video courses) ----------------

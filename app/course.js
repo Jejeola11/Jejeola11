@@ -80,6 +80,7 @@ window.FUSE_COURSE = {
 "n": "2.1",
 "title": "What Clients Actually Pay For In Product Photography",
 "dur": "6 min",
+"aspect": "16:9",
 "notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Brands need product shots for their website, Instagram grid, ads and packaging mockups — and studio photography with a real photographer costs hundreds of dollars per shot. You can deliver the same result from a single reference photo of the product, in minutes, for a fraction of the price, and still charge well.</p><h4>Ria's Shortcut</h4><p>Always ask the client for one real photo of their product first, even a rough phone photo. Using it as a reference in Fuse Studio keeps proportions, labels and details accurate — way more reliable than describing the product from scratch in text.</p><div class='vault-action'><b>Action step:</b> Find one product (yours or a friend's) and take a plain reference photo you'll use in the next lesson.</div>"
 },
 {
@@ -481,6 +482,13 @@ window.FUSE_COURSE = {
 "title": "Gold Capstone: Real Proposals That Won Jobs",
 "dur": "10 min",
 "notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Review real winning proposal examples side by side with what made them work — the specific hook referencing the client's exact post, the confident price anchor, the tight 2-piece portfolio attachment. Notice what's absent too: no apologising, no generic filler, no desperation.</p><h4>Ria's Shortcut</h4><p>Send your proposal within the first hour a job is posted whenever possible. Early proposals get read; proposal #80 rarely does.</p><div class='vault-action'><b>✦ Gold Proposal Capstone:</b> Send 3 real proposals this week — at least one using the No-Connects Method from 3.3. Track your response rate.</div>"
+},
+{
+"key": "gold-3_5",
+"n": "3.5",
+"title": "Pitch And Land Your First Client",
+"dur": "15 min",
+"notes": "<span class='vault-tag'>🎙 Talking head — full recorded walkthrough</span><h4>The Idea</h4><p>A full recorded walkthrough of pitching and landing a real client — direct outreach, not waiting in an application queue, the exact approach behind everything in this pillar. Watch the full tutorial above.</p><div class='vault-action'><b>Module 3 deliverable:</b> Send one real pitch using the approach shown, then post your experience.</div>"
 }
 ]
 },
@@ -669,13 +677,6 @@ window.FUSE_COURSE = {
 "title": "Cold Outreach Via LinkedIn DMs That Don't Feel Spammy",
 "dur": "8 min",
 "notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>This connects directly to the No-Connects Method from The Gold — LinkedIn is often where you'll actually message the decision-maker you researched. A good cold DM references something specific and real about their business, includes your free custom sample or a direct link to relevant work, and asks one small, easy-to-answer question — not a wall of text pitching your whole service menu.</p><h4>Ria's Shortcut</h4><p>Keep your first DM under 4 sentences. If they're interested, the conversation naturally continues — a long first message reads as desperate and gets ignored.</p><div class='vault-action'><b>Module 5 deliverable:</b> One real, sent LinkedIn cold outreach message using this structure.</div>"
-},
-{
-"key": "stage-5_3",
-"n": "5.3",
-"title": "Pitch And Land Your First Client",
-"dur": "15 min",
-"notes": "<span class='vault-tag'>🎙 Talking head — full recorded walkthrough</span><h4>The Idea</h4><p>A full recorded walkthrough of pitching and landing a real client — direct outreach, not waiting in an application queue, the exact approach behind everything in this pillar. Watch the full tutorial above.</p><div class='vault-action'><b>Module 5 deliverable:</b> Send one real pitch using the approach shown, then post your experience.</div>"
 }
 ]
 },

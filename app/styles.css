@@ -291,15 +291,6 @@ textarea{min-height:104px;resize:vertical}
 .chal h3{margin:0 0 4px;font-family:"Bricolage Grotesque";font-weight:800}
 .chal .prize{color:var(--gold);font-weight:800}
 
-.atelier-sub{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
-.atelier-sub .as-h{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);margin-bottom:6px}
-.atelier-sub .as-cap{font-size:14px;margin-bottom:6px}
-.atelier-sub .as-link{font-size:13px;color:var(--gold);word-break:break-all}
-.atelier-sub .as-review{background:var(--bg-2);border-left:3px solid var(--gold-deep);border-radius:8px;padding:8px 10px;margin-top:8px;font-size:13px}
-.atelier-sub .as-pending{color:var(--muted);font-size:12px;margin-top:6px}
-.atelier-sub .as-admin{display:flex;gap:8px;margin-top:8px}
-.atelier-sub .as-admin input{flex:1}
-
 /* preview ribbon */
 .previewRibbon{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);z-index:55;background:#7b5cff;color:#fff;font-size:12px;font-weight:700;padding:7px 14px;border-radius:999px;box-shadow:var(--shadow)}
 
