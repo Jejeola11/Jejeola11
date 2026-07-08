@@ -291,6 +291,15 @@ textarea{min-height:104px;resize:vertical}
 .chal h3{margin:0 0 4px;font-family:"Bricolage Grotesque";font-weight:800}
 .chal .prize{color:var(--gold);font-weight:800}
 
+.atelier-sub{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.atelier-sub .as-h{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);margin-bottom:6px}
+.atelier-sub .as-cap{font-size:14px;margin-bottom:6px}
+.atelier-sub .as-link{font-size:13px;color:var(--gold);word-break:break-all}
+.atelier-sub .as-review{background:var(--bg-2);border-left:3px solid var(--gold-deep);border-radius:8px;padding:8px 10px;margin-top:8px;font-size:13px}
+.atelier-sub .as-pending{color:var(--muted);font-size:12px;margin-top:6px}
+.atelier-sub .as-admin{display:flex;gap:8px;margin-top:8px}
+.atelier-sub .as-admin input{flex:1}
+
 /* preview ribbon */
 .previewRibbon{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);z-index:55;background:#7b5cff;color:#fff;font-size:12px;font-weight:700;padding:7px 14px;border-radius:999px;box-shadow:var(--shadow)}
 
@@ -696,6 +705,7 @@ textarea{min-height:104px;resize:vertical}
 
 /* lesson player */
 .lesson-player{border-radius:16px;overflow:hidden;background:#000;aspect-ratio:9/16;max-height:70vh;max-width:400px;margin:0 auto;box-shadow:var(--shadow)}
+.lesson-player.wide{aspect-ratio:16/9;max-width:100%;max-height:none}
 .lesson-player iframe,.lesson-player video{width:100%;height:100%;border:0;display:block;object-fit:contain;background:#000}
 .lp-empty{width:100%;height:100%;display:grid;place-items:center;color:var(--muted);font-size:15px}
 .lesson-title{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:20px;margin:14px 0 4px;line-height:1.15}

@@ -14,6 +14,7 @@ window.FUSE_COURSE = {
 "n": "0.1",
 "title": "Welcome To Fuse Atelier: What You Just Unlocked",
 "dur": "4 min",
+"aspect": "16:9",
 "notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Fuse Atelier is the complete AI Creative Income System — four pillars that take you from zero to a real, paying skill: <b>The Spark</b> (create anything with AI), <b>The House</b> (build brands worth premium prices), <b>The Gold</b> (turn skill into foreign income on Upwork and direct outreach), and <b>The Stage</b> (become visible enough that clients find you).</p><p>Everything in this course now runs on one tool — <b>Fuse Studio</b>, the same app this course lives inside. No more juggling five different apps. Image models, video models, Avatar Studio and Fuse Reactor (your AI strategy partner) are all one tap away.</p><h4>Ria's Shortcut</h4><p>Don't try to binge this in a weekend. One module a day, applied immediately, beats ten modules watched and forgotten.</p><div class='vault-action'><b>Action step:</b> Open Fuse Studio's Create tab right now and generate one image, just to feel the tool in your hand before we go deeper.</div>"
 },
 {
@@ -21,6 +22,7 @@ window.FUSE_COURSE = {
 "n": "0.2",
 "title": "The 90-Day Roadmap & How To Use The Vault",
 "dur": "5 min",
+"aspect": "16:9",
 "notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Your 90 days: Days 1–30 you master The Spark and The House — you can create and package anything. Days 31–60 you're in The Gold — profile live, proposals going out, first paid jobs landing. Days 61–90 you're in The Stage — visible, posting daily, building the audience that brings clients to you instead of you chasing them.</p><p>Every lesson closes with a line pointing you back here — <b>the Vault</b>. This page you're reading right now IS the Vault. No downloadable PDFs to lose in a folder — just come back to this exact lesson any time you need the notes again.</p><h4>Ria's Shortcut</h4><p>Bookmark or screenshot your favourite lessons. You'll return to the Gold pillar proposal scripts more than anything else in this course.</p><div class='vault-action'><b>Action step:</b> Write your own one-line 90-day goal — the specific dollar or naira number you want hitting your account by day 90. Say it out loud.</div>"
 },
 {
@@ -28,6 +30,7 @@ window.FUSE_COURSE = {
 "n": "0.3",
 "title": "Your Starter Audit: Where Are You Right Now?",
 "dur": "4 min",
+"aspect": "16:9",
 "notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Before we build anything, be honest about where you're starting. Have you ever generated an AI image before? Do you have an Upwork account? Do you post consistently anywhere? There's no wrong answer — this just tells you which lessons to slow down on and which to skim.</p><h4>Ria's Shortcut</h4><p>Most people who fail this course fail because they skip the boring foundational lessons to rush to \"the fun part.\" The prompt formula in Spark Module 1 is boring for five minutes and worth thousands over the next year. Don't skip it.</p><div class='vault-action'><b>Action step:</b> Rate yourself 1–5 on: AI tools, brand design, freelancing/Upwork, social media. Keep that rating somewhere — you'll compare it again at day 90.</div>"
 }
 ]
@@ -48,6 +51,7 @@ window.FUSE_COURSE = {
 "n": "1.1",
 "title": "Your Fuse Studio Toolkit: Which Model For Which Job",
 "dur": "6 min",
+"aspect": "16:9",
 "notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Fuse Studio's Image Studio gives you a whole model catalog in one place — GPT Image 2 for the most realistic results, Flux Schnell when you need something fast and cheap, Nano Banana (Gemini) for strong edits and reference-matching, Imagen 4 Ultra when a client needs the absolute best. You don't need five separate apps and five separate subscriptions anymore — everything lives under Create → Image.</p><p>The old approach was juggling Higgsfield, Gemini and separate editors. Now it's one search bar, one credit balance, one place to work.</p><h4>Ria's Shortcut</h4><p>Default to Flux Schnell for concepting (cheap, fast, lets you try ten directions), then switch to GPT Image 2 or Imagen 4 Ultra for the final client-facing render. Concept cheap, finish expensive.</p><div class='vault-action'><b>Action step:</b> Open Fuse Studio → Create → Image, and generate the same prompt on two different models. Compare the results side by side.</div>"
 },
 {
@@ -55,6 +59,7 @@ window.FUSE_COURSE = {
 "n": "1.2",
 "title": "Prompt Architecture: The 6-Part Formula That Actually Works",
 "dur": "12 min",
+"aspect": "16:9",
 "notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Every strong image prompt has six parts: <b>Subject</b> (who/what), <b>Material</b> (what it's made of / wearing), <b>Lighting</b> (soft studio, golden hour, dramatic rim), <b>Camera</b> (85mm portrait, wide establishing, close-up), <b>Atmosphere</b> (mood, colour grade, energy), and <b>Quality</b> (ultra-detailed, editorial, 4:5). Stack all six and you get a professional result on the first try instead of the twentieth.</p><h4>Ria's Shortcut</h4><p>Write your prompts as one flowing sentence, not a comma-dump of random words. \"Confident Nigerian entrepreneur in a tailored navy suit, modern glass office behind her, soft cinematic window light, shot on 85mm, warm premium colour grade, ultra-detailed editorial portrait\" reads like a sentence and generates like a masterpiece.</p><div class='vault-action'><b>Action step:</b> Write one full 6-part prompt for a fictional client brief and generate it in Fuse Studio. Your resource for this lesson is in the Vault — this note is it, reread it before every client job.</div>"
 },
 {
@@ -117,6 +122,13 @@ window.FUSE_COURSE = {
 "title": "From Raw Clips To Finished Reel",
 "dur": "10 min",
 "notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Fuse Studio generates your raw footage — the actual stitching, trimming and adding text/music still happens in a simple free editor like CapCut. Export each clip, drop them in order, add a clean cut or crossfade between them, and add a text end-card if it's a branded piece.</p><h4>Ria's Shortcut</h4><p>Keep every clip 5–10 seconds. Shorter clips generate more reliably and are far easier to reorder and edit than one long, expensive, hard-to-fix take.</p><div class='vault-action'><b>Action step:</b> Generate 2–3 short clips and stitch them into one 15–20 second reel in CapCut. That's your Module 3 portfolio piece.</div>"
+},
+{
+"key": "spark-3_4",
+"n": "3.4",
+"title": "AI Talking Head & Consistent Avatar Tutorial",
+"dur": "12 min",
+"notes": "<span class='vault-tag'>🎙 Talking head — full recorded walkthrough</span><h4>The Idea</h4><p>This lesson walks through building your consistent AI face in Avatar Studio, start to finish — the exact model-sheet method that keeps your face locked and recognisable across every future generation. Watch the full recorded tutorial above.</p><div class='vault-action'><b>Action step:</b> Follow along and build your own model sheet in Avatar Studio while you watch.</div>"
 }
 ]
 },
@@ -171,6 +183,13 @@ window.FUSE_COURSE = {
 "title": "Platform Formats & Bulk Production",
 "dur": "10 min",
 "notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>TikTok/Reels want 9:16 vertical, raw and fast-cut. Facebook feed often performs better as 1:1 or 4:5. Know the aspect ratio before you generate, not after — it's set at generation time in Fuse Studio, so plan the platform first.</p><p>Clients often want a bulk batch — 10, 15, 20 ad variations in one delivery. Build one strong hook and product setup, then vary only the ending or the specific claim across each variant. You're not starting from zero each time.</p><h4>Ria's Shortcut</h4><p>Deliver 3 hook variations of the SAME ad, not 3 completely different ads. Clients A/B test hooks — this is exactly what performance marketers want, and it takes a fraction of the effort of building unique concepts.</p><div class='vault-action'><b>Action step:</b> Produce 3 hook variations of your UGC clip from 5.2 (same middle/end, different opening 3 seconds).</div>"
+},
+{
+"key": "spark-5_4",
+"n": "5.4",
+"title": "Create Your First AI UGC Video (Full Tutorial)",
+"dur": "11 min",
+"notes": "<span class='vault-tag'>🎙 Talking head — full recorded walkthrough</span><h4>The Idea</h4><p>A full start-to-finish recording of building your first AI UGC video — script, avatar, generation and final polish, all in one watch-along tutorial.</p><div class='vault-action'><b>Action step:</b> Follow along and build your own first UGC clip while you watch.</div>"
 }
 ]
 },
@@ -650,6 +669,13 @@ window.FUSE_COURSE = {
 "title": "Cold Outreach Via LinkedIn DMs That Don't Feel Spammy",
 "dur": "8 min",
 "notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>This connects directly to the No-Connects Method from The Gold — LinkedIn is often where you'll actually message the decision-maker you researched. A good cold DM references something specific and real about their business, includes your free custom sample or a direct link to relevant work, and asks one small, easy-to-answer question — not a wall of text pitching your whole service menu.</p><h4>Ria's Shortcut</h4><p>Keep your first DM under 4 sentences. If they're interested, the conversation naturally continues — a long first message reads as desperate and gets ignored.</p><div class='vault-action'><b>Module 5 deliverable:</b> One real, sent LinkedIn cold outreach message using this structure.</div>"
+},
+{
+"key": "stage-5_3",
+"n": "5.3",
+"title": "Pitch And Land Your First Client",
+"dur": "15 min",
+"notes": "<span class='vault-tag'>🎙 Talking head — full recorded walkthrough</span><h4>The Idea</h4><p>A full recorded walkthrough of pitching and landing a real client — direct outreach, not waiting in an application queue, the exact approach behind everything in this pillar. Watch the full tutorial above.</p><div class='vault-action'><b>Module 5 deliverable:</b> Send one real pitch using the approach shown, then post your experience.</div>"
 }
 ]
 },

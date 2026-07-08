@@ -645,6 +645,7 @@ async function openCourse() {
   $('cpFill').style.width = totalLessons ? Math.round((done / totalLessons) * 100) + '%' : '0%';
   $('cpText').textContent = `${done}/${totalLessons} lessons complete`;
   buildCourseBody();
+  loadAtelierFeed();
 }
 function buildCourseBody() {
   const p = COURSE.find((x) => x.key === coursePillar); if (!p) return;
@@ -708,8 +709,9 @@ function openLesson(key) {
   curLesson = found;
   // Shield over the video's top strip: blocks the YouTube title/logo link so
   // students can't tap through and copy the raw URL. Controls stay usable.
-  $('lessonPlayer').innerHTML = lessonEmbed(courseVideos[key]) + '<div style="position:absolute;top:0;left:0;right:0;height:56px;z-index:5"></div>';
+  $('lessonPlayer').innerHTML = lessonEmbed(courseVideos[key]) + '<div oncontextmenu="return false" style="position:absolute;top:0;left:0;right:0;height:56px;z-index:5"></div>';
   $('lessonPlayer').style.position = 'relative';
+  $('lessonPlayer').classList.toggle('wide', found.aspect === '16:9');
   $('lessonTitle').textContent = found.n + ' · ' + found.title;
   $('lessonMeta').innerHTML = `<span class="muted">${modOf.title}${found.dur ? ' · ' + found.dur : ''}</span>`;
   $('lessonBody').innerHTML = found.notes
@@ -747,6 +749,61 @@ function openLesson(key) {
     try { await sb.from('course_progress').insert({ user_id: user.id, lesson_key: key }); courseProgress.add(key); dn.textContent = '✓ Completed'; } catch (e) {}
   };
   showView('lesson');
+}
+
+// ---------------- The Lab & The Arena (Atelier submissions) ----------------
+let atelierKind = 'lab';
+async function loadAtelierFeed() {
+  $('atelierTabs').querySelectorAll('.mtab').forEach((t) => t.onclick = () => { atelierKind = t.dataset.k; loadAtelierFeed(); });
+  $('atelierSubmitBtn').onclick = submitAtelierWork;
+  $('atelierTabs').querySelectorAll('.mtab').forEach((t) => t.classList.toggle('active', t.dataset.k === atelierKind));
+  $('atelierSub').textContent = atelierKind === 'lab'
+    ? 'Share your deliverable from any lesson — Ria reviews and leaves feedback.'
+    : 'Submit your challenge entry — Ria reviews and picks winners.';
+  let rows = [];
+  try {
+    const { data } = await sb.from('atelier_submissions').select('*').eq('kind', atelierKind).order('created_at', { ascending: false }).limit(50);
+    rows = data || [];
+  } catch (e) {}
+  $('atelierFeed').innerHTML = rows.length ? rows.map((r) => `
+    <div class="atelier-sub" data-id="${r.id}">
+      <div class="as-h"><span>${r.lesson_key ? 'Lesson ' + r.lesson_key : 'Submission'} · ${new Date(r.created_at).toLocaleDateString()}</span><span>${r.reviewed ? '✅ Reviewed' : '⏳ Pending'}</span></div>
+      ${r.caption ? `<div class="as-cap">${r.caption}</div>` : ''}
+      ${r.content_url ? `<a class="as-link" href="${r.content_url}" target="_blank" rel="noopener">${r.content_url}</a>` : ''}
+      ${r.review_note ? `<div class="as-review">💬 ${r.review_note}</div>` : (userIsAdmin ? '' : '<div class="as-pending">Awaiting review</div>')}
+      ${userIsAdmin && !r.reviewed ? `<div class="as-admin"><input placeholder="Leave feedback…" class="asRevNote"><button class="btn gold sm asRevBtn">Review</button></div>` : ''}
+    </div>`).join('') : '<div class="empty">Nothing submitted here yet.</div>';
+  $('atelierFeed').querySelectorAll('.asRevBtn').forEach((b) => b.onclick = async () => {
+    const card = b.closest('.atelier-sub'); const id = card.dataset.id;
+    const note = card.querySelector('.asRevNote').value.trim();
+    b.disabled = true; b.textContent = 'Saving…';
+    try {
+      const res = await fetch('/.netlify/functions/atelier-review', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+        body: JSON.stringify({ id, review_note: note }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+      loadAtelierFeed();
+    } catch (e) { toast(e.message || 'Could not save review'); b.disabled = false; b.textContent = 'Review'; }
+  });
+}
+async function submitAtelierWork() {
+  if (preview || !user) { showAuth('signup'); return; }
+  const content_url = $('atelierUrl').value.trim();
+  const caption = $('atelierCaption').value.trim();
+  if (!content_url && !caption) return note('atelierNote', 'Add a link or a note about your work.', 'err');
+  const btn = $('atelierSubmitBtn'); btn.disabled = true; btn.textContent = 'Submitting…';
+  try {
+    const res = await fetch('/.netlify/functions/atelier-submit', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ kind: atelierKind, content_url, caption }),
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+    $('atelierUrl').value = ''; $('atelierCaption').value = '';
+    note('atelierNote', '✅ Submitted!', 'ok');
+    loadAtelierFeed();
+  } catch (e) { note('atelierNote', e.message || 'Could not submit', 'err'); }
+  btn.disabled = false; btn.textContent = 'Submit';
 }
 
 // ---------------- Mini Masterclasses (₦1,000 one-video courses) ----------------
