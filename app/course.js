@@ -13,7 +13,7 @@ window.FUSE_COURSE = {
 "key": "orient-0_1",
 "n": "0.1",
 "title": "Welcome To Fuse Atelier: What You Just Unlocked",
-"dur": "4 min",
+"dur": "2 min",
 "aspect": "16:9",
 "notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Fuse Atelier is the complete AI Creative Income System — four pillars that take you from zero to a real, paying skill: <b>The Spark</b> (create anything with AI), <b>The House</b> (build brands worth premium prices), <b>The Gold</b> (turn skill into foreign income on Upwork and direct outreach), and <b>The Stage</b> (become visible enough that clients find you).</p><p>Everything in this course now runs on one tool — <b>Fuse Studio</b>, the same app this course lives inside. No more juggling five different apps. Image models, video models, Avatar Studio and Fuse Reactor (your AI strategy partner) are all one tap away.</p><h4>Ria's Shortcut</h4><p>Don't try to binge this in a weekend. One module a day, applied immediately, beats ten modules watched and forgotten.</p><div class='vault-action'><b>Action step:</b> Open Fuse Studio's Create tab right now and generate one image, just to feel the tool in your hand before we go deeper.</div>"
 },
@@ -21,7 +21,7 @@ window.FUSE_COURSE = {
 "key": "orient-0_2",
 "n": "0.2",
 "title": "The 90-Day Roadmap & How To Use The Vault",
-"dur": "5 min",
+"dur": "1 min",
 "aspect": "16:9",
 "notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Your 90 days: Days 1–30 you master The Spark and The House — you can create and package anything. Days 31–60 you're in The Gold — profile live, proposals going out, first paid jobs landing. Days 61–90 you're in The Stage — visible, posting daily, building the audience that brings clients to you instead of you chasing them.</p><p>Every lesson closes with a line pointing you back here — <b>the Vault</b>. This page you're reading right now IS the Vault. No downloadable PDFs to lose in a folder — just come back to this exact lesson any time you need the notes again.</p><h4>Ria's Shortcut</h4><p>Bookmark or screenshot your favourite lessons. You'll return to the Gold pillar proposal scripts more than anything else in this course.</p><div class='vault-action'><b>Action step:</b> Write your own one-line 90-day goal — the specific dollar or naira number you want hitting your account by day 90. Say it out loud.</div>"
 },
@@ -29,7 +29,7 @@ window.FUSE_COURSE = {
 "key": "orient-0_3",
 "n": "0.3",
 "title": "Your Starter Audit: Where Are You Right Now?",
-"dur": "4 min",
+"dur": "2 min",
 "aspect": "16:9",
 "notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Before we build anything, be honest about where you're starting. Have you ever generated an AI image before? Do you have an Upwork account? Do you post consistently anywhere? There's no wrong answer — this just tells you which lessons to slow down on and which to skim.</p><h4>Ria's Shortcut</h4><p>Most people who fail this course fail because they skip the boring foundational lessons to rush to \"the fun part.\" The prompt formula in Spark Module 1 is boring for five minutes and worth thousands over the next year. Don't skip it.</p><div class='vault-action'><b>Action step:</b> Rate yourself 1–5 on: AI tools, brand design, freelancing/Upwork, social media. Keep that rating somewhere — you'll compare it again at day 90.</div>"
 }
@@ -50,7 +50,7 @@ window.FUSE_COURSE = {
 "key": "spark-1_1",
 "n": "1.1",
 "title": "Your Fuse Studio Toolkit: Which Model For Which Job",
-"dur": "6 min",
+"dur": "2 min",
 "aspect": "16:9",
 "notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Fuse Studio's Image Studio gives you a whole model catalog in one place — GPT Image 2 for the most realistic results, Flux Schnell when you need something fast and cheap, Nano Banana (Gemini) for strong edits and reference-matching, Imagen 4 Ultra when a client needs the absolute best. You don't need five separate apps and five separate subscriptions anymore — everything lives under Create → Image.</p><p>The old approach was juggling Higgsfield, Gemini and separate editors. Now it's one search bar, one credit balance, one place to work.</p><h4>Ria's Shortcut</h4><p>Default to Flux Schnell for concepting (cheap, fast, lets you try ten directions), then switch to GPT Image 2 or Imagen 4 Ultra for the final client-facing render. Concept cheap, finish expensive.</p><div class='vault-action'><b>Action step:</b> Open Fuse Studio → Create → Image, and generate the same prompt on two different models. Compare the results side by side.</div>"
 },
@@ -58,7 +58,7 @@ window.FUSE_COURSE = {
 "key": "spark-1_2",
 "n": "1.2",
 "title": "Prompt Architecture: The 6-Part Formula That Actually Works",
-"dur": "12 min",
+"dur": "7 min",
 "aspect": "16:9",
 "notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Every strong image prompt has six parts: <b>Subject</b> (who/what), <b>Material</b> (what it's made of / wearing), <b>Lighting</b> (soft studio, golden hour, dramatic rim), <b>Camera</b> (85mm portrait, wide establishing, close-up), <b>Atmosphere</b> (mood, colour grade, energy), and <b>Quality</b> (ultra-detailed, editorial, 4:5). Stack all six and you get a professional result on the first try instead of the twentieth.</p><h4>Ria's Shortcut</h4><p>Write your prompts as one flowing sentence, not a comma-dump of random words. \"Confident Nigerian entrepreneur in a tailored navy suit, modern glass office behind her, soft cinematic window light, shot on 85mm, warm premium colour grade, ultra-detailed editorial portrait\" reads like a sentence and generates like a masterpiece.</p><div class='vault-action'><b>Action step:</b> Write one full 6-part prompt for a fictional client brief and generate it in Fuse Studio. Your resource for this lesson is in the Vault — this note is it, reread it before every client job.</div>"
 },
@@ -79,7 +79,7 @@ window.FUSE_COURSE = {
 "key": "spark-2_1",
 "n": "2.1",
 "title": "What Clients Actually Pay For In Product Photography",
-"dur": "6 min",
+"dur": "2 min",
 "aspect": "16:9",
 "notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Brands need product shots for their website, Instagram grid, ads and packaging mockups — and studio photography with a real photographer costs hundreds of dollars per shot. You can deliver the same result from a single reference photo of the product, in minutes, for a fraction of the price, and still charge well.</p><h4>Ria's Shortcut</h4><p>Always ask the client for one real photo of their product first, even a rough phone photo. Using it as a reference in Fuse Studio keeps proportions, labels and details accurate — way more reliable than describing the product from scratch in text.</p><div class='vault-action'><b>Action step:</b> Find one product (yours or a friend's) and take a plain reference photo you'll use in the next lesson.</div>"
 },
@@ -87,14 +87,14 @@ window.FUSE_COURSE = {
 "key": "spark-2_2",
 "n": "2.2",
 "title": "Prompting Product Context: Surfaces, Environments & Brand Colours",
-"dur": "12 min",
+"dur": "9 min",
 "notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Upload your reference photo into Fuse Studio's Image Studio, then prompt the surrounding world: marble counter with soft morning light, or a bold colour-matched backdrop with dramatic studio lighting. The product stays accurate because it's grounded in a real reference image — you're just building the scene around it.</p><h4>Ria's Shortcut</h4><p>Match the backdrop colour to the client's actual brand colour, not a generic \"nice\" colour. A skincare brand with a sage-green identity should never get a pink backdrop, even if pink photographs beautifully — brand consistency beats a prettier single image every time.</p><div class='vault-action'><b>Action step:</b> Using your reference photo, generate three context variations: marble/luxury, bold brand-colour backdrop, and outdoor/lifestyle.</div>"
 },
 {
 "key": "spark-2_3",
 "n": "2.3",
 "title": "Beauty & Luxury Renders + Client Delivery",
-"dur": "10 min",
+"dur": "21 min",
 "notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Luxury renders lean on reflection, water droplets, gold accents and shallow depth of field — describe these explicitly in your prompt. Once you have your final set, run each through Upscale for crisp large-format quality before delivery.</p><h4>Ria's Shortcut</h4><p>Deliver product renders in a labelled, organised set — \"01-hero,\" \"02-lifestyle,\" \"03-detail\" — not a random dump of files. It's a five-minute habit that makes you look like an agency, not a hobbyist.</p><div class='vault-action'><b>Action step:</b> Build a final 3-image delivery set (hero, lifestyle, detail) from your product, upscale each, and save them in a labelled folder — that's your Module 2 portfolio piece.</div>"
 }
 ]
