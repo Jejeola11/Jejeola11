@@ -5,6 +5,7 @@
 // The browser calls this every few seconds until done.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
+const { pollAny } = require('./_providers');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
@@ -34,13 +35,13 @@ exports.handler = async (event) => {
   }
   if (job.status === 'failed') return json(200, { status: 'failed' });
 
-  // Ask MuAPI for the result.
-  let p;
-  try {
-    p = await (await fetch(`${MUAPI_BASE}/predictions/${id}/result`, { headers: { 'x-api-key': process.env.MUAPI_KEY } })).json();
-  } catch (e) { return json(200, { status: 'processing' }); }
-
+  // Chat jobs are always MuAPI (Fuse Reactor) — poll it directly for the raw
+  // body that extractText() needs.
   if (job.kind === 'chat') {
+    let p;
+    try {
+      p = await (await fetch(`${MUAPI_BASE}/predictions/${id}/result`, { headers: { 'x-api-key': process.env.MUAPI_KEY } })).json();
+    } catch (e) { return json(200, { status: 'processing' }); }
     if (p.status === 'completed') {
       const text = extractText(p);
       if (!text) return json(200, { status: 'processing' });
@@ -55,8 +56,14 @@ exports.handler = async (event) => {
     return json(200, { status: 'processing' });
   }
 
-  if (p.status === 'completed') {
-    const url = p.outputs && p.outputs[0];
+  // Video / avatar / modelsheet: pollAny routes by the request_id prefix
+  // ("ws:" -> WaveSpeed, bare -> MuAPI) so mixed-provider jobs just work.
+  let r;
+  try { r = await pollAny(id); } catch (e) { return json(200, { status: 'processing' }); }
+
+  if (r.status === 'completed') {
+    const url = r.url;
+    if (!url) return json(200, { status: 'processing' });
     await db.from('jobs').update({ status: 'completed', output_url: url }).eq('request_id', id);
     // A model sheet isn't a normal gallery item — save it onto the avatar so all
     // future generations use it as the consistent reference. The avatar id is
@@ -68,14 +75,14 @@ exports.handler = async (event) => {
     }
     await db.from('generations').insert({
       user_id: user.id, type: job.kind, model: job.model, prompt: job.prompt, aspect: job.aspect,
-      output_url: url, credits_spent: job.credits, cost_usd: p.cost && p.cost.amount_usd,
+      output_url: url, credits_spent: job.credits, cost_usd: r.cost_usd,
     });
     return json(200, { status: 'completed', url });
   }
-  if (p.status === 'failed' || p.status === 'cancelled') {
+  if (r.status === 'failed') {
     await db.rpc('add_credits', { uid: user.id, amount: job.credits, why: 'refund' });
     await db.from('jobs').update({ status: 'failed' }).eq('request_id', id);
-    return json(200, { status: 'failed', error: 'Generation ' + p.status });
+    return json(200, { status: 'failed', error: 'Generation failed' });
   }
   return json(200, { status: 'processing' });
 };

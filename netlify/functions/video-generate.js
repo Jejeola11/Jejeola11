@@ -7,19 +7,7 @@
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { VIDEO_MODELS, canUseFree } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
-
-const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
-
-// Turn a MuAPI error body into a readable string (its `detail` is often an array).
-function muapiError(j, status) {
-  if (j && j.detail) {
-    if (Array.isArray(j.detail)) return j.detail.map((d) => (d && d.msg) || JSON.stringify(d)).join('; ');
-    if (typeof j.detail === 'string') return j.detail;
-    return JSON.stringify(j.detail);
-  }
-  if (j && j.error) return (j.error.message || j.error);
-  return 'Engine HTTP ' + status;
-}
+const { submitVideo } = require('./_providers');
 
 exports.handler = async (event) => {
   try {
@@ -56,30 +44,21 @@ exports.handler = async (event) => {
   if (balance === null) return json(402, { error: 'Not enough credits.', code: 'NO_CREDITS' });
 
   try {
-    const durInt = parseInt(duration, 10) || 5;            // "5s" -> 5 (MuAPI wants an integer)
-    const payload = { prompt, aspect_ratio: aspect, duration: durInt, resolution };
+    // Host references on MuAPI's CDN first (reachable by every provider),
+    // start frame first. The router picks the cheapest provider for `model`
+    // (WaveSpeed when its key is set, else MuAPI) and prefixes the request_id
+    // so the poller knows who to ask.
+    let hosted = [];
     if (image_url || extraRefs.length) {
-      // Host the start frame first, then the extra references. images_list carries
-      // them all (multi-image models); image_url is the start frame (kling etc).
       const toHost = [];
       if (image_url) toHost.push(image_url);
       extraRefs.forEach((u) => { if (u !== image_url) toHost.push(u); });
-      const hosted = await Promise.all(toHost.map(muapiHostImage));
-      payload.images_list = hosted;                 // grok / seedance (multi-image)
-      payload.image_url = hosted[0];                // kling (start frame)
+      hosted = await Promise.all(toHost.map(muapiHostImage));
     }
-    const sub = await fetch(`${MUAPI_BASE}/${model}`, {
-      method: 'POST',
-      headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const j = await sub.json();
-    if (!sub.ok) throw new Error(muapiError(j, sub.status));
-    const id = j.request_id || j.id;
-    if (!id) throw new Error('Engine did not start the job');
+    const { requestId } = await submitVideo(model, { prompt, aspect, duration, resolution, image_url }, hosted);
 
-    await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'video', model, prompt, aspect, credits: cost, status: 'processing' });
-    return json(200, { request_id: id, credits: balance });
+    await db.from('jobs').insert({ request_id: requestId, user_id: user.id, kind: 'video', model, prompt, aspect, credits: cost, status: 'processing' });
+    return json(200, { request_id: requestId, credits: balance });
   } catch (e) {
     const msg = typeof e.message === 'string' ? e.message : 'Could not start video';
     try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
