@@ -2254,6 +2254,10 @@ async function doAuth() {
     }
     await claimReferral();
     await boot();
+    // If they arrived from the sales page with ?buy=<pack>, continue straight
+    // into checkout after signup/login instead of dropping them on the home view.
+    const pendingBuy = new URLSearchParams(location.search).get('buy');
+    if (pendingBuy && (cfg.PACKS.some((p) => p.key === pendingBuy) || pendingBuy === 'course')) setTimeout(() => buy(pendingBuy), 800);
   } catch (e) { note('authNote', e.message || 'Something went wrong.', 'err'); }
   $('authBtn').disabled = false;
 }
@@ -2289,7 +2293,10 @@ async function boot() {
   resumePending();
   maybePromo();
   // Came from the Atelier page "Get instant access" -> start the course purchase.
-  if (new URLSearchParams(location.search).get('buy') === 'course') setTimeout(() => buy('course'), 600);
+  // Deep-link checkout: /studio?buy=<pack> opens the buy flow for that pack
+  // (used by the Atelier sales page tier buttons — course, atelier_starter, …).
+  const qBuy = new URLSearchParams(location.search).get('buy');
+  if (qBuy && (cfg.PACKS.some((p) => p.key === qBuy) || qBuy === 'course')) setTimeout(() => buy(qBuy), 600);
   // Came from an external link (e.g. Selar's post-purchase redirect) with ?view=week —
   // open straight to that view. wkcode (if present) is picked up inside openWeek().
   const qView = new URLSearchParams(location.search).get('view');

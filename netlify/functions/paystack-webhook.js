@@ -59,10 +59,27 @@ exports.handler = async (event) => {
     await db.from('profiles').update({ plan: pack.plan, plan_expires_at: expires }).eq('id', userId);
   }
 
-  // 4b) The Fuse Atelier course pack unlocks the whole course (courseHasFull()
-  // checks this module_unlocks row) — buying it must actually grant access.
+  // 4b) Course packs unlock their content. Tiered Atelier packs carry their
+  // own course key ('atelier-starter'|'atelier-creator'|'atelier-empire'|
+  // 'atelier-vault'); the legacy single-price pack unlocks 'atelier-full'.
+  // Higher tiers imply the lower ones so gating checks stay simple.
   if (pack.kind === 'course') {
-    try { await db.from('module_unlocks').insert({ user_id: userId, module_key: 'atelier-full' }); } catch (e) {}
+    const keys = pack.course
+      ? { 'atelier-starter': ['atelier-starter'],
+          'atelier-creator': ['atelier-starter', 'atelier-creator'],
+          'atelier-empire':  ['atelier-starter', 'atelier-creator', 'atelier-empire'],
+        }[pack.course] || [pack.course]
+      : ['atelier-full'];
+    for (const key of keys) {
+      try { await db.from('module_unlocks').insert({ user_id: userId, module_key: key }); } catch (e) {}
+    }
+  }
+
+  // 4c) Course tiers that carry a plan (Creator/Empire) also get 30 days of
+  // that plan so premium studio features work during their first month.
+  if (pack.kind === 'course' && pack.plan) {
+    const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    await db.from('profiles').update({ plan: pack.plan, plan_expires_at: expires }).eq('id', userId);
   }
 
   // 5) Record the payment.

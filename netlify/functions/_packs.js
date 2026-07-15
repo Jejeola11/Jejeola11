@@ -18,7 +18,15 @@ const PACKS = {
   pro_mo:     { label: 'Studio Pro (monthly)', amount_naira: 20000, credits: 800, kind: 'sub', plan: 'pro' },
   agency_mo:  { label: 'Agency (monthly)',   amount_naira: 75000, credits: 3500, kind: 'sub', plan: 'agency' },
 
-  // ---- Fuse Atelier course bundle (one-time): course access + bonus credits ----
+  // ---- Fuse Atelier 2.0 — the merged 3-tier course (one-time, money only) ----
+  // Each tier unlocks its course content via a module_unlocks row (see webhook)
+  // and includes creation credits so the studio works out of the box.
+  atelier_starter: { label: 'Fuse Atelier — Starter', amount_naira: 10000, credits: 100,  kind: 'course', course: 'atelier-starter' },
+  atelier_creator: { label: 'Fuse Atelier — Creator', amount_naira: 25000, credits: 400,  kind: 'course', course: 'atelier-creator', plan: 'creator' },
+  atelier_empire:  { label: 'Fuse Atelier — Empire',  amount_naira: 70000, credits: 1200, kind: 'course', course: 'atelier-empire',  plan: 'pro' },
+  // Checkout order bump: prompt & template vault (research: 30-40% take rate).
+  vault_bump: { label: 'Prompt & Template Vault', amount_naira: 4500, credits: 0, kind: 'course', course: 'atelier-vault' },
+  // Legacy single-price course (kept so old links/grants don't break).
   course: { label: 'Fuse Atelier Course', amount_naira: 60000, credits: 500, kind: 'course', plan: 'pro' },
 
   // ---- Credit top-up bundles (one-time; buy anytime, even mid-plan) ----

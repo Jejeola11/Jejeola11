@@ -32,12 +32,11 @@
   to = "/app/studio.html"
   status = 200
 
-# Atelier course lives on the owner's dedicated, perfected site.
+# Fuse Atelier 2.0 — the merged 3-tier course sales page (served locally).
 [[redirects]]
   from = "/atelier"
-  to = "https://fuse-atelier.netlify.app"
-  status = 302
-  force = true
+  to = "/app/atelier.html"
+  status = 200
 
 [[redirects]]
   from = "/app"
