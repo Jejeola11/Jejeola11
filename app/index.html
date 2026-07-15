@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fuse Studio — Stunning AI photos, videos & avatars</title>
 <meta name="description" content="Fuse Studio — create stunning AI photos, videos and consistent avatars in seconds. Start with 12 free credits.">
-<meta name="theme-color" content="#04231F">
+<meta name="theme-color" content="#031A16">
 <meta property="og:title" content="Fuse Studio — the face that earns for you">
 <meta property="og:description" content="Create stunning AI photos, videos & consistent avatars. Start free.">
 <link rel="manifest" href="/app/manifest.webmanifest">
@@ -14,175 +14,366 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/app/styles.css">
+<style>
+:root{
+  --teal-0:#020F0D; --teal-1:#031A16; --teal-2:#0D3A33;
+  --gold:#F5C518; --gold-2:#E7C25C; --gold-deep:#B08D57;
+  --ink:#EDF5F2; --muted:#93ADA6; --line:rgba(231,194,92,.16);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Archivo,system-ui,sans-serif;background:var(--teal-1);color:var(--ink);line-height:1.6;overflow-x:hidden}
+h1,h2,h3{font-family:"Bricolage Grotesque",Archivo,sans-serif;line-height:1.1}
+img,video{max-width:100%;display:block}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+.gold{color:var(--gold)}
+.goldgrad{background:linear-gradient(100deg,#F5C518 10%,#FFF3C4 30%,#E7C25C 50%,#B08D57 75%,#F5C518 95%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite}
+@keyframes shine{to{background-position:200% center}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;text-decoration:none;font-family:Archivo;font-weight:800;border-radius:14px;padding:14px 24px;font-size:15.5px;transition:transform .15s,box-shadow .15s}
+.btn-gold{background:linear-gradient(120deg,#F5C518,#D4A017);color:#1a1200;box-shadow:0 4px 26px rgba(245,197,24,.35)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 34px rgba(245,197,24,.5)}
+.btn-ghost{background:rgba(255,255,255,.05);color:var(--ink);border:1px solid var(--line)}
+.kick{letter-spacing:.22em;font-size:11.5px;font-weight:800;color:var(--gold);text-transform:uppercase}
+section{padding:70px 0;position:relative}
+.sec-h{font-size:clamp(26px,4.6vw,40px);margin:10px 0 14px}
+.sec-sub{color:var(--muted);max-width:640px;font-size:16px}
+
+/* ===== Nav ===== */
+.top{position:fixed;top:0;left:0;right:0;z-index:60;background:rgba(3,26,22,.7);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);transition:background .3s}
+.top .in{display:flex;justify-content:space-between;align-items:center;height:62px}
+.brand{display:flex;align-items:center;gap:9px;font-family:"Bricolage Grotesque";font-weight:800;font-size:18px;color:var(--ink);text-decoration:none}
+.brand .dot{width:30px;height:30px;border-radius:9px;background:linear-gradient(120deg,#F5C518,#B08D57);color:#1a1200;display:grid;place-items:center;font-size:15px}
+.nav-links{display:flex;gap:16px;align-items:center;font-size:14px}
+.nav-links a{color:var(--muted);text-decoration:none;font-weight:600}
+.nav-links a:hover{color:var(--gold-2)}
+.nav-links .btn{padding:9px 16px;font-size:13.5px}
+@media(max-width:640px){.nav-links a.plain{display:none}}
+
+/* ===== Scroll-video hero (fake-3D: scroll drives the timeline) ===== */
+.svh{height:320vh;position:relative}
+.svh-pin{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;place-items:center;background:var(--teal-0)}
+.svh-pin video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.72) saturate(1.1)}
+.svh-veil{position:absolute;inset:0;background:
+  radial-gradient(1100px 520px at 50% 115%, rgba(3,26,22,.9), transparent 60%),
+  linear-gradient(180deg, rgba(3,26,22,.55), transparent 30%, transparent 62%, rgba(3,26,22,.88))}
+.svh-copy{position:absolute;inset:0;z-index:3;text-align:center}
+.svh-state{position:absolute;left:50%;top:50%;width:min(900px,92vw);transform:translate(-50%,-40%);opacity:0;transition:opacity .45s ease,transform .45s ease;padding:0 22px}
+.svh-state.on{opacity:1;transform:translate(-50%,-50%)}
+.svh-state h1{font-size:clamp(34px,6.6vw,68px);letter-spacing:-.5px;margin-bottom:16px;text-shadow:0 2px 30px rgba(0,0,0,.5)}
+.svh-state p{color:#D5E3DF;font-size:clamp(15.5px,2.3vw,19px);max-width:620px;margin:0 auto 24px;text-shadow:0 1px 14px rgba(0,0,0,.6)}
+.svh-prog{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.12);z-index:4}
+.svh-prog i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#F5C518,#B08D57)}
+.svh-hint{position:absolute;bottom:18px;left:0;right:0;text-align:center;color:#C7D8D3;font-size:12.5px;z-index:4;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.svh-badge{position:absolute;top:78px;left:0;right:0;display:flex;justify-content:center;z-index:4}
+.svh-badge span{background:rgba(3,26,22,.6);backdrop-filter:blur(8px);border:1px solid var(--line);color:var(--gold-2);border-radius:30px;padding:7px 16px;font-size:12.5px;font-weight:700}
+
+/* ===== Marquee showcase ===== */
+.made{background:var(--teal-0);padding:56px 0}
+.marq{display:flex;gap:14px;overflow:hidden;position:relative;margin-top:26px}
+.marq-track{display:flex;gap:14px;animation:marq 36s linear infinite;width:max-content}
+.marq:hover .marq-track{animation-play-state:paused}
+@keyframes marq{to{transform:translateX(-50%)}}
+.mcard{position:relative;width:210px;flex:none;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.08);transition:transform .2s,border-color .2s}
+.mcard:hover{transform:translateY(-5px) scale(1.02);border-color:var(--gold)}
+.mcard video,.mcard img{width:100%;aspect-ratio:9/14;object-fit:cover}
+.mcard figcaption{position:absolute;bottom:0;left:0;right:0;padding:10px 12px;font-size:12px;font-weight:700;background:linear-gradient(transparent,rgba(2,15,13,.9));color:#D5E3DF}
+
+/* ===== Model wall ===== */
+.mwall{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:30px}
+.mw-card{position:relative;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:22px;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;transform-style:preserve-3d}
+.mw-card:hover{transform:translateY(-5px);border-color:var(--gold);box-shadow:0 14px 44px rgba(245,197,24,.16)}
+.mw-card .tag{position:absolute;top:14px;right:14px;font-size:10px;font-weight:800;background:var(--gold);color:#1a1200;border-radius:20px;padding:3px 9px}
+.mw-card h3{font-size:17px;margin-bottom:6px}
+.mw-card p{color:var(--muted);font-size:13.5px}
+.mw-card .glowline{position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,#F5C518,transparent);opacity:0;transition:opacity .2s}
+.mw-card:hover .glowline{opacity:1}
+
+/* ===== Atelier banner ===== */
+.atelier-cta{border:1.5px solid var(--gold);border-radius:26px;padding:34px 30px;background:linear-gradient(145deg,rgba(245,197,24,.12),rgba(13,58,51,.45));display:grid;grid-template-columns:1fr auto;gap:22px;align-items:center;box-shadow:0 0 44px rgba(245,197,24,.14)}
+.atelier-cta h3{font-size:clamp(21px,3.4vw,30px);margin-bottom:8px}
+.atelier-cta p{color:#C7D8D3;font-size:15px;max-width:560px}
+@media(max-width:720px){.atelier-cta{grid-template-columns:1fr;text-align:center}}
+
+/* ===== Pricing ===== */
+.prices{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:30px;align-items:start}
+.price{position:relative;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);border-radius:20px;padding:24px 20px}
+.price.featured{border:1.5px solid var(--gold);background:linear-gradient(160deg,rgba(245,197,24,.11),rgba(13,58,51,.45));box-shadow:0 0 34px rgba(245,197,24,.18)}
+.price .tag{position:absolute;top:-11px;left:18px;background:linear-gradient(120deg,#F5C518,#D4A017);color:#1a1200;font-weight:900;font-size:10.5px;padding:4px 12px;border-radius:20px}
+.price .amt{font-family:"Bricolage Grotesque";font-weight:800;font-size:28px;color:var(--gold);margin:6px 0 4px}
+.price .amt small{font-size:13px;color:var(--muted);font-weight:600}
+.price ul{list-style:none;margin:12px 0 18px}
+.price li{padding:5px 0;font-size:13.5px;color:#D5E3DF;border-bottom:1px dashed rgba(255,255,255,.07)}
+.price .btn{width:100%;padding:11px;font-size:14px}
+
+/* ===== FAQ ===== */
+details{border:1px solid rgba(255,255,255,.08);border-radius:16px;margin-bottom:10px;background:rgba(255,255,255,.02)}
+summary{cursor:pointer;padding:17px 20px;font-weight:700;font-size:15px;list-style:none;display:flex;justify-content:space-between;align-items:center}
+summary::after{content:'+';color:var(--gold);font-size:20px}
+details[open] summary::after{content:'–'}
+details p{padding:0 20px 16px;color:var(--muted);font-size:14.5px}
+
+/* ===== Finale ===== */
+.finale{min-height:62svh;display:grid;place-items:center;text-align:center;background:
+  radial-gradient(900px 480px at 50% 120%, rgba(245,197,24,.16), transparent 65%),
+  linear-gradient(180deg,var(--teal-0),#052018)}
+.finale h2{font-size:clamp(30px,5.6vw,52px);max-width:760px;margin-bottom:16px}
+.finale p{color:var(--muted);margin-bottom:28px;font-size:16.5px}
+footer{border-top:1px solid rgba(255,255,255,.06);padding:24px 0;color:var(--muted);font-size:12.5px;text-align:center}
+footer a{color:var(--gold);text-decoration:none}
+
+.rv{opacity:0;transform:translateY(22px);transition:opacity .5s ease,transform .5s ease}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){
+  .rv{opacity:1;transform:none;transition:none}
+  .goldgrad{animation:none}
+  .marq-track{animation:none}
+  .svh{height:auto}
+  .svh-pin{position:relative;height:92svh}
+}
+</style>
 </head>
 <body>
 
 <!-- ===== Nav ===== -->
-<nav class="nav">
+<div class="top"><div class="wrap in">
+  <a class="brand" href="/app/index.html"><span class="dot">F</span> Fuse&nbsp;Studio</a>
+  <div class="nav-links">
+    <a class="plain" href="#models">Models</a>
+    <a class="plain" href="#pricing">Pricing</a>
+    <a class="plain" href="#faq">FAQ</a>
+    <a class="btn btn-ghost" href="/studio">Log in</a>
+    <a class="btn btn-gold" href="/studio">Get started</a>
+  </div>
+</div></div>
+
+<!-- ===== SCROLL-VIDEO HERO — scroll drives the film ===== -->
+<div class="svh" id="svh">
+  <div class="svh-pin">
+    <video id="svhVid" src="/app/media/movie.mp4" muted playsinline preload="auto"></video>
+    <div class="svh-veil"></div>
+    <div class="svh-badge"><span>🎬 this film was generated inside Fuse Studio</span></div>
+
+    <div class="svh-copy">
+      <div class="svh-state on" data-s="0">
+        <h1>Create like a <span class="goldgrad">studio.</span></h1>
+        <p>Cinematic AI photos, videos and avatars — from your phone, in seconds.</p>
+        <a class="btn btn-gold" href="/studio">✨ Start free — 12 credits</a>
+      </div>
+      <div class="svh-state" data-s="1">
+        <h1>Every frame you're seeing?<br><span class="goldgrad">Made in here.</span></h1>
+        <p>Seedance · Kling · Veo · GPT Image · Nano Banana — the world's best engines, one app, naira pricing.</p>
+      </div>
+      <div class="svh-state" data-s="2">
+        <h1>Your imagination,<br><span class="goldgrad">rendered.</span></h1>
+        <p>No camera. No studio. No tech skills. Type it, tap it, download it.</p>
+        <a class="btn btn-gold" href="/studio">Open the studio →</a>
+      </div>
+    </div>
+
+    <div class="svh-hint" id="svhHint">scroll — you're directing the film ↓</div>
+    <div class="svh-prog"><i id="svhFill"></i></div>
+  </div>
+</div>
+
+<!-- ===== Made with Fuse Studio (marquee) ===== -->
+<section class="made">
   <div class="wrap">
-    <a class="brand" href="/app/index.html"><span class="dot">F</span> Fuse&nbsp;Studio</a>
-    <div class="nav-links">
-      <a href="#pricing">Pricing</a>
-      <a href="#faq">FAQ</a>
-      <a class="btn ghost sm" href="/studio">Log in</a>
-      <a class="btn gold sm" href="/studio">Get started</a>
+    <span class="kick">Made with Fuse Studio</span>
+    <h2 class="sec-h">Real output. <span class="goldgrad">No cherry-picking.</span></h2>
+  </div>
+  <div class="marq" id="marq">
+    <div class="marq-track" id="marqTrack">
+      <figure class="mcard"><video src="/app/media/ugc.mp4" muted loop autoplay playsinline preload="metadata"></video><figcaption>📣 UGC product ad</figcaption></figure>
+      <figure class="mcard"><video src="/app/media/fashion.mp4" muted loop autoplay playsinline preload="metadata"></video><figcaption>🖼 Fashion shoot</figcaption></figure>
+      <figure class="mcard"><video src="/app/media/avatar-tile.mp4" muted loop autoplay playsinline preload="metadata"></video><figcaption>🧑‍🎨 AI presenter</figcaption></figure>
+      <figure class="mcard"><img src="/app/media/samples/s2.jpg" alt="AI product shot" loading="lazy"><figcaption>📦 Product render</figcaption></figure>
+      <figure class="mcard"><video src="/app/media/avatar2.mp4" muted loop autoplay playsinline preload="metadata"></video><figcaption>🗣 Talking avatar</figcaption></figure>
+      <figure class="mcard"><img src="/app/media/samples/s3.jpg" alt="AI food photography" loading="lazy"><figcaption>🍽 Food photography</figcaption></figure>
+      <figure class="mcard"><video src="/app/media/avatar.mp4" muted loop autoplay playsinline preload="metadata"></video><figcaption>🗣 AI avatar</figcaption></figure>
+      <figure class="mcard"><img src="/app/media/samples/s6.jpg" alt="AI beauty portrait" loading="lazy"><figcaption>💄 Beauty editorial</figcaption></figure>
     </div>
   </div>
-</nav>
-
-<!-- ===== Hero ===== -->
-<header class="lhero wrap">
-  <h1 class="display">Stunning AI photos,<br>videos & <span class="gold">avatars</span></h1>
-  <p class="lede">Create the face that earns for you. Top-tier AI models, your local templates, and consistent characters — in seconds, no tech skills.</p>
-  <a class="secretstrip" href="/studio" style="cursor:pointer">🎁 Unlock your free gift (12 credits) — <span id="giftCd">09:59</span> →</a>
-  <div class="cta" style="justify-content:center">
-    <a class="btn gold" href="/studio">✨ Get FREE generations →</a>
-  </div>
-  <div class="partners">
-    <span class="pchip">Powered by top AI models</span>
-    <span class="pchip">🇳🇬 Built for creators</span>
-    <span class="pchip">Pay by transfer</span>
-  </div>
-</header>
-
-<!-- ===== Hero showcase ===== -->
-<section class="wrap" style="padding-top:10px">
-  <video class="herovid" src="/app/media/hero.mp4" muted loop autoplay playsinline preload="metadata"></video>
 </section>
 
-<!-- ===== Model / tool boxes (DROP YOUR MEDIA) ===== -->
-<section class="wrap">
-  <div class="kicker">Best prices in AI</div>
-  <h2 class="display" style="margin:8px 0 18px">Unlimited creativity,<br>one simple app</h2>
-  <div class="tiles">
-    <figure class="vtile"><video src="/app/media/fashion.mp4" muted loop autoplay playsinline preload="metadata"></video><figcaption>🖼 Image</figcaption></figure>
-    <figure class="vtile"><video src="/app/media/movie.mp4" muted loop autoplay playsinline preload="metadata"></video><figcaption>🎬 Video</figcaption></figure>
-    <figure class="vtile"><video src="/app/media/avatar-tile.mp4" muted loop autoplay playsinline preload="metadata"></video><figcaption>🧑‍🎨 Avatar</figcaption></figure>
-    <figure class="vtile"><video src="/app/media/ugc.mp4" muted loop autoplay playsinline preload="metadata"></video><figcaption>📣 Marketing</figcaption></figure>
+<!-- ===== Model wall ===== -->
+<section id="models">
+  <div class="wrap">
+    <span class="kick">The engines</span>
+    <h2 class="sec-h">The world's best models. <span class="goldgrad">One app.</span></h2>
+    <p class="sec-sub">No five subscriptions, no VPN gymnastics, no dollar cards. Every top engine, priced in naira.</p>
+    <div class="mwall">
+      <div class="mw-card rv"><span class="tag">VIDEO</span><h3>⚡ Seedance 2.0</h3><p>Cinematic video in seconds — the engine behind the film you just scrolled.</p><i class="glowline"></i></div>
+      <div class="mw-card rv"><span class="tag">VIDEO</span><h3>🎬 Kling 3.0</h3><p>Smooth, physical motion — products, people, action.</p><i class="glowline"></i></div>
+      <div class="mw-card rv"><span class="tag">VIDEO</span><h3>🌀 Veo 3</h3><p>Google's flagship — sound, speech and stunning realism.</p><i class="glowline"></i></div>
+      <div class="mw-card rv"><span class="tag">IMAGE</span><h3>🍌 Nano Banana</h3><p>Gemini-class edits and reference-matching magic.</p><i class="glowline"></i></div>
+      <div class="mw-card rv"><span class="tag">IMAGE</span><h3>🖼 GPT Image</h3><p>The most obedient image model alive — text, layouts, detail.</p><i class="glowline"></i></div>
+      <div class="mw-card rv"><span class="tag">AVATAR</span><h3>🧑‍🎨 Avatar Studio</h3><p>Your consistent AI face — one selfie, any scene, every time.</p><i class="glowline"></i></div>
+      <div class="mw-card rv"><span class="tag">AI CHAT</span><h3>⚛️ Fuse Reactor</h3><p>Claude, Gemini & GPT — your creative brain for scripts and captions.</p><i class="glowline"></i></div>
+      <div class="mw-card rv"><span class="tag">TOOLS</span><h3>🛠 Finishing suite</h3><p>Upscale, background removal, object eraser — client-ready output.</p><i class="glowline"></i></div>
+    </div>
   </div>
 </section>
 
-<!-- ===== Reactor CTA ===== -->
-<section class="wrap">
-  <a class="btn gold block reactor-cta" href="/studio">⚛️ Try Fuse Reactor — all your AI in one place →</a>
-</section>
-
-<!-- ===== Creators showcase (DROP YOUR MEDIA) ===== -->
-<section class="wrap">
-  <div class="kicker">See what's possible</div>
-  <h2 class="display" style="margin:8px 0 6px">Made with Fuse Studio</h2>
-  <p class="muted" style="margin:0 0 16px">You can do the same — start free.</p>
-  <div class="showrow">
-    <div class="showcard wide"><video src="/app/media/movie.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🎬 Detective film</div></div>
-    <div class="showcard wide"><video src="/app/media/hero.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🎬 Childcare ad</div></div>
-    <div class="showcard"><video src="/app/media/ugc.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">📣 UGC product ad</div></div>
-    <div class="showcard"><video src="/app/media/fashion.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🖼 Fashion shoot</div></div>
-    <div class="showcard"><video src="/app/media/avatar-tile.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🧑‍🎨 AI presenter</div></div>
-    <div class="showcard"><video src="/app/media/avatar.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🗣 AI avatar</div></div>
-    <div class="showcard"><video src="/app/media/avatar2.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🗣 Talking avatar</div></div>
+<!-- ===== Atelier banner ===== -->
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="atelier-cta rv">
+      <div>
+        <span class="kick">Fuse Atelier — the course</span>
+        <h3>Learn one AI skill. Land your first paying client in <span class="goldgrad">7 days.</span></h3>
+        <p>The course + this studio + the client system, in one place. 20 skills, each 2–3 short lessons. First $500 in 30 days — or we work with you free until you get there.</p>
+      </div>
+      <a class="btn btn-gold" href="/atelier">See the course →</a>
+    </div>
   </div>
-</section>
-
-<!-- ===== Free vs Pro comparison ===== -->
-<section class="wrap" id="compare">
-  <div class="kicker">Why upgrade</div>
-  <h2 class="display" style="margin:8px 0 4px">Unlock full power</h2>
-  <table class="cmp">
-    <thead><tr><th>What you get</th><th style="text-align:center">Free</th><th class="col-pro">Pro · ₦20k/mo</th></tr></thead>
-    <tbody>
-      <tr><td>Credits</td><td class="mid">12 once</td><td class="yes pro-cell">800 every month</td></tr>
-      <tr><td>All creative studios</td><td class="mid">—</td><td class="yes pro-cell">✓</td></tr>
-      <tr><td>Consistent AI avatars</td><td class="mid">—</td><td class="yes pro-cell">✓</td></tr>
-      <tr><td>Image &amp; video generation</td><td class="mid">✓</td><td class="yes pro-cell">✓</td></tr>
-      <tr><td>Fuse Reactor (Claude/Gemini/GPT)</td><td class="mid">—</td><td class="yes pro-cell">✓</td></tr>
-      <tr><td>Priority engine</td><td class="mid">—</td><td class="yes pro-cell">✓</td></tr>
-    </tbody>
-  </table>
 </section>
 
 <!-- ===== Pricing ===== -->
-<section class="wrap" id="pricing">
-  <div class="kicker">Pricing</div>
-  <h2 class="display" style="margin:8px 0 6px">Start free. Pay as you grow.</h2>
-  <p class="muted" style="margin:0 0 22px">Every account starts with <b class="gold">12 free credits</b>. Pay by bank transfer.
-    <a id="curToggle" class="gold" style="cursor:pointer;float:right">Show $</a></p>
-  <div class="prices">
-    <div class="price">
-      <div class="kicker">Free</div>
-      <div class="amt" data-naira="0">₦0</div>
-      <ul><li>12 trial credits</li><li>Image &amp; video generation</li><li>No card needed</li></ul>
-      <a class="btn ghost block" href="/studio">Start free</a>
-    </div>
-    <div class="price">
-      <div class="kicker">Creator</div>
-      <div class="amt" data-naira="9000">₦9,000<small>/mo</small></div>
-      <ul><li>350 credits/mo</li><li>All creative studios</li><li>UGC & Naija packs</li></ul>
-      <a class="btn ghost block" href="/studio">Get Creator</a>
-    </div>
-    <div class="price featured">
-      <div class="tag">Most popular</div>
-      <div class="kicker">Pro</div>
-      <div class="amt" data-naira="20000">₦20,000<small>/mo</small></div>
-      <ul><li>800 credits/mo</li><li>Video + AI avatars</li><li>Fuse Reactor + priority</li></ul>
-      <a class="btn gold block" href="/studio">Go Pro</a>
-    </div>
-    <div class="price">
-      <div class="kicker">Agency</div>
-      <div class="amt" data-naira="75000">₦75,000<small>/mo</small></div>
-      <ul><li>3,500 credits/mo</li><li>White-label & commercial</li><li>For teams & resellers</li></ul>
-      <a class="btn ghost block" href="/studio">Get Agency</a>
-    </div>
-    <div class="price">
-      <div class="tag">Learn + tool</div>
-      <div class="kicker">Course bundle</div>
-      <div class="amt" data-naira="60000">₦60,000</div>
-      <ul><li>Fuse Atelier course</li><li>+500 bonus credits</li><li>Lifetime access</li></ul>
-      <a class="btn ghost block" href="/atelier">Get the bundle</a>
+<section id="pricing" style="background:var(--teal-0)">
+  <div class="wrap">
+    <span class="kick">Pricing</span>
+    <h2 class="sec-h">Start free. <span class="goldgrad">Pay as you grow.</span></h2>
+    <p class="sec-sub">Every account starts with <b class="gold">12 free credits</b>. Card, transfer or USSD — all naira.</p>
+    <div class="prices">
+      <div class="price rv">
+        <div class="kick" style="letter-spacing:.1em">Free</div>
+        <div class="amt">₦0</div>
+        <ul><li>12 trial credits</li><li>Image & video generation</li><li>No card needed</li></ul>
+        <a class="btn btn-ghost" href="/studio">Start free</a>
+      </div>
+      <div class="price rv">
+        <div class="kick" style="letter-spacing:.1em">Creator</div>
+        <div class="amt">₦9,000<small>/mo</small></div>
+        <ul><li>350 credits/mo</li><li>All creative studios</li><li>UGC & Naija packs</li></ul>
+        <a class="btn btn-ghost" href="/studio">Get Creator</a>
+      </div>
+      <div class="price featured rv">
+        <div class="tag">Most popular</div>
+        <div class="kick" style="letter-spacing:.1em">Pro</div>
+        <div class="amt">₦20,000<small>/mo</small></div>
+        <ul><li>800 credits/mo</li><li>Video + AI avatars</li><li>Fuse Reactor + priority</li></ul>
+        <a class="btn btn-gold" href="/studio">Go Pro</a>
+      </div>
+      <div class="price rv">
+        <div class="kick" style="letter-spacing:.1em">Agency</div>
+        <div class="amt">₦75,000<small>/mo</small></div>
+        <ul><li>3,500 credits/mo</li><li>White-label & commercial</li><li>For teams & resellers</li></ul>
+        <a class="btn btn-ghost" href="/studio">Get Agency</a>
+      </div>
+      <div class="price rv">
+        <div class="tag">Learn + earn</div>
+        <div class="kick" style="letter-spacing:.1em">Fuse Atelier</div>
+        <div class="amt">from ₦10,000</div>
+        <ul><li>Course + this studio</li><li>3 tiers, 20 skills</li><li>First client in 7 days</li></ul>
+        <a class="btn btn-ghost" href="/atelier">See the course</a>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ===== FAQ (the question part) ===== -->
-<section class="wrap faq" id="faq">
-  <div class="kicker">Questions</div>
-  <h2 class="display" style="margin:8px 0 16px">Good to know</h2>
-  <details><summary>Do I need any tech skills?</summary><p>None. Type what you want (or pick a template), tap generate, download. That's it.</p></details>
-  <details><summary>How do I pay?</summary><p>Simple bank transfer through secure checkout — it settles straight to our account and your credits are added instantly.</p></details>
-  <details><summary>What are credits?</summary><p>Each generation uses credits. You get 12 free to start, then top up with a pack or a monthly plan. Credits from packs never expire.</p></details>
-  <details><summary>Can I create a consistent face/avatar?</summary><p>Yes — upload one selfie in the Avatar Studio and generate yourself in any scene with the same face.</p></details>
-  <details><summary>Can I install it like an app?</summary><p>Yes — open it on your phone and tap "Add to Home Screen". It runs full-screen like a native app.</p></details>
+<!-- ===== FAQ ===== -->
+<section id="faq">
+  <div class="wrap" style="max-width:760px">
+    <span class="kick">Questions</span>
+    <h2 class="sec-h">Good to <span class="goldgrad">know.</span></h2>
+    <div style="margin-top:22px">
+      <details><summary>Do I need any tech skills?</summary><p>None. Type what you want (or pick a template), tap generate, download. That's it.</p></details>
+      <details><summary>How do I pay?</summary><p>Paystack secure checkout — card, bank transfer or USSD, in naira. Credits land instantly.</p></details>
+      <details><summary>What are credits?</summary><p>Each generation uses credits. You get 12 free to start, then top up with a pack or a monthly plan. Credits from packs never expire.</p></details>
+      <details><summary>Can I create a consistent face/avatar?</summary><p>Yes — upload one selfie in the Avatar Studio and generate yourself in any scene with the same face.</p></details>
+      <details><summary>Can I install it like an app?</summary><p>Yes — open it on your phone and tap "Add to Home Screen". It runs full-screen like a native app.</p></details>
+    </div>
+  </div>
 </section>
 
-<!-- ===== Final CTA ===== -->
-<section class="wrap" style="text-align:center">
-  <h2 class="display">Your next viral creation<br>is one tap away.</h2>
-  <div class="cta" style="margin-top:22px;justify-content:center"><a class="btn gold" href="/studio">🎁 Create free now</a></div>
+<!-- ===== Finale ===== -->
+<section class="finale">
+  <div class="wrap">
+    <h2>Your next viral creation is <span class="goldgrad">one tap away.</span></h2>
+    <p>12 free credits. No card. 60 seconds from now, you'll have made something.</p>
+    <a class="btn btn-gold" style="font-size:17px;padding:17px 34px" href="/studio">✨ Create free now</a>
+  </div>
 </section>
 
-<footer class="foot"><div class="wrap">© <span id="yr"></span> Fuse Studio — part of the Fuse family. Built for creators.</div></footer>
+<footer>
+  <div class="wrap">© <span id="yr"></span> Fuse Studio · <a href="/atelier">Fuse Atelier course</a> · <a href="https://instagram.com/fuse_studio2" target="_blank" rel="noopener">Instagram</a></div>
+</footer>
 
 <script>
-  document.getElementById('yr').textContent = new Date().getFullYear();
-  // gift-strip countdown (below hero) — the top 2x-credits promo bar has ended and was removed
-  (function(){
-    function p(n){return String(n).padStart(2,'0');}
-    var g=600;
-    setInterval(function(){ g=g>0?g-1:0; var el=document.getElementById('giftCd'); if(el) el.textContent=p(g/60|0)+':'+p(g%60); },1000);
-  })();
-  // ₦ / $ price toggle
-  (function(){
-    var RATE=1550, usd=false;
-    document.getElementById('curToggle').onclick=function(){
-      usd=!usd; this.textContent=usd?'Show ₦':'Show $';
-      document.querySelectorAll('.amt').forEach(function(a){
-        var n=+a.getAttribute('data-naira');
-        var per=a.querySelector('small')?a.querySelector('small').outerHTML:'';
-        a.innerHTML=(usd?('$'+Math.round(n/RATE)):('₦'+n.toLocaleString()))+per;
-      });
-    };
-  })();
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js').catch(function(){});
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+// ============ Scroll-controlled video hero ============
+// The section is 320vh tall; the viewport pins. Scroll progress through the
+// section drives video.currentTime directly (the "fake 3D" technique) and
+// swaps the three synced text states. Falls back to autoplay-loop under
+// prefers-reduced-motion (handled in CSS + here).
+(function(){
+  var svh = document.getElementById('svh'), vid = document.getElementById('svhVid'),
+      fill = document.getElementById('svhFill'), hint = document.getElementById('svhHint');
+  var states = Array.prototype.slice.call(document.querySelectorAll('.svh-state'));
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced) { vid.loop = true; vid.autoplay = true; vid.play().catch(function(){}); return; }
+
+  var duration = 0, raf = null, target = 0;
+  vid.addEventListener('loadedmetadata', function(){ duration = vid.duration || 0; vid.currentTime = 0.04; });
+  // iOS unlock: a muted play()+pause() enables programmatic seeking on touch devices.
+  var unlocked = false;
+  function unlock(){ if (unlocked) return; unlocked = true; vid.play().then(function(){ vid.pause(); }).catch(function(){}); }
+  window.addEventListener('touchstart', unlock, { once: true, passive: true });
+
+  function progress(){
+    var r = svh.getBoundingClientRect();
+    var total = r.height - window.innerHeight;
+    return Math.min(1, Math.max(0, -r.top / (total || 1)));
+  }
+  function apply(){
+    raf = null;
+    if (duration) {
+      var t = target * (duration - 0.08);
+      // seek only when meaningfully different — avoids seek-thrash jank
+      if (Math.abs(vid.currentTime - t) > 0.033) vid.currentTime = t;
+    }
+    fill.style.width = (target * 100) + '%';
+    var idx = target < 0.34 ? 0 : (target < 0.72 ? 1 : 2);
+    states.forEach(function(s, i){ s.classList.toggle('on', i === idx); });
+    hint.style.opacity = target > 0.05 ? 0 : '';
+  }
+  function onScroll(){ target = progress(); if (!raf) raf = requestAnimationFrame(apply); }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+
+// ============ Marquee: duplicate track for seamless loop ============
+(function(){
+  var track = document.getElementById('marqTrack');
+  track.innerHTML += track.innerHTML;
+})();
+
+// ============ Reveal on scroll ============
+(function(){
+  var els = document.querySelectorAll('.rv');
+  if (!('IntersectionObserver' in window)) { els.forEach(function(el){ el.classList.add('in'); }); return; }
+  var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: .1 });
+  els.forEach(function(el){ io.observe(el); });
+  setTimeout(function(){ els.forEach(function(el){ el.classList.add('in'); }); }, 2600);
+})();
+
+// ============ 3D tilt on model cards (desktop only) ============
+(function(){
+  if (matchMedia('(hover: none)').matches) return;
+  document.querySelectorAll('.mw-card').forEach(function(card){
+    card.addEventListener('mousemove', function(e){
+      var r = card.getBoundingClientRect();
+      var x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+      card.style.transform = 'translateY(-5px) rotateX(' + (-y * 6) + 'deg) rotateY(' + (x * 6) + 'deg)';
+    });
+    card.addEventListener('mouseleave', function(){ card.style.transform = ''; });
+  });
+})();
+
+// PWA service worker (same as before)
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js').catch(function(){});
 </script>
 </body>
 </html>
