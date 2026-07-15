@@ -1,706 +1,184 @@
+// ============================================================
+// Fuse Atelier 2.0 — course data. Six skill families, three tiers.
+//   pillar.tier: 'starter' | 'creator' | 'empire' — the minimum tier
+//   that unlocks every module in that pillar (checked in app.js).
+//   Lesson keys that already have uploaded videos in course_videos are
+//   PRESERVED from the old structure (orient-*, spark-*, gold-3_5) so
+//   nothing needs re-linking. Every lesson follows the 4-beat formula:
+//   one idea → example → action step → bridge.
+// ============================================================
 window.FUSE_COURSE = {
 "pillars": [
-{
-"key": "orient",
-"name": "Orientation",
-"sub": "Start here",
-"modules": [
-{
-"key": "orient-m1",
-"title": "Start Here",
-"lessons": [
-{
-"key": "orient-0_1",
-"n": "0.1",
-"title": "Welcome To Fuse Atelier: What You Just Unlocked",
-"dur": "2 min",
-"aspect": "16:9",
-"notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Fuse Atelier is the complete AI Creative Income System — four pillars that take you from zero to a real, paying skill: <b>The Spark</b> (create anything with AI), <b>The House</b> (build brands worth premium prices), <b>The Gold</b> (turn skill into foreign income on Upwork and direct outreach), and <b>The Stage</b> (become visible enough that clients find you).</p><p>Everything in this course now runs on one tool — <b>Fuse Studio</b>, the same app this course lives inside. No more juggling five different apps. Image models, video models, Avatar Studio and Fuse Reactor (your AI strategy partner) are all one tap away.</p><h4>Ria's Shortcut</h4><p>Don't try to binge this in a weekend. One module a day, applied immediately, beats ten modules watched and forgotten.</p><div class='vault-action'><b>Action step:</b> Open Fuse Studio's Create tab right now and generate one image, just to feel the tool in your hand before we go deeper.</div>"
-},
-{
-"key": "orient-0_2",
-"n": "0.2",
-"title": "The 90-Day Roadmap & How To Use The Vault",
-"dur": "1 min",
-"aspect": "16:9",
-"notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Your 90 days: Days 1–30 you master The Spark and The House — you can create and package anything. Days 31–60 you're in The Gold — profile live, proposals going out, first paid jobs landing. Days 61–90 you're in The Stage — visible, posting daily, building the audience that brings clients to you instead of you chasing them.</p><p>Every lesson closes with a line pointing you back here — <b>the Vault</b>. This page you're reading right now IS the Vault. No downloadable PDFs to lose in a folder — just come back to this exact lesson any time you need the notes again.</p><h4>Ria's Shortcut</h4><p>Bookmark or screenshot your favourite lessons. You'll return to the Gold pillar proposal scripts more than anything else in this course.</p><div class='vault-action'><b>Action step:</b> Write your own one-line 90-day goal — the specific dollar or naira number you want hitting your account by day 90. Say it out loud.</div>"
-},
-{
-"key": "orient-0_3",
-"n": "0.3",
-"title": "Your Starter Audit: Where Are You Right Now?",
-"dur": "2 min",
-"aspect": "16:9",
-"notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Before we build anything, be honest about where you're starting. Have you ever generated an AI image before? Do you have an Upwork account? Do you post consistently anywhere? There's no wrong answer — this just tells you which lessons to slow down on and which to skim.</p><h4>Ria's Shortcut</h4><p>Most people who fail this course fail because they skip the boring foundational lessons to rush to \"the fun part.\" The prompt formula in Spark Module 1 is boring for five minutes and worth thousands over the next year. Don't skip it.</p><div class='vault-action'><b>Action step:</b> Rate yourself 1–5 on: AI tools, brand design, freelancing/Upwork, social media. Keep that rating somewhere — you'll compare it again at day 90.</div>"
-}
-]
-}
-]
-},
-{
-"key": "spark",
-"name": "THE SPARK",
-"sub": "Master the tools. Develop the eye. Create anything a client needs.",
-"modules": [
-{
-"key": "spark-m1",
-"title": "The AI Image Blueprint",
-"lessons": [
-{
-"key": "spark-1_1",
-"n": "1.1",
-"title": "Your Fuse Studio Toolkit: Which Model For Which Job",
-"dur": "2 min",
-"aspect": "16:9",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Fuse Studio's Image Studio gives you a whole model catalog in one place — GPT Image 2 for the most realistic results, Flux Schnell when you need something fast and cheap, Nano Banana (Gemini) for strong edits and reference-matching, Imagen 4 Ultra when a client needs the absolute best. You don't need five separate apps and five separate subscriptions anymore — everything lives under Create → Image.</p><p>The old approach was juggling Higgsfield, Gemini and separate editors. Now it's one search bar, one credit balance, one place to work.</p><h4>Ria's Shortcut</h4><p>Default to Flux Schnell for concepting (cheap, fast, lets you try ten directions), then switch to GPT Image 2 or Imagen 4 Ultra for the final client-facing render. Concept cheap, finish expensive.</p><div class='vault-action'><b>Action step:</b> Open Fuse Studio → Create → Image, and generate the same prompt on two different models. Compare the results side by side.</div>"
-},
-{
-"key": "spark-1_2",
-"n": "1.2",
-"title": "Prompt Architecture: The 6-Part Formula That Actually Works",
-"dur": "7 min",
-"aspect": "16:9",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Every strong image prompt has six parts: <b>Subject</b> (who/what), <b>Material</b> (what it's made of / wearing), <b>Lighting</b> (soft studio, golden hour, dramatic rim), <b>Camera</b> (85mm portrait, wide establishing, close-up), <b>Atmosphere</b> (mood, colour grade, energy), and <b>Quality</b> (ultra-detailed, editorial, 4:5). Stack all six and you get a professional result on the first try instead of the twentieth.</p><h4>Ria's Shortcut</h4><p>Write your prompts as one flowing sentence, not a comma-dump of random words. \"Confident Nigerian entrepreneur in a tailored navy suit, modern glass office behind her, soft cinematic window light, shot on 85mm, warm premium colour grade, ultra-detailed editorial portrait\" reads like a sentence and generates like a masterpiece.</p><div class='vault-action'><b>Action step:</b> Write one full 6-part prompt for a fictional client brief and generate it in Fuse Studio. Your resource for this lesson is in the Vault — this note is it, reread it before every client job.</div>"
-},
-{
-"key": "spark-1_3",
-"n": "1.3",
-"title": "Style Consistency & Post-Production For Commercial Use",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Clients need a set of images that all feel like they belong together — same lighting language, same colour world, same camera feel. Lock this by reusing the exact lighting + atmosphere + quality phrases across every prompt in a series, only swapping the subject.</p><p>Once you've generated, Fuse Studio's <b>Upscale</b> tool sharpens for print or large display, <b>Remove Background</b> gives you a clean cutout for packaging or web use, and <b>Object Eraser</b> cleans up any stray artefact — all inside the same app, no separate editor needed.</p><h4>Ria's Shortcut</h4><p>Generate 3–4 extra variations of every 'hero' image. Clients almost always want 'just one more version' and having options ready saves an awkward regeneration delay on a call.</p><div class='vault-action'><b>Action step:</b> Generate a 3-image consistent series (same lighting/mood, different subject angle), then run one through Upscale.</div>"
-}
-]
-},
-{
-"key": "spark-m2",
-"title": "Product Renders & Commercial Photography",
-"lessons": [
-{
-"key": "spark-2_1",
-"n": "2.1",
-"title": "What Clients Actually Pay For In Product Photography",
-"dur": "2 min",
-"aspect": "16:9",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Brands need product shots for their website, Instagram grid, ads and packaging mockups — and studio photography with a real photographer costs hundreds of dollars per shot. You can deliver the same result from a single reference photo of the product, in minutes, for a fraction of the price, and still charge well.</p><h4>Ria's Shortcut</h4><p>Always ask the client for one real photo of their product first, even a rough phone photo. Using it as a reference in Fuse Studio keeps proportions, labels and details accurate — way more reliable than describing the product from scratch in text.</p><div class='vault-action'><b>Action step:</b> Find one product (yours or a friend's) and take a plain reference photo you'll use in the next lesson.</div>"
-},
-{
-"key": "spark-2_2",
-"n": "2.2",
-"title": "Prompting Product Context: Surfaces, Environments & Brand Colours",
-"dur": "9 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Upload your reference photo into Fuse Studio's Image Studio, then prompt the surrounding world: marble counter with soft morning light, or a bold colour-matched backdrop with dramatic studio lighting. The product stays accurate because it's grounded in a real reference image — you're just building the scene around it.</p><h4>Ria's Shortcut</h4><p>Match the backdrop colour to the client's actual brand colour, not a generic \"nice\" colour. A skincare brand with a sage-green identity should never get a pink backdrop, even if pink photographs beautifully — brand consistency beats a prettier single image every time.</p><div class='vault-action'><b>Action step:</b> Using your reference photo, generate three context variations: marble/luxury, bold brand-colour backdrop, and outdoor/lifestyle.</div>"
-},
-{
-"key": "spark-2_3",
-"n": "2.3",
-"title": "Beauty & Luxury Renders + Client Delivery",
-"dur": "21 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Luxury renders lean on reflection, water droplets, gold accents and shallow depth of field — describe these explicitly in your prompt. Once you have your final set, run each through Upscale for crisp large-format quality before delivery.</p><h4>Ria's Shortcut</h4><p>Deliver product renders in a labelled, organised set — \"01-hero,\" \"02-lifestyle,\" \"03-detail\" — not a random dump of files. It's a five-minute habit that makes you look like an agency, not a hobbyist.</p><div class='vault-action'><b>Action step:</b> Build a final 3-image delivery set (hero, lifestyle, detail) from your product, upscale each, and save them in a labelled folder — that's your Module 2 portfolio piece.</div>"
-}
-]
-},
-{
-"key": "spark-m3",
-"title": "AI Video Production",
-"lessons": [
-{
-"key": "spark-3_1",
-"n": "3.1",
-"title": "Fuse Studio's Video Models: Image-To-Video Fundamentals",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Create → Video gives you a full model lineup, from Grok Imagine (cheapest, great for testing an idea) up to Kling Turbo Pro and Veo 3 (premium, cinema-grade motion) — all charged per generation in credits, no separate subscriptions. The most reliable workflow is <b>image-to-video</b>: generate (or upload) your perfect still first in Image Studio, then animate it, so you control exactly what the shot looks like before it ever moves.</p><h4>Ria's Shortcut</h4><p>Never go straight to text-to-video for anything client-facing. Nail the still frame first — it's cheaper to regenerate an image than a video, and you get a much more predictable final motion result.</p><div class='vault-action'><b>Action step:</b> Take one image you generated in Module 1 or 2 and animate it with the cheapest video model to see the motion quality before spending more credits.</div>"
-},
-{
-"key": "spark-3_2",
-"n": "3.2",
-"title": "Cinematic Camera Moves & Character Consistency",
-"dur": "12 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Describe camera movement explicitly in your motion prompt — slow push-in, orbit, tracking shot alongside the subject — the same language real cinematographers use. For a consistent face across multiple clips (an avatar, a spokesperson), use Fuse Studio's <b>Avatar Studio</b>: upload a handful of clear photos once, generate a model sheet, and every future image or video keeps that same face locked in.</p><h4>Ria's Shortcut</h4><p>Chain clips using \"end frame as next start frame\" — grab the last frame of clip one and feed it as the starting image for clip two. That's how you get a continuous multi-shot sequence instead of four disconnected clips.</p><div class='vault-action'><b>Action step:</b> Set up your avatar in Avatar Studio (or a client's, with their photos) and generate one 10-second clip using it.</div>"
-},
-{
-"key": "spark-3_3",
-"n": "3.3",
-"title": "From Raw Clips To Finished Reel",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Fuse Studio generates your raw footage — the actual stitching, trimming and adding text/music still happens in a simple free editor like CapCut. Export each clip, drop them in order, add a clean cut or crossfade between them, and add a text end-card if it's a branded piece.</p><h4>Ria's Shortcut</h4><p>Keep every clip 5–10 seconds. Shorter clips generate more reliably and are far easier to reorder and edit than one long, expensive, hard-to-fix take.</p><div class='vault-action'><b>Action step:</b> Generate 2–3 short clips and stitch them into one 15–20 second reel in CapCut. That's your Module 3 portfolio piece.</div>"
-},
-{
-"key": "spark-3_4",
-"n": "3.4",
-"title": "AI Talking Head & Consistent Avatar Tutorial",
-"dur": "12 min",
-"notes": "<span class='vault-tag'>🎙 Talking head — full recorded walkthrough</span><h4>The Idea</h4><p>This lesson walks through building your consistent AI face in Avatar Studio, start to finish — the exact model-sheet method that keeps your face locked and recognisable across every future generation. Watch the full recorded tutorial above.</p><div class='vault-action'><b>Action step:</b> Follow along and build your own model sheet in Avatar Studio while you watch.</div>"
-}
-]
-},
-{
-"key": "spark-m4",
-"title": "AI Short Film & Cinematic Content",
-"lessons": [
-{
-"key": "spark-4_1",
-"n": "4.1",
-"title": "Story Structure & Shot Lists For A 60-Second AI Film",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Even a 60-second film needs a shape: a setup (who/where, 10s), a turn (something happens, 30s), and a payoff (resolution/reveal, 20s). Before generating anything, write your shot list on paper — shot 1: wide establishing; shot 2: close-up reaction; shot 3: the reveal. Generating with a plan beats generating and hoping it edits together.</p><h4>Ria's Shortcut</h4><p>Write the LAST shot first. Knowing your ending shot makes every earlier shot easier to plan, because you're building toward something specific instead of wandering.</p><div class='vault-action'><b>Action step:</b> Write a 3-shot list for a 60-second story concept (any idea — a product, a mood, a moment).</div>"
-},
-{
-"key": "spark-4_2",
-"n": "4.2",
-"title": "Continuity, Sound Design & Colour Grade",
-"dur": "12 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Continuity means the same character, wardrobe and lighting style across every shot — anchor this by reusing your avatar's model sheet and the same lighting phrases in every prompt. In CapCut, add a consistent music bed under the whole film (not different music per clip) and apply one colour-grade filter across every clip so it feels shot on one camera, not stitched from five different tools.</p><h4>Ria's Shortcut</h4><p>Pick your music track BEFORE you generate the final clips, then time your motion prompts (fast cuts vs. slow pushes) to match the music's energy. Sound-first editing looks far more intentional than sound-added-last.</p><div class='vault-action'><b>Action step:</b> Produce your 3-shot film from lesson 4.1, add one music track and one colour filter across all clips in CapCut.</div>"
-},
-{
-"key": "spark-4_3",
-"n": "4.3",
-"title": "Spark Capstone: Your AI Creative Portfolio Reel",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>This is where everything from The Spark comes together. Pick your 3 strongest images, your best product render set, and your short film into one combined portfolio piece — this becomes the first thing you show any prospective client or Upwork visitor.</p><h4>Ria's Shortcut</h4><p>Lead your portfolio with video, not images. Motion stops the scroll and holds attention longer, and it signals a rarer, higher-value skill than static images alone.</p><div class='vault-action'><b>✦ Spark Capstone:</b> Assemble your combined portfolio (images + product render + short film) into one reel or one organised folder. This is what you'll attach to your Upwork profile and proposals in The Gold.</div>"
-}
-]
-},
-{
-"key": "spark-m5",
-"title": "UGC & Ad Content Creation",
-"lessons": [
-{
-"key": "spark-5_1",
-"n": "5.1",
-"title": "Why Brands Pay Thousands For UGC — And The Ad Anatomy",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>UGC (user-generated-content style ads) outperform polished studio ads because they look native, real and unpaid — even though brands pay $200–$1,000+ per video for them. Every converting ad follows the same anatomy: <b>Hook</b> (0–3s, stops the scroll), <b>Problem</b> (names the pain), <b>Product</b> (shows the fix), <b>Proof</b> (why it's credible), <b>CTA</b> (what to do next).</p><h4>Ria's Shortcut</h4><p>Write your hook line before anything else, and make it a question or a bold claim in the first 3 seconds — 'I wasted $200 before I found this' beats a slow logo intro every single time.</p><div class='vault-action'><b>Action step:</b> Write one full 5-part ad script (hook/problem/product/proof/CTA) for any product.</div>"
-},
-{
-"key": "spark-5_2",
-"n": "5.2",
-"title": "UGC-Style Content Without A Real Person, Using Avatar Studio",
-"dur": "12 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Not every client has a spokesperson on hand — and you may not want to be on camera for every project either. Fuse Studio's Avatar Studio and Fuse Reactor let you build a consistent AI presenter, generate them holding/using the product, and animate them speaking or reacting, all without hiring a real actor.</p><h4>Ria's Shortcut</h4><p>Give the AI presenter a specific setting and outfit that matches the brand's real customer — a busy young professional in her kitchen sells skincare better than a generic studio backdrop.</p><div class='vault-action'><b>Action step:</b> Build one UGC-style clip using Avatar Studio from your script in lesson 5.1.</div>"
-},
-{
-"key": "spark-5_3",
-"n": "5.3",
-"title": "Platform Formats & Bulk Production",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>TikTok/Reels want 9:16 vertical, raw and fast-cut. Facebook feed often performs better as 1:1 or 4:5. Know the aspect ratio before you generate, not after — it's set at generation time in Fuse Studio, so plan the platform first.</p><p>Clients often want a bulk batch — 10, 15, 20 ad variations in one delivery. Build one strong hook and product setup, then vary only the ending or the specific claim across each variant. You're not starting from zero each time.</p><h4>Ria's Shortcut</h4><p>Deliver 3 hook variations of the SAME ad, not 3 completely different ads. Clients A/B test hooks — this is exactly what performance marketers want, and it takes a fraction of the effort of building unique concepts.</p><div class='vault-action'><b>Action step:</b> Produce 3 hook variations of your UGC clip from 5.2 (same middle/end, different opening 3 seconds).</div>"
-},
-{
-"key": "spark-5_4",
-"n": "5.4",
-"title": "Create Your First AI UGC Video (Full Tutorial)",
-"dur": "11 min",
-"notes": "<span class='vault-tag'>🎙 Talking head — full recorded walkthrough</span><h4>The Idea</h4><p>A full start-to-finish recording of building your first AI UGC video — script, avatar, generation and final polish, all in one watch-along tutorial.</p><div class='vault-action'><b>Action step:</b> Follow along and build your own first UGC clip while you watch.</div>"
-}
-]
-},
-{
-"key": "spark-m6",
-"title": "CGI Ads & Visual Effects",
-"lessons": [
-{
-"key": "spark-6_1",
-"n": "6.1",
-"title": "Inside A $10K+ CGI Ad: What Brands Are Really Paying For",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Big-budget CGI product ads (think liquid splashes, product explosions, hyper-glossy surfaces) sell for thousands because almost no one can make them — real CGI studios need specialised 3D software and weeks of render time. AI collapses that timeline to hours, which means you can offer this exact rare, high-ticket service at a fraction of the old cost, and still charge premium.</p><h4>Ria's Shortcut</h4><p>Lead with CGI in your Upwork profile and proposals over anything else — it's the single most under-supplied, highest-paying skill in this whole course.</p><div class='vault-action'><b>Action step:</b> Find and study 2 real CGI product ads on Instagram/TikTok. Note exactly what makes them look expensive (reflections, slow motion, hyper-saturated colour).</div>"
-},
-{
-"key": "spark-6_2",
-"n": "6.2",
-"title": "Product CGI Workflow: From Brief To Final Look",
-"dur": "14 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Start from your product reference (same as Module 2), then push the prompt into hyper-real CGI territory: glossy reflective surfaces, dramatic studio lighting, liquid or particle motion, exaggerated glamour. Generate the hero still first in Image Studio, then animate it in Video Studio for the final motion piece.</p><h4>Ria's Shortcut</h4><p>Reference real CGI ads directly when prompting — describe the exact look you studied in 6.1 ('glossy black surface, dramatic side-lit reflection, slow-motion liquid splash') rather than vague terms like 'cool' or 'epic.'</p><div class='vault-action'><b>Action step:</b> Generate one CGI-style hero product render, then animate it into a 5–8 second motion clip.</div>"
-},
-{
-"key": "spark-6_3",
-"n": "6.3",
-"title": "Compositing, Motion Graphics & Final Delivery",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>To finish a CGI ad, layer in simple motion graphics — animated text callouts, a logo end-card — in CapCut over your generated footage. Deliver as a vertical (9:16) and square (1:1) pair so the client can run it anywhere without you re-exporting.</p><h4>Ria's Shortcut</h4><p>Always deliver two aspect ratios by default (9:16 and 1:1) without being asked — it removes the client's single most common revision request and quietly signals you already think like an agency.</p><div class='vault-action'><b>✦ Spark Skill Complete:</b> Add your CGI ad clip to your Module 4 portfolio reel. You now have image, product, film, UGC and CGI work in one place — everything The Gold needs to sell.</div>"
-}
-]
-}
-]
-},
-{
-"key": "house",
-"name": "THE HOUSE",
-"sub": "Build brands that command attention and premium prices.",
-"modules": [
-{
-"key": "house-m1",
-"title": "Brand Thinking & Strategy",
-"lessons": [
-{
-"key": "house-1_1",
-"n": "1.1",
-"title": "What A Brand Actually Is: Beyond The Logo",
-"dur": "6 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>A logo is a symbol. A brand is a feeling — every colour, font, tone of voice and touchpoint a customer experiences. When you sell \"just a logo\" you compete with $5 designers. When you sell the full brand system — strategy, identity, the whole feeling — you compete with agencies charging thousands, using the same skill.</p><h4>Ria's Shortcut</h4><p>When a client asks for \"just a logo,\" say: \"I can do that — but a logo alone won't be consistent across your packaging, social and site. Let me show you what a full system looks like.\" That single sentence turns more $50 jobs into $500 jobs than anything else.</p><div class='vault-action'><b>Action step:</b> Pick one brand you admire and list every brand element you notice beyond its logo.</div>"
-},
-{
-"key": "house-1_2",
-"n": "1.2",
-"title": "Reading A Brief & Competitor Positioning",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Clients describe brands in vague adjectives — \"modern,\" \"luxury,\" \"make it pop.\" Dig underneath by asking: \"Show me three brands you love, and three you hate, and tell me why.\" Their examples reveal more than any adjective ever could.</p><p>Then look at 3–4 real competitors — drop them into Fuse Reactor and ask it to spot the shared patterns (colour, tone, style). Wherever the whole market looks the same, that's your gap. If everyone's loud, be calm. If everyone's minimal, be bold.</p><h4>Ria's Shortcut</h4><p>The brands a client HATES are more useful than the ones they love — they instantly show you the boundary you must never cross, saving you from painful revisions later.</p><div class='vault-action'><b>Action step:</b> For a practice client, list 3 brands they'd love and 3 they'd hate, then name one gap their brand can own.</div>"
-},
-{
-"key": "house-1_3",
-"n": "1.3",
-"title": "Writing The Brand Brief Before You Design",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>A brand brief is the one-page foundation you write before touching any design tool — personality, audience, values, colour direction, tone, and what makes this brand different. Use Fuse Reactor to help you turn your client notes and competitor research into a clean, structured one-pager in minutes.</p><h4>Ria's Shortcut</h4><p>Get the client to approve this brief in writing before you design anything. When they sign off on the direction first, revisions drop dramatically — you both already agreed on the destination.</p><div class='vault-action'><b>Module 1 deliverable:</b> A fully completed one-page brand brief for your practice client. This becomes the foundation for every module ahead.</div>"
-}
-]
-},
-{
-"key": "house-m2",
-"title": "Logo Design With AI",
-"lessons": [
-{
-"key": "house-2_1",
-"n": "2.1",
-"title": "Logo Types & The Prompt Formula That Works",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Four logo types: <b>wordmark</b> (styled name, e.g. Coca-Cola), <b>monogram</b> (initials), <b>emblem</b> (symbol+text inside a badge shape), <b>combination mark</b> (symbol beside the name — the most flexible, since the icon works alone too). When in doubt, design a combination mark.</p><p>Logo prompt formula in Fuse Studio: logo type + brand name + style descriptor + colour + \"vector style, simple, clean, flat, white background.\" That last phrase is what keeps it usable — AI defaults to over-complicated, gradient-heavy marks unless you force simplicity. Brainstorm concepts in Fuse Reactor first, then generate the strongest ones.</p><h4>Ria's Shortcut</h4><p>Always add \"simple, minimal, flat vector\" — without it you get pretty images that fail as real, scalable logos.</p><div class='vault-action'><b>Action step:</b> Brainstorm 5 logo directions in Fuse Reactor, then generate your top 3 concepts.</div>"
-},
-{
-"key": "house-2_2",
-"n": "2.2",
-"title": "Building The Logo System: Primary, Secondary, Mark, Inverse",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>A real brand needs logo variations, not one file: the <b>primary</b> logo, a <b>secondary</b> (stacked/horizontal alternative), the <b>mark</b> alone (for app icons/social avatars), and an <b>inverse</b> version for dark backgrounds. Generate your chosen concept in each configuration, using Fuse Studio's Remove Background to get clean, transparent cutouts of each variation.</p><h4>Ria's Shortcut</h4><p>Test your logo at tiny size — shrink it to app-icon scale. If it's still clear, it's strong. If it turns to mush, simplify further. Real logos must survive small.</p><div class='vault-action'><b>Action step:</b> Build all four logo variations for your practice brand with transparent backgrounds.</div>"
-},
-{
-"key": "house-2_3",
-"n": "2.3",
-"title": "File Delivery: What The Client Needs",
-"dur": "6 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Deliver PNG (transparent, for digital), JPG (simple use) and a high-resolution version for print, organised into a clearly labelled folder — never a single unlabelled image dumped in a chat.</p><h4>Ria's Shortcut</h4><p>Include a simple one-page \"how to use your logo\" note — spacing rules, approved colours, what NOT to do (don't stretch it, don't recolour it). Clients love it, it prevents them ruining your work, and it looks incredibly professional for ten minutes of effort.</p><div class='vault-action'><b>Module 2 deliverable:</b> A complete logo system (all 4 variations, correct file formats) organised for delivery.</div>"
-}
-]
-},
-{
-"key": "house-m3",
-"title": "Visual Identity Systems",
-"lessons": [
-{
-"key": "house-3_1",
-"n": "3.1",
-"title": "Colour Theory & Typography Pairing",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Colour carries emotion before a word is read — blue trustworthy, red urgent, green natural, black premium, gold luxurious. A strong palette is usually a primary, one or two secondaries and a neutral. Two or three colours, chosen on purpose, always beats a rainbow.</p><p>Typography pairing follows one rule: one characterful heading font + one plain, clean body font. Two personality fonts fighting each other is the single most common beginner mistake.</p><h4>Ria's Shortcut</h4><p>Steal palette sophistication from luxury brands in adjacent categories — if your client is a budget skincare brand, borrow colour restraint from the expensive skincare brands. Instant elevation.</p><div class='vault-action'><b>Action step:</b> Build a palette (1 primary, 2 secondary, 1 neutral, with hex codes) and a font pairing for your practice brand.</div>"
-},
-{
-"key": "house-3_2",
-"n": "3.2",
-"title": "Patterns, Imagery Direction & The Moodboard",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Generate one signature pattern or texture in Fuse Studio's Image Studio, matched to the brand's palette, and reuse it everywhere — packaging, social backgrounds, business cards. Repetition builds recognition.</p><p>Then set the brand's photography direction — bright and airy vs. dark and moody, warm vs. cool — by generating a 6-image moodboard using your Spark skills. Every future photo for this brand should match this exact feeling.</p><h4>Ria's Shortcut</h4><p>Deliver the moodboard as part of the brand package, not as an afterthought — clients are amazed when you hand over a full visual direction, and it positions you as a strategist, not just a designer. Strategists charge more.</p><div class='vault-action'><b>Action step:</b> Create one brand pattern and a 6-image moodboard for your practice brand.</div>"
-},
-{
-"key": "house-3_3",
-"n": "3.3",
-"title": "Building The Brand Style Guide",
-"dur": "12 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>The style guide is the single document that ties everything together: logo + variations, colours with hex codes, typography, pattern, imagery direction, and usage rules — one clean layout, built in a free tool like Canva using the assets you've already generated in Fuse Studio.</p><h4>Ria's Shortcut</h4><p>This document is your secret upsell. Most designers stop at the logo. Delivering a full style guide visibly offers more, which justifies charging two to three times what a logo-only designer charges — for roughly the same effort.</p><div class='vault-action'><b>Module 3 deliverable:</b> A full brand style guide — colours, typography, pattern, photo direction — for your practice brand.</div>"
-}
-]
-},
-{
-"key": "house-m4",
-"title": "Packaging Design Mastery",
-"lessons": [
-{
-"key": "house-4_1",
-"n": "4.1",
-"title": "Packaging Types & AI Prompting",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Boxes (cosmetics/electronics — flat faces), pouches (food/supplements — flexible, front/back panel), tubes (creams — curved surface), bottles (drinks/skincare — usually with a label). Each format has different design rules, so know the format before you design.</p><p>To generate concepts, describe the packaging type, the brand's style/colours/finish (matte vs glossy, foil detail) in Fuse Studio's Image Studio. Generate the shape and mood with AI, then place the real logo and text yourself afterward — AI-rendered text on packaging is usually garbled, so treat the AI output as the shape/lighting/mood reference, not the final artwork.</p><h4>Ria's Shortcut</h4><p>Packaging clients pay more and respect you more than almost any other service — it feels high-stakes because it's going out into the physical world. Position yourself as a packaging specialist.</p><div class='vault-action'><b>Action step:</b> Pick a packaging format for your practice product and generate 3 concept directions.</div>"
-},
-{
-"key": "house-4_2",
-"n": "4.2",
-"title": "Applying Brand Identity + Realistic Mockups",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Carry the palette, typography and signature pattern from your style guide directly onto the packaging so it's unmistakably part of the same brand family. Then place the finished design onto a realistic 3D mockup — on a marble counter, in someone's hand, on a store shelf — using Fuse Studio to generate the context render.</p><h4>Ria's Shortcut</h4><p>Always show packaging in an aspirational real-life setting. You're not just showing a flat design — you're showing the client the elevated future of their business, and that emotional reaction gets first-round approval.</p><div class='vault-action'><b>Action step:</b> Apply your brand identity to your packaging concept and generate one realistic context mockup.</div>"
-},
-{
-"key": "house-4_3",
-"n": "4.3",
-"title": "Print-Ready Delivery",
-"dur": "6 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Print-ready means correct dimensions, high resolution, and a bleed margin so nothing prints with an unwanted white edge. Ask the client for their printer's exact specs before finalising — every printer differs slightly.</p><h4>Ria's Shortcut</h4><p>Asking for the printer's specs upfront makes you look experienced AND protects you from delivering a file that fails to print — and it shifts that responsibility cleanly onto a spec sheet, not your judgment.</p><div class='vault-action'><b>Module 4 deliverable:</b> Full packaging design plus one photorealistic mockup presentation.</div>"
-}
-]
-},
-{
-"key": "house-m5",
-"title": "Social Media Visual Kits",
-"lessons": [
-{
-"key": "house-5_1",
-"n": "5.1",
-"title": "Grid Strategy & Reusable Templates",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>A brand's Instagram grid is judged in two seconds. Plan posts in sets of three (Instagram displays rows of three) with consistent colours and a repeating rhythm — image, quote, product, repeat — so the whole grid feels intentional even on day one.</p><p>Build reusable templates (quote, product, announcement) in Canva using your brand's locked colours, fonts and pattern — the client swaps in new text/images forever after, and you can charge a setup fee plus ongoing design work.</p><h4>Ria's Shortcut</h4><p>Name your bundles — \"The Social Starter Kit\" sells better than \"3 templates.\" A name makes it feel like a product, and products feel more valuable than a loose task list.</p><div class='vault-action'><b>Action step:</b> Plan a 9-post grid layout and build 2 reusable templates for your practice brand.</div>"
-},
-{
-"key": "house-5_2",
-"n": "5.2",
-"title": "Carousels, Reel Covers & Highlight Icons",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Carousels are Instagram's highest-engagement format — slide 1 hooks, middle slides teach, last slide calls to action. Spend most of your design effort on that first slide; if it fails, the other nine are never seen.</p><p>Reel covers, story templates and highlight icons are the small finishing touches that separate a DIY profile from a designed one — quick to build in Canva using assets from your style guide, and an easy premium upsell since clients love them and they take minutes.</p><h4>Ria's Shortcut</h4><p>Highlight icons are the easiest bonus you'll ever offer — ten minutes of work, huge perceived value. Bundle them to raise your package price.</p><div class='vault-action'><b>Action step:</b> Design one carousel (4–6 slides) and one set of highlight icons for your practice brand.</div>"
-},
-{
-"key": "house-5_3",
-"n": "5.3",
-"title": "House Capstone: Package It As A Monthly Service",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Everything in Module 5 — templates, carousels, highlight icons — isn't just a one-time job. It's a recurring monthly retainer: '10 branded posts + 4 story frames, delivered monthly.' Many brands have a good product and a chaotic feed — offering ongoing visual consistency is valuable, repeat income.</p><h4>Ria's Shortcut</h4><p>Price the monthly package slightly below what 10 one-off jobs would cost separately — clients love the 'bundle discount' framing even though it locks in steadier income for you.</p><div class='vault-action'><b>✦ House Capstone:</b> Combine your logo system, style guide, packaging and social kit into one complete, presented brand identity project — this becomes your second portfolio piece for The Gold.</div>"
-}
-]
-},
-{
-"key": "house-m6",
-"title": "The Client Brand Presentation",
-"lessons": [
-{
-"key": "house-6_1",
-"n": "6.1",
-"title": "The Presentation Deck Structure & Context Renders",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>The order you reveal your work decides whether a client says yes instantly or hesitates. Structure: brief (remind them what they asked) → strategy (your reasoning) → logo reveal → full system → mockups/context renders (the emotional peak) → next steps. Context first, reveal second, emotion last.</p><p>Never send a bare logo with no context — clients nitpick a naked image. Wrap it in the story so every choice feels intentional.</p><h4>Ria's Shortcut</h4><p>Show the brand living in reality — on a signage mockup, a phone screen, the product itself. Once a client sees their logo on a real-looking storefront, they stop seeing a concept and start seeing their business.</p><div class='vault-action'><b>Action step:</b> Outline your presentation using this exact order for your practice brand.</div>"
-},
-{
-"key": "house-6_2",
-"n": "6.2",
-"title": "Presenting Live & Handling Revisions",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Never say \"I hope you like it\" — it signals uncertainty and invites criticism. Say \"here's the direction and the thinking behind it.\" Explain your reasoning as you go so every choice feels intentional, then pause and let the client react instead of nervously filling silence.</p><p>Set revision rounds upfront in your agreement (e.g. \"two rounds included\"), gather all feedback in one batch, and turn vague notes (\"make it pop\") into specific direction by asking \"what feeling is missing?\" Anything beyond the agreed rounds is a small additional fee, stated kindly.</p><h4>Ria's Shortcut</h4><p>Most \"make it pop\" feedback isn't about the design — it's the client feeling unsure and unable to explain why. Ask what feeling is missing, not what to change.</p><div class='vault-action'><b>Action step:</b> Write your own two-sentence revision policy.</div>"
-},
-{
-"key": "house-6_3",
-"n": "6.3",
-"title": "Final Delivery & The Handoff Process",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>The final handoff is your last impression, and it decides referrals. One clean, organised folder: logo files in every format, the style guide, templates, mockups, a short read-me note.</p><h4>Ria's Shortcut</h4><p>Add a thank-you note and a testimonial request at the exact moment they receive everything and feel delighted. Strike while gratitude is fresh — it's the easiest five-star review and referral you'll ever get.</p><div class='vault-action'><b>House Capstone deliverable:</b> Your fully designed, professionally presented brand identity project, packaged for delivery. Post your progress and questions to your Fuse community as you go.</div>"
-}
-]
-}
-]
-},
-{
-"key": "gold",
-"name": "THE GOLD",
-"sub": "Turn your skills into consistent foreign income.",
-"modules": [
-{
-"key": "gold-m1",
-"title": "The Upwork Foundation",
-"lessons": [
-{
-"key": "gold-1_1",
-"n": "1.1",
-"title": "How Upwork Actually Works — Plus The Advanced Trade Secrets",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Upwork rewards a complete, active, keyword-rich profile with more visibility. Your <b>JSS</b> (Job Success Score) is your reputation — treat your first 3 clients like gold, since early reviews unlock everything after. <b>Rising Talent</b> is a badge Upwork gives new freelancers with a complete profile and good early activity, signalling trust before you have reviews.</p><p>Advanced trade secrets: reply to invites fast (Upwork rewards response time), keep your availability badge set to \"more than 30 hrs/week\" even if untrue-in-spirit — it signals readiness, mirror the client's own language back at them in messages, and use small scarcity lines (\"I have one more slot this month\") honestly when true.</p><h4>Ria's Shortcut</h4><p>Your first three jobs aren't about money — they're about reviews. Take slightly smaller jobs, over-deliver massively, collect three glowing five-star reviews fast, then raise your prices.</p><div class='vault-action'><b>Action step:</b> Write down the 3 things you'll focus on this week to get seen more on Upwork.</div>"
-},
-{
-"key": "gold-1_2",
-"n": "1.2",
-"title": "Legal Setup For Nigerians: ID, TIN & Getting Paid Without Loss",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🎙 Voice (personal)</span><h4>The Idea</h4><p>Use your real ID and real name matching everything — a flagged account is a dead account. Get your TIN sorted as you grow, it keeps you legitimate and makes payments smoother. For getting paid from Nigeria without losing money to bad rates, connect a payment method built for this — Payoneer is the most common, some use Grey or another virtual dollar account. Choose one with reasonable fees so you keep more of every dollar.</p><h4>Ria's Shortcut</h4><p>I lost real money early on to bad exchange rates and high fees because I didn't set this up first. Spend one afternoon getting your payment setup right before your first job — it's the most profitable afternoon you'll spend all year.</p><div class='vault-action'><b>Action step:</b> Set up at least one international payment method (Payoneer or equivalent) this week.</div>"
-},
-{
-"key": "gold-1_3",
-"n": "1.3",
-"title": "Profile Optimisation: Title, Overview, Rate & Portfolio",
-"dur": "14 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p><b>Title:</b> lead with the outcome, not a generic label — \"AI Product Photography & CGI Ads for E-commerce Brands\" beats \"Graphic Designer.\" <b>Overview:</b> open with a result in the first line, not your life story — \"I help e-commerce brands cut product photography costs by 80% with AI\" then back it up. <b>Rate:</b> start at $25–35/hr, not $5 — pricing yourself too low signals low quality and attracts the worst clients. <b>Portfolio:</b> lead with your single strongest Spark/House piece, made stunning, first.</p><h4>Ria's Shortcut</h4><p>Clients decide in the first second whether to keep reading. Put your absolute best work — a CGI ad or full brand system from this course — as the very first portfolio image.</p><div class='vault-action'><b>Action step:</b> Rewrite your title and overview using this formula, set your rate to $25+, and reorder your portfolio.</div>"
-},
-{
-"key": "gold-1_4",
-"n": "1.4",
-"title": "Keywords & Real Profiles That Win",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Clients find you by searching exact phrases: \"AI video,\" \"product photography,\" \"brand identity,\" \"social media design.\" Read 10 real job posts in your niche and copy the exact words clients use — mirror their language naturally in your title, overview and skills.</p><p>A losing profile: vague title, an overview about yourself, no portfolio, generic. A winning profile: specific title, result-led overview, strong portfolio, clear niche. Same person could build either — the difference is knowing what clients respond to.</p><h4>Ria's Shortcut</h4><p>Study top-rated freelancers in your niche — not to copy, but to notice the shared habits in how they title and open. Apply the pattern in your own voice.</p><div class='vault-action'><b>Module 1 deliverable:</b> A fully optimised, live Upwork profile.</div>"
-}
-]
-},
-{
-"key": "gold-m2",
-"title": "Your Service Menu & Pricing",
-"lessons": [
-{
-"key": "gold-2_1",
-"n": "2.1",
-"title": "What To Offer, What To Avoid & How To Bundle",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Avoid commodity services (\"cheap logo,\" \"photo edit\") — endless competition, rock-bottom prices. Offer what you learned in Spark and House: AI video content, CGI ads, full brand systems, product render packages, UGC at scale. Rare, in-demand, premium-priced.</p><p>Bundle these into named packages clients instantly understand — \"The Brand Launch Kit\" sells far better than \"logo + colours + social.\" A name makes it feel like a product.</p><h4>Ria's Shortcut</h4><p>Lead with the service almost nobody else offers — CGI or AI video. Rarity is pricing power.</p><div class='vault-action'><b>Action step:</b> List 3 high-value services you'll offer, and name 2 bundled packages with clear deliverables.</div>"
-},
-{
-"key": "gold-2_2",
-"n": "2.2",
-"title": "Pricing Psychology & The Fuse Service Menu",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Price is psychology, not math. Anchor high — present your premium option first so everything after feels reasonable. Offer three tiers (basic/middle/premium) — most people pick the middle, so price your real target there, with a premium above it to make the middle look smart. Price on value created, not hours spent. State your price with calm confidence, then stop talking — the nervous freelancer over-explains and discounts; the professional states it and lets silence work.</p><h4>Ria's Shortcut</h4><p>Build your own written service menu now — 3 tiers, clear deliverables, real prices — so you never have to invent pricing live on a call again.</p><div class='vault-action'><b>Module 2 deliverable:</b> Your complete 3-tier service menu with real prices, ready to paste into any proposal.</div>"
-}
-]
-},
-{
-"key": "gold-m3",
-"title": "Proposal Mastery (Ria's Rules)",
-"lessons": [
-{
-"key": "gold-3_1",
-"n": "3.1",
-"title": "Reading Job Posts: Red Flags, Green Flags & Why Most Proposals Fail",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Before writing anything, read the job post like a detective. <b>Green flags:</b> a real budget stated, specific details about their business, a client with verified payment and past hires. <b>Red flags:</b> \"quick and easy job,\" no budget mentioned, a wall of generic requirements, a brand-new unverified account. Skip the red flags — they waste your limited weekly proposals.</p><p>Most proposals get ignored in 2 seconds because they open with \"Hi, I am a hardworking designer with 5 years experience...\" — the client has read that exact sentence 40 times already today. Nobody cares about you first; they care about their problem first.</p><h4>Ria's Shortcut</h4><p>Score every job post 1–5 on the green/red flags before spending a single connect on it. Only pitch 4s and 5s.</p><div class='vault-action'><b>Action step:</b> Find 3 real job posts in your niche and score each one.</div>"
-},
-{
-"key": "gold-3_2",
-"n": "3.2",
-"title": "The Winning 6-Part Proposal Structure",
-"dur": "12 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>1) <b>Hook</b> — open referencing THEIR specific post, not your bio. 2) <b>Credibility</b> — one line proving you can do exactly this. 3) <b>Unique Mechanism</b> — what you do differently (your Fuse Studio speed + quality edge). 4) <b>Process</b> — briefly how you'll deliver, so they trust the execution. 5) <b>Price Anchor</b> — state your rate with confidence, tied to value. 6) <b>Risk Reversal + Scarcity/CTA</b> — a small guarantee or fast-start offer, then a direct call to action.</p><p>Also — before they even read a word — a distinct, well-designed proposal cover image or portfolio thumbnail with a bold, ownable colour makes you visually stand out in a wall of identical grey text proposals.</p><h4>Ria's Shortcut</h4><p>Attach only 2–3 hyper-relevant portfolio pieces, not your whole portfolio. Relevance beats volume every time.</p><div class='vault-action'><b>Action step:</b> Write one full 6-part proposal for a real job post using this structure.</div>"
-},
-{
-"key": "gold-3_3",
-"n": "3.3",
-"title": "The No-Connects Method: Ria's Signature Direct Outreach",
-"dur": "12 min",
-"notes": "<span class='vault-tag'>🎙 Voice (signature)</span><h4>The Idea</h4><p>This is the technique that changed my income, and it's the one thing that makes The Gold different from every other freelancing course. Instead of competing for attention inside Upwork's crowded proposal feed, go around it entirely: read the client's Upwork history and job post carefully, Google the company or founder's name, find the actual decision-maker via LinkedIn or a tool like ContactOut, and reach out to THEM directly — with a free, custom sample already made for their exact brand attached.</p><p>This mirrors the standing rule I follow everywhere now: we don't wait in application queues, we always reach out directly.</p><h4>Ria's Shortcut</h4><p>The free custom sample is what makes this convert — not a generic portfolio link, but one image or clip made specifically for THAT company, using their real name/product/colours. It's undeniable proof before they've spent a cent.</p><div class='vault-action'><b>Action step:</b> Pick one real company you'd love to work with, research the decision-maker, and build one free custom sample for them using your Spark skills.</div>"
-},
-{
-"key": "gold-3_4",
-"n": "3.4",
-"title": "Gold Capstone: Real Proposals That Won Jobs",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Review real winning proposal examples side by side with what made them work — the specific hook referencing the client's exact post, the confident price anchor, the tight 2-piece portfolio attachment. Notice what's absent too: no apologising, no generic filler, no desperation.</p><h4>Ria's Shortcut</h4><p>Send your proposal within the first hour a job is posted whenever possible. Early proposals get read; proposal #80 rarely does.</p><div class='vault-action'><b>✦ Gold Proposal Capstone:</b> Send 3 real proposals this week — at least one using the No-Connects Method from 3.3. Track your response rate.</div>"
-},
-{
-"key": "gold-3_5",
-"n": "3.5",
-"title": "Pitch And Land Your First Client",
-"dur": "15 min",
-"notes": "<span class='vault-tag'>🎙 Talking head — full recorded walkthrough</span><h4>The Idea</h4><p>A full recorded walkthrough of pitching and landing a real client — direct outreach, not waiting in an application queue, the exact approach behind everything in this pillar. Watch the full tutorial above.</p><div class='vault-action'><b>Module 3 deliverable:</b> Send one real pitch using the approach shown, then post your experience.</div>"
-}
-]
-},
-{
-"key": "gold-m4",
-"title": "Client Communication & Management",
-"lessons": [
-{
-"key": "gold-4_1",
-"n": "4.1",
-"title": "The Kickoff Message & Weekly Update Format",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Your first message after winning a job sets the tone for the entire relationship. Confirm scope, timeline and next steps clearly in one organised message — not a scattered back-and-forth. Then send a short weekly update even when nothing dramatic happened: what's done, what's next, any blockers. Clients who hear from you regularly trust you more and revise less, because they're never wondering what's happening.</p><h4>Ria's Shortcut</h4><p>A weekly update takes two minutes to write and prevents 90% of \"are you still working on this?\" anxiety messages. Send it even on quiet weeks.</p><div class='vault-action'><b>Action step:</b> Write your own kickoff message template and weekly update template — reuse them on every job.</div>"
-},
-{
-"key": "gold-4_2",
-"n": "4.2",
-"title": "Handling Difficult Clients & Mistakes",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>When something goes wrong — a missed deadline, a mistake in the work — get on a call instead of hiding in messages. Voice and video de-escalate tension that text amplifies. Use the \"bad news + solution\" formula: never deliver a problem without immediately offering your fix. \"I'm behind on the render because of X — here's my plan to have it to you by tomorrow 3pm\" lands completely differently than a bare apology.</p><h4>Ria's Shortcut</h4><p>Never let a difficult conversation happen only in text if you can help it. A 5-minute call defuses what a 50-message text thread will inflame.</p><div class='vault-action'><b>Action step:</b> Write your own \"bad news + solution\" script you can adapt for any mistake.</div>"
-},
-{
-"key": "gold-4_3",
-"n": "4.3",
-"title": "5-Star Reviews & Turning Jobs Into Repeat Clients",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Ask for a review right after final delivery, at the exact moment the client is happiest — not weeks later. A simple \"if you're happy with this, a review would mean a lot\" works. To turn one-off jobs into repeat clients, end every project by naming a specific next opportunity: \"want me to also build your social templates?\" rather than leaving it open-ended.</p><h4>Ria's Shortcut</h4><p>The client is never more grateful than in the 10 minutes after final delivery. That's your review-and-upsell window — use it every time.</p><div class='vault-action'><b>Module 4 deliverable:</b> Your kickoff, weekly-update and mistake-handling templates, saved somewhere you'll actually reuse them.</div>"
-}
-]
-},
-{
-"key": "gold-m5",
-"title": "The Monthly Retainer Model",
-"lessons": [
-{
-"key": "gold-5_1",
-"n": "5.1",
-"title": "Why Retainers Beat One-Off Jobs & What To Include",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>One-off jobs mean you're always hunting for the next client. A retainer — a fixed monthly package — means predictable income without re-selling every month. A solid AI content retainer might include: 10 branded social posts, 4 short videos, 2 product renders, delivered on a set monthly schedule for a flat fee.</p><h4>Ria's Shortcut</h4><p>Five $300/month retainers is more stable income than chasing ten random $150 one-off jobs — same total revenue, far less hustle and far more predictability.</p><div class='vault-action'><b>Action step:</b> Design your own monthly retainer package — deliverables and price.</div>"
-},
-{
-"key": "gold-5_2",
-"n": "5.2",
-"title": "Pitching The Retainer To A Client You've Already Worked With",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>The easiest retainer sale is to a client you've already delivered great work for — trust is built, no cold pitch needed. After a successful project, simply say: \"I noticed you'll need more content like this ongoing — I have a monthly package that covers it for less than booking one-offs each time.\"</p><h4>Ria's Shortcut</h4><p>Pitch the retainer WHILE the client is still glowing from the last delivery, not weeks later when the memory has faded.</p><div class='vault-action'><b>Action step:</b> Write your own retainer pitch message, ready to send to your next happy client.</div>"
-},
-{
-"key": "gold-5_3",
-"n": "5.3",
-"title": "Managing Multiple Retainers & Protecting Yourself Without A Lawyer",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>With multiple retainer clients, use a simple shared calendar or checklist to track each client's monthly deliverables — don't rely on memory. A simple written scope document (even a one-page message confirming deliverables, timeline and price) protects you without needing an actual lawyer or formal contract — it just needs to exist in writing, agreed by both sides, before work starts.</p><h4>Ria's Shortcut</h4><p>Cap your retainer clients at a number you can realistically deliver on time, every time. A missed retainer deadline damages trust far more than a missed one-off job.</p><div class='vault-action'><b>Module 5 deliverable:</b> Your written scope template for retainer clients.</div>"
-}
-]
-},
-{
-"key": "gold-m6",
-"title": "From Freelancer To Studio",
-"lessons": [
-{
-"key": "gold-6_1",
-"n": "6.1",
-"title": "When To Bring In Help, And Who To Hire First",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>When you're consistently turning away work or working past capacity, it's time to bring in help. The first hire is usually someone to handle the repeatable, lower-skill parts of delivery (basic editing, client scheduling) — freeing you to focus on the creative direction and client relationships only you can do.</p><h4>Ria's Shortcut</h4><p>Hire for your weakest, most time-consuming task first, not the most exciting one. Relief, not glamour, is what actually grows a studio.</p><div class='vault-action'><b>Action step:</b> Name the one task in your workflow you'd hand off first, if you could.</div>"
-},
-{
-"key": "gold-6_2",
-"n": "6.2",
-"title": "Getting Direct Brand Clients Off Upwork",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Upwork is a great starting point, but the highest-margin clients come from reaching out directly — the same No-Connects Method from Module 3, but applied proactively to brands you admire, not just active job posts. Research a brand, build them a free custom sample using your Spark skills, and message the actual decision-maker.</p><h4>Ria's Shortcut</h4><p>Never wait in an application queue for the clients you actually want — always reach out directly. This is the exact rule I run my own outreach by, every single time.</p><div class='vault-action'><b>Action step:</b> Identify 3 brands you'd love as direct clients and start your research on each decision-maker.</div>"
-},
-{
-"key": "gold-6_3",
-"n": "6.3",
-"title": "Gold Capstone: Your 90-Day Roadmap To Target Income",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🎙 Voice (personal)</span><h4>The Idea</h4><p>My first Upwork job paid $50. Later ones paid $3,500. The gap between those two numbers wasn't talent — it was reviews, positioning, direct outreach, and retainers, stacked over time. There's no shortcut, but there is a clear order: profile live → 3 proof jobs → No-Connects outreach → first retainer → studio.</p><h4>Ria's Shortcut</h4><p>Revisit your Module 1 starter audit rating right now and compare it to today. That gap is proof this works — trust the process for the next 90 days the same way.</p><div class='vault-action'><b>✦ Gold Capstone:</b> Write your own 90-day roadmap — the specific milestones and target income by day 90 — using everything in this pillar.</div>"
-}
-]
-}
-]
-},
-{
-"key": "stage",
-"name": "THE STAGE",
-"sub": "Be so visible they can't ignore you.",
-"modules": [
-{
-"key": "stage-m1",
-"title": "Your Personal Brand Identity",
-"lessons": [
-{
-"key": "stage-1_1",
-"n": "1.1",
-"title": "Niche Definition & Your Brand Statement",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>\"AI creative who does everything\" is forgettable. \"AI creative who builds CGI ads for skincare brands\" is memorable and referable. Narrow your niche to a category of one, at least to start — you can always widen later once you're known.</p><p>Build your brand statement with this formula: \"I help [who] achieve [what] through [how].\" e.g. \"I help e-commerce founders cut ad production costs by 80% through AI product films.\" This one sentence becomes your bio, your pitch opener, everything.</p><h4>Ria's Shortcut</h4><p>Say your brand statement out loud to a stranger. If they immediately understand what you do, it works. If they need it explained twice, simplify further.</p><div class='vault-action'><b>Action step:</b> Write your own brand statement using the formula.</div>"
-},
-{
-"key": "stage-1_2",
-"n": "1.2",
-"title": "Visual Identity & The Proof Bar",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Apply the exact same brand-building skills from The House to yourself — a personal colour palette, a consistent photo style, a simple wordmark or monogram for your own name. Generate a set of on-brand personal portraits using Avatar Studio so every platform shows the same polished, consistent \"you.\"</p><p>Before you have testimonials, build a \"proof bar\" — a simple visual row of what you CAN show: course capstone pieces, sample work, skills badges. Social proof doesn't require paying clients yet, just visible evidence of capability.</p><h4>Ria's Shortcut</h4><p>Use your Spark/House capstone pieces as your proof bar on day one — you already have real, impressive work, don't wait for client testimonials to look credible.</p><div class='vault-action'><b>Action step:</b> Generate 3 on-brand personal portraits and build your proof bar using capstone work.</div>"
-}
-]
-},
-{
-"key": "stage-m2",
-"title": "The Content System",
-"lessons": [
-{
-"key": "stage-2_1",
-"n": "2.1",
-"title": "The 3 Content Pillars & 5 Hook Formulas",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Post across 3 pillars so your content never feels repetitive: <b>Cinematic</b> (polished showcase work — your best Spark/House pieces), <b>Atelier</b> (behind-the-scenes, teaching, this-is-how-I-did-it), <b>Workshop</b> (quick tips, prompt breakdowns, fast value).</p><p>5 hook formulas that stop the scroll: the bold claim (\"I made this for $0\"), the question (\"why does nobody talk about...\"), the before/after, the mistake confession (\"I wasted $200 before I learned this\"), and the curiosity gap (\"the one prompt trick nobody tells you\").</p><h4>Ria's Shortcut</h4><p>Rotate all 3 pillars across a week rather than posting the same type every day — variety keeps both the algorithm and your actual audience engaged.</p><div class='vault-action'><b>Action step:</b> Write 5 hook lines, one per formula, for your own content.</div>"
-},
-{
-"key": "stage-2_2",
-"n": "2.2",
-"title": "Captions, Calendar & Batch-Shooting",
-"dur": "12 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>A converting caption expands on the hook, delivers one clear piece of value, and ends with a specific call to action (\"comment PROMPT and I'll send it\") — not a vague \"thoughts?\". Plan a simple 30-day calendar across your 3 pillars so you're never staring at a blank page deciding what to post.</p><p>Batch-produce a week or month of content in one sitting using Fuse Studio — generate 10+ images/clips back to back while you're already in the creative headspace, rather than starting cold every single day.</p><h4>Ria's Shortcut</h4><p>Batch-shoot on your most energetic day of the week, and schedule posting for the rest — separating creation from daily posting removes the biggest reason people quit content: daily decision fatigue.</p><div class='vault-action'><b>Module 2 deliverable:</b> A 30-day content calendar outline plus one batch of 5 pre-made posts.</div>"
-}
-]
-},
-{
-"key": "stage-m3",
-"title": "Instagram Mastery",
-"lessons": [
-{
-"key": "stage-3_1",
-"n": "3.1",
-"title": "Profile Optimisation & Reels Strategy",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Your Instagram bio needs your brand statement (from 1.1), a clear CTA (DM/link), and a link-in-bio pointing to your portfolio or booking. Your grid's first 9 posts should include your strongest capstone pieces — this is your storefront.</p><p>Reels reward raw, fast-cut, hook-first content over polished slow intros — post your Workshop-pillar content here most often since it performs best in this raw format.</p><h4>Ria's Shortcut</h4><p>Update your bio link every time you have a new best portfolio piece — most people set it once and forget it for months.</p><div class='vault-action'><b>Action step:</b> Rewrite your Instagram bio using your brand statement and reorder your grid's top row.</div>"
-},
-{
-"key": "stage-3_2",
-"n": "3.2",
-"title": "Carousels & Story-Selling",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Carousels that teach (\"5 prompt mistakes killing your AI images\") get saved and shared far more than single images — saves are the highest-value engagement signal to the algorithm. Story-selling means showing your process in real time (polls, behind-the-scenes, \"which one should I use?\") rather than a hard \"buy now\" post — it sells without feeling salesy because people are drawn into the process, not pitched at.</p><h4>Ria's Shortcut</h4><p>Post one teaching carousel per week minimum — it's consistently the highest-performing, highest-save format across this whole niche.</p><div class='vault-action'><b>Action step:</b> Publish one teaching carousel and one story-selling sequence this week.</div>"
-}
-]
-},
-{
-"key": "stage-m4",
-"title": "TikTok & YouTube For AI Creatives",
-"lessons": [
-{
-"key": "stage-4_1",
-"n": "4.1",
-"title": "Platform Differences & Repurposing Without Lazy Reposts",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>TikTok rewards raw, native-feeling content and rewatches more than Instagram's follower-graph-driven feed — different algorithm, different winning style. Don't just repost your Instagram Reel unchanged; re-cut the hook, re-time the pacing, and drop any Instagram-specific branding so it feels native to TikTok, not obviously recycled.</p><h4>Ria's Shortcut</h4><p>Re-cut just the first 2 seconds differently per platform — that alone is often enough to make a repurposed clip feel native instead of lazy.</p><div class='vault-action'><b>Action step:</b> Take one existing Reel and re-cut its opening 2 seconds for TikTok.</div>"
-},
-{
-"key": "stage-4_2",
-"n": "4.2",
-"title": "Shorts vs. Long-Form: Your YouTube Pillar Content",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Start with YouTube Shorts — same format as your Reels/TikToks, low extra effort, builds channel presence. Long-form YouTube (5–15 min) is your authority builder for later — deeper tutorials, full project breakdowns — once you have a content rhythm established elsewhere.</p><h4>Ria's Shortcut</h4><p>Don't attempt long-form YouTube until Shorts are already running consistently — long-form without an existing audience rarely gets discovered.</p><div class='vault-action'><b>Action step:</b> Post your first YouTube Short (repurposed from existing content) this week.</div>"
-}
-]
-},
-{
-"key": "stage-m5",
-"title": "LinkedIn For International Clients",
-"lessons": [
-{
-"key": "stage-5_1",
-"n": "5.1",
-"title": "LinkedIn Positioning & Content That Attracts Brands",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>LinkedIn is a different buyer entirely — professional tone, B2B decision-makers, not casual scrollers. Position yourself explicitly as an \"AI Creative Director\" or similar in your headline, not just \"designer.\" Post case-study style content — a before/after, a process breakdown, a result — rather than personal lifestyle content.</p><h4>Ria's Shortcut</h4><p>One strong case-study post per week on LinkedIn outperforms daily posting elsewhere — quality and specificity matter more than frequency here.</p><div class='vault-action'><b>Action step:</b> Rewrite your LinkedIn headline and publish one case-study style post.</div>"
-},
-{
-"key": "stage-5_2",
-"n": "5.2",
-"title": "Cold Outreach Via LinkedIn DMs That Don't Feel Spammy",
-"dur": "8 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>This connects directly to the No-Connects Method from The Gold — LinkedIn is often where you'll actually message the decision-maker you researched. A good cold DM references something specific and real about their business, includes your free custom sample or a direct link to relevant work, and asks one small, easy-to-answer question — not a wall of text pitching your whole service menu.</p><h4>Ria's Shortcut</h4><p>Keep your first DM under 4 sentences. If they're interested, the conversation naturally continues — a long first message reads as desperate and gets ignored.</p><div class='vault-action'><b>Module 5 deliverable:</b> One real, sent LinkedIn cold outreach message using this structure.</div>"
-}
-]
-},
-{
-"key": "stage-m6",
-"title": "The Audience Engine",
-"lessons": [
-{
-"key": "stage-6_1",
-"n": "6.1",
-"title": "Why Followers ≠ Audience: Lead Magnets & Zero-Budget Email Lists",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Social followers are a rented audience — the platform controls whether they ever see your post again. An email list is an owned audience nobody can take from you. A lead magnet is what you give away to earn that email: a free prompt pack, a mini-guide, a template — something genuinely useful and quick to consume.</p><p>Build your list with zero budget by promoting the lead magnet directly in your bio link and inside your best-performing posts — no ads required to start.</p><h4>Ria's Shortcut</h4><p>Your lead magnet should be a tiny, easy win — not an overwhelming full course. A 1-page prompt cheat-sheet converts better than a 40-page guide nobody opens.</p><div class='vault-action'><b>Action step:</b> Create one simple lead magnet and add it to your bio link.</div>"
-},
-{
-"key": "stage-6_2",
-"n": "6.2",
-"title": "Stage Capstone: The 3-Email Welcome Sequence & What To Track",
-"dur": "10 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Once someone joins your list, a 3-email welcome sequence turns a cold subscriber into a warm one: email 1 delivers the lead magnet + your story, email 2 shares a quick win/case study, email 3 makes a soft offer (your service menu or retainer). Track only what matters — email open rate, DM response rate, and proposal-to-hire rate. Ignore vanity metrics like follower count; they don't pay your bills.</p><h4>Ria's Shortcut</h4><p>Write all 3 emails once, set them to send automatically, and never touch them again unless your offer changes — this is the definition of working while you sleep.</p><div class='vault-action'><b>✦ Stage Capstone:</b> Your optimised profiles across at least 2 platforms, live and posting, plus your written 3-email welcome sequence. This closes Fuse Atelier — you now have the skill (Spark), the packaging (House), the income system (Gold) and the visibility (Stage) all working together.</div>"
-}
-]
-}
-]
-}
-]
-};
+
+{ "key": "orient", "name": "Orientation", "sub": "Start here — 20 minutes, then you create", "tier": "starter", "modules": [
+{ "key": "orient-m1", "title": "Start Here", "lessons": [
+{ "key": "orient-0_1", "n": "0.1", "title": "Welcome — What You Just Unlocked", "dur": "2 min", "aspect": "16:9",
+"notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Fuse Atelier is three things in one: the course (6 skill families), the studio (where you create), and the Money Engine (how you get paid). Your tier unlocks your families — and every tier includes the Money Engine.</p><div class='vault-action'><b>Action step:</b> Open the Create tab and look around for 2 minutes. Next: the one rule that makes this course work.</div>" },
+{ "key": "orient-0_2", "n": "0.2", "title": "The Rule: One Skill → Money → Stack The Next", "dur": "1 min", "aspect": "16:9",
+"notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>People fail courses by learning everything and selling nothing. Here you learn ONE skill (2–3 short lessons), monetize it the same week with the Money Engine, then stack the next skill. Momentum beats knowledge.</p><div class='vault-action'><b>Action step:</b> Say your commitment out loud: one skill, one week, one client. Next: your quick self-audit.</div>" },
+{ "key": "orient-0_3", "n": "0.3", "title": "Your Starter Audit", "dur": "2 min", "aspect": "16:9",
+"notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Rate yourself 1–5 on: AI tools, design eye, selling confidence, and consistency. No wrong answers — this tells you which lessons to slow down on. You'll re-rate at day 30 and shock yourself.</p><div class='vault-action'><b>Action step:</b> Write your 4 ratings somewhere you'll find them again. Next: meet the studio.</div>" },
+{ "key": "orient-0_4", "n": "0.4", "title": "Meet Your Studio (Make Your First Image Now)", "dur": "4 min", "aspect": "16:9",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>A 3-minute tour of Fuse Studio — Image, Video, Avatar, Reactor — ending with YOU generating your first image. The tool is included in your tier; your credits are already loaded.</p><div class='vault-action'><b>Action step:</b> Generate one image of anything. Post it in the community. You're officially a creator. Next: pick your first money skill.</div>" },
+{ "key": "orient-0_5", "n": "0.5", "title": "Pick Your First Skill (60-Second Quiz)", "dur": "3 min", "aspect": "16:9",
+"notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Fastest money for most people: flyers (every business needs them). Have product-seller friends? Start with product photography. Love video? AI UGC. Pick with your gut — you'll stack the others later anyway.</p><div class='vault-action'><b>Action step:</b> Open your chosen family and start lesson 1 TODAY, not tomorrow. The WhatsApp coach will hold you to it.</div>" }
+]}
+]},
+
+{ "key": "design", "name": "DESIGN & FLYERS", "sub": "The fastest money — every business buys these", "tier": "starter", "modules": [
+{ "key": "design-m1", "title": "Skill 1 · Social Media & Event Flyers", "lessons": [
+{ "key": "spark-1_1", "n": "1.1", "title": "Learn It: Your Design Toolkit — Which Model For Which Job", "dur": "2 min", "aspect": "16:9",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>One studio, many engines: fast models for drafts, premium models for the final client render. Concept cheap, finish expensive — that's how pros protect their credits and their margins.</p><div class='vault-action'><b>Action step:</b> Generate the same flyer concept on two models and compare. Next: the prompt formula that makes designs look professional.</div>" },
+{ "key": "spark-1_2", "n": "1.2", "title": "Build It: The 6-Part Prompt Formula", "dur": "7 min", "aspect": "16:9",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Subject + Material + Lighting + Camera + Atmosphere + Quality. Stack all six in one flowing sentence and you get professional output on the first try. Example: 'Bold party flyer design for a Lagos beach party, vibrant sunset colours, clean modern typography space, energetic premium look, ultra-detailed, 4:5.'</p><div class='vault-action'><b>Action step:</b> Write one full 6-part prompt for an event flyer and generate it. Next: turning designs into deliverables clients pay for.</div>" },
+{ "key": "design-1_3", "n": "1.3", "title": "Sell It: Flyer Packages Clients Pay ₦3k–15k For", "dur": "6 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Sell packages, not one-offs: single flyer ₦3,000–5,000 · flyer + WhatsApp status version ₦7,000 · monthly pack ₦15,000+. Deliver same-day — speed is your unfair advantage over designers who take a week.</p><div class='vault-action'><b>Action step:</b> Make 3 portfolio flyers (party, business promo, product sale) — these are your proof pieces. Then open the Money Engine and run Day 1.</div>" }
+]},
+{ "key": "design-m2", "title": "Skill 2 · Ad Flyers & Promo Graphics", "lessons": [
+{ "key": "design-2_1", "n": "2.1", "title": "Learn It: Ads That Sell vs Designs That Decorate", "dur": "5 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>An ad flyer has one job: make the viewer act. Hook (big claim), offer (the deal), action (call/DM now) — everything else is decoration. Businesses pay for the structure, not the prettiness.</p><div class='vault-action'><b>Action step:</b> Screenshot 3 ads you've seen on WhatsApp status and identify hook/offer/action in each. Next: building them in the studio.</div>" },
+{ "key": "design-2_2", "n": "2.2", "title": "Build It: Sales Banners, Price Lists & Status Ads", "dur": "8 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Build the 3 formats every Nigerian business asks for: the sales banner, the price-list design, and the WhatsApp status ad (9:16). Same 6-part formula, plus clean text space for their offer.</p><div class='vault-action'><b>Action step:</b> Make one of each format for an imaginary shop. Next: pricing and selling them as a bundle.</div>" },
+{ "key": "design-2_3", "n": "2.3", "title": "Sell It: The Promo Pack Retainer", "dur": "5 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Businesses run promos weekly — sell a monthly promo pack (4 designs, ₦10,000–20,000) instead of hunting new clients every week. One yes = recurring income.</p><div class='vault-action'><b>Action step:</b> Write your promo-pack offer in one WhatsApp message. Save it — the Money Engine playbooks will tell you exactly who to send it to.</div>" }
+]},
+{ "key": "design-m3", "title": "Skill 3 · Carousels & Content Packs", "lessons": [
+{ "key": "design-3_1", "n": "3.1", "title": "Learn It: Why Brands Pay Monthly For Content", "dur": "5 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Every serious brand needs 12–30 posts a month and hates making them. Carousels, quote cards and tip posts are the easiest recurring design income that exists — and AI makes you faster than any agency.</p><div class='vault-action'><b>Action step:</b> Find 2 Instagram business pages posting inconsistently — they're your future clients. Next: batch-producing a month of content.</div>" },
+{ "key": "design-3_2", "n": "3.2", "title": "Build It: A Month of Content In One Afternoon", "dur": "8 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Lock one visual style (same colours, same layout family), then batch: 8 carousels + 8 quote cards + 8 promo posts. Fuse Reactor writes the captions; the studio renders the visuals; you assemble.</p><div class='vault-action'><b>Action step:</b> Produce a 6-post sample pack for one of the pages you found. That sample IS your pitch. Next: closing the retainer.</div>" },
+{ "key": "design-3_3", "n": "3.3", "title": "Sell It: Closing ₦15k–50k Monthly Retainers", "dur": "5 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Pitch with the sample attached: 'I made these 6 posts for your page already — want the full month?' Price: ₦15,000 (12 posts) to ₦50,000 (30 posts + captions). Retainers compound: 3 clients = steady salary.</p><div class='vault-action'><b>Action step:</b> Send the sample pack to both pages using the DM script from the Money Engine. Congratulations — you now have a pipeline.</div>" }
+]}
+]},
+
+{ "key": "brand", "name": "BRAND IDENTITY", "sub": "Premium packages — logos, kits and voice", "tier": "creator", "modules": [
+{ "key": "brand-m1", "title": "Skill 4 · Logo & Brand Kits", "lessons": [
+{ "key": "brand-1_1", "n": "4.1", "title": "Learn It: What A ₦50k Brand Kit Contains", "dur": "6 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Clients don't buy 'a logo' — they buy looking legit: logo + colours + fonts + brand board, packaged. Sell the kit, not the file. The packaging is why one designer charges ₦70k while another begs at ₦5k.</p><div class='vault-action'><b>Action step:</b> Collect 3 brand kits you admire (search 'brand board'). Next: generating logo directions in minutes.</div>" },
+{ "key": "brand-1_2", "n": "4.2", "title": "Build It: Logo Directions & The Full Kit", "dur": "9 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Generate 3 distinct logo directions (wordmark, icon, badge), refine the winner, extract the palette, pair two fonts, and assemble the brand board — all inside the studio in one sitting.</p><div class='vault-action'><b>Action step:</b> Build one complete kit for a fictional brand. Next: the presentation that makes it worth ₦50k.</div>" },
+{ "key": "brand-1_3", "n": "4.3", "title": "Sell It: Present Like An Agency, Charge Like One", "dur": "6 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Present 2 directions max, on mockups (signage, business card, IG grid), with one paragraph of strategy each. Price tiers: kit ₦25k · kit + stationery ₦45k · kit + stationery + content starter pack ₦70k.</p><div class='vault-action'><b>Action step:</b> Put your fictional kit on 3 mockups. That's portfolio piece #1 for the Brand family.</div>" }
+]},
+{ "key": "brand-m2", "title": "Skill 5 · Brand Stationery", "lessons": [
+{ "key": "brand-2_1", "n": "5.1", "title": "Learn & Build: Cards, Letterheads & Signatures", "dur": "8 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Stationery is the easiest upsell in design: business cards, letterheads, email signatures — generated from the brand kit's colours and fonts so everything matches. 30 minutes of work, ₦5k–20k added to every brand job.</p><div class='vault-action'><b>Action step:</b> Extend your fictional brand kit with a card + letterhead. Next: the words that complete a brand.</div>" },
+{ "key": "brand-2_2", "n": "5.2", "title": "Sell It: The Automatic Upsell Script", "dur": "4 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>After every logo/kit delivery: 'Want me to extend this to your cards, letterhead and email signature so everything matches? ₦X if we do it this week.' Asked at the moment of delight, this closes half the time.</p><div class='vault-action'><b>Action step:</b> Save the upsell script into your phone's quick replies. It will pay you for years.</div>" }
+]},
+{ "key": "brand-m3", "title": "Skill 6 · Brand Voice & Captions", "lessons": [
+{ "key": "brand-3_1", "n": "6.1", "title": "Learn & Build: Bios, Taglines & 30-Day Calendars", "dur": "8 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Fuse Reactor writes what the brand sounds like: bio, tagline, tone rules, and a 30-day content calendar. Words are the invisible half of branding — and almost nobody in your market sells them properly.</p><div class='vault-action'><b>Action step:</b> Generate a voice pack for your fictional brand. Next: bundling words + visuals into one premium offer.</div>" },
+{ "key": "brand-3_2", "n": "6.2", "title": "Sell It: The Complete Brand Package", "dur": "5 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Kit + stationery + voice + content starter = 'everything a new business needs to launch, in one week' — ₦70k–150k depending on the client. You are no longer a designer; you're a launch partner.</p><div class='vault-action'><b>Action step:</b> Write your complete-package offer as one page. New businesses register every day — the Money Engine shows you where they announce themselves.</div>" }
+]}
+]},
+
+{ "key": "product", "name": "PRODUCT & E-COMMERCE", "sub": "Sellers pay for photos that sell things", "tier": "creator", "modules": [
+{ "key": "product-m1", "title": "Skill 7 · AI Product Photography", "lessons": [
+{ "key": "spark-2_1", "n": "7.1", "title": "Learn It: What Clients Actually Pay For", "dur": "2 min", "aspect": "16:9",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Brands need shots for their website, IG grid, ads and packaging — studio photography costs hundreds of dollars per shot. You deliver the same from one phone photo, in minutes, and still charge well.</p><div class='vault-action'><b>Action step:</b> Take one plain reference photo of any product near you. Next: turning it into a studio shot.</div>" },
+{ "key": "spark-2_2", "n": "7.2", "title": "Build It: Surfaces, Environments & Brand Colours", "dur": "9 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Upload the reference photo, then prompt the world around it: marble counter with soft morning light, or a bold colour-matched backdrop. The product stays accurate because it's grounded in a real image. Match backdrops to the client's brand colour — consistency beats prettiness.</p><div class='vault-action'><b>Action step:</b> Generate 3 context variations of your product: luxury, bold brand-colour, outdoor lifestyle. Next: premium finishes and delivery.</div>" },
+{ "key": "spark-2_3", "n": "7.3", "title": "Sell It: Beauty & Luxury Renders + Client Delivery", "dur": "21 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>The premium tier: beauty/luxury lighting, water splashes, floating products — plus how to deliver: upscaled, in a named folder, with a one-line usage guide. Charge ₦2k–5k per finished shot, ₦10k–40k per campaign set.</p><div class='vault-action'><b>Action step:</b> Produce a 5-shot set for one product and package it like a delivery. That's your Product-family portfolio piece.</div>" }
+]},
+{ "key": "product-m2", "title": "Skill 8 · Product Ads & Campaign Shots", "lessons": [
+{ "key": "product-2_1", "n": "8.1", "title": "Learn & Build: Lifestyle Scenes & Seasonal Campaigns", "dur": "8 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>A product photo shows the thing; a campaign shot shows the life around it — the woman wearing the scarf at a rooftop dinner, the drink sweating on a beach table. Seasonal hooks (Detty December, Valentine's, back-to-school) sell campaign SETS, not singles.</p><div class='vault-action'><b>Action step:</b> Take your product from 7.3 and build 3 lifestyle scenes around one season. Next: pricing campaign work.</div>" },
+{ "key": "product-2_2", "n": "8.2", "title": "Sell It: Campaign Sets & The Seasonal Calendar", "dur": "5 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Pitch 6 weeks before each season: 'Your Valentine's campaign, done this week — 6 shots, ₦25k.' Sellers plan late; you show up early with samples. The seasonal calendar = 6 guaranteed pitch moments a year.</p><div class='vault-action'><b>Action step:</b> Mark the next 3 Nigerian retail seasons in your calendar with a pitch reminder 6 weeks out.</div>" }
+]},
+{ "key": "product-m3", "title": "Skill 9 · Packaging & Label Design", "lessons": [
+{ "key": "product-3_1", "n": "9.1", "title": "Learn & Build: Labels, Boxes & Pouch Mockups", "dur": "9 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Small brands going premium need packaging: label design, box/pouch mockups, shelf-ready looks. Generate the design, place it on realistic mockups, and hand them print-ready direction.</p><div class='vault-action'><b>Action step:</b> Design one label and show it on 2 mockups. Next: who buys this and at what price.</div>" },
+{ "key": "product-3_2", "n": "9.2", "title": "Sell It: The ₦20k–80k Packaging Package", "dur": "4 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Targets: skincare, food brands, supplements moving from nylon to premium. Price label-only ₦20k, full packaging suite ₦50k–80k. Pair with the Brand family for launch-partner money.</p><div class='vault-action'><b>Action step:</b> List 5 small product brands you know personally whose packaging undersells them. That's a pitch list.</div>" }
+]},
+{ "key": "product-m4", "title": "Skill 10 · CGI Ads", "lessons": [
+{ "key": "product-4_1", "n": "10.1", "title": "Learn It: Why 'Impossible' Ads Go Viral", "dur": "5 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>A giant perfume bottle landing in Lekki traffic stops thumbs. CGI ads are shareable BECAUSE they're impossible — brands pay for the attention, not the video. One viral CGI ad is a client magnet for you too.</p><div class='vault-action'><b>Action step:</b> Watch 3 CGI ads (search 'CGI ad' on TikTok) and note the pattern: real location + impossible product event. Next: making one.</div>" },
+{ "key": "product-4_2", "n": "10.2", "title": "Build & Sell It: Your First CGI Ad", "dur": "10 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Generate the real-location base shot, prompt the impossible event around the product, animate with a video model, add sound design. Deliver as 9:16. Charge ₦50k–200k — this is spectacle work, price it like spectacle.</p><div class='vault-action'><b>Action step:</b> Make one CGI ad for a brand you love, post it and tag them. This exact move has landed people retainers.</div>" }
+]}
+]},
+
+{ "key": "video", "name": "VIDEO & MOTION", "sub": "The dollar skills — UGC, avatars and ads", "tier": "creator", "modules": [
+{ "key": "video-m1", "title": "Skill 11 · AI UGC Ads", "lessons": [
+{ "key": "video-1_1", "n": "11.1", "title": "Learn It: Why Brands Pay $50–150 Per UGC Video", "dur": "5 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Brands burn money on ads; authentic-looking testimonial videos convert best; real creators are slow and expensive. AI UGC = you deliver the winning format at scale, without being on camera. This is the most in-demand dollar skill in this course.</p><div class='vault-action'><b>Action step:</b> Watch 3 UGC ads on any brand's IG. Note the structure: hook → problem → product → result. Next: building yours.</div>" },
+{ "key": "spark-5_4", "n": "11.2", "title": "Build It: Create Your First AI UGC Video (Full Tutorial)", "dur": "11 min",
+"notes": "<span class='vault-tag'>🎙 Talking head — full recorded walkthrough</span><h4>The Idea</h4><p>The complete start-to-finish build: script, AI presenter, generation and polish — one watch-along tutorial.</p><div class='vault-action'><b>Action step:</b> Build your own first UGC clip while you watch. Next: selling it in packs.</div>" },
+{ "key": "video-1_3", "n": "11.3", "title": "Sell It: Hook Variations & The 3-Pack Offer", "dur": "6 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Performance marketers A/B test hooks — so sell 3 hook variations of ONE ad, not 3 different ads. Offer: 3-pack $99–150 intro, $50+ per extra variation. Deliver in 48h and you'll be rehired monthly.</p><div class='vault-action'><b>Action step:</b> Produce 2 more hooks for your 11.2 video. You now have a sellable UGC 3-pack — the Money Engine's foreign-client playbook shows you who wants it.</div>" }
+]},
+{ "key": "video-m2", "title": "Skill 12 · Clone Yourself — Hyper-Real Avatar Videos", "lessons": [
+{ "key": "spark-3_4", "n": "12.1", "title": "Learn It: Your Consistent AI Face", "dur": "12 min",
+"notes": "<span class='vault-tag'>🎙 Talking head — full recorded walkthrough</span><h4>The Idea</h4><p>Build your consistent AI face in Avatar Studio — the model-sheet method that keeps your face locked across every future generation. This is the foundation the hyper-real clone builds on.</p><div class='vault-action'><b>Action step:</b> Build your model sheet while you watch. Next: the realism jump.</div>" },
+{ "key": "video-2_2", "n": "12.2", "title": "Build It: The One-Video Clone (So Real It's Scary)", "dur": "10 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Upload one recorded video of yourself → generate new videos of YOU in any scene, saying anything, at realism people can't detect. Use it for your own content (no more recording), and sell it as a premium service to personal brands.</p><div class='vault-action'><b>Action step:</b> Record one clean 60-second video of yourself talking to camera (good light, clear audio). That's your clone source. Next: monetizing it.</div>" },
+{ "key": "video-2_3", "n": "12.3", "title": "Sell It: Content Systems For Faceless CEOs", "dur": "6 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Busy founders and creators want daily video presence without recording daily. Sell 'your month of talking videos from one recording' — $100–500/month per client. Two clients = real salary.</p><div class='vault-action'><b>Action step:</b> List 3 personal brands you follow who post inconsistently. They are the pitch list for this skill.</div>" }
+]},
+{ "key": "video-m3", "title": "Skill 13 · Advert Videos", "lessons": [
+{ "key": "video-3_1", "n": "13.1", "title": "Learn & Build: Script → Scenes → Cut", "dur": "9 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>A full short-form ad: Reactor writes the 20-second script, you generate each 5–8s scene, then stitch with cuts and music in CapCut. Short clips generate more reliably than long takes — always build in pieces.</p><div class='vault-action'><b>Action step:</b> Make one 20-second ad for any local business, start to finish. Next: pricing video work.</div>" },
+{ "key": "video-3_2", "n": "13.2", "title": "Sell It: ₦30k–150k Per Ad", "dur": "5 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Local businesses pay ₦30k–80k per finished ad; foreign clients $100–300. Sell in campaign bundles (3 ads, 3 formats) and include one revision round — scope creep is the killer, the contract templates protect you.</p><div class='vault-action'><b>Action step:</b> Send your 13.1 ad to that business with the walk-in/DM script. Real pitch, real practice.</div>" }
+]},
+{ "key": "video-m4", "title": "Skill 14 · Cinematic Brand Films", "lessons": [
+{ "key": "video-4_1", "n": "14.1", "title": "Learn & Build: Direct Like A DP", "dur": "10 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Premium storytelling: camera language (lens, movement, light), scene continuity, and a 45–60s brand film structure — arrival, world, product, feeling. This is agency-tier work from your phone.</p><div class='vault-action'><b>Action step:</b> Storyboard 6 shots for a brand you love, generate 3 of them. Next: who pays ₦100k+ for this.</div>" },
+{ "key": "video-4_2", "n": "14.2", "title": "Sell It: The ₦100k+ Brand Film Pitch", "dur": "5 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Targets: hotels, real estate, restaurants, fashion labels — businesses that sell a feeling. Pitch with a 15-second spec teaser of THEIR brand. Price: ₦100k–400k. One film a month changes your life.</p><div class='vault-action'><b>Action step:</b> Make one 15-second spec teaser for a local premium business. That teaser is your Empire-level calling card.</div>" }
+]}
+]},
+
+{ "key": "web", "name": "WEB & FUNNELS", "sub": "Premium builds — pages, emails and wow-sites", "tier": "empire", "modules": [
+{ "key": "web-m1", "title": "Skill 15 · Landing Pages", "lessons": [
+{ "key": "web-1_1", "n": "15.1", "title": "Learn & Build: The One-Day Business Page", "dur": "10 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>The DemoForge method: hero, services, proof, contact — built and deployed in a day with AI doing the heavy lifting. The secret to selling them: build the demo BEFORE the pitch and send the live link.</p><div class='vault-action'><b>Action step:</b> Build one demo page for a real local business. Next: the pitch that converts demos into deposits.</div>" },
+{ "key": "web-1_2", "n": "15.2", "title": "Sell It: ₦50k–250k Per Site", "dur": "6 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>'I already built your new site — want it?' beats every cold pitch ever written. Price: one-pager ₦50k–100k, multi-section ₦150k–250k, hosting/care ₦5k–10k monthly (recurring!).</p><div class='vault-action'><b>Action step:</b> Send your demo to the business with the pitch script. This exact method has landed real contracts.</div>" }
+]},
+{ "key": "web-m2", "title": "Skill 16 · Email Design & Sequences", "lessons": [
+{ "key": "web-2_1", "n": "16.1", "title": "Learn & Build: Welcome & Sales Sequences", "dur": "9 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Businesses with audiences need emails: the 5-email welcome sequence and the sales sequence. Reactor drafts, you polish with brand voice, design clean layouts. Monthly retainer work by nature.</p><div class='vault-action'><b>Action step:</b> Write a 3-email welcome sequence for your fictional brand. Next: packaging email as a service.</div>" },
+{ "key": "web-2_2", "n": "16.2", "title": "Sell It: ₦20k–80k Monthly Email Retainers", "dur": "5 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Target: anyone selling online with a customer list they ignore. Offer: 4 emails/month ₦20k, 8 + design ₦50k–80k. Emails print money for clients, so renewals are automatic.</p><div class='vault-action'><b>Action step:</b> Add email as a line item to your complete-brand package. Bundles close bigger.</div>" }
+]},
+{ "key": "web-m3", "title": "Skill 17 · Interactive 'Wow' Pages", "lessons": [
+{ "key": "web-3_1", "n": "17.1", "title": "Learn & Build: Scroll Magic & Cursor Effects", "dur": "11 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Image-reveal heroes, scroll-triggered video, mouse-scrub galleries — the effects that make a page feel expensive. You build them with AI from proven module specs; the Fuse Atelier sales page itself is your reference build.</p><div class='vault-action'><b>Action step:</b> Rebuild the image-reveal hero for your own portfolio page. Next: charging premium for premium.</div>" },
+{ "key": "web-3_2", "n": "17.2", "title": "Sell It: The ₦150k+ Signature Site", "dur": "5 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Interactive sites are for clients who sell status: premium brands, creators, event companies. Minimum ₦150k. Show, don't tell — your own wow-page portfolio does the selling.</p><div class='vault-action'><b>Action step:</b> Ship your own interactive portfolio page. It's simultaneously your proof, your pitch, and your product.</div>" }
+]}
+]},
+
+{ "key": "money", "name": "THE MONEY ENGINE", "sub": "In every tier — the road from skill to salary", "tier": "starter", "modules": [
+{ "key": "money-m1", "title": "Skill 18 · The First-Client System (7 Days)", "lessons": [
+{ "key": "money-1_1", "n": "18.1", "title": "The 7-Day Plan, Day By Day", "dur": "8 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Day 1 set up shop + pick skill · Day 2 build 3 proof pieces · Day 3 first 10 outreach messages · Days 4–5 follow up + keep sending · Day 6 close & deliver · Day 7 raise price + repeat. The WhatsApp coach walks you through each day and confirms every action.</p><div class='vault-action'><b>Action step:</b> Message the coach bot 'DAY 1' to activate your plan. From here, the system carries you.</div>" },
+{ "key": "money-1_2", "n": "18.2", "title": "Your Proof Pieces & Simple Portfolio", "dur": "6 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Nobody hires without proof — so manufacture it: 3 pieces in your skill for imaginary (or real local) businesses, arranged in a clean WhatsApp catalog + one Google Drive folder. That's a portfolio. Done beats perfect.</p><div class='vault-action'><b>Action step:</b> Assemble your 3 pieces into your catalog today. The coach will ask to see it.</div>" }
+]},
+{ "key": "money-m2", "title": "Skill 19 · Client Playbooks (Every Channel That Works)", "lessons": [
+{ "key": "money-2_1", "n": "19.1", "title": "WhatsApp, Facebook & Walk-Ins (Fastest Naira)", "dur": "9 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>WhatsApp: status posts + business catalog + direct pitches to contacts who run businesses. Facebook: Nigerian business-owner groups (value first, pitch second). Walk-ins: redesign THEIR flyer/signage before you enter, show it on your phone, first job ₦2k–3k same-day. These three convert in 1–5 days.</p><div class='vault-action'><b>Action step:</b> Post your first before/after on status + join 2 business groups + pick one shop for a walk-in tomorrow.</div>" },
+{ "key": "money-2_2", "n": "19.2", "title": "Instagram & TikTok (The Inbound Engine)", "dur": "8 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>IG: 10–15 personalized DMs daily WITH a pre-made sample for that exact business — the sample collapses the trust barrier. TikTok: one transformation post daily ('I made this ad with AI in 4 minutes') seeds inbound clients within weeks.</p><div class='vault-action'><b>Action step:</b> Send your first 10 sample-attached DMs using the vault scripts. Reply DONE to the coach when sent.</div>" },
+{ "key": "money-2_3", "n": "19.3", "title": "Foreign & Diaspora Clients (The Dollar Playbook)", "dur": "9 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Diaspora businesses (African restaurants, hair shops, event planners in the US/UK) pay in dollars and refer within tight networks. Find them on Google Maps + IG, make a free redesign of their flyer/menu/product photo, email or DM it attached with a 2-line pitch. Personalized samples lift replies 2–3x.</p><div class='vault-action'><b>Action step:</b> Find 5 diaspora businesses and make one free sample for the best one. Send it tonight.</div>" }
+]},
+{ "key": "money-m3", "title": "Skill 20 · Upwork, Taught From 12 Real Wins", "lessons": [
+{ "key": "money-3_1", "n": "20.1", "title": "The Profile & Gigs That Landed 12 Jobs", "dur": "9 min",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>A teardown of the exact Upwork profile that earned $3,000+: the headline, the portfolio pieces, the niche positioning. Honest framing: Upwork is a weeks-2–4 channel, not a day-1 channel — build it while your local pipeline pays the bills.</p><div class='vault-action'><b>Action step:</b> Set up your profile copying the structure (not the words). Next: the proposals that won.</div>" },
+{ "key": "gold-3_5", "n": "20.2", "title": "Pitch And Land Your First Client (Full Walkthrough)", "dur": "15 min",
+"notes": "<span class='vault-tag'>🎙 Talking head — full recorded walkthrough</span><h4>The Idea</h4><p>The complete recorded walkthrough of pitching and landing a real client — the proposal structure, the free-sample hook, the close.</p><div class='vault-action'><b>Action step:</b> Send one real proposal using the approach shown, then post your experience in the community.</div>" },
+{ "key": "money-3_3", "n": "20.3", "title": "Get Paid & Scale: Dollars, Pricing, Retainers", "dur": "8 min",
+"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Receiving dollars in Nigeria: Grey or Raenest for direct clients (free USD accounts, ~1% fees), Payoneer for marketplaces. Pricing ladders in ₦ and $. The retainer conversation that turns one job into monthly income. Nobody else teaches this part — it's why our students actually keep their money.</p><div class='vault-action'><b>Action step:</b> Open your Grey/Raenest account today (it's free) so a dollar client can never catch you unready.</div>" }
+]}
+]}
+
+]};

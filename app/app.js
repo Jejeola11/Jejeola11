@@ -618,11 +618,22 @@ let coursePillar = COURSE[0] ? COURSE[0].key : 'orient';
 // Courses are purchase-only now — a Pro/Agency image-credits plan does NOT
 // grant course access on its own. Only admin (for testing) or an explicit
 // module_unlocks row (real payment) unlocks a course.
-function courseHasFull() { return userIsAdmin || courseUnlocks.has('atelier-full'); }
+function courseHasFull() { return userIsAdmin || courseUnlocks.has('atelier-full') || courseUnlocks.has('atelier-empire'); }
+// Tier rank owned by this user: 0 none · 1 Starter · 2 Creator · 3 Empire.
+// Legacy 'atelier-full' buyers (old ₦60k course) count as Empire.
+function atelierTier() {
+  if (userIsAdmin || courseUnlocks.has('atelier-empire') || courseUnlocks.has('atelier-full')) return 3;
+  if (courseUnlocks.has('atelier-creator')) return 2;
+  if (courseUnlocks.has('atelier-starter')) return 1;
+  return 0;
+}
+const TIER_RANK = { starter: 1, creator: 2, empire: 3 };
 function moduleUnlocked(mKey, pillarKey) {
   if (pillarKey === 'orient') return true;       // orientation is free
-  if (courseHasFull()) return true;
-  return courseUnlocks.has(mKey);
+  const pillar = COURSE.find((p) => p.key === pillarKey);
+  const need = TIER_RANK[(pillar && pillar.tier) || 'starter'];
+  if (atelierTier() >= need) return true;
+  return courseUnlocks.has(mKey);                // legacy per-module unlocks still honoured
 }
 function ytId(u) { const m = u.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{6,})/); return m ? m[1] : ''; }
 function lessonEmbed(url) {
@@ -643,10 +654,16 @@ async function openCourse() {
     try { const { data: u } = await sb.from('module_unlocks').select('module_key').eq('user_id', user.id); courseUnlocks = new Set((u || []).map((r) => r.module_key)); } catch (e) {}
     try { const { data: p } = await sb.from('course_progress').select('lesson_key').eq('user_id', user.id); courseProgress = new Set((p || []).map((r) => r.lesson_key)); } catch (e) {}
   }
-  $('courseLockMsg').innerHTML = courseHasFull()
-    ? '<div class="course-badge ok">✓ Full access unlocked</div>'
-    : '<div class="course-badge">🔒 Unlock modules with credits, or get the full course for ₦60,000 <button class="btn gold sm" id="courseBuy" style="margin-left:8px">Get full access</button></div>';
-  const cb = $('courseBuy'); if (cb) cb.onclick = () => buy('course');
+  // Tier-aware banner: show what they own and the next tier up (money-only upgrade).
+  const tier = atelierTier();
+  const TIER_LABEL = ['', 'Starter', 'Creator', 'Empire'];
+  const NEXT = { 0: ['atelier_starter', 'Start with Starter — ₦10,000'], 1: ['atelier_creator', 'Upgrade to Creator — ₦25,000'], 2: ['atelier_empire', 'Upgrade to Empire — ₦70,000'] };
+  $('courseLockMsg').innerHTML = tier >= 3
+    ? '<div class="course-badge ok">✓ Empire — full access unlocked</div>'
+    : (tier > 0
+      ? `<div class="course-badge ok">✓ ${TIER_LABEL[tier]} tier active <button class="btn gold sm" id="courseBuy" style="margin-left:8px">${NEXT[tier][1]}</button></div>`
+      : `<div class="course-badge">🔒 Enroll to unlock your skills <button class="btn gold sm" id="courseBuy" style="margin-left:8px">${NEXT[0][1]}</button></div>`);
+  const cb = $('courseBuy'); if (cb) cb.onclick = () => buy(NEXT[Math.min(tier, 2)][0]);
   // pillar tabs
   $('pillarTabs').innerHTML = COURSE.map((p) => `<button class="ptab${p.key === coursePillar ? ' active' : ''}" data-p="${p.key}">${p.name}</button>`).join('');
   $('pillarTabs').querySelectorAll('.ptab').forEach((b) => b.onclick = () => { coursePillar = b.dataset.p; openCourse(); });
