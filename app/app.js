@@ -146,7 +146,7 @@ window.fuseLightbox = (url, type) => {
   document.getElementById('lbContent').innerHTML = (type === 'video')
     ? `<video src="${url}" controls autoplay loop playsinline style="max-width:92vw;max-height:74vh;border-radius:14px"></video>`
     : `<img src="${url}" style="max-width:92vw;max-height:74vh;border-radius:14px">`;
-  document.getElementById('lightbox').style.display = 'grid';
+  document.getElementById('lightbox').style.display = 'flex';
 };
 
 // Poll an async render job until it completes. mediaType 'image' or 'video'.
@@ -1599,7 +1599,7 @@ window.fuseProject = (i) => {
         <button class="btn ghost sm" onclick="window.fuseReuse(${i})">↺ Use this prompt again</button></div>` : ''}
     </div>`;
   $('lbContent').innerHTML = media + frameTools + meta;
-  $('lightbox').style.display = 'grid';
+  $('lightbox').style.display = 'flex';
 };
 // Re-open the studio with this project's prompt prefilled.
 window.fuseReuse = (i) => {
@@ -1718,7 +1718,7 @@ async function requestPayout() {
 }
 
 // ---------------- buy / Paystack ----------------
-function openBuy() { renderPacks(); note('buyNote', ''); showPackList(); $('buyOverlay').style.display = 'grid'; }
+function openBuy() { renderPacks(); note('buyNote', ''); showPackList(); $('buyOverlay').style.display = 'flex'; }
 function showPackList() { $('payManual').style.display = 'none'; $('packList').style.display = ''; const t = $('curToggle'); if (t) t.style.display = ''; }
 // Launch promo — same window/multipliers as _packs.js. Purely a display
 // helper; the server always decides the real amount granted.
@@ -2881,7 +2881,7 @@ function maybePromo() {
     const pr = cfg.PROMO;
     $('promoTitle').textContent = pr.title; $('promoBody').textContent = pr.body;
     startCountdown('promoCountdown', pr.hours);
-    $('promoOverlay').style.display = 'grid';
+    $('promoOverlay').style.display = 'flex';
     sessionStorage.setItem('fuse_promo_seen', '1');
   }, 9000);
 }
@@ -2904,7 +2904,7 @@ const QUIZ = [
     ] },
 ];
 let quizStep = 0; const quizAns = [];
-function showQuiz() { quizStep = 0; renderQuiz(); $('quizOverlay').style.display = 'grid'; }
+function showQuiz() { quizStep = 0; renderQuiz(); $('quizOverlay').style.display = 'flex'; }
 function renderQuiz() {
   const q = QUIZ[quizStep];
   $('qTitle').textContent = q.title; $('qSub').textContent = q.sub;
@@ -3017,7 +3017,7 @@ async function runTool() {
 
 // ---------------- auth ----------------
 let authMode = 'signup';
-function showAuth(mode) { setAuthMode(mode || 'signup'); $('authOverlay').style.display = 'grid'; }
+function showAuth(mode) { setAuthMode(mode || 'signup'); $('authOverlay').style.display = 'flex'; }
 function hideAuth() { $('authOverlay').style.display = 'none'; }
 function setAuthMode(m) {
   authMode = m;
