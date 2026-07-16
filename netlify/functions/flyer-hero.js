@@ -2,12 +2,16 @@
 // POST /.netlify/functions/flyer-hero   (Flyer Studio — generate hero visual)
 // Body: { project_id, prompt, aspect }
 // Generates the background/hero visual ONLY (no text/logos — that's
-// composited afterward via flyer-composite.js). GPT Image 2 throughout:
-// when the project has reference images attached (product photos,
-// inspiration flyers — up to 20, set at flyer-brief.js time), uses the
-// image-to-image variant so those refs are REAL visual grounding on the
-// actual generation, not just something discussed in the abstract; with no
-// references, falls back to plain text-to-image.
+// composited afterward via flyer-composite.js). Uses nano-banana throughout
+// (switched from GPT Image 2 2026-07-16 — confirmed live that GPT Image 2's
+// MuAPI wrapper genuinely takes 50-90s of real inference time per generation
+// regardless of quality/resolution settings, ~5-7x slower than nano-banana's
+// ~13-19s for comparably photorealistic product/background work, at a lower
+// cost too). When the project has reference images attached (product
+// photos, inspiration flyers — up to 20, set at flyer-brief.js time), uses
+// the image-to-image (edit) variant so those refs are REAL visual grounding
+// on the actual generation, not just something discussed in the abstract;
+// with no references, falls back to plain text-to-image.
 // Async submit + poll via job-status.js, which saves the result onto the
 // project (flyer_projects.hero_image_url) when it completes.
 // ============================================================
@@ -16,9 +20,14 @@ const { IMAGE_MODELS, canUseFree } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
-const MODEL_T2I = 'gpt-image-2-text-to-image';
-const MODEL_I2I = 'gpt-image-2-image-to-image';
-const OPENAI_SIZE = { '1:1': '1024x1024', '9:16': '1024x1536', '4:5': '1024x1536', '3:4': '1024x1536', '16:9': '1536x1024' };
+const MODEL_T2I = 'nano-banana';
+const MODEL_I2I = 'nano-banana-edit';
+// nano-banana accepts a real aspect_ratio enum directly (confirmed live via
+// a validation-error probe: '1:1','3:4','4:3','9:16','16:9','3:2','2:3',
+// '5:4','4:5','21:9') — unlike GPT Image 2, which only has 3 fixed sizes and
+// needed a center-crop-after-generation workaround for everything else.
+// Every aspect this app offers is natively supported, so that's passed
+// straight through with no mapping/cropping needed.
 
 exports.handler = async (event) => {
   let db, user, cost = 0;
@@ -74,22 +83,13 @@ exports.handler = async (event) => {
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
-    // GPT Image 2 only understands `size` (one of 3 fixed dimensions) — it
-    // has no `aspect_ratio` field, so that never did anything useful and
-    // sending it anyway risked confusing MuAPI's request validation. The
-    // requested aspect that GPT Image 2 can't natively hit (4:5 has no
-    // matching size — it's approximated as the 2:3 portrait size) gets
-    // center-cropped to the exact ratio once the job completes, in
-    // job-status.js.
-    const payload = { prompt, size: OPENAI_SIZE[aspect] || OPENAI_SIZE['1:1'] };
+    const payload = { prompt, aspect_ratio: aspect };
     // Re-hosting on MuAPI's CDN happens concurrently inside this one function
     // call, and the whole submit only returns once every one of these
-    // resolves. More reference images also means a heavier, slower
-    // image-to-image call once it reaches the model itself — real generation
-    // was still taking minutes with 6 attached, so this is capped hard at 3:
-    // enough to genuinely ground the generation (product shot, one style
-    // reference, one layout reference) without turning every hero render
-    // into a multi-minute wait. Each hosting call also has its own timeout —
+    // resolves. Capped at 3 so a slow reference (or several) can't stack up
+    // into a long wait before the actual generation even starts — plenty to
+    // genuinely ground the generation (product shot, one style reference,
+    // one layout reference). Each hosting call also has its own timeout —
     // see muapiHostFile in _muapi.js — so one slow reference can't stall the
     // submission either way.
     if (refs.length) payload.images_list = await Promise.all(refs.slice(0, 3).map(muapiHostImage));

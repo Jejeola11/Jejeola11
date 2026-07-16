@@ -54,7 +54,7 @@ exports.handler = async (event) => {
 
   if (job.kind === 'video-transcribe') return handleTranscribeJob(db, user, job, id);
 
-  const isTextKind = job.kind === 'chat' || job.kind === 'flyer-brief' || job.kind === 'video-edit-brief';
+  const isTextKind = job.kind === 'chat' || job.kind === 'flyer-brief' || job.kind === 'video-edit-brief' || job.kind === 'flyer-suggest-layers';
   if (job.status === 'completed') {
     return isTextKind ? json(200, { status: 'completed', text: job.output_text }) : json(200, { status: 'completed', url: job.output_url });
   }
@@ -102,9 +102,11 @@ exports.handler = async (event) => {
       return json(200, { status: 'completed', url, kind: 'modelsheet' });
     }
     // Flyer Studio's hero/layer visuals are working images inside an
-    // in-progress project, not a finished gallery item — save onto the
-    // project instead of `generations`. flyer-layer also appends to the
-    // project's layer history so the UI can show what's been added so far.
+    // in-progress project, so they still get saved onto the project itself
+    // (flyer-layer also appends to the project's layer history) — but they
+    // ARE also real generations the user made and should be able to find
+    // again, so they go into `generations` too now (the Projects tab reads
+    // only from that table, and flyer visuals were invisible there before).
     if (job.kind === 'flyer-hero' || job.kind === 'flyer-layer') {
       if (job.project_id) {
         try {
@@ -119,6 +121,12 @@ exports.handler = async (event) => {
           await db.from('flyer_projects').update(update).eq('id', job.project_id);
         } catch (e) {}
       }
+      try {
+        await db.from('generations').insert({
+          user_id: user.id, type: 'image', model: job.model, prompt: job.prompt, aspect: job.aspect,
+          output_url: url, credits_spent: job.credits, cost_usd: r.cost_usd,
+        });
+      } catch (e) {}
       return json(200, { status: 'completed', url, kind: job.kind, project_id: job.project_id });
     }
     // AI Auto-Edit (Gemini Omni) result — same "current working video"

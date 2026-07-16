@@ -150,7 +150,7 @@ window.fuseLightbox = (url, type) => {
 };
 
 // Poll an async render job until it completes. mediaType 'image' or 'video'.
-function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video', maxSeconds = 360) {
+function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video', maxSeconds = 360, onComplete) {
   let s = 0;
   const timer = setInterval(async () => {
     s += 8;
@@ -175,6 +175,7 @@ function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video'
         note(noteId, 'Done ✅', 'ok');
         if (user) loadProfile();
         if (btn) { btn.disabled = false; btn.textContent = btnLabel; }
+        if (onComplete) onComplete(d.url);
       } else if (d.status === 'failed') {
         clearInterval(timer); clearPending();
         resultEl.innerHTML = '<div>⚠ ' + (d.error || 'Failed') + '</div>';
@@ -2261,6 +2262,23 @@ function extractTagList(text, tag) {
   if (!raw) return [];
   return raw.split('\n').map((l) => l.replace(/^[-*]\s*/, '').trim()).filter(Boolean);
 }
+// Parses the plain "KEY: value" lines inside <TYPOGRAPHY> (see
+// flyer-brief.js's prompt for the exact format asked of the model) into the
+// same field names the Typography panel's inputs use.
+function parseTypographyBlock(raw) {
+  if (!raw || !raw.trim()) return null;
+  const fields = {};
+  raw.split('\n').forEach((line) => {
+    const m = line.match(/^\s*(HEADLINE|ACCENT_WORD|SUBHEAD|BULLETS|BADGE|FOOTER)\s*:\s*(.*)$/i);
+    if (m) fields[m[1].toUpperCase()] = m[2].trim();
+  });
+  if (!fields.HEADLINE) return null;
+  return {
+    headline: fields.HEADLINE, accent_word: fields.ACCENT_WORD || '', subhead: fields.SUBHEAD || '',
+    bullets: fields.BULLETS ? fields.BULLETS.split('|').map((b) => b.trim()).filter(Boolean) : [],
+    badge: fields.BADGE || '', footer: fields.FOOTER || '',
+  };
+}
 function parseFlyerBriefResponse(text, fallbackReply) {
   if (!text || !/<REPLY>/i.test(text)) {
     return { reply: fallbackReply || 'Got a bit tangled there — try rephrasing or send it again.' };
@@ -2270,6 +2288,7 @@ function parseFlyerBriefResponse(text, fallbackReply) {
     brief: extractTag(text, 'BRIEF'),
     ready: /^\s*yes/i.test(extractTag(text, 'READY_TO_GENERATE')),
     image_prompt: extractTag(text, 'IMAGE_PROMPT'),
+    typography: parseTypographyBlock(extractTag(text, 'TYPOGRAPHY')),
     niche: extractTag(text, 'NICHE'),
     suggested_next_steps: extractTagList(text, 'NEXT_STEPS'),
   };
@@ -2471,6 +2490,20 @@ function flyerPollBrief(reqId, btn) {
           $('flyerVisualPanel').scrollIntoView({ behavior: 'smooth' });
           note('flyerHeroNote', '✅ Prompt ready below — review it, then tap Generate visual.', 'ok');
         }
+        // The assistant writes real on-flyer copy once a brief is approved —
+        // fills the Typography panel the same way the image prompt gets
+        // filled, so "Composite final flyer" isn't blocked on typing a
+        // headline from scratch that the chat already reasoned through.
+        if (parsed.ready && parsed.typography) {
+          const t = parsed.typography;
+          $('flyerHeadline').value = t.headline || '';
+          $('flyerAccentWord').value = t.accent_word || '';
+          $('flyerSubhead').value = t.subhead || '';
+          $('flyerBullets').value = (t.bullets || []).join('\n');
+          $('flyerBadge').value = t.badge || '';
+          $('flyerFooter').value = t.footer || '';
+          $('flyerTextPanel').style.display = 'block';
+        }
         btn.disabled = false; btn.textContent = 'Send';
       } else if (d.status === 'failed') {
         clearInterval(timer);
@@ -2500,7 +2533,10 @@ async function flyerGenHero(auto) {
     if (d.credits != null) $('creditCount').textContent = d.credits;
     if (d.project_id) { flyerProjectId = d.project_id; localStorage.setItem(FLYER_PROJECT_KEY, flyerProjectId); }
     note('flyerHeroNote', 'Rendering… ⏳', 'ok'); btn.textContent = 'Rendering…';
-    pollJob(d.request_id, $('flyerHeroResult'), 'flyerHeroNote', btn, label, 'image', 100);
+    // Auto-suggests layer ideas the moment the hero image is actually ready
+    // — grounded in the real generated image, not the text prompt — so
+    // "Add a layer" never opens on a blank box with nothing to react to.
+    pollJob(d.request_id, $('flyerHeroResult'), 'flyerHeroNote', btn, label, 'image', 100, () => flyerSuggestLayers());
     $('flyerLayerPanel').style.display = 'block';
     $('flyerTextPanel').style.display = 'block';
   } catch (e) { $('flyerHeroResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('flyerHeroNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
@@ -2532,6 +2568,44 @@ function renderFlyerLayerImgs() {
 }
 window.fuseFlyerRmLayerImg = (i) => { flyerLayerImgUrls.splice(i, 1); renderFlyerLayerImgs(); };
 
+async function flyerSuggestLayers() {
+  if (preview) { showAuth('signup'); return; }
+  if (!flyerProjectId) await restoreFlyerProject();
+  if (!flyerProjectId) return note('flyerLayerNote', 'Generate the hero visual first.', 'err');
+  const btn = $('flyerSuggestLayers'); btn.disabled = true; btn.textContent = 'Looking at your hero image…';
+  $('flyerLayerSuggestions').innerHTML = '';
+  try {
+    const res = await fetch('/.netlify/functions/flyer-suggest-layers', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ project_id: flyerProjectId }),
+    });
+    const d = await res.json();
+    if (res.status === 402) { note('flyerLayerNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = '💡 Suggest layers (looks at your hero image)'; return; }
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    if (d.credits != null) $('creditCount').textContent = d.credits;
+    let s = 0;
+    const timer = setInterval(async () => {
+      s += 3;
+      try {
+        const r = await fetch(`/.netlify/functions/job-status?id=${d.request_id}`, { headers: { ...(await authHeader()) } });
+        const jd = await r.json();
+        if (jd.status === 'completed') {
+          clearInterval(timer);
+          const ideas = (jd.text || '').split('\n').map((l) => l.replace(/^\s*-\s*/, '').trim()).filter(Boolean);
+          $('flyerLayerSuggestions').innerHTML = ideas.map((idea, i) =>
+            `<span class="chip" data-i="${i}">${idea.replace(/</g, '&lt;')}</span>`).join('');
+          $('flyerLayerSuggestions').querySelectorAll('.chip').forEach((el, i) => el.onclick = () => { $('flyerLayerInput').value = ideas[i]; $('flyerLayerInput').scrollIntoView({ behavior: 'smooth' }); });
+          btn.disabled = false; btn.textContent = '💡 Suggest layers (looks at your hero image)';
+        } else if (jd.status === 'failed') {
+          clearInterval(timer);
+          note('flyerLayerNote', (jd.error || 'Failed') + ' — credits refunded.', 'err');
+          btn.disabled = false; btn.textContent = '💡 Suggest layers (looks at your hero image)';
+        }
+      } catch (e) {}
+      if (s >= 60) { clearInterval(timer); note('flyerLayerNote', 'Still thinking — try again shortly.', 'err'); btn.disabled = false; btn.textContent = '💡 Suggest layers (looks at your hero image)'; }
+    }, 3000);
+  } catch (e) { note('flyerLayerNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = '💡 Suggest layers (looks at your hero image)'; }
+}
 async function flyerAddLayer() {
   if (preview) { showAuth('signup'); return; }
   const instruction = $('flyerLayerInput').value.trim();
@@ -3569,6 +3643,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('flyerGenHero').onclick = flyerGenHero;
   $('flyerLayerImgPick').onclick = () => $('flyerLayerImgFile').click();
   $('flyerLayerImgFile').onchange = (e) => { flyerPickLayerImgs(Array.from(e.target.files)); e.target.value = ''; };
+  $('flyerSuggestLayers').onclick = flyerSuggestLayers;
   $('flyerAddLayer').onclick = flyerAddLayer;
   $('flyerComposite').onclick = flyerComposite;
   // Omni Studio

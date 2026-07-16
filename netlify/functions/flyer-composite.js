@@ -78,6 +78,14 @@ exports.handler = async (event) => {
     const finalUrl = db.storage.from('avatars').getPublicUrl(storagePath).data.publicUrl;
 
     await db.from('flyer_projects').update({ final_url: finalUrl, text_spec: spec, updated_at: new Date().toISOString() }).eq('id', projectId);
+    // The finished flyer — the thing the user actually came here to make —
+    // should show up in the Projects tab like everything else does.
+    try {
+      await db.from('generations').insert({
+        user_id: user.id, type: 'image', model: 'flyer-composite', prompt: spec.headline,
+        output_url: finalUrl, credits_spent: 0, cost_usd: 0,
+      });
+    } catch (e) {}
     return json(200, { url: finalUrl });
   } catch (e) {
     return json(502, { error: (e && e.message) || 'Could not composite the flyer.' });

@@ -7,14 +7,15 @@
 //   this endpoint just makes sure the image(s) are actually in front of the
 //   model when it edits.
 // Adds ONE requested visual layer to the project's current working image
-// via GPT Image 2 (image-to-image), using the current hero image as the
-// primary reference so everything already in place is preserved — plus
-// this call's attached images, plus a few of the project's original
-// reference images, so product identity doesn't drift over successive
-// edits. This is for organic/photographic layers only — text, logos, and
-// legible signage are NEVER added this way (that's flyer-composite.js's
-// job, in code, for pixel-perfect control) — the edit prompt says so
-// explicitly every time.
+// via nano-banana-edit (image-to-image — switched from GPT Image 2
+// 2026-07-16, see flyer-hero.js's comment for the live-verified reasoning),
+// using the current hero image as the primary reference so everything
+// already in place is preserved — plus this call's attached images, plus a
+// few of the project's original reference images, so product identity
+// doesn't drift over successive edits. This is for organic/photographic
+// layers only — text, logos, and legible signage are NEVER added this way
+// (that's flyer-composite.js's job, in code, for pixel-perfect control) —
+// the edit prompt says so explicitly every time.
 // Async submit + poll via job-status.js, which updates the project's
 // hero_image_url and appends to its layers history on completion.
 // ============================================================
@@ -23,8 +24,8 @@ const { IMAGE_MODELS, canUseFree } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
-const MODEL = 'gpt-image-2-image-to-image';
-const MAX_IMAGES = 8; // total across hero + this call's attachments + project refs — timeout-safety cap (see avatar-modelsheet.js's comment on the same class of issue)
+const MODEL = 'nano-banana-edit';
+const MAX_IMAGES = 5; // total across hero + this call's attachments + project refs — timeout-safety cap (see avatar-modelsheet.js's comment on the same class of issue)
 
 exports.handler = async (event) => {
   let db, user, cost = 0;
@@ -65,9 +66,12 @@ exports.handler = async (event) => {
     const projectRefBudget = Math.max(0, MAX_IMAGES - 1 - layerImages.length);
     const extraRefs = (Array.isArray(project.reference_image_urls) ? project.reference_image_urls : []).slice(0, projectRefBudget);
     const hosted = await Promise.all([project.hero_image_url, ...layerImages, ...extraRefs].map(muapiHostImage));
+    // 'Auto' tells nano-banana-edit to keep the input image's own aspect
+    // rather than imposing one — an edit on the working hero should never
+    // reshape it.
     const sub = await fetch(`${MUAPI_BASE}/${MODEL}`, {
       method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: editPrompt, images_list: hosted }),
+      body: JSON.stringify({ prompt: editPrompt, images_list: hosted, aspect_ratio: 'Auto' }),
     });
     const txt = await sub.text();
     let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }

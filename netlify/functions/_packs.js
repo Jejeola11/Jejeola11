@@ -89,10 +89,10 @@ const creditsFor = (cost_usd, margin) => Math.max(1, Math.ceil((cost_usd / CREDI
 const IMAGE_COST = {
   'flux-schnell-image': 0.01,
   'flux-dev-image': 0.025,
-  'gpt-image-2-text-to-image': 0.04,   // OpenAI GPT Image 2 — most realistic photoreal output
+  'gpt-image-2-text-to-image': 0.04,   // OpenAI GPT Image 2 — most realistic photoreal output, but genuinely slow (50-90s real inference, confirmed live 2026-07-16 regardless of quality/resolution settings) — kept for avatar face-lock work where that trade-off is worth it, moved OFF of Flyer Studio
   'gpt-image-2-image-to-image': 0.09,  // GPT Image 2 edit/reference variant — face-lock avatar generation + model sheets (verified live 2026-07-16, up to 20 ref images)
-  'nano-banana': 0.039,
-  'nano-banana-edit': 0.039,
+  'nano-banana': 0.03,       // re-verified live 2026-07-16 (was 0.039) — ~13-19s real inference, photoreal quality confirmed comparable to GPT Image 2 for product/background work
+  'nano-banana-edit': 0.03,  // re-verified live 2026-07-16 (was 0.039)
   'nano-banana-2': 0.04,
   'qwen-image': 0.02,
   'flux-2-pro': 0.05,
