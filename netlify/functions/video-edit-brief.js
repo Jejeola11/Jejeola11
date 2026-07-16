@@ -24,8 +24,26 @@ IMPORTANT CAVEATS:
 - You cannot literally watch the video. Work from the transcript text and timing the user/system gives you, plus what they describe about the footage.
 - You do not generate b-roll footage yourself — if the user wants generated b-roll, tell them to make it in the general Video/Image Studio and come back to add it as an element at a timestamp.
 
-Respond with STRICT JSON only, no markdown fences, no prose outside the JSON, matching exactly this shape:
-{"reply": "your conversational response — proposed direction or a clarifying question", "caption_style": {"accent_color": "#hex or empty string", "position": "bottom or top or empty string"}, "cta_text": "the exact on-screen CTA text to burn in, e.g. COMMENT \\"AI\\" BELOW, or empty string if not decided yet", "broll_suggestions": ["short suggestion 1", "short suggestion 2"], "notes": "any other specific edit notes — cuts to make, moments to emphasize, or empty string"}`;
+RESPONSE FORMAT — this is critical, read carefully: respond with PLAIN TEXT using the exact tags below, NOT JSON, NOT markdown code fences. Write freely inside each tag — full sentences, quotes, apostrophes, line breaks are all fine, nothing needs escaping. Every tag must appear even if its content is empty:
+
+<REPLY>
+Your conversational response — proposed direction or a clarifying question.
+</REPLY>
+<CAPTION_COLOR>
+A hex color, e.g. #00e0c6 — or leave empty.
+</CAPTION_COLOR>
+<CAPTION_POSITION>
+bottom or top — or leave empty.
+</CAPTION_POSITION>
+<CTA_TEXT>
+The exact on-screen CTA text to burn in, e.g. COMMENT "AI" BELOW — or leave empty if not decided yet.
+</CTA_TEXT>
+<BROLL_SUGGESTIONS>
+- one short suggestion per line, starting with a dash
+</BROLL_SUGGESTIONS>
+<NOTES>
+Any other specific edit notes — cuts to make, moments to emphasize — or leave empty.
+</NOTES>`;
 
 function extractText(p) {
   if (!p) return '';
@@ -36,9 +54,6 @@ function extractText(p) {
   if (p.choices && p.choices[0] && p.choices[0].message) return p.choices[0].message.content;
   if (p.output && typeof p.output === 'object') return p.output.text || '';
   return '';
-}
-function stripJsonFences(text) {
-  return (text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
 }
 
 exports.handler = async (event) => {
@@ -87,7 +102,7 @@ exports.handler = async (event) => {
     const id = j.request_id || j.id;
     if (!id) throw new Error('Engine did not return a job id.');
 
-    const immediate = stripJsonFences(extractText(j));
+    const immediate = extractText(j);
     await db.from('jobs').insert({
       request_id: id, user_id: user.id, kind: 'video-edit-brief', model: MODEL, prompt: message, credits: cost,
       status: immediate ? 'completed' : 'processing', output_text: immediate || null, project_id: project.id,

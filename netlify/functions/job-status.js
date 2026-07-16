@@ -19,13 +19,6 @@ function extractText(p) {
   if (p.output && typeof p.output === 'object') return p.output.text || '';
   return '';
 }
-// Only for the JSON-only assistant kinds (flyer-brief, video-edit-brief) —
-// plain 'chat' replies are meant to be freeform and may legitimately
-// contain a real code fence, so this must not touch those.
-function stripJsonFences(text) {
-  return (text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
-}
-
 exports.handler = async (event) => {
   const user = await getUser(event);
   if (!user) return json(401, { error: 'Please sign in again.' });
@@ -46,15 +39,15 @@ exports.handler = async (event) => {
 
   // Chat jobs (Fuse Reactor) and Flyer Studio's design-assistant calls are
   // always MuAPI text models — poll directly for the raw body extractText()
-  // needs. flyer-brief responses are a JSON string; the browser parses it.
+  // needs. flyer-brief/video-edit-brief responses are plain tagged text
+  // (<REPLY>...</REPLY> etc.) — the browser regex-extracts each tag.
   if (isTextKind) {
     let p;
     try {
       p = await (await fetch(`${MUAPI_BASE}/predictions/${id}/result`, { headers: { 'x-api-key': process.env.MUAPI_KEY } })).json();
     } catch (e) { return json(200, { status: 'processing' }); }
     if (p.status === 'completed') {
-      const isJsonKind = job.kind === 'flyer-brief' || job.kind === 'video-edit-brief';
-      const text = isJsonKind ? stripJsonFences(extractText(p)) : extractText(p);
+      const text = extractText(p);
       if (!text) return json(200, { status: 'processing' });
       await db.from('jobs').update({ status: 'completed', output_text: text }).eq('request_id', id);
       return json(200, { status: 'completed', text });

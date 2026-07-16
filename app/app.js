@@ -2150,17 +2150,45 @@ async function avatarGenerate() {
   } catch (e) { $('avResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('avGenNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 
-// Shared by Flyer Studio and Editing Studio's JSON-only assistants — the
-// server already strips markdown fences defensively, but LLMs occasionally
-// still slip one through, and a raw JSON dump in the chat is exactly what
-// "it's not just a prompt generator" reads like. Never show broken JSON to
-// the user: on a genuine parse failure, fall back to a short, honest note
-// instead of the raw text.
-function parseAssistantJson(text, fallbackReply) {
-  const stripped = (text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
-  try { return JSON.parse(stripped); } catch (e) {
+// Shared by Flyer Studio and Editing Studio's assistants — the backend
+// replies in plain tagged text (<REPLY>...</REPLY> etc.) instead of JSON,
+// since asking an LLM for "strict JSON" reliably breaks on long creative
+// text full of quotes/apostrophes. Tags need no escaping, so this just
+// regex-extracts each one; a genuinely malformed response (no <REPLY> tag
+// at all) falls back to a short, honest note instead of raw text.
+function extractTag(text, tag) {
+  const m = (text || '').match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, 'i'));
+  return m ? m[1].trim() : '';
+}
+function extractTagList(text, tag) {
+  const raw = extractTag(text, tag);
+  if (!raw) return [];
+  return raw.split('\n').map((l) => l.replace(/^[-*]\s*/, '').trim()).filter(Boolean);
+}
+function parseFlyerBriefResponse(text, fallbackReply) {
+  if (!text || !/<REPLY>/i.test(text)) {
     return { reply: fallbackReply || 'Got a bit tangled there — try rephrasing or send it again.' };
   }
+  return {
+    reply: extractTag(text, 'REPLY') || 'Got it.',
+    image_prompt: extractTag(text, 'IMAGE_PROMPT'),
+    niche: extractTag(text, 'NICHE'),
+    suggested_next_steps: extractTagList(text, 'NEXT_STEPS'),
+  };
+}
+function parseEditBriefResponse(text, fallbackReply) {
+  if (!text || !/<REPLY>/i.test(text)) {
+    return { reply: fallbackReply || 'Got a bit tangled there — try rephrasing or send it again.' };
+  }
+  const accentColor = extractTag(text, 'CAPTION_COLOR');
+  const position = extractTag(text, 'CAPTION_POSITION');
+  return {
+    reply: extractTag(text, 'REPLY') || 'Got it.',
+    caption_style: (accentColor || position) ? { accent_color: accentColor || null, position: position || null } : null,
+    cta_text: extractTag(text, 'CTA_TEXT'),
+    broll_suggestions: extractTagList(text, 'BROLL_SUGGESTIONS'),
+    notes: extractTag(text, 'NOTES'),
+  };
 }
 
 // ---------------- Flyer Studio (conversational AI flyer designer) ----------------
@@ -2267,7 +2295,7 @@ function flyerPollBrief(reqId, btn) {
       const d = await r.json();
       if (d.status === 'completed') {
         clearInterval(timer);
-        const parsed = parseAssistantJson(d.text);
+        const parsed = parseFlyerBriefResponse(d.text);
         flyerHistory.push({ role: 'assistant', text: parsed.reply });
         flyerAppendLog('assistant', parsed.reply);
         if (parsed.suggested_next_steps && parsed.suggested_next_steps.length) {
@@ -2615,7 +2643,7 @@ async function editSend() {
         const jd = await r.json();
         if (jd.status === 'completed') {
           clearInterval(timer);
-          const parsed = parseAssistantJson(jd.text);
+          const parsed = parseEditBriefResponse(jd.text);
           editHistory.push({ role: 'assistant', text: parsed.reply });
           editAppendLog('assistant', parsed.reply);
           if (parsed.broll_suggestions && parsed.broll_suggestions.length) editAppendLog('assistant', '💡 B-roll ideas: ' + parsed.broll_suggestions.join('  ·  '));
