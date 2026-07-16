@@ -41,6 +41,43 @@ async function downloadFile(url) {
 }
 window.fuseDownload = downloadFile;
 
+// ---- Shared image upload helpers (resize + retry) ----
+// Phone camera photos are routinely 3-10MB each; uploading 15 of those
+// sequentially over mobile data with zero retry is exactly what "Failed to
+// fetch" looks like the moment any single request hits a network blip —
+// this is why avatar training used to fail partway through a 15-photo
+// batch. Resizing client-side before upload cuts payload size drastically
+// (identity-lock generation doesn't need more than ~1600px on the long
+// edge), and a retry-with-backoff wrapper survives a transient blip instead
+// of aborting the whole batch on the first one.
+async function resizeImageFile(file, maxDim = 1600, quality = 0.85) {
+  if (!file.type || !file.type.startsWith('image/')) return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    let { width, height } = bitmap;
+    if (Math.max(width, height) <= maxDim) { bitmap.close && bitmap.close(); return file; }
+    const scale = maxDim / Math.max(width, height);
+    width = Math.round(width * scale); height = Math.round(height * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = width; canvas.height = height;
+    canvas.getContext('2d').drawImage(bitmap, 0, 0, width, height);
+    bitmap.close && bitmap.close();
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
+    if (!blob) return file;
+    return new File([blob], (file.name || 'photo').replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' });
+  } catch (e) { return file; } // decode failed (unsupported format) — upload the original rather than block
+}
+async function uploadWithRetry(bucket, path, file, tries = 3) {
+  let lastErr;
+  for (let i = 0; i < tries; i++) {
+    const { error } = await sb.storage.from(bucket).upload(path, file, { upsert: true, contentType: file.type || undefined });
+    if (!error) return true;
+    lastErr = error;
+    if (i < tries - 1) await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+  }
+  throw lastErr;
+}
+
 // ---- Extract a frame (start/end) from a generated video ----
 // Load the video DIRECTLY from the CDN (crossOrigin) — no proxy, so no size cap.
 // Try blob-from-CDN first (cleanest), then a direct crossOrigin <video>.
@@ -2042,14 +2079,15 @@ async function createAvatar() {
   const name = $('avNewName').value.trim();
   const files = avTrainFiles.slice(0, 15);
   if (!name || !files.length) return note('avNote', 'Add a name and choose your photos.', 'err');
-  $('avCreate').disabled = true; note('avNote', `Uploading ${files.length} photo(s)…`, 'ok');
+  $('avCreate').disabled = true;
   try {
     const urls = [];
-    for (const file of files) {
+    for (const rawFile of files) {
+      note('avNote', `Uploading photo ${urls.length + 1}/${files.length}…`, 'ok');
+      const file = await resizeImageFile(rawFile);
       const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
       const path = `${user.id}/av-${Date.now()}-${urls.length}.${ext}`;
-      const { error: upErr } = await sb.storage.from('avatars').upload(path, file);
-      if (upErr) throw upErr;
+      await uploadWithRetry('avatars', path, file);
       urls.push(sb.storage.from('avatars').getPublicUrl(path).data.publicUrl);
     }
     const { error: insErr } = await sb.from('avatars').insert({ user_id: user.id, name, image_url: urls[0], image_urls: urls });
@@ -2067,12 +2105,13 @@ async function pickAvatarRefs(files) {
   if (limit <= 0) return note('avGenNote', 'Max 3 extra references.', 'err');
   note('avGenNote', 'Uploading reference(s)…', 'ok');
   for (let i = 0; i < Math.min(files.length, limit); i++) {
-    const file = files[i];
-    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-    const path = `${user.id}/avref-${Date.now()}-${i}.${ext}`;
-    const { error } = await sb.storage.from('avatars').upload(path, file);
-    if (error) { note('avGenNote', error.message || 'Upload failed.', 'err'); continue; }
-    avExtraRefs.push(sb.storage.from('avatars').getPublicUrl(path).data.publicUrl);
+    try {
+      const file = await resizeImageFile(files[i]);
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${user.id}/avref-${Date.now()}-${i}.${ext}`;
+      await uploadWithRetry('avatars', path, file);
+      avExtraRefs.push(sb.storage.from('avatars').getPublicUrl(path).data.publicUrl);
+    } catch (error) { note('avGenNote', (error && error.message) || 'Upload failed.', 'err'); }
   }
   renderAvatarRefs();
   note('avGenNote', `✅ ${avExtraRefs.length} reference(s) attached.`, 'ok');
@@ -2155,12 +2194,13 @@ async function flyerPickRefs(files) {
   if (limit <= 0) return note('flyerRefNote', 'Max 20 reference images.', 'err');
   note('flyerRefNote', 'Uploading…', 'ok');
   for (let i = 0; i < Math.min(files.length, limit); i++) {
-    const file = files[i];
-    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-    const path = `${user.id}/flyerref-${Date.now()}-${i}.${ext}`;
-    const { error } = await sb.storage.from('avatars').upload(path, file);
-    if (error) { note('flyerRefNote', error.message || 'Upload failed.', 'err'); continue; }
-    flyerRefUrls.push(sb.storage.from('avatars').getPublicUrl(path).data.publicUrl);
+    try {
+      const file = await resizeImageFile(files[i]);
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${user.id}/flyerref-${Date.now()}-${i}.${ext}`;
+      await uploadWithRetry('avatars', path, file);
+      flyerRefUrls.push(sb.storage.from('avatars').getPublicUrl(path).data.publicUrl);
+    } catch (error) { note('flyerRefNote', (error && error.message) || 'Upload failed.', 'err'); }
   }
   renderFlyerRefs();
   note('flyerRefNote', `✅ ${flyerRefUrls.length} reference(s) attached.`, 'ok');
