@@ -150,7 +150,7 @@ window.fuseLightbox = (url, type) => {
 };
 
 // Poll an async render job until it completes. mediaType 'image' or 'video'.
-function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video') {
+function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video', maxSeconds = 360) {
   let s = 0;
   const timer = setInterval(async () => {
     s += 8;
@@ -185,7 +185,7 @@ function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video'
         const dd = resultEl.querySelector('div div'); if (dd) dd.textContent = `Rendering… (${s}s)`;
       }
     } catch (e) {}
-    if (s >= 360) { clearInterval(timer); note(noteId, 'Still rendering — check Projects in a minute.', 'err'); if (btn) { btn.disabled = false; btn.textContent = btnLabel; } }
+    if (s >= maxSeconds) { clearInterval(timer); note(noteId, 'Still rendering after ' + maxSeconds + 's — this render is stuck. Try again with fewer reference images.', 'err'); if (btn) { btn.disabled = false; btn.textContent = btnLabel; } }
   }, 8000);
 }
 
@@ -2348,7 +2348,13 @@ function renderFlyerRefs() {
   // panel is well above the "Generate visual" button, so it wasn't obvious
   // the references there actually feed into it.
   const heroNote = $('flyerHeroRefNote');
-  if (heroNote) heroNote.textContent = flyerRefUrls.length ? `🖼 ${flyerRefUrls.length} reference(s) will be used for this generation.` : '';
+  if (heroNote) {
+    // Only the first 3 actually get sent to the generation call (see
+    // flyer-hero.js) — more than that measurably slows a render down, so
+    // this should never promise more than what's actually used.
+    const used = Math.min(flyerRefUrls.length, 3);
+    heroNote.textContent = flyerRefUrls.length ? `🖼 ${used} of ${flyerRefUrls.length} reference(s) will be used for this generation (fewer = faster).` : '';
+  }
 }
 window.fuseFlyerRmRef = (i) => { flyerRefUrls.splice(i, 1); renderFlyerRefs(); };
 
@@ -2406,9 +2412,15 @@ function flyerPollBrief(reqId, btn) {
           flyerAppendLog('assistant', '💡 ' + parsed.suggested_next_steps.join('  ·  '));
         }
         if (parsed.ready && parsed.image_prompt) {
+          // Fills the prompt box but does NOT auto-generate — the user
+          // reviews/edits the exact prompt and taps "Generate visual"
+          // themselves. Auto-firing right after sign-off meant a slow or
+          // stuck render started with no chance to double-check anything
+          // first, and no way to tell whether it was even the prompt she
+          // wanted.
           $('flyerImgPrompt').value = parsed.image_prompt;
           $('flyerVisualPanel').scrollIntoView({ behavior: 'smooth' });
-          flyerGenHero(true); // signed off — no separate manual step needed
+          note('flyerHeroNote', '✅ Prompt ready below — review it, then tap Generate visual.', 'ok');
         }
         btn.disabled = false; btn.textContent = 'Send';
       } else if (d.status === 'failed') {
@@ -2439,7 +2451,7 @@ async function flyerGenHero(auto) {
     if (d.credits != null) $('creditCount').textContent = d.credits;
     if (d.project_id) flyerProjectId = d.project_id;
     note('flyerHeroNote', 'Rendering… ⏳', 'ok'); btn.textContent = 'Rendering…';
-    pollJob(d.request_id, $('flyerHeroResult'), 'flyerHeroNote', btn, label, 'image');
+    pollJob(d.request_id, $('flyerHeroResult'), 'flyerHeroNote', btn, label, 'image', 100);
     $('flyerLayerPanel').style.display = 'block';
     $('flyerTextPanel').style.display = 'block';
   } catch (e) { $('flyerHeroResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('flyerHeroNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
