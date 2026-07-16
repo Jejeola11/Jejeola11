@@ -130,6 +130,12 @@
         <div class="fb-name">Audio Studio</div>
         <div class="fb-desc">Any script, your voice — instant voiceover</div>
       </div>
+      <div class="featbox" data-go="editstudio">
+        <span class="fb-badge new">NEW</span>
+        <div class="fb-ic">✂️</div>
+        <div class="fb-name">Editing Studio</div>
+        <div class="fb-desc">Captions, elements, CTA — post-ready in one flow</div>
+      </div>
       <div class="featbox" data-go="learn">
         <span class="fb-badge course">🎓 Course</span>
         <div class="fb-ic">🏛️</div>
@@ -393,6 +399,64 @@
       <div class="note" id="adNote"></div>
       <div class="result" id="adResult" style="margin-top:12px;min-height:100px"><div class="muted">Your voiceover appears here.</div></div>
     </div>
+  </section>
+
+  <!-- ===== VIDEO EDITING STUDIO (captions, elements, CTA — post-ready) ===== -->
+  <section class="view" id="view-editstudio">
+    <div class="backlink" id="editBack">← Studios</div>
+    <div class="studio-head"><div class="ic">✂️</div><div><h2>Editing Studio</h2><p>Upload it, describe the edit, get a post-ready cut</p></div></div>
+
+    <div class="panel">
+      <h3>🎬 Your video</h3>
+      <div class="muted" id="editVideoStatus" style="font-size:12px;margin-bottom:8px">Upload the video you want edited — from the Avatar Creator, Video Studio, or anywhere.</div>
+      <button class="btn ghost sm" id="editVideoPick">🎬 Upload video</button>
+      <input type="file" id="editVideoFile" accept="video/*" hidden>
+      <div class="note" id="editVideoNote"></div>
+      <video id="editVideoPreview" style="width:100%;border-radius:12px;margin-top:10px;display:none" controls></video>
+    </div>
+
+    <div class="panel" id="editBriefPanel" style="margin-top:14px;display:none">
+      <h3>💬 Describe the edit</h3>
+      <p class="muted" style="font-size:12px;margin:4px 0 10px">What's it for, what's the vibe, what should it drive toward? It'll propose captions, a CTA, and b-roll ideas.</p>
+      <div id="editLog" style="display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto;margin-bottom:10px"></div>
+      <textarea id="editMsg" placeholder="e.g. 'Make this go viral — I want people commenting AI to get the free guide'"></textarea>
+      <button class="btn gold block" id="editSend" style="margin-top:10px">Send</button>
+      <div class="note" id="editNote"></div>
+    </div>
+
+    <div class="panel" id="editCaptionPanel" style="margin-top:14px;display:none">
+      <h3>💬 Captions</h3>
+      <label class="fld" for="editAccentColor">Accent color</label>
+      <input id="editAccentColor" type="color" value="#00e0c6">
+      <label class="fld" for="editCaptionPos">Position</label>
+      <select id="editCaptionPos"><option value="bottom">Bottom</option><option value="top">Top</option></select>
+      <button class="btn gold block" id="editApplyCaptions" style="margin-top:10px">💬 Burn in captions</button>
+      <div class="note" id="editCaptionNote"></div>
+    </div>
+
+    <div class="panel" id="editElementPanel" style="margin-top:14px;display:none">
+      <h3>🖼 Add an element</h3>
+      <p class="muted" style="font-size:12px;margin:4px 0 10px">A proof screenshot, logo, sticker — appears only during the time window you set.</p>
+      <button class="btn ghost sm" id="editElementPick">🖼 Upload image</button>
+      <input type="file" id="editElementFile" accept="image/*" hidden>
+      <div class="row2">
+        <div><label class="fld" for="editElStart">Starts at (sec)</label><input id="editElStart" type="number" value="0" min="0" step="0.5"></div>
+        <div><label class="fld" for="editElDur">Duration (sec)</label><input id="editElDur" type="number" value="3" min="0.5" step="0.5"></div>
+      </div>
+      <label class="fld" for="editElPos">Position</label>
+      <select id="editElPos"><option value="center">Center</option><option value="top">Top</option><option value="bottom">Bottom</option></select>
+      <button class="btn gold block" id="editAddElement" style="margin-top:10px">➕ Add element</button>
+      <div class="note" id="editElementNote"></div>
+    </div>
+
+    <div class="panel" id="editCtaPanel" style="margin-top:14px;display:none">
+      <h3>📣 Final CTA</h3>
+      <input id="editCtaText" placeholder='e.g. COMMENT "AI" BELOW'>
+      <button class="btn gold block" id="editApplyCta" style="margin-top:8px">📣 Add CTA — finish</button>
+      <div class="note" id="editCtaNote"></div>
+    </div>
+
+    <div class="result" id="editResult" style="margin-top:14px;min-height:220px"><div class="muted">Your edited video appears here as you go.</div></div>
   </section>
 
   <!-- ===== OMNI STUDIO (Gemini Omni Edit · Seedance 2 Omni · Talking Avatar) ===== -->

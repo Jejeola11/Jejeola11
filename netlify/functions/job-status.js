@@ -30,7 +30,9 @@ exports.handler = async (event) => {
   const { data: job } = await db.from('jobs').select('*').eq('request_id', id).maybeSingle();
   if (!job || job.user_id !== user.id) return json(404, { error: 'Job not found' });
 
-  const isTextKind = job.kind === 'chat' || job.kind === 'flyer-brief';
+  if (job.kind === 'video-transcribe') return handleTranscribeJob(db, user, job, id);
+
+  const isTextKind = job.kind === 'chat' || job.kind === 'flyer-brief' || job.kind === 'video-edit-brief';
   if (job.status === 'completed') {
     return isTextKind ? json(200, { status: 'completed', text: job.output_text }) : json(200, { status: 'completed', url: job.output_url });
   }
@@ -108,3 +110,42 @@ exports.handler = async (event) => {
   }
   return json(200, { status: 'processing' });
 };
+
+// Whisper's completed payload isn't a media URL like every other job kind —
+// it's a text/JSON transcript. Parsed defensively since the exact shape
+// (plain string vs. an object with words/segments) wasn't confirmed via a
+// live completed example in this sandbox (every public test audio URL
+// tried got blocked before reaching the transcription step) — this matches
+// the standard OpenAI Whisper verbose_json shape, with graceful fallbacks.
+function parseTranscript(raw) {
+  let val = raw;
+  if (typeof val === 'string') { try { val = JSON.parse(val); } catch (e) { return { text: raw }; } }
+  if (val && typeof val === 'object') {
+    if (Array.isArray(val.words) || Array.isArray(val.segments) || typeof val.text === 'string') return val;
+  }
+  return { text: String(raw) };
+}
+
+async function handleTranscribeJob(db, user, job, id) {
+  if (job.status === 'completed') return json(200, { status: 'completed', transcript: job.output_text ? JSON.parse(job.output_text) : null, project_id: job.project_id });
+  if (job.status === 'failed') return json(200, { status: 'failed' });
+
+  let p;
+  try {
+    p = await (await fetch(`${MUAPI_BASE}/predictions/${id}/result`, { headers: { 'x-api-key': process.env.MUAPI_KEY } })).json();
+  } catch (e) { return json(200, { status: 'processing' }); }
+  if (p.status === 'completed') {
+    const raw = extractText(p) || (p.output && typeof p.output === 'object' ? p.output : null);
+    if (!raw) return json(200, { status: 'processing' });
+    const transcript = parseTranscript(raw);
+    await db.from('jobs').update({ status: 'completed', output_text: JSON.stringify(transcript) }).eq('request_id', id);
+    if (job.project_id) { try { await db.from('video_edit_projects').update({ transcript, updated_at: new Date().toISOString() }).eq('id', job.project_id); } catch (e) {} }
+    return json(200, { status: 'completed', transcript, project_id: job.project_id });
+  }
+  if (p.status === 'failed' || p.status === 'cancelled') {
+    await db.rpc('add_credits', { uid: user.id, amount: job.credits, why: 'refund' });
+    await db.from('jobs').update({ status: 'failed' }).eq('request_id', id);
+    return json(200, { status: 'failed', error: 'Transcription ' + p.status });
+  }
+  return json(200, { status: 'processing' });
+}

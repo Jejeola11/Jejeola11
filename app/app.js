@@ -476,6 +476,7 @@ function openStudio(key) {
   if (key === 'avatar') { showView('avatar'); loadAvatars(); return; }
   if (key === 'flyer') { showView('flyer'); return; }
   if (key === 'audio') { showView('audio'); loadAudioVoices(); return; }
+  if (key === 'editstudio') { showView('editstudio'); return; }
   if (key === 'promptgen') { buildPromptFields(); showView('promptgen'); loadPromptHistory(); return; }
   if (key === 'omni') { showView('omni'); return; }
   activeStudio = cfg.STUDIOS.find((s) => s.key === key) || cfg.STUDIOS[0];
@@ -1000,7 +1001,7 @@ function routeFeature(go) {
   if (go === 'learn') return openCourse();
   if (go === 'week' || go === '500week') return openWeek();
   if (go === 'mini') return openMiniHub();
-  if (go === 'reactor' || go === 'avatar' || go === 'promptgen' || go === 'market' || go === 'flyer' || go === 'audio') return openStudio(go);
+  if (go === 'reactor' || go === 'avatar' || go === 'promptgen' || go === 'market' || go === 'flyer' || go === 'audio' || go === 'editstudio') return openStudio(go);
   if (go === 'community') return showView('community');
   if (go === 'streak') return claimDaily();
   if (go === 'image-nano') { openImageModel('nano-banana'); return; }
@@ -2375,6 +2376,172 @@ function pollAudioJob(reqId, btn, label) {
   }, 5000);
 }
 
+// ---------------- Video Editing Studio ----------------
+let editProjectId = null;
+let editHistory = [];
+async function uploadEditVideo(file) {
+  if (preview) { showAuth('signup'); return; }
+  note('editVideoNote', 'Uploading…', 'ok');
+  try {
+    const ext = (file.name.split('.').pop() || 'mp4').toLowerCase();
+    const path = `${user.id}/editsrc-${Date.now()}.${ext}`;
+    const { error } = await sb.storage.from('avatars').upload(path, file);
+    if (error) throw error;
+    const url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    $('editVideoPreview').src = url; $('editVideoPreview').style.display = 'block';
+    note('editVideoNote', 'Transcribing… this can take a moment ⏳', 'ok');
+    const res = await fetch('/.netlify/functions/video-transcribe', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ video_url: url }),
+    });
+    const d = await res.json();
+    if (res.status === 402) { note('editVideoNote', 'Out of credits — top up.', 'err'); openBuy(); return; }
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    if (d.credits != null) $('creditCount').textContent = d.credits;
+    editProjectId = d.project_id;
+    editHistory = [];
+    $('editLog').innerHTML = '';
+    pollEditTranscribe(d.request_id);
+  } catch (e) { note('editVideoNote', e.message || 'Upload failed.', 'err'); }
+}
+function pollEditTranscribe(reqId) {
+  let s = 0;
+  const timer = setInterval(async () => {
+    s += 5;
+    try {
+      const r = await fetch(`/.netlify/functions/job-status?id=${reqId}`, { headers: { ...(await authHeader()) } });
+      const d = await r.json();
+      if (d.status === 'completed') {
+        clearInterval(timer);
+        note('editVideoNote', '✅ Transcribed — describe the edit below.', 'ok');
+        $('editBriefPanel').style.display = 'block';
+      } else if (d.status === 'failed') {
+        clearInterval(timer);
+        note('editVideoNote', (d.error || 'Failed') + ' — credits refunded.', 'err');
+      }
+    } catch (e) {}
+    if (s >= 300) { clearInterval(timer); note('editVideoNote', 'Still working — check back shortly.', 'err'); }
+  }, 5000);
+}
+function editAppendLog(role, text) {
+  const log = $('editLog');
+  const bubble = document.createElement('div');
+  bubble.style.cssText = role === 'user'
+    ? 'align-self:flex-end;background:var(--gold);color:#1a1200;padding:10px 14px;border-radius:14px 14px 2px 14px;max-width:85%;white-space:pre-wrap;font-size:14px'
+    : 'align-self:flex-start;background:var(--card);border:1px solid var(--line);padding:10px 14px;border-radius:14px 14px 14px 2px;max-width:85%;white-space:pre-wrap;font-size:14px';
+  bubble.textContent = text;
+  log.appendChild(bubble);
+  log.scrollTop = log.scrollHeight;
+}
+async function editSend() {
+  if (preview) { showAuth('signup'); return; }
+  if (!editProjectId) return note('editNote', 'Upload a video first.', 'err');
+  const msg = $('editMsg').value.trim();
+  if (!msg) return;
+  editAppendLog('user', msg);
+  $('editMsg').value = '';
+  const btn = $('editSend'); btn.disabled = true; btn.textContent = 'Thinking…';
+  note('editNote', '');
+  try {
+    const res = await fetch('/.netlify/functions/video-edit-brief', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ message: msg, history: editHistory, project_id: editProjectId }),
+    });
+    const d = await res.json();
+    if (res.status === 402) { note('editNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = 'Send'; return; }
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    if (d.credits != null) $('creditCount').textContent = d.credits;
+    editHistory.push({ role: 'user', text: msg });
+    let s = 0;
+    const timer = setInterval(async () => {
+      s += 4;
+      try {
+        const r = await fetch(`/.netlify/functions/job-status?id=${d.request_id}`, { headers: { ...(await authHeader()) } });
+        const jd = await r.json();
+        if (jd.status === 'completed') {
+          clearInterval(timer);
+          let parsed; try { parsed = JSON.parse(jd.text); } catch (e) { parsed = { reply: jd.text }; }
+          editHistory.push({ role: 'assistant', text: parsed.reply || jd.text });
+          editAppendLog('assistant', parsed.reply || jd.text);
+          if (parsed.broll_suggestions && parsed.broll_suggestions.length) editAppendLog('assistant', '💡 B-roll ideas: ' + parsed.broll_suggestions.join('  ·  '));
+          if (parsed.notes) editAppendLog('assistant', '📝 ' + parsed.notes);
+          if (parsed.caption_style && parsed.caption_style.accent_color) { $('editAccentColor').value = parsed.caption_style.accent_color; $('editCaptionPanel').style.display = 'block'; }
+          if (parsed.caption_style && parsed.caption_style.position) $('editCaptionPos').value = parsed.caption_style.position;
+          if (parsed.cta_text) $('editCtaText').value = parsed.cta_text;
+          $('editCaptionPanel').style.display = 'block';
+          btn.disabled = false; btn.textContent = 'Send';
+        } else if (jd.status === 'failed') {
+          clearInterval(timer);
+          note('editNote', (jd.error || 'Failed') + ' — credits refunded.', 'err');
+          btn.disabled = false; btn.textContent = 'Send';
+        }
+      } catch (e) {}
+      if (s >= 180) { clearInterval(timer); note('editNote', 'Still thinking — try again shortly.', 'err'); btn.disabled = false; btn.textContent = 'Send'; }
+    }, 4000);
+  } catch (e) { note('editNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = 'Send'; }
+}
+async function editApplyCaptions() {
+  if (!editProjectId) return;
+  const btn = $('editApplyCaptions'); btn.disabled = true; btn.textContent = 'Burning in…';
+  $('editResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Applying captions…</div></div>';
+  note('editCaptionNote', '');
+  try {
+    const res = await fetch('/.netlify/functions/video-caption-apply', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ project_id: editProjectId, accent_color: $('editAccentColor').value, position: $('editCaptionPos').value }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    $('editResult').innerHTML = `<video src="${d.url}" controls style="width:100%;border-radius:12px"></video>`;
+    note('editCaptionNote', '✅ Captions applied.', 'ok');
+    $('editElementPanel').style.display = 'block';
+    $('editCtaPanel').style.display = 'block';
+  } catch (e) { note('editCaptionNote', e.message || 'Failed', 'err'); }
+  btn.disabled = false; btn.textContent = '💬 Burn in captions';
+}
+let editElementFile = null;
+async function editAddElement() {
+  if (!editProjectId) return;
+  if (!editElementFile) return note('editElementNote', 'Pick an image first.', 'err');
+  const btn = $('editAddElement'); btn.disabled = true; btn.textContent = 'Adding…';
+  note('editElementNote', 'Uploading…', 'ok');
+  try {
+    const ext = (editElementFile.name.split('.').pop() || 'png').toLowerCase();
+    const path = `${user.id}/editel-${Date.now()}.${ext}`;
+    const { error } = await sb.storage.from('avatars').upload(path, editElementFile);
+    if (error) throw error;
+    const imgUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    note('editElementNote', 'Compositing…', 'ok');
+    const res = await fetch('/.netlify/functions/video-element', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ project_id: editProjectId, image_url: imgUrl, start_sec: parseFloat($('editElStart').value), duration_sec: parseFloat($('editElDur').value), position: $('editElPos').value }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    $('editResult').innerHTML = `<video src="${d.url}" controls style="width:100%;border-radius:12px"></video>`;
+    note('editElementNote', '✅ Element added.', 'ok');
+  } catch (e) { note('editElementNote', e.message || 'Failed', 'err'); }
+  btn.disabled = false; btn.textContent = '➕ Add element';
+}
+async function editApplyCta() {
+  if (!editProjectId) return;
+  const ctaText = $('editCtaText').value.trim();
+  if (!ctaText) return note('editCtaNote', 'Write the CTA text first.', 'err');
+  const btn = $('editApplyCta'); btn.disabled = true; btn.textContent = 'Finishing…';
+  note('editCtaNote', '');
+  try {
+    const res = await fetch('/.netlify/functions/video-cta', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ project_id: editProjectId, cta_text: ctaText, accent_color: $('editAccentColor').value }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    $('editResult').innerHTML = `<div><video src="${d.url}" controls autoplay loop muted playsinline style="width:100%;border-radius:12px"></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${d.url}')">⬇ Download</button></div></div>`;
+    note('editCtaNote', '✅ Done — post-ready.', 'ok');
+  } catch (e) { note('editCtaNote', e.message || 'Failed', 'err'); }
+  btn.disabled = false; btn.textContent = '📣 Add CTA — finish';
+}
+
 // ---------------- prompt generator (charged, 1 credit) ----------------
 function buildPromptFields() {
   if ($('pgFields').children.length) return;
@@ -2790,6 +2957,16 @@ window.addEventListener('DOMContentLoaded', () => {
   $('adVoicePick').onclick = () => $('adVoiceFile').click();
   $('adVoiceFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadAudioVoiceSample(f); e.target.value = ''; };
   $('adGen').onclick = adGenerate;
+  $('editBack').onclick = () => showView('home');
+  $('editVideoPick').onclick = () => $('editVideoFile').click();
+  $('editVideoFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadEditVideo(f); e.target.value = ''; };
+  $('editSend').onclick = editSend;
+  $('editMsg').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); editSend(); } });
+  $('editApplyCaptions').onclick = editApplyCaptions;
+  $('editElementPick').onclick = () => $('editElementFile').click();
+  $('editElementFile').onchange = (e) => { editElementFile = e.target.files[0] || null; note('editElementNote', editElementFile ? `Selected: ${editElementFile.name}` : '', 'ok'); };
+  $('editAddElement').onclick = editAddElement;
+  $('editApplyCta').onclick = editApplyCta;
   $('flyerBack').onclick = () => showView('home');
   $('flyerRefPick').onclick = () => $('flyerRefFile').click();
   $('flyerRefFile').onchange = (e) => { flyerPickRefs(Array.from(e.target.files)); e.target.value = ''; };
