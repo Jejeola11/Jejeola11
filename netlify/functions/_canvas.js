@@ -52,6 +52,18 @@ function hexToRgba(hex, alpha = 1) {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
+// Lighten (percent > 0) or darken (percent < 0) a hex color — used to
+// auto-derive a gradient's second stop from just the one accent color the
+// user already picked, so gradient text needs no extra color-picker UI.
+function shadeColor(hex, percent) {
+  const h = (hex || '#ffffff').replace('#', '');
+  const r = parseInt(h.length === 3 ? h[0] + h[0] : h.slice(0, 2), 16);
+  const g = parseInt(h.length === 3 ? h[1] + h[1] : h.slice(2, 4), 16);
+  const b = parseInt(h.length === 3 ? h[2] + h[2] : h.slice(4, 6), 16);
+  const adj = (c) => Math.max(0, Math.min(255, Math.round(percent >= 0 ? c + (255 - c) * percent : c * (1 + percent))));
+  return `rgb(${adj(r)},${adj(g)},${adj(b)})`;
+}
+
 // Draw an image "cover"-fit into a w x h box (crop to fill, no distortion).
 function drawCover(ctx, img, x, y, w, h) {
   const ir = img.width / img.height, br = w / h;
@@ -101,9 +113,11 @@ function wrapText(ctx, text, maxWidth) {
 // understands: 'flat' (no effect), 'shadow' (soft dark drop shadow — the
 // default; legibility over a busy hero photo), 'glow' (colored glow in the
 // accent color), 'glass' (translucent panel behind the text — see
-// drawGlassPanel).
+// drawGlassPanel), 'gradient' (headline-only — see drawHeadline; still
+// gets the same soft shadow as 'shadow' underneath the gradient fill,
+// since a gradient alone doesn't guarantee contrast against a busy photo).
 function applyTextEffect(ctx, style, accentColor) {
-  if (style === 'shadow') { ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 16; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 5; }
+  if (style === 'shadow' || style === 'gradient') { ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 16; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 5; }
   else if (style === 'glow') { ctx.shadowColor = accentColor || '#00e0c6'; ctx.shadowBlur = 26; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0; }
   else { ctx.shadowColor = 'rgba(0,0,0,0)'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0; }
 }
@@ -157,10 +171,15 @@ function roundRect(ctx, x, y, w, h, r) {
 // `accentWord` (optional) is matched case-insensitively against the wrapped
 // words and recolored/re-fonted; if omitted, the LAST word of the headline
 // gets the treatment (matches the "one word breaks into accent" pattern
-// seen across the reference set). `style` ('flat'|'shadow'|'glow'|'glass')
-// and `underline` (draw the swipe motif under the accent word) are the
-// same shared effect vocabulary every draw* function here understands.
-function drawHeadline(ctx, { text, x, y, maxWidth, fontSize, accentColor, accentWord, scriptAccent, align = 'left', style = 'shadow', underline = false }) {
+// seen across the reference set). `style` ('flat'|'shadow'|'glow'|'glass'|
+// 'gradient') and `underline` (draw the swipe motif under the accent word)
+// are the same shared effect vocabulary every draw* function here
+// understands. `style === 'gradient'` fills the accented word (or, with
+// `gradientWhole`, every word) with a vertical gradient from accentColor to
+// `gradientTo` (auto-derived — a darker shade of accentColor — when not
+// given), matching the gradient-headline look seen in real reference
+// flyers (e.g. a pink-to-maroon or orange-to-red headline fill).
+function drawHeadline(ctx, { text, x, y, maxWidth, fontSize, accentColor, accentWord, scriptAccent, align = 'left', style = 'shadow', underline = false, gradientTo, gradientWhole = false }) {
   ensureFonts();
   ctx.textAlign = align; ctx.textBaseline = 'alphabetic';
   ctx.font = `900 ${fontSize}px "${FONT_ROLES.display.family}"`;
@@ -175,6 +194,12 @@ function drawHeadline(ctx, { text, x, y, maxWidth, fontSize, accentColor, accent
     drawGlassPanel(ctx, { x: panelX, y: y - fontSize * 0.85 - pad, w: widest + pad * 2, h: lines.length * lineHeight + pad * 1.3, radius: fontSize * 0.3 });
   }
   applyTextEffect(ctx, style, accentColor);
+  let gradientFill = null;
+  if (style === 'gradient') {
+    gradientFill = ctx.createLinearGradient(x, y - fontSize * 0.9, x, y + lines.length * lineHeight);
+    gradientFill.addColorStop(0, accentColor || '#00e0c6');
+    gradientFill.addColorStop(1, gradientTo || shadeColor(accentColor || '#00e0c6', -0.4));
+  }
 
   lines.forEach((line, i) => {
     const ly = y + i * lineHeight;
@@ -182,12 +207,18 @@ function drawHeadline(ctx, { text, x, y, maxWidth, fontSize, accentColor, accent
     const isLastLine = i === lines.length - 1;
     let matchIdx = target ? words.findIndex((w) => w.toLowerCase().replace(/[^a-z0-9]/g, '') === target) : -1;
     if (matchIdx === -1 && !target && isLastLine) matchIdx = words.length - 1;
-    if (matchIdx === -1) {
+    if (matchIdx === -1 && !gradientFill) {
       ctx.fillStyle = '#ffffff';
       ctx.fillText(line, x, ly);
       return;
     }
-    // Draw word-by-word so only the matched word gets the accent treatment.
+    if (matchIdx === -1 && gradientFill && !gradientWhole) {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(line, x, ly);
+      return;
+    }
+    // Draw word-by-word so only the matched word (or, with gradientWhole,
+    // every word) gets the accent/gradient treatment.
     let cursorX = x;
     const widths = words.map((w) => ctx.measureText(w + ' ').width);
     if (align === 'center') {
@@ -196,13 +227,14 @@ function drawHeadline(ctx, { text, x, y, maxWidth, fontSize, accentColor, accent
     }
     const prevAlign = ctx.textAlign; ctx.textAlign = 'left';
     words.forEach((w, wi) => {
-      if (wi === matchIdx && scriptAccent) {
+      const accented = wi === matchIdx || (gradientFill && gradientWhole);
+      if (accented && scriptAccent && wi === matchIdx) {
         ctx.font = `${fontSize * 0.9}px "${FONT_ROLES.script.family}"`;
-        ctx.fillStyle = accentColor;
+        ctx.fillStyle = gradientFill || accentColor;
         ctx.fillText(w, cursorX, ly + fontSize * 0.05);
         ctx.font = `900 ${fontSize}px "${FONT_ROLES.display.family}"`;
-      } else if (wi === matchIdx) {
-        ctx.fillStyle = accentColor;
+      } else if (accented) {
+        ctx.fillStyle = gradientFill || accentColor;
         ctx.fillText(w, cursorX, ly);
       } else {
         ctx.fillStyle = '#ffffff';

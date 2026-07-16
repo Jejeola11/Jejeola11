@@ -3,12 +3,20 @@
 // Body: { project_id, text_spec }
 //   text_spec: { headline, accent_word?, subhead?, bullets?: string[],
 //                badge?, footer?, accent_color, script_accent?,
-//                style?: 'shadow'|'glass'|'glow'|'flat', underline_accent? }
+//                style?: 'shadow'|'glass'|'glow'|'gradient'|'flat',
+//                underline_accent?, gradient_whole?, callouts?: string[] }
 //   style is the shared effect applied across headline/subhead/badge/info
 //   card: 'shadow' (default, soft drop shadow for legibility over a busy
 //   photo), 'glass' (frosted glassmorphic panel behind the text), 'glow'
-//   (accent-colored glow on the headline). underline_accent draws the
-//   "hand-drawn underline swipe" motif under the accented word.
+//   (accent-colored glow on the headline), 'gradient' (headline text filled
+//   with a vertical gradient from accent_color to an auto-derived darker
+//   shade — gradient_whole applies it to every word, not just the accented
+//   one). underline_accent draws the "hand-drawn underline swipe" motif
+//   under the accented word. callouts are short standalone colored
+//   pill/box call-outs (e.g. "Promo Offers", "10% Discount") stacked
+//   beneath the subhead — the "shape placeholder" pattern real flyers use
+//   for short assertions, distinct from the single `badge` and the bulleted
+//   info card.
 // Bakes real typography onto the project's current hero visual — headline,
 // subhead, info card, badge, footer — via _canvas.js (native rendering, no
 // browser). This is the step that turns "AI background image" into an
@@ -44,9 +52,11 @@ exports.handler = async (event) => {
     // Shared effect vocabulary across every text/panel element — 'flat'
     // (no effect), 'shadow' (soft drop shadow, the default — legibility
     // over a busy hero photo), 'glow' (colored glow in the accent color),
-    // 'glass' (translucent glassmorphic panel behind the text).
-    const style = ['flat', 'shadow', 'glow', 'glass'].includes(spec.style) ? spec.style : 'shadow';
+    // 'glass' (translucent glassmorphic panel behind the text), 'gradient'
+    // (headline text gradient-filled).
+    const style = ['flat', 'shadow', 'glow', 'glass', 'gradient'].includes(spec.style) ? spec.style : 'shadow';
     const underline = !!spec.underline_accent;
+    const gradientWhole = !!spec.gradient_whole;
     const res = await fetch(project.hero_image_url);
     if (!res.ok) return json(502, { error: 'Could not load the current visual.' });
     const buf = Buffer.from(await res.arrayBuffer());
@@ -63,11 +73,24 @@ exports.handler = async (event) => {
     y += drawHeadline(ctx, {
       text: spec.headline, x: margin, y, maxWidth: W - margin * 2, fontSize: headlineSize,
       accentColor: accent, accentWord: spec.accent_word, scriptAccent: !!spec.script_accent,
-      style, underline,
+      style, underline, gradientWhole,
     }) + headlineSize * 0.35;
 
     if (spec.subhead) {
       y += drawSubhead(ctx, { text: spec.subhead, x: margin, y, maxWidth: W - margin * 2, fontSize: Math.round(W * 0.026), style }) + headlineSize * 0.2;
+    }
+
+    // Short standalone colored call-out boxes ("Promo Offers", "10%
+    // Discount") — the same pill shape as the badge below, just repeatable
+    // and placed earlier in the flow, one per line the user typed.
+    if (Array.isArray(spec.callouts) && spec.callouts.length) {
+      for (const raw of spec.callouts.slice(0, 4)) {
+        const text = (typeof raw === 'string' ? raw : raw && raw.text || '').trim();
+        if (!text) continue;
+        const color = (raw && typeof raw === 'object' && raw.color) || accent;
+        const c = drawBadge(ctx, { text, x: margin, y, accentColor: color, fontSize: Math.round(W * 0.019), style: style === 'glass' ? 'flat' : style });
+        y += c.h + Math.round(H * 0.014);
+      }
     }
 
     if (spec.badge) {

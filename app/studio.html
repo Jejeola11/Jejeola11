@@ -344,6 +344,8 @@
       <input id="flyerSubhead" placeholder="Where builders meet the next chain.">
       <label class="fld" for="flyerBullets">Bullets — one per line (optional)</label>
       <textarea id="flyerBullets" placeholder="Nov 12 — Lagos Tech Hub&#10;Keynotes from 6 founders"></textarea>
+      <label class="fld" for="flyerCallouts">Callout boxes — short colored tags/assertions, one per line (optional)</label>
+      <textarea id="flyerCallouts" placeholder="Promo Offers&#10;10% Privilege Discount"></textarea>
       <label class="fld" for="flyerBadge">Badge (optional)</label>
       <input id="flyerBadge" placeholder="FREE ENTRY">
       <label class="fld" for="flyerFooter">Footer (optional)</label>
@@ -355,11 +357,16 @@
         <option value="shadow">Drop shadow (default — clean, legible)</option>
         <option value="glass">Glassmorphic panel (frosted glass behind text)</option>
         <option value="glow">Glow (accent-colored glow)</option>
+        <option value="gradient">Gradient headline text</option>
         <option value="flat">Flat (no effect)</option>
       </select>
       <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;cursor:pointer">
         <input type="checkbox" id="flyerUnderlineAccent" style="width:auto">
         Underline the accented word
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px;cursor:pointer">
+        <input type="checkbox" id="flyerGradientWhole" style="width:auto">
+        Gradient covers the whole headline (not just the accented word)
       </label>
       <button class="btn gold block" id="flyerComposite" style="margin-top:10px">🖋 Composite final flyer</button>
       <div class="note" id="flyerCompositeNote"></div>

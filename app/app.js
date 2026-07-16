@@ -2699,15 +2699,18 @@ async function flyerComposite() {
   const headline = $('flyerHeadline').value.trim();
   if (!headline) return note('flyerCompositeNote', 'Add a headline first.', 'err');
   const bullets = $('flyerBullets').value.split('\n').map((b) => b.trim()).filter(Boolean);
+  const callouts = $('flyerCallouts').value.split('\n').map((c) => c.trim()).filter(Boolean);
   const spec = {
     headline, accent_word: $('flyerAccentWord').value.trim() || undefined,
     subhead: $('flyerSubhead').value.trim() || undefined,
     bullets: bullets.length ? bullets : undefined,
+    callouts: callouts.length ? callouts : undefined,
     badge: $('flyerBadge').value.trim() || undefined,
     footer: $('flyerFooter').value.trim() || undefined,
     accent_color: $('flyerAccentColor').value,
     style: $('flyerTextStyle').value,
     underline_accent: $('flyerUnderlineAccent').checked,
+    gradient_whole: $('flyerGradientWhole').checked,
   };
   const btn = $('flyerComposite'); btn.disabled = true; btn.textContent = 'Compositing…';
   $('flyerFinalResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Laying out the typography…</div></div>';
