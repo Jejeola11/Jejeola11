@@ -17,14 +17,17 @@ const { buildDesignBrainPrompt } = require('./_flyer-knowledge');
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 const MODEL = 'claude-sonnet-4-5';
 
-const SYSTEM_PREAMBLE = `You are the senior creative director inside "Flyer Studio," an AI flyer/poster design tool. You are having a real design conversation with the user — not a one-shot prompt generator. Act like an actual designer: ask a clarifying question if the brief is too thin to make a strong creative choice, otherwise commit to a direction and explain WHY in plain, confident language (one or two sentences, not a lecture).
+const SYSTEM_PREAMBLE = `You are the senior creative director inside "Flyer Studio," an AI flyer/poster design tool. You are having a real design conversation with the user — not a one-shot prompt generator. Act like an actual designer working a real client session, step by step, not dumping every decision in one message:
+1. If reference images were attached (product photos, inspiration flyers), acknowledge what they show and how they'll inform the design — you can't see them yourself, but the user will describe them and you reason from that description plus the images being passed directly into generation as visual grounding.
+2. Walk through decisions IN ORDER across the conversation, one or two at a time, not all at once: (a) color palette — propose a specific palette, not "nice colors," (b) background/field treatment, (c) typography mood (font pairing style), (d) layout/alignment approach, (e) hero visual and key elements. Ask what the user thinks or if they want changes before locking each one in, UNLESS they've clearly already told you everything up front — then synthesize it all and move straight to a proposed direction.
+3. Only produce the final image_prompt once palette + background + hero concept feel settled (typography/alignment are handled later at the compositing stage, not by the image model — mention this if asked, but don't block the image_prompt on them).
 
 ${buildDesignBrainPrompt()}
 
 IMPORTANT CAVEAT ON "RESEARCH": you do not have live web-search access. Reason from the framework above plus your own training knowledge of real brands/creators in the stated niche — do not claim to have just searched the web.
 
 Respond with STRICT JSON only, no markdown fences, no prose outside the JSON, matching exactly this shape:
-{"reply": "your conversational response to the user, explaining the direction or asking a clarifying question", "image_prompt": "the FULL literal image-generation prompt for the background/hero visual only, following the fill-in-the-blank scaffold — or empty string if you're still asking a clarifying question and not ready to propose a visual yet", "niche": "a short niche label you inferred, e.g. web3, fitness, real estate, or empty string if unclear", "suggested_next_steps": ["short suggestion 1", "short suggestion 2"]}`;
+{"reply": "your conversational response to the user — the next step in the design discussion, or a proposed direction, or a clarifying question", "image_prompt": "the FULL literal image-generation prompt for the background/hero visual only, following the fill-in-the-blank scaffold — or empty string if the discussion isn't settled enough yet to generate", "niche": "a short niche label you inferred, e.g. web3, fitness, real estate, or empty string if unclear", "suggested_next_steps": ["short suggestion 1", "short suggestion 2"]}`;
 
 function extractText(p) {
   if (!p) return '';
@@ -47,6 +50,7 @@ exports.handler = async (event) => {
   let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
   const message = (body.message || '').trim();
   const history = Array.isArray(body.history) ? body.history.slice(-12) : [];
+  const referenceImageUrls = (Array.isArray(body.reference_image_urls) ? body.reference_image_urls : []).filter(Boolean).slice(0, 20);
   if (!message) return json(400, { error: 'Describe what you want to design.' });
 
   let plan = 'pro', isAdmin = false;
@@ -67,13 +71,17 @@ exports.handler = async (event) => {
   if (balance === null) return json(402, { error: 'Not enough credits.', code: 'NO_CREDITS' });
 
   try {
+    const refs = referenceImageUrls.length ? referenceImageUrls : (project && project.reference_image_urls) || [];
     const convo = history.map((h) => `${h.role === 'assistant' ? 'YOU' : 'USER'}: ${h.text}`).join('\n');
+    const refNote = refs.length ? `\n\n${refs.length} reference image(s) attached (product photos and/or inspiration flyers) — one sample is shown to you directly below; all ${refs.length} will be passed into the actual image generation as visual grounding once a direction is settled.` : '';
     const projectNote = project ? `\n\nCurrent project brief: ${project.brief}${project.niche ? ` (niche: ${project.niche})` : ''}${project.hero_prompt ? `\nCurrent hero visual prompt in use: ${project.hero_prompt}` : ''}` : '';
-    const fullPrompt = `${SYSTEM_PREAMBLE}${projectNote}\n\n${convo ? convo + '\n' : ''}USER: ${message}`;
+    const fullPrompt = `${SYSTEM_PREAMBLE}${refNote}${projectNote}\n\n${convo ? convo + '\n' : ''}USER: ${message}`;
 
+    const payload = { prompt: fullPrompt };
+    if (refs.length) payload.image_url = refs[0];
     const sub = await fetch(`${MUAPI_BASE}/${MODEL}`, {
       method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: fullPrompt }),
+      body: JSON.stringify(payload),
     });
     const txt = await sub.text();
     let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
@@ -83,8 +91,10 @@ exports.handler = async (event) => {
 
     let projectId = project && project.id;
     if (!projectId) {
-      const { data: newProj } = await db.from('flyer_projects').insert({ user_id: user.id, brief: message }).select().single();
+      const { data: newProj } = await db.from('flyer_projects').insert({ user_id: user.id, brief: message, reference_image_urls: referenceImageUrls }).select().single();
       projectId = newProj && newProj.id;
+    } else if (referenceImageUrls.length && !(project.reference_image_urls || []).length) {
+      await db.from('flyer_projects').update({ reference_image_urls: referenceImageUrls }).eq('id', projectId);
     }
 
     const immediate = extractText(j);

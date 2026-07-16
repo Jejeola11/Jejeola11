@@ -311,8 +311,17 @@
     <div class="studio-head"><div class="ic">🎨</div><div><h2>Flyer Studio</h2><p>Describe it — a real design process, start to finish</p></div></div>
 
     <div class="panel">
+      <h3>🖼 References (optional, up to 20)</h3>
+      <p class="muted" style="font-size:12px;margin:4px 0 10px">The product you're designing for, inspirational flyers, past work — anything you want the design genuinely grounded in. These feed directly into the actual generation, not just the conversation.</p>
+      <button class="btn ghost sm" id="flyerRefPick">🖼 Add reference images</button>
+      <input type="file" id="flyerRefFile" accept="image/*" multiple hidden>
+      <div id="flyerRefThumbs" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+      <div class="note" id="flyerRefNote"></div>
+    </div>
+
+    <div class="panel" style="margin-top:14px">
       <h3>💬 Tell it what you want</h3>
-      <p class="muted" style="font-size:12px;margin:4px 0 10px">Describe the flyer — niche, mood, colors, what it's for. It'll propose a direction and an image prompt; tweak it or approve it.</p>
+      <p class="muted" style="font-size:12px;margin:4px 0 10px">Describe the flyer — niche, mood, what it's for. It'll walk through the design step by step: palette, background, typography mood, then the visual.</p>
       <div id="flyerLog" style="display:flex;flex-direction:column;gap:10px;max-height:360px;overflow-y:auto;margin-bottom:10px"></div>
       <textarea id="flyerMsg" placeholder="e.g. 'Design a web3 summit flyer — dark, premium, one teal accent'"></textarea>
       <button class="btn gold block" id="flyerSend" style="margin-top:10px">Send</button>

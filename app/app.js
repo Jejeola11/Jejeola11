@@ -2115,6 +2115,31 @@ let flyerProjectId = null;
 let flyerHistory = [];       // [{role:'user'|'assistant', text}]
 let flyerLayers = [];        // display log of applied visual layers
 
+let flyerRefUrls = [];
+async function flyerPickRefs(files) {
+  if (preview) { showAuth('signup'); return; }
+  if (!files || !files.length) return;
+  const limit = 20 - flyerRefUrls.length;
+  if (limit <= 0) return note('flyerRefNote', 'Max 20 reference images.', 'err');
+  note('flyerRefNote', 'Uploading…', 'ok');
+  for (let i = 0; i < Math.min(files.length, limit); i++) {
+    const file = files[i];
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = `${user.id}/flyerref-${Date.now()}-${i}.${ext}`;
+    const { error } = await sb.storage.from('avatars').upload(path, file);
+    if (error) { note('flyerRefNote', error.message || 'Upload failed.', 'err'); continue; }
+    flyerRefUrls.push(sb.storage.from('avatars').getPublicUrl(path).data.publicUrl);
+  }
+  renderFlyerRefs();
+  note('flyerRefNote', `✅ ${flyerRefUrls.length} reference(s) attached.`, 'ok');
+}
+function renderFlyerRefs() {
+  $('flyerRefThumbs').innerHTML = flyerRefUrls.map((u, i) =>
+    `<div style="position:relative"><img src="${u}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line)">
+      <span class="ref-x" onclick="window.fuseFlyerRmRef(${i})">✕</span></div>`).join('');
+}
+window.fuseFlyerRmRef = (i) => { flyerRefUrls.splice(i, 1); renderFlyerRefs(); };
+
 function flyerAppendLog(role, text) {
   const log = $('flyerLog');
   const bubble = document.createElement('div');
@@ -2137,7 +2162,7 @@ async function flyerSend() {
   try {
     const res = await fetch('/.netlify/functions/flyer-brief', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ message: msg, history: flyerHistory, project_id: flyerProjectId }),
+      body: JSON.stringify({ message: msg, history: flyerHistory, project_id: flyerProjectId, reference_image_urls: flyerRefUrls }),
     });
     const d = await res.json();
     if (res.status === 402) { note('flyerNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = 'Send'; return; }
@@ -2766,6 +2791,8 @@ window.addEventListener('DOMContentLoaded', () => {
   $('adVoiceFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadAudioVoiceSample(f); e.target.value = ''; };
   $('adGen').onclick = adGenerate;
   $('flyerBack').onclick = () => showView('home');
+  $('flyerRefPick').onclick = () => $('flyerRefFile').click();
+  $('flyerRefFile').onchange = (e) => { flyerPickRefs(Array.from(e.target.files)); e.target.value = ''; };
   $('flyerSend').onclick = flyerSend;
   $('flyerMsg').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); flyerSend(); } });
   $('flyerGenHero').onclick = flyerGenHero;
