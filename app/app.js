@@ -2546,10 +2546,29 @@ async function flyerGenHero(auto) {
     // Auto-suggests layer ideas the moment the hero image is actually ready
     // — grounded in the real generated image, not the text prompt — so
     // "Add a layer" never opens on a blank box with nothing to react to.
-    pollJob(d.request_id, $('flyerHeroResult'), 'flyerHeroNote', btn, label, 'image', 100, () => flyerSuggestLayers());
+    // Also silently re-confirms the hero onto the project through the same
+    // endpoint the manual "upload your own hero" button uses — belt-and-
+    // suspenders against Add Layer/Composite ever saying "generate the hero
+    // first" for a hero that's plainly sitting on screen: no more needing
+    // to download-then-re-upload the very image that was just generated.
+    pollJob(d.request_id, $('flyerHeroResult'), 'flyerHeroNote', btn, label, 'image', 100, (url) => { flyerConfirmHero(url); flyerSuggestLayers(); });
     $('flyerLayerPanel').style.display = 'block';
     $('flyerTextPanel').style.display = 'block';
   } catch (e) { $('flyerHeroResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('flyerHeroNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
+}
+
+// Fire-and-forget: re-asserts the just-generated image as the project's
+// hero_image_url via the same reliable endpoint flyerUploadHero() uses, so
+// Add Layer/Composite (which read hero_image_url straight from the project
+// row) can never end up out of sync with what's actually on screen.
+async function flyerConfirmHero(url) {
+  if (!url || !flyerProjectId) return;
+  try {
+    await fetch('/.netlify/functions/flyer-set-hero', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ project_id: flyerProjectId, image_url: url, aspect: $('flyerAspect').value }),
+    });
+  } catch (e) {}
 }
 
 // Lets a user upload their OWN hero image directly — no generation, no
@@ -2681,6 +2700,7 @@ async function flyerAddLayer() {
         if (jd.status === 'completed') {
           clearInterval(timer);
           $('flyerHeroResult').innerHTML = `<img src="${jd.url}" style="width:100%;border-radius:12px">`;
+          flyerConfirmHero(jd.url);
           note('flyerLayerNote', '✅ Layer added.', 'ok');
           btn.disabled = false; btn.textContent = 'Add layer';
         } else if (jd.status === 'failed') {
