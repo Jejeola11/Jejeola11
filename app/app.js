@@ -307,7 +307,13 @@ function saveRoute() {
 function restoreRoute() {
   let r; try { r = JSON.parse(localStorage.getItem('fuse_route') || 'null'); } catch (e) {}
   if (!r || !r.view || r.view === 'home') return;
-  const safe = ['library', 'profile', 'community', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course', 'week', 'omni', 'mini', 'all-courses'];
+  // 'flyer'/'audio'/'editstudio' were missing here — each was built after this
+  // list was written and never added, so reloading while on any of them
+  // silently dumped the user back to Home (restoreRoute just returned early)
+  // instead of restoring the view. The Flyer Studio project itself was never
+  // actually lost (it lives server-side), but landing on Home made it look
+  // exactly like it had been.
+  const safe = ['library', 'profile', 'community', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course', 'week', 'omni', 'mini', 'all-courses', 'flyer', 'audio', 'editstudio'];
   if (!safe.includes(r.view)) return;
   try {
     if (r.view === 'studio') { openStudio(r.studio || 'generate'); if (r.video) setStudioMode(true); }
@@ -317,7 +323,7 @@ function restoreRoute() {
     else if (r.view === 'week') { openWeek(); }
     else if (r.view === 'mini') { openMiniHub(); }
     else if (r.view === 'all-courses') { openAllCourses(); }
-    else if (['market', 'learn', 'avatar', 'promptgen', 'reactor'].includes(r.view)) { openStudio(r.view); }
+    else if (['market', 'learn', 'avatar', 'promptgen', 'reactor', 'flyer', 'audio', 'editstudio'].includes(r.view)) { openStudio(r.view); }
     else showView(r.view);
   } catch (e) {}
 }
@@ -2530,6 +2536,11 @@ async function flyerAddLayer() {
   if (preview) { showAuth('signup'); return; }
   const instruction = $('flyerLayerInput').value.trim();
   if (!instruction) return;
+  // Self-heal before giving up — if something left the in-memory project id
+  // empty even though a project genuinely exists (the reload/routing bug
+  // that used to strand people here), this recovers it from the same
+  // localStorage id restoreFlyerProject() already knows how to use.
+  if (!flyerProjectId) await restoreFlyerProject();
   if (!flyerProjectId) return note('flyerLayerNote', 'Generate the hero visual first.', 'err');
   const btn = $('flyerAddLayer'); btn.disabled = true; btn.textContent = 'Adding…';
   note('flyerLayerNote', '');
@@ -2571,6 +2582,7 @@ async function flyerAddLayer() {
 
 async function flyerComposite() {
   if (preview) { showAuth('signup'); return; }
+  if (!flyerProjectId) await restoreFlyerProject();
   if (!flyerProjectId) return note('flyerCompositeNote', 'Generate the hero visual first.', 'err');
   const headline = $('flyerHeadline').value.trim();
   if (!headline) return note('flyerCompositeNote', 'Add a headline first.', 'err');
