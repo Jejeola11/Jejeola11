@@ -18,7 +18,7 @@ const { muapiHostImage } = require('./_muapi');
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 const MODEL_T2I = 'gpt-image-2-text-to-image';
 const MODEL_I2I = 'gpt-image-2-image-to-image';
-const OPENAI_SIZE = { '1:1': '1024x1024', '9:16': '1024x1536', '4:5': '1024x1536', '16:9': '1536x1024' };
+const OPENAI_SIZE = { '1:1': '1024x1024', '9:16': '1024x1536', '4:5': '1024x1536', '3:4': '1024x1536', '16:9': '1536x1024' };
 
 exports.handler = async (event) => {
   let db, user, cost = 0;

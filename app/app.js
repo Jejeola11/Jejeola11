@@ -511,7 +511,7 @@ function openStudio(key) {
   if (key === 'market') { showView('market'); loadMarket(); return; }
   if (key === 'learn') { showView('learn'); buildLessons(); return; }
   if (key === 'avatar') { showView('avatar'); loadAvatars(); return; }
-  if (key === 'flyer') { showView('flyer'); loadFlyerHistory(); return; }
+  if (key === 'flyer') { showView('flyer'); loadFlyerHistory(); restoreFlyerProject(); return; }
   if (key === 'audio') { showView('audio'); loadAudioVoices(); return; }
   if (key === 'editstudio') { showView('editstudio'); return; }
   if (key === 'promptgen') { pgInit(); showView('promptgen'); return; }
@@ -2284,6 +2284,13 @@ function parseEditBriefResponse(text, fallbackReply) {
 }
 
 // ---------------- Flyer Studio (conversational AI flyer designer) ----------------
+// A page reload wipes every plain JS variable below, but the actual design
+// work (hero image, layers, references) lives server-side on the project
+// row the whole time — only the in-memory chat transcript is ever lost.
+// Persisting just the project id means reopening Flyer Studio can pull that
+// work straight back instead of looking blank with a project that's still
+// there in the database.
+const FLYER_PROJECT_KEY = 'fuse_flyer_project_id';
 let flyerProjectId = null;
 let flyerHistory = [];       // [{role:'user'|'assistant', text}]
 let flyerLayers = [];        // display log of applied visual layers
@@ -2301,9 +2308,39 @@ async function loadFlyerHistory() {
   }).join('');
   grid.querySelectorAll('[data-id]').forEach((el) => el.onclick = () => flyerLoadProject(data.find((p) => String(p.id) === el.dataset.id)));
 }
+// Called every time Flyer Studio opens — picks the last project back up
+// (if there is one) instead of starting blank. Only runs when nothing's
+// already loaded this session, so it never clobbers active work.
+async function restoreFlyerProject() {
+  if (preview || flyerProjectId) return;
+  const savedId = localStorage.getItem(FLYER_PROJECT_KEY);
+  if (!savedId) return;
+  try {
+    const { data } = await sb.from('flyer_projects').select('id,brief,hero_prompt,hero_image_url,final_url,layers,reference_image_urls').eq('id', savedId).maybeSingle();
+    if (data) {
+      flyerLoadProject(data);
+      note('flyerResumeNote', '↺ Picked up right where you left off.', 'ok');
+    } else localStorage.removeItem(FLYER_PROJECT_KEY); // project's gone (deleted) — stop trying
+  } catch (e) {}
+}
+// Explicit reset so restoring the last project on reload doesn't trap
+// anyone into always continuing the same flyer — clears everything back
+// to a blank slate for a genuinely new one.
+function flyerNewProject() {
+  flyerProjectId = null; flyerHistory = []; flyerLayers = []; flyerRefUrls = [];
+  localStorage.removeItem(FLYER_PROJECT_KEY);
+  $('flyerLog').innerHTML = ''; $('flyerImgPrompt').value = '';
+  $('flyerHeroResult').innerHTML = '<div class="muted">Your background/hero visual appears here.</div>';
+  $('flyerLayerLog').innerHTML = ''; $('flyerLayerPanel').style.display = 'none'; $('flyerTextPanel').style.display = 'none';
+  $('flyerFinalResult').innerHTML = '<div class="muted">Your finished flyer appears here.</div>';
+  renderFlyerRefs();
+  note('flyerResumeNote', '');
+  note('flyerNote', '✨ Starting a fresh flyer.', 'ok');
+}
 function flyerLoadProject(p) {
   if (!p) return;
   flyerProjectId = p.id;
+  localStorage.setItem(FLYER_PROJECT_KEY, p.id);
   flyerHistory = [];
   flyerLayers = (Array.isArray(p.layers) ? p.layers : []).map((l) => l.instruction);
   flyerRefUrls = Array.isArray(p.reference_image_urls) ? p.reference_image_urls.map((u) => ({ url: u, on: true })) : [];
@@ -2392,7 +2429,7 @@ async function flyerSend() {
     if (res.status === 402) { note('flyerNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = 'Send'; return; }
     if (!res.ok) throw new Error(d.error || 'Failed');
     if (d.credits != null) $('creditCount').textContent = d.credits;
-    if (d.project_id) flyerProjectId = d.project_id;
+    if (d.project_id) { flyerProjectId = d.project_id; localStorage.setItem(FLYER_PROJECT_KEY, flyerProjectId); }
     flyerHistory.push({ role: 'user', text: msg });
     flyerPollBrief(d.request_id, btn);
   } catch (e) { note('flyerNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = 'Send'; }
@@ -2455,7 +2492,7 @@ async function flyerGenHero(auto) {
     if (res.status === 402) { note('flyerHeroNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; return; }
     if (!res.ok) throw new Error(d.error || 'Failed');
     if (d.credits != null) $('creditCount').textContent = d.credits;
-    if (d.project_id) flyerProjectId = d.project_id;
+    if (d.project_id) { flyerProjectId = d.project_id; localStorage.setItem(FLYER_PROJECT_KEY, flyerProjectId); }
     note('flyerHeroNote', 'Rendering… ⏳', 'ok'); btn.textContent = 'Rendering…';
     pollJob(d.request_id, $('flyerHeroResult'), 'flyerHeroNote', btn, label, 'image', 100);
     $('flyerLayerPanel').style.display = 'block';
@@ -3512,6 +3549,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('editAddElement').onclick = editAddElement;
   $('editApplyCta').onclick = editApplyCta;
   $('flyerBack').onclick = () => showView('home');
+  $('flyerNewBtn').onclick = flyerNewProject;
   $('flyerRefPick').onclick = () => $('flyerRefFile').click();
   $('flyerRefFile').onchange = (e) => { flyerPickRefs(Array.from(e.target.files)); e.target.value = ''; };
   $('flyerSend').onclick = flyerSend;

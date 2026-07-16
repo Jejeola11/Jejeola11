@@ -276,6 +276,8 @@
   <section class="view" id="view-flyer">
     <div class="backlink" id="flyerBack">← Studios</div>
     <div class="studio-head"><div class="ic">🎨</div><div><h2>Flyer Studio</h2><p>Describe it — a real design process, start to finish</p></div></div>
+    <p class="muted" id="flyerResumeNote" style="font-size:12px;margin:8px 0 0"></p>
+    <button class="btn ghost sm" id="flyerNewBtn" style="margin-top:8px">＋ Start a new flyer</button>
 
     <div class="panel" id="flyerHistoryPanel" style="display:none">
       <h3>🕘 My flyers</h3>
@@ -307,7 +309,7 @@
       <label class="fld" for="flyerImgPrompt">Image prompt (background/hero only — edit freely)</label>
       <textarea id="flyerImgPrompt" style="min-height:130px"></textarea>
       <label class="fld" for="flyerAspect">Aspect</label>
-      <select id="flyerAspect"><option value="4:5">4:5 portrait</option><option value="9:16">9:16 vertical</option><option value="1:1">1:1 square</option><option value="16:9">16:9 wide</option></select>
+      <select id="flyerAspect"><option value="4:5">4:5 portrait</option><option value="3:4">3:4 portrait</option><option value="9:16">9:16 vertical</option><option value="1:1">1:1 square</option><option value="16:9">16:9 wide</option></select>
       <button class="btn gold block" id="flyerGenHero" style="margin-top:10px">✨ Generate visual</button>
       <div class="note" id="flyerHeroNote"></div>
       <div class="result" id="flyerHeroResult" style="margin-top:12px;min-height:220px"><div class="muted">Your background/hero visual appears here.</div></div>

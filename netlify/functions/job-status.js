@@ -9,7 +9,7 @@ const { pollAny } = require('./_providers');
 const { cropToAspect } = require('./_canvas');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
-const ASPECT_RATIO = { '1:1': 1, '9:16': 9 / 16, '4:5': 4 / 5, '16:9': 16 / 9 };
+const ASPECT_RATIO = { '1:1': 1, '9:16': 9 / 16, '4:5': 4 / 5, '3:4': 3 / 4, '16:9': 16 / 9 };
 
 // GPT Image 2 only has 3 fixed native sizes, so an aspect like 4:5 comes back
 // as the closest one (2:3 portrait) instead — center-crop it down to the
