@@ -100,7 +100,7 @@ async function wsPoll(id) {
   const d = j.data || {};
   const done = d.status === 'completed';
   const failed = d.status === 'failed';
-  return { status: done ? 'completed' : failed ? 'failed' : 'processing', url: done ? (d.outputs && d.outputs[0]) : null };
+  return { status: done ? 'completed' : failed ? 'failed' : 'processing', url: done ? (d.outputs && d.outputs[0]) : null, raw: d };
 }
 
 // --- MuAPI transport ---------------------------------------------------------

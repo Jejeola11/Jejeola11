@@ -62,8 +62,14 @@ exports.handler = async (event) => {
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
-    const payload = { prompt, aspect_ratio: aspect };
-    if (OPENAI_SIZE[aspect]) payload.size = OPENAI_SIZE[aspect];
+    // GPT Image 2 only understands `size` (one of 3 fixed dimensions) — it
+    // has no `aspect_ratio` field, so that never did anything useful and
+    // sending it anyway risked confusing MuAPI's request validation. The
+    // requested aspect that GPT Image 2 can't natively hit (4:5 has no
+    // matching size — it's approximated as the 2:3 portrait size) gets
+    // center-cropped to the exact ratio once the job completes, in
+    // job-status.js.
+    const payload = { prompt, size: OPENAI_SIZE[aspect] || OPENAI_SIZE['1:1'] };
     // Re-hosting on MuAPI's CDN happens concurrently inside this one function
     // call — capped at 10 (well under the 20 the model itself would accept)
     // so a full 20-reference project can't risk exceeding Netlify's

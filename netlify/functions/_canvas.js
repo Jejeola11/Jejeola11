@@ -50,6 +50,27 @@ function drawCover(ctx, img, x, y, w, h) {
   ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
 }
 
+// Center-crop an image buffer to an exact target aspect ratio (w/h). Needed
+// because GPT Image 2 only has 3 fixed native output sizes (square, ~2:3
+// portrait, ~3:2 landscape) — an aspect like 4:5 has no matching native size,
+// so it silently came back as the closest one (2:3) instead, which visibly
+// isn't what "4:5 portrait" means. This crops the real pixels down to the
+// exact ratio the user actually picked, at full resolution (no distortion,
+// no resampling of the kept region — only the excess strip is discarded).
+async function cropToAspect(buf, targetRatio) {
+  const img = await loadImage(buf);
+  const ir = img.width / img.height;
+  if (Math.abs(ir - targetRatio) < 0.01) return buf; // already matches, skip a needless re-encode
+  let cw = img.width, ch = img.height;
+  if (ir > targetRatio) cw = Math.round(img.height * targetRatio);
+  else ch = Math.round(img.width / targetRatio);
+  const sx = Math.round((img.width - cw) / 2), sy = Math.round((img.height - ch) / 2);
+  const canvas = createCanvas(cw, ch);
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, sx, sy, cw, ch, 0, 0, cw, ch);
+  return canvas.toBuffer('image/png');
+}
+
 // Word-wrap into lines that fit maxWidth at the given font.
 function wrapText(ctx, text, maxWidth) {
   const words = text.split(/\s+/);
@@ -218,5 +239,5 @@ function drawFooterBar(ctx, { text, width, y, height, accentColor, bg = '#0a0a0a
 
 module.exports = {
   createCanvas, loadImage, ensureFonts, FONT_ROLES,
-  drawCover, wrapText, roundRect, drawHeadline, drawSubhead, drawInfoCard, drawBadge, drawFooterBar, drawCtaBanner, hexToRgba,
+  drawCover, wrapText, roundRect, drawHeadline, drawSubhead, drawInfoCard, drawBadge, drawFooterBar, drawCtaBanner, hexToRgba, cropToAspect,
 };

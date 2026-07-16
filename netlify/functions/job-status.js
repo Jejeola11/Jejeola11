@@ -6,8 +6,31 @@
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
 const { pollAny } = require('./_providers');
+const { cropToAspect } = require('./_canvas');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
+const ASPECT_RATIO = { '1:1': 1, '9:16': 9 / 16, '4:5': 4 / 5, '16:9': 16 / 9 };
+
+// GPT Image 2 only has 3 fixed native sizes, so an aspect like 4:5 comes back
+// as the closest one (2:3 portrait) instead — center-crop it down to the
+// exact ratio the user picked and re-host the result. Falls back to the
+// original url on any failure (network blip, decode error) so a display
+// hiccup here never blocks the job from completing.
+async function fixFlyerAspect(db, userId, url, aspectKey) {
+  const ratio = ASPECT_RATIO[aspectKey];
+  if (!ratio) return url;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return url;
+    const buf = Buffer.from(await res.arrayBuffer());
+    const cropped = await cropToAspect(buf, ratio);
+    if (cropped === buf) return url; // already matched, no re-encode happened
+    const storagePath = `${userId}/flyer-crop-${Date.now()}.png`;
+    const { error } = await db.storage.from('avatars').upload(storagePath, cropped, { contentType: 'image/png', upsert: true });
+    if (error) return url;
+    return db.storage.from('avatars').getPublicUrl(storagePath).data.publicUrl;
+  } catch (e) { return url; }
+}
 
 function extractText(p) {
   if (!p) return '';
@@ -66,8 +89,9 @@ exports.handler = async (event) => {
   try { r = await pollAny(id); } catch (e) { return json(200, { status: 'processing' }); }
 
   if (r.status === 'completed') {
-    const url = r.url;
+    let url = r.url;
     if (!url) return json(200, { status: 'processing' });
+    if (job.kind === 'flyer-hero' && job.aspect) url = await fixFlyerAspect(db, user.id, url, job.aspect);
     await db.from('jobs').update({ status: 'completed', output_url: url }).eq('request_id', id);
     // A model sheet isn't a normal gallery item — save it onto the avatar so all
     // future generations use it as the consistent reference. The avatar id is
@@ -112,7 +136,12 @@ exports.handler = async (event) => {
   if (r.status === 'failed') {
     await db.rpc('add_credits', { uid: user.id, amount: job.credits, why: 'refund' });
     await db.from('jobs').update({ status: 'failed' }).eq('request_id', id);
-    return json(200, { status: 'failed', error: 'Generation failed' });
+    // Surface the engine's own reason when it gave one — a bare "Generation
+    // failed" is undiagnosable when it happens again; the provider's raw
+    // prediction usually carries the real reason under one of these keys.
+    const raw = r.raw || {};
+    const reason = raw.error || raw.detail || raw.logs || raw.message || null;
+    return json(200, { status: 'failed', error: reason ? `Generation failed: ${String(reason).slice(0, 200)}` : 'Generation failed' });
   }
   return json(200, { status: 'processing' });
 };
