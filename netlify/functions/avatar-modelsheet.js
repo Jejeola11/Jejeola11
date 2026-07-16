@@ -1,15 +1,22 @@
 // ============================================================
 // POST /.netlify/functions/avatar-modelsheet   (async submit)
 // Body: { avatar_id }. Generates a multi-angle CHARACTER MODEL SHEET from the
-// avatar's uploaded photos using nano-banana-edit. The finished sheet is saved
-// onto the avatar (job-status does it) and becomes the canonical reference for
-// every future avatar generation — the Nano Banana consistency method.
+// avatar's uploaded photos using GPT Image 2 (image-to-image). The finished
+// sheet is saved onto the avatar (job-status does it) and becomes the
+// canonical reference for every future avatar generation.
+//
+// Was nano-banana-edit — switched 2026-07-16 after it stopped holding face
+// identity consistently. Verified live against this account: the real edit
+// slug is `gpt-image-2-image-to-image` (not `gpt-image-2-edit`, which 404s),
+// takes `prompt` + `images_list` (confirmed up to 20 images accepted) +
+// optional `aspect_ratio`/`size`. Real cost $0.09/generation.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
 const { muapiHostImage } = require('./_muapi');
 
 const SHEET_COST = 15;
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
+const MODEL = 'gpt-image-2-image-to-image';
 
 function muapiError(j, status) {
   if (j && j.detail) {
@@ -49,13 +56,15 @@ exports.handler = async (event) => {
     if (balance === null) return json(402, { error: 'Not enough credits.', need: SHEET_COST, code: 'NO_CREDITS' });
     cost = SHEET_COST;
 
-    // Use up to 6 of the best photos as identity references for the sheet.
-    const refs = photos.slice(0, 6);
-    const hosted = await Promise.all(refs.map(muapiHostImage));
-    const sub = await fetch(`${MUAPI_BASE}/nano-banana-edit`, {
+    // Use every uploaded photo as an identity reference (avatars cap at 15
+    // training photos already, and GPT Image 2 accepts far more than that
+    // — more real angles/lighting of the same face is exactly what fixes
+    // identity drift, so there's no reason to artificially cap this low).
+    const hosted = await Promise.all(photos.map(muapiHostImage));
+    const sub = await fetch(`${MUAPI_BASE}/${MODEL}`, {
       method: 'POST',
       headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: SHEET_PROMPT, aspect_ratio: '1:1', images_list: hosted }),
+      body: JSON.stringify({ prompt: SHEET_PROMPT, aspect_ratio: '1:1', size: '1024x1024', images_list: hosted }),
     });
     const j = await sub.json();
     if (!sub.ok) throw new Error(muapiError(j, sub.status));
@@ -64,7 +73,7 @@ exports.handler = async (event) => {
 
     // Carry the avatar id inside `prompt` so job-status can save the sheet onto the
     // avatar without depending on an extra jobs column.
-    await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'modelsheet', model: 'nano-banana-edit', prompt: 'MODELSHEET::' + avatarId, aspect: '1:1', credits: SHEET_COST, status: 'processing' });
+    await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'modelsheet', model: MODEL, prompt: 'MODELSHEET::' + avatarId, aspect: '1:1', credits: SHEET_COST, status: 'processing' });
     return json(200, { request_id: id, credits: balance });
   } catch (e) {
     try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}

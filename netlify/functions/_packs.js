@@ -90,6 +90,7 @@ const IMAGE_COST = {
   'flux-schnell-image': 0.01,
   'flux-dev-image': 0.025,
   'gpt-image-2-text-to-image': 0.04,   // OpenAI GPT Image 2 — most realistic photoreal output
+  'gpt-image-2-image-to-image': 0.09,  // GPT Image 2 edit/reference variant — face-lock avatar generation + model sheets (verified live 2026-07-16, up to 20 ref images)
   'nano-banana': 0.039,
   'nano-banana-edit': 0.039,
   'nano-banana-2': 0.04,
