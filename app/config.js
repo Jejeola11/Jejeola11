@@ -285,8 +285,9 @@ window.FUSE = {
   LESSONS_NOTE: 'This is a taste of the full Fuse Atelier — The AI Creative Income System. Get the complete course below. 🎬',
   LEARN_BONUS: 20,
 
-  // Ported character prompt builder (from Fuse Character Lab).
-  PROMPT_ORDER: ['gender', 'heritage', 'hair', 'vibe', 'outfit', 'setting', 'lighting', 'shot'],
+  // Ported character prompt builder (from Fuse Character Lab). Category
+  // order/grouping (character-only vs. shared-with-General-mode) lives in
+  // app.js's PG_ORDER_CHAR/PG_ORDER_SHARED, not here.
   PROMPT_LIB: {
     gender: { label: 'Gender', opts: [['Female', 'woman'], ['Male', 'man'], ['Androgynous', 'androgynous person']] },
     heritage: { label: 'Heritage / Look', opts: [['Black · African', 'Black African'], ['Black · diaspora', 'Black'], ['Arab / M. East', 'Middle Eastern'], ['South Asian', 'South Asian'], ['East Asian', 'East Asian'], ['Southeast Asian', 'Southeast Asian'], ['Latina/o', 'Latino'], ['Mediterranean', 'Mediterranean'], ['Mixed', 'mixed-race'], ['Caucasian', 'Caucasian']] },
@@ -296,6 +297,57 @@ window.FUSE = {
     setting: { label: 'Setting', opts: [['Luxury desk', 'seated at a dark luxury executive desk'], ['Bedroom vanity', 'at a softly lit bedroom vanity'], ['Modern kitchen', 'in a bright modern kitchen'], ['Café', 'at a cozy aesthetic café'], ['Car interior', 'in a luxury car interior'], ['Studio backdrop', 'against a clean studio seamless backdrop'], ['City street', 'on a stylish city street'], ['Rooftop dusk', 'on a rooftop at dusk with city skyline'], ['Hotel lobby', 'in an upscale hotel lobby'], ['Poolside sunset', 'poolside at golden sunset'], ['Home sofa', 'on a cozy living-room sofa'], ['Owambe', 'at a vibrant Nigerian owambe party'], ['Study', 'in a warm book-lined study'], ['Restaurant', 'at a chic dimly-lit restaurant']] },
     lighting: { label: 'Lighting', opts: [['Soft daylight', 'soft natural daylight'], ['Golden hour', 'warm golden-hour glow'], ['Chiaroscuro', 'dramatic chiaroscuro side lighting'], ['Ring-light', 'even bright ring-light'], ['Cinematic moody', 'cinematic moody low-key lighting'], ['Clean bright', 'clean bright airy lighting'], ['Neon night', 'colorful neon night lighting']] },
     shot: { label: 'Shot type', opts: [['Selfie UGC', 'a vertical selfie-style phone photo|shot on a phone front camera'], ['Half-body', 'a half-body portrait|shot on a 50mm lens'], ['Full-body editorial', 'a full-body editorial fashion photograph|shot on a cinema camera'], ['Close-up', 'a tight beauty close-up|shot on an 85mm lens, shallow depth of field'], ['Over-the-shoulder', 'an over-the-shoulder candid shot|shot on a 35mm lens']] },
+  },
+  // Target platforms the assembler writes a tuned prompt for — each has its
+  // own phrasing + its own identity-consistency block (e.g. Midjourney locks
+  // identity via --cref/--seed, GPT Image via re-uploading the same reference
+  // photo, Soul via its trained Soul ID).
+  PROMPT_PLATFORMS: [
+    { id: 'fuse', label: 'Fuse Studio' },
+    { id: 'soul', label: 'Higgsfield Soul' },
+    { id: 'gpt', label: 'ChatGPT / GPT Image' },
+    { id: 'mj', label: 'Midjourney' },
+    { id: 'kling', label: 'Kling (video)' },
+  ],
+  // Ready-made character presets — tap one to instantly load every chip.
+  PROMPT_PRESETS: [
+    { nm: 'The Signature', ds: 'Luxury Black woman, headscarf, teal suit, executive desk.', st: { gender: 0, heritage: 0, hair: 9, vibe: 2, outfit: 2, setting: 0, lighting: 2, shot: 2 } },
+    { nm: 'Clean-Girl Maya', ds: 'Effortless Black woman, sleek hair, café, soft daylight.', st: { gender: 0, heritage: 1, hair: 0, vibe: 4, outfit: 0, setting: 3, lighting: 0, shot: 0 } },
+    { nm: 'The Founder (M)', ds: 'CEO-energy man, black blazer, luxury desk, moody light.', st: { gender: 1, heritage: 0, hair: 8, vibe: 3, outfit: 1, setting: 0, lighting: 2, shot: 2 } },
+    { nm: 'Streetwear Kai', ds: 'Cool man, fade, hoodie, neon city street.', st: { gender: 1, heritage: 1, hair: 8, vibe: 5, outfit: 7, setting: 6, lighting: 6, shot: 0 } },
+    { nm: 'Soft Luxe Bob', ds: 'Clean-aesthetic woman, bob, hotel lobby, golden hour.', st: { gender: 0, heritage: 9, hair: 2, vibe: 4, outfit: 4, setting: 8, lighting: 1, shot: 1 } },
+    { nm: 'Fitness Coach', ds: 'Athleisure woman, slick bun, modern gym, bright light.', st: { gender: 0, heritage: 0, hair: 6, vibe: 0, outfit: 5, setting: 11, lighting: 5, shot: 0 } },
+    { nm: 'Editorial Curls', ds: 'High-fashion woman, curly afro, studio seamless.', st: { gender: 0, heritage: 0, hair: 3, vibe: 6, outfit: 9, setting: 5, lighting: 2, shot: 2 } },
+    { nm: 'Café Linen Guy', ds: 'Approachable man, linen shirt, café, daylight.', st: { gender: 1, heritage: 7, hair: 7, vibe: 7, outfit: 8, setting: 3, lighting: 0, shot: 0 } },
+    { nm: 'Aso-Ebi Owambe', ds: 'Old-money-luxe woman, box braids, aso-ebi, owambe party.', st: { gender: 0, heritage: 0, hair: 4, vibe: 2, outfit: 10, setting: 11, lighting: 1, shot: 1 } },
+  ],
+  // Caption + hashtag maker (template-based, zero cost — no LLM call).
+  CAP_PLATFORMS: [
+    { k: 'ig', label: '📸 Instagram' }, { k: 'tiktok', label: '🎵 TikTok' },
+    { k: 'yt', label: '▶️ YouTube' }, { k: 'linkedin', label: '💼 LinkedIn' },
+  ],
+  CAP_VIBES: [
+    { k: 'bold', label: '🔥 Bold' }, { k: 'story', label: '📖 Story' },
+    { k: 'edu', label: '🎓 Teach' }, { k: 'luxe', label: '✨ Luxe' }, { k: 'funny', label: '😄 Fun' },
+  ],
+  CAP_HOOKS: {
+    bold: ["Everyone's doing it wrong.", 'This changes everything.', 'Stop scrolling. You need to see this.', "I can't believe this is AI.", 'Nobody is talking about this.'],
+    story: ['A year ago I had nothing to show.', 'I almost gave up on this.', "Here's how it really happened.", 'This started as a random idea…', 'Let me tell you a secret.'],
+    edu: ["Save this before it's gone.", "Here's exactly how to do it.", 'The 3 things nobody tells you.', 'Steal my entire process.', 'Watch this if you want to learn fast.'],
+    luxe: ['Quiet luxury, loud results.', 'Made to look expensive.', 'This is what premium feels like.', 'Effortless. Elevated. Yours.', 'When the details do the talking.'],
+    funny: ['POV: you just discovered the cheat code.', "Tell me you're obsessed without telling me.", 'This took me 5 minutes and a snack.', 'Me pretending I had a whole film crew.', "It's giving main character energy."],
+  },
+  CAP_CTA: {
+    ig: ['Comment "FUSE" and I\'ll send you how 👇', 'Save this for later 🔖', 'Follow for daily AI magic ✨', 'Tag someone who needs this 👀', 'Drop a 🔥 if you want the tutorial'],
+    tiktok: ['Follow for part 2 🎬', 'Comment what I should make next 👇', "Save before it's gone ⏳", 'Duet this with your version 🤝', 'Like if this blew your mind 🤯'],
+    yt: ['Subscribe for the full breakdown ▶️', 'Full tutorial linked below 👇', 'Comment your questions, I reply to all 💬', "Hit the bell so you don't miss part 2 🔔", 'Like to support free tutorials 🙏'],
+    linkedin: ["What would you add? Let's discuss 👇", 'Repost if your network should see this ♻️', 'DM me if you want the full process.', 'Curious how others approach this — thoughts?', 'Follow for more on AI + creativity.'],
+  },
+  CAP_TAGS: {
+    ig: '#aivideo #aiugc #contentcreator #aicontent #reels #aitools #createwithai #digitalcreator #aicreator #fusestudio #ugccreator #explorepage #aigenerated #marketing',
+    tiktok: '#aivideo #aitools #fyp #foryou #contentcreator #aiugc #createwithai #techtok #aicreator #learnontiktok #viral #fusestudio',
+    yt: '#aivideo #aitutorial #youtubeshorts #contentcreation #aitools #createwithai #aiugc #shorts #digitalcreator #fusestudio',
+    linkedin: '#ai #artificialintelligence #contentcreation #marketing #creativity #aitools #personalbrand #digitalmarketing #futureofwork',
   },
 
 };

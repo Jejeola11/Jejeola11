@@ -514,7 +514,7 @@ function openStudio(key) {
   if (key === 'flyer') { showView('flyer'); loadFlyerHistory(); return; }
   if (key === 'audio') { showView('audio'); loadAudioVoices(); return; }
   if (key === 'editstudio') { showView('editstudio'); return; }
-  if (key === 'promptgen') { buildPromptFields(); showView('promptgen'); loadPromptHistory(); return; }
+  if (key === 'promptgen') { pgInit(); showView('promptgen'); return; }
   if (key === 'omni') { showView('omni'); return; }
   activeStudio = cfg.STUDIOS.find((s) => s.key === key) || cfg.STUDIOS[0];
   $('studioIcon').textContent = activeStudio.icon;
@@ -2728,31 +2728,211 @@ async function editApplyCta() {
   btn.disabled = false; btn.textContent = '📣 Add CTA — finish';
 }
 
-// ---------------- prompt generator (charged, 1 credit) ----------------
-function buildPromptFields() {
-  if ($('pgFields').children.length) return;
-  $('pgFields').innerHTML = cfg.PROMPT_ORDER.map((k) => {
-    const f = cfg.PROMPT_LIB[k];
-    const opts = f.opts.map((o, i) => `<option value="${i}">${o[0]}</option>`).join('');
-    return `<select data-k="${k}"><option value="">${f.label}…</option>${opts}</select>`;
-  }).join('');
+// ---------------- prompt generator (free, instant — ported from Fuse Character Lab) ----------------
+// Everything here is deterministic templating, not an LLM call — same as the
+// standalone Character Lab tool this was ported from, so it costs nothing and
+// never waits on a server. Real credits are only spent later, if/when the
+// user taps "Use this prompt to generate" and it turns into an actual image.
+let pgState = { mode: 'character', gender: 0, heritage: 0, hair: 0, vibe: 0, outfit: 0, setting: 0, lighting: 0, shot: 0, platform: 'fuse' };
+let pgRefs = []; // [{url, tag}] — up to 10, tagged reference images (outfit/setting/product/style/other)
+const PG_REF_TAGS = ['Style reference', 'Outfit reference', 'Setting reference', 'Product reference', 'Pose reference', 'Other'];
+const PG_POSES = [
+  'looking directly at the camera with a calm, confident expression',
+  'glancing slightly to the side, relaxed and natural',
+  'mid-laugh, warm and candid',
+  'chin slightly lifted, poised and powerful',
+  'soft genuine smile, approachable energy',
+];
+const PG_ANGLES = [
+  'shot straight-on with clean, symmetrical framing',
+  'shot from a slight low angle for presence',
+  'shot from just above, a gentle top-down perspective',
+  'a tight detail crop on the most important part',
+  'wide establishing framing with room to breathe',
+];
+
+function pgPick(k) { return cfg.PROMPT_LIB[k].opts[pgState[k]]; } // [label, phrase]
+function pgCharToken() {
+  return (pgPick('vibe')[0].split(' ')[0] + '_' + pgPick('heritage')[0].split(' ')[0] + '_' + pgPick('gender')[0]).replace(/[^A-Za-z_]/g, '');
 }
-async function pgGenerate() {
-  if (preview) { showAuth('signup'); return; }
-  const fields = {};
-  $('pgFields').querySelectorAll('select').forEach((s) => { if (s.value !== '') fields[s.dataset.k] = cfg.PROMPT_LIB[s.dataset.k].opts[+s.value][1]; });
-  const btn = $('pgGen'); btn.disabled = true; btn.textContent = 'Writing…';
-  try {
-    const res = await fetch('/.netlify/functions/prompt-gen', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ subject: $('pgSubject').value.trim(), extra: $('pgExtra').value.trim(), fields }),
+function pgRefNote() {
+  if (!pgRefs.length) return '';
+  return ' ' + pgRefs.map((r, i) => `Reference image ${i + 1} is the ${r.tag.toLowerCase()} — copy it exactly.`).join(' ');
+}
+function pgCorePhrase(poseIdx) {
+  const shotP = pgPick('shot')[1]; const [frame, cam] = shotP.split('|');
+  const extra = $('pgExtra').value.trim();
+  if (pgState.mode === 'general') {
+    const subj = $('pgSubject').value.trim() || 'the subject';
+    return { frame, cam, body: [subj, pgPick('setting')[1]].join(', '), light: pgPick('lighting')[1], pose: PG_ANGLES[poseIdx % PG_ANGLES.length], extra };
+  }
+  const subject = $('pgSubject').value.trim() || `${pgPick('vibe')[1]} ${pgPick('heritage')[1]} ${pgPick('gender')[1]}`;
+  const parts = [subject, pgPick('hair')[1], 'wearing ' + pgPick('outfit')[1], pgPick('setting')[1]];
+  return { frame, cam, body: parts.join(', '), light: pgPick('lighting')[1], pose: PG_POSES[poseIdx % PG_POSES.length], extra };
+}
+function pgCap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+// Several lighting phrases already end in the word "lighting" (e.g.
+// "dramatic chiaroscuro side lighting") while others don't (e.g. "warm
+// golden-hour glow") — only append the word when the phrase doesn't already
+// have it, so it never reads "...lighting lighting."
+function pgLight(c) { return /lighting$/i.test(c.light.trim()) ? c.light : `${c.light} lighting`; }
+function pgAssemble(platform, poseIdx) {
+  const c = pgCorePhrase(poseIdx);
+  const ex = c.extra ? ` ${c.extra}.` : '';
+  const refs = pgRefNote();
+  const light = pgLight(c);
+  if (platform === 'fuse') {
+    const idNote = pgRefs.length ? ' Match the attached reference image(s) exactly — same identity/product, do not change it.' : '';
+    return `${pgCap(c.frame)}, photorealistic. ${pgCap(c.body)}. ${pgCap(light)}. ${pgCap(c.pose)}. ${c.cam}, high detail, realistic texture.${ex}${idNote}${refs}`;
+  }
+  if (platform === 'soul') {
+    return `${pgCap(c.frame)}, photorealistic. ${pgCap(c.body)}. ${pgCap(light)}. ${pgCap(c.pose)}. ${c.cam}, high detail, realistic skin texture, vertical 9:16.${ex}${refs}`;
+  }
+  if (platform === 'gpt') {
+    return `Create ${c.frame} of ${c.body}. Photorealistic, ${light}. ${pgCap(c.pose)}. ${c.cam}. Keep the exact same face, hairline and identity as the reference image — identical facial features, same person, do not change the face.${ex}${refs}`;
+  }
+  if (platform === 'mj') {
+    return `${c.frame}, ${c.body}, ${light}, ${c.pose}, ${c.cam}, photorealistic, ultra detailed skin${ex} --ar 9:16 --style raw --v 6`;
+  }
+  return `Animate this character image: ${c.body}. ${pgCap(c.pose)}. Subtle cinematic motion — slow push-in, natural head movement, a slow blink, gentle fabric movement, ${light}. Keep the same face and identity. Smooth, premium, realistic.${ex}${refs}`;
+}
+function pgConsistencyBlock() {
+  const tok = pgCharToken();
+  if (pgState.platform === 'fuse') return `Attach the same reference image(s) every time you generate — Fuse Studio's image-to-image mode locks the face/product identical across every result. Handle: "${tok}". Re-attach your best output as the new reference every few generations so the likeness never drifts.`;
+  if (pgState.platform === 'soul') return `Soul ID: <paste your trained Soul ID here>\nCharacter handle: "${tok}"\nKeep: same face, same features, identical person across every generation. Quality 2k, Style General.`;
+  if (pgState.platform === 'gpt') return `Always upload the SAME reference image of "${tok}".\nAlways add: "same exact face and person as the reference, identical facial features, do not alter identity."\nRe-upload your best result every few images so the likeness never drifts.`;
+  if (pgState.platform === 'mj') return `Use the same --cref <reference image URL> and a fixed --sref for style.\nKeep --seed the SAME number across images to lock the look. Character handle: "${tok}".`;
+  return `Use the same source character image every time. Character handle: "${tok}". Keep face identical; only motion changes.`;
+}
+function pgNegPrompt() { return 'deformed face, distorted features, extra fingers, asymmetric eyes, plastic skin, over-smoothed, watermark, text artifacts, changing identity between images, blurry, low detail'; }
+
+function pgSetMode(mode) {
+  pgState.mode = mode;
+  $('pgModeChar').classList.toggle('active', mode === 'character');
+  $('pgModeGeneral').classList.toggle('active', mode === 'general');
+  $('pgCharBlock').style.display = mode === 'character' ? 'block' : 'none';
+  $('pgSubjectLabel').textContent = mode === 'general' ? 'Describe what you\'re generating' : 'Your own subject (optional — overrides the chips above)';
+  $('pgSubject').placeholder = mode === 'general' ? 'e.g. a jollof rice product shot, a skincare bottle, a beach house flyer background' : 'e.g. a jollof rice product, a skincare bottle, a beach house flyer background';
+  if ($('pgOut').style.display !== 'none') pgGenerate();
+}
+function pgBuildPlatTabs() {
+  $('pgPlatTabs').innerHTML = cfg.PROMPT_PLATFORMS.map((p) => `<button class="mtab${pgState.platform === p.id ? ' active' : ''}" data-p="${p.id}">${p.label}</button>`).join('');
+  $('pgPlatTabs').querySelectorAll('button').forEach((b) => b.onclick = () => {
+    pgState.platform = b.dataset.p; pgBuildPlatTabs();
+    if ($('pgOut').style.display !== 'none') pgGenerate();
+  });
+}
+const PG_ORDER_CHAR = ['gender', 'heritage', 'hair', 'vibe', 'outfit'];
+const PG_ORDER_SHARED = ['setting', 'lighting', 'shot']; // usable in both Character and General mode
+function pgRenderFieldGroup(elId, keys) {
+  const el = $(elId);
+  el.innerHTML = keys.map((k) => {
+    const f = cfg.PROMPT_LIB[k];
+    const chips = f.opts.map((o, i) => `<span class="chip${pgState[k] === i ? ' sel' : ''}" data-i="${i}">${o[0]}</span>`).join('');
+    return `<div class="pg-field"><label>${f.label}</label><div class="chips" data-k="${k}">${chips}</div></div>`;
+  }).join('');
+  el.querySelectorAll('.chips').forEach((c) => {
+    const k = c.dataset.k;
+    c.querySelectorAll('.chip').forEach((ch) => ch.onclick = () => {
+      pgState[k] = +ch.dataset.i; pgBuildFields();
+      if ($('pgOut').style.display !== 'none') pgGenerate();
     });
-    const d = await res.json();
-    if (res.status === 402) { note('pgNote', 'Out of credits — top up.', 'err'); openBuy(); }
-    else if (!res.ok) throw new Error(d.error || 'Failed');
-    else { $('pgResult').value = d.prompt; if (d.credits != null) $('creditCount').textContent = d.credits; note('pgNote', '✨ Prompt ready — edit it or use it below.', 'ok'); loadPromptHistory(); }
-  } catch (e) { note('pgNote', e.message || 'Failed', 'err'); }
-  btn.disabled = false; btn.textContent = '✨ Generate prompt (1 credit)';
+  });
+}
+function pgBuildFields() {
+  pgRenderFieldGroup('pgFields', PG_ORDER_CHAR);
+  pgRenderFieldGroup('pgFieldsShared', PG_ORDER_SHARED);
+}
+function pgBuildPresets() {
+  $('pgPresets').innerHTML = `<label class="fld" style="margin:0 0 8px">Quick presets</label>` + cfg.PROMPT_PRESETS.map((p, i) =>
+    `<div class="pcard" data-i="${i}"><div class="nm">${p.nm}</div><div class="ds">${p.ds}</div></div>`).join('');
+  $('pgPresets').querySelectorAll('.pcard').forEach((c) => c.onclick = () => {
+    Object.assign(pgState, cfg.PROMPT_PRESETS[+c.dataset.i].st);
+    pgBuildFields(); pgGenerate();
+  });
+}
+function pgGetSaved() { try { return JSON.parse(localStorage.getItem('fuse_pg_saved') || '[]'); } catch (e) { return []; } }
+function pgRenderSaved() {
+  const s = pgGetSaved(); const w = $('pgSaved'); if (!w) return;
+  if (!s.length) { w.innerHTML = ''; return; }
+  w.innerHTML = `<div class="muted" style="font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Saved characters</div>` +
+    s.map((it, i) => `<span class="stag" data-i="${i}"><b>${(it.name || '').replace(/</g, '&lt;')}</b> · load <span class="x" data-x="${i}">✕</span></span>`).join('');
+  w.querySelectorAll('.stag').forEach((t) => t.onclick = (e) => {
+    if (e.target.classList.contains('x')) return;
+    Object.assign(pgState, pgGetSaved()[+t.dataset.i].state);
+    pgBuildFields(); pgGenerate();
+  });
+  w.querySelectorAll('.x').forEach((x) => x.onclick = (e) => {
+    e.stopPropagation();
+    const s2 = pgGetSaved(); s2.splice(+x.dataset.x, 1);
+    localStorage.setItem('fuse_pg_saved', JSON.stringify(s2)); pgRenderSaved();
+  });
+}
+function pgSaveChar() {
+  const name = prompt0('Name this character (e.g. "Maya — clean girl")');
+  if (!name) return;
+  const s = pgGetSaved(); s.push({ name, state: Object.assign({}, pgState) });
+  localStorage.setItem('fuse_pg_saved', JSON.stringify(s)); pgRenderSaved();
+}
+
+async function pgPickRefs(files) {
+  if (preview) { showAuth('signup'); return; }
+  if (!files || !files.length) return;
+  const limit = 10 - pgRefs.length;
+  if (limit <= 0) return note('pgRefNote', 'Max 10 reference images.', 'err');
+  note('pgRefNote', 'Uploading…', 'ok');
+  for (let i = 0; i < Math.min(files.length, limit); i++) {
+    try {
+      const file = await resizeImageFile(files[i]);
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${user.id}/pgref-${Date.now()}-${i}.${ext}`;
+      await uploadWithRetry('avatars', path, file);
+      pgRefs.push({ url: sb.storage.from('avatars').getPublicUrl(path).data.publicUrl, tag: PG_REF_TAGS[0] });
+    } catch (error) { note('pgRefNote', (error && error.message) || 'Upload failed.', 'err'); }
+  }
+  pgRenderRefs();
+  note('pgRefNote', `✅ ${pgRefs.length} reference(s) attached.`, 'ok');
+}
+function pgRenderRefs() {
+  $('pgRefGrid').innerHTML = pgRefs.map((r, i) => `
+    <div class="pg-ref"><img src="${r.url}"><span class="ref-x" onclick="window.fusePgRmRef(${i})">✕</span>
+      <select onchange="window.fusePgTagRef(${i}, this.value)">${PG_REF_TAGS.map((t) => `<option${r.tag === t ? ' selected' : ''}>${t}</option>`).join('')}</select>
+    </div>`).join('');
+}
+window.fusePgRmRef = (i) => { pgRefs.splice(i, 1); pgRenderRefs(); };
+window.fusePgTagRef = (i, tag) => { if (pgRefs[i]) pgRefs[i].tag = tag; };
+
+function pgInit() {
+  pgBuildPlatTabs(); pgBuildPresets(); pgBuildFields(); pgRenderSaved(); pgRenderRefs();
+  loadPromptHistory();
+}
+function pgGenerate() {
+  if (pgState.mode === 'general' && !$('pgSubject').value.trim()) return note('pgNote', 'Describe what you\'re generating first.', 'err');
+  $('pgOut').style.display = 'block';
+  const main = pgAssemble(pgState.platform, 0);
+  $('pgMain').textContent = main;
+  $('pgVary').innerHTML = [1, 2, 3].map((i) => `<div class="pg-txt mini">${pgAssemble(pgState.platform, i).replace(/</g, '&lt;')}</div>`).join('');
+  $('pgCons').textContent = pgConsistencyBlock();
+  const showNeg = pgState.platform === 'mj' || pgState.platform === 'soul';
+  $('pgNegWrap').style.display = showNeg ? 'block' : 'none';
+  if (showNeg) $('pgNeg').textContent = pgNegPrompt();
+  note('pgNote', '✨ Prompt ready.', 'ok');
+  if (!preview && user) { try { sb.from('prompt_history').insert({ user_id: user.id, prompt: main }).then(() => loadPromptHistory()); } catch (e) {} }
+  $('pgOut').scrollIntoView({ behavior: 'smooth' });
+}
+function pgCopy(id) { navigator.clipboard.writeText($(id).textContent || ''); }
+function pgCopyJson() {
+  const scene = {}; PG_ORDER_SHARED.forEach((k) => { scene[k] = pgPick(k)[0]; });
+  const data = {
+    mode: pgState.mode,
+    character: pgState.mode === 'character' ? Object.fromEntries(PG_ORDER_CHAR.map((k) => [k, pgPick(k)[0]])) : undefined,
+    scene,
+    subject: $('pgSubject').value.trim(), extra: $('pgExtra').value.trim(), platform: pgState.platform,
+    references: pgRefs.map((r) => ({ url: r.url, tag: r.tag })),
+    prompts: { main: pgAssemble(pgState.platform, 0), variations: [1, 2, 3].map((i) => pgAssemble(pgState.platform, i)), consistency: pgConsistencyBlock(), negative: pgNegPrompt() },
+  };
+  navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+  note('pgNote', '✅ Copied everything as JSON.', 'ok');
 }
 async function loadPromptHistory() {
   const wrap = $('pgHistory'); if (!wrap) return;
@@ -2768,12 +2948,46 @@ async function loadPromptHistory() {
       </div></div>`;
   }).join('');
 }
-window.fusePhUse = (p) => { $('pgResult').value = p; note('pgNote', 'Loaded from history — tap “Use this prompt” below.', 'ok'); $('pgResult').scrollIntoView({ behavior: 'smooth' }); };
+window.fusePhUse = (p) => { $('pgOut').style.display = 'block'; $('pgMain').textContent = p; note('pgNote', 'Loaded from history — tap "Use this prompt" below.', 'ok'); $('pgOut').scrollIntoView({ behavior: 'smooth' }); };
 function pgUse() {
-  const p = $('pgResult').value.trim();
+  const p = ($('pgMain').textContent || '').trim();
   if (!p) return note('pgNote', 'Generate a prompt first.', 'err');
   openStudio('generate');
   $('prompt').value = p;
+  if (pgRefs.length) {
+    refUrls = pgRefs.slice(0, 5).map((r) => r.url);
+    renderRefThumbs();
+    if (pgRefs.length > 5) note('genNote', `Attached the first 5 of your ${pgRefs.length} reference images (the main generator's limit).`, 'ok');
+    else note('genNote', `✅ ${pgRefs.length} reference(s) carried over.`, 'ok');
+  }
+}
+
+// ---------------- caption + hashtag maker (free, template-based) ----------------
+let capState = { platform: 'ig', vibe: 'bold' };
+function capBuildChips() {
+  $('capPlat').innerHTML = cfg.CAP_PLATFORMS.map((p) => `<span class="chip${capState.platform === p.k ? ' sel' : ''}" data-cp="${p.k}">${p.label}</span>`).join('');
+  $('capVibe').innerHTML = cfg.CAP_VIBES.map((v) => `<span class="chip${capState.vibe === v.k ? ' sel' : ''}" data-cv="${v.k}">${v.label}</span>`).join('');
+  $('capPlat').querySelectorAll('.chip').forEach((c) => c.onclick = () => { capState.platform = c.dataset.cp; capBuildChips(); });
+  $('capVibe').querySelectorAll('.chip').forEach((c) => c.onclick = () => { capState.vibe = c.dataset.cv; capBuildChips(); });
+}
+function fuseRand(a) { return a[Math.floor(Math.random() * a.length)]; }
+function capGenerate() {
+  const topic = ($('capTopic').value || 'this').trim();
+  const hook = fuseRand(cfg.CAP_HOOKS[capState.vibe]);
+  const cta = fuseRand(cfg.CAP_CTA[capState.platform]);
+  const bodyOpts = [
+    `Made 100% with AI — no camera, no crew, no studio. Just ${topic} and a few prompts.`,
+    `This is ${topic}, created entirely with AI on my phone. The future of content is here.`,
+    `I turned ${topic} into scroll-stopping content using AI. It took minutes, not days.`,
+    `${topic.charAt(0).toUpperCase()}${topic.slice(1)} — but every frame is AI-generated. Wild what's possible now.`,
+  ];
+  const body = fuseRand(bodyOpts);
+  const caption = capState.platform === 'linkedin'
+    ? `${hook}\n\n${body}\n\nThe bottleneck is no longer production — it's creative direction.\n\n${cta}`
+    : `${hook} 👀\n\n${body}\n\n${cta}`;
+  $('capText').textContent = caption;
+  $('capTags').textContent = cfg.CAP_TAGS[capState.platform];
+  $('capOut').style.display = 'block';
 }
 
 // ---------------- marketplace ----------------
@@ -3119,9 +3333,25 @@ window.addEventListener('DOMContentLoaded', () => {
   $('learnBack').onclick = () => showView('home');
   $('avatarBack').onclick = () => showView('home');
   $('pgBack').onclick = () => showView('home');
+  $('pgModeChar').onclick = () => pgSetMode('character');
+  $('pgModeGeneral').onclick = () => pgSetMode('general');
   $('pgGen').onclick = pgGenerate;
-  $('pgCopy').onclick = () => { const t = $('pgResult').value.trim(); if (!t) return note('pgNote', 'Generate a prompt first.', 'err'); navigator.clipboard.writeText(t); $('pgCopy').textContent = '✓ Copied!'; setTimeout(() => $('pgCopy').textContent = '⧉ Copy prompt', 1500); };
   $('pgUse').onclick = pgUse;
+  $('pgSaveChar').onclick = pgSaveChar;
+  $('pgRefBtn').onclick = () => { if (pgRefs.length >= 10) return note('pgRefNote', 'Max 10 reference images.', 'err'); $('pgRefFile').click(); };
+  $('pgRefFile').onchange = (e) => { pgPickRefs(Array.from(e.target.files || [])); e.target.value = ''; };
+  $('pgCopyMain').onclick = () => pgCopy('pgMain');
+  $('pgCopyVary').onclick = () => navigator.clipboard.writeText(Array.from($('pgVary').querySelectorAll('.pg-txt')).map((d) => d.textContent).join('\n\n'));
+  $('pgCopyCons').onclick = () => pgCopy('pgCons');
+  $('pgCopyNeg').onclick = () => pgCopy('pgNeg');
+  $('pgCopyJson').onclick = pgCopyJson;
+  $('capGen').onclick = capGenerate;
+  document.querySelectorAll('#view-promptgen [data-cap]').forEach((b) => b.onclick = () => {
+    const which = b.dataset.cap;
+    const text = which === 'text' ? $('capText').textContent : $('capTags').textContent;
+    navigator.clipboard.writeText(text); const o = b.textContent; b.textContent = '✓ Copied'; setTimeout(() => b.textContent = o, 1300);
+  });
+  $('capCopyAll').onclick = () => navigator.clipboard.writeText(`${$('capText').textContent}\n\n${$('capTags').textContent}`);
   $('avCreate').onclick = createAvatar;
   $('avPick').onclick = () => $('avFile').click();
   $('avFile').onchange = (e) => { addTrainFiles(e.target.files); e.target.value = ''; };

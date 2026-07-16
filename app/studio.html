@@ -571,39 +571,100 @@
   <!-- ===== PROMPT GENERATOR (charged) ===== -->
   <section class="view" id="view-promptgen">
     <div class="backlink" id="pgBack">← Studios</div>
-    <div class="studio-head"><div class="ic">🧬</div><div><h2>Prompt Generator</h2><p>Turn a few choices into a pro prompt · 1 credit</p></div></div>
-    <div class="panel" style="margin-top:14px;background:linear-gradient(120deg,rgba(245,197,24,.14),rgba(245,197,24,.03));border:1px solid rgba(245,197,24,.4)">
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="font-size:26px">🧬</div>
-        <div>
-          <div style="font-weight:800;color:var(--ink)">Want the full Fuse Character Lab?</div>
-          <p class="muted" style="font-size:13px;margin:4px 0 0">This built-in generator gives you one prompt at a time. <b class="gold">Fuse Character Lab</b> is the dedicated tool — 300+ presets, a consistency engine that locks the same face across every image, tuned prompts for every platform, and a caption maker. One-time unlock: <b class="gold">₦7,500</b>.</p>
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-        <a class="btn gold block" style="flex:1" href="https://fusecharacterlabpage.netlify.app/" target="_blank" rel="noopener">🛒 Get access — ₦7,500</a>
-        <a class="btn ghost block" style="flex:1" href="https://fuse-character-lab.netlify.app/" target="_blank" rel="noopener">🔑 Already purchased? Log in</a>
-      </div>
-      <p class="muted" style="font-size:11px;margin:8px 0 0">Pay on the sales page, then send your email — I'll unlock the Lab for you.</p>
-    </div>
+    <div class="studio-head"><div class="ic">🧬</div><div><h2>Prompt Generator</h2><p>Instant, free, tuned prompts — for a character or anything else</p></div></div>
+
     <div class="panel" style="margin-top:14px">
-      <p class="muted" style="font-size:13px;margin:0 0 8px">Build a consistent character from the menus below — or type your own subject.</p>
-      <label class="fld" for="pgSubject">Your own subject (optional — overrides menus)</label>
-      <input id="pgSubject" placeholder="e.g. a jollof rice product, a skincare bottle">
-      <div class="builder" id="pgFields" style="margin-top:10px"></div>
-      <label class="fld" for="pgExtra">Extra details (optional)</label>
-      <input id="pgExtra" placeholder="e.g. gold jewelry, holding coffee, soft smile">
-      <button class="btn gold block" id="pgGen" style="margin-top:14px">✨ Generate prompt (1 credit)</button>
+      <div class="mtabs" id="pgModeTabs" style="position:static;margin:0 0 12px">
+        <button class="mtab active" id="pgModeChar" data-mode="character">🧑 Character / avatar</button>
+        <button class="mtab" id="pgModeGeneral" data-mode="general">🎨 Anything else (product, flyer, scene)</button>
+      </div>
+      <label class="fld" style="margin:0 0 6px">Write for</label>
+      <div class="mtabs" id="pgPlatTabs" style="position:static;margin:0 0 14px"></div>
+
+      <div id="pgCharBlock">
+        <div id="pgPresets" style="margin-bottom:14px"></div>
+        <div id="pgFields"></div>
+      </div>
+
+      <div class="pg-field" id="pgSubjectWrap">
+        <label for="pgSubject" id="pgSubjectLabel">Your own subject (optional — overrides the chips above)</label>
+        <input id="pgSubject" placeholder="e.g. a jollof rice product, a skincare bottle, a beach house flyer background">
+      </div>
+
+      <div id="pgFieldsShared"></div>
+
+      <div class="pg-field">
+        <label for="pgExtra">Extra details (optional)</label>
+        <input id="pgExtra" placeholder="e.g. gold jewelry, holding coffee, soft smile">
+      </div>
+
+      <div class="pg-field">
+        <label>Reference images — up to 10 (optional)</label>
+        <p class="muted" style="font-size:12px;margin:0 0 8px">Upload an outfit to copy, a setting/background, a product, a style reference — tag each one so the prompt (and the real generation) knows what it's for.</p>
+        <div class="refbtn" id="pgRefBtn"><span>🖼 Add reference image(s)</span></div>
+        <input id="pgRefFile" type="file" accept="image/*" multiple hidden>
+        <div class="pg-refgrid" id="pgRefGrid"></div>
+        <div class="note" id="pgRefNote"></div>
+      </div>
+
+      <button class="btn ghost block" id="pgSaveChar" style="margin-bottom:8px">💾 Save this character</button>
+      <div id="pgSaved" style="margin-bottom:10px"></div>
+
+      <button class="btn gold block" id="pgGen">✨ Generate prompt — free</button>
       <div class="note" id="pgNote"></div>
-      <textarea id="pgResult" style="margin-top:12px;min-height:100px" placeholder="Your pro prompt appears here…"></textarea>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="btn ghost block" id="pgCopy">⧉ Copy prompt</button>
-        <button class="btn gold block" id="pgUse">Use this prompt to generate →</button>
+
+      <div id="pgOut" style="display:none;margin-top:14px">
+        <label class="fld">Main prompt</label>
+        <div class="pg-txt" id="pgMain"></div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn ghost sm" id="pgCopyMain">⧉ Copy</button>
+          <button class="btn gold sm" id="pgUse" style="flex:1">Use this prompt to generate →</button>
+        </div>
+
+        <label class="fld" style="margin-top:16px">3 more variations</label>
+        <div id="pgVary"></div>
+        <button class="btn ghost sm" id="pgCopyVary" style="margin-top:8px">⧉ Copy all variations</button>
+
+        <label class="fld" style="margin-top:16px">🔒 Consistency block — keep the same face every time</label>
+        <div class="pg-txt" id="pgCons"></div>
+        <button class="btn ghost sm" id="pgCopyCons" style="margin-top:8px">⧉ Copy</button>
+
+        <div id="pgNegWrap" style="display:none">
+          <label class="fld" style="margin-top:16px">🚫 Negative prompt</label>
+          <div class="pg-txt" id="pgNeg"></div>
+          <button class="btn ghost sm" id="pgCopyNeg" style="margin-top:8px">⧉ Copy</button>
+        </div>
+
+        <button class="btn ghost block" id="pgCopyJson" style="margin-top:16px">⧉ Copy everything as JSON</button>
       </div>
     </div>
+
     <div class="panel" style="margin-top:14px">
       <label class="fld" style="margin:0 0 8px">🕘 Your prompt history</label>
       <div id="pgHistory"><div class="muted" style="font-size:13px">Prompts you generate will be saved here.</div></div>
+    </div>
+
+    <!-- ===== Caption + hashtag maker ===== -->
+    <div class="panel" style="margin-top:14px">
+      <h3>💬 Caption + hashtag maker</h3>
+      <p class="muted" style="font-size:12px;margin:4px 0 12px">Zero cost — instant, template-based captions tuned per platform.</p>
+      <label class="fld">Platform</label>
+      <div class="chips" id="capPlat"></div>
+      <label class="fld" style="margin-top:10px">Vibe</label>
+      <div class="chips" id="capVibe"></div>
+      <label class="fld" for="capTopic" style="margin-top:10px">What's the content about?</label>
+      <input id="capTopic" placeholder="e.g. my AI avatar reading the news">
+      <button class="btn gold block" id="capGen" style="margin-top:12px">✨ Generate caption</button>
+      <div id="capOut" style="display:none;margin-top:12px">
+        <div class="pg-txt" id="capText"></div>
+        <button class="btn ghost sm" data-cap="text" style="margin-top:8px">⧉ Copy caption</button>
+        <label class="fld" style="margin-top:12px">Hashtags</label>
+        <div class="pg-txt mini" id="capTags"></div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn ghost sm" data-cap="tags" style="flex:1">⧉ Copy hashtags</button>
+          <button class="btn gold sm" id="capCopyAll" style="flex:1">⧉ Copy both</button>
+        </div>
+      </div>
     </div>
   </section>
 
