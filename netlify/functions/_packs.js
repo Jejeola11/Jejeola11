@@ -14,9 +14,9 @@ const PACKS = {
   pro:     { label: 'Pro Pack', amount_naira: 12000, credits: 420, kind: 'pack' },
 
   // ---- Monthly plans (renew by paying again; we remind before expiry) ----
-  creator_mo: { label: 'Creator (monthly)',  amount_naira: 9000,  credits: 350, kind: 'sub', plan: 'creator' },
+  creator_mo: { label: 'Studio Creator (monthly)',  amount_naira: 9000,  credits: 350, kind: 'sub', plan: 'creator' },
   pro_mo:     { label: 'Studio Pro (monthly)', amount_naira: 20000, credits: 800, kind: 'sub', plan: 'pro' },
-  agency_mo:  { label: 'Agency (monthly)',   amount_naira: 75000, credits: 3500, kind: 'sub', plan: 'agency' },
+  agency_mo:  { label: 'Studio Agency (monthly)',   amount_naira: 75000, credits: 3500, kind: 'sub', plan: 'agency' },
 
   // ---- Fuse Atelier 2.0 — the merged 3-tier course (one-time, money only) ----
   // Each tier unlocks its course content via a module_unlocks row (see webhook)

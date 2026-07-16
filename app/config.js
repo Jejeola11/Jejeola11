@@ -28,10 +28,15 @@ window.FUSE = {
   },
 
   // Buy options. Real prices are enforced server-side in netlify/functions/_packs.js.
+  // Notes give a concrete "what this actually gets you" estimate (real numbers
+  // from _packs.js's cost-plus math), not vague marketing copy — e.g. "~50
+  // images or 6 videos" beats "All studios". "Studio ___" naming on the plain
+  // subscriptions keeps them unmistakable from the "Fuse Atelier — ___" course
+  // tiers below, since Creator/Pro/Empire otherwise echo each other.
   PACKS: [
-    { key: 'creator_mo', name: 'Creator',       naira: 9000,  credits: 350,  note: 'All studios · monthly',  kind: 'sub' },
-    { key: 'pro_mo',     name: 'Pro',           naira: 20000, credits: 800,  note: 'Video + AI · monthly',   kind: 'sub', featured: true },
-    { key: 'agency_mo',  name: 'Agency',        naira: 75000, credits: 3500, note: 'White-label · monthly',  kind: 'sub' },
+    { key: 'creator_mo', name: 'Studio Creator', naira: 9000,  credits: 350,  note: '~50 images or 6 cinematic videos', kind: 'sub' },
+    { key: 'pro_mo',     name: 'Studio Pro',     naira: 20000, credits: 800,  note: '~115 images or 14 videos + premium AI', kind: 'sub', featured: true },
+    { key: 'agency_mo',  name: 'Studio Agency',  naira: 75000, credits: 3500, note: '~500 images or 60 videos · white-label', kind: 'sub' },
     { key: 'atelier_starter', name: 'Fuse Atelier — Starter', naira: 10000, credits: 100,  note: 'Design skills + Money Engine', kind: 'course' },
     { key: 'atelier_creator', name: 'Fuse Atelier — Creator', naira: 25000, credits: 400,  note: '16 skills + community + Character Lab', kind: 'course', featured: true },
     { key: 'atelier_empire',  name: 'Fuse Atelier — Empire',  naira: 70000, credits: 1200, note: 'Everything + direct access to Ria', kind: 'course' },

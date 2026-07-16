@@ -23,12 +23,24 @@ async function muapiGenerate({ prompt, aspect = '9:16', model = 'flux-schnell' }
   throw new Error('Timed out');
 }
 
+// fetch() has no default timeout — a stalled remote host would otherwise
+// hang this call (and everything awaiting it via Promise.all) until
+// Netlify's own hard function limit kills the whole request, which is
+// exactly the "taking forever / doesn't work at all" symptom a stuck
+// reference-hosting call produces. Fails fast instead.
+async function fetchWithTimeout(url, opts = {}, ms = 10000) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), ms);
+  try { return await fetch(url, { ...opts, signal: ctrl.signal }); }
+  finally { clearTimeout(t); }
+}
+
 // Re-host any reference file (image / audio / video) on MuAPI's own CDN so the
 // engine can always fetch it (some external URLs, e.g. Supabase storage, aren't
 // reachable by MuAPI). Returns the cdn.muapi.ai URL, or the original on failure.
 async function muapiHostFile(srcUrl, kind = 'image') {
   try {
-    const resp = await fetch(srcUrl);
+    const resp = await fetchWithTimeout(srcUrl);
     if (!resp.ok) return srcUrl;
     const buf = Buffer.from(await resp.arrayBuffer());
     const ct = resp.headers.get('content-type') || (kind === 'audio' ? 'audio/mpeg' : kind === 'video' ? 'video/mp4' : 'image/jpeg');
@@ -36,7 +48,7 @@ async function muapiHostFile(srcUrl, kind = 'image') {
     const ext = extMap[ct] || (kind === 'audio' ? 'mp3' : kind === 'video' ? 'mp4' : 'jpg');
     const fd = new FormData();
     fd.append('file', new Blob([buf], { type: ct }), 'ref.' + ext);
-    const up = await fetch(`${MUAPI_BASE}/upload_file`, { method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY }, body: fd });
+    const up = await fetchWithTimeout(`${MUAPI_BASE}/upload_file`, { method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY }, body: fd });
     const j = await up.json();
     return (j && j.url) ? j.url : srcUrl;
   } catch (e) { return srcUrl; }

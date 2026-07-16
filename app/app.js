@@ -2261,6 +2261,8 @@ function parseFlyerBriefResponse(text, fallbackReply) {
   }
   return {
     reply: extractTag(text, 'REPLY') || 'Got it.',
+    brief: extractTag(text, 'BRIEF'),
+    ready: /^\s*yes/i.test(extractTag(text, 'READY_TO_GENERATE')),
     image_prompt: extractTag(text, 'IMAGE_PROMPT'),
     niche: extractTag(text, 'NICHE'),
     suggested_next_steps: extractTagList(text, 'NEXT_STEPS'),
@@ -2304,6 +2306,8 @@ function flyerLoadProject(p) {
   flyerProjectId = p.id;
   flyerHistory = [];
   flyerLayers = (Array.isArray(p.layers) ? p.layers : []).map((l) => l.instruction);
+  flyerRefUrls = Array.isArray(p.reference_image_urls) ? p.reference_image_urls.slice() : [];
+  renderFlyerRefs();
   $('flyerLog').innerHTML = '';
   flyerAppendLog('assistant', `Loaded: ${p.brief || '(untitled)'}`);
   $('flyerImgPrompt').value = p.hero_prompt || '';
@@ -2340,6 +2344,11 @@ function renderFlyerRefs() {
   $('flyerRefThumbs').innerHTML = flyerRefUrls.map((u, i) =>
     `<div style="position:relative"><img src="${u}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line)">
       <span class="ref-x" onclick="window.fuseFlyerRmRef(${i})">✕</span></div>`).join('');
+  // Make the connection to generation visible right where it matters — this
+  // panel is well above the "Generate visual" button, so it wasn't obvious
+  // the references there actually feed into it.
+  const heroNote = $('flyerHeroRefNote');
+  if (heroNote) heroNote.textContent = flyerRefUrls.length ? `🖼 ${flyerRefUrls.length} reference(s) will be used for this generation.` : '';
 }
 window.fuseFlyerRmRef = (i) => { flyerRefUrls.splice(i, 1); renderFlyerRefs(); };
 
@@ -2386,15 +2395,20 @@ function flyerPollBrief(reqId, btn) {
       if (d.status === 'completed') {
         clearInterval(timer);
         const parsed = parseFlyerBriefResponse(d.text);
-        flyerHistory.push({ role: 'assistant', text: parsed.reply });
+        // Keep the full brief in the resent conversation history too, not
+        // just the short reply — otherwise the assistant loses track of what
+        // it actually proposed by the next turn and can't tell "yes" apart
+        // from a fresh request.
+        flyerHistory.push({ role: 'assistant', text: parsed.brief ? `${parsed.reply}\n\n${parsed.brief}` : parsed.reply });
         flyerAppendLog('assistant', parsed.reply);
+        if (parsed.brief) flyerAppendLog('assistant', '📋 THE BRIEF\n\n' + parsed.brief);
         if (parsed.suggested_next_steps && parsed.suggested_next_steps.length) {
           flyerAppendLog('assistant', '💡 ' + parsed.suggested_next_steps.join('  ·  '));
         }
-        if (parsed.image_prompt) {
+        if (parsed.ready && parsed.image_prompt) {
           $('flyerImgPrompt').value = parsed.image_prompt;
           $('flyerVisualPanel').scrollIntoView({ behavior: 'smooth' });
-          flyerGenHero(true); // auto-generate — no separate manual step needed
+          flyerGenHero(true); // signed off — no separate manual step needed
         }
         btn.disabled = false; btn.textContent = 'Send';
       } else if (d.status === 'failed') {
@@ -2417,7 +2431,7 @@ async function flyerGenHero(auto) {
   try {
     const res = await fetch('/.netlify/functions/flyer-hero', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ project_id: flyerProjectId || undefined, prompt, aspect: $('flyerAspect').value, reference_image_urls: flyerProjectId ? undefined : flyerRefUrls }),
+      body: JSON.stringify({ project_id: flyerProjectId || undefined, prompt, aspect: $('flyerAspect').value, reference_image_urls: flyerRefUrls }),
     });
     const d = await res.json();
     if (res.status === 402) { note('flyerHeroNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; return; }

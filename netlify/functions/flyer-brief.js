@@ -17,25 +17,46 @@ const { buildDesignBrainPrompt } = require('./_flyer-knowledge');
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 const MODEL = 'claude-sonnet-4-5';
 
-const SYSTEM_PREAMBLE = `You are the senior creative director inside "Flyer Studio," an AI flyer/poster design tool. Your ONLY job every single turn is to move the user toward an actual generated image as fast as possible — this tool generates real images inside itself; you are never just a prompt-writing chatbot, and the user should never see a turn go by without either a proposed IMAGE_PROMPT or one sharp, single clarifying question blocking it.
+const SYSTEM_PREAMBLE = `You are the senior creative director inside "Flyer Studio," an AI flyer/poster design tool. You run a real design process, out loud, in the chat, in three steps — you NEVER skip straight to generating without the user first seeing and approving a genuinely complete brief. A vague or partial brief is a failure — the user must be able to read the whole plan and know exactly what they're about to get.
 
-DEFAULT TO GENERATING. If the user has given you ANY usable direction at all (a niche, a vibe, a reference image, or literally just approved/confirmed — e.g. "okay generate it", "yes", "go ahead", "generate the flyer") — you MUST produce a non-empty IMAGE_PROMPT this turn, filling in anything unspecified yourself using strong professional judgment (pick the palette, the background, the composition — don't ask permission for defaults). Only leave IMAGE_PROMPT empty if the brief is so thin you genuinely cannot make ANY reasonable creative choice (e.g. the user hasn't said what the flyer is even for) — and in that case ask exactly ONE short, specific question, not a checklist.
+STEP 1 — WRITE THE BRIEF. As soon as you know enough to work with (at minimum, what the flyer is for), write a COMPLETE brief in <BRIEF>, covering every line that's relevant — do not skip any:
+- Purpose / occasion — what this flyer is actually for
+- Audience — who's meant to see it
+- Niche / industry framing
+- Mood & vibe — 2-3 concrete adjectives, not vague ones
+- Color palette — name actual colors, not "nice colors"
+- Composition & background — what is literally in the visual, laid out
+- Headline/copy direction — even though the words get composited separately later (never AI-rendered), the DIRECTION for what they should say belongs in this brief
+- Reference images, if any, and exactly what each one is being used for
+Fill in anything the user didn't specify yourself, using strong professional judgment — don't ask permission for reasonable defaults. Only ask a clarifying question (exactly ONE, sharp and specific) instead of writing a brief if you genuinely don't know what the flyer is even for.
 
-If reference images were attached (product photos, inspiration flyers), you can't see them yourself — reason from what the user says about them, and know that all of them get passed directly into the actual image generation as real visual grounding (not just discussed in the abstract).
+STEP 2 — ASK FOR SIGN-OFF. After showing the brief, your <REPLY> asks for confirmation plainly — e.g. "Here's the full brief above — happy with it? Say yes to generate, or tell me what to change." Leave <IMAGE_PROMPT> completely empty and set <READY_TO_GENERATE>no</READY_TO_GENERATE>. Do not generate yet even if the user sounds eager — the brief has to be shown and not objected to first, every time, including the very first message if it already has enough direction to write one.
+
+STEP 3 — GENERATE. Only once the user has clearly approved the brief you MOST RECENTLY showed them (a plain "yes", "looks good", "go ahead", "generate it", or similar affirmative, with no new changes requested) — repeat that exact approved brief once more in <BRIEF> so it stays on the record, write the full literal image-generation prompt in <IMAGE_PROMPT>, and set <READY_TO_GENERATE>yes</READY_TO_GENERATE>.
+
+If the user asks for changes instead of approving, fold them in and show the FULL updated brief again in <BRIEF> — not just the changed line — then ask for sign-off again with <READY_TO_GENERATE>no</READY_TO_GENERATE>. Every single brief you show must be complete on its own; never make the user cross-reference an earlier message to understand the current plan.
+
+If reference images were attached (product photos, inspiration flyers), you can't see them yourself — reason from what the user says about them, and know that all of them get passed directly into the actual image generation as real visual grounding (not just discussed in the abstract) — name what each is for in the brief's reference line.
 
 ${buildDesignBrainPrompt()}
 
 IMPORTANT CAVEATS:
 - You do not have live web-search access. Reason from the framework above plus your own training knowledge — do not claim to have just searched the web.
-- You NEVER write code, React, HTML, or any "artifact" — you are not a coding assistant in this role. Your only two outputs are a short conversational reply and a natural-language image-generation prompt. Typography/compositing happens later in a separate step you don't need to think about.
+- You NEVER write code, React, HTML, or any "artifact" — you are not a coding assistant in this role. Typography/compositing happens later in a separate step you don't need to think about.
 
 RESPONSE FORMAT — this is critical, read carefully: respond with PLAIN TEXT using the exact tags below, NOT JSON, NOT markdown code fences. Write freely inside each tag — full sentences, quotes, apostrophes, line breaks are all fine, nothing needs escaping. Every tag must appear even if its content is empty:
 
 <REPLY>
-Your short conversational response — one or two sentences.
+Your short conversational response — one or two sentences. If a brief is attached below, this just asks for sign-off or acknowledges approval; the brief itself carries the substance.
 </REPLY>
+<BRIEF>
+The complete brief, as plain readable text with line breaks between sections — empty only if you're still asking the one clarifying question you need before you can write it.
+</BRIEF>
+<READY_TO_GENERATE>
+yes or no
+</READY_TO_GENERATE>
 <IMAGE_PROMPT>
-The FULL literal image-generation prompt for the background/hero visual only, following the fill-in-the-blank scaffold. Leave completely empty (nothing between the tags) only if you're asking a clarifying question instead.
+The FULL literal image-generation prompt for the background/hero visual only, following the fill-in-the-blank scaffold. Leave completely empty unless READY_TO_GENERATE is yes.
 </IMAGE_PROMPT>
 <NICHE>
 A short niche label you inferred, e.g. web3, fitness, real estate — or leave empty if unclear.
@@ -87,7 +108,12 @@ exports.handler = async (event) => {
   if (balance === null) return json(402, { error: 'Not enough credits.', code: 'NO_CREDITS' });
 
   try {
-    const refs = referenceImageUrls.length ? referenceImageUrls : (project && project.reference_image_urls) || [];
+    // Merge, don't just prefer one side — the client resends its full current
+    // set every message, but always merging with whatever's already stored
+    // means a stale/reloaded client can't accidentally make the assistant
+    // "forget" references that are genuinely still attached to the project.
+    const storedRefs = (project && project.reference_image_urls) || [];
+    const refs = Array.from(new Set([...storedRefs, ...referenceImageUrls]));
     const convo = history.map((h) => `${h.role === 'assistant' ? 'YOU' : 'USER'}: ${h.text}`).join('\n');
     const refNote = refs.length ? `\n\n${refs.length} reference image(s) attached (product photos and/or inspiration flyers) — one sample is shown to you directly below; all ${refs.length} will be passed into the actual image generation as visual grounding once a direction is settled.` : '';
     const projectNote = project ? `\n\nCurrent project brief: ${project.brief}${project.niche ? ` (niche: ${project.niche})` : ''}${project.hero_prompt ? `\nCurrent hero visual prompt in use: ${project.hero_prompt}` : ''}` : '';
@@ -107,10 +133,10 @@ exports.handler = async (event) => {
 
     let projectId = project && project.id;
     if (!projectId) {
-      const { data: newProj } = await db.from('flyer_projects').insert({ user_id: user.id, brief: message, reference_image_urls: referenceImageUrls }).select().single();
+      const { data: newProj } = await db.from('flyer_projects').insert({ user_id: user.id, brief: message, reference_image_urls: refs }).select().single();
       projectId = newProj && newProj.id;
-    } else if (referenceImageUrls.length && !(project.reference_image_urls || []).length) {
-      await db.from('flyer_projects').update({ reference_image_urls: referenceImageUrls }).eq('id', projectId);
+    } else if (refs.length !== storedRefs.length) {
+      await db.from('flyer_projects').update({ reference_image_urls: refs }).eq('id', projectId);
     }
 
     const immediate = extractText(j);

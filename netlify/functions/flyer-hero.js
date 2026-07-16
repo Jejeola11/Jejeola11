@@ -41,7 +41,17 @@ exports.handler = async (event) => {
     if (projectId) {
       const { data: project } = await db.from('flyer_projects').select('id, user_id, reference_image_urls').eq('id', projectId).maybeSingle();
       if (!project || project.user_id !== user.id) return json(404, { error: 'Project not found.' });
-      refs = (Array.isArray(project.reference_image_urls) ? project.reference_image_urls : referenceImageUrls).slice(0, 20);
+      // Merge whatever the client attached THIS call with whatever's already
+      // saved on the project — never just prefer one over the other. The old
+      // logic used the DB's set outright and ignored the request body, so
+      // references added after the project's first message (the common case,
+      // since the "References" panel sits above the chat and gets used
+      // whenever the user likes) were silently dropped from generation.
+      const stored = Array.isArray(project.reference_image_urls) ? project.reference_image_urls : [];
+      refs = Array.from(new Set([...stored, ...referenceImageUrls])).slice(0, 20);
+      if (refs.length !== stored.length) {
+        try { await db.from('flyer_projects').update({ reference_image_urls: refs }).eq('id', projectId); } catch (e) {}
+      }
     } else {
       // Generating straight from a typed prompt with no chat/project yet —
       // create one on the fly so this still slots into the same iterate-
@@ -71,12 +81,13 @@ exports.handler = async (event) => {
     // job-status.js.
     const payload = { prompt, size: OPENAI_SIZE[aspect] || OPENAI_SIZE['1:1'] };
     // Re-hosting on MuAPI's CDN happens concurrently inside this one function
-    // call — capped at 10 (well under the 20 the model itself would accept)
-    // so a full 20-reference project can't risk exceeding Netlify's
-    // execution time limit (surfaces to the browser as a bare "Failed to
-    // fetch" rather than a real error — same class of bug already hit and
-    // fixed on the avatar side).
-    if (refs.length) payload.images_list = await Promise.all(refs.slice(0, 10).map(muapiHostImage));
+    // call, and the whole submit only returns once every one of these
+    // resolves — capped at 6 (well under the 20 the model itself would
+    // accept) so this can't turn into the multi-minute "nothing happens"
+    // hang a full 20-reference project would otherwise risk (each hosting
+    // call now also has its own timeout — see muapiHostFile in _muapi.js —
+    // so one slow reference can't stall the whole submission indefinitely).
+    if (refs.length) payload.images_list = await Promise.all(refs.slice(0, 6).map(muapiHostImage));
     const sub = await fetch(`${MUAPI_BASE}/${model}`, {
       method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

@@ -80,11 +80,13 @@
     <!-- 1. Hero slideshow (auto-advancing, Higgsfield-style) -->
     <div class="hero-ss" id="heroSS" style="margin-top:14px">
       <div class="hero-ss-track" id="heroTrack"></div>
+      <div class="grain"></div>
       <div class="hero-ss-dots" id="heroDots"></div>
     </div>
 
     <!-- 2. Fuse Guide — a quick wizard that routes straight to the right studio -->
     <div class="hg-card" id="hgCard">
+      <div class="grain"></div>
       <div class="hg-eyebrow">✨ Fuse Guide</div>
       <div class="hg-dots" id="hgDots"></div>
       <h3 class="hg-q" id="hgQ"></h3>
@@ -102,6 +104,7 @@
 
     <!-- 5. TV showcase — Seedance-style bezel, houses the course promo -->
     <div class="tv-frame">
+      <div class="grain"></div>
       <div class="tv-screen" id="tvScreen">
         <span class="tv-badge">▶ PREVIEW</span>
         <div class="tv-copy">
@@ -300,6 +303,7 @@
     <div class="panel" id="flyerVisualPanel" style="margin-top:14px">
       <h3>🖼 Hero visual</h3>
       <p class="muted" style="font-size:12px;margin:4px 0 10px">Generate anytime — write your own prompt directly, or let the chat above propose one (it'll fill this in and generate automatically once it's ready).</p>
+      <div class="gold" id="flyerHeroRefNote" style="font-size:11.5px;font-weight:700;margin:0 0 8px"></div>
       <label class="fld" for="flyerImgPrompt">Image prompt (background/hero only — edit freely)</label>
       <textarea id="flyerImgPrompt" style="min-height:130px"></textarea>
       <label class="fld" for="flyerAspect">Aspect</label>
