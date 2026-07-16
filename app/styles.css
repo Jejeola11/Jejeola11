@@ -178,7 +178,14 @@ textarea{min-height:104px;resize:vertical}
 .gallery img{aspect-ratio:1;object-fit:cover;border-radius:10px;border:1px solid var(--line);cursor:pointer}
 
 /* ---- Auth + modal ---- */
-.overlay{position:fixed;inset:0;background:rgba(2,16,14,.72);backdrop-filter:blur(6px);display:grid;place-items:center;z-index:80;padding:20px}
+/* flex + overflow-y:auto + margin:auto on the child (not place-items/align-
+   items:center) is the fix that actually lets you scroll to reach content
+   that overflows a centered modal — align-items:center clips the "hidden"
+   top/bottom instead of making it reachable, which was trapping anyone on
+   a modal taller than their screen (long prompt text, a tall form) with no
+   way to scroll up to the close button short of rotating to a wider view. */
+.overlay{position:fixed;inset:0;background:rgba(2,16,14,.72);backdrop-filter:blur(6px);display:flex;justify-content:center;overflow-y:auto;z-index:80;padding:20px}
+.overlay>*{margin:auto}
 .modal{width:100%;max-width:420px;background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:22px;padding:26px;box-shadow:var(--shadow)}
 .modal h2{margin:6px 0 4px;font-family:"Bricolage Grotesque";font-weight:800}
 .modal .switch{margin-top:14px;font-size:14px;color:var(--muted);text-align:center}
