@@ -355,8 +355,12 @@
       <h3>➕ Add a layer</h3>
       <p class="muted" style="font-size:12px;margin:4px 0 10px">Visual elements only — lighting, textures, props, effects. Text is added separately below, never gambled on the image model.</p>
       <div id="flyerLayerLog" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
-      <input id="flyerLayerInput" placeholder="e.g. 'add a soft teal rim light behind the subject'">
-      <button class="btn ghost block" id="flyerAddLayer" style="margin-top:8px">Add layer</button>
+      <input id="flyerLayerInput" placeholder="e.g. 'add a soft teal rim light behind the subject', or 'insert this logo bottom-right', or 'copy the badge style from this reference'">
+      <label class="fld" style="margin-top:10px">Attach images for this layer (optional, up to 5) — an element to insert, or a reference to copy from</label>
+      <button class="btn ghost sm" id="flyerLayerImgPick">🖼 Add image(s)</button>
+      <input type="file" id="flyerLayerImgFile" accept="image/*" multiple hidden>
+      <div id="flyerLayerImgThumbs" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+      <button class="btn ghost block" id="flyerAddLayer" style="margin-top:10px">Add layer</button>
       <div class="note" id="flyerLayerNote"></div>
     </div>
 

@@ -1,12 +1,16 @@
 // ============================================================
 // POST /.netlify/functions/flyer-layer   (Flyer Studio — add a visual layer)
-// Body: { project_id, instruction }
-// Adds ONE requested visual element to the project's current working image
-// (e.g. "add a soft neon rim light", "add floating particles in the
-// background") via GPT Image 2 (image-to-image), using the current hero
-// image as the primary reference so everything already in place is
-// preserved — plus a few of the project's original reference images (real
-// product photos), so product identity doesn't drift away over successive
+// Body: { project_id, instruction, extra_image_urls? }
+//   extra_image_urls: up to 5 images attached to THIS specific layer call —
+//   an element to insert (a logo, a product shot, a sticker) or a reference
+//   flyer to copy a specific detail from. The instruction text says which;
+//   this endpoint just makes sure the image(s) are actually in front of the
+//   model when it edits.
+// Adds ONE requested visual layer to the project's current working image
+// via GPT Image 2 (image-to-image), using the current hero image as the
+// primary reference so everything already in place is preserved — plus
+// this call's attached images, plus a few of the project's original
+// reference images, so product identity doesn't drift over successive
 // edits. This is for organic/photographic layers only — text, logos, and
 // legible signage are NEVER added this way (that's flyer-composite.js's
 // job, in code, for pixel-perfect control) — the edit prompt says so
@@ -20,6 +24,7 @@ const { muapiHostImage } = require('./_muapi');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 const MODEL = 'gpt-image-2-image-to-image';
+const MAX_IMAGES = 8; // total across hero + this call's attachments + project refs — timeout-safety cap (see avatar-modelsheet.js's comment on the same class of issue)
 
 exports.handler = async (event) => {
   let db, user, cost = 0;
@@ -33,6 +38,7 @@ exports.handler = async (event) => {
     let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
     const projectId = body.project_id;
     const instruction = (body.instruction || '').trim();
+    const layerImages = (Array.isArray(body.extra_image_urls) ? body.extra_image_urls : []).filter(Boolean).slice(0, 5);
     if (!projectId) return json(400, { error: 'Missing project_id' });
     if (!instruction) return json(400, { error: 'Describe what to add.' });
 
@@ -52,9 +58,13 @@ exports.handler = async (event) => {
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
-    const editPrompt = `Edit this image: ${instruction}. Keep everything else in the image exactly as it is — same subject, same composition, same colors elsewhere. Do NOT add any text, words, logos, watermarks, or legible signage — visual elements only.`;
-    const extraRefs = (Array.isArray(project.reference_image_urls) ? project.reference_image_urls : []).slice(0, 4);
-    const hosted = await Promise.all([project.hero_image_url, ...extraRefs].map(muapiHostImage));
+    const attachmentNote = layerImages.length
+      ? ` ${layerImages.length} additional reference image(s) are attached for this edit — the instruction above says whether each is an element to insert into the flyer, or a detail/style to copy from.`
+      : '';
+    const editPrompt = `Edit this image: ${instruction}.${attachmentNote} Keep everything else in the image exactly as it is — same subject, same composition, same colors elsewhere. Do NOT add any text, words, logos, watermarks, or legible signage — visual elements only.`;
+    const projectRefBudget = Math.max(0, MAX_IMAGES - 1 - layerImages.length);
+    const extraRefs = (Array.isArray(project.reference_image_urls) ? project.reference_image_urls : []).slice(0, projectRefBudget);
+    const hosted = await Promise.all([project.hero_image_url, ...layerImages, ...extraRefs].map(muapiHostImage));
     const sub = await fetch(`${MUAPI_BASE}/${MODEL}`, {
       method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: editPrompt, images_list: hosted }),
