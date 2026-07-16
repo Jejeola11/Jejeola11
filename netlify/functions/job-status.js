@@ -19,6 +19,12 @@ function extractText(p) {
   if (p.output && typeof p.output === 'object') return p.output.text || '';
   return '';
 }
+// Only for the JSON-only assistant kinds (flyer-brief, video-edit-brief) —
+// plain 'chat' replies are meant to be freeform and may legitimately
+// contain a real code fence, so this must not touch those.
+function stripJsonFences(text) {
+  return (text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+}
 
 exports.handler = async (event) => {
   const user = await getUser(event);
@@ -47,7 +53,8 @@ exports.handler = async (event) => {
       p = await (await fetch(`${MUAPI_BASE}/predictions/${id}/result`, { headers: { 'x-api-key': process.env.MUAPI_KEY } })).json();
     } catch (e) { return json(200, { status: 'processing' }); }
     if (p.status === 'completed') {
-      const text = extractText(p);
+      const isJsonKind = job.kind === 'flyer-brief' || job.kind === 'video-edit-brief';
+      const text = isJsonKind ? stripJsonFences(extractText(p)) : extractText(p);
       if (!text) return json(200, { status: 'processing' });
       await db.from('jobs').update({ status: 'completed', output_text: text }).eq('request_id', id);
       return json(200, { status: 'completed', text });

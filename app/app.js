@@ -2150,6 +2150,19 @@ async function avatarGenerate() {
   } catch (e) { $('avResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('avGenNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 
+// Shared by Flyer Studio and Editing Studio's JSON-only assistants — the
+// server already strips markdown fences defensively, but LLMs occasionally
+// still slip one through, and a raw JSON dump in the chat is exactly what
+// "it's not just a prompt generator" reads like. Never show broken JSON to
+// the user: on a genuine parse failure, fall back to a short, honest note
+// instead of the raw text.
+function parseAssistantJson(text, fallbackReply) {
+  const stripped = (text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+  try { return JSON.parse(stripped); } catch (e) {
+    return { reply: fallbackReply || 'Got a bit tangled there — try rephrasing or send it again.' };
+  }
+}
+
 // ---------------- Flyer Studio (conversational AI flyer designer) ----------------
 let flyerProjectId = null;
 let flyerHistory = [];       // [{role:'user'|'assistant', text}]
@@ -2254,10 +2267,9 @@ function flyerPollBrief(reqId, btn) {
       const d = await r.json();
       if (d.status === 'completed') {
         clearInterval(timer);
-        let parsed;
-        try { parsed = JSON.parse(d.text); } catch (e) { parsed = { reply: d.text, image_prompt: '' }; }
-        flyerHistory.push({ role: 'assistant', text: parsed.reply || d.text });
-        flyerAppendLog('assistant', parsed.reply || d.text);
+        const parsed = parseAssistantJson(d.text);
+        flyerHistory.push({ role: 'assistant', text: parsed.reply });
+        flyerAppendLog('assistant', parsed.reply);
         if (parsed.suggested_next_steps && parsed.suggested_next_steps.length) {
           flyerAppendLog('assistant', '💡 ' + parsed.suggested_next_steps.join('  ·  '));
         }
@@ -2531,9 +2543,9 @@ async function editSend() {
         const jd = await r.json();
         if (jd.status === 'completed') {
           clearInterval(timer);
-          let parsed; try { parsed = JSON.parse(jd.text); } catch (e) { parsed = { reply: jd.text }; }
-          editHistory.push({ role: 'assistant', text: parsed.reply || jd.text });
-          editAppendLog('assistant', parsed.reply || jd.text);
+          const parsed = parseAssistantJson(jd.text);
+          editHistory.push({ role: 'assistant', text: parsed.reply });
+          editAppendLog('assistant', parsed.reply);
           if (parsed.broll_suggestions && parsed.broll_suggestions.length) editAppendLog('assistant', '💡 B-roll ideas: ' + parsed.broll_suggestions.join('  ·  '));
           if (parsed.notes) editAppendLog('assistant', '📝 ' + parsed.notes);
           if (parsed.caption_style && parsed.caption_style.accent_color) { $('editAccentColor').value = parsed.caption_style.accent_color; $('editCaptionPanel').style.display = 'block'; }

@@ -37,6 +37,9 @@ function extractText(p) {
   if (p.output && typeof p.output === 'object') return p.output.text || '';
   return '';
 }
+function stripJsonFences(text) {
+  return (text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+}
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
@@ -84,7 +87,7 @@ exports.handler = async (event) => {
     const id = j.request_id || j.id;
     if (!id) throw new Error('Engine did not return a job id.');
 
-    const immediate = extractText(j);
+    const immediate = stripJsonFences(extractText(j));
     await db.from('jobs').insert({
       request_id: id, user_id: user.id, kind: 'video-edit-brief', model: MODEL, prompt: message, credits: cost,
       status: immediate ? 'completed' : 'processing', output_text: immediate || null, project_id: project.id,
