@@ -266,4 +266,22 @@ async function submitSpeech({ audio, text, speed }) {
   return { requestId: 'ws:' + id, provider: 'wavespeed' };
 }
 
-module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle };
+// ---- WaveSpeed's Gemini Omni Video Edit (video-to-video, holistic AI edit) ---
+// Real, prompt-driven video editing — captions, restyling, relighting, cuts,
+// whatever a single instruction can describe — as opposed to this app's own
+// deterministic pipeline (transcribe -> caption -> element -> CTA), which is
+// more reliable/controllable but can't do things like true color grading.
+// Confirmed live 2026-07-16: exists on WaveSpeed (unlike MuAPI's own
+// `gemini-omni-video-edit`, which needs a Pro/Business plan upgrade there —
+// this is a different provider, no such gate here). Required fields
+// confirmed via clean validation errors: `video`, then `prompt`. Routes
+// through the same "ws:"-prefixed pollAny() as every other WaveSpeed job.
+async function submitVideoEdit({ video, prompt }) {
+  if (!hasWaveSpeed()) throw new Error('AI video editing needs WAVESPEED_KEY.');
+  if (!video) throw new Error('Missing video.');
+  if (!prompt) throw new Error('Describe the edit.');
+  const id = await wsSubmit('google/gemini-omni-flash/video-edit', { video, prompt });
+  return { requestId: 'ws:' + id, provider: 'wavespeed' };
+}
+
+module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle };

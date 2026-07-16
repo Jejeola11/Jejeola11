@@ -113,6 +113,10 @@ const VIDEO_COST = {        // real MuAPI $ cost (seedance-vip + grok verified l
   // Omni Studio (verified live against MuAPI's catalog + validation endpoints)
   'gemini-omni-video-edit': 2.40,              // needs a Pro/Business MuAPI plan — see omni-video-edit.js
   'seedance-2-omni-reference-no-video': 1.25,
+  // WaveSpeed's own Gemini Omni Video Edit — real price from WaveSpeed's own
+  // model listing (confirmed live 2026-07-16) — a different, ungated route
+  // to the same underlying capability as gemini-omni-video-edit above.
+  'gemini-omni-flash-video-edit': 0.16,
   'omnihuman-1-5': 0.25,
   'kling-v2-avatar-pro': 0.75,
   'kling-v2-avatar-standard': 0.35,

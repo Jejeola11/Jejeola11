@@ -104,6 +104,12 @@ exports.handler = async (event) => {
       }
       return json(200, { status: 'completed', url, kind: job.kind, project_id: job.project_id });
     }
+    // AI Auto-Edit (Gemini Omni) result — same "current working video"
+    // pointer every Editing Studio step reads/writes.
+    if (job.kind === 'video-omni-edit') {
+      if (job.project_id) { try { await db.from('video_edit_projects').update({ final_video_url: url, updated_at: new Date().toISOString() }).eq('id', job.project_id); } catch (e) {} }
+      return json(200, { status: 'completed', url, kind: job.kind, project_id: job.project_id });
+    }
     await db.from('generations').insert({
       user_id: user.id, type: job.kind, model: job.model, prompt: job.prompt, aspect: job.aspect,
       output_url: url, credits_spent: job.credits, cost_usd: r.cost_usd,

@@ -2511,8 +2511,53 @@ async function uploadEditVideo(file) {
     editProjectId = d.project_id;
     editHistory = [];
     $('editLog').innerHTML = '';
+    $('editOmniPanel').style.display = 'block';
     pollEditTranscribe(d.request_id);
   } catch (e) { note('editVideoNote', e.message || 'Upload failed.', 'err'); }
+}
+async function editOmniSend() {
+  if (preview) { showAuth('signup'); return; }
+  if (!editProjectId) return note('editOmniNote', 'Upload a video first.', 'err');
+  const instructions = $('editOmniMsg').value.trim();
+  if (!instructions) return note('editOmniNote', 'Describe the edit first.', 'err');
+  const btn = $('editOmniSend'); const label = '✨ Auto-edit this video'; btn.disabled = true; btn.textContent = 'Editing…';
+  $('editResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Applying the AI edit… this can take a while ⏳</div></div>';
+  note('editOmniNote', '');
+  try {
+    const res = await fetch('/.netlify/functions/video-omni-edit', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ project_id: editProjectId, instructions }),
+    });
+    const d = await res.json();
+    if (res.status === 503) { note('editOmniNote', d.error, 'err'); btn.disabled = false; btn.textContent = label; return; }
+    if (res.status === 402) { note('editOmniNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; return; }
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    if (d.credits != null) $('creditCount').textContent = d.credits;
+    note('editOmniNote', 'Working… ⏳', 'ok');
+    let s = 0;
+    const timer = setInterval(async () => {
+      s += 8;
+      try {
+        const r = await fetch(`/.netlify/functions/job-status?id=${d.request_id}`, { headers: { ...(await authHeader()) } });
+        const jd = await r.json();
+        if (jd.status === 'completed') {
+          clearInterval(timer);
+          $('editResult').innerHTML = `<div><video src="${jd.url}" controls autoplay loop muted playsinline style="width:100%;border-radius:12px"></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${jd.url}')">⬇ Download</button></div></div>`;
+          note('editOmniNote', '✅ Done.', 'ok');
+          $('editElementPanel').style.display = 'block';
+          $('editCtaPanel').style.display = 'block';
+          if (user) loadProfile();
+          btn.disabled = false; btn.textContent = label;
+        } else if (jd.status === 'failed') {
+          clearInterval(timer);
+          note('editOmniNote', (jd.error || 'Failed') + ' — credits refunded.', 'err');
+          if (user) loadProfile();
+          btn.disabled = false; btn.textContent = label;
+        }
+      } catch (e) {}
+      if (s >= 600) { clearInterval(timer); note('editOmniNote', 'Still working — check back shortly.', 'err'); btn.disabled = false; btn.textContent = label; }
+    }, 8000);
+  } catch (e) { note('editOmniNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 function pollEditTranscribe(reqId) {
   let s = 0;
@@ -3075,6 +3120,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('editVideoFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadEditVideo(f); e.target.value = ''; };
   $('editSend').onclick = editSend;
   $('editMsg').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); editSend(); } });
+  $('editOmniSend').onclick = editOmniSend;
   $('editApplyCaptions').onclick = editApplyCaptions;
   $('editCaptionEffect').onchange = () => {
     const isGradient = $('editCaptionEffect').value === 'gradient';
