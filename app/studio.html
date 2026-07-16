@@ -316,7 +316,12 @@
     <div class="backlink" id="flyerBack">← Studios</div>
     <div class="studio-head"><div class="ic">🎨</div><div><h2>Flyer Studio</h2><p>Describe it — a real design process, start to finish</p></div></div>
 
-    <div class="panel">
+    <div class="panel" id="flyerHistoryPanel" style="display:none">
+      <h3>🕘 My flyers</h3>
+      <div id="flyerHistoryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px"></div>
+    </div>
+
+    <div class="panel" style="margin-top:14px">
       <h3>🖼 References (optional, up to 20)</h3>
       <p class="muted" style="font-size:12px;margin:4px 0 10px">The product you're designing for, inspirational flyers, past work — anything you want the design genuinely grounded in. These feed directly into the actual generation, not just the conversation.</p>
       <button class="btn ghost sm" id="flyerRefPick">🖼 Add reference images</button>
@@ -334,8 +339,9 @@
       <div class="note" id="flyerNote"></div>
     </div>
 
-    <div class="panel" id="flyerVisualPanel" style="margin-top:14px;display:none">
+    <div class="panel" id="flyerVisualPanel" style="margin-top:14px">
       <h3>🖼 Hero visual</h3>
+      <p class="muted" style="font-size:12px;margin:4px 0 10px">Generate anytime — write your own prompt directly, or let the chat above propose one (it'll fill this in and generate automatically once it's ready).</p>
       <label class="fld" for="flyerImgPrompt">Image prompt (background/hero only — edit freely)</label>
       <textarea id="flyerImgPrompt" style="min-height:130px"></textarea>
       <label class="fld" for="flyerAspect">Aspect</label>

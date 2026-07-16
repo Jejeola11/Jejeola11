@@ -56,11 +56,14 @@ exports.handler = async (event) => {
     if (balance === null) return json(402, { error: 'Not enough credits.', need: SHEET_COST, code: 'NO_CREDITS' });
     cost = SHEET_COST;
 
-    // Use every uploaded photo as an identity reference (avatars cap at 15
-    // training photos already, and GPT Image 2 accepts far more than that
-    // — more real angles/lighting of the same face is exactly what fixes
-    // identity drift, so there's no reason to artificially cap this low).
-    const hosted = await Promise.all(photos.map(muapiHostImage));
+    // Cap at 8 photos, hosted in parallel. GPT Image 2 itself would accept
+    // more (confirmed up to 20), but re-hosting every photo concurrently on
+    // MuAPI's CDN inside a single function call risks exceeding Netlify's
+    // execution time limit with a full 15-photo avatar — surfaces to the
+    // browser as a bare "Failed to fetch" (the connection just drops, no
+    // JSON error to show). 8 is comfortably more identity signal than the
+    // old 6-photo cap without that risk.
+    const hosted = await Promise.all(photos.slice(0, 8).map(muapiHostImage));
     const sub = await fetch(`${MUAPI_BASE}/${MODEL}`, {
       method: 'POST',
       headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },

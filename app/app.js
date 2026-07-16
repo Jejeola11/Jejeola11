@@ -474,7 +474,7 @@ function openStudio(key) {
   if (key === 'market') { showView('market'); loadMarket(); return; }
   if (key === 'learn') { showView('learn'); buildLessons(); return; }
   if (key === 'avatar') { showView('avatar'); loadAvatars(); return; }
-  if (key === 'flyer') { showView('flyer'); return; }
+  if (key === 'flyer') { showView('flyer'); loadFlyerHistory(); return; }
   if (key === 'audio') { showView('audio'); loadAudioVoices(); return; }
   if (key === 'editstudio') { showView('editstudio'); return; }
   if (key === 'promptgen') { buildPromptFields(); showView('promptgen'); loadPromptHistory(); return; }
@@ -2116,6 +2116,37 @@ let flyerProjectId = null;
 let flyerHistory = [];       // [{role:'user'|'assistant', text}]
 let flyerLayers = [];        // display log of applied visual layers
 
+async function loadFlyerHistory() {
+  if (preview) return;
+  const { data } = await sb.from('flyer_projects').select('id,brief,hero_prompt,hero_image_url,final_url,layers,reference_image_urls').order('created_at', { ascending: false }).limit(20);
+  const grid = $('flyerHistoryGrid');
+  if (!data || !data.length) { $('flyerHistoryPanel').style.display = 'none'; return; }
+  $('flyerHistoryPanel').style.display = 'block';
+  grid.innerHTML = data.map((p) => {
+    const thumb = p.final_url || p.hero_image_url;
+    const media = thumb ? `<img src="${thumb}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px">` : `<div style="width:100%;aspect-ratio:1;border-radius:8px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:11px" class="muted">No visual yet</div>`;
+    return `<div style="cursor:pointer" data-id="${p.id}">${media}<div class="muted" style="font-size:11px;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(p.brief || '').replace(/</g, '&lt;')}</div></div>`;
+  }).join('');
+  grid.querySelectorAll('[data-id]').forEach((el) => el.onclick = () => flyerLoadProject(data.find((p) => String(p.id) === el.dataset.id)));
+}
+function flyerLoadProject(p) {
+  if (!p) return;
+  flyerProjectId = p.id;
+  flyerHistory = [];
+  flyerLayers = (Array.isArray(p.layers) ? p.layers : []).map((l) => l.instruction);
+  $('flyerLog').innerHTML = '';
+  flyerAppendLog('assistant', `Loaded: ${p.brief || '(untitled)'}`);
+  $('flyerImgPrompt').value = p.hero_prompt || '';
+  if (p.hero_image_url) {
+    $('flyerHeroResult').innerHTML = `<img src="${p.hero_image_url}" style="width:100%;border-radius:12px">`;
+    $('flyerLayerPanel').style.display = 'block';
+    $('flyerTextPanel').style.display = 'block';
+  }
+  $('flyerLayerLog').innerHTML = flyerLayers.map((l) => `<div class="muted" style="font-size:12px">✓ ${l}</div>`).join('');
+  if (p.final_url) $('flyerFinalResult').innerHTML = `<div><img src="${p.final_url}" style="width:100%;border-radius:12px"><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${p.final_url}')">⬇ Download</button></div></div>`;
+  $('flyerVisualPanel').scrollIntoView({ behavior: 'smooth' });
+}
+
 let flyerRefUrls = [];
 async function flyerPickRefs(files) {
   if (preview) { showAuth('signup'); return; }
@@ -2192,8 +2223,8 @@ function flyerPollBrief(reqId, btn) {
         }
         if (parsed.image_prompt) {
           $('flyerImgPrompt').value = parsed.image_prompt;
-          $('flyerVisualPanel').style.display = 'block';
           $('flyerVisualPanel').scrollIntoView({ behavior: 'smooth' });
+          flyerGenHero(true); // auto-generate — no separate manual step needed
         }
         btn.disabled = false; btn.textContent = 'Send';
       } else if (d.status === 'failed') {
@@ -2206,9 +2237,8 @@ function flyerPollBrief(reqId, btn) {
   }, 4000);
 }
 
-async function flyerGenHero() {
+async function flyerGenHero(auto) {
   if (preview) { showAuth('signup'); return; }
-  if (!flyerProjectId) return note('flyerHeroNote', 'Start a conversation above first.', 'err');
   const prompt = $('flyerImgPrompt').value.trim();
   if (!prompt) return note('flyerHeroNote', 'Add an image prompt first.', 'err');
   const btn = $('flyerGenHero'); const label = '✨ Generate visual'; btn.disabled = true; btn.textContent = 'Submitting…';
@@ -2217,12 +2247,13 @@ async function flyerGenHero() {
   try {
     const res = await fetch('/.netlify/functions/flyer-hero', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ project_id: flyerProjectId, prompt, aspect: $('flyerAspect').value }),
+      body: JSON.stringify({ project_id: flyerProjectId || undefined, prompt, aspect: $('flyerAspect').value, reference_image_urls: flyerProjectId ? undefined : flyerRefUrls }),
     });
     const d = await res.json();
     if (res.status === 402) { note('flyerHeroNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; return; }
     if (!res.ok) throw new Error(d.error || 'Failed');
     if (d.credits != null) $('creditCount').textContent = d.credits;
+    if (d.project_id) flyerProjectId = d.project_id;
     note('flyerHeroNote', 'Rendering… ⏳', 'ok'); btn.textContent = 'Rendering…';
     pollJob(d.request_id, $('flyerHeroResult'), 'flyerHeroNote', btn, label, 'image');
     $('flyerLayerPanel').style.display = 'block';

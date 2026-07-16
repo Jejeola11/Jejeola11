@@ -59,7 +59,12 @@ exports.handler = async (event) => {
     const faceImgs = [avatar.model_sheet_url, ...rawPhotos].filter(Boolean);
     if (!faceImgs.length) return json(400, { error: 'This avatar has no photos.' });
 
-    const faceSlots = Math.max(1, 12 - extraRefs.length);
+    // Capped at 8 (not the 20 GPT Image 2 itself would accept) — re-hosting
+    // every reference concurrently on MuAPI's CDN inside one function call
+    // risks exceeding Netlify's execution time limit with a full 15-photo
+    // avatar, which surfaces to the browser as a bare "Failed to fetch"
+    // rather than a real error message.
+    const faceSlots = Math.max(1, 8 - extraRefs.length);
     const refs = faceImgs.slice(0, faceSlots).concat(extraRefs);
 
     // Strong identity lock — the model sheet (if present) is listed first as
