@@ -1,9 +1,17 @@
 // ============================================================
-// Video Editing Studio — caption generation (ASS subtitles via libass).
-// Rendering captions as an .ass file through ffmpeg's `subtitles`/`ass`
-// filter (libass — confirmed built into our bundled ffmpeg) is the right
-// tool here instead of compositing per-frame PNG overlays: one lightweight
-// pass, standard, and it's what every real captioning pipeline uses.
+// Video Editing Studio — caption generation.
+// Renders each caption phrase as its own transparent PNG card via
+// @napi-rs/canvas (full color/gradient/effect control — solid color,
+// gradient fills, a highlight box, or a soft glow), then composites all of
+// them onto the video in ONE ffmpeg pass via chained timed overlays
+// (_ffmpeg.js's overlayTimedImages) — each card's overlay is only enabled
+// during its own [start,end] window.
+//
+// This replaced an earlier ASS/libass-based version: standard subtitle
+// styling can't do a true gradient text fill or a soft glow, and the
+// founder explicitly wants real color/effect choice, not just "captions on
+// or off" — canvas gives the same full design control already used for
+// Flyer Studio's typography.
 //
 // Style: bold phrase-by-phrase cards (~2s each, breaking at word
 // boundaries) — the dominant "big bold caption" convention across viral
@@ -11,20 +19,7 @@
 // available; degrades gracefully to segment-level, then to one static
 // card for the whole clip if only plain text came back.
 // ============================================================
-const fs = require('fs/promises');
-
-function assColor(hex, alphaHex = '00') {
-  const h = (hex || '#ffffff').replace('#', '');
-  const r = h.slice(0, 2), g = h.slice(2, 4), b = h.slice(4, 6);
-  return `&H${alphaHex}${b}${g}${r}`.toUpperCase();
-}
-
-function assTime(sec) {
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
-  const s = sec % 60;
-  return `${h}:${String(m).padStart(2, '0')}:${s.toFixed(2).padStart(5, '0')}`;
-}
+const { createCanvas, ensureFonts, FONT_ROLES, wrapText, roundRect, hexToRgba } = require('./_canvas');
 
 // Group words (or segments) into ~maxSec chunks, breaking at word
 // boundaries — the "phrase card" unit captions are displayed as.
@@ -66,42 +61,81 @@ function extractWords(transcript) {
   return [];
 }
 
-// Build the .ass file content for a video of the given dimensions.
-function buildAssFile({ transcript, width, height, fontRole = 'Arial', accentColor = '#00e0c6', position = 'bottom' }) {
-  const words = extractWords(transcript);
-  const alignment = position === 'top' ? 8 : 2; // libass numpad alignment: 8=top-center, 2=bottom-center
-  const marginV = Math.round(height * 0.12);
-  const fontSize = Math.round(width * 0.06);
+// Perceived luminance — used to auto-pick black/white text on a colored
+// highlight-box so it's always legible regardless of which color is chosen.
+function luminance(hex) {
+  const h = (hex || '#ffffff').replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+}
 
-  const header = `[Script Info]
-ScriptType: v4.00+
-PlayResX: ${width}
-PlayResY: ${height}
-WrapStyle: 2
+// Render ONE caption phrase as a transparent PNG, full video-frame sized
+// (the text is positioned within it; ffmpeg overlays the whole frame at
+// 0,0 so no per-card position math is needed at composite time).
+function renderCaptionCard({ text, width, height, style = {} }) {
+  ensureFonts();
+  const effect = style.effect || 'solid';
+  const color = style.color || '#ffffff';
+  const gradientColors = (style.gradientColors && style.gradientColors.length === 2) ? style.gradientColors : [color, style.color2 || '#00e0c6'];
+  const position = style.position === 'top' ? 'top' : 'bottom';
 
-[V4+ Styles]
-Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,${fontRole},${fontSize},${assColor('#ffffff')},${assColor(accentColor)},${assColor('#000000')},${assColor('#000000')},-1,0,0,0,100,100,0,0,1,${Math.round(fontSize * 0.08)},0,${alignment},40,40,${marginV},1
+  const canvas = createCanvas(width, height);
+  const ctx = canvas.getContext('2d');
+  const fontSize = Math.round(width * 0.075);
+  ctx.font = `900 ${fontSize}px "${FONT_ROLES.display.family}"`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
 
-[Events]
-Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-`;
+  const maxWidth = width * 0.86;
+  const upper = text.toUpperCase();
+  const lines = wrapText(ctx, upper, maxWidth).slice(0, 2);
+  const lineHeight = fontSize * 1.15;
+  const blockHeight = lines.length * lineHeight;
+  const centerY = position === 'top' ? height * 0.16 + blockHeight / 2 : height * 0.82 - blockHeight / 2;
 
-  let events;
-  if (words.length) {
-    const chunks = chunkWords(words);
-    events = chunks.map((c) => `Dialogue: 0,${assTime(c.start)},${assTime(c.end)},Default,,0,0,0,,${c.text.toUpperCase().replace(/\n/g, ' ')}`).join('\n');
-  } else if (transcript && transcript.text) {
-    events = `Dialogue: 0,0:00:00.00,9:59:59.00,Default,,0,0,0,,${transcript.text.toUpperCase()}`;
-  } else {
-    events = '';
+  if (effect === 'highlight-box') {
+    const padX = fontSize * 0.6, padY = fontSize * 0.35;
+    const widest = Math.max(...lines.map((l) => ctx.measureText(l).width));
+    const boxW = widest + padX * 2, boxH = blockHeight + padY * 2;
+    ctx.fillStyle = color;
+    roundRect(ctx, (width - boxW) / 2, centerY - boxH / 2, boxW, boxH, fontSize * 0.25);
+    ctx.fill();
+    ctx.fillStyle = luminance(color) > 0.55 ? '#0a0a0a' : '#ffffff';
+    lines.forEach((line, i) => ctx.fillText(line, width / 2, centerY - blockHeight / 2 + lineHeight * (i + 0.5)));
+  } else if (effect === 'gradient') {
+    lines.forEach((line, i) => {
+      const y = centerY - blockHeight / 2 + lineHeight * (i + 0.5);
+      const w = ctx.measureText(line).width;
+      const grad = ctx.createLinearGradient(width / 2 - w / 2, 0, width / 2 + w / 2, 0);
+      grad.addColorStop(0, gradientColors[0]); grad.addColorStop(1, gradientColors[1]);
+      ctx.strokeStyle = hexToRgba('#000000', 0.9); ctx.lineWidth = Math.round(fontSize * 0.09);
+      ctx.strokeText(line, width / 2, y);
+      ctx.fillStyle = grad;
+      ctx.fillText(line, width / 2, y);
+    });
+  } else if (effect === 'glow') {
+    lines.forEach((line, i) => {
+      const y = centerY - blockHeight / 2 + lineHeight * (i + 0.5);
+      ctx.shadowColor = color; ctx.shadowBlur = fontSize * 0.35;
+      ctx.fillStyle = color;
+      ctx.fillText(line, width / 2, y);
+      ctx.fillText(line, width / 2, y); // second pass deepens the glow without blowing out the core fill
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#ffffff';
+      ctx.globalAlpha = 0.92;
+      ctx.fillText(line, width / 2, y);
+      ctx.globalAlpha = 1;
+    });
+  } else { // 'solid'
+    lines.forEach((line, i) => {
+      const y = centerY - blockHeight / 2 + lineHeight * (i + 0.5);
+      ctx.strokeStyle = hexToRgba('#000000', 0.9); ctx.lineWidth = Math.round(fontSize * 0.09);
+      ctx.strokeText(line, width / 2, y);
+      ctx.fillStyle = color;
+      ctx.fillText(line, width / 2, y);
+    });
   }
-  return header + events + '\n';
+
+  return canvas.toBuffer('image/png');
 }
 
-async function writeAssFile(path, opts) {
-  await fs.writeFile(path, buildAssFile(opts));
-  return path;
-}
-
-module.exports = { buildAssFile, writeAssFile, chunkWords, extractWords, assColor, assTime };
+module.exports = { chunkWords, extractWords, renderCaptionCard };

@@ -1,17 +1,23 @@
 // ============================================================
 // POST /.netlify/functions/video-caption-apply   (Video Editing Studio)
-// Body: { project_id, accent_color?, position? }
+// Body: { project_id, effect?, color?, color2?, position? }
+//   effect: 'solid' | 'gradient' | 'highlight-box' | 'glow'
+//   color / color2: hex — color2 is the gradient's second stop
 // Burns bold, word-timed captions onto the project's source video using
-// the transcript from video-transcribe.js, via ffmpeg's libass renderer
-// (_captions.js builds the .ass file). Synchronous — a single ffmpeg pass,
-// not a new AI generation — no credit charge beyond the transcription
-// already paid for; recomposite as many times as you like while dialing
-// in the style/color.
+// the transcript from video-transcribe.js. Each caption phrase is rendered
+// as its own PNG via _captions.js (full color/gradient/effect control),
+// composited in one ffmpeg pass via _ffmpeg.js's overlayTimedImages.
+// Synchronous — not a new AI generation — no credit charge beyond the
+// transcription already paid for; recomposite as many times as you like
+// while dialing in the style.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
-const { ensureWorkDir, cleanupTmp, downloadToFile, probeDimensions, burnAssSubtitles, uploadToStorage } = require('./_ffmpeg');
-const { writeAssFile } = require('./_captions');
+const { ensureWorkDir, cleanupTmp, downloadToFile, probeDimensions, overlayTimedImages, uploadToStorage } = require('./_ffmpeg');
+const { chunkWords, extractWords, renderCaptionCard } = require('./_captions');
 const path = require('path');
+const fs = require('fs/promises');
+
+const EFFECTS = ['solid', 'gradient', 'highlight-box', 'glow'];
 
 exports.handler = async (event) => {
   const jobId = 'caption-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
@@ -29,17 +35,36 @@ exports.handler = async (event) => {
     if (!project || project.user_id !== user.id) return json(404, { error: 'Project not found.' });
     if (!project.transcript) return json(400, { error: 'Transcribe the video first.' });
 
-    const style = { accent_color: body.accent_color || '#00e0c6', position: body.position === 'top' ? 'top' : 'bottom' };
+    const style = {
+      effect: EFFECTS.includes(body.effect) ? body.effect : 'solid',
+      color: body.color || '#ffffff',
+      color2: body.color2 || '#00e0c6',
+      position: body.position === 'top' ? 'top' : 'bottom',
+    };
+
     const dir = await ensureWorkDir(jobId);
     const localVideo = path.join(dir, 'in.mp4');
     await downloadToFile(project.source_video_url, localVideo);
     const { width, height } = await probeDimensions(localVideo);
 
-    const assPath = path.join(dir, 'cap.ass');
-    await writeAssFile(assPath, { transcript: project.transcript, width, height, accentColor: style.accent_color, position: style.position });
+    const words = extractWords(project.transcript);
+    const chunks = words.length ? chunkWords(words) : (project.transcript.text ? [{ start: 0, end: 999999, text: project.transcript.text }] : []);
+    if (!chunks.length) return json(400, { error: 'No transcript text to caption.' });
+
+    const overlays = [];
+    for (let i = 0; i < chunks.length; i++) {
+      const c = chunks[i];
+      const buf = renderCaptionCard({
+        text: c.text, width, height,
+        style: { effect: style.effect, color: style.color, gradientColors: [style.color, style.color2], position: style.position },
+      });
+      const p = path.join(dir, `card-${i}.png`);
+      await fs.writeFile(p, buf);
+      overlays.push({ pngPath: p, start: c.start, end: Math.min(c.end, 999998) });
+    }
 
     const outPath = path.join(dir, 'out.mp4');
-    await burnAssSubtitles(localVideo, assPath, outPath);
+    await overlayTimedImages(localVideo, overlays, outPath);
     const finalUrl = await uploadToStorage(db, outPath, `${user.id}/caption-${projectId}-${Date.now()}.mp4`, 'video/mp4');
 
     // final_video_url is the single "current working video" pointer every

@@ -164,22 +164,31 @@ async function overlayImageOnVideo(videoPath, overlayPngPath, outPath) {
   return outPath;
 }
 
-// Burn an .ass subtitle file into a video via ffmpeg's libass renderer
-// (Video Editing Studio captions) — confirmed built into the bundled
-// ffmpeg (--enable-libass). The ass filter path must not contain characters
-// that need escaping for ffmpeg's filter-graph syntax; our /tmp job
-// directories are always plain ASCII, so this is safe as-is.
-async function burnAssSubtitles(videoPath, assPath, outPath) {
-  await ffmpeg(['-y', '-i', videoPath, '-vf', `ass=${assPath}`, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-c:a', 'copy', outPath]);
-  return outPath;
-}
-
 // Composite an uploaded image element (e.g. a proof screenshot) onto a
 // video for only a chosen time window — Video Editing Studio's "add
 // elements at a timestamp" feature.
 async function overlayImageAtTime(videoPath, overlayPngPath, outPath, { x = 0, y = 0, startSec = 0, endSec }) {
   const enable = endSec != null ? `enable='between(t,${startSec},${endSec})'` : `enable='gte(t,${startSec})'`;
   await ffmpeg(['-y', '-i', videoPath, '-i', overlayPngPath, '-filter_complex', `[0:v][1:v]overlay=${x}:${y}:${enable}:format=auto`, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-c:a', 'copy', outPath]);
+  return outPath;
+}
+
+// Composite MANY timed, full-frame overlays (e.g. one PNG per caption
+// phrase) in a SINGLE ffmpeg pass — chains N overlay filters, each gated to
+// its own [start,end] window, rather than re-encoding once per caption
+// (which would be N times slower and re-compound quality loss each pass).
+// Scoped to typical short-form clip lengths (a few dozen captions) — an
+// extremely long video with hundreds of captions could hit filter-graph
+// size limits; not a concern for the vertical-video use case this serves.
+async function overlayTimedImages(videoPath, overlays, outPath) {
+  if (!overlays.length) { await ffmpeg(['-y', '-i', videoPath, '-c', 'copy', outPath]); return outPath; }
+  const inputs = ['-i', videoPath, ...overlays.flatMap((o) => ['-i', o.pngPath])];
+  const filters = overlays.map((o, i) => {
+    const src = i === 0 ? '[0:v]' : `[v${i}]`;
+    const dst = i === overlays.length - 1 ? '[vout]' : `[v${i + 1}]`;
+    return `${src}[${i + 1}:v]overlay=0:0:enable='between(t,${o.start},${o.end})'${dst}`;
+  }).join(';');
+  await ffmpeg(['-y', ...inputs, '-filter_complex', filters, '-map', '[vout]', '-map', '0:a?', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-c:a', 'copy', outPath]);
   return outPath;
 }
 
@@ -196,5 +205,5 @@ async function uploadToStorage(db, localPath, storagePath, contentType, bucket =
 module.exports = {
   workDir, ensureWorkDir, cleanupTmp, downloadToFile, ffmpeg,
   probeDuration, probeDimensions, extractFrameAt, extractLastFrame, sliceAudio, concatAudio, concatVideos,
-  muxAudio, overlayImageOnVideo, burnAssSubtitles, overlayImageAtTime, uploadToStorage,
+  muxAudio, overlayImageOnVideo, overlayImageAtTime, overlayTimedImages, uploadToStorage,
 };

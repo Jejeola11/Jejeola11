@@ -2559,7 +2559,10 @@ async function editApplyCaptions() {
   try {
     const res = await fetch('/.netlify/functions/video-caption-apply', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ project_id: editProjectId, accent_color: $('editAccentColor').value, position: $('editCaptionPos').value }),
+      body: JSON.stringify({
+        project_id: editProjectId, effect: $('editCaptionEffect').value,
+        color: $('editAccentColor').value, color2: $('editAccentColor2').value, position: $('editCaptionPos').value,
+      }),
     });
     const d = await res.json();
     if (!res.ok) throw new Error(d.error || 'Failed');
@@ -3034,6 +3037,11 @@ window.addEventListener('DOMContentLoaded', () => {
   $('editSend').onclick = editSend;
   $('editMsg').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); editSend(); } });
   $('editApplyCaptions').onclick = editApplyCaptions;
+  $('editCaptionEffect').onchange = () => {
+    const isGradient = $('editCaptionEffect').value === 'gradient';
+    $('editColor2Wrap').style.display = isGradient ? 'block' : 'none';
+    $('editColor1Label').textContent = $('editCaptionEffect').value === 'highlight-box' ? 'Box color' : 'Text color';
+  };
   $('editElementPick').onclick = () => $('editElementFile').click();
   $('editElementFile').onchange = (e) => { editElementFile = e.target.files[0] || null; note('editElementNote', editElementFile ? `Selected: ${editElementFile.name}` : '', 'ok'); };
   $('editAddElement').onclick = editAddElement;

@@ -432,8 +432,17 @@
 
     <div class="panel" id="editCaptionPanel" style="margin-top:14px;display:none">
       <h3>💬 Captions</h3>
-      <label class="fld" for="editAccentColor">Accent color</label>
-      <input id="editAccentColor" type="color" value="#00e0c6">
+      <label class="fld" for="editCaptionEffect">Effect</label>
+      <select id="editCaptionEffect">
+        <option value="solid">Solid — bold color, black outline</option>
+        <option value="gradient">Gradient — color blends across the text</option>
+        <option value="highlight-box">Highlight box — colored card behind the words</option>
+        <option value="glow">Glow — soft colored light behind white text</option>
+      </select>
+      <div class="row2">
+        <div><label class="fld" for="editAccentColor" id="editColor1Label">Color</label><input id="editAccentColor" type="color" value="#00e0c6"></div>
+        <div id="editColor2Wrap" style="display:none"><label class="fld" for="editAccentColor2">Gradient — second color</label><input id="editAccentColor2" type="color" value="#ff4d8d"></div>
+      </div>
       <label class="fld" for="editCaptionPos">Position</label>
       <select id="editCaptionPos"><option value="bottom">Bottom</option><option value="top">Top</option></select>
       <button class="btn gold block" id="editApplyCaptions" style="margin-top:10px">💬 Burn in captions</button>
