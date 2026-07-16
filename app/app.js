@@ -2360,6 +2360,7 @@ function flyerNewProject() {
   $('flyerFinalResult').innerHTML = '<div class="muted">Your finished flyer appears here.</div>';
   renderFlyerRefs();
   note('flyerResumeNote', '');
+  note('flyerLayerNote', ''); note('flyerCompositeNote', '');
   note('flyerNote', '✨ Starting a fresh flyer.', 'ok');
 }
 function flyerLoadProject(p) {
@@ -2377,6 +2378,9 @@ function flyerLoadProject(p) {
     $('flyerHeroResult').innerHTML = `<img src="${p.hero_image_url}" style="width:100%;border-radius:12px">`;
     $('flyerLayerPanel').style.display = 'block';
     $('flyerTextPanel').style.display = 'block';
+    // Clear any "Generate the hero visual first." left over from before
+    // this project (or a prior session) had a hero image.
+    note('flyerLayerNote', ''); note('flyerCompositeNote', '');
   }
   $('flyerLayerLog').innerHTML = flyerLayers.map((l) => `<div class="muted" style="font-size:12px">✓ ${l}</div>`).join('');
   if (p.final_url) $('flyerFinalResult').innerHTML = `<div><img src="${p.final_url}" style="width:100%;border-radius:12px"><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${p.final_url}')">⬇ Download</button></div></div>`;
@@ -2532,6 +2536,10 @@ async function flyerGenHero(auto) {
     if (!res.ok) throw new Error(d.error || 'Failed');
     if (d.credits != null) $('creditCount').textContent = d.credits;
     if (d.project_id) { flyerProjectId = d.project_id; localStorage.setItem(FLYER_PROJECT_KEY, flyerProjectId); }
+    // A stale "Generate the hero visual first." can be left over from
+    // before this project had a hero image (an earlier click, a fresh
+    // project) — clear it now since that's no longer true.
+    note('flyerLayerNote', ''); note('flyerCompositeNote', '');
     note('flyerHeroNote', 'Rendering… ⏳', 'ok'); btn.textContent = 'Rendering…';
     // Auto-suggests layer ideas the moment the hero image is actually ready
     // — grounded in the real generated image, not the text prompt — so
