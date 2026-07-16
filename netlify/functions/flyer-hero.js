@@ -94,14 +94,18 @@ exports.handler = async (event) => {
 
     // Re-hosting on MuAPI's CDN happens concurrently inside this one function
     // call, and the whole submit only returns once every one of these
-    // resolves. Capped at 3 so a slow reference (or several) can't stack up
-    // into a long wait before the actual generation even starts — plenty to
-    // genuinely ground the generation (product shot, one style reference,
-    // one layout reference). Each hosting call also has its own timeout —
-    // see muapiHostFile in _muapi.js — so one slow reference can't stall the
-    // submission either way. Both the WaveSpeed and MuAPI routes can fetch
-    // cdn.muapi.ai URLs (confirmed live), so the same hosted refs work either way.
-    const hostedRefs = refs.length ? await Promise.all(refs.slice(0, 3).map(muapiHostImage)) : [];
+    // resolves. Was capped at 3 out of caution — but GPT Image 2's real
+    // edit endpoint accepts up to 16 reference images (confirmed live
+    // 2026-07-16 via WaveSpeed's own model schema), so that cap was
+    // silently throwing away references the user explicitly attached,
+    // which is exactly the "not all my references are being used"
+    // complaint. Raised to 10 — generous enough that "all references
+    // uploaded" genuinely means all of them, while still leaving headroom
+    // under the real 16-image ceiling and keeping the concurrent hosting
+    // fan-out from growing unbounded. Each hosting call also has its own
+    // timeout — see muapiHostFile in _muapi.js — so one slow reference
+    // can't stall the submission either way.
+    const hostedRefs = refs.length ? await Promise.all(refs.slice(0, 10).map(muapiHostImage)) : [];
 
     let id;
     if (wantsWS) {

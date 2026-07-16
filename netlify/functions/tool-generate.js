@@ -1,14 +1,18 @@
 // ============================================================
 // POST /.netlify/functions/tool-generate   (utility tools — async submit)
 // Auth required. Body: { slug, image_url, prompt? }
-// Runs MuAPI utility tools (upscale, background remove, object erase). These can
-// take longer than a function can run, so we SUBMIT and let the browser poll
-// /job-status (same pattern as video + avatar). The input image is re-hosted on
-// MuAPI's CDN so the engine can always fetch it.
+// Runs utility tools (upscale, background remove, object erase) — WaveSpeed
+// first (cheaper, verified live 2026-07-16 against its own model catalog:
+// wavespeed-ai/image-upscaler, image-background-remover, image-eraser all
+// real), MuAPI as the fallback if WAVESPEED_KEY isn't set. These can take
+// longer than a function can run, so we SUBMIT and let the browser poll
+// /job-status (same pattern as video + avatar). The input image is re-hosted
+// first so either engine can fetch it.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
 const { TOOL_MODELS } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
+const { submitToolWS, hasWaveSpeed } = require('./_providers');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
@@ -40,17 +44,23 @@ exports.handler = async (event) => {
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
     if (balance === null) return json(402, { error: 'Not enough credits.', code: 'NO_CREDITS' });
 
-    // Re-host the input so MuAPI can fetch it, then SUBMIT (no polling here).
+    // Re-host the input so either engine can fetch it, then SUBMIT (no polling here).
     const image_url = await muapiHostImage(srcUrl);
-    const payload = { image_url, images_list: [image_url] };
-    if (body.prompt) payload.prompt = body.prompt;
-    const sub = await fetch(`${MUAPI_BASE}/${slug}`, {
-      method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const j = await sub.json();
-    if (!sub.ok) throw new Error(muapiError(j, sub.status));
-    const id = j.request_id || j.id;
+    let id;
+    if (hasWaveSpeed()) {
+      try { const r = await submitToolWS(slug, { image: image_url, prompt: body.prompt }); if (r) id = r.requestId; } catch (e) {}
+    }
+    if (!id) {
+      const payload = { image_url, images_list: [image_url] };
+      if (body.prompt) payload.prompt = body.prompt;
+      const sub = await fetch(`${MUAPI_BASE}/${slug}`, {
+        method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const j = await sub.json();
+      if (!sub.ok) throw new Error(muapiError(j, sub.status));
+      id = j.request_id || j.id;
+    }
     if (!id) throw new Error('Engine did not start the job');
 
     await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'tool', model: slug, credits: cost, status: 'processing' });

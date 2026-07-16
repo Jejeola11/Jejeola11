@@ -9,7 +9,7 @@
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { IMAGE_MODELS, canUseFree } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
-const { submitImageGoogle, hasGoogle } = require('./_providers');
+const { submitImageGoogle, hasGoogle, submitImageWS, hasWaveSpeed } = require('./_providers');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 
@@ -173,9 +173,22 @@ exports.handler = async (event) => {
     const hostedRefs = useRef ? await Promise.all(refs.map(muapiHostImage)) : undefined;
     const perCredits = Math.max(1, Math.round(cost / count));
     let firstError = null;
-    const submits = await Promise.all(Array.from({ length: count }, () =>
-      muapiSubmit({ prompt, aspect, model, images_list: hostedRefs, resolution: resMult > 1 ? resolution : undefined })
-        .then((id) => id).catch((e) => { if (!firstError) firstError = e; return null; })));
+    // WaveSpeed first (cheaper, and several models there accept far more
+    // reference images than MuAPI's wrapper ever exposed — see _providers.js's
+    // IMAGE_ROUTES), MuAPI as the fallback. Only the resMult===1 case tries
+    // WaveSpeed — the "generate at 2k/4k" multiplier is a MuAPI-specific
+    // per-model resolution convention with no equivalent mapping here yet.
+    async function submitOne() {
+      if (resMult === 1 && hasWaveSpeed()) {
+        try {
+          const r = await submitImageWS(model, { prompt, aspect, images: hostedRefs });
+          if (r) return r.requestId;
+        } catch (e) { if (!firstError) firstError = e; }
+      }
+      return muapiSubmit({ prompt, aspect, model, images_list: hostedRefs, resolution: resMult > 1 ? resolution : undefined })
+        .then((id) => id).catch((e) => { if (!firstError) firstError = e; return null; });
+    }
+    const submits = await Promise.all(Array.from({ length: count }, submitOne));
     const ids = submits.filter(Boolean);
     // Surface the real engine error (e.g. a param the model rejected) instead of
     // a generic message — critical for spotting a genuinely broken model fast.

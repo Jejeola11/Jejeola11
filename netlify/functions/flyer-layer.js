@@ -28,7 +28,11 @@ const { submitFlyerImage, hasWaveSpeed } = require('./_providers');
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 const MODEL = 'gpt-image-2-ws-edit';
 const FALLBACK_MODEL = 'nano-banana-edit';
-const MAX_IMAGES = 5; // total across hero + this call's attachments + project refs — timeout-safety cap (see avatar-modelsheet.js's comment on the same class of issue)
+// Total across hero + this call's attachments + project refs. Was 5 out of
+// caution — raised to 10 now that GPT Image 2's real edit endpoint (via
+// WaveSpeed) is confirmed live to accept up to 16 images, so 5 was
+// needlessly dropping references the user actually attached.
+const MAX_IMAGES = 10;
 
 exports.handler = async (event) => {
   let db, user, cost = 0;

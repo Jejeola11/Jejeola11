@@ -50,6 +50,14 @@ const VIDEO_ROUTES = {
   'kling-v3-turbo-standard-image-to-video': { kind: 'i2v', pick: () => 'kwaivgi/kling-v2.5-turbo-pro/image-to-video' },
   'kling-v3-turbo-pro-text-to-video': { kind: 't2v', pick: () => 'kwaivgi/kling-v2.5-turbo-pro/text-to-video' },
   'kling-v3-turbo-pro-image-to-video': { kind: 'i2v', pick: () => 'kwaivgi/kling-v2.5-turbo-pro/image-to-video' },
+  // grok was previously kept on MuAPI on the (correct, at the time) logic
+  // that xAI's OWN direct API costs more than MuAPI's markup on it — but
+  // that compared against the wrong baseline. Confirmed live 2026-07-16
+  // via WaveSpeed's own /models catalog: WaveSpeed hosts grok-imagine-video
+  // at $0.05, cheaper than MuAPI's $0.15 for the same model — this was
+  // never actually compared against WaveSpeed before.
+  'grok-imagine-text-to-video': { kind: 't2v', pick: () => 'x-ai/grok-imagine-video/text-to-video', durationEnum: [6, 10] },
+  'grok-imagine-image-to-video': { kind: 'i2v', pick: () => 'x-ai/grok-imagine-video/image-to-video', durationEnum: [6, 10] },
 };
 
 // ---- WaveSpeed avatar routes (hyper-real talking-head clone) -----------------
@@ -197,7 +205,12 @@ async function submitVideo(model, opts, hosted) {
   const route = VIDEO_ROUTES[model];
   if (route && hasWaveSpeed()) {
     const wsModel = route.pick(opts);
-    const body = { prompt: opts.prompt || '', aspect_ratio: opts.aspect || '9:16', duration: durInt(opts.duration) };
+    // grok-imagine's WaveSpeed duration is a strict {6,10} enum — our app's
+    // duration picker only ever offers "5s"/"10s", so 5 has to round up to
+    // the nearest value grok actually accepts rather than being sent as-is.
+    const rawDuration = durInt(opts.duration);
+    const duration = route.durationEnum ? (route.durationEnum.includes(rawDuration) ? rawDuration : route.durationEnum.reduce((a, b) => Math.abs(b - rawDuration) < Math.abs(a - rawDuration) ? b : a)) : rawDuration;
+    const body = { prompt: opts.prompt || '', aspect_ratio: opts.aspect || '9:16', duration };
     if (route.kind === 'i2v') {
       body.image = (hosted && hosted[0]) || opts.image_url;
       if (hosted && hosted[1]) body.last_image = hosted[1];
@@ -317,4 +330,72 @@ async function submitFlyerImage(model, { prompt, aspect, images }) {
   return { requestId: 'ws:' + id, provider: 'wavespeed' };
 }
 
-module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitFlyerImage, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle };
+// ---- WaveSpeed general IMAGE routes (Image Studio, avatar model sheets,
+// anywhere an image model is used across the whole app) --------------------
+// Every entry below was pulled straight from WaveSpeed's own live model
+// catalog (GET /api/v3/models — a real endpoint most integrations miss;
+// it returns the full JSON schema for all 941 hosted models) on 2026-07-16,
+// not guessed or assumed unavailable. `sizeParam: true` means this model
+// has NO aspect_ratio field at all — it takes a literal "W*H" pixel size
+// string instead, so ASPECT_TO_SIZE below covers this app's aspect options.
+// `maxImages` is the model's OWN real cap (straight from its schema's
+// `images` maxItems) — several are far higher than the 3-image cap this
+// app used to hard-code out of caution, which is the direct fix for
+// references silently not all being "considered": nano-banana and GPT
+// Image 2 both really do accept up to 10-16 images, they just were never
+// being sent.
+const IMAGE_ROUTES = {
+  'flux-schnell-image':        { t2i: 'wavespeed-ai/flux-schnell', sizeParam: true },
+  'flux-dev-image':            { t2i: 'wavespeed-ai/flux-dev', sizeParam: true, i2i: 'wavespeed-ai/flux-dev', singleImage: true, imageField: 'image' },
+  'qwen-image':                { t2i: 'wavespeed-ai/qwen-image/text-to-image-2512', i2i: 'wavespeed-ai/qwen-image/edit-2511', sizeParam: true, maxImages: 3 },
+  'flux-2-pro':                { t2i: 'wavespeed-ai/flux-2-pro/text-to-image', i2i: 'wavespeed-ai/flux-2-pro/edit', sizeParam: true, maxImages: 3 },
+  'seedream-5.0':               { t2i: 'bytedance/seedream-v5.0-pro', i2i: 'bytedance/seedream-v5.0-pro/edit', maxImages: 10 },
+  'hunyuan-image-3.0':          { t2i: 'wavespeed-ai/hunyuan-image-3-instruct/text-to-image', i2i: 'wavespeed-ai/hunyuan-image-3-instruct/edit', sizeParam: true, maxImages: 2 },
+  'hunyuan-image-2.1':          { t2i: 'wavespeed-ai/hunyuan-image-2.1', sizeParam: true },
+  'hidream_i1_full_image':      { t2i: 'wavespeed-ai/hidream-i1-full', i2i: 'wavespeed-ai/hidream-e1-full', sizeParam: true, singleImage: true, imageField: 'image' },
+  'nano-banana':                { t2i: 'google/nano-banana/text-to-image', i2i: 'google/nano-banana/edit', maxImages: 10 },
+  'nano-banana-2':              { t2i: 'google/nano-banana-2/text-to-image', i2i: 'google/nano-banana-2/edit', maxImages: 14 },
+  'gpt-image-2-text-to-image':  { t2i: 'openai/gpt-image-2/text-to-image', i2i: 'openai/gpt-image-2/edit', maxImages: 16 },
+};
+// These 5 models have no native aspect_ratio param — this app's own 5
+// aspect options mapped to a reasonable "W*H" pixel size for each.
+const ASPECT_TO_SIZE = {
+  '1:1': '1024*1024', '4:5': '1024*1280', '3:4': '1024*1366', '9:16': '832*1472', '16:9': '1472*832',
+};
+// Returns null (never throws) when this model has no WaveSpeed route or the
+// key isn't set, so callers fall back to their existing MuAPI path exactly
+// like submitImageGoogle/submitFlyerImage already do.
+async function submitImageWS(model, { prompt, aspect, images }) {
+  const route = IMAGE_ROUTES[model];
+  if (!route || !hasWaveSpeed()) return null;
+  const hasRefs = Array.isArray(images) && images.length > 0;
+  if (hasRefs && !route.i2i) return null; // no edit variant on this model — caller's MuAPI fallback handles it
+  const wsModel = hasRefs ? route.i2i : route.t2i;
+  const body = { prompt };
+  if (route.sizeParam) body.size = ASPECT_TO_SIZE[aspect] || '1024*1024';
+  else body.aspect_ratio = aspect || '1:1';
+  if (hasRefs) {
+    if (route.singleImage) body[route.imageField || 'image'] = images[0];
+    else body.images = images.slice(0, route.maxImages || 3);
+  }
+  const id = await wsSubmit(wsModel, body);
+  return { requestId: 'ws:' + id, provider: 'wavespeed' };
+}
+
+// ---- WaveSpeed utility TOOL routes (upscale, background remove, object
+// erase) — same live-catalog verification as IMAGE_ROUTES above. -----------
+const TOOL_ROUTES = {
+  'ai-image-upscale':      { model: 'wavespeed-ai/image-upscaler', extra: () => ({ target_resolution: '4k' }) },
+  'ai-background-remover': { model: 'wavespeed-ai/image-background-remover' },
+  'ai-object-eraser':      { model: 'wavespeed-ai/image-eraser', promptField: true },
+};
+async function submitToolWS(slug, { image, prompt }) {
+  const route = TOOL_ROUTES[slug];
+  if (!route || !hasWaveSpeed()) return null;
+  const body = { image, ...(route.extra ? route.extra() : {}) };
+  if (route.promptField && prompt) body.prompt = prompt;
+  const id = await wsSubmit(route.model, body);
+  return { requestId: 'ws:' + id, provider: 'wavespeed' };
+}
+
+module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitFlyerImage, submitImageWS, submitToolWS, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle };
