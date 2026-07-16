@@ -124,6 +124,12 @@
         <div class="fb-name">Flyer Studio</div>
         <div class="fb-desc">Describe it — a real design process, start to finish</div>
       </div>
+      <div class="featbox" data-go="audio">
+        <span class="fb-badge new">NEW</span>
+        <div class="fb-ic">🎙</div>
+        <div class="fb-name">Audio Studio</div>
+        <div class="fb-desc">Any script, your voice — instant voiceover</div>
+      </div>
       <div class="featbox" data-go="learn">
         <span class="fb-badge course">🎓 Course</span>
         <div class="fb-ic">🏛️</div>
@@ -251,6 +257,12 @@
         <button class="btn ghost sm" id="avVoicePick">🎙 Upload voice sample (3-10s of clear speech)</button>
         <input type="file" id="avVoiceFile" accept="audio/*" hidden>
         <div class="note" id="avVoiceNote"></div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)">
+          <div class="muted" style="font-size:12px;margin-bottom:6px">Or skip cloning — attach audio you've already recorded, matching the script below.</div>
+          <button class="btn ghost sm" id="avOwnAudioPick">🎧 Use my own audio instead</button>
+          <input type="file" id="avOwnAudioFile" accept="audio/*" hidden>
+          <div class="muted" id="avOwnAudioStatus" style="font-size:12px;margin-top:6px"></div>
+        </div>
       </div>
 
       <div class="sheet-box" style="margin-top:10px">
@@ -263,13 +275,33 @@
 
       <label class="fld" for="avvScript" style="margin-top:12px">Script</label>
       <textarea id="avvScript" placeholder="Paste or write the full script for your video…" style="min-height:160px"></textarea>
+
+      <label class="fld" for="avvMode">Video type</label>
+      <select id="avvMode">
+        <option value="talking">🗣 Talking head — close to camera, lip-synced</option>
+        <option value="motion">🚶 In motion — walking, dressing, makeup, any action</option>
+      </select>
+      <div id="avvMotionWrap" style="display:none">
+        <label class="fld" for="avvCameraMotion">Camera motion / action</label>
+        <textarea id="avvCameraMotion" placeholder="e.g. 'camera follows her walking down a city street, slight handheld sway' or 'she's applying makeup at a vanity, camera slowly pushes in'" style="min-height:80px"></textarea>
+      </div>
+
       <label class="fld" for="avvResolution">Resolution</label>
       <select id="avvResolution"><option value="480p">480p (cheaper)</option><option value="720p">720p</option></select>
       <label class="fld" for="avvPrompt">Extra direction (optional)</label>
       <input id="avvPrompt" placeholder="e.g. calm, confident, direct to camera">
+      <label class="fld" for="avvAspect">Aspect</label>
+      <select id="avvAspect"><option value="9:16">9:16 vertical</option><option value="4:5">4:5 portrait</option><option value="1:1">1:1 square</option></select>
       <button class="btn gold block" id="avvGen" style="margin-top:14px">🎬 Generate video</button>
       <div class="note" id="avvNote"></div>
       <div class="result" id="avvResult" style="margin-top:12px;min-height:160px"><div class="muted">Your finished video appears here.</div></div>
+
+      <div id="avvCtaWrap" style="margin-top:14px;display:none;padding-top:14px;border-top:1px dashed var(--line)">
+        <label class="fld" for="avvCtaText">Burn in a CTA (ready for ads/IG/TikTok)</label>
+        <input id="avvCtaText" placeholder='e.g. COMMENT "AI" BELOW'>
+        <button class="btn ghost block" id="avvAddCta" style="margin-top:8px">💬 Add CTA to video</button>
+        <div class="note" id="avvCtaNote"></div>
+      </div>
     </div>
   </section>
 
@@ -326,6 +358,31 @@
       <button class="btn gold block" id="flyerComposite" style="margin-top:10px">🖋 Composite final flyer</button>
       <div class="note" id="flyerCompositeNote"></div>
       <div class="result" id="flyerFinalResult" style="margin-top:12px;min-height:220px"><div class="muted">Your finished flyer appears here.</div></div>
+    </div>
+  </section>
+
+  <!-- ===== AUDIO STUDIO (standalone voiceover/narration) ===== -->
+  <section class="view" id="view-audio">
+    <div class="backlink" id="audioBack">← Studios</div>
+    <div class="studio-head"><div class="ic">🎙</div><div><h2>Audio Studio</h2><p>Any script, your voice — instant voiceover</p></div></div>
+
+    <div class="panel">
+      <div class="sheet-box">
+        <div class="sheet-head">🎙 Voice</div>
+        <div class="muted" id="adVoiceStatus" style="font-size:12px;margin-bottom:8px">Upload a short (3-10s) clear voice sample, or reuse a trained avatar's voice below.</div>
+        <button class="btn ghost sm" id="adVoicePick">🎙 Upload voice sample</button>
+        <input type="file" id="adVoiceFile" accept="audio/*" hidden>
+        <select id="adVoicePicker" style="margin-top:8px;display:none"></select>
+        <div class="note" id="adVoiceNote"></div>
+      </div>
+
+      <label class="fld" for="adScript" style="margin-top:12px">Script</label>
+      <textarea id="adScript" placeholder="Paste or write the script to turn into a voiceover…" style="min-height:160px"></textarea>
+      <label class="fld" for="adSpeed">Speed</label>
+      <select id="adSpeed"><option value="1">Normal</option><option value="0.9">Slightly slower</option><option value="1.15">Slightly faster</option></select>
+      <button class="btn gold block" id="adGen" style="margin-top:14px">🎙 Generate voiceover</button>
+      <div class="note" id="adNote"></div>
+      <div class="result" id="adResult" style="margin-top:12px;min-height:100px"><div class="muted">Your voiceover appears here.</div></div>
     </div>
   </section>
 
@@ -667,6 +724,8 @@
       <div id="vidOpts" style="display:none">
         <label class="fld" for="studioDuration">Length</label>
         <select id="studioDuration"><option value="5s">5 seconds</option><option value="10s">10 seconds (×2 credits)</option></select>
+        <label class="fld" for="cameraMotion">Camera motion (optional)</label>
+        <textarea id="cameraMotion" placeholder="e.g. 'slow push in,' 'camera circles the subject,' 'handheld follow as she walks forward'" style="min-height:60px"></textarea>
       </div>
 
       <div class="refbtn" id="refBtn"><span>🖼 Add image reference(s) — up to 5 (optional)</span></div>

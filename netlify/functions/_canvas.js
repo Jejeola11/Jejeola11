@@ -174,6 +174,34 @@ function drawBadge(ctx, { text, x, y, accentColor, fontSize = 18 }) {
   return { w, h };
 }
 
+// CTA banner for finished VIDEOS — "comment a word" / "tap below" style,
+// ad-ready for IG/TikTok. Draws a bold pill button on a translucent bar so
+// it reads instantly with sound off. Meant to be rendered on its own
+// transparent canvas (same size as the video) and composited via ffmpeg's
+// overlay filter — see _ffmpeg.js's overlayImageOnVideo.
+function drawCtaBanner(ctx, { text, width, height, y, accentColor, position = 'bottom' }) {
+  ensureFonts();
+  const barH = Math.round(height * 0.14);
+  const barY = position === 'top' ? y : y - barH;
+  ctx.fillStyle = hexToRgba('#000000', 0.55);
+  ctx.fillRect(0, barY, width, barH);
+  ctx.fillStyle = accentColor;
+  ctx.fillRect(0, position === 'top' ? barY + barH - 3 : barY, width, 3);
+
+  const fontSize = Math.round(width * 0.048);
+  ctx.font = `900 ${fontSize}px "${FONT_ROLES.display.family}"`;
+  const padX = fontSize * 0.9, padY = fontSize * 0.55;
+  const tw = ctx.measureText(text).width;
+  const pillW = Math.min(width * 0.9, tw + padX * 2), pillH = fontSize + padY * 2;
+  const pillX = (width - pillW) / 2, pillY = barY + (barH - pillH) / 2;
+  ctx.fillStyle = accentColor;
+  roundRect(ctx, pillX, pillY, pillW, pillH, pillH / 2); ctx.fill();
+  ctx.fillStyle = '#0a0a0a';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(text, width / 2, pillY + pillH / 2 + fontSize * 0.03);
+  return barH;
+}
+
 // Contact footer bar — layer 7. Styled as UI chrome (mono font, separated
 // by a solid color break), not part of the "art."
 function drawFooterBar(ctx, { text, width, y, height, accentColor, bg = '#0a0a0a' }) {
@@ -190,5 +218,5 @@ function drawFooterBar(ctx, { text, width, y, height, accentColor, bg = '#0a0a0a
 
 module.exports = {
   createCanvas, loadImage, ensureFonts, FONT_ROLES,
-  drawCover, wrapText, roundRect, drawHeadline, drawSubhead, drawInfoCard, drawBadge, drawFooterBar, hexToRgba,
+  drawCover, wrapText, roundRect, drawHeadline, drawSubhead, drawInfoCard, drawBadge, drawFooterBar, drawCtaBanner, hexToRgba,
 };

@@ -109,7 +109,10 @@ async function concatAudio(batchPaths, outPath, jobId) {
 // chunk comes off the same WaveSpeed model back-to-back) via the fast
 // stream-copy concat demuxer. Falls back to a re-encoding concat filter if
 // the chunks turn out not to be stream-compatible.
-async function concatVideos(chunkPaths, outPath, jobId) {
+// `hasAudio` should be false for silent chunks (e.g. motion-mode Seedance
+// clips, which carry no audio track at all) — the audio-fallback filter
+// below would otherwise fail trying to map a stream that doesn't exist.
+async function concatVideos(chunkPaths, outPath, jobId, { hasAudio = true } = {}) {
   const dir = workDir(jobId);
   const listPath = path.join(dir, 'concat-list.txt');
   const listBody = chunkPaths.map((p) => `file '${p.replace(/'/g, "'\\''")}'`).join('\n');
@@ -119,9 +122,45 @@ async function concatVideos(chunkPaths, outPath, jobId) {
   } catch (e) {
     // Stream copy failed (e.g. a subtly different codec profile) — re-encode.
     const inputs = chunkPaths.flatMap((p) => ['-i', p]);
-    const filter = chunkPaths.map((_, i) => `[${i}:v:0][${i}:a:0]`).join('') + `concat=n=${chunkPaths.length}:v=1:a=1[v][a]`;
-    await ffmpeg(['-y', ...inputs, '-filter_complex', filter, '-map', '[v]', '-map', '[a]', '-c:v', 'libx264', '-c:a', 'aac', outPath]);
+    if (hasAudio) {
+      const filter = chunkPaths.map((_, i) => `[${i}:v:0][${i}:a:0]`).join('') + `concat=n=${chunkPaths.length}:v=1:a=1[v][a]`;
+      await ffmpeg(['-y', ...inputs, '-filter_complex', filter, '-map', '[v]', '-map', '[a]', '-c:v', 'libx264', '-c:a', 'aac', outPath]);
+    } else {
+      const filter = chunkPaths.map((_, i) => `[${i}:v:0]`).join('') + `concat=n=${chunkPaths.length}:v=1:a=0[v]`;
+      await ffmpeg(['-y', ...inputs, '-filter_complex', filter, '-map', '[v]', '-c:v', 'libx264', outPath]);
+    }
   }
+  return outPath;
+}
+
+// Mux a separate narration track onto a (possibly silent) video — used to
+// attach the full narration to a motion-mode video, since Seedance's image-
+// to-video chunks carry no audio of their own. -shortest trims to whichever
+// input is shorter, so a slight chunk-count/narration-length mismatch never
+// produces a frozen tail or a looping one.
+async function muxAudio(videoPath, audioPath, outPath) {
+  await ffmpeg(['-y', '-i', videoPath, '-i', audioPath, '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'copy', '-c:a', 'aac', '-shortest', outPath]);
+  return outPath;
+}
+
+// Get pixel dimensions (for sizing a CTA overlay to match exactly).
+async function probeDimensions(filePath) {
+  const { stdout } = await execFileP(FFPROBE, [
+    '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'json', filePath,
+  ]);
+  const j = JSON.parse(stdout);
+  const s = j.streams && j.streams[0];
+  if (!s) throw new Error('Could not read video dimensions of ' + filePath);
+  return { width: s.width, height: s.height };
+}
+
+// Composite a transparent PNG overlay (e.g. a CTA card/button rendered via
+// _canvas.js) over the full duration of a video — used to make a finished
+// clip ad-ready with a burned-in CTA for IG/TikTok/ad placements.
+async function overlayImageOnVideo(videoPath, overlayPngPath, outPath) {
+  // Overlaying always re-encodes (pixel data changes) — veryfast keeps this
+  // from becoming the slowest step for a long avatar video.
+  await ffmpeg(['-y', '-i', videoPath, '-i', overlayPngPath, '-filter_complex', '[0:v][1:v]overlay=0:0:format=auto', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-c:a', 'copy', outPath]);
   return outPath;
 }
 
@@ -137,5 +176,6 @@ async function uploadToStorage(db, localPath, storagePath, contentType, bucket =
 
 module.exports = {
   workDir, ensureWorkDir, cleanupTmp, downloadToFile, ffmpeg,
-  probeDuration, extractFrameAt, extractLastFrame, sliceAudio, concatAudio, concatVideos, uploadToStorage,
+  probeDuration, probeDimensions, extractFrameAt, extractLastFrame, sliceAudio, concatAudio, concatVideos,
+  muxAudio, overlayImageOnVideo, uploadToStorage,
 };

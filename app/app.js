@@ -377,13 +377,15 @@ function setStudioMode(video) {
 }
 async function generateStudioVideo(prompt) {
   const model = $('model').value, aspect = $('aspect').value;
+  const cameraMotion = $('cameraMotion').value.trim();
+  const fullPrompt = cameraMotion ? `${prompt}. Camera: ${cameraMotion}` : prompt;
   const btn = $('genBtn'); const label = '🎬 Generate video'; btn.disabled = true; btn.textContent = 'Submitting…';
   $('result').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Sending to the engine…</div></div>';
   note('genNote', '');
   try {
     const res = await fetch('/.netlify/functions/video-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ model, prompt, aspect, duration: $('studioDuration').value, image_url: refUrls[0] || undefined }),
+      body: JSON.stringify({ model, prompt: fullPrompt, aspect, duration: $('studioDuration').value, image_url: refUrls[0] || undefined }),
     });
     const data = await res.json();
     if (res.status === 402) { note('genNote', 'Out of credits — top up.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; btn.disabled = false; btn.textContent = label; return; }
@@ -473,6 +475,7 @@ function openStudio(key) {
   if (key === 'learn') { showView('learn'); buildLessons(); return; }
   if (key === 'avatar') { showView('avatar'); loadAvatars(); return; }
   if (key === 'flyer') { showView('flyer'); return; }
+  if (key === 'audio') { showView('audio'); loadAudioVoices(); return; }
   if (key === 'promptgen') { buildPromptFields(); showView('promptgen'); loadPromptHistory(); return; }
   if (key === 'omni') { showView('omni'); return; }
   activeStudio = cfg.STUDIOS.find((s) => s.key === key) || cfg.STUDIOS[0];
@@ -997,7 +1000,7 @@ function routeFeature(go) {
   if (go === 'learn') return openCourse();
   if (go === 'week' || go === '500week') return openWeek();
   if (go === 'mini') return openMiniHub();
-  if (go === 'reactor' || go === 'avatar' || go === 'promptgen' || go === 'market' || go === 'flyer') return openStudio(go);
+  if (go === 'reactor' || go === 'avatar' || go === 'promptgen' || go === 'market' || go === 'flyer' || go === 'audio') return openStudio(go);
   if (go === 'community') return showView('community');
   if (go === 'streak') return claimDaily();
   if (go === 'image-nano') { openImageModel('nano-banana'); return; }
@@ -1916,20 +1919,46 @@ async function uploadAvatarTrainingVideo(file) {
     note('avFaceVideoNote', '✅ Trained from your video.', 'ok');
   } catch (e) { note('avFaceVideoNote', e.message || 'Training failed.', 'err'); }
 }
+let avvOwnAudioUrl = null;
+let avvLastUrl = null;
+async function uploadAvatarOwnAudio(file) {
+  if (!selectedAvatar) return note('avVoiceNote', 'Pick an avatar first.', 'err');
+  note('avVoiceNote', 'Uploading your audio…', 'ok');
+  try {
+    const ext = (file.name.split('.').pop() || 'mp3').toLowerCase();
+    const path = `${user.id}/ownaudio-${selectedAvatar}-${Date.now()}.${ext}`;
+    const { error } = await sb.storage.from('avatars').upload(path, file);
+    if (error) throw error;
+    avvOwnAudioUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    $('avOwnAudioStatus').textContent = '✅ Using your own audio — voice cloning will be skipped for this video.';
+    note('avVoiceNote', '', '');
+  } catch (e) { note('avVoiceNote', e.message || 'Upload failed.', 'err'); }
+}
+function avvToggleMode() {
+  $('avvMotionWrap').style.display = $('avvMode').value === 'motion' ? 'block' : 'none';
+}
 async function avvGenerate() {
   if (preview) { showAuth('signup'); return; }
   if (!selectedAvatar) return note('avvNote', 'Pick an avatar first.', 'err');
   const script = $('avvScript').value.trim();
   if (!script) return note('avvNote', 'Write or paste the script first.', 'err');
   const a = avatarMap[selectedAvatar] || {};
-  if (!a.voice_sample_url) return note('avvNote', 'Upload a voice sample above first.', 'err');
+  if (!avvOwnAudioUrl && !a.voice_sample_url) return note('avvNote', 'Upload a voice sample (or your own audio) above first.', 'err');
+  const mode = $('avvMode').value;
+  const cameraMotion = $('avvCameraMotion').value.trim();
+  if (mode === 'motion' && !cameraMotion) return note('avvNote', 'Describe the camera motion / action for a motion video.', 'err');
   const btn = $('avvGen'); const label = '🎬 Generate video'; btn.disabled = true; btn.textContent = 'Submitting…';
   $('avvResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Starting your video…</div></div>';
+  $('avvCtaWrap').style.display = 'none';
   note('avvNote', '');
   try {
     const res = await fetch('/.netlify/functions/avatar-video-create', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ avatar_id: selectedAvatar, script, settings: { resolution: $('avvResolution').value, prompt: $('avvPrompt').value.trim() } }),
+      body: JSON.stringify({
+        avatar_id: selectedAvatar, script, mode, camera_motion: mode === 'motion' ? cameraMotion : undefined,
+        audio_url: avvOwnAudioUrl || undefined,
+        settings: { resolution: $('avvResolution').value, prompt: $('avvPrompt').value.trim(), aspect: $('avvAspect').value },
+      }),
     });
     const d = await res.json();
     if (res.status === 503) { $('avvResult').innerHTML = '<div class="muted">Avatar Creator is being connected.</div>'; note('avvNote', d.error, 'err'); btn.disabled = false; btn.textContent = label; }
@@ -1953,8 +1982,10 @@ function pollAvatarVideo(id, btn, label) {
       const d = await r.json();
       if (d.stage === 'complete') {
         clearInterval(timer);
+        avvLastUrl = d.url;
         $('avvResult').innerHTML = `<div><video src="${d.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${d.url}')">⬇ Download</button></div></div>`;
         note('avvNote', 'Done ✅', 'ok');
+        $('avvCtaWrap').style.display = 'block';
         if (user) loadProfile();
         btn.disabled = false; btn.textContent = label;
       } else if (d.stage === 'failed') {
@@ -1970,6 +2001,25 @@ function pollAvatarVideo(id, btn, label) {
     } catch (e) {}
     if (s >= 3600) { clearInterval(timer); note('avvNote', 'Still rendering — check back shortly.', 'err'); btn.disabled = false; btn.textContent = label; }
   }, 10000);
+}
+async function avvAddCta() {
+  if (!avvLastUrl) return;
+  const ctaText = $('avvCtaText').value.trim();
+  if (!ctaText) return note('avvCtaNote', 'Write the CTA text first.', 'err');
+  const btn = $('avvAddCta'); btn.disabled = true; btn.textContent = 'Adding…';
+  note('avvCtaNote', '');
+  try {
+    const res = await fetch('/.netlify/functions/video-cta', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ video_url: avvLastUrl, cta_text: ctaText }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    avvLastUrl = d.url;
+    $('avvResult').innerHTML = `<div><video src="${d.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${d.url}')">⬇ Download</button></div></div>`;
+    note('avvCtaNote', '✅ Ad-ready — CTA burned in.', 'ok');
+  } catch (e) { note('avvCtaNote', e.message || 'Failed', 'err'); }
+  btn.disabled = false; btn.textContent = '💬 Add CTA to video';
 }
 let avTrainFiles = [];   // accumulates across multiple "Add photos" picks
 function renderTrainThumbs() {
@@ -2224,6 +2274,80 @@ async function flyerComposite() {
     note('flyerCompositeNote', '✅ Done — tweak the copy/colors and composite again anytime.', 'ok');
   } catch (e) { $('flyerFinalResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('flyerCompositeNote', e.message || 'Failed', 'err'); }
   btn.disabled = false; btn.textContent = '🖋 Composite final flyer';
+}
+
+// ---------------- Audio Studio (standalone voiceover/narration) ----------------
+let adUploadedVoiceUrl = null;
+async function loadAudioVoices() {
+  if (preview) return;
+  const { data } = await sb.from('avatars').select('id,name,voice_sample_url').not('voice_sample_url', 'is', null);
+  const sel = $('adVoicePicker');
+  if (data && data.length) {
+    sel.innerHTML = '<option value="">Use uploaded sample instead…</option>' + data.map((a) => `<option value="${a.voice_sample_url}">${a.name}'s voice</option>`).join('');
+    sel.style.display = 'block';
+  } else {
+    sel.style.display = 'none';
+  }
+}
+async function uploadAudioVoiceSample(file) {
+  if (preview) { showAuth('signup'); return; }
+  note('adVoiceNote', 'Uploading…', 'ok');
+  try {
+    const ext = (file.name.split('.').pop() || 'mp3').toLowerCase();
+    const path = `${user.id}/adv-${Date.now()}.${ext}`;
+    const { error } = await sb.storage.from('avatars').upload(path, file);
+    if (error) throw error;
+    adUploadedVoiceUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    $('adVoicePicker').value = '';
+    note('adVoiceNote', '✅ Voice sample ready.', 'ok');
+  } catch (e) { note('adVoiceNote', e.message || 'Upload failed.', 'err'); }
+}
+async function adGenerate() {
+  if (preview) { showAuth('signup'); return; }
+  const text = $('adScript').value.trim();
+  if (!text) return note('adNote', 'Write the script first.', 'err');
+  const voiceUrl = $('adVoicePicker').value || adUploadedVoiceUrl;
+  if (!voiceUrl) return note('adNote', 'Add a voice sample first.', 'err');
+  const btn = $('adGen'); const label = '🎙 Generate voiceover'; btn.disabled = true; btn.textContent = 'Submitting…';
+  $('adResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Generating…</div></div>';
+  note('adNote', '');
+  try {
+    const res = await fetch('/.netlify/functions/audio-generate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ text, voice_sample_url: voiceUrl, speed: parseFloat($('adSpeed').value) }),
+    });
+    const d = await res.json();
+    if (res.status === 503) { $('adResult').innerHTML = '<div class="muted">Audio Studio is being connected.</div>'; note('adNote', d.error, 'err'); btn.disabled = false; btn.textContent = label; return; }
+    if (res.status === 402) { note('adNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; return; }
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    $('creditCount').textContent = d.credits;
+    note('adNote', 'Rendering… ⏳', 'ok'); btn.textContent = 'Rendering…';
+    pollAudioJob(d.request_id, btn, label);
+  } catch (e) { $('adResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('adNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
+}
+function pollAudioJob(reqId, btn, label) {
+  let s = 0;
+  const timer = setInterval(async () => {
+    s += 5;
+    try {
+      const r = await fetch(`/.netlify/functions/job-status?id=${reqId}`, { headers: { ...(await authHeader()) } });
+      const d = await r.json();
+      if (d.status === 'completed') {
+        clearInterval(timer);
+        $('adResult').innerHTML = `<div><audio src="${d.url}" controls style="width:100%"></audio><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${d.url}')">⬇ Download</button></div></div>`;
+        note('adNote', 'Done ✅', 'ok');
+        if (user) loadProfile();
+        btn.disabled = false; btn.textContent = label;
+      } else if (d.status === 'failed') {
+        clearInterval(timer);
+        $('adResult').innerHTML = '<div>⚠ ' + (d.error || 'Failed') + '</div>';
+        note('adNote', (d.error || 'Failed') + ' — credits refunded.', 'err');
+        if (user) loadProfile();
+        btn.disabled = false; btn.textContent = label;
+      }
+    } catch (e) {}
+    if (s >= 240) { clearInterval(timer); note('adNote', 'Still rendering — check back shortly.', 'err'); btn.disabled = false; btn.textContent = label; }
+  }, 5000);
 }
 
 // ---------------- prompt generator (charged, 1 credit) ----------------
@@ -2633,6 +2757,14 @@ window.addEventListener('DOMContentLoaded', () => {
   $('avFaceVideoPick').onclick = () => $('avFaceVideoFile').click();
   $('avFaceVideoFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadAvatarTrainingVideo(f); e.target.value = ''; };
   $('avvGen').onclick = avvGenerate;
+  $('avvMode').onchange = avvToggleMode;
+  $('avOwnAudioPick').onclick = () => $('avOwnAudioFile').click();
+  $('avOwnAudioFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadAvatarOwnAudio(f); e.target.value = ''; };
+  $('avvAddCta').onclick = avvAddCta;
+  $('audioBack').onclick = () => showView('home');
+  $('adVoicePick').onclick = () => $('adVoiceFile').click();
+  $('adVoiceFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadAudioVoiceSample(f); e.target.value = ''; };
+  $('adGen').onclick = adGenerate;
   $('flyerBack').onclick = () => showView('home');
   $('flyerSend').onclick = flyerSend;
   $('flyerMsg').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); flyerSend(); } });
@@ -2690,7 +2822,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const go = t.dataset.go;
     if (go === 'tab-image') { showView('models'); buildModels('image'); }
     else if (go === 'tab-video') { showView('models'); buildModels('video'); }
-    else if (go === 'tab-audio') { toast('🎧 Audio generation is coming soon!'); }
+    else if (go === 'tab-audio') { openStudio('audio'); }
     else if (go === 'tab-reactor') { openStudio('reactor'); }
     else if (go === 'tab-courses') { openAllCourses(); }
     else { showView('home'); }

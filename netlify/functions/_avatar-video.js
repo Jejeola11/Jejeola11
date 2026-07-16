@@ -16,20 +16,31 @@
 //               parallel API calls, never regenerated per video chunk) is
 //               what avoids the voice-tone drift real users report when a
 //               TTS engine is re-invoked separately for every segment.
-//   slicing   — local only: cut that track into CHUNK_SECONDS-long segments,
-//               one per eventual video chunk.
-//   video     — InfiniteTalk chunks, STRICTLY sequential (chunk N+1 needs
-//               chunk N's last frame as its start image — the "chained
-//               end-frame" mechanism that keeps a long video looking
-//               continuous instead of resetting to the master photo every
-//               few minutes).
-//   stitching — local only: concatenate the finished video chunks (each
-//               already has audio baked in from InfiniteTalk).
+//               SKIPPED if the user supplied their own pre-made narration
+//               (video.uploaded_audio_url) — used as-is instead of cloning.
+//   slicing   — local only: cut that track into chunk-sized segments, one
+//               per eventual video chunk. TALKING mode chunks are big
+//               (~8min, InfiniteTalk's near-cap) since audio drives lip-sync
+//               directly; MOTION mode chunks are small (~10s, Seedance's
+//               per-call limit) and don't need their own audio slice at all
+//               — narration is muxed onto the finished video once, at the end.
+//   video     — STRICTLY sequential (chunk N+1 needs chunk N's last frame as
+//               its start image — the "chained end-frame" mechanism that
+//               keeps a long video looking continuous instead of resetting
+//               to the master photo every chunk). TALKING mode calls
+//               InfiniteTalk (image+audio -> lip-synced video). MOTION mode
+//               calls Seedance image-to-video with a camera-motion-directed
+//               prompt — no lip-sync, just continuous visual motion (walking,
+//               dressing, makeup, etc.), silent per chunk.
+//   stitching — local only: concatenate the finished video chunks. TALKING
+//               mode chunks already carry audio (baked in by InfiniteTalk).
+//               MOTION mode chunks are silent — the full narration track
+//               gets muxed on here, once, over the whole concatenated video.
 // ============================================================
-const { submitAvatar, submitSpeech, pollAny } = require('./_providers');
+const { submitAvatar, submitVideo, submitSpeech, pollAny } = require('./_providers');
 const {
   ensureWorkDir, cleanupTmp, downloadToFile, probeDuration,
-  extractLastFrame, sliceAudio, concatAudio, concatVideos, uploadToStorage,
+  extractLastFrame, sliceAudio, concatAudio, concatVideos, muxAudio, uploadToStorage,
 } = require('./_ffmpeg');
 
 const path = require('path');
@@ -37,6 +48,10 @@ const path = require('path');
 // InfiniteTalk's documented hard cap is ~10 minutes per generation; we stay
 // well under it so a chunk never gets silently truncated.
 const CHUNK_SECONDS = 8 * 60;
+// Seedance image-to-video is called per-chunk with a fixed short duration
+// (it has no concept of "drive the length from audio" the way InfiniteTalk
+// does) — 10s keeps chunk count (and therefore generation calls) reasonable.
+const CHUNK_SECONDS_MOTION = 10;
 // Comfortably under the ~6,180-char length we confirmed WaveSpeed accepts at
 // submit time for a single omnivoice/voice-clone call.
 const SPEECH_BATCH_CHARS = 3000;
@@ -73,6 +88,17 @@ async function touchRunning(db, video) {
 
 // ---- stage: speech ---------------------------------------------------------
 async function advanceSpeech(db, video, avatar) {
+  // User supplied their own pre-made narration — skip Omnivoice entirely and
+  // use it as-is. Only the duration is needed from here on.
+  if (video.uploaded_audio_url) {
+    const dir = await ensureWorkDir(video.id);
+    const local = path.join(dir, 'uploaded-narration');
+    await downloadToFile(video.uploaded_audio_url, local);
+    const duration = await probeDuration(local);
+    await db.from('avatar_videos').update({ stage: 'slicing', speech_url: video.uploaded_audio_url, total_duration_sec: duration, updated_at: new Date().toISOString() }).eq('id', video.id);
+    return { stage: 'slicing', progress: 'using your uploaded narration' };
+  }
+
   const { data: rows } = await db.from('avatar_video_chunks').select('*').eq('avatar_video_id', video.id).eq('kind', 'speech').order('seq');
 
   if (!rows || !rows.length) {
@@ -138,15 +164,31 @@ async function advanceSpeech(db, video, avatar) {
 
 // ---- stage: slicing (local, one-shot) --------------------------------------
 async function advanceSlicing(db, video) {
+  const total = video.total_duration_sec || 0;
+
+  // MOTION mode: Seedance chunks carry no audio, so there's nothing to slice
+  // or upload per chunk — just decide how many fixed-length silent chunks are
+  // needed to roughly cover the narration's length.
+  if (video.mode === 'motion') {
+    const n = Math.max(1, Math.ceil(total / CHUNK_SECONDS_MOTION));
+    for (let seq = 0; seq < n; seq++) {
+      const startSec = seq * CHUNK_SECONDS_MOTION;
+      const durSec = Math.min(CHUNK_SECONDS_MOTION, total - startSec);
+      await db.from('avatar_video_chunks').insert({ avatar_video_id: video.id, kind: 'video', seq, status: 'pending', start_sec: startSec, duration_sec: durSec });
+    }
+    await db.from('avatar_videos').update({ stage: 'video', updated_at: new Date().toISOString() }).eq('id', video.id);
+    return { stage: 'video', progress: `0/${n}` };
+  }
+
   const dir = await ensureWorkDir(video.id);
   const local = path.join(dir, 'speech-full.m4a');
   await downloadToFile(video.speech_url, local);
-  const total = video.total_duration_sec || await probeDuration(local);
-  const n = Math.max(1, Math.ceil(total / CHUNK_SECONDS));
+  const dur = total || await probeDuration(local);
+  const n = Math.max(1, Math.ceil(dur / CHUNK_SECONDS));
 
   for (let seq = 0; seq < n; seq++) {
     const startSec = seq * CHUNK_SECONDS;
-    const durSec = Math.min(CHUNK_SECONDS, total - startSec);
+    const durSec = Math.min(CHUNK_SECONDS, dur - startSec);
     const outPath = path.join(dir, `audio-chunk-${seq}.m4a`);
     await sliceAudio(local, startSec, durSec, outPath);
     const url = await uploadToStorage(db, outPath, `${video.user_id}/avvid-${video.id}-audio-${seq}.m4a`, 'audio/mp4');
@@ -180,10 +222,21 @@ async function advanceVideo(db, video, avatar) {
     const refImage = next.seq === 0 ? masterFrame : (rows[next.seq - 1] && rows[next.seq - 1].last_frame_url) || masterFrame;
     const prompt = (video.settings && video.settings.prompt) || '';
     try {
-      const { requestId } = await submitAvatar('infinitetalk', {
-        image: refImage, audio: next.input_audio_url, prompt,
-        resolution: (video.settings && video.settings.resolution) || '480p',
-      });
+      let requestId;
+      if (video.mode === 'motion') {
+        // Seedance image-to-video: no audio, driven by the camera-motion
+        // instruction instead of lip-sync. Fixed short duration per chunk.
+        const motionPrompt = [video.camera_motion, prompt].filter(Boolean).join('. ');
+        ({ requestId } = await submitVideo('seedance-2-image-to-video', {
+          prompt: motionPrompt, aspect: (video.settings && video.settings.aspect) || '9:16',
+          duration: `${CHUNK_SECONDS_MOTION}s`, resolution: (video.settings && video.settings.resolution) || '480p',
+        }, [refImage]));
+      } else {
+        ({ requestId } = await submitAvatar('infinitetalk', {
+          image: refImage, audio: next.input_audio_url, prompt,
+          resolution: (video.settings && video.settings.resolution) || '480p',
+        }));
+      }
       await db.from('avatar_video_chunks').update({ request_id: requestId, status: 'processing', source_frame_url: refImage }).eq('id', next.id);
     } catch (e) {
       await refundAndFail(db, video, e.message || 'Could not start video generation.');
@@ -226,8 +279,20 @@ async function advanceStitching(db, video) {
     await downloadToFile(r.output_url, p);
     localPaths.push(p);
   }
-  const outPath = path.join(dir, 'final.mp4');
-  await concatVideos(localPaths, outPath, video.id);
+  const isMotion = video.mode === 'motion';
+  const concatPath = isMotion ? path.join(dir, 'final-silent.mp4') : path.join(dir, 'final.mp4');
+  await concatVideos(localPaths, concatPath, video.id, { hasAudio: !isMotion });
+
+  let outPath = concatPath;
+  if (isMotion) {
+    // Motion-mode chunks are silent — mux the full narration on now, once,
+    // over the whole concatenated video.
+    const narrationLocal = path.join(dir, 'narration-final.m4a');
+    await downloadToFile(video.speech_url, narrationLocal);
+    outPath = path.join(dir, 'final.mp4');
+    await muxAudio(concatPath, narrationLocal, outPath);
+  }
+
   const finalUrl = await uploadToStorage(db, outPath, `${video.user_id}/avvid-${video.id}-final.mp4`, 'video/mp4');
 
   await db.from('avatar_videos').update({ stage: 'complete', output_url: finalUrl, updated_at: new Date().toISOString() }).eq('id', video.id);
@@ -259,4 +324,4 @@ async function advance(db, videoId) {
   return { stage: video.stage };
 }
 
-module.exports = { advance, splitScript, CHUNK_SECONDS, SPEECH_BATCH_CHARS };
+module.exports = { advance, splitScript, CHUNK_SECONDS, CHUNK_SECONDS_MOTION, SPEECH_BATCH_CHARS };
