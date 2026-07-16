@@ -22,8 +22,17 @@
 // ============================================================
 const MU_BASE = 'https://api.muapi.ai/api/v1';
 const WS_BASE = 'https://api.wavespeed.ai/api/v3';
+const GOOGLE_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
 const hasWaveSpeed = () => !!process.env.WAVESPEED_KEY;
+// GEMINI_API_KEY billing note: unlike MuAPI/WaveSpeed (small prepaid credit
+// pools where a bad call costs cents), this key bills directly against a
+// real Google account with no visible cap here. Built from Google's stable,
+// documented Imagen (`predict`) / Veo (`predictLongRunning`) API contracts
+// — NOT live-tested with an actual generation call in this session, on
+// purpose, to avoid spending real money without the account owner directly
+// watching. Test with a small manual generation before relying on it.
+const hasGoogle = () => !!process.env.GEMINI_API_KEY;
 
 // ---- WaveSpeed video routes -------------------------------------------------
 // internal app slug -> how to build the WaveSpeed request. `pick` chooses the
@@ -52,6 +61,19 @@ const AVATAR_ROUTES = {
   'omnihuman-1-5':     { pick: () => 'bytedance/avatar-omni-human-1.5' },
   'kling-v2-avatar-pro':      { pick: () => 'kwaivgi/kling-v2-ai-avatar-pro' },
   'kling-v2-avatar-standard': { pick: () => 'kwaivgi/kling-v2-ai-avatar-standard' },
+};
+
+// ---- Google direct routes (Imagen 4 + Veo 3.1) -------------------------------
+// Confirmed live 2026-07-16 that this GEMINI_API_KEY has real access to both
+// (via GET /v1beta/models — listed with method 'predict' for Imagen and
+// 'predictLongRunning' for Veo). Existing MuAPI slugs mapped 1:1 so nothing
+// else in the app needs to change to benefit from direct (no-markup) access.
+const GOOGLE_IMAGE_ROUTES = {
+  'google-imagen4-ultra': 'imagen-4.0-ultra-generate-001',
+};
+const GOOGLE_VIDEO_ROUTES = {
+  'veo3-text-to-video': 'veo-3.1-generate-preview',
+  'veo3-image-to-video': 'veo-3.1-generate-preview',
 };
 
 function durInt(duration) { return parseInt(duration, 10) || 5; }
@@ -107,15 +129,71 @@ async function muPoll(id) {
   return { status: done ? 'completed' : failed ? 'failed' : 'processing', url: done ? (p.outputs && p.outputs[0]) : null, cost_usd: p.cost && p.cost.amount_usd, raw: p };
 }
 
+// --- Google transport ---------------------------------------------------------
+// Imagen's predict call is SYNCHRONOUS — the image bytes come back in the same
+// response, no polling. Returns base64 + mime type; the caller uploads it to
+// storage and can mark the job "completed" immediately (same pattern already
+// used for chat/flyer-brief's "immediate" responses).
+async function googlePredictImage(model, { prompt, aspect }) {
+  const res = await fetch(`${GOOGLE_BASE}/models/${model}:predict?key=${process.env.GEMINI_API_KEY}`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ instances: [{ prompt }], parameters: { sampleCount: 1, aspectRatio: aspect || '1:1' } }),
+  });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((j.error && j.error.message) || ('Google Imagen HTTP ' + res.status));
+  const pred = j.predictions && j.predictions[0];
+  // The exact REST field name for the base64 image wasn't confirmed via
+  // public docs in this session (Vertex AI Imagen uses bytesBase64Encoded;
+  // the Gemini API SDK surfaces it as image.imageBytes) — check both rather
+  // than assume, so this doesn't silently break on a naming difference.
+  const base64 = pred && (pred.bytesBase64Encoded || pred.imageBytes || (pred.image && pred.image.imageBytes));
+  if (!base64) throw new Error('Google Imagen returned no image (unexpected response shape — see _providers.js comment)');
+  return { base64, mimeType: (pred && pred.mimeType) || 'image/png' };
+}
+
+// Veo is a genuine long-running operation: submit returns an operation name,
+// poll that name until done:true, then read the video URI out of the
+// response. The exact nested response shape below follows Google's
+// documented Veo response envelope but has not been round-trip-verified
+// against a completed generation in this session (see the billing-risk note
+// on hasGoogle()) — if the shape has drifted, pollGoogleVideo will just see
+// no uri and report "processing" forever rather than crashing; watch for
+// that if this is the first real thing that goes wrong here.
+async function googleSubmitVideo(model, { prompt, aspect }) {
+  const res = await fetch(`${GOOGLE_BASE}/models/${model}:predictLongRunning?key=${process.env.GEMINI_API_KEY}`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ instances: [{ prompt }], parameters: { aspectRatio: aspect || '16:9' } }),
+  });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((j.error && j.error.message) || ('Google Veo HTTP ' + res.status));
+  if (!j.name) throw new Error('Google Veo did not return an operation name');
+  return j.name; // e.g. "models/veo-3.1-generate-preview/operations/abc123"
+}
+
+async function googlePollVideo(operationName) {
+  const res = await fetch(`${GOOGLE_BASE}/${operationName}?key=${process.env.GEMINI_API_KEY}`);
+  const j = await res.json().catch(() => ({}));
+  if (!j.done) return { status: 'processing' };
+  if (j.error) return { status: 'failed' };
+  const samples = j.response && j.response.generateVideoResponse && j.response.generateVideoResponse.generatedSamples;
+  const uri = samples && samples[0] && samples[0].video && samples[0].video.uri;
+  return { status: uri ? 'completed' : 'failed', url: uri };
+}
+
 // ============================================================
 // PUBLIC API
 // ============================================================
 
 // Submit a VIDEO job. Returns { requestId, provider } — requestId is already
 // prefixed for the poller. `hosted` is the array of already-hosted reference
-// image URLs (start frame first). Falls back to MuAPI when WaveSpeed can't
-// serve this model or no key is set.
+// image URLs (start frame first). Tries Google direct first for veo3 models
+// (no MuAPI markup), then WaveSpeed, then falls back to MuAPI.
 async function submitVideo(model, opts, hosted) {
+  const googleModel = GOOGLE_VIDEO_ROUTES[model];
+  if (googleModel && hasGoogle()) {
+    const opName = await googleSubmitVideo(googleModel, opts);
+    return { requestId: 'g:' + Buffer.from(opName).toString('base64url'), provider: 'google' };
+  }
   const route = VIDEO_ROUTES[model];
   if (route && hasWaveSpeed()) {
     const wsModel = route.pick(opts);
@@ -150,7 +228,25 @@ async function submitAvatar(model, { image, audio, prompt, resolution }) {
 // Poll ANY job by its (possibly prefixed) request id.
 async function pollAny(requestId) {
   if (typeof requestId === 'string' && requestId.indexOf('ws:') === 0) return wsPoll(requestId.slice(3));
+  if (typeof requestId === 'string' && requestId.indexOf('g:') === 0) {
+    const opName = Buffer.from(requestId.slice(2), 'base64url').toString();
+    return googlePollVideo(opName);
+  }
   return muPoll(requestId);
+}
+
+// Submit an IMAGE job via Google Imagen when routed and available — the
+// call is synchronous (image bytes come back immediately, no polling), so
+// this returns the decoded image directly rather than a request id. The
+// caller uploads it to storage and can mark its job "completed" right away
+// (same immediate-completion pattern already used for chat/flyer-brief).
+// Returns null if this model isn't a Google route or the key isn't set —
+// callers should fall back to their existing MuAPI path in that case.
+async function submitImageGoogle(model, opts) {
+  const googleModel = GOOGLE_IMAGE_ROUTES[model];
+  if (!googleModel || !hasGoogle()) return null;
+  const { base64, mimeType } = await googlePredictImage(googleModel, opts);
+  return { base64, mimeType, provider: 'google' };
 }
 
 // ---- WaveSpeed voice cloning (Omnivoice) -------------------------------------
@@ -170,4 +266,4 @@ async function submitSpeech({ audio, text, speed }) {
   return { requestId: 'ws:' + id, provider: 'wavespeed' };
 }
 
-module.exports = { submitVideo, submitAvatar, submitSpeech, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed };
+module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle };
