@@ -2306,7 +2306,7 @@ function flyerLoadProject(p) {
   flyerProjectId = p.id;
   flyerHistory = [];
   flyerLayers = (Array.isArray(p.layers) ? p.layers : []).map((l) => l.instruction);
-  flyerRefUrls = Array.isArray(p.reference_image_urls) ? p.reference_image_urls.slice() : [];
+  flyerRefUrls = Array.isArray(p.reference_image_urls) ? p.reference_image_urls.map((u) => ({ url: u, on: true })) : [];
   renderFlyerRefs();
   $('flyerLog').innerHTML = '';
   flyerAppendLog('assistant', `Loaded: ${p.brief || '(untitled)'}`);
@@ -2321,6 +2321,11 @@ function flyerLoadProject(p) {
   $('flyerVisualPanel').scrollIntoView({ behavior: 'smooth' });
 }
 
+// Each entry is {url, on} — "on" is whether THIS reference actually feeds
+// the next "Generate visual" call. Everything uploaded still goes into the
+// chat's context (so the design brief can talk about all of it), but
+// generation only ever uses the ones currently toggled on — tapping a
+// thumbnail toggles it, and new uploads default to on.
 let flyerRefUrls = [];
 async function flyerPickRefs(files) {
   if (preview) { showAuth('signup'); return; }
@@ -2334,29 +2339,30 @@ async function flyerPickRefs(files) {
       const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
       const path = `${user.id}/flyerref-${Date.now()}-${i}.${ext}`;
       await uploadWithRetry('avatars', path, file);
-      flyerRefUrls.push(sb.storage.from('avatars').getPublicUrl(path).data.publicUrl);
+      flyerRefUrls.push({ url: sb.storage.from('avatars').getPublicUrl(path).data.publicUrl, on: true });
     } catch (error) { note('flyerRefNote', (error && error.message) || 'Upload failed.', 'err'); }
   }
   renderFlyerRefs();
-  note('flyerRefNote', `✅ ${flyerRefUrls.length} reference(s) attached.`, 'ok');
+  note('flyerRefNote', `✅ ${flyerRefUrls.length} reference(s) attached — tap any to include/exclude it from generation.`, 'ok');
 }
 function renderFlyerRefs() {
-  $('flyerRefThumbs').innerHTML = flyerRefUrls.map((u, i) =>
-    `<div style="position:relative"><img src="${u}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line)">
-      <span class="ref-x" onclick="window.fuseFlyerRmRef(${i})">✕</span></div>`).join('');
+  $('flyerRefThumbs').innerHTML = flyerRefUrls.map((r, i) => `
+    <div style="position:relative;cursor:pointer" onclick="window.fuseFlyerToggleRef(${i})">
+      <img src="${r.url}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:2px solid ${r.on ? 'var(--gold)' : 'var(--line)'};opacity:${r.on ? '1' : '.4'}">
+      ${r.on ? '<span style="position:absolute;bottom:-4px;left:-4px;background:var(--gold);color:#1a1205;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center">✓</span>' : ''}
+      <span class="ref-x" onclick="event.stopPropagation();window.fuseFlyerRmRef(${i})">✕</span>
+    </div>`).join('');
   // Make the connection to generation visible right where it matters — this
   // panel is well above the "Generate visual" button, so it wasn't obvious
   // the references there actually feed into it.
   const heroNote = $('flyerHeroRefNote');
   if (heroNote) {
-    // Only the first 3 actually get sent to the generation call (see
-    // flyer-hero.js) — more than that measurably slows a render down, so
-    // this should never promise more than what's actually used.
-    const used = Math.min(flyerRefUrls.length, 3);
-    heroNote.textContent = flyerRefUrls.length ? `🖼 ${used} of ${flyerRefUrls.length} reference(s) will be used for this generation (fewer = faster).` : '';
+    const selected = flyerRefUrls.filter((r) => r.on).length;
+    heroNote.textContent = flyerRefUrls.length ? `🖼 ${selected} of ${flyerRefUrls.length} selected for this generation — tap a reference above to include/exclude it.` : '';
   }
 }
 window.fuseFlyerRmRef = (i) => { flyerRefUrls.splice(i, 1); renderFlyerRefs(); };
+window.fuseFlyerToggleRef = (i) => { if (flyerRefUrls[i]) flyerRefUrls[i].on = !flyerRefUrls[i].on; renderFlyerRefs(); };
 
 function flyerAppendLog(role, text) {
   const log = $('flyerLog');
@@ -2380,7 +2386,7 @@ async function flyerSend() {
   try {
     const res = await fetch('/.netlify/functions/flyer-brief', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ message: msg, history: flyerHistory, project_id: flyerProjectId, reference_image_urls: flyerRefUrls }),
+      body: JSON.stringify({ message: msg, history: flyerHistory, project_id: flyerProjectId, reference_image_urls: flyerRefUrls.map((r) => r.url) }),
     });
     const d = await res.json();
     if (res.status === 402) { note('flyerNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = 'Send'; return; }
@@ -2443,7 +2449,7 @@ async function flyerGenHero(auto) {
   try {
     const res = await fetch('/.netlify/functions/flyer-hero', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ project_id: flyerProjectId || undefined, prompt, aspect: $('flyerAspect').value, reference_image_urls: flyerRefUrls }),
+      body: JSON.stringify({ project_id: flyerProjectId || undefined, prompt, aspect: $('flyerAspect').value, reference_image_urls: flyerRefUrls.filter((r) => r.on).map((r) => r.url) }),
     });
     const d = await res.json();
     if (res.status === 402) { note('flyerHeroNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; return; }

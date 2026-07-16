@@ -37,20 +37,22 @@ exports.handler = async (event) => {
     if (!prompt) return json(400, { error: 'Missing image prompt.' });
 
     db = admin();
+    // What actually grounds THIS generation is exactly what the client sent
+    // — the Hero visual panel lets the user tick individual references on
+    // or off per render (e.g. just the one product shot), and that choice
+    // has to be respected exactly, not silently re-expanded back out to
+    // everything ever uploaded to the project.
     let refs = referenceImageUrls;
     if (projectId) {
       const { data: project } = await db.from('flyer_projects').select('id, user_id, reference_image_urls').eq('id', projectId).maybeSingle();
       if (!project || project.user_id !== user.id) return json(404, { error: 'Project not found.' });
-      // Merge whatever the client attached THIS call with whatever's already
-      // saved on the project — never just prefer one over the other. The old
-      // logic used the DB's set outright and ignored the request body, so
-      // references added after the project's first message (the common case,
-      // since the "References" panel sits above the chat and gets used
-      // whenever the user likes) were silently dropped from generation.
+      // The project's reference LIBRARY still only ever grows (union) so
+      // nothing uploaded is lost and the chat keeps full context — but that
+      // library is bookkeeping, separate from what this specific render uses.
       const stored = Array.isArray(project.reference_image_urls) ? project.reference_image_urls : [];
-      refs = Array.from(new Set([...stored, ...referenceImageUrls])).slice(0, 20);
-      if (refs.length !== stored.length) {
-        try { await db.from('flyer_projects').update({ reference_image_urls: refs }).eq('id', projectId); } catch (e) {}
+      const library = Array.from(new Set([...stored, ...referenceImageUrls])).slice(0, 20);
+      if (library.length !== stored.length) {
+        try { await db.from('flyer_projects').update({ reference_image_urls: library }).eq('id', projectId); } catch (e) {}
       }
     } else {
       // Generating straight from a typed prompt with no chat/project yet —
