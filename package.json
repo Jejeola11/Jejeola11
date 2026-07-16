@@ -5,6 +5,8 @@
   "description": "Fuse Studio — hosted AI image & video generation with credits, trials and Paystack payments.",
   "type": "commonjs",
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@ffprobe-installer/ffprobe": "^2.1.2",
     "@supabase/supabase-js": "^2.45.4"
   }
 }

@@ -128,6 +128,28 @@ const VIDEO_MODELS = Object.fromEntries(Object.entries(VIDEO_COST).map(([k, v]) 
 const TOOL_MODELS = Object.fromEntries(Object.entries(TOOL_COST).map(([k, v]) => [k, creditsFor(v, IMAGE_MARGIN)]));
 const MODEL_COST = IMAGE_MODELS; // back-compat alias
 
+// ---- AI Avatar Creator (long-form video) — WaveSpeed-only cost model ------
+// InfiniteTalk (chunked, image+audio -> talking video) is the real cost
+// driver; Omnivoice voice-clone narration is comparatively tiny. Both
+// verified live 2026-07-15/16. Priced per minute of FINISHED video, charged
+// up-front from the script's estimated speech duration (~150 words/min) so
+// the user knows the cost before anything runs; refunded pro-rata if a job
+// fails partway (see avatar-video-create.js / avatar-video-status.js).
+const AVATAR_VIDEO_PER_MIN_USD = 3.6;   // InfiniteTalk, upper end of the $54-108/30min range
+const AVATAR_VOICE_PER_MIN_USD = 0.05;  // Omnivoice narration
+const AVATAR_VIDEO_MARGIN = 1.6;        // this is a premium, compute-heavy feature — thinner margin, still profitable
+function avatarVideoCredits(estimatedMinutes) {
+  const mins = Math.max(1, Math.ceil(estimatedMinutes));
+  const cost = mins * (AVATAR_VIDEO_PER_MIN_USD + AVATAR_VOICE_PER_MIN_USD);
+  return creditsFor(cost, AVATAR_VIDEO_MARGIN);
+}
+// ~150 spoken words/minute — used to estimate a script's runtime before any
+// audio has actually been generated (for the up-front credit charge).
+function estimateScriptMinutes(script) {
+  const words = (script || '').trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(0.2, words / 150);
+}
+
 // Fuse Reactor — text-AI costs (credits per message). MuAPI charges ~$0 for
 // these, so even 1 credit is almost pure profit.
 const REACTOR_COST = {
@@ -151,4 +173,4 @@ function canUseFree(model) {
   return (model in IMAGE_MODELS) || (model in VIDEO_MODELS) || FREE_REACTOR.includes(model);
 }
 
-module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree, PROMO, promoActive, creditsForPack };
+module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree, PROMO, promoActive, creditsForPack, avatarVideoCredits, estimateScriptMinutes };

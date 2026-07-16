@@ -16,8 +16,16 @@
 
 [functions]
   node_bundler = "esbuild"
-  # Paystack webhook needs the raw body for signature verification.
-  included_files = []
+  # @ffmpeg-installer/ffmpeg + @ffprobe-installer/ffprobe ship a compiled
+  # binary that's read from disk at runtime (path.join(__dirname, ...)), not
+  # require()'d — so esbuild's dependency-graph bundling has no way to know
+  # it needs to ship that file, and it silently gets left out of the deploy
+  # even though everything works in local/CI tests where node_modules is
+  # fully present. external_node_modules is Netlify's documented mechanism
+  # for exactly this case (native binaries / dynamic-path packages): it skips
+  # bundling these and ships their real, unmodified package directories
+  # (binary included) alongside the function instead.
+  external_node_modules = ["@ffmpeg-installer/ffmpeg", "@ffmpeg-installer/linux-x64", "@ffprobe-installer/ffprobe", "@ffprobe-installer/linux-x64"]
 
 # ---- Clean routes for the hosted app ----
 # The new Fuse Studio landing is the front door.

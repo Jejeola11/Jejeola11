@@ -232,6 +232,38 @@
       <div class="note" id="avGenNote"></div>
       <div class="result" id="avResult" style="margin-top:12px;min-height:300px"><div class="muted">Your consistent-face image appears here.</div></div>
     </div>
+
+    <!-- AI Avatar Creator — long-form talking video, fully automated -->
+    <div class="panel" id="avVideoWrap" style="margin-top:14px;display:none">
+      <h3>🎥 Long-form Avatar Video</h3>
+      <p class="muted" style="font-size:12px;margin:4px 0 10px">Upload a short voice clip once (and a training video, optional) — then just write your script and tap Generate. Voice cloning, every video chunk, and the final stitch all run automatically. Up to 30 minutes long.</p>
+
+      <div class="sheet-box">
+        <div class="sheet-head">🎙 Voice</div>
+        <div class="muted" id="avVoiceStatus" style="font-size:12px;margin-bottom:8px">No voice sample yet.</div>
+        <button class="btn ghost sm" id="avVoicePick">🎙 Upload voice sample (3-10s of clear speech)</button>
+        <input type="file" id="avVoiceFile" accept="audio/*" hidden>
+        <div class="note" id="avVoiceNote"></div>
+      </div>
+
+      <div class="sheet-box" style="margin-top:10px">
+        <div class="sheet-head">🎞 Training video (optional)</div>
+        <div class="muted" id="avFaceVideoStatus" style="font-size:12px;margin-bottom:8px">No training video yet — your model sheet / photos will be used instead.</div>
+        <button class="btn ghost sm" id="avFaceVideoPick">🎞 Upload a short video of yourself</button>
+        <input type="file" id="avFaceVideoFile" accept="video/*" hidden>
+        <div class="note" id="avFaceVideoNote"></div>
+      </div>
+
+      <label class="fld" for="avvScript" style="margin-top:12px">Script</label>
+      <textarea id="avvScript" placeholder="Paste or write the full script for your video…" style="min-height:160px"></textarea>
+      <label class="fld" for="avvResolution">Resolution</label>
+      <select id="avvResolution"><option value="480p">480p (cheaper)</option><option value="720p">720p</option></select>
+      <label class="fld" for="avvPrompt">Extra direction (optional)</label>
+      <input id="avvPrompt" placeholder="e.g. calm, confident, direct to camera">
+      <button class="btn gold block" id="avvGen" style="margin-top:14px">🎬 Generate video</button>
+      <div class="note" id="avvNote"></div>
+      <div class="result" id="avvResult" style="margin-top:12px;min-height:160px"><div class="muted">Your finished video appears here.</div></div>
+    </div>
   </section>
 
   <!-- ===== OMNI STUDIO (Gemini Omni Edit · Seedance 2 Omni · Talking Avatar) ===== -->

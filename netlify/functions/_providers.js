@@ -153,4 +153,21 @@ async function pollAny(requestId) {
   return muPoll(requestId);
 }
 
-module.exports = { submitVideo, submitAvatar, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed };
+// ---- WaveSpeed voice cloning (Omnivoice) -------------------------------------
+// One call does BOTH cloning and synthesis: give a short reference speech
+// sample (any URL/file-path/base64) + target text, get back audio spoken in
+// that voice — no separate "create voice profile" step, no persistent voice
+// id to manage. Every call re-supplies the reference sample, so this is a
+// WaveSpeed-only feature with no external voice provider involved.
+// Fields verified live 2026-07-16 via a clean validation error: `text` and
+// `audio` are required, `speed` is optional (default 1). Routes through the
+// same "ws:"-prefixed pollAny() as video/avatar jobs.
+async function submitSpeech({ audio, text, speed }) {
+  if (!hasWaveSpeed()) throw new Error('Voice cloning needs WAVESPEED_KEY.');
+  if (!audio) throw new Error('Missing reference voice sample.');
+  if (!text) throw new Error('Missing script text.');
+  const id = await wsSubmit('wavespeed-ai/omnivoice/voice-clone', { audio, text, speed: speed || 1 });
+  return { requestId: 'ws:' + id, provider: 'wavespeed' };
+}
+
+module.exports = { submitVideo, submitAvatar, submitSpeech, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed };

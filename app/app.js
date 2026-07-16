@@ -1799,7 +1799,7 @@ let selectedAvatar = null;
 let avatarMap = {};   // id -> avatar row (incl. model_sheet_url)
 async function loadAvatars() {
   if (preview) { $('avatarList').innerHTML = '<div class="empty" style="grid-column:1/-1">Sign up to create your avatar</div>'; return; }
-  const { data } = await sb.from('avatars').select('id,name,image_url,model_sheet_url,status').order('created_at', { ascending: false });
+  const { data } = await sb.from('avatars').select('id,name,image_url,model_sheet_url,status,voice_sample_url,source_video_url,trained_frame_url').order('created_at', { ascending: false });
   avatarMap = {}; (data || []).forEach((a) => { avatarMap[a.id] = a; });
   $('avatarList').innerHTML = (data && data.length)
     ? data.map((a) => `<div style="text-align:center;position:relative"><img src="${a.image_url}" data-id="${a.id}" data-name="${a.name}" class="avThumb" style="aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer">${a.model_sheet_url ? '<span class="av-sheet-badge">📐</span>' : ''}<div style="font-size:11px;margin-top:4px" class="muted">${a.name}</div></div>`).join('')
@@ -1810,8 +1810,10 @@ function selectAvatar(id, name) {
   selectedAvatar = id;
   $('avSelName').textContent = name;
   $('avGenWrap').style.display = 'block';
+  $('avVideoWrap').style.display = 'block';
   $('avResult').innerHTML = '<div class="muted">Your consistent-face image appears here.</div>';
   renderSheet();
+  renderAvatarVideoStatus();
   $('avGenWrap').scrollIntoView({ behavior: 'smooth' });
 }
 function renderSheet() {
@@ -1863,6 +1865,110 @@ function pollSheet(reqId) {
     } catch (e) {}
     if (s >= 240) { clearInterval(timer); note('avSheetNote', 'Still working — check back shortly.', 'err'); renderSheet(); }
   }, 8000);
+}
+// ---------------- AI Avatar Creator (long-form talking video) ----------------
+function renderAvatarVideoStatus() {
+  const a = avatarMap[selectedAvatar] || {};
+  $('avVoiceStatus').textContent = a.voice_sample_url ? '✅ Voice sample attached.' : 'No voice sample yet.';
+  $('avFaceVideoStatus').textContent = a.trained_frame_url
+    ? '✅ Trained from your uploaded video.'
+    : 'No training video yet — your model sheet / photos will be used instead.';
+}
+async function uploadAvatarVoice(file) {
+  if (!selectedAvatar) return note('avVoiceNote', 'Pick an avatar first.', 'err');
+  note('avVoiceNote', 'Uploading…', 'ok');
+  try {
+    const ext = (file.name.split('.').pop() || 'mp3').toLowerCase();
+    const path = `${user.id}/voice-${selectedAvatar}-${Date.now()}.${ext}`;
+    const { error: upErr } = await sb.storage.from('avatars').upload(path, file);
+    if (upErr) throw upErr;
+    const url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    const res = await fetch('/.netlify/functions/avatar-train', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ avatar_id: selectedAvatar, voice_sample_url: url }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    if (avatarMap[selectedAvatar]) avatarMap[selectedAvatar].voice_sample_url = url;
+    renderAvatarVideoStatus();
+    note('avVoiceNote', '✅ Voice sample saved.', 'ok');
+  } catch (e) { note('avVoiceNote', e.message || 'Upload failed.', 'err'); }
+}
+async function uploadAvatarTrainingVideo(file) {
+  if (!selectedAvatar) return note('avFaceVideoNote', 'Pick an avatar first.', 'err');
+  note('avFaceVideoNote', 'Uploading…', 'ok');
+  try {
+    const ext = (file.name.split('.').pop() || 'mp4').toLowerCase();
+    const path = `${user.id}/facevid-${selectedAvatar}-${Date.now()}.${ext}`;
+    const { error: upErr } = await sb.storage.from('avatars').upload(path, file);
+    if (upErr) throw upErr;
+    const url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    note('avFaceVideoNote', 'Training… this can take a moment ⏳', 'ok');
+    const res = await fetch('/.netlify/functions/avatar-train', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ avatar_id: selectedAvatar, source_video_url: url }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    if (avatarMap[selectedAvatar]) { avatarMap[selectedAvatar].source_video_url = d.source_video_url; avatarMap[selectedAvatar].trained_frame_url = d.trained_frame_url; }
+    renderAvatarVideoStatus();
+    note('avFaceVideoNote', '✅ Trained from your video.', 'ok');
+  } catch (e) { note('avFaceVideoNote', e.message || 'Training failed.', 'err'); }
+}
+async function avvGenerate() {
+  if (preview) { showAuth('signup'); return; }
+  if (!selectedAvatar) return note('avvNote', 'Pick an avatar first.', 'err');
+  const script = $('avvScript').value.trim();
+  if (!script) return note('avvNote', 'Write or paste the script first.', 'err');
+  const a = avatarMap[selectedAvatar] || {};
+  if (!a.voice_sample_url) return note('avvNote', 'Upload a voice sample above first.', 'err');
+  const btn = $('avvGen'); const label = '🎬 Generate video'; btn.disabled = true; btn.textContent = 'Submitting…';
+  $('avvResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Starting your video…</div></div>';
+  note('avvNote', '');
+  try {
+    const res = await fetch('/.netlify/functions/avatar-video-create', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ avatar_id: selectedAvatar, script, settings: { resolution: $('avvResolution').value, prompt: $('avvPrompt').value.trim() } }),
+    });
+    const d = await res.json();
+    if (res.status === 503) { $('avvResult').innerHTML = '<div class="muted">Avatar Creator is being connected.</div>'; note('avvNote', d.error, 'err'); btn.disabled = false; btn.textContent = label; }
+    else if (res.status === 402) { note('avvNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; }
+    else if (!res.ok) throw new Error(d.error || 'Failed');
+    else {
+      $('creditCount').textContent = d.credits;
+      note('avvNote', `Working… (~${d.estimated_minutes} min of video) this can take a while ⏳`, 'ok');
+      btn.textContent = 'Rendering…';
+      pollAvatarVideo(d.id, btn, label);
+    }
+  } catch (e) { $('avvResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('avvNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
+}
+const AVV_STAGE_LABEL = { speech: 'Cloning your voice…', slicing: 'Preparing chunks…', video: 'Generating video', stitching: 'Combining the final video…' };
+function pollAvatarVideo(id, btn, label) {
+  let s = 0;
+  const timer = setInterval(async () => {
+    s += 10;
+    try {
+      const r = await fetch(`/.netlify/functions/avatar-video-status?id=${id}`, { headers: { ...(await authHeader()) } });
+      const d = await r.json();
+      if (d.stage === 'complete') {
+        clearInterval(timer);
+        $('avvResult').innerHTML = `<div><video src="${d.url}" controls autoplay loop muted playsinline></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${d.url}')">⬇ Download</button></div></div>`;
+        note('avvNote', 'Done ✅', 'ok');
+        if (user) loadProfile();
+        btn.disabled = false; btn.textContent = label;
+      } else if (d.stage === 'failed') {
+        clearInterval(timer);
+        $('avvResult').innerHTML = '<div>⚠ ' + (d.error || 'Failed') + '</div>';
+        note('avvNote', (d.error || 'Failed') + ' — credits refunded.', 'err');
+        if (user) loadProfile();
+        btn.disabled = false; btn.textContent = label;
+      } else {
+        const txt = (AVV_STAGE_LABEL[d.stage] || 'Working…') + (d.progress ? ` (${d.progress})` : '');
+        note('avvNote', txt + ` — ${s}s elapsed ⏳`, 'ok');
+      }
+    } catch (e) {}
+    if (s >= 3600) { clearInterval(timer); note('avvNote', 'Still rendering — check back shortly.', 'err'); btn.disabled = false; btn.textContent = label; }
+  }, 10000);
 }
 let avTrainFiles = [];   // accumulates across multiple "Add photos" picks
 function renderTrainThumbs() {
@@ -2355,6 +2461,11 @@ window.addEventListener('DOMContentLoaded', () => {
   $('avRefBtn').onclick = () => $('avRefFile').click();
   $('avRefFile').onchange = (e) => pickAvatarRefs(Array.from(e.target.files).slice(0, 3));
   $('bBuild').onclick = buildAvatarPrompt;
+  $('avVoicePick').onclick = () => $('avVoiceFile').click();
+  $('avVoiceFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadAvatarVoice(f); e.target.value = ''; };
+  $('avFaceVideoPick').onclick = () => $('avFaceVideoFile').click();
+  $('avFaceVideoFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadAvatarTrainingVideo(f); e.target.value = ''; };
+  $('avvGen').onclick = avvGenerate;
   // Omni Studio
   { const ob = $('omniBack'); if (ob) ob.onclick = () => showView('home'); }
   document.querySelectorAll('[data-omni]').forEach((b) => b.onclick = () => omniSwitch(b.dataset.omni));
