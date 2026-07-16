@@ -118,6 +118,12 @@
         <div class="fb-name">Avatar Studio</div>
         <div class="fb-desc">Train your face · consistent you</div>
       </div>
+      <div class="featbox" data-go="flyer">
+        <span class="fb-badge new">NEW</span>
+        <div class="fb-ic">🎨</div>
+        <div class="fb-name">Flyer Studio</div>
+        <div class="fb-desc">Describe it — a real design process, start to finish</div>
+      </div>
       <div class="featbox" data-go="learn">
         <span class="fb-badge course">🎓 Course</span>
         <div class="fb-ic">🏛️</div>
@@ -157,6 +163,7 @@
           <a data-go="image:gpt-image-2-text-to-image">AI Images</a>
           <a data-go="video:seedance-2-text-to-video">AI Video</a>
           <a data-go="avatar">Avatar Studio</a>
+          <a data-go="flyer">Flyer Studio</a>
           <a data-go="reactor">Fuse Reactor</a>
           <a data-go="promptgen">Prompt Generator</a>
         </div>
@@ -263,6 +270,62 @@
       <button class="btn gold block" id="avvGen" style="margin-top:14px">🎬 Generate video</button>
       <div class="note" id="avvNote"></div>
       <div class="result" id="avvResult" style="margin-top:12px;min-height:160px"><div class="muted">Your finished video appears here.</div></div>
+    </div>
+  </section>
+
+  <!-- ===== FLYER STUDIO (conversational AI flyer designer) ===== -->
+  <section class="view" id="view-flyer">
+    <div class="backlink" id="flyerBack">← Studios</div>
+    <div class="studio-head"><div class="ic">🎨</div><div><h2>Flyer Studio</h2><p>Describe it — a real design process, start to finish</p></div></div>
+
+    <div class="panel">
+      <h3>💬 Tell it what you want</h3>
+      <p class="muted" style="font-size:12px;margin:4px 0 10px">Describe the flyer — niche, mood, colors, what it's for. It'll propose a direction and an image prompt; tweak it or approve it.</p>
+      <div id="flyerLog" style="display:flex;flex-direction:column;gap:10px;max-height:360px;overflow-y:auto;margin-bottom:10px"></div>
+      <textarea id="flyerMsg" placeholder="e.g. 'Design a web3 summit flyer — dark, premium, one teal accent'"></textarea>
+      <button class="btn gold block" id="flyerSend" style="margin-top:10px">Send</button>
+      <div class="note" id="flyerNote"></div>
+    </div>
+
+    <div class="panel" id="flyerVisualPanel" style="margin-top:14px;display:none">
+      <h3>🖼 Hero visual</h3>
+      <label class="fld" for="flyerImgPrompt">Image prompt (background/hero only — edit freely)</label>
+      <textarea id="flyerImgPrompt" style="min-height:130px"></textarea>
+      <label class="fld" for="flyerAspect">Aspect</label>
+      <select id="flyerAspect"><option value="4:5">4:5 portrait</option><option value="9:16">9:16 vertical</option><option value="1:1">1:1 square</option><option value="16:9">16:9 wide</option></select>
+      <button class="btn gold block" id="flyerGenHero" style="margin-top:10px">✨ Generate visual</button>
+      <div class="note" id="flyerHeroNote"></div>
+      <div class="result" id="flyerHeroResult" style="margin-top:12px;min-height:220px"><div class="muted">Your background/hero visual appears here.</div></div>
+    </div>
+
+    <div class="panel" id="flyerLayerPanel" style="margin-top:14px;display:none">
+      <h3>➕ Add a layer</h3>
+      <p class="muted" style="font-size:12px;margin:4px 0 10px">Visual elements only — lighting, textures, props, effects. Text is added separately below, never gambled on the image model.</p>
+      <div id="flyerLayerLog" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+      <input id="flyerLayerInput" placeholder="e.g. 'add a soft teal rim light behind the subject'">
+      <button class="btn ghost block" id="flyerAddLayer" style="margin-top:8px">Add layer</button>
+      <div class="note" id="flyerLayerNote"></div>
+    </div>
+
+    <div class="panel" id="flyerTextPanel" style="margin-top:14px;display:none">
+      <h3>✍️ Typography</h3>
+      <label class="fld" for="flyerHeadline">Headline</label>
+      <input id="flyerHeadline" placeholder="THE WEB3 SUMMIT">
+      <label class="fld" for="flyerAccentWord">Word to accent (optional)</label>
+      <input id="flyerAccentWord" placeholder="SUMMIT">
+      <label class="fld" for="flyerSubhead">Subhead (optional)</label>
+      <input id="flyerSubhead" placeholder="Where builders meet the next chain.">
+      <label class="fld" for="flyerBullets">Bullets — one per line (optional)</label>
+      <textarea id="flyerBullets" placeholder="Nov 12 — Lagos Tech Hub&#10;Keynotes from 6 founders"></textarea>
+      <label class="fld" for="flyerBadge">Badge (optional)</label>
+      <input id="flyerBadge" placeholder="FREE ENTRY">
+      <label class="fld" for="flyerFooter">Footer (optional)</label>
+      <input id="flyerFooter" placeholder="web3summit.xyz · @web3summit">
+      <label class="fld" for="flyerAccentColor">Accent color</label>
+      <input id="flyerAccentColor" type="color" value="#00e0c6">
+      <button class="btn gold block" id="flyerComposite" style="margin-top:10px">🖋 Composite final flyer</button>
+      <div class="note" id="flyerCompositeNote"></div>
+      <div class="result" id="flyerFinalResult" style="margin-top:12px;min-height:220px"><div class="muted">Your finished flyer appears here.</div></div>
     </div>
   </section>
 

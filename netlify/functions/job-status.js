@@ -30,14 +30,16 @@ exports.handler = async (event) => {
   const { data: job } = await db.from('jobs').select('*').eq('request_id', id).maybeSingle();
   if (!job || job.user_id !== user.id) return json(404, { error: 'Job not found' });
 
+  const isTextKind = job.kind === 'chat' || job.kind === 'flyer-brief';
   if (job.status === 'completed') {
-    return job.kind === 'chat' ? json(200, { status: 'completed', text: job.output_text }) : json(200, { status: 'completed', url: job.output_url });
+    return isTextKind ? json(200, { status: 'completed', text: job.output_text }) : json(200, { status: 'completed', url: job.output_url });
   }
   if (job.status === 'failed') return json(200, { status: 'failed' });
 
-  // Chat jobs are always MuAPI (Fuse Reactor) — poll it directly for the raw
-  // body that extractText() needs.
-  if (job.kind === 'chat') {
+  // Chat jobs (Fuse Reactor) and Flyer Studio's design-assistant calls are
+  // always MuAPI text models — poll directly for the raw body extractText()
+  // needs. flyer-brief responses are a JSON string; the browser parses it.
+  if (isTextKind) {
     let p;
     try {
       p = await (await fetch(`${MUAPI_BASE}/predictions/${id}/result`, { headers: { 'x-api-key': process.env.MUAPI_KEY } })).json();
@@ -72,6 +74,26 @@ exports.handler = async (event) => {
       const avId = job.avatar_id || (job.prompt && job.prompt.indexOf('MODELSHEET::') === 0 ? job.prompt.slice(12) : null);
       if (avId) { try { await db.from('avatars').update({ model_sheet_url: url }).eq('id', avId); } catch (e) {} }
       return json(200, { status: 'completed', url, kind: 'modelsheet' });
+    }
+    // Flyer Studio's hero/layer visuals are working images inside an
+    // in-progress project, not a finished gallery item — save onto the
+    // project instead of `generations`. flyer-layer also appends to the
+    // project's layer history so the UI can show what's been added so far.
+    if (job.kind === 'flyer-hero' || job.kind === 'flyer-layer') {
+      if (job.project_id) {
+        try {
+          const { data: proj } = await db.from('flyer_projects').select('layers, credits').eq('id', job.project_id).maybeSingle();
+          const update = { hero_image_url: url, updated_at: new Date().toISOString(), credits: (proj && proj.credits || 0) + job.credits };
+          if (job.kind === 'flyer-hero') update.hero_prompt = job.prompt;
+          if (job.kind === 'flyer-layer') {
+            const layers = (proj && Array.isArray(proj.layers)) ? proj.layers : [];
+            layers.push({ instruction: job.prompt, image_url: url, created_at: new Date().toISOString() });
+            update.layers = layers;
+          }
+          await db.from('flyer_projects').update(update).eq('id', job.project_id);
+        } catch (e) {}
+      }
+      return json(200, { status: 'completed', url, kind: job.kind, project_id: job.project_id });
     }
     await db.from('generations').insert({
       user_id: user.id, type: job.kind, model: job.model, prompt: job.prompt, aspect: job.aspect,

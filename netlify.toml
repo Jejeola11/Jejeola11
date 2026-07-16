@@ -25,7 +25,9 @@
   # for exactly this case (native binaries / dynamic-path packages): it skips
   # bundling these and ships their real, unmodified package directories
   # (binary included) alongside the function instead.
-  external_node_modules = ["@ffmpeg-installer/ffmpeg", "@ffmpeg-installer/linux-x64", "@ffprobe-installer/ffprobe", "@ffprobe-installer/linux-x64"]
+  # @napi-rs/canvas is the same story — a native .node binary for its
+  # platform package (@napi-rs/canvas-linux-x64-gnu), loaded dynamically.
+  external_node_modules = ["@ffmpeg-installer/ffmpeg", "@ffmpeg-installer/linux-x64", "@ffprobe-installer/ffprobe", "@ffprobe-installer/linux-x64", "@napi-rs/canvas", "@napi-rs/canvas-linux-x64-gnu"]
 
 # ---- Clean routes for the hosted app ----
 # The new Fuse Studio landing is the front door.
