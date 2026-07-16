@@ -7,28 +7,39 @@
 // Self-hosted fonts only (never a web font link — this sandbox's proxy cert
 // isn't trusted by any renderer here, so a live font URL fails silently);
 // the flyer-designer Claude Skill's font set is reused as-is.
-// ============================================================
+//
+// Fonts are embedded as base64 in _flyer-fonts-data.js (require()'d, not
+// read from disk at runtime): Netlify's esbuild function bundler only
+// traces require()/import calls to decide what ships in the deployed
+// function — it has zero visibility into fs.readFileSync()'d paths, so the
+// actual .ttf files were silently left out of every deploy (same blind
+// spot already documented below for @ffmpeg-installer/@napi-rs/canvas's own
+// native binary, just for font files instead). That meant NO custom font
+// ever registered in production, and — unlike this dev sandbox, which
+// happens to have ~22 system font families installed as a fallback —
+// Netlify's actual function runtime has no fonts at all to fall back to,
+// so every fillText() silently drew nothing while fillRect/arc shapes
+// (badge pills, bullet dots, the footer accent line) drew fine regardless,
+// producing a flyer with all its background shapes but zero text.
+// require()-ing the data module guarantees the bytes are bundled.
 const { createCanvas, GlobalFonts, loadImage } = require('@napi-rs/canvas');
-const path = require('path');
-const fs = require('fs');
+const FONT_DATA = require('./_flyer-fonts-data');
 
-const FONT_DIR = path.join(__dirname, '..', '..', '.claude', 'skills', 'flyer-designer', 'fonts');
-
-// role -> font file + the family name we register it under.
+// role -> base64 key (from FONT_DATA) + the family name we register it under.
 const FONT_ROLES = {
-  display: { file: 'BigShoulders-Bold.ttf', family: 'FlyerDisplay' },       // heavy condensed headline sans
-  script: { file: 'NothingYouCouldDo-Regular.ttf', family: 'FlyerScript' }, // handwritten accent-word flourish
-  body: { file: 'WorkSans-Regular.ttf', family: 'FlyerBody' },              // subhead / bullets
-  bodyBold: { file: 'WorkSans-Bold.ttf', family: 'FlyerBodyBold' },
-  mono: { file: 'JetBrainsMono-Regular.ttf', family: 'FlyerMono' },         // footer / tech-credible chips
+  display: { key: 'display', family: 'FlyerDisplay' },       // heavy condensed headline sans
+  script: { key: 'script', family: 'FlyerScript' },           // handwritten accent-word flourish
+  body: { key: 'body', family: 'FlyerBody' },                 // subhead / bullets
+  bodyBold: { key: 'bodyBold', family: 'FlyerBodyBold' },
+  mono: { key: 'mono', family: 'FlyerMono' },                 // footer / tech-credible chips
 };
 
 let fontsRegistered = false;
 function ensureFonts() {
   if (fontsRegistered) return;
   for (const role of Object.values(FONT_ROLES)) {
-    const p = path.join(FONT_DIR, role.file);
-    if (fs.existsSync(p)) GlobalFonts.registerFromPath(p, role.family);
+    const b64 = FONT_DATA[role.key];
+    if (b64) GlobalFonts.register(Buffer.from(b64, 'base64'), role.family);
   }
   fontsRegistered = true;
 }
