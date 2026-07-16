@@ -2550,6 +2550,36 @@ async function flyerGenHero(auto) {
   } catch (e) { $('flyerHeroResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('flyerHeroNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 
+// Lets a user upload their OWN hero image directly — no generation, no
+// waiting, no dependence on the image model at all — and use it exactly
+// like a freshly-generated one: Add Layer and Composite only ever read
+// project.hero_image_url, so this unblocks both immediately.
+async function flyerUploadHero(file) {
+  if (preview) { showAuth('signup'); return; }
+  if (!file) return;
+  note('flyerHeroNote', 'Uploading…', 'ok');
+  try {
+    const resized = await resizeImageFile(file);
+    const ext = (resized.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = `${user.id}/flyerhero-${Date.now()}.${ext}`;
+    await uploadWithRetry('avatars', path, resized);
+    const imageUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    const res = await fetch('/.netlify/functions/flyer-set-hero', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ project_id: flyerProjectId || undefined, image_url: imageUrl, aspect: $('flyerAspect').value }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Upload failed');
+    if (d.project_id) { flyerProjectId = d.project_id; localStorage.setItem(FLYER_PROJECT_KEY, flyerProjectId); }
+    $('flyerHeroResult').innerHTML = `<img src="${imageUrl}" style="width:100%;border-radius:12px">`;
+    note('flyerHeroNote', '✅ Your image is now the working hero visual.', 'ok');
+    note('flyerLayerNote', ''); note('flyerCompositeNote', '');
+    $('flyerLayerPanel').style.display = 'block';
+    $('flyerTextPanel').style.display = 'block';
+    flyerSuggestLayers();
+  } catch (e) { note('flyerHeroNote', e.message || 'Upload failed', 'err'); }
+}
+
 let flyerLayerImgUrls = [];
 async function flyerPickLayerImgs(files) {
   if (preview) { showAuth('signup'); return; }
@@ -3649,6 +3679,11 @@ window.addEventListener('DOMContentLoaded', () => {
   $('flyerSend').onclick = flyerSend;
   $('flyerMsg').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); flyerSend(); } });
   $('flyerGenHero').onclick = flyerGenHero;
+  // One shared hidden file input, triggered from wherever the user hits
+  // it first (Hero visual panel, Add a layer, or Typography) — uploading
+  // sets the project's working hero image directly, bypassing generation.
+  { const f = $('flyerHeroUploadFile'); if (f) f.onchange = (e) => { flyerUploadHero(e.target.files[0]); e.target.value = ''; }; }
+  document.querySelectorAll('[data-flyer-hero-upload]').forEach((b) => b.onclick = () => $('flyerHeroUploadFile').click());
   $('flyerLayerImgPick').onclick = () => $('flyerLayerImgFile').click();
   $('flyerLayerImgFile').onchange = (e) => { flyerPickLayerImgs(Array.from(e.target.files)); e.target.value = ''; };
   $('flyerSuggestLayers').onclick = flyerSuggestLayers;

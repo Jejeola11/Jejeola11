@@ -311,14 +311,17 @@
       <label class="fld" for="flyerAspect">Aspect</label>
       <select id="flyerAspect"><option value="4:5">4:5 portrait</option><option value="3:4">3:4 portrait</option><option value="9:16">9:16 vertical</option><option value="1:1">1:1 square</option><option value="16:9">16:9 wide</option></select>
       <button class="btn gold block" id="flyerGenHero" style="margin-top:10px">✨ Generate visual</button>
+      <button class="btn ghost block" data-flyer-hero-upload style="margin-top:8px">⬆ Or upload your own hero image</button>
       <div class="note" id="flyerHeroNote"></div>
       <div class="result" id="flyerHeroResult" style="margin-top:12px;min-height:220px"><div class="muted">Your background/hero visual appears here.</div></div>
     </div>
+    <input type="file" id="flyerHeroUploadFile" accept="image/*" hidden>
 
     <div class="panel" id="flyerLayerPanel" style="margin-top:14px;display:none">
       <h3>➕ Add a layer</h3>
       <p class="muted" style="font-size:12px;margin:4px 0 10px">Visual elements only — lighting, textures, props, effects. Text is added separately below, never gambled on the image model.</p>
-      <div id="flyerLayerLog" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+      <button class="btn ghost sm" data-flyer-hero-upload>⬆ Upload/replace hero image</button>
+      <div id="flyerLayerLog" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;margin-top:8px"></div>
       <button class="btn ghost sm" id="flyerSuggestLayers">💡 Suggest layers (looks at your hero image)</button>
       <div class="chips" id="flyerLayerSuggestions" style="margin-top:8px"></div>
       <input id="flyerLayerInput" placeholder="e.g. 'add a soft teal rim light behind the subject', or 'insert this logo bottom-right', or 'copy the badge style from this reference'" style="margin-top:10px">
@@ -332,6 +335,7 @@
 
     <div class="panel" id="flyerTextPanel" style="margin-top:14px;display:none">
       <h3>✍️ Typography</h3>
+      <button class="btn ghost sm" data-flyer-hero-upload style="margin-bottom:10px">⬆ Upload/replace hero image</button>
       <label class="fld" for="flyerHeadline">Headline</label>
       <input id="flyerHeadline" placeholder="THE WEB3 SUMMIT">
       <label class="fld" for="flyerAccentWord">Word to accent (optional)</label>
