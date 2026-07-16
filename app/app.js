@@ -2706,6 +2706,8 @@ async function flyerComposite() {
     badge: $('flyerBadge').value.trim() || undefined,
     footer: $('flyerFooter').value.trim() || undefined,
     accent_color: $('flyerAccentColor').value,
+    style: $('flyerTextStyle').value,
+    underline_accent: $('flyerUnderlineAccent').checked,
   };
   const btn = $('flyerComposite'); btn.disabled = true; btn.textContent = 'Compositing…';
   $('flyerFinalResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Laying out the typography…</div></div>';

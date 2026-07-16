@@ -2,7 +2,13 @@
 // POST /.netlify/functions/flyer-composite   (Flyer Studio — final typography)
 // Body: { project_id, text_spec }
 //   text_spec: { headline, accent_word?, subhead?, bullets?: string[],
-//                badge?, footer?, accent_color, script_accent? }
+//                badge?, footer?, accent_color, script_accent?,
+//                style?: 'shadow'|'glass'|'glow'|'flat', underline_accent? }
+//   style is the shared effect applied across headline/subhead/badge/info
+//   card: 'shadow' (default, soft drop shadow for legibility over a busy
+//   photo), 'glass' (frosted glassmorphic panel behind the text), 'glow'
+//   (accent-colored glow on the headline). underline_accent draws the
+//   "hand-drawn underline swipe" motif under the accented word.
 // Bakes real typography onto the project's current hero visual — headline,
 // subhead, info card, badge, footer — via _canvas.js (native rendering, no
 // browser). This is the step that turns "AI background image" into an
@@ -35,6 +41,12 @@ exports.handler = async (event) => {
     if (!project.hero_image_url) return json(400, { error: 'Generate the hero visual first.' });
 
     const accent = spec.accent_color || '#00e0c6';
+    // Shared effect vocabulary across every text/panel element — 'flat'
+    // (no effect), 'shadow' (soft drop shadow, the default — legibility
+    // over a busy hero photo), 'glow' (colored glow in the accent color),
+    // 'glass' (translucent glassmorphic panel behind the text).
+    const style = ['flat', 'shadow', 'glow', 'glass'].includes(spec.style) ? spec.style : 'shadow';
+    const underline = !!spec.underline_accent;
     const res = await fetch(project.hero_image_url);
     if (!res.ok) return json(502, { error: 'Could not load the current visual.' });
     const buf = Buffer.from(await res.arrayBuffer());
@@ -51,19 +63,20 @@ exports.handler = async (event) => {
     y += drawHeadline(ctx, {
       text: spec.headline, x: margin, y, maxWidth: W - margin * 2, fontSize: headlineSize,
       accentColor: accent, accentWord: spec.accent_word, scriptAccent: !!spec.script_accent,
+      style, underline,
     }) + headlineSize * 0.35;
 
     if (spec.subhead) {
-      y += drawSubhead(ctx, { text: spec.subhead, x: margin, y, maxWidth: W - margin * 2, fontSize: Math.round(W * 0.026) }) + headlineSize * 0.2;
+      y += drawSubhead(ctx, { text: spec.subhead, x: margin, y, maxWidth: W - margin * 2, fontSize: Math.round(W * 0.026), style }) + headlineSize * 0.2;
     }
 
     if (spec.badge) {
-      const b = drawBadge(ctx, { text: spec.badge, x: margin, y, accentColor: accent, fontSize: Math.round(W * 0.017) });
+      const b = drawBadge(ctx, { text: spec.badge, x: margin, y, accentColor: accent, fontSize: Math.round(W * 0.017), style });
       y += b.h + Math.round(H * 0.02);
     }
 
     if (Array.isArray(spec.bullets) && spec.bullets.length) {
-      drawInfoCard(ctx, { x: margin, y, w: W - margin * 2, bullets: spec.bullets.slice(0, 6), accentColor: accent, glass: !!spec.glass, fontSize: Math.round(W * 0.02) });
+      drawInfoCard(ctx, { x: margin, y, w: W - margin * 2, bullets: spec.bullets.slice(0, 6), accentColor: accent, style, fontSize: Math.round(W * 0.02) });
     }
 
     if (spec.footer) {

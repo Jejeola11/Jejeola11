@@ -96,6 +96,51 @@ function wrapText(ctx, text, maxWidth) {
   return lines;
 }
 
+// Text/panel effects — real canvas shadow/glow, not gambled on the image
+// model. `style` is the shared vocabulary every draw* function below
+// understands: 'flat' (no effect), 'shadow' (soft dark drop shadow — the
+// default; legibility over a busy hero photo), 'glow' (colored glow in the
+// accent color), 'glass' (translucent panel behind the text — see
+// drawGlassPanel).
+function applyTextEffect(ctx, style, accentColor) {
+  if (style === 'shadow') { ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 16; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 5; }
+  else if (style === 'glow') { ctx.shadowColor = accentColor || '#00e0c6'; ctx.shadowBlur = 26; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0; }
+  else { ctx.shadowColor = 'rgba(0,0,0,0)'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0; }
+}
+function resetTextEffect(ctx) { ctx.shadowColor = 'rgba(0,0,0,0)'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0; }
+
+// Translucent rounded glass panel behind a text block — flat-compositable
+// glassmorphism (dark tint + a white frost sheen + a faint border), not
+// live background refraction (that needs sampling+blurring the exact
+// pixels behind it, well beyond a sub-second synchronous composite step).
+// The dark tint underneath is what keeps white text legible regardless of
+// what's behind the panel (a bright sky, bokeh, anything) — pure white-
+// tinted glass alone reads fine over dark image areas but loses contrast
+// completely over light ones.
+function drawGlassPanel(ctx, { x, y, w, h, radius = 20, tintAlpha = 0.32, fillAlpha = 0.10, borderAlpha = 0.28 }) {
+  ctx.save(); resetTextEffect(ctx);
+  ctx.fillStyle = hexToRgba('#0a0a12', tintAlpha);
+  roundRect(ctx, x, y, w, h, radius); ctx.fill();
+  ctx.fillStyle = hexToRgba('#ffffff', fillAlpha);
+  roundRect(ctx, x, y, w, h, radius); ctx.fill();
+  ctx.strokeStyle = hexToRgba('#ffffff', borderAlpha); ctx.lineWidth = 1.5;
+  roundRect(ctx, x, y, w, h, radius); ctx.stroke();
+  ctx.restore();
+}
+
+// Thin, slightly-tilted accent-colored underline swipe beneath one word —
+// the "hand-drawn underline swipe" micro-motif the anchor template calls
+// for. x/y is the word's own baseline-left origin, width is its measured
+// text width.
+function drawUnderlineSwipe(ctx, { x, y, width, color, tilt = -2 }) {
+  ctx.save(); resetTextEffect(ctx);
+  ctx.translate(x + width / 2, y);
+  ctx.rotate(tilt * Math.PI / 180);
+  ctx.strokeStyle = color; ctx.lineWidth = Math.max(3, width * 0.025); ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(-width / 2, 0); ctx.lineTo(width / 2, 0); ctx.stroke();
+  ctx.restore();
+}
+
 function roundRect(ctx, x, y, w, h, r) {
   const rr = Math.min(r, w / 2, h / 2);
   ctx.beginPath();
@@ -112,14 +157,25 @@ function roundRect(ctx, x, y, w, h, r) {
 // `accentWord` (optional) is matched case-insensitively against the wrapped
 // words and recolored/re-fonted; if omitted, the LAST word of the headline
 // gets the treatment (matches the "one word breaks into accent" pattern
-// seen across the reference set).
-function drawHeadline(ctx, { text, x, y, maxWidth, fontSize, accentColor, accentWord, scriptAccent, align = 'left' }) {
+// seen across the reference set). `style` ('flat'|'shadow'|'glow'|'glass')
+// and `underline` (draw the swipe motif under the accent word) are the
+// same shared effect vocabulary every draw* function here understands.
+function drawHeadline(ctx, { text, x, y, maxWidth, fontSize, accentColor, accentWord, scriptAccent, align = 'left', style = 'shadow', underline = false }) {
   ensureFonts();
   ctx.textAlign = align; ctx.textBaseline = 'alphabetic';
   ctx.font = `900 ${fontSize}px "${FONT_ROLES.display.family}"`;
   const lines = wrapText(ctx, text, maxWidth);
   const lineHeight = fontSize * 1.05;
   const target = (accentWord || '').toLowerCase();
+
+  if (style === 'glass') {
+    const widest = Math.max(...lines.map((l) => ctx.measureText(l).width));
+    const pad = fontSize * 0.35;
+    const panelX = align === 'center' ? x - widest / 2 - pad : x - pad;
+    drawGlassPanel(ctx, { x: panelX, y: y - fontSize * 0.85 - pad, w: widest + pad * 2, h: lines.length * lineHeight + pad * 1.3, radius: fontSize * 0.3 });
+  }
+  applyTextEffect(ctx, style, accentColor);
+
   lines.forEach((line, i) => {
     const ly = y + i * lineHeight;
     const words = line.split(' ');
@@ -152,34 +208,42 @@ function drawHeadline(ctx, { text, x, y, maxWidth, fontSize, accentColor, accent
         ctx.fillStyle = '#ffffff';
         ctx.fillText(w, cursorX, ly);
       }
+      if (wi === matchIdx && underline) {
+        drawUnderlineSwipe(ctx, { x: cursorX, y: ly + fontSize * 0.16, width: widths[wi] - ctx.measureText(' ').width, color: accentColor });
+      }
       cursorX += widths[wi];
     });
     ctx.textAlign = prevAlign;
   });
+  resetTextEffect(ctx);
   return lines.length * lineHeight;
 }
 
-function drawSubhead(ctx, { text, x, y, maxWidth, fontSize = 28, color = '#ffffff', align = 'left' }) {
+function drawSubhead(ctx, { text, x, y, maxWidth, fontSize = 28, color = '#ffffff', align = 'left', style = 'shadow' }) {
   ensureFonts();
   ctx.font = `${fontSize}px "${FONT_ROLES.body.family}"`;
   ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = 'alphabetic';
+  applyTextEffect(ctx, style === 'glow' ? 'shadow' : style, color); // a full glow on body copy reads noisy — falls back to a plain shadow
   const lines = wrapText(ctx, text, maxWidth);
   const lh = fontSize * 1.3;
   lines.forEach((l, i) => ctx.fillText(l, x, y + i * lh));
+  resetTextEffect(ctx);
   return lines.length * lh;
 }
 
 // Info card: rounded panel with bulleted lines, one small accent-colored
-// marker per bullet — per anchor template layer 5.
-function drawInfoCard(ctx, { x, y, w, bullets, accentColor, glass = false, fontSize = 22 }) {
+// marker per bullet — per anchor template layer 5. `style === 'glass'`
+// switches the panel to the translucent glassmorphic treatment.
+function drawInfoCard(ctx, { x, y, w, bullets, accentColor, style = 'flat', fontSize = 22 }) {
   ensureFonts();
+  const glass = style === 'glass';
   const pad = 24, gap = fontSize * 1.5;
   const h = pad * 2 + bullets.length * gap;
-  ctx.fillStyle = glass ? hexToRgba('#ffffff', 0.08) : hexToRgba('#0a0a0a', 0.55);
-  roundRect(ctx, x, y, w, h, 18); ctx.fill();
-  if (glass) { ctx.strokeStyle = hexToRgba('#ffffff', 0.18); ctx.lineWidth = 1; roundRect(ctx, x, y, w, h, 18); ctx.stroke(); }
+  if (glass) drawGlassPanel(ctx, { x, y, w, h, radius: 18 });
+  else { ctx.fillStyle = hexToRgba('#0a0a0a', 0.55); roundRect(ctx, x, y, w, h, 18); ctx.fill(); }
   ctx.font = `${fontSize}px "${FONT_ROLES.body.family}"`;
   ctx.textBaseline = 'middle';
+  applyTextEffect(ctx, style === 'glass' ? 'flat' : style, accentColor);
   bullets.forEach((b, i) => {
     const by = y + pad + gap * i + fontSize * 0.5;
     ctx.fillStyle = accentColor;
@@ -188,18 +252,21 @@ function drawInfoCard(ctx, { x, y, w, bullets, accentColor, glass = false, fontS
     ctx.textAlign = 'left';
     ctx.fillText(b, x + pad + 24, by);
   });
+  resetTextEffect(ctx);
   return h;
 }
 
 // Small pill/chip badge (price, date, "NEW" seal) — layer 6 micro-motif.
-function drawBadge(ctx, { text, x, y, accentColor, fontSize = 18 }) {
+function drawBadge(ctx, { text, x, y, accentColor, fontSize = 18, style = 'flat' }) {
   ensureFonts();
   ctx.font = `700 ${fontSize}px "${FONT_ROLES.bodyBold.family}"`;
   const padX = 18, padY = 10;
   const tw = ctx.measureText(text).width;
   const w = tw + padX * 2, h = fontSize + padY * 2;
+  if (style === 'shadow' || style === 'glow') applyTextEffect(ctx, style, accentColor);
   ctx.fillStyle = accentColor;
   roundRect(ctx, x, y, w, h, h / 2); ctx.fill();
+  resetTextEffect(ctx);
   ctx.fillStyle = '#0a0a0a';
   ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
   ctx.fillText(text, x + padX, y + h / 2 + 1);
@@ -251,4 +318,5 @@ function drawFooterBar(ctx, { text, width, y, height, accentColor, bg = '#0a0a0a
 module.exports = {
   createCanvas, loadImage, ensureFonts, FONT_ROLES,
   drawCover, wrapText, roundRect, drawHeadline, drawSubhead, drawInfoCard, drawBadge, drawFooterBar, drawCtaBanner, hexToRgba, cropToAspect,
+  drawGlassPanel, drawUnderlineSwipe, applyTextEffect, resetTextEffect,
 };

@@ -350,6 +350,17 @@
       <input id="flyerFooter" placeholder="web3summit.xyz · @web3summit">
       <label class="fld" for="flyerAccentColor">Accent color</label>
       <input id="flyerAccentColor" type="color" value="#00e0c6">
+      <label class="fld" for="flyerTextStyle">Text &amp; panel effect</label>
+      <select id="flyerTextStyle">
+        <option value="shadow">Drop shadow (default — clean, legible)</option>
+        <option value="glass">Glassmorphic panel (frosted glass behind text)</option>
+        <option value="glow">Glow (accent-colored glow)</option>
+        <option value="flat">Flat (no effect)</option>
+      </select>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;cursor:pointer">
+        <input type="checkbox" id="flyerUnderlineAccent" style="width:auto">
+        Underline the accented word
+      </label>
       <button class="btn gold block" id="flyerComposite" style="margin-top:10px">🖋 Composite final flyer</button>
       <div class="note" id="flyerCompositeNote"></div>
       <div class="result" id="flyerFinalResult" style="margin-top:12px;min-height:220px"><div class="muted">Your finished flyer appears here.</div></div>
