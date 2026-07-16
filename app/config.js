@@ -52,6 +52,40 @@ window.FUSE = {
     courseCredits: 2500,
   },
 
+  // Home marquee — the small tiles that keep moving in a continuous
+  // horizontal row (Higgsfield model-grid style). Tap any to jump straight
+  // into that studio.
+  MARQUEE: [
+    { icon: '✨', label: 'Generate', go: 'studio:generate' },
+    { icon: '🧑‍🎨', label: 'Avatar', go: 'avatar' },
+    { icon: '🎨', label: 'Flyer', go: 'flyer' },
+    { icon: '🎙', label: 'Audio', go: 'audio' },
+    { icon: '✂️', label: 'Edit', go: 'editstudio' },
+    { icon: '⚛️', label: 'Reactor', go: 'reactor' },
+    { icon: '🧬', label: 'Prompt Gen', go: 'promptgen' },
+    { icon: '🛒', label: 'Market', go: 'market' },
+    { icon: '🎓', label: 'Atelier', go: 'learn' },
+    { icon: '💵', label: '$500 Week', go: 'week' },
+  ],
+
+  // Home hero slideshow — auto-advancing, 3 slides for now (swap in real
+  // generated art later). Each slide's wave background is a CSS gradient
+  // set via inline custom properties (--hs-wave/--hs-badge-bg), not an image.
+  HERO_SLIDES: [
+    { badge: 'NEW', badgeColor: 'var(--gold)',
+      wave: 'radial-gradient(60% 60% at 20% 20%, rgba(245,197,24,.55), transparent 70%), radial-gradient(70% 70% at 90% 90%, rgba(139,107,255,.4), transparent 70%), var(--panel-2)',
+      h: 'TRAIN YOUR FACE ONCE', p: 'Generate yourself in any scene — consistent, every time.',
+      cta: 'Try Avatar Studio →', go: 'avatar' },
+    { badge: '🔥 TRENDING', badgeColor: 'var(--cyan)',
+      wave: 'radial-gradient(60% 60% at 80% 15%, rgba(0,224,198,.5), transparent 70%), radial-gradient(70% 70% at 10% 90%, rgba(47,184,224,.4), transparent 70%), var(--panel-2)',
+      h: 'VIRAL VIDEO IN SECONDS', p: 'Seedance, Kling, Veo — all in one studio.',
+      cta: 'Create a video →', go: 'video-seedance' },
+    { badge: '🎨 NEW', badgeColor: 'var(--coral)',
+      wave: 'radial-gradient(60% 60% at 15% 80%, rgba(255,92,138,.45), transparent 70%), radial-gradient(70% 70% at 90% 10%, rgba(245,197,24,.35), transparent 70%), var(--panel-2)',
+      h: "FLYERS THAT DON'T LOOK AI", p: 'Describe it — we design it, start to finish.',
+      cta: 'Open Flyer Studio →', go: 'flyer' },
+  ],
+
   // Creative Studios — each is a guided generator using the live engine.
   STUDIOS: [
     { key: 'generate', name: 'Generate',               icon: '✨', tag: '',         desc: 'Free-form image creation',

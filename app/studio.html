@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fuse Studio</title>
-<meta name="theme-color" content="#031A16">
+<meta name="theme-color" content="#04181D">
 <link rel="manifest" href="/app/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/app/icons/apple-touch.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -77,96 +77,54 @@
   <!-- ===== HOME ===== -->
   <section class="view active" id="view-home">
 
-    <!-- 1. Featured visuals -->
-    <div class="shead" style="margin-top:14px"><h2>✨ Made with Fuse Studio</h2></div>
-    <div class="showrow">
-      <div class="showcard wide"><video src="/app/media/movie.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🎬 Detective film</div></div>
-      <div class="showcard wide"><video src="/app/media/hero.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🎬 Childcare ad</div></div>
-      <div class="showcard"><video src="/app/media/ugc.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">📣 UGC product ad</div></div>
-      <div class="showcard"><video src="/app/media/fashion.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🖼 Fashion shoot</div></div>
-      <div class="showcard"><video src="/app/media/avatar-tile.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🧑‍🎨 AI presenter</div></div>
-      <div class="showcard"><video src="/app/media/avatar.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🗣 AI avatar</div></div>
-      <div class="showcard"><video src="/app/media/avatar2.mp4" muted loop autoplay playsinline preload="metadata"></video><div class="cap">🗣 Talking avatar</div></div>
+    <!-- 1. Hero slideshow (auto-advancing, Higgsfield-style) -->
+    <div class="hero-ss" id="heroSS" style="margin-top:14px">
+      <div class="hero-ss-track" id="heroTrack"></div>
+      <div class="hero-ss-dots" id="heroDots"></div>
     </div>
 
-    <!-- 2. Fuse Atelier promo (3D) -->
+    <!-- 2. Fuse Guide — a quick wizard that routes straight to the right studio -->
+    <div class="hg-card" id="hgCard">
+      <div class="hg-eyebrow">✨ Fuse Guide</div>
+      <div class="hg-dots" id="hgDots"></div>
+      <h3 class="hg-q" id="hgQ"></h3>
+      <p class="hg-sub" id="hgSub"></p>
+      <div class="hg-opts" id="hgOpts"></div>
+    </div>
+
+    <!-- 3. Studios — small tiles, keep moving, tap to jump straight in -->
+    <div class="shead"><h2>⚡ Studios</h2></div>
+    <div class="marq-wrap"><div class="marq-track" id="marqTrack"></div></div>
+
+    <!-- 4. Made with Fuse Studio — real creations, not placeholders -->
+    <div class="shead"><h2>✨ Made with Fuse Studio</h2></div>
+    <div class="gal-row" id="galRow"><div class="gal-empty">Loading…</div></div>
+
+    <!-- 5. TV showcase — Seedance-style bezel, houses the course promo -->
+    <div class="tv-frame">
+      <div class="tv-screen" id="tvScreen">
+        <span class="tv-badge">▶ PREVIEW</span>
+        <div class="tv-copy">
+          <h3>THE AI CREATIVE INCOME SYSTEM</h3>
+          <p>Course promo — coming soon</p>
+          <a class="tv-cta" data-go="learn">Explore Fuse Atelier →</a>
+        </div>
+      </div>
+      <div class="tv-foot"><span>🎓 Fuse Atelier</span><span>Full course walkthrough</span></div>
+    </div>
+
+    <!-- 6. Fuse Atelier promo (3D) -->
     <div class="promo-banner promo-3d" id="homePromo"></div>
 
-    <!-- 3. Hero feature boxes -->
-    <div class="feat-grid">
-      <div class="featbox" data-go="reactor">
-        <span class="fb-badge new">NEW</span>
-        <div class="fb-ic">⚛️</div>
-        <div class="fb-name">Fuse Reactor</div>
-        <div class="fb-desc">Claude · Gemini · GPT — your creative engine</div>
-      </div>
-      <div class="featbox" data-go="video-seedance">
-        <span class="fb-badge vid">🎬 Video</span>
-        <div class="fb-ic">⚡</div>
-        <div class="fb-name">Seedance 2.0</div>
-        <div class="fb-desc">Cinematic video in seconds</div>
-      </div>
-      <div class="featbox" data-go="image-nano">
-        <span class="fb-badge img">🖼 Image</span>
-        <div class="fb-ic">🍌</div>
-        <div class="fb-name">Nano Banana</div>
-        <div class="fb-desc">High-quality visuals, fast</div>
-      </div>
-      <div class="featbox" data-go="avatar">
-        <span class="fb-badge trend">TRENDING</span>
-        <div class="fb-ic">🧑‍🎨</div>
-        <div class="fb-name">Avatar Studio</div>
-        <div class="fb-desc">Train your face · consistent you</div>
-      </div>
-      <div class="featbox" data-go="flyer">
-        <span class="fb-badge new">NEW</span>
-        <div class="fb-ic">🎨</div>
-        <div class="fb-name">Flyer Studio</div>
-        <div class="fb-desc">Describe it — a real design process, start to finish</div>
-      </div>
-      <div class="featbox" data-go="audio">
-        <span class="fb-badge new">NEW</span>
-        <div class="fb-ic">🎙</div>
-        <div class="fb-name">Audio Studio</div>
-        <div class="fb-desc">Any script, your voice — instant voiceover</div>
-      </div>
-      <div class="featbox" data-go="editstudio">
-        <span class="fb-badge new">NEW</span>
-        <div class="fb-ic">✂️</div>
-        <div class="fb-name">Editing Studio</div>
-        <div class="fb-desc">Captions, elements, CTA — post-ready in one flow</div>
-      </div>
-      <div class="featbox" data-go="learn">
-        <span class="fb-badge course">🎓 Course</span>
-        <div class="fb-ic">🏛️</div>
-        <div class="fb-name">Fuse Atelier</div>
-        <div class="fb-desc">The AI Creative Income System</div>
-      </div>
-      <div class="featbox" data-go="week">
-        <span class="fb-badge course">🎓 Course</span>
-        <div class="fb-ic">💵</div>
-        <div class="fb-name">The $500 Week</div>
-        <div class="fb-desc">AI UGC & influencer income in 7 days</div>
-      </div>
-    </div>
-
-    <!-- 4. Seedance 4K hero (3D text box) -->
-    <div class="seed4k" data-go="video-seedance4k">
-      <div class="seed4k-badge">4K</div>
-      <div class="seed4k-title">SEEDANCE 2.0</div>
-      <div class="seed4k-sub">NOW IN 4K · already on Fuse Studio</div>
-      <div class="seed4k-cta">Try now →</div>
-    </div>
-
-    <!-- 4b. Viral presets — tap to see the full recipe -->
+    <!-- 7. Presets — tap to see the full recipe -->
     <div class="shead"><h2>🔥 Viral Presets</h2><span class="muted" style="font-size:12px">tap to build</span></div>
     <div class="vp-grid" id="vpGrid"></div>
 
-    <!-- 5. Explore more AI features (chip cloud) -->
+    <!-- 8. Explore more AI features (chip cloud) -->
     <h2 class="explore-title">EXPLORE MORE AI FEATURES</h2>
     <div class="feat-chips" id="featChips"></div>
 
-    <!-- 6. Brand footer -->
+    <!-- 9. Brand footer -->
     <div class="home-foot">
       <h2 class="hf-tag">THE AI CREATIVE STUDIO BUILT FOR CREATORS WHO GET PAID</h2>
       <div class="hf-cols">

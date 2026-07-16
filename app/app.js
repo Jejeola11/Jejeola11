@@ -527,7 +527,107 @@ function openStudio(key) {
 }
 
 // ---------------- home builders ----------------
+// -- 1. Hero slideshow (auto-advancing) --
+let heroIdx = 0, heroTimer = null;
+function buildHeroSlides() {
+  const track = $('heroTrack'), dots = $('heroDots');
+  if (!track) return;
+  const slides = cfg.HERO_SLIDES || [];
+  track.innerHTML = slides.map((s) => `
+    <div class="hero-slide" data-go="${s.go}" style="--hs-wave:${s.wave};--hs-badge-bg:${s.badgeColor}">
+      <span class="hs-badge">${s.badge}</span>
+      <h2 class="hs-h">${s.h}</h2>
+      <p class="hs-p">${s.p}</p>
+      <span class="hs-cta">${s.cta}</span>
+    </div>`).join('');
+  dots.innerHTML = slides.map((_, i) => `<i data-i="${i}"></i>`).join('');
+  dots.querySelectorAll('i').forEach((d) => d.onclick = () => heroGoto(+d.dataset.i));
+  heroIdx = 0; heroGoto(0);
+  if (heroTimer) clearInterval(heroTimer);
+  if (slides.length > 1) heroTimer = setInterval(() => heroGoto((heroIdx + 1) % slides.length), 4500);
+}
+function heroGoto(i) {
+  heroIdx = i;
+  $('heroTrack').style.transform = `translateX(-${i * 100}%)`;
+  $('heroDots').querySelectorAll('i').forEach((d, j) => d.classList.toggle('on', j === i));
+}
+
+// -- 2. Fuse Guide wizard — one question at a time, ends on a studio CTA --
+const HG_START = 'start';
+const HG_TREE = {
+  start: { q: 'What are you doing today?', sub: "We'll point you the right way.",
+    opts: [
+      { i: '🎓', t: 'Learning', next: { result: true, icon: '🎓', name: 'Fuse Atelier', desc: 'The AI Creative Income System — courses, walkthroughs, real income paths.', go: 'learn' } },
+      { i: '🎨', t: 'Creating', next: 'creating' },
+      { i: '🧭', t: 'Just exploring', next: { result: true, icon: '✨', name: 'Explore Fuse Studio', desc: "Have a look around — everything's free to browse.", go: 'view:models' } },
+    ] },
+  creating: { q: 'What do you want to create?', sub: "We'll open the exact studio for it.",
+    opts: [
+      { i: '🧑‍🎨', t: 'A consistent avatar of me', next: { result: true, icon: '🧑‍🎨', name: 'Avatar Studio', desc: 'Train your face once — generate yourself in any scene, consistently.', go: 'avatar' } },
+      { i: '🎬', t: 'A viral video', next: { result: true, icon: '🎬', name: 'Video Studio', desc: 'Seedance, Kling, Veo — cinematic video in seconds.', go: 'video-seedance' } },
+      { i: '🎨', t: 'A flyer / design', next: { result: true, icon: '🎨', name: 'Flyer Studio', desc: 'Describe it — a real design process, start to finish.', go: 'flyer' } },
+      { i: '🎙', t: 'A voiceover', next: { result: true, icon: '🎙', name: 'Audio Studio', desc: 'Any script, your voice — instant voiceover.', go: 'audio' } },
+      { i: '✂️', t: 'Edit a video I have', next: { result: true, icon: '✂️', name: 'Editing Studio', desc: 'Captions, elements, CTA — post-ready in one flow.', go: 'editstudio' } },
+      { i: '🧬', t: 'Just a prompt', next: { result: true, icon: '🧬', name: 'Prompt Generator', desc: 'Instant, free, tuned prompts for a character or anything else.', go: 'promptgen' } },
+    ] },
+};
+let hgPath = []; // stack of node keys visited, for the progress dots + restart
+function hgRender(nodeKey) {
+  const node = HG_TREE[nodeKey];
+  $('hgDots').innerHTML = ['start', 'creating'].map((k) => `<i class="${hgPath.includes(k) || k === nodeKey ? 'on' : ''}"></i>`).join('');
+  $('hgQ').textContent = node.q;
+  $('hgSub').textContent = node.sub;
+  $('hgOpts').innerHTML = node.opts.map((o, i) => `<div class="hg-opt" data-i="${i}"><span class="hg-ic">${o.i}</span><span class="hg-t">${o.t}</span></div>`).join('');
+  $('hgOpts').querySelectorAll('.hg-opt').forEach((el) => el.onclick = () => {
+    const o = node.opts[+el.dataset.i];
+    if (typeof o.next === 'string') { hgPath.push(nodeKey); hgRender(o.next); return; }
+    hgRenderResult(o.next);
+  });
+}
+function hgRenderResult(r) {
+  $('hgDots').innerHTML = ['start', 'creating'].map(() => '<i class="on"></i>').join('');
+  $('hgQ').textContent = '';
+  $('hgSub').textContent = '';
+  $('hgOpts').innerHTML = `
+    <div class="hg-result" style="grid-column:1/-1">
+      <span class="hg-ic">${r.icon}</span>
+      <h4>${r.name}</h4>
+      <p>${r.desc}</p>
+      <span class="btn gold sm" style="display:inline-block" id="hgGo">Go to studio →</span>
+      <span class="hg-restart" id="hgRestart">↺ Start over</span>
+    </div>`;
+  // Rendered well after buildHome()'s one-time generic [data-go] wiring, so
+  // this needs its own explicit handler rather than relying on that.
+  $('hgGo').onclick = () => routeFeature(r.go);
+  $('hgRestart').onclick = () => { hgPath = []; hgRender(HG_START); };
+}
+function buildHomeGuide() { hgPath = []; hgRender(HG_START); }
+
+// -- 3. Studio marquee — continuous horizontal auto-scroll --
+function buildMarquee() {
+  const tiles = cfg.MARQUEE || [];
+  const html = tiles.map((t) => `<div class="marq-tile" data-go="${t.go}"><span class="mt-ic">${t.icon}</span><span class="mt-t">${t.label}</span></div>`).join('');
+  $('marqTrack').innerHTML = html + html; // duplicated once so the -50% loop is seamless
+}
+
+// -- 4. "Made with Fuse Studio" gallery — real creations only, no placeholders --
+async function loadGallery() {
+  const row = $('galRow'); if (!row) return;
+  if (preview) { row.innerHTML = '<div class="gal-empty">Sign up to see the community gallery ✨</div>'; return; }
+  const { data } = await sb.from('public_showcase').select('output_url, type').limit(12);
+  row.innerHTML = (data && data.length)
+    ? data.map((x) => `<div class="gal-card">${x.type === 'video'
+        ? `<video src="${x.output_url}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()"></video><span class="gal-tag">🎬 Video</span>`
+        : `<img src="${x.output_url}"><span class="gal-tag">🖼 Image</span>`}</div>`).join('')
+    : '<div class="gal-empty">Your creations will show here once you generate something ✨</div>';
+  row.querySelectorAll('.gal-card').forEach((el, i) => el.onclick = () => window.open(data[i].output_url, '_blank'));
+}
+
 function buildHome() {
+  buildHeroSlides();
+  buildHomeGuide();
+  buildMarquee();
+  loadGallery();
   // Viral presets — tap any to see the full recipe.
   const vp = $('vpGrid');
   if (vp) {
@@ -1608,16 +1708,6 @@ window.fuseReuse = (i) => {
   openStudio('generate');
   if (x.prompt) $('prompt').value = x.prompt;
 };
-async function loadRecent() {
-  if (preview) return demoGrid('homeRecent');
-  // Community showcase — everything made with Fuse Studio (images + videos).
-  const { data } = await sb.from('public_showcase').select('output_url, type').limit(12);
-  $('homeRecent').innerHTML = (data && data.length)
-    ? data.map((x) => x.type === 'video'
-        ? `<video src="${x.output_url}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()" onclick="window.open('${x.output_url}','_blank')"></video>`
-        : `<img src="${x.output_url}" onclick="window.open('${x.output_url}','_blank')">`).join('')
-    : '<div class="empty" style="grid-column:1/-1">Community creations will show here ✨</div>';
-}
 function demoGrid(id) { $(id).innerHTML = Array(6).fill('<div class="empty" style="aspect-ratio:1;display:grid;place-items:center;padding:0">🖼️</div>').join(''); }
 
 // ---------------- profile ----------------

@@ -1,23 +1,32 @@
 /* ============================================================
-   Fuse Studio — design system
-   Higgsfield-style cinematic dark UI, recolored:
-   their black  -> deep teal
-   their green  -> gold
+   Fuse Studio — design system (v2 palette)
+   Teal-blue + white/silver/gold, with a small set of vivid accent
+   tones (cyan, blue, violet, coral) for badges/highlights/combos —
+   moved bluer than v1's green-teal, informed by the ZenDone brand
+   moodboard (warm gold/orange against cool teal-cyan, dark neutrals).
+   Variable NAMES are kept stable so the rest of this stylesheet
+   doesn't need touching — only the values shifted.
    ============================================================ */
 :root{
-  --bg:#031A16;          /* DEEP teal (the "black") */
-  --bg-2:#04221D;
-  --panel:#082A25;       /* cards / panels */
-  --panel-2:#0B342D;
-  --line:#15493F;        /* hairlines / borders */
-  --ink:#F6F2E8;         /* warm off-white text */
-  --muted:#8FB3AC;       /* secondary text */
-  --gold:#F5C518;        /* primary accent — vibrant golden yellow */
+  --bg:#04181D;          /* deep teal-BLUE (the "black") */
+  --bg-2:#062430;
+  --panel:#0A2E38;       /* cards / panels — teal-blue */
+  --panel-2:#0E3944;
+  --line:#1C4F5C;        /* hairlines / borders — teal-blue */
+  --ink:#F7FAFA;         /* cool near-white text */
+  --muted:#9FC1C9;       /* silvery secondary text */
+  --silver:#C9D8DA;      /* explicit silver — dividers, icon strokes, quiet badges */
+  --gold:#F5C518;        /* primary warm accent — vibrant golden yellow */
   --gold-2:#FFD84A;      /* hover / glow */
   --gold-deep:#D9A91A;
+  --cyan:#00E0C6;        /* vivid teal-blue accent */
+  --blue:#2FB8E0;        /* vivid sky-blue accent */
+  --violet:#8B6BFF;      /* vivid accent — chat/AI surfaces */
+  --coral:#FF5C8A;       /* vivid accent — trending/energy */
   --radius:18px;
   --shadow:0 18px 50px rgba(0,0,0,.5);
   --glow:0 0 30px rgba(245,197,24,.28);
+  --glow-cyan:0 0 30px rgba(0,224,198,.24);
   --maxw:1120px;
   font-synthesis:none;
 }
@@ -26,8 +35,9 @@
 html,body{margin:0;padding:0}
 body{
   background:
-    radial-gradient(1200px 600px at 80% -10%, rgba(245,197,24,.12), transparent 60%),
-    radial-gradient(900px 500px at -10% 10%, rgba(20,70,63,.55), transparent 60%),
+    radial-gradient(1200px 600px at 80% -10%, rgba(245,197,24,.11), transparent 60%),
+    radial-gradient(900px 520px at -10% 8%, rgba(0,224,198,.10), transparent 62%),
+    radial-gradient(700px 460px at 100% 40%, rgba(139,107,255,.07), transparent 65%),
     var(--bg);
   color:var(--ink);
   font-family:"Archivo",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
@@ -250,7 +260,7 @@ textarea{min-height:104px;resize:vertical}
 
 /* section heads */
 .shead{display:flex;align-items:center;justify-content:space-between;margin:22px 0 12px}
-.shead h2{font-family:"Bricolage Grotesque";font-weight:800;font-size:18px;margin:0;text-transform:uppercase;letter-spacing:.02em}
+.shead h2{font-family:"Bricolage Grotesque";font-weight:800;font-size:15px;margin:0;text-transform:uppercase;letter-spacing:.02em}
 .shead a{color:var(--gold);font-size:13px;font-weight:700}
 
 /* tool cards grid */
@@ -558,39 +568,6 @@ textarea{min-height:104px;resize:vertical}
 .menu-link:active{background:var(--bg-2)}
 .menu-link.danger{color:#ff8b8b}
 
-/* ---- 3D hero feature boxes ---- */
-.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 4px}
-.featbox{position:relative;border-radius:18px;padding:16px 15px 18px;min-height:128px;cursor:pointer;
-  background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--line);
-  box-shadow:0 10px 28px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.05);
-  transform:translateZ(0);transition:transform .18s ease, box-shadow .18s ease;overflow:hidden}
-.featbox::before{content:"";position:absolute;inset:0;background:radial-gradient(120px 80px at 80% 0%,rgba(245,197,24,.12),transparent 70%);pointer-events:none}
-.featbox:active{transform:translateY(2px) scale(.99)}
-.featbox:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(0,0,0,.5),var(--glow)}
-.fb-ic{font-size:30px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.5));margin-bottom:8px}
-.fb-name{font-weight:800;font-size:17px;letter-spacing:-.01em}
-.fb-desc{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.35}
-.fb-badge{position:absolute;top:11px;right:11px;font-size:10px;font-weight:800;padding:3px 9px;border-radius:99px;letter-spacing:.04em}
-.fb-badge.new{background:var(--gold);color:#1a1205}
-.fb-badge.trend{background:#ff3b8b;color:#fff}
-.fb-badge.vid{background:rgba(0,0,0,.45);color:#fff;border:1px solid var(--line)}
-.fb-badge.img{background:rgba(0,0,0,.45);color:#fff;border:1px solid var(--line)}
-.fb-badge.course{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1205}
-
-/* ---- Seedance 4K 3D hero ---- */
-.seed4k{position:relative;margin:14px 0;border-radius:22px;padding:30px 18px 26px;text-align:center;cursor:pointer;overflow:hidden;
-  background:radial-gradient(circle at 50% 0%,#0f4a40,#04231f 70%);border:1px solid var(--gold-deep);
-  box-shadow:0 22px 60px rgba(0,0,0,.55),var(--glow)}
-.seed4k::after{content:"";position:absolute;inset:0;background:
-  repeating-linear-gradient(115deg,transparent 0 14px,rgba(245,197,24,.04) 14px 15px);pointer-events:none}
-.seed4k-badge{position:absolute;top:14px;right:16px;background:var(--gold);color:#1a1205;font-weight:900;
-  font-size:15px;padding:3px 11px;border-radius:9px;box-shadow:var(--glow)}
-.seed4k-title{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:clamp(34px,11vw,58px);
-  letter-spacing:-.02em;line-height:.95;color:var(--gold);
-  text-shadow:0 2px 0 var(--gold-deep),0 5px 18px rgba(245,197,24,.5),0 12px 30px rgba(0,0,0,.6)}
-.seed4k-sub{margin-top:8px;font-weight:800;font-size:12px;letter-spacing:.16em;color:var(--ink);text-transform:uppercase}
-.seed4k-cta{display:inline-block;margin-top:16px;background:var(--gold);color:#1a1205;font-weight:800;
-  padding:10px 26px;border-radius:99px;box-shadow:var(--glow)}
 
 /* ---- 3D promo banner ---- */
 .promo-3d{box-shadow:0 18px 46px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06);
@@ -618,9 +595,6 @@ textarea{min-height:104px;resize:vertical}
   .hdr-ic{width:32px;height:32px;font-size:14px}
   .streakpill{padding:5px 8px}
   .planpill{padding:5px 9px;font-size:12px}
-  .feat-grid{gap:10px}
-  .featbox{min-height:118px;padding:14px 13px}
-  .fb-name{font-size:16px}
 }
 /* Small phones: keep the header on one line — drop the Instagram shortcut
    (it's also in the footer) and collapse the brand to just the F mark. */
@@ -632,7 +606,7 @@ textarea{min-height:104px;resize:vertical}
 
 /* ===== Explore more AI features (chip cloud) ===== */
 .explore-title{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;text-transform:uppercase;
-  font-size:clamp(22px,6vw,32px);letter-spacing:-.01em;text-align:center;margin:26px 0 16px;line-height:1.05}
+  font-size:clamp(16px,4.4vw,20px);letter-spacing:-.01em;text-align:center;margin:22px 0 14px;line-height:1.15}
 .feat-chips{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;padding-bottom:10px}
 .feat-chip{background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:10px 16px;
   font-size:14px;font-weight:600;color:var(--ink);cursor:pointer;transition:.15s}
@@ -669,7 +643,7 @@ textarea{min-height:104px;resize:vertical}
 /* ===== Home brand footer ===== */
 .home-foot{margin:34px -22px 0;padding:34px 22px 30px;background:linear-gradient(180deg,transparent,rgba(245,197,24,.05)),var(--bg-2);border-top:1px solid var(--line)}
 .hf-tag{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;text-transform:uppercase;
-  font-size:clamp(24px,7vw,40px);line-height:1.04;letter-spacing:-.01em;color:var(--gold);margin:0 0 24px;
+  font-size:clamp(17px,4.6vw,22px);line-height:1.2;letter-spacing:-.01em;color:var(--gold);margin:0 0 20px;
   text-shadow:0 2px 18px rgba(245,197,24,.25)}
 .hf-cols{display:flex;gap:40px;flex-wrap:wrap;margin-bottom:24px}
 .hf-h{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
@@ -839,3 +813,74 @@ textarea{min-height:104px;resize:vertical}
 .wk-lesson-body li{margin:5px 0}
 .wk-vid-slot{width:100%;max-width:400px;aspect-ratio:9/16;max-height:70vh;background:#02110e;border:1px dashed var(--line);border-radius:14px;display:grid;place-items:center;color:var(--muted);font-size:13px;text-align:center;margin:10px auto;overflow:hidden}
 .wk-vid-slot video,.wk-vid-slot iframe{width:100%;height:100%;border:0;display:block;object-fit:contain;border-radius:14px}
+
+/* ============================================================
+   HOME v2 — hero slideshow, home guide wizard, studio marquee,
+   real-data gallery, TV showcase. Sized for phone view throughout
+   (this is the app's actual home screen, not a marketing page).
+   ============================================================ */
+
+/* ---- 1. Hero slideshow (Higgsfield-style, auto-advancing) ---- */
+.hero-ss{position:relative;margin:12px 0 18px;border-radius:20px;overflow:hidden;height:210px;box-shadow:var(--shadow)}
+.hero-ss-track{display:flex;height:100%;transition:transform .5s cubic-bezier(.4,0,.2,1)}
+.hero-slide{flex:0 0 100%;height:100%;position:relative;padding:18px 18px 34px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;background:var(--hs-bg,var(--panel))}
+.hero-slide::before{content:"";position:absolute;inset:-40%;background:var(--hs-wave);opacity:.85}
+.hero-slide::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,24,29,.08),rgba(4,24,29,.9))}
+.hero-slide .hs-badge{position:relative;z-index:2;align-self:flex-start;background:var(--hs-badge-bg,var(--gold));color:#0c1418;font-weight:800;font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:99px;margin-bottom:auto}
+.hero-slide .hs-h{position:relative;z-index:2;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:19px;line-height:1.14;margin:0 0 4px;color:#fff}
+.hero-slide .hs-p{position:relative;z-index:2;font-size:11.5px;color:rgba(255,255,255,.82);margin:0 0 12px;max-width:86%;line-height:1.4}
+.hero-slide .hs-cta{position:relative;z-index:2;align-self:flex-start;background:#fff;color:#0c1418;font-weight:800;font-size:12px;padding:8px 15px;border-radius:99px}
+.hero-ss-dots{position:absolute;left:0;right:0;bottom:11px;display:flex;justify-content:center;gap:6px;z-index:3}
+.hero-ss-dots i{width:15px;height:4px;border-radius:3px;background:rgba(255,255,255,.35);display:block;cursor:pointer;transition:.2s;font-style:normal}
+.hero-ss-dots i.on{width:24px;background:#fff}
+
+/* ---- 2. Home guide wizard (chip-based, routes to a studio) ---- */
+.hg-card{background:linear-gradient(160deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:20px;padding:18px 16px 20px;margin:0 0 18px;position:relative;overflow:hidden}
+.hg-card::before{content:"";position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(closest-side,rgba(139,107,255,.22),transparent);pointer-events:none}
+.hg-eyebrow{position:relative;z-index:1;display:flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);margin-bottom:9px}
+.hg-dots{position:relative;z-index:1;display:flex;gap:5px;margin-bottom:12px}
+.hg-dots i{width:20px;height:3px;border-radius:2px;background:var(--line);display:block;font-style:normal}
+.hg-dots i.on{background:var(--violet)}
+.hg-q{position:relative;z-index:1;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:16.5px;margin:0 0 4px;line-height:1.25}
+.hg-sub{position:relative;z-index:1;color:var(--muted);font-size:12px;margin:0 0 14px}
+.hg-opts{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.hg-opt{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:13px 10px;text-align:center;cursor:pointer;transition:.15s}
+.hg-opt:active{transform:scale(.96)}
+.hg-opt:hover{border-color:var(--violet)}
+.hg-opt .hg-ic{font-size:21px;margin-bottom:5px;display:block}
+.hg-opt .hg-t{font-size:12px;font-weight:700;line-height:1.25}
+.hg-result{position:relative;z-index:1;text-align:center;padding:4px 0}
+.hg-result .hg-ic{font-size:36px;margin-bottom:8px;display:block}
+.hg-result h4{font-family:"Bricolage Grotesque",sans-serif;font-size:15.5px;margin:0 0 4px}
+.hg-result p{color:var(--muted);font-size:12px;margin:0 0 14px}
+.hg-restart{position:relative;z-index:1;display:block;text-align:center;color:var(--muted);font-size:11.5px;margin-top:10px;cursor:pointer}
+
+/* ---- 3. Studio marquee (continuous horizontal auto-scroll) ---- */
+.marq-wrap{margin:0 0 18px;overflow:hidden;position:relative}
+.marq-wrap::before,.marq-wrap::after{content:"";position:absolute;top:0;bottom:0;width:24px;z-index:2;pointer-events:none}
+.marq-wrap::before{left:0;background:linear-gradient(90deg,var(--bg),transparent)}
+.marq-wrap::after{right:0;background:linear-gradient(270deg,var(--bg),transparent)}
+.marq-track{display:flex;gap:10px;width:max-content;animation:marq 28s linear infinite}
+.marq-wrap:active .marq-track{animation-play-state:paused}
+.marq-tile{flex:0 0 auto;width:70px;height:70px;border-radius:16px;background:var(--panel);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer}
+.marq-tile .mt-ic{font-size:20px}
+.marq-tile .mt-t{font-size:8.5px;font-weight:700;color:var(--muted);text-align:center;line-height:1.15;padding:0 4px}
+@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ---- 4. "Made with Fuse Studio" gallery (real data) ---- */
+.gal-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+.gal-card{flex:0 0 auto;width:140px;border-radius:14px;overflow:hidden;position:relative;background:var(--panel);border:1px solid var(--line);cursor:pointer}
+.gal-card img,.gal-card video{width:140px;height:178px;object-fit:cover;display:block;background:#000}
+.gal-card .gal-tag{position:absolute;top:7px;left:7px;background:rgba(4,24,29,.72);backdrop-filter:blur(4px);color:var(--silver);font-size:9px;font-weight:700;padding:3px 8px;border-radius:99px}
+.gal-empty{border:1px dashed var(--line);border-radius:14px;padding:26px 16px;text-align:center;color:var(--muted);font-size:12.5px}
+
+/* ---- 5. TV showcase (Seedance-style bezel, houses the course promo) ---- */
+.tv-frame{position:relative;margin:0 0 18px;border-radius:22px;padding:12px;background:linear-gradient(160deg,#06232b,#031318);border:1px solid var(--line);box-shadow:var(--shadow)}
+.tv-screen{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:16/11;background:linear-gradient(135deg,var(--panel-2),var(--bg-2));display:flex;align-items:center;justify-content:center}
+.tv-screen video,.tv-screen img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.tv-badge{position:absolute;top:10px;right:10px;z-index:2;background:var(--cyan);color:#04181D;font-weight:900;font-size:10.5px;padding:4px 9px;border-radius:8px}
+.tv-copy{position:relative;z-index:1;text-align:center;padding:14px}
+.tv-copy h3{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:21px;margin:0;color:#fff;letter-spacing:-.01em}
+.tv-copy p{color:var(--silver);font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;margin:6px 0 13px}
+.tv-cta{display:inline-block;background:var(--gold);color:#1a1205;font-weight:800;font-size:12.5px;padding:8px 18px;border-radius:99px}
+.tv-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;padding:0 2px;font-size:11px;color:var(--muted)}
