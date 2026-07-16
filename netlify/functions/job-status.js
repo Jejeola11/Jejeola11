@@ -91,7 +91,7 @@ exports.handler = async (event) => {
   if (r.status === 'completed') {
     let url = r.url;
     if (!url) return json(200, { status: 'processing' });
-    if (job.kind === 'flyer-hero' && job.aspect) url = await fixFlyerAspect(db, user.id, url, job.aspect);
+    if ((job.kind === 'flyer-hero' || job.kind === 'flyer-composite') && job.aspect) url = await fixFlyerAspect(db, user.id, url, job.aspect);
     await db.from('jobs').update({ status: 'completed', output_url: url }).eq('request_id', id);
     // A model sheet isn't a normal gallery item — save it onto the avatar so all
     // future generations use it as the consistent reference. The avatar id is
@@ -119,6 +119,24 @@ exports.handler = async (event) => {
             update.layers = layers;
           }
           await db.from('flyer_projects').update(update).eq('id', job.project_id);
+        } catch (e) {}
+      }
+      try {
+        await db.from('generations').insert({
+          user_id: user.id, type: 'image', model: job.model, prompt: job.prompt, aspect: job.aspect,
+          output_url: url, credits_spent: job.credits, cost_usd: r.cost_usd,
+        });
+      } catch (e) {}
+      return json(200, { status: 'completed', url, kind: job.kind, project_id: job.project_id });
+    }
+    // Final composited flyer — GPT Image 2 rendering the typography itself
+    // now (switched 2026-07-16), so this is a real paid async job like
+    // hero/layer, not a synchronous free render anymore.
+    if (job.kind === 'flyer-composite') {
+      if (job.project_id) {
+        try {
+          const { data: proj } = await db.from('flyer_projects').select('credits').eq('id', job.project_id).maybeSingle();
+          await db.from('flyer_projects').update({ final_url: url, updated_at: new Date().toISOString(), credits: (proj && proj.credits || 0) + job.credits }).eq('id', job.project_id);
         } catch (e) {}
       }
       try {

@@ -2353,6 +2353,7 @@ async function restoreFlyerProject() {
 // to a blank slate for a genuinely new one.
 function flyerNewProject() {
   flyerProjectId = null; flyerHistory = []; flyerLayers = []; flyerRefUrls = [];
+  flyerStructureRefUrl = null; renderFlyerStructureRef();
   localStorage.removeItem(FLYER_PROJECT_KEY);
   $('flyerLog').innerHTML = ''; $('flyerImgPrompt').value = '';
   $('flyerHeroResult').innerHTML = '<div class="muted">Your background/hero visual appears here.</div>';
@@ -2368,6 +2369,7 @@ function flyerLoadProject(p) {
   flyerProjectId = p.id;
   localStorage.setItem(FLYER_PROJECT_KEY, p.id);
   flyerHistory = [];
+  flyerStructureRefUrl = null; renderFlyerStructureRef();
   flyerLayers = (Array.isArray(p.layers) ? p.layers : []).map((l) => l.instruction);
   flyerRefUrls = Array.isArray(p.reference_image_urls) ? p.reference_image_urls.map((u) => ({ url: u, on: true })) : [];
   renderFlyerRefs();
@@ -2711,22 +2713,52 @@ async function flyerComposite() {
     style: $('flyerTextStyle').value,
     underline_accent: $('flyerUnderlineAccent').checked,
     gradient_whole: $('flyerGradientWhole').checked,
+    extra_instructions: $('flyerExtraInstructions').value.trim() || undefined,
   };
-  const btn = $('flyerComposite'); btn.disabled = true; btn.textContent = 'Compositing…';
-  $('flyerFinalResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Laying out the typography…</div></div>';
+  const btn = $('flyerComposite'); const label = '🖋 Composite final flyer';
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  $('flyerFinalResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Rendering the typography…</div></div>';
   note('flyerCompositeNote', '');
   try {
     const res = await fetch('/.netlify/functions/flyer-composite', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ project_id: flyerProjectId, text_spec: spec }),
+      body: JSON.stringify({ project_id: flyerProjectId, text_spec: spec, structure_reference_url: flyerStructureRefUrl || undefined }),
     });
     const d = await res.json();
+    if (res.status === 402) { note('flyerCompositeNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; return; }
     if (!res.ok) throw new Error(d.error || 'Failed');
-    $('flyerFinalResult').innerHTML = `<div><img src="${d.url}" style="width:100%;border-radius:12px"><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${d.url}')">⬇ Download</button></div></div>`;
-    note('flyerCompositeNote', '✅ Done — tweak the copy/colors and composite again anytime.', 'ok');
-  } catch (e) { $('flyerFinalResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('flyerCompositeNote', e.message || 'Failed', 'err'); }
-  btn.disabled = false; btn.textContent = '🖋 Composite final flyer';
+    if (d.credits != null) $('creditCount').textContent = d.credits;
+    note('flyerCompositeNote', 'Rendering… ⏳', 'ok'); btn.textContent = 'Rendering…';
+    // 180s not 100 — with a structure-reference image attached (2 images
+    // total instead of 1), GPT Image 2's real inference time roughly
+    // doubles (confirmed live: ~94s vs ~48s for a single reference).
+    pollJob(d.request_id, $('flyerFinalResult'), 'flyerCompositeNote', btn, label, 'image', 180);
+  } catch (e) { $('flyerFinalResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('flyerCompositeNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
 }
+
+let flyerStructureRefUrl = null;
+async function flyerPickStructureRef(file) {
+  if (preview) { showAuth('signup'); return; }
+  if (!file) return;
+  note('flyerCompositeNote', 'Uploading reference…', 'ok');
+  try {
+    const resized = await resizeImageFile(file);
+    const ext = (resized.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = `${user.id}/flyerstructref-${Date.now()}.${ext}`;
+    await uploadWithRetry('avatars', path, resized);
+    flyerStructureRefUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    note('flyerCompositeNote', '✅ Reference flyer attached — its layout will be cloned on the next composite.', 'ok');
+    renderFlyerStructureRef();
+  } catch (e) { note('flyerCompositeNote', e.message || 'Upload failed', 'err'); }
+}
+function renderFlyerStructureRef() {
+  const el = $('flyerStructureRefThumb');
+  if (!el) return;
+  el.innerHTML = flyerStructureRefUrl
+    ? `<div style="position:relative;display:inline-block"><img src="${flyerStructureRefUrl}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:2px solid var(--gold)"><span class="ref-x" onclick="window.fuseFlyerRmStructureRef()">✕</span></div>`
+    : '';
+}
+window.fuseFlyerRmStructureRef = () => { flyerStructureRefUrl = null; renderFlyerStructureRef(); };
 
 // ---------------- Audio Studio (standalone voiceover/narration) ----------------
 let adUploadedVoiceUrl = null;
@@ -3694,6 +3726,8 @@ window.addEventListener('DOMContentLoaded', () => {
   $('flyerSuggestLayers').onclick = flyerSuggestLayers;
   $('flyerAddLayer').onclick = flyerAddLayer;
   $('flyerComposite').onclick = flyerComposite;
+  $('flyerStructureRefPick').onclick = () => $('flyerStructureRefFile').click();
+  $('flyerStructureRefFile').onchange = (e) => { flyerPickStructureRef(e.target.files[0]); e.target.value = ''; };
   // Omni Studio
   { const ob = $('omniBack'); if (ob) ob.onclick = () => showView('home'); }
   document.querySelectorAll('[data-omni]').forEach((b) => b.onclick = () => omniSwitch(b.dataset.omni));

@@ -1,129 +1,141 @@
 // ============================================================
 // POST /.netlify/functions/flyer-composite   (Flyer Studio — final typography)
-// Body: { project_id, text_spec }
+// Body: { project_id, text_spec, structure_reference_url? }
 //   text_spec: { headline, accent_word?, subhead?, bullets?: string[],
-//                badge?, footer?, accent_color, script_accent?,
-//                style?: 'shadow'|'glass'|'glow'|'gradient'|'flat',
-//                underline_accent?, gradient_whole?, callouts?: string[] }
-//   style is the shared effect applied across headline/subhead/badge/info
-//   card: 'shadow' (default, soft drop shadow for legibility over a busy
-//   photo), 'glass' (frosted glassmorphic panel behind the text), 'glow'
-//   (accent-colored glow on the headline), 'gradient' (headline text filled
-//   with a vertical gradient from accent_color to an auto-derived darker
-//   shade — gradient_whole applies it to every word, not just the accented
-//   one). underline_accent draws the "hand-drawn underline swipe" motif
-//   under the accented word. callouts are short standalone colored
-//   pill/box call-outs (e.g. "Promo Offers", "10% Discount") stacked
-//   beneath the subhead — the "shape placeholder" pattern real flyers use
-//   for short assertions, distinct from the single `badge` and the bulleted
-//   info card.
-// Bakes real typography onto the project's current hero visual — headline,
-// subhead, info card, badge, footer — via _canvas.js (native rendering, no
-// browser). This is the step that turns "AI background image" into an
-// actual finished flyer, and it's exactly why the image-generation prompts
-// upstream are always told to leave the AI model out of rendering any text:
-// every word here is drawn with real font/color/size control, not gambled
-// on the image model getting letters right.
-// Synchronous (compositing takes well under a second) — no credit charge,
-// no polling; iterate on the copy/colors as many times as you like once the
-// visual itself is paid for.
+//                callouts?: string[], badge?, footer?, accent_color,
+//                script_accent?, style?: 'shadow'|'glass'|'glow'|'gradient'|'flat',
+//                underline_accent?, gradient_whole?, extra_instructions? }
+//   structure_reference_url: an OPTIONAL second reference image — a real
+//   flyer whose exact layout/structure (text positions, panel shapes) should
+//   be replicated, while keeping this project's own hero image/product.
+//
+// Switched 2026-07-16 from code-drawn text (_canvas.js) to GPT Image 2 itself
+// rendering the typography, per direct user request — the code renderer was
+// a single fixed template (headline top, subhead, badge, info-card box,
+// footer bar, always in that exact order/position), so every flyer came out
+// looking structurally identical regardless of the brief. Verified live
+// that GPT Image 2's edit mode renders short headline text cleanly and
+// legibly, so this trade (some risk of imperfect fine print, in exchange for
+// genuinely different layouts per flyer and the ability to clone an
+// arbitrary reference flyer's structure) is worth it for this use case.
+// Async submit + poll via job-status.js, same pattern as flyer-hero.js —
+// this is now a real paid generation, not a free sub-second render.
 // ============================================================
-const { admin, getUser, json } = require('./_supabase');
-const { createCanvas, loadImage, drawHeadline, drawSubhead, drawInfoCard, drawBadge, drawFooterBar } = require('./_canvas');
+const { admin, getUser, json, getPlan } = require('./_supabase');
+const { IMAGE_MODELS, canUseFree } = require('./_packs');
+const { muapiHostImage } = require('./_muapi');
+const { submitFlyerImage, hasWaveSpeed } = require('./_providers');
+
+const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
+const MODEL = 'gpt-image-2-ws-edit';
+const FALLBACK_MODEL = 'nano-banana-edit';
+
+// Translates the structured text_spec into a natural-language instruction
+// GPT Image 2 can follow directly — since there's no fixed template anymore,
+// this default guidance is what keeps a flyer with no extra_instructions
+// looking considered instead of random.
+function buildCompositePrompt(spec, hasStructureRef) {
+  const accent = spec.accent_color || '#00e0c6';
+  const lines = [];
+  lines.push('Add real, crisp, perfectly-spelled on-flyer typography and layout to this image — the finished flyer\'s text and panel layer, laid out to fit this specific image\'s own composition and open space (never crossing over a face or the main subject).');
+  lines.push(`Headline, in a bold heavy condensed display typeface: "${spec.headline}"${spec.accent_word ? `, with the word "${spec.accent_word}" visually accented in ${accent}` : ''}.`);
+  if (spec.subhead) lines.push(`Subhead directly below the headline, smaller and lighter: "${spec.subhead}".`);
+  if (Array.isArray(spec.callouts) && spec.callouts.length) {
+    const items = spec.callouts.map((c) => `"${(typeof c === 'string' ? c : (c && c.text) || '').trim()}"`).filter((t) => t !== '""').join(', ');
+    if (items) lines.push(`Short standalone colored tag/pill call-out boxes, one short line of text each, filled in ${accent} or a complementary shade: ${items}.`);
+  }
+  if (spec.badge) lines.push(`A small pill-shaped badge/seal in ${accent} reading "${spec.badge}".`);
+  if (Array.isArray(spec.bullets) && spec.bullets.length) {
+    const items = spec.bullets.slice(0, 6).map((b) => `"${b}"`).join(' / ');
+    lines.push(`An information card — one rounded panel (solid dark or frosted glass) holding these bullet points, one line each with a small ${accent}-colored marker: ${items}.`);
+  }
+  if (spec.footer) lines.push(`A footer strip at the very bottom edge, styled like UI chrome rather than art, holding: "${spec.footer}".`);
+  const styleLine = {
+    glass: `Give the text panels a frosted glassmorphic treatment — translucent, blurred, with a faint light border, dark enough underneath to stay legible over any part of the photo.`,
+    glow: `Give the headline a soft colored glow in ${accent}.`,
+    gradient: `Fill the headline (or its accented word) with a smooth vertical gradient from ${accent} down to a deeper shade of the same hue.`,
+    flat: `Keep every text element flat-colored, no shadow, no glow.`,
+    shadow: `Give every text element a soft dark drop shadow for legibility against the photo.`,
+  }[spec.style] || `Give every text element a soft dark drop shadow for legibility against the photo.`;
+  lines.push(styleLine);
+  if (spec.underline_accent) lines.push(`Draw a thin, slightly-tilted hand-drawn-style underline swipe in ${accent} beneath the accented headline word.`);
+  if (hasStructureRef) lines.push('A second reference image is attached showing a real flyer\'s exact layout to replicate — match its text positions, panel shapes, sizes, and overall composition as closely as possible, while keeping THIS (the first) image\'s own background/product untouched underneath.');
+  if (spec.extra_instructions) lines.push(`Additional direction from the designer, follow this closely: ${spec.extra_instructions}`);
+  lines.push('Keep every word spelled exactly as given above, no typos, no missing letters, no extra invented words. Do not alter the product, subject, or background itself — only add the typography and panels on top of it.');
+  return lines.join(' ');
+}
 
 exports.handler = async (event) => {
+  let db, user, cost = 0;
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
-    const user = await getUser(event);
+    if (!process.env.MUAPI_KEY) return json(503, { error: 'Flyer Studio is being connected (MUAPI_KEY missing).' });
+
+    user = await getUser(event);
     if (!user) return json(401, { error: 'Please sign in again.' });
 
     let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
     const projectId = body.project_id;
     const spec = (body.text_spec && typeof body.text_spec === 'object') ? body.text_spec : {};
+    const structureRefUrl = (body.structure_reference_url || '').trim() || null;
     if (!projectId) return json(400, { error: 'Missing project_id' });
     if (!spec.headline) return json(400, { error: 'Add a headline first.' });
 
-    const db = admin();
+    db = admin();
     const { data: project } = await db.from('flyer_projects').select('*').eq('id', projectId).maybeSingle();
     if (!project || project.user_id !== user.id) return json(404, { error: 'Project not found.' });
     if (!project.hero_image_url) return json(400, { error: 'Generate the hero visual first.' });
 
-    const accent = spec.accent_color || '#00e0c6';
-    // Shared effect vocabulary across every text/panel element — 'flat'
-    // (no effect), 'shadow' (soft drop shadow, the default — legibility
-    // over a busy hero photo), 'glow' (colored glow in the accent color),
-    // 'glass' (translucent glassmorphic panel behind the text), 'gradient'
-    // (headline text gradient-filled).
-    const style = ['flat', 'shadow', 'glow', 'glass', 'gradient'].includes(spec.style) ? spec.style : 'shadow';
-    const underline = !!spec.underline_accent;
-    const gradientWhole = !!spec.gradient_whole;
-    const res = await fetch(project.hero_image_url);
-    if (!res.ok) return json(502, { error: 'Could not load the current visual.' });
-    const buf = Buffer.from(await res.arrayBuffer());
-    const img = await loadImage(buf);
+    const wantsWS = hasWaveSpeed();
+    const model = wantsWS ? MODEL : FALLBACK_MODEL;
 
-    const W = img.width, H = img.height;
-    const canvas = createCanvas(W, H);
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, W, H);
-
-    const margin = Math.round(W * 0.065);
-    const headlineSize = Math.round(W * 0.092);
-    let y = Math.round(H * 0.16);
-    y += drawHeadline(ctx, {
-      text: spec.headline, x: margin, y, maxWidth: W - margin * 2, fontSize: headlineSize,
-      accentColor: accent, accentWord: spec.accent_word, scriptAccent: !!spec.script_accent,
-      style, underline, gradientWhole,
-    }) + headlineSize * 0.35;
-
-    if (spec.subhead) {
-      y += drawSubhead(ctx, { text: spec.subhead, x: margin, y, maxWidth: W - margin * 2, fontSize: Math.round(W * 0.026), style }) + headlineSize * 0.2;
+    let plan = 'pro', isAdmin = false;
+    try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
+    if (plan === 'free' && !isAdmin && !canUseFree(model)) {
+      return json(403, { error: 'This requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
     }
 
-    // Short standalone colored call-out boxes ("Promo Offers", "10%
-    // Discount") — the same pill shape as the badge below, just repeatable
-    // and placed earlier in the flow, one per line the user typed.
-    if (Array.isArray(spec.callouts) && spec.callouts.length) {
-      for (const raw of spec.callouts.slice(0, 4)) {
-        const text = (typeof raw === 'string' ? raw : raw && raw.text || '').trim();
-        if (!text) continue;
-        const color = (raw && typeof raw === 'object' && raw.color) || accent;
-        const c = drawBadge(ctx, { text, x: margin, y, accentColor: color, fontSize: Math.round(W * 0.019), style: style === 'glass' ? 'flat' : style });
-        y += c.h + Math.round(H * 0.014);
-      }
-    }
+    cost = IMAGE_MODELS[model];
+    const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
+    if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
-    if (spec.badge) {
-      const b = drawBadge(ctx, { text: spec.badge, x: margin, y, accentColor: accent, fontSize: Math.round(W * 0.017), style });
-      y += b.h + Math.round(H * 0.02);
-    }
+    const prompt = buildCompositePrompt(spec, !!structureRefUrl);
+    const aspect = project.aspect || '4:5';
+    // Re-host both the current hero and the optional structure reference on
+    // MuAPI's CDN — the hero URL may be a provider CDN URL or Supabase
+    // storage, and not every host is reachable by every downstream engine.
+    const toHost = [project.hero_image_url, structureRefUrl].filter(Boolean);
+    const hosted = await Promise.all(toHost.map(muapiHostImage));
 
-    if (Array.isArray(spec.bullets) && spec.bullets.length) {
-      drawInfoCard(ctx, { x: margin, y, w: W - margin * 2, bullets: spec.bullets.slice(0, 6), accentColor: accent, style, fontSize: Math.round(W * 0.02) });
-    }
-
-    if (spec.footer) {
-      const footerH = Math.round(H * 0.067);
-      drawFooterBar(ctx, { text: spec.footer, width: W, y: H - footerH, height: footerH, accentColor: accent });
-    }
-
-    const outBuf = canvas.toBuffer('image/png');
-    const storagePath = `${user.id}/flyer-${projectId}-${Date.now()}.png`;
-    const { error: upErr } = await db.storage.from('avatars').upload(storagePath, outBuf, { contentType: 'image/png', upsert: true });
-    if (upErr) throw new Error('Storage upload failed: ' + upErr.message);
-    const finalUrl = db.storage.from('avatars').getPublicUrl(storagePath).data.publicUrl;
-
-    await db.from('flyer_projects').update({ final_url: finalUrl, text_spec: spec, updated_at: new Date().toISOString() }).eq('id', projectId);
-    // The finished flyer — the thing the user actually came here to make —
-    // should show up in the Projects tab like everything else does.
-    try {
-      await db.from('generations').insert({
-        user_id: user.id, type: 'image', model: 'flyer-composite', prompt: spec.headline,
-        output_url: finalUrl, credits_spent: 0, cost_usd: 0,
+    let id;
+    if (wantsWS) {
+      const r = await submitFlyerImage(model, { prompt, aspect, images: hosted });
+      if (!r) throw new Error('WaveSpeed did not start the job');
+      id = r.requestId;
+    } else {
+      const sub = await fetch(`${MUAPI_BASE}/${model}`, {
+        method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, images_list: hosted, aspect_ratio: 'Auto' }),
       });
-    } catch (e) {}
-    return json(200, { url: finalUrl });
+      const txt = await sub.text();
+      let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
+      if (!sub.ok) {
+        let m = 'Engine HTTP ' + sub.status;
+        if (j && j.detail) m = Array.isArray(j.detail) ? j.detail.map((d) => (d && d.msg) || JSON.stringify(d)).join('; ') : (typeof j.detail === 'string' ? j.detail : JSON.stringify(j.detail));
+        else if (j && (j.error || j.message)) m = (j.error && j.error.message) || j.error || j.message;
+        throw new Error(m);
+      }
+      id = j.request_id || j.id;
+    }
+    if (!id) throw new Error('Engine did not start the job');
+
+    await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'flyer-composite', model, prompt: spec.headline, aspect, credits: cost, status: 'processing', project_id: projectId });
+    // Save the chosen copy/style onto the project now (not waiting for
+    // completion) so it round-trips through a reload even if the render fails.
+    try { await db.from('flyer_projects').update({ text_spec: spec }).eq('id', projectId); } catch (e) {}
+    return json(200, { request_id: id, credits: balance, project_id: projectId });
   } catch (e) {
-    return json(502, { error: (e && e.message) || 'Could not composite the flyer.' });
+    try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
+    return json(502, { error: (e && e.message) || 'Could not start compositing', refunded: cost });
   }
 };
