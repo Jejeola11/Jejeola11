@@ -284,4 +284,37 @@ async function submitVideoEdit({ video, prompt }) {
   return { requestId: 'ws:' + id, provider: 'wavespeed' };
 }
 
-module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle };
+// ---- Flyer Studio image route (WaveSpeed's GPT Image 2) --------------------
+// The model the user specifically wants for "perfect flyer design" — but
+// MuAPI's wrapper for it genuinely takes 50-90s+ of real inference time
+// regardless of quality/resolution settings (confirmed live 2026-07-16,
+// see flyer-hero.js's history). WaveSpeed hosts the SAME OpenAI model
+// independently (confirmed live 2026-07-16 — this was wrongly assumed
+// unavailable before; always verify a provider's catalog directly rather
+// than assuming), and is meaningfully faster: ~38-48s wall-clock, because
+// it defaults to quality:medium/resolution:1k instead of MuAPI's
+// high/2K default, with no visible quality loss (verified by direct
+// image comparison — marble-podium/bokeh product shot). Its aspect_ratio
+// is a real native enum here too (unlike MuAPI's GPT Image 2, which only
+// has 3 fixed sizes) — every ratio Flyer Studio offers (1:1, 4:5, 3:4,
+// 9:16, 16:9) confirmed accepted via live validation-error probing, so no
+// center-crop-after-generation workaround is needed on this route. The
+// edit/image-to-image variant's reference-image field is `images` (a
+// plain array) — NOT `images_list`, which is MuAPI's convention.
+const FLYER_IMAGE_ROUTES = {
+  'gpt-image-2-ws-text-to-image': 'openai/gpt-image-2/text-to-image',
+  'gpt-image-2-ws-edit': 'openai/gpt-image-2/edit',
+};
+// Returns null (never throws) when WAVESPEED_KEY isn't set, so callers can
+// fall back to their own MuAPI route — same graceful-degrade pattern as
+// submitImageGoogle.
+async function submitFlyerImage(model, { prompt, aspect, images }) {
+  const wsModel = FLYER_IMAGE_ROUTES[model];
+  if (!wsModel || !hasWaveSpeed()) return null;
+  const body = { prompt, aspect_ratio: aspect || '4:5' };
+  if (images && images.length) body.images = images;
+  const id = await wsSubmit(wsModel, body);
+  return { requestId: 'ws:' + id, provider: 'wavespeed' };
+}
+
+module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitFlyerImage, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle };

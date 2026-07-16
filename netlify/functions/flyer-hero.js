@@ -2,32 +2,40 @@
 // POST /.netlify/functions/flyer-hero   (Flyer Studio — generate hero visual)
 // Body: { project_id, prompt, aspect }
 // Generates the background/hero visual ONLY (no text/logos — that's
-// composited afterward via flyer-composite.js). Uses nano-banana throughout
-// (switched from GPT Image 2 2026-07-16 — confirmed live that GPT Image 2's
-// MuAPI wrapper genuinely takes 50-90s of real inference time per generation
-// regardless of quality/resolution settings, ~5-7x slower than nano-banana's
-// ~13-19s for comparably photorealistic product/background work, at a lower
-// cost too). When the project has reference images attached (product
-// photos, inspiration flyers — up to 20, set at flyer-brief.js time), uses
-// the image-to-image (edit) variant so those refs are REAL visual grounding
-// on the actual generation, not just something discussed in the abstract;
-// with no references, falls back to plain text-to-image.
+// composited afterward via flyer-composite.js). Uses GPT Image 2 — the
+// model confirmed (both by user testing and by our own quality comparison)
+// to give the most hyper-realistic, "perfect flyer design" result — routed
+// through WaveSpeed rather than MuAPI: MuAPI's wrapper for this exact same
+// OpenAI model genuinely takes 50-90s+ of real inference regardless of
+// quality/resolution settings (confirmed live 2026-07-16), while WaveSpeed's
+// wrapper (confirmed live the same day — WaveSpeed DOES host GPT Image 2,
+// contrary to an earlier wrong assumption here) completes in ~38-48s with no
+// visible quality loss, because it defaults to a lighter quality/resolution
+// tier. Falls back to nano-banana (fast, good quality, but not what was
+// asked for) only if WAVESPEED_KEY isn't configured. When the project has
+// reference images attached (product photos, inspiration flyers — up to 20,
+// set at flyer-brief.js time), uses the image-to-image (edit) variant so
+// those refs are REAL visual grounding on the actual generation, not just
+// something discussed in the abstract; with no references, falls back to
+// plain text-to-image.
 // Async submit + poll via job-status.js, which saves the result onto the
 // project (flyer_projects.hero_image_url) when it completes.
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { IMAGE_MODELS, canUseFree } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
+const { submitFlyerImage, hasWaveSpeed } = require('./_providers');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
-const MODEL_T2I = 'nano-banana';
-const MODEL_I2I = 'nano-banana-edit';
-// nano-banana accepts a real aspect_ratio enum directly (confirmed live via
-// a validation-error probe: '1:1','3:4','4:3','9:16','16:9','3:2','2:3',
-// '5:4','4:5','21:9') — unlike GPT Image 2, which only has 3 fixed sizes and
-// needed a center-crop-after-generation workaround for everything else.
-// Every aspect this app offers is natively supported, so that's passed
-// straight through with no mapping/cropping needed.
+const MODEL_T2I = 'gpt-image-2-ws-text-to-image';
+const MODEL_I2I = 'gpt-image-2-ws-edit';
+const FALLBACK_T2I = 'nano-banana';
+const FALLBACK_I2I = 'nano-banana-edit';
+// GPT Image 2 (via WaveSpeed) takes a real aspect_ratio enum directly
+// (confirmed live via validation-error probing AND by successfully
+// submitting every ratio Flyer Studio offers: '1:1','4:5','3:4','9:16',
+// '16:9') — no center-crop-after-generation workaround needed on this
+// route, unlike MuAPI's GPT Image 2 which only has 3 fixed sizes.
 
 exports.handler = async (event) => {
   let db, user, cost = 0;
@@ -60,17 +68,18 @@ exports.handler = async (event) => {
       // library is bookkeeping, separate from what this specific render uses.
       const stored = Array.isArray(project.reference_image_urls) ? project.reference_image_urls : [];
       const library = Array.from(new Set([...stored, ...referenceImageUrls])).slice(0, 20);
-      if (library.length !== stored.length) {
-        try { await db.from('flyer_projects').update({ reference_image_urls: library }).eq('id', projectId); } catch (e) {}
-      }
+      const projUpdate = { aspect };
+      if (library.length !== stored.length) projUpdate.reference_image_urls = library;
+      try { await db.from('flyer_projects').update(projUpdate).eq('id', projectId); } catch (e) {}
     } else {
       // Generating straight from a typed prompt with no chat/project yet —
       // create one on the fly so this still slots into the same iterate-
       // and-layer flow afterward.
-      const { data: newProj } = await db.from('flyer_projects').insert({ user_id: user.id, brief: prompt, reference_image_urls: referenceImageUrls }).select().single();
+      const { data: newProj } = await db.from('flyer_projects').insert({ user_id: user.id, brief: prompt, reference_image_urls: referenceImageUrls, aspect }).select().single();
       projectId = newProj && newProj.id;
     }
-    const model = refs.length ? MODEL_I2I : MODEL_T2I;
+    const wantsWS = hasWaveSpeed();
+    const model = wantsWS ? (refs.length ? MODEL_I2I : MODEL_T2I) : (refs.length ? FALLBACK_I2I : FALLBACK_T2I);
 
     let plan = 'pro', isAdmin = false;
     try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
@@ -83,7 +92,6 @@ exports.handler = async (event) => {
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
-    const payload = { prompt, aspect_ratio: aspect };
     // Re-hosting on MuAPI's CDN happens concurrently inside this one function
     // call, and the whole submit only returns once every one of these
     // resolves. Capped at 3 so a slow reference (or several) can't stack up
@@ -91,21 +99,32 @@ exports.handler = async (event) => {
     // genuinely ground the generation (product shot, one style reference,
     // one layout reference). Each hosting call also has its own timeout —
     // see muapiHostFile in _muapi.js — so one slow reference can't stall the
-    // submission either way.
-    if (refs.length) payload.images_list = await Promise.all(refs.slice(0, 3).map(muapiHostImage));
-    const sub = await fetch(`${MUAPI_BASE}/${model}`, {
-      method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const txt = await sub.text();
-    let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
-    if (!sub.ok) {
-      let m = 'Engine HTTP ' + sub.status;
-      if (j && j.detail) m = Array.isArray(j.detail) ? j.detail.map((d) => (d && d.msg) || JSON.stringify(d)).join('; ') : (typeof j.detail === 'string' ? j.detail : JSON.stringify(j.detail));
-      else if (j && (j.error || j.message)) m = (j.error && j.error.message) || j.error || j.message;
-      throw new Error(m);
+    // submission either way. Both the WaveSpeed and MuAPI routes can fetch
+    // cdn.muapi.ai URLs (confirmed live), so the same hosted refs work either way.
+    const hostedRefs = refs.length ? await Promise.all(refs.slice(0, 3).map(muapiHostImage)) : [];
+
+    let id;
+    if (wantsWS) {
+      const r = await submitFlyerImage(model, { prompt, aspect, images: hostedRefs });
+      if (!r) throw new Error('WaveSpeed did not start the job');
+      id = r.requestId;
+    } else {
+      const payload = { prompt, aspect_ratio: aspect };
+      if (hostedRefs.length) payload.images_list = hostedRefs;
+      const sub = await fetch(`${MUAPI_BASE}/${model}`, {
+        method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const txt = await sub.text();
+      let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
+      if (!sub.ok) {
+        let m = 'Engine HTTP ' + sub.status;
+        if (j && j.detail) m = Array.isArray(j.detail) ? j.detail.map((d) => (d && d.msg) || JSON.stringify(d)).join('; ') : (typeof j.detail === 'string' ? j.detail : JSON.stringify(j.detail));
+        else if (j && (j.error || j.message)) m = (j.error && j.error.message) || j.error || j.message;
+        throw new Error(m);
+      }
+      id = j.request_id || j.id;
     }
-    const id = j.request_id || j.id;
     if (!id) throw new Error('Engine did not start the job');
 
     await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'flyer-hero', model, prompt, aspect, credits: cost, status: 'processing', project_id: projectId });
