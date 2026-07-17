@@ -13,7 +13,7 @@
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { REACTOR_COST, canUseFree } = require('./_packs');
 const { buildDesignBrainPrompt } = require('./_flyer-knowledge');
-const { chatCompletion, hasWaveSpeed } = require('./_providers');
+const { hasWaveSpeed, encodeModelImage } = require('./_providers');
 
 const MODEL = 'claude-sonnet-4-5';
 
@@ -118,11 +118,12 @@ exports.handler = async (event) => {
     const projectNote = project ? `\n\nCurrent project brief: ${project.brief}${project.niche ? ` (niche: ${project.niche})` : ''}${project.hero_prompt ? `\nCurrent hero visual prompt in use: ${project.hero_prompt}` : ''}` : '';
     const fullPrompt = `${SYSTEM_PREAMBLE}${refNote}${projectNote}\n\n${convo ? convo + '\n' : ''}USER: ${message}`;
 
-    // WaveSpeed's LLM endpoint is genuinely synchronous — the completion
-    // comes back in this same call, no request_id/poll cycle. A synthetic
-    // id is still inserted into `jobs` (status already 'completed') purely
-    // so the frontend's existing poll-once flow keeps working unchanged.
-    const text = await chatCompletion({ prompt: fullPrompt, imageUrl: refs[0] });
+    // A rich brief response can genuinely take longer than Netlify's own
+    // function timeout — confirmed live 2026-07-17. So this just inserts a
+    // pending job with everything job-status.js needs (the full prompt,
+    // plus the reference image encoded into `model`) and returns
+    // immediately; the actual WaveSpeed call happens lazily on the first
+    // poll, same lazy-completion pattern already used for Resemble audio.
     const id = 'wsllm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
 
     let projectId = project && project.id;
@@ -134,8 +135,8 @@ exports.handler = async (event) => {
     }
 
     await db.from('jobs').insert({
-      request_id: id, user_id: user.id, kind: 'flyer-brief', model: MODEL, prompt: message, credits: cost,
-      status: 'completed', output_text: text, project_id: projectId,
+      request_id: id, user_id: user.id, kind: 'flyer-brief', model: encodeModelImage(MODEL, refs[0]), prompt: fullPrompt, credits: cost,
+      status: 'processing', project_id: projectId,
     });
     return json(200, { request_id: id, credits: balance, project_id: projectId });
   } catch (e) {

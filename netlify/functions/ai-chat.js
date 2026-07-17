@@ -10,7 +10,7 @@
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { REACTOR_COST, canUseFree } = require('./_packs');
-const { chatCompletion, hasWaveSpeed } = require('./_providers');
+const { hasWaveSpeed, encodeModelImage } = require('./_providers');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
@@ -39,15 +39,15 @@ exports.handler = async (event) => {
   if (balance === null) return json(402, { error: 'Not enough credits.', code: 'NO_CREDITS' });
 
   try {
-    // WaveSpeed's LLM endpoint is genuinely synchronous, so this now
-    // answers directly in this same call — the synthetic id below only
-    // exists so the frontend's existing poll-once flow keeps working
-    // unchanged (job-status.js sees status already 'completed').
-    const text = await chatCompletion({ prompt, imageUrl: images[0], model });
+    // A rich reply (especially with an image attached) can genuinely take
+    // longer than Netlify's own function timeout — confirmed live
+    // 2026-07-17. So this just inserts a pending job and returns
+    // immediately; job-status.js does the actual WaveSpeed call lazily on
+    // its first poll.
     const id = 'wsllm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     await db.from('jobs').insert({
-      request_id: id, user_id: user.id, kind: 'chat', model, prompt, credits: cost,
-      status: 'completed', output_text: text,
+      request_id: id, user_id: user.id, kind: 'chat', model: encodeModelImage(model, images[0]), prompt, credits: cost,
+      status: 'processing',
     });
     return json(200, { request_id: id, credits: balance });
   } catch (e) {

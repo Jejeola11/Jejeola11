@@ -11,7 +11,7 @@
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { REACTOR_COST, canUseFree } = require('./_packs');
 const { buildEditingBrainPrompt } = require('./_video-knowledge');
-const { chatCompletion, hasWaveSpeed } = require('./_providers');
+const { hasWaveSpeed, encodeModelImage } = require('./_providers');
 
 const MODEL = 'claude-sonnet-4-5';
 
@@ -81,11 +81,10 @@ exports.handler = async (event) => {
     const transcriptNote = transcriptText ? `\n\nVideo transcript:\n"""${transcriptText}"""` : '\n\n(No transcript yet — reason from the user\'s description alone.)';
     const fullPrompt = `${SYSTEM_PREAMBLE}${transcriptNote}\n\n${convo ? convo + '\n' : ''}USER: ${message}`;
 
-    const text = await chatCompletion({ prompt: fullPrompt, model: MODEL });
     const id = 'wsllm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     await db.from('jobs').insert({
-      request_id: id, user_id: user.id, kind: 'video-edit-brief', model: MODEL, prompt: message, credits: cost,
-      status: 'completed', output_text: text, project_id: project.id,
+      request_id: id, user_id: user.id, kind: 'video-edit-brief', model: encodeModelImage(MODEL, null), prompt: fullPrompt, credits: cost,
+      status: 'processing', project_id: project.id,
     });
     return json(200, { request_id: id, credits: balance, project_id: project.id });
   } catch (e) {

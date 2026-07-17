@@ -5,7 +5,7 @@
 // The browser calls this every few seconds until done.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
-const { pollAny, synthesizeResemble } = require('./_providers');
+const { pollAny, synthesizeResemble, chatCompletion, decodeModelImage } = require('./_providers');
 const { cropToAspect } = require('./_canvas');
 const { splitScript, RESEMBLE_BATCH_CHARS } = require('./_avatar-video');
 const { ensureWorkDir, cleanupTmp, concatAudio, uploadToStorage } = require('./_ffmpeg');
@@ -117,27 +117,32 @@ exports.handler = async (event) => {
     }
   }
 
-  // Chat jobs (Fuse Reactor) and Flyer Studio's design-assistant calls are
-  // always MuAPI text models — poll directly for the raw body extractText()
-  // needs. flyer-brief/video-edit-brief responses are plain tagged text
-  // (<REPLY>...</REPLY> etc.) — the browser regex-extracts each tag.
+  // Chat jobs (Fuse Reactor) and Flyer Studio's/Editing Studio's design-
+  // assistant calls never got a real external request_id at submit time
+  // (each of those functions only inserts a pending row now) — the actual
+  // WaveSpeed LLM call happens right here, lazily, on this first poll.
+  // Same reasoning as the Resemble audio branch above: a rich reply can
+  // genuinely take longer than Netlify's own function timeout, so doing it
+  // during the original POST risked an HTML timeout page crashing the
+  // frontend's response.json() ("Unexpected token '<'") — confirmed live
+  // 2026-07-17 on Flyer Studio's brief chat right after this moved off
+  // MuAPI. Isolating it to a single retry-able poll cycle instead means a
+  // slow reply just costs one more 6s wait, not a hard failure.
   if (isTextKind) {
-    let p;
+    const { model, imageUrl } = decodeModelImage(job.model);
     try {
-      p = await (await fetch(`${MUAPI_BASE}/predictions/${id}/result`, { headers: { 'x-api-key': process.env.MUAPI_KEY } })).json();
-    } catch (e) { return json(200, { status: 'processing' }); }
-    if (p.status === 'completed') {
-      const text = extractText(p);
-      if (!text) return json(200, { status: 'processing' });
+      const text = await chatCompletion({ prompt: job.prompt, imageUrl, model });
       await db.from('jobs').update({ status: 'completed', output_text: text }).eq('request_id', id);
       return json(200, { status: 'completed', text });
+    } catch (e) {
+      const ageMs = Date.now() - new Date(job.created_at).getTime();
+      if (ageMs > 90000) {
+        await db.rpc('add_credits', { uid: user.id, amount: job.credits, why: 'refund' });
+        await db.from('jobs').update({ status: 'failed' }).eq('request_id', id);
+        return json(200, { status: 'failed', error: (e && e.message) || 'AI failed' });
+      }
+      return json(200, { status: 'processing' });
     }
-    if (p.status === 'failed' || p.status === 'cancelled') {
-      await db.rpc('add_credits', { uid: user.id, amount: job.credits, why: 'refund' });
-      await db.from('jobs').update({ status: 'failed' }).eq('request_id', id);
-      return json(200, { status: 'failed', error: 'AI ' + p.status });
-    }
-    return json(200, { status: 'processing' });
   }
 
   // Video / avatar / modelsheet: pollAny routes by the request_id prefix

@@ -10,7 +10,7 @@
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { REACTOR_COST, canUseFree } = require('./_packs');
-const { chatCompletion, hasWaveSpeed } = require('./_providers');
+const { hasWaveSpeed, encodeModelImage } = require('./_providers');
 
 const MODEL = 'claude-sonnet-4-5';
 
@@ -43,11 +43,10 @@ exports.handler = async (event) => {
   if (balance === null) return json(402, { error: 'Not enough credits.', code: 'NO_CREDITS' });
 
   try {
-    const text = await chatCompletion({ prompt: SYSTEM, imageUrl: project.hero_image_url, model: MODEL });
     const id = 'wsllm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     await db.from('jobs').insert({
-      request_id: id, user_id: user.id, kind: 'flyer-suggest-layers', model: MODEL, prompt: 'suggest layers', credits: cost,
-      status: 'completed', output_text: text, project_id: projectId,
+      request_id: id, user_id: user.id, kind: 'flyer-suggest-layers', model: encodeModelImage(MODEL, project.hero_image_url), prompt: SYSTEM, credits: cost,
+      status: 'processing', project_id: projectId,
     });
     return json(200, { request_id: id, credits: balance });
   } catch (e) {

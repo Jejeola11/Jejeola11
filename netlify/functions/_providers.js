@@ -63,6 +63,27 @@ const REACTOR_MODEL_MAP = {
   'gemini-2-5-flash': 'google/gemini-2.5-flash',
 };
 
+// A chat/brief call can genuinely take longer than Netlify's own function
+// timeout for a rich response (a full flyer brief, a long edit plan) —
+// confirmed live 2026-07-17 (the exact same failure mode Resemble's long
+// scripts hit): the platform kills the request and returns its own HTML
+// error page, which crashes the frontend's response.json() with
+// "Unexpected token '<'". So every chat/brief endpoint now just inserts a
+// 'processing' job and returns immediately; job-status.js does the actual
+// chatCompletion() call lazily on its first poll, same lazy-completion
+// shape already used for Resemble audio. The optional reference image
+// (vision calls only ever use one) rides along encoded into the `model`
+// column since jobs has no dedicated column for it.
+const MODEL_IMG_SEP = '::img::';
+function encodeModelImage(model, imageUrl) {
+  return imageUrl ? `${model}${MODEL_IMG_SEP}${imageUrl}` : model;
+}
+function decodeModelImage(encoded) {
+  const idx = (encoded || '').indexOf(MODEL_IMG_SEP);
+  if (idx === -1) return { model: encoded, imageUrl: null };
+  return { model: encoded.slice(0, idx), imageUrl: encoded.slice(idx + MODEL_IMG_SEP.length) };
+}
+
 async function chatCompletion({ prompt, imageUrl, model }) {
   if (!hasWaveSpeed()) throw new Error('WAVESPEED_KEY missing.');
   const content = imageUrl
@@ -502,4 +523,4 @@ async function submitToolWS(slug, { image, prompt }) {
   return { requestId: 'ws:' + id, provider: 'wavespeed' };
 }
 
-module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitFlyerImage, submitImageWS, submitToolWS, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle, synthesizeResemble, listResembleVoices, hasResemble, chatCompletion };
+module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitFlyerImage, submitImageWS, submitToolWS, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle, synthesizeResemble, listResembleVoices, hasResemble, chatCompletion, encodeModelImage, decodeModelImage };
