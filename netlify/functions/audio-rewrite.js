@@ -10,13 +10,10 @@
 // WaveSpeed's Omnivoice, which would just read the literal tag text aloud.
 // Free — a lightweight text transform over a script already being paid for
 // at the actual voice-generation step, not a generation itself.
-// Uses the same MuAPI Claude wrapper as flyer-brief.js's design assistant.
+// Uses the same WaveSpeed LLM endpoint as flyer-brief.js's design assistant.
 // ============================================================
 const { getUser, json } = require('./_supabase');
-const { extractErrorMessage } = require('./_errors');
-
-const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
-const MODEL = 'claude-sonnet-4-5';
+const { chatCompletion, hasWaveSpeed } = require('./_providers');
 
 const SYSTEM_PROMPT = `You rewrite scripts into performance-ready text for Resemble AI's text-to-speech engine, so the spoken result sounds like a real, warm, human delivery instead of a flat read.
 
@@ -36,7 +33,7 @@ Rules:
 exports.handler = async (event) => {
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
-    if (!process.env.MUAPI_KEY) return json(503, { error: 'This is being connected (MUAPI_KEY missing).' });
+    if (!hasWaveSpeed()) return json(503, { error: 'This is being connected (WAVESPEED_KEY missing).' });
 
     const user = await getUser(event);
     if (!user) return json(401, { error: 'Please sign in again.' });
@@ -45,32 +42,8 @@ exports.handler = async (event) => {
     const text = (body.text || '').trim();
     if (!text) return json(400, { error: 'Write the script first.' });
 
-    const sub = await fetch(`${MUAPI_BASE}/${MODEL}`, {
-      method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: `${SYSTEM_PROMPT}\n\nSCRIPT TO REWRITE:\n${text}` }),
-    });
-    const j = await sub.json().catch(() => ({}));
-    if (!sub.ok) throw new Error(extractErrorMessage(j) || `Engine HTTP ${sub.status}`);
-
-    const raw = j.output_text || j.text || (Array.isArray(j.output) && j.output.map((o) => o.content || o.text).join('')) || j.content;
-    if (raw) return json(200, { text: String(raw).trim() });
-
-    // Some MuAPI text models return an async request_id instead of the text
-    // immediately — poll once here (a rewrite this short finishes fast) so
-    // the frontend doesn't need its own polling logic for this one call.
-    const id = j.request_id || j.id;
-    if (!id) throw new Error('Engine did not return text or a job id.');
-    for (let i = 0; i < 10; i++) {
-      await new Promise((r) => setTimeout(r, 1500));
-      const p = await (await fetch(`${MUAPI_BASE}/predictions/${id}/result`, { headers: { 'x-api-key': process.env.MUAPI_KEY } })).json();
-      if (p.status === 'completed') {
-        const out = (p.outputs && p.outputs[0]) || p.output_text || p.text;
-        if (out) return json(200, { text: String(out).trim() });
-        throw new Error('Engine returned no text.');
-      }
-      if (p.status === 'failed' || p.status === 'cancelled') throw new Error('Rewrite failed.');
-    }
-    throw new Error('Still working — try again in a moment.');
+    const rewritten = await chatCompletion({ prompt: `${SYSTEM_PROMPT}\n\nSCRIPT TO REWRITE:\n${text}` });
+    return json(200, { text: rewritten.trim() });
   } catch (e) {
     return json(502, { error: (e && e.message) || 'Could not rewrite the script.' });
   }

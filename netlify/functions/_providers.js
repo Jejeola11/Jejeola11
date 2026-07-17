@@ -34,6 +34,53 @@ const hasWaveSpeed = () => !!process.env.WAVESPEED_KEY;
 // watching. Test with a small manual generation before relying on it.
 const hasGoogle = () => !!process.env.GEMINI_API_KEY;
 
+// ---- WaveSpeed's own LLM API (replaces MuAPI's Claude wrapper) -------------
+// A genuine unified, OpenAI-compatible chat-completions endpoint — 260+
+// models including Claude, through the SAME WAVESPEED_KEY already used for
+// every image/video/audio route above. Confirmed live 2026-07-17:
+//   POST https://llm.wavespeed.ai/v1/chat/completions
+//   Authorization: Bearer <WAVESPEED_KEY>
+//   body: { model, messages: [{ role, content }] }
+//     content can be a plain string, OR an array of
+//     [{type:'text',text}, {type:'image_url', image_url:{url}}] for vision.
+//   Genuinely SYNCHRONOUS — the completion is in the same response, no
+//   request_id/poll cycle (unlike MuAPI's Claude wrapper, which is async).
+// Model slug is 'anthropic/claude-sonnet-4.5' (note the DOT, not the dash
+// MuAPI used) — every other plausible slug returned a clean 404 first.
+const WS_LLM_BASE = 'https://llm.wavespeed.ai/v1';
+const WS_LLM_MODEL = 'anthropic/claude-sonnet-4.5';
+
+// Fuse Reactor's internal model keys (dash-separated, matching _packs.js's
+// REACTOR_COST) -> WaveSpeed's actual LLM slugs (provider-prefixed, dotted
+// version numbers) — every one confirmed live 2026-07-17.
+const REACTOR_MODEL_MAP = {
+  'claude-sonnet-4-5': 'anthropic/claude-sonnet-4.5',
+  'claude-opus-4-5': 'anthropic/claude-opus-4.5',
+  'claude-haiku-4-5': 'anthropic/claude-haiku-4.5',
+  'gpt-5-5': 'openai/gpt-5.5',
+  'gpt-5-2': 'openai/gpt-5.2',
+  'gemini-2-5-pro': 'google/gemini-2.5-pro',
+  'gemini-2-5-flash': 'google/gemini-2.5-flash',
+};
+
+async function chatCompletion({ prompt, imageUrl, model }) {
+  if (!hasWaveSpeed()) throw new Error('WAVESPEED_KEY missing.');
+  const content = imageUrl
+    ? [{ type: 'text', text: prompt }, { type: 'image_url', image_url: { url: imageUrl } }]
+    : prompt;
+  const wsModel = (model && REACTOR_MODEL_MAP[model]) || model || WS_LLM_MODEL;
+  const res = await fetch(`${WS_LLM_BASE}/chat/completions`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${process.env.WAVESPEED_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: wsModel, messages: [{ role: 'user', content }] }),
+  });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((j && j.error && j.error.message) || `WaveSpeed LLM HTTP ${res.status}`);
+  const text = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+  if (!text) throw new Error('WaveSpeed LLM returned no text.');
+  return text;
+}
+
 // ---- WaveSpeed video routes -------------------------------------------------
 // internal app slug -> how to build the WaveSpeed request. `pick` chooses the
 // actual WaveSpeed model id (resolution is a separate model there, not a param).
@@ -455,4 +502,4 @@ async function submitToolWS(slug, { image, prompt }) {
   return { requestId: 'ws:' + id, provider: 'wavespeed' };
 }
 
-module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitFlyerImage, submitImageWS, submitToolWS, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle, synthesizeResemble, listResembleVoices, hasResemble };
+module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitFlyerImage, submitImageWS, submitToolWS, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle, synthesizeResemble, listResembleVoices, hasResemble, chatCompletion };

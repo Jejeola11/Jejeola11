@@ -11,9 +11,8 @@
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { REACTOR_COST, canUseFree } = require('./_packs');
 const { buildEditingBrainPrompt } = require('./_video-knowledge');
-const { extractErrorMessage } = require('./_errors');
+const { chatCompletion, hasWaveSpeed } = require('./_providers');
 
-const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 const MODEL = 'claude-sonnet-4-5';
 
 const SYSTEM_PREAMBLE = `You are the senior short-form video editor inside "Video Editing Studio." You are having a real editing conversation with the user, working from their uploaded video's transcript (when available) and their instructions — the goal is a genuinely attention-grabbing, conversion-ready edit, not just a technically correct one.
@@ -46,20 +45,9 @@ The exact on-screen CTA text to burn in, e.g. COMMENT "AI" BELOW — or leave em
 Any other specific edit notes — cuts to make, moments to emphasize — or leave empty.
 </NOTES>`;
 
-function extractText(p) {
-  if (!p) return '';
-  if (typeof p.output === 'string') return p.output;
-  if (typeof p.text === 'string') return p.text;
-  if (typeof p.result === 'string') return p.result;
-  if (Array.isArray(p.outputs) && p.outputs.length) return String(p.outputs[0]);
-  if (p.choices && p.choices[0] && p.choices[0].message) return p.choices[0].message.content;
-  if (p.output && typeof p.output === 'object') return p.output.text || '';
-  return '';
-}
-
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
-  if (!process.env.MUAPI_KEY) return json(503, { error: 'Editing Studio is being connected (MUAPI_KEY missing).' });
+  if (!hasWaveSpeed()) return json(503, { error: 'Editing Studio is being connected (WAVESPEED_KEY missing).' });
 
   const user = await getUser(event);
   if (!user) return json(401, { error: 'Please sign in again.' });
@@ -93,20 +81,11 @@ exports.handler = async (event) => {
     const transcriptNote = transcriptText ? `\n\nVideo transcript:\n"""${transcriptText}"""` : '\n\n(No transcript yet — reason from the user\'s description alone.)';
     const fullPrompt = `${SYSTEM_PREAMBLE}${transcriptNote}\n\n${convo ? convo + '\n' : ''}USER: ${message}`;
 
-    const sub = await fetch(`${MUAPI_BASE}/${MODEL}`, {
-      method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: fullPrompt }),
-    });
-    const txt = await sub.text();
-    let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
-    if (!sub.ok) throw new Error(extractErrorMessage(j) || ('Engine HTTP ' + sub.status));
-    const id = j.request_id || j.id;
-    if (!id) throw new Error('Engine did not return a job id.');
-
-    const immediate = extractText(j);
+    const text = await chatCompletion({ prompt: fullPrompt, model: MODEL });
+    const id = 'wsllm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     await db.from('jobs').insert({
       request_id: id, user_id: user.id, kind: 'video-edit-brief', model: MODEL, prompt: message, credits: cost,
-      status: immediate ? 'completed' : 'processing', output_text: immediate || null, project_id: project.id,
+      status: 'completed', output_text: text, project_id: project.id,
     });
     return json(200, { request_id: id, credits: balance, project_id: project.id });
   } catch (e) {

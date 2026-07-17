@@ -13,9 +13,8 @@
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { REACTOR_COST, canUseFree } = require('./_packs');
 const { buildDesignBrainPrompt } = require('./_flyer-knowledge');
-const { extractErrorMessage } = require('./_errors');
+const { chatCompletion, hasWaveSpeed } = require('./_providers');
 
-const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 const MODEL = 'claude-sonnet-4-5';
 
 const SYSTEM_PREAMBLE = `You are the senior creative director inside "Flyer Studio," an AI flyer/poster design tool. You run a real design process, out loud, in the chat, in three steps — you NEVER skip straight to generating without the user first seeing and approving a genuinely complete brief. A vague or partial brief is a failure — the user must be able to read the whole plan and know exactly what they're about to get.
@@ -77,20 +76,9 @@ A short niche label you inferred, e.g. web3, fitness, real estate — or leave e
 - a second suggestion if useful
 </NEXT_STEPS>`;
 
-function extractText(p) {
-  if (!p) return '';
-  if (typeof p.output === 'string') return p.output;
-  if (typeof p.text === 'string') return p.text;
-  if (typeof p.result === 'string') return p.result;
-  if (Array.isArray(p.outputs) && p.outputs.length) return String(p.outputs[0]);
-  if (p.choices && p.choices[0] && p.choices[0].message) return p.choices[0].message.content;
-  if (p.output && typeof p.output === 'object') return p.output.text || '';
-  return '';
-}
-
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
-  if (!process.env.MUAPI_KEY) return json(503, { error: 'Flyer Studio is being connected (MUAPI_KEY missing).' });
+  if (!hasWaveSpeed()) return json(503, { error: 'Flyer Studio is being connected (WAVESPEED_KEY missing).' });
 
   const user = await getUser(event);
   if (!user) return json(401, { error: 'Please sign in again.' });
@@ -130,17 +118,12 @@ exports.handler = async (event) => {
     const projectNote = project ? `\n\nCurrent project brief: ${project.brief}${project.niche ? ` (niche: ${project.niche})` : ''}${project.hero_prompt ? `\nCurrent hero visual prompt in use: ${project.hero_prompt}` : ''}` : '';
     const fullPrompt = `${SYSTEM_PREAMBLE}${refNote}${projectNote}\n\n${convo ? convo + '\n' : ''}USER: ${message}`;
 
-    const payload = { prompt: fullPrompt };
-    if (refs.length) payload.image_url = refs[0];
-    const sub = await fetch(`${MUAPI_BASE}/${MODEL}`, {
-      method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const txt = await sub.text();
-    let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
-    if (!sub.ok) throw new Error(extractErrorMessage(j) || ('Engine HTTP ' + sub.status));
-    const id = j.request_id || j.id;
-    if (!id) throw new Error('Engine did not return a job id.');
+    // WaveSpeed's LLM endpoint is genuinely synchronous — the completion
+    // comes back in this same call, no request_id/poll cycle. A synthetic
+    // id is still inserted into `jobs` (status already 'completed') purely
+    // so the frontend's existing poll-once flow keeps working unchanged.
+    const text = await chatCompletion({ prompt: fullPrompt, imageUrl: refs[0] });
+    const id = 'wsllm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
 
     let projectId = project && project.id;
     if (!projectId) {
@@ -150,10 +133,9 @@ exports.handler = async (event) => {
       await db.from('flyer_projects').update({ reference_image_urls: refs }).eq('id', projectId);
     }
 
-    const immediate = extractText(j);
     await db.from('jobs').insert({
       request_id: id, user_id: user.id, kind: 'flyer-brief', model: MODEL, prompt: message, credits: cost,
-      status: immediate ? 'completed' : 'processing', output_text: immediate || null, project_id: projectId,
+      status: 'completed', output_text: text, project_id: projectId,
     });
     return json(200, { request_id: id, credits: balance, project_id: projectId });
   } catch (e) {

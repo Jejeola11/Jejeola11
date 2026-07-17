@@ -10,24 +10,11 @@
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { REACTOR_COST, canUseFree } = require('./_packs');
-const { extractErrorMessage } = require('./_errors');
-
-const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
-
-function extractText(p) {
-  if (!p) return '';
-  if (typeof p.output === 'string') return p.output;
-  if (typeof p.text === 'string') return p.text;
-  if (typeof p.result === 'string') return p.result;
-  if (Array.isArray(p.outputs) && p.outputs.length) return String(p.outputs[0]);
-  if (p.choices && p.choices[0] && p.choices[0].message) return p.choices[0].message.content;
-  if (p.output && typeof p.output === 'object') return p.output.text || '';
-  return '';
-}
+const { chatCompletion, hasWaveSpeed } = require('./_providers');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
-  if (!process.env.MUAPI_KEY) return json(503, { error: 'Engine not connected (MUAPI_KEY missing).' });
+  if (!hasWaveSpeed()) return json(503, { error: 'Engine not connected (WAVESPEED_KEY missing).' });
 
   const user = await getUser(event);
   if (!user) return json(401, { error: 'Please sign in again.' });
@@ -51,30 +38,16 @@ exports.handler = async (event) => {
   const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
   if (balance === null) return json(402, { error: 'Not enough credits.', code: 'NO_CREDITS' });
 
-  const key = process.env.MUAPI_KEY;
   try {
-    // Confirmed against MuAPI's own /models/{slug} schema for every Reactor text
-    // model (claude-sonnet-4-5, claude-opus-4-5, claude-haiku-4-5, gpt-5-5,
-    // gpt-5-2, gemini-2-5-pro, gemini-2-5-flash): the only image field they
-    // accept is a SINGULAR "image_url" string.
-    const payload = { prompt };
-    if (images.length) payload.image_url = images[0];
-    const submit = await fetch(`${MUAPI_BASE}/${model}`, {
-      method: 'POST',
-      headers: { 'x-api-key': key, 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const txt = await submit.text();
-    let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
-    if (!submit.ok) { console.error('[ai-chat] MuAPI rejected the request:', txt.slice(0, 500)); throw new Error(extractErrorMessage(j) || ('Engine HTTP ' + submit.status)); }
-
-    const id = j.request_id || j.id;
-    if (!id) throw new Error('Engine did not return a job id.');
-    // Some models answer immediately in the submit response — save the trip.
-    const immediate = extractText(j);
+    // WaveSpeed's LLM endpoint is genuinely synchronous, so this now
+    // answers directly in this same call — the synthetic id below only
+    // exists so the frontend's existing poll-once flow keeps working
+    // unchanged (job-status.js sees status already 'completed').
+    const text = await chatCompletion({ prompt, imageUrl: images[0], model });
+    const id = 'wsllm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     await db.from('jobs').insert({
       request_id: id, user_id: user.id, kind: 'chat', model, prompt, credits: cost,
-      status: immediate ? 'completed' : 'processing', output_text: immediate || null,
+      status: 'completed', output_text: text,
     });
     return json(200, { request_id: id, credits: balance });
   } catch (e) {
