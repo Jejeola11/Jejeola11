@@ -14,14 +14,19 @@
 //   engine: 'resemble' — a second, higher-fidelity option using a voice
 //     already trained once in Resemble's own dashboard (resemble_voice_uuid
 //     identifies which one — see resemble-voices.js for the picker list).
-//     Resemble's /synthesize call is genuinely SYNCHRONOUS (audio comes
-//     back in the same request), so this branch does the whole
-//     synth-and-upload right here and returns the finished url directly —
-//     no request_id, no polling.
+//     Resemble's /synthesize call IS synchronous, but doing the actual
+//     synth-and-upload work inside THIS request risks tripping Netlify's
+//     own function execution timeout (cold start + the real API call +
+//     the storage upload, all in one request/response, has no safety
+//     margin the way every other async job in this app has) — so this just
+//     inserts a pending job and returns immediately; job-status.js does the
+//     real work lazily on its first poll (see the "resemble:" model-prefix
+//     branch there), same "user's own poll loop is the heartbeat" pattern
+//     as everything else in this app.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
 const { audioCredits, estimateScriptMinutes } = require('./_packs');
-const { submitSpeech, synthesizeResemble } = require('./_providers');
+const { submitSpeech } = require('./_providers');
 
 const MODEL = 'omnivoice-voice-clone';
 
@@ -51,16 +56,9 @@ exports.handler = async (event) => {
       const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
       if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
-      const { base64, format } = await synthesizeResemble({ text, voiceUuid });
-      const buf = Buffer.from(base64, 'base64');
-      const path = `${user.id}/resemble-${Date.now()}.${format}`;
-      const { error: upErr } = await db.storage.from('avatars').upload(path, buf, { contentType: `audio/${format}`, upsert: true });
-      if (upErr) throw new Error(upErr.message);
-      const url = db.storage.from('avatars').getPublicUrl(path).data.publicUrl;
-
-      await db.from('jobs').insert({ request_id: 'resemble-' + Date.now(), user_id: user.id, kind: 'audio', model: 'resemble', prompt: text, credits: cost, status: 'completed', output_url: url });
-      try { await db.from('generations').insert({ user_id: user.id, type: 'audio', model: 'resemble', prompt: text, output_url: url, credits_spent: cost }); } catch (e) {}
-      return json(200, { done: true, url, credits: balance });
+      const requestId = 'resemble-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+      await db.from('jobs').insert({ request_id: requestId, user_id: user.id, kind: 'audio', model: `resemble:${voiceUuid}`, prompt: text, credits: cost, status: 'processing' });
+      return json(200, { request_id: requestId, credits: balance });
     }
 
     if (!process.env.WAVESPEED_KEY) return json(503, { error: 'Audio Studio is being connected (WAVESPEED_KEY missing).' });

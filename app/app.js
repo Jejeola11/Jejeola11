@@ -3106,17 +3106,10 @@ async function adGenerate() {
     if (res.status === 402) { note('adNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; return; }
     if (!res.ok) throw new Error(d.error || 'Failed');
     $('creditCount').textContent = d.credits;
-    if (d.done) {
-      // Resemble's call already finished synchronously — nothing to queue
-      // or poll, the finished audio is ready right now.
-      $('adResult').innerHTML = `<audio controls src="${d.url}" style="width:100%"></audio>`;
-      note('adNote', '✅ Done.', 'ok');
-    } else {
-      queueJob({ request_id: d.request_id, endpoint: 'job-status', mediaType: 'audio', label: text.slice(0, 60), model: 'audio' });
-      startGlobalPoller();
-      note('adNote', '✅ Started — rolling in Projects now.', 'ok');
-      showView('library');
-    }
+    queueJob({ request_id: d.request_id, endpoint: 'job-status', mediaType: 'audio', label: text.slice(0, 60), model: 'audio' });
+    startGlobalPoller();
+    note('adNote', '✅ Started — rolling in Projects now.', 'ok');
+    showView('library');
     btn.disabled = false; btn.textContent = label;
     $('adScript').value = '';
   } catch (e) { note('adNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }

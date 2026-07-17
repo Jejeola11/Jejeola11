@@ -5,7 +5,7 @@
 // The browser calls this every few seconds until done.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
-const { pollAny } = require('./_providers');
+const { pollAny, synthesizeResemble } = require('./_providers');
 const { cropToAspect } = require('./_canvas');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
@@ -59,6 +59,43 @@ exports.handler = async (event) => {
     return isTextKind ? json(200, { status: 'completed', text: job.output_text }) : json(200, { status: 'completed', url: job.output_url });
   }
   if (job.status === 'failed') return json(200, { status: 'failed' });
+
+  // Resemble voice jobs never got a real external request_id at submit time
+  // (audio-generate.js only inserted a pending row) — the actual synth +
+  // storage upload happens right here, lazily, on this first poll. Doing it
+  // here instead of during the original POST keeps that initial request
+  // fast and keeps this specific poll's own risk of running long isolated
+  // to a single retry-able poll cycle (the browser just asks again in 6s)
+  // rather than crashing the user-facing submit call with a raw timeout.
+  if (job.kind === 'audio' && job.model && job.model.indexOf('resemble:') === 0) {
+    const voiceUuid = job.model.slice('resemble:'.length);
+    try {
+      const { base64, format } = await synthesizeResemble({ text: job.prompt, voiceUuid });
+      const buf = Buffer.from(base64, 'base64');
+      const path = `${user.id}/resemble-${Date.now()}.${format}`;
+      const { error: upErr } = await db.storage.from('avatars').upload(path, buf, { contentType: `audio/${format}`, upsert: true });
+      if (upErr) throw new Error(upErr.message);
+      const url = db.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+      await db.from('jobs').update({ status: 'completed', output_url: url }).eq('request_id', id);
+      try { await db.from('generations').insert({ user_id: user.id, type: 'audio', model: 'resemble', prompt: job.prompt, output_url: url, credits_spent: job.credits }); } catch (e) {}
+      return json(200, { status: 'completed', url });
+    } catch (e) {
+      // A single failed attempt (network blip, cold start) shouldn't burn
+      // the user's credits or dead-end the job — leave it 'processing' so
+      // the next poll just tries again. But an unbounded retry would loop
+      // forever showing "processing" if the failure is real (bad voice
+      // uuid, Resemble account issue) rather than transient — give it
+      // ~90s of retries (the global poller fires every 6s) before giving
+      // up for good and refunding, same as a genuine provider failure would.
+      const ageMs = Date.now() - new Date(job.created_at).getTime();
+      if (ageMs > 90000) {
+        await db.rpc('add_credits', { uid: user.id, amount: job.credits, why: 'refund' });
+        await db.from('jobs').update({ status: 'failed' }).eq('request_id', id);
+        return json(200, { status: 'failed', error: (e && e.message) || 'Resemble synthesis failed.' });
+      }
+      return json(200, { status: 'processing' });
+    }
+  }
 
   // Chat jobs (Fuse Reactor) and Flyer Studio's design-assistant calls are
   // always MuAPI text models — poll directly for the raw body extractText()
