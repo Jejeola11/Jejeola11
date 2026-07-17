@@ -1,3 +1,13 @@
+<!--
+  This site deploys SEPARATELY from the main Fuse Studio app (see the
+  deploy guide) — its own Netlify site, its own domain. Because of that,
+  every link below to the studio itself has to be a FULL absolute URL, not
+  a domain-relative "/studio" path — a relative path would try to load
+  /studio on THIS site's own domain, which doesn't exist here, instead of
+  the real app. Replace https://YOUR-FUSE-STUDIO-DOMAIN.netlify.app below
+  (4 occurrences) with your real Fuse Studio site's actual URL once you
+  know it.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -383,7 +393,7 @@ footer a{color:var(--gold)}
           <li>The Arena challenges</li>
           <li>WhatsApp coach bot</li>
         </ul>
-        <a class="btn btn-ghost" href="/studio?buy=atelier_starter">Start with Starter</a>
+        <a class="btn btn-ghost" href="https://YOUR-FUSE-STUDIO-DOMAIN.netlify.app/studio?buy=atelier_starter">Start with Starter</a>
       </div>
 
       <div class="tier mid rv">
@@ -401,7 +411,7 @@ footer a{color:var(--gold)}
           <li>Full template vault + client scripts</li>
           <li><b>Upwork masterclass</b> — from 12 real jobs, $3k+ earned</li>
         </ul>
-        <a class="btn btn-gold" href="/studio?buy=atelier_creator">Get Creator →</a>
+        <a class="btn btn-gold" href="https://YOUR-FUSE-STUDIO-DOMAIN.netlify.app/studio?buy=atelier_creator">Get Creator →</a>
       </div>
 
       <div class="tier rv">
@@ -417,7 +427,7 @@ footer a{color:var(--gold)}
           <li>Certificate + featured on the wins wall</li>
           <li><b>Limited seats</b> — real capacity, real access</li>
         </ul>
-        <a class="btn btn-ghost" href="/studio?buy=atelier_empire">Claim an Empire seat</a>
+        <a class="btn btn-ghost" href="https://YOUR-FUSE-STUDIO-DOMAIN.netlify.app/studio?buy=atelier_empire">Claim an Empire seat</a>
       </div>
     </div>
     <p class="anchor-note">The old Fuse Atelier sold for <b>₦60,000</b> with less inside it. The merged 2.0 launch price won't stay — <b>enroll while it's open.</b></p>
@@ -465,7 +475,7 @@ footer a{color:var(--gold)}
 </section>
 
 <footer>
-  <div class="wrap">Fuse Atelier · a Fuse Studio product · Paystack-secured checkout · <a href="/studio">Already enrolled? Open the studio →</a></div>
+  <div class="wrap">Fuse Atelier · a Fuse Studio product · Paystack-secured checkout · <a href="https://YOUR-FUSE-STUDIO-DOMAIN.netlify.app/studio">Already enrolled? Open the studio →</a></div>
 </footer>
 
 <!-- ===== Chat bot ===== -->

@@ -14,11 +14,17 @@ window.FUSE = {
   USD_RATE: 1550,
 
   // ===== Payments =====
-  // While Paystack business verification is pending, set mode:'manual' so buyers
-  // pay by bank transfer / Selar and you unlock them with the Admin → Grant tool.
-  // Flip to 'paystack' once your Paystack account is approved — nothing else changes.
+  // Flipped to 'paystack' — the automated checkout (paystack-init.js +
+  // paystack-webhook.js) was already fully built and working, it just
+  // needed this switch turned on. This ONLY takes effect once the real
+  // Paystack account + keys + webhook URL are set up (see the deploy
+  // guide) — until then, paystack-init.js will simply fail its call to
+  // Paystack's API with an auth error, so flipping this early is safe;
+  // it just won't work until the account-side setup is done. 'manual'
+  // (bank transfer / Selar / WhatsApp + Admin → Grant) remains available
+  // as a fallback by switching this back if ever needed.
   PAYMENT: {
-    mode: 'manual',            // 'manual' | 'paystack'
+    mode: 'paystack',            // 'manual' | 'paystack'
     // Your receiving bank account (shown to buyers on the Pay screen).
     bank: { name: 'Opay', number: '9127651634', holder: 'Maryam Jejeola Owoyale' },
     // Optional Selar storefront link (leave '' to hide). Selar accepts cards/transfer, no CAC.
