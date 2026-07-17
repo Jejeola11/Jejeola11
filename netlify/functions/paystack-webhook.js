@@ -9,6 +9,7 @@
 const crypto = require('crypto');
 const { admin } = require('./_supabase');
 const { PACKS, creditsForPack } = require('./_packs');
+const { sweepToBank } = require('./_payout');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method not allowed' };
@@ -92,6 +93,12 @@ exports.handler = async (event) => {
     status: 'success',
     raw: d,
   });
+
+  // 6) Sweep the payment straight to the real bank account (see _payout.js)
+  // instead of waiting on Paystack's own settlement schedule. The customer
+  // already got their credits/unlock above — a payout hiccup here must
+  // never undo that or fail this webhook (Paystack would just retry it).
+  try { await sweepToBank(db, amountNaira, reference); } catch (e) { console.error('payout sweep failed:', e && e.message); }
 
   return { statusCode: 200, body: 'ok' };
 };
