@@ -2030,13 +2030,14 @@ let selectedAvatar = null;
 let avatarMap = {};   // id -> avatar row (incl. model_sheet_url)
 async function loadAvatars() {
   if (preview) { $('avatarList').innerHTML = '<div class="empty" style="grid-column:1/-1">Sign up to create your avatar</div>'; return; }
-  let { data, error } = await sb.from('avatars').select('id,name,image_url,model_sheet_url,status,voice_sample_url,voice_reference_text,source_video_url,trained_frame_url').order('created_at', { ascending: false });
+  let { data, error } = await sb.from('avatars').select('id,name,image_url,model_sheet_url,status,voice_sample_url,voice_reference_text,tts_engine,resemble_voice_uuid,source_video_url,trained_frame_url').order('created_at', { ascending: false });
   if (error) {
-    // voice_reference_text needs schema-phase21.sql run first — if that
-    // migration hasn't happened yet on this database, asking for a column
-    // that doesn't exist fails the WHOLE query (not just that field), which
-    // would otherwise wipe the entire avatar list. Fall back to the older
-    // column set so avatars still show while the migration catches up.
+    // voice_reference_text/tts_engine/resemble_voice_uuid need
+    // schema-phase21/23.sql run first — if those migrations haven't happened
+    // yet on this database, asking for a column that doesn't exist fails the
+    // WHOLE query (not just that field), which would otherwise wipe the
+    // entire avatar list. Fall back to the older column set so avatars still
+    // show while the migration catches up.
     ({ data, error } = await sb.from('avatars').select('id,name,image_url,model_sheet_url,status,voice_sample_url,source_video_url,trained_frame_url').order('created_at', { ascending: false }));
   }
   avatarMap = {}; (data || []).forEach((a) => { avatarMap[a.id] = a; });
@@ -2114,9 +2115,67 @@ function renderAvatarVideoStatus() {
   const a = avatarMap[selectedAvatar] || {};
   $('avVoiceStatus').textContent = a.voice_sample_url ? '✅ Voice sample attached.' : 'No voice sample yet.';
   if ($('avVoiceRefText')) $('avVoiceRefText').value = a.voice_reference_text || '';
+  if ($('avEngine')) { $('avEngine').value = a.tts_engine === 'resemble' ? 'resemble' : 'wavespeed'; avToggleEngine(); }
+  loadAvatarResembleVoices(a.resemble_voice_uuid);
   $('avFaceVideoStatus').textContent = a.trained_frame_url
     ? '✅ Trained from your uploaded video.'
     : 'No training video yet — your model sheet / photos will be used instead.';
+}
+function avToggleEngine() {
+  const isResemble = $('avEngine').value === 'resemble';
+  $('avWaveWrap').style.display = isResemble ? 'none' : 'block';
+  $('avResembleWrap').style.display = isResemble ? 'block' : 'none';
+  if ($('avvRewrite')) $('avvRewrite').style.display = isResemble ? 'inline-block' : 'none';
+}
+async function avvRewriteScript() {
+  const text = $('avvScript').value.trim();
+  if (!text) return note('avvRewriteNote', 'Write the script first.', 'err');
+  const btn = $('avvRewrite'); btn.disabled = true; btn.textContent = 'Rewriting…';
+  note('avvRewriteNote', '');
+  try {
+    const res = await fetch('/.netlify/functions/audio-rewrite', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ text }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    $('avvScript').value = d.text;
+    note('avvRewriteNote', '✅ Rewritten with pacing/emphasis tags — review before generating.', 'ok');
+  } catch (e) { note('avvRewriteNote', e.message || 'Could not rewrite.', 'err'); }
+  btn.disabled = false; btn.textContent = '✨ Rewrite for natural delivery (Resemble only)';
+}
+async function loadAvatarResembleVoices(selectedUuid) {
+  const rsel = $('avResemblePicker');
+  if (!rsel) return;
+  try {
+    const res = await fetch('/.netlify/functions/resemble-voices', { headers: { ...(await authHeader()) } });
+    const d = await res.json();
+    const voices = (d && d.voices) || [];
+    rsel.innerHTML = voices.length
+      ? voices.map((v) => `<option value="${v.uuid}">${(v.name || 'Voice').replace(/</g, '&lt;')}</option>`).join('')
+      : '<option value="">No Resemble voices found on this account yet</option>';
+    if (selectedUuid) rsel.value = selectedUuid;
+  } catch (e) { rsel.innerHTML = '<option value="">Could not load Resemble voices</option>'; }
+}
+async function avSaveEngine() {
+  if (!selectedAvatar) return;
+  const engine = $('avEngine').value;
+  const body = { avatar_id: selectedAvatar, tts_engine: engine };
+  if (engine === 'resemble') {
+    const uuid = $('avResemblePicker').value;
+    if (!uuid) return note('avResembleNote', 'Pick a Resemble voice first.', 'err');
+    body.resemble_voice_uuid = uuid;
+  }
+  try {
+    const res = await fetch('/.netlify/functions/avatar-train', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify(body),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    if (avatarMap[selectedAvatar]) Object.assign(avatarMap[selectedAvatar], { tts_engine: d.tts_engine, resemble_voice_uuid: d.resemble_voice_uuid });
+    note(engine === 'resemble' ? 'avResembleNote' : 'avVoiceNote', '✅ Voice engine saved.', 'ok');
+  } catch (e) { note(engine === 'resemble' ? 'avResembleNote' : 'avVoiceNote', e.message || 'Could not save.', 'err'); }
 }
 async function uploadAvatarVoice(file) {
   if (!selectedAvatar) return note('avVoiceNote', 'Pick an avatar first.', 'err');
@@ -2970,6 +3029,24 @@ function adToggleEngine() {
   const isResemble = $('adEngine').value === 'resemble';
   $('adWaveWrap').style.display = isResemble ? 'none' : 'block';
   $('adResembleWrap').style.display = isResemble ? 'block' : 'none';
+  $('adRewrite').style.display = isResemble ? 'inline-block' : 'none';
+}
+async function adRewriteScript() {
+  const text = $('adScript').value.trim();
+  if (!text) return note('adRewriteNote', 'Write the script first.', 'err');
+  const btn = $('adRewrite'); btn.disabled = true; btn.textContent = 'Rewriting…';
+  note('adRewriteNote', '');
+  try {
+    const res = await fetch('/.netlify/functions/audio-rewrite', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ text }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    $('adScript').value = d.text;
+    note('adRewriteNote', '✅ Rewritten with pacing/emphasis tags — review before generating.', 'ok');
+  } catch (e) { note('adRewriteNote', e.message || 'Could not rewrite.', 'err'); }
+  btn.disabled = false; btn.textContent = '✨ Rewrite for natural delivery (Resemble only)';
 }
 async function saveTrainedVoice() {
   if (preview) { showAuth('signup'); return; }
@@ -3921,9 +3998,12 @@ window.addEventListener('DOMContentLoaded', () => {
   $('bBuild').onclick = buildAvatarPrompt;
   $('avVoicePick').onclick = () => $('avVoiceFile').click();
   $('avVoiceFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadAvatarVoice(f); e.target.value = ''; };
+  $('avEngine').onchange = () => { avToggleEngine(); avSaveEngine(); };
+  $('avResemblePicker').onchange = avSaveEngine;
   $('avFaceVideoPick').onclick = () => $('avFaceVideoFile').click();
   $('avFaceVideoFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadAvatarTrainingVideo(f); e.target.value = ''; };
   $('avvGen').onclick = avvGenerate;
+  $('avvRewrite').onclick = avvRewriteScript;
   $('avvMode').onchange = avvToggleMode;
   $('avvStartFramePick').onclick = () => $('avvStartFrameFile').click();
   $('avvStartFrameFile').onchange = (e) => { avvPickStartFrame(e.target.files[0]); e.target.value = ''; };
@@ -3937,6 +4017,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('adEngine').onchange = adToggleEngine;
   $('adSaveVoice').onclick = saveTrainedVoice;
   $('adGen').onclick = adGenerate;
+  $('adRewrite').onclick = adRewriteScript;
   $('editBack').onclick = () => showView('home');
   $('editVideoPick').onclick = () => $('editVideoFile').click();
   $('editVideoFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadEditVideo(f); e.target.value = ''; };

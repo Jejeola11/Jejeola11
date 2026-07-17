@@ -1,6 +1,6 @@
 // ============================================================
 // POST /.netlify/functions/avatar-train   (AI Avatar Creator — face/voice training)
-// Body: { avatar_id, source_video_url?, voice_sample_url?, voice_reference_text? }
+// Body: { avatar_id, source_video_url?, voice_sample_url?, voice_reference_text?, tts_engine?, resemble_voice_uuid? }
 // `avatars` has no client-facing UPDATE policy (by design — every write goes
 // through a service-role function, see schema-phase4.sql), so this is how
 // the front end attaches a training video / voice sample after uploading
@@ -23,8 +23,10 @@ exports.handler = async (event) => {
     const sourceVideoUrl = (body.source_video_url || '').trim();
     const voiceSampleUrl = (body.voice_sample_url || '').trim();
     const voiceReferenceText = (body.voice_reference_text || '').trim();
+    const ttsEngine = body.tts_engine === 'resemble' ? 'resemble' : null;
+    const resembleVoiceUuid = (body.resemble_voice_uuid || '').trim();
     if (!avatarId) return json(400, { error: 'Missing avatar_id' });
-    if (!sourceVideoUrl && !voiceSampleUrl) return json(400, { error: 'Nothing to train.' });
+    if (!sourceVideoUrl && !voiceSampleUrl && !ttsEngine) return json(400, { error: 'Nothing to train.' });
 
     const db = admin();
     const { data: avatar } = await db.from('avatars').select('id, user_id').eq('id', avatarId).maybeSingle();
@@ -32,6 +34,8 @@ exports.handler = async (event) => {
 
     const update = {};
     if (voiceSampleUrl) { update.voice_sample_url = voiceSampleUrl; update.voice_status = 'ready'; update.voice_reference_text = voiceReferenceText || null; }
+    if (ttsEngine === 'resemble' && resembleVoiceUuid) { update.tts_engine = 'resemble'; update.resemble_voice_uuid = resembleVoiceUuid; update.voice_status = 'ready'; }
+    else if (body.tts_engine === 'wavespeed') { update.tts_engine = 'wavespeed'; }
 
     if (sourceVideoUrl) {
       const jobId = 'train-' + avatarId + '-' + Date.now();

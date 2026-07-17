@@ -37,13 +37,14 @@
 //               MOTION mode chunks are silent — the full narration track
 //               gets muxed on here, once, over the whole concatenated video.
 // ============================================================
-const { submitAvatar, submitVideo, submitSpeech, pollAny } = require('./_providers');
+const { submitAvatar, submitVideo, submitSpeech, synthesizeResemble, pollAny } = require('./_providers');
 const {
   ensureWorkDir, cleanupTmp, downloadToFile, probeDuration,
   extractLastFrame, sliceAudio, concatAudio, concatVideos, muxAudio, uploadToStorage,
 } = require('./_ffmpeg');
 
 const path = require('path');
+const fs = require('fs').promises;
 
 // InfiniteTalk's documented hard cap is ~10 minutes per generation; we stay
 // well under it so a chunk never gets silently truncated.
@@ -108,15 +109,33 @@ async function advanceSpeech(db, video, avatar) {
       const { data } = await db.from('avatar_video_chunks').insert({ avatar_video_id: video.id, kind: 'speech', seq, status: 'pending' }).select().single();
       inserted.push({ row: data, text: batches[seq] });
     }
-    // Independent batches — submit them all in parallel.
-    await Promise.all(inserted.map(async ({ row, text }) => {
-      try {
-        const { requestId } = await submitSpeech({ audio: avatar.voice_sample_url, text, speed: (video.settings && video.settings.speed) || 1, referenceText: avatar.voice_reference_text });
-        await db.from('avatar_video_chunks').update({ request_id: requestId, status: 'processing' }).eq('id', row.id);
-      } catch (e) {
-        await db.from('avatar_video_chunks').update({ status: 'failed' }).eq('id', row.id);
-      }
-    }));
+    const useResemble = avatar.tts_engine === 'resemble' && avatar.resemble_voice_uuid;
+    if (useResemble) {
+      // Resemble's /synthesize is genuinely synchronous — no request_id/poll
+      // cycle needed, each batch just finishes right here in this same pass.
+      const dir = await ensureWorkDir(video.id);
+      await Promise.all(inserted.map(async ({ row, text }) => {
+        try {
+          const { base64, format } = await synthesizeResemble({ text, voiceUuid: avatar.resemble_voice_uuid });
+          const localPath = path.join(dir, `speech-src-${row.seq}.${format}`);
+          await fs.writeFile(localPath, Buffer.from(base64, 'base64'));
+          const url = await uploadToStorage(db, localPath, `${video.user_id}/avvid-${video.id}-speechsrc-${row.seq}.${format}`, `audio/${format}`);
+          await db.from('avatar_video_chunks').update({ status: 'completed', output_url: url }).eq('id', row.id);
+        } catch (e) {
+          await db.from('avatar_video_chunks').update({ status: 'failed' }).eq('id', row.id);
+        }
+      }));
+    } else {
+      // Independent batches — submit them all in parallel.
+      await Promise.all(inserted.map(async ({ row, text }) => {
+        try {
+          const { requestId } = await submitSpeech({ audio: avatar.voice_sample_url, text, speed: (video.settings && video.settings.speed) || 1, referenceText: avatar.voice_reference_text });
+          await db.from('avatar_video_chunks').update({ request_id: requestId, status: 'processing' }).eq('id', row.id);
+        } catch (e) {
+          await db.from('avatar_video_chunks').update({ status: 'failed' }).eq('id', row.id);
+        }
+      }));
+    }
     await touchRunning(db, video);
     return { stage: 'speech', progress: `0/${batches.length}` };
   }

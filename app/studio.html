@@ -218,7 +218,13 @@
       <h3>🎥 Long-form Avatar Video</h3>
       <p class="muted" style="font-size:12px;margin:4px 0 10px">Upload a short voice clip once (and a training video, optional) — then just write your script and tap Generate. Voice cloning, every video chunk, and the final stitch all run automatically. Up to 30 minutes long.</p>
 
-      <div class="sheet-box">
+      <label class="fld" for="avEngine">Voice engine</label>
+      <select id="avEngine">
+        <option value="wavespeed">WaveSpeed — clone from your own sample</option>
+        <option value="resemble">Resemble — your trained voice (higher fidelity)</option>
+      </select>
+
+      <div class="sheet-box" id="avWaveWrap">
         <div class="sheet-head">🎙 Voice</div>
         <div class="muted" id="avVoiceStatus" style="font-size:12px;margin-bottom:8px">No voice sample yet.</div>
         <button class="btn ghost sm" id="avVoicePick">🎙 Upload voice sample (15-30s of clear, natural speech — the longer/more expressive, the more accurate the clone)</button>
@@ -234,6 +240,12 @@
         </div>
       </div>
 
+      <div class="sheet-box" id="avResembleWrap" style="display:none">
+        <div class="sheet-head">🎙 Resemble voice</div>
+        <select id="avResemblePicker"></select>
+        <div class="note" id="avResembleNote"></div>
+      </div>
+
       <div class="sheet-box" style="margin-top:10px">
         <div class="sheet-head">🎞 Training video (optional)</div>
         <div class="muted" id="avFaceVideoStatus" style="font-size:12px;margin-bottom:8px">No training video yet — your model sheet / photos will be used instead.</div>
@@ -244,6 +256,8 @@
 
       <label class="fld" for="avvScript" style="margin-top:12px">Script</label>
       <textarea id="avvScript" placeholder="Paste or write the full script for your video…" style="min-height:160px"></textarea>
+      <button class="btn ghost sm" id="avvRewrite" style="margin-top:8px;display:none">✨ Rewrite for natural delivery (Resemble only)</button>
+      <div class="note" id="avvRewriteNote"></div>
 
       <label class="fld" for="avvMode">Video type</label>
       <select id="avvMode">
@@ -422,6 +436,8 @@
 
       <label class="fld" for="adScript" style="margin-top:12px">Script</label>
       <textarea id="adScript" placeholder="Paste or write the script to turn into a voiceover…" style="min-height:160px"></textarea>
+      <button class="btn ghost sm" id="adRewrite" style="margin-top:8px;display:none">✨ Rewrite for natural delivery (Resemble only)</button>
+      <div class="note" id="adRewriteNote"></div>
       <label class="fld" for="adSpeed">Speed</label>
       <select id="adSpeed"><option value="1">Normal</option><option value="0.9">Slightly slower</option><option value="1.15">Slightly faster</option></select>
       <button class="btn gold block" id="adGen" style="margin-top:14px">🎙 Generate voiceover</button>
