@@ -14,6 +14,32 @@ let preview = false;
 let showUsd = false;
 let userPlan = 'free'; // updated on loadProfile
 let userIsAdmin = false;
+// ---------------- Icon library (2D line icons — replaces all emoji glyphs) ----------------
+const ICONS = {
+  sparkle: '<path d="M11 3l1.6 5 5 1.6-5 1.6-1.6 5-1.6-5-5-1.6 5-1.6z"/>',
+  target: '<circle cx="11" cy="11" r="7.2"/><circle cx="11" cy="11" r="3.6"/><circle cx="11" cy="11" r=".6" fill="currentColor" stroke="none"/>',
+  package: '<path d="M4 7.5l7-3.5 7 3.5v7L11 18l-7-3.5v-7z"/><path d="M4 7.5L11 11l7-3.5M11 11v7"/>',
+  camera: '<rect x="3" y="6.5" width="16" height="11" rx="2.2"/><circle cx="11" cy="12" r="3.4"/><path d="M8 6.5l1.4-2h3.2l1.4 2"/>',
+  film: '<rect x="3.5" y="4" width="15" height="14" rx="1.8"/><path d="M3.5 8h15M3.5 14h15M8 4v4M8 14v4M14 4v4M14 14v4"/>',
+  avatar: '<circle cx="11" cy="8.2" r="3.4"/><path d="M4.6 18c0-3.6 2.9-6 6.4-6s6.4 2.4 6.4 6"/>',
+  flyer: '<rect x="4" y="3" width="14" height="16" rx="1.6"/><path d="M7 7.5h8M7 11h8M7 14.5h5"/>',
+  audio: '<path d="M4 12v-1M7.5 15v-7M11 17V5M14.5 15V9M18 12v-1"/>',
+  scissors: '<circle cx="6.2" cy="6.2" r="2.1"/><circle cx="6.2" cy="15.8" r="2.1"/><path d="M7.9 7.7L18 18M7.9 14.3L18 4"/>',
+  omni: '<circle cx="8.6" cy="11" r="5.4"/><circle cx="13.4" cy="11" r="5.4"/>',
+  wand: '<path d="M4 18L14.5 7.5M13 4l.8 2.2L16 7l-2.2.8L13 10l-.8-2.2L10 7l2.2-.8z"/><path d="M17.5 13l.5 1.4L19.4 15l-1.4.5-.5 1.4-.5-1.4L15.6 15l1.4-.6z"/>',
+  bag: '<path d="M5.8 8h10.4l.9 9.4a1.4 1.4 0 01-1.4 1.6H6.3a1.4 1.4 0 01-1.4-1.6L5.8 8z"/><path d="M8.2 8V6.2a2.8 2.8 0 015.6 0V8"/>',
+  cap: '<path d="M11 4.2L2.5 8.5 11 12.8l8.5-4.3L11 4.2z"/><path d="M6.2 10.4v3.8c0 1.3 2.2 2.4 4.8 2.4s4.8-1.1 4.8-2.4v-3.8"/>',
+  play: '<rect x="3.5" y="4" width="15" height="14" rx="2.2"/><path d="M9.3 8.4l4.6 3-4.6 3v-6z" fill="currentColor" stroke="none"/>',
+  wrench: '<path d="M14.8 4.6a4 4 0 00-5.5 4.7L4 14.6v3.7h3.7l5.3-5.3a4 4 0 004.7-5.5l-2.8 2.8-2-2z"/>',
+  atelier: '<path d="M11 4.2L2.5 8.5 11 12.8l8.5-4.3L11 4.2z"/><path d="M6.2 10.4v3.8c0 1.3 2.2 2.4 4.8 2.4s4.8-1.1 4.8-2.4v-3.8"/>',
+  learn: '<path d="M4 5.5h6a2 2 0 012 2v9.5a1.6 1.6 0 00-1.6-1.6H4z"/><path d="M18 5.5h-6a2 2 0 00-2 2v9.5a1.6 1.6 0 011.6-1.6H18z"/>',
+  explore: '<circle cx="11" cy="11" r="7.5"/><path d="M13.6 8.4l-1.2 3.8-3.8 1.2 1.2-3.8z"/>',
+};
+function svgIcon(name, size) {
+  const s = size || 22;
+  return `<svg viewBox="0 0 22 22" width="${s}" height="${s}" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ICONS.sparkle}</svg>`;
+}
+
 let activeStudio = cfg.STUDIOS[0];
 let lastPrompt = '';
 let lastOutput = ''; // last generated image/video URL (for publishing to marketplace)
@@ -621,7 +647,7 @@ function openStudio(key) {
  if (key === 'promptgen') { pgInit(); showView('promptgen'); return; }
  if (key === 'omni') { showView('omni'); return; }
  activeStudio = cfg.STUDIOS.find((s) => s.key === key) || cfg.STUDIOS[0];
- $('studioIcon').textContent = activeStudio.icon;
+ $('studioIcon').innerHTML = svgIcon(activeStudio.icon);
  $('studioName').textContent = activeStudio.name;
  $('studioDesc').textContent = activeStudio.desc + (activeStudio.advanced ? ' · Beta' : '');
  $('result').innerHTML = '<div>Your creation appears here.<br><span class="muted">Write a prompt and hit Generate </span></div>';
@@ -661,18 +687,18 @@ const HG_START = 'start';
 const HG_TREE = {
  start: { q: 'What are you doing today?', sub: "We'll point you the right way.",
  opts: [
- { i: '', t: 'Learning', next: { result: true, icon: '', name: 'Fuse Atelier', desc: 'The AI Creative Income System — courses, walkthroughs, real income paths.', go: 'learn' } },
- { i: '', t: 'Creating', next: 'creating' },
- { i: '', t: 'Just exploring', next: { result: true, icon: '', name: 'Explore Fuse Studio', desc: "Have a look around — everything's free to browse.", go: 'view:models' } },
+ { i: 'learn', t: 'Learning', next: { result: true, icon: 'atelier', name: 'Fuse Atelier', desc: 'The AI Creative Income System — courses, walkthroughs, real income paths.', go: 'learn' } },
+ { i: 'sparkle', t: 'Creating', next: 'creating' },
+ { i: 'explore', t: 'Just exploring', next: { result: true, icon: 'explore', name: 'Explore Fuse Studio', desc: "Have a look around — everything's free to browse.", go: 'view:models' } },
  ] },
  creating: { q: 'What do you want to create?', sub: "We'll open the exact studio for it.",
  opts: [
- { i: '‍', t: 'A consistent avatar of me', next: { result: true, icon: '‍', name: 'Avatar Studio', desc: 'Train your face once — generate yourself in any scene, consistently.', go: 'avatar' } },
- { i: '', t: 'A viral video', next: { result: true, icon: '', name: 'Video Studio', desc: 'Seedance, Kling, Veo — cinematic video in seconds.', go: 'video-seedance' } },
- { i: '', t: 'A flyer / design', next: { result: true, icon: '', name: 'Flyer Studio', desc: 'Describe it — a real design process, start to finish.', go: 'flyer' } },
- { i: '', t: 'A voiceover', next: { result: true, icon: '', name: 'Audio Studio', desc: 'Any script, your voice — instant voiceover.', go: 'audio' } },
- { i: '', t: 'Edit a video I have', next: { result: true, icon: '', name: 'Editing Studio', desc: 'Captions, elements, CTA — post-ready in one flow.', go: 'editstudio' } },
- { i: '', t: 'Just a prompt', next: { result: true, icon: '', name: 'Prompt Generator', desc: 'Instant, free, tuned prompts for a character or anything else.', go: 'promptgen' } },
+ { i: 'avatar', t: 'A consistent avatar of me', next: { result: true, icon: 'avatar', name: 'Avatar Studio', desc: 'Train your face once — generate yourself in any scene, consistently.', go: 'avatar' } },
+ { i: 'play', t: 'A viral video', next: { result: true, icon: 'play', name: 'Video Studio', desc: 'Seedance, Kling, Veo — cinematic video in seconds.', go: 'video-seedance' } },
+ { i: 'flyer', t: 'A flyer / design', next: { result: true, icon: 'flyer', name: 'Flyer Studio', desc: 'Describe it — a real design process, start to finish.', go: 'flyer' } },
+ { i: 'audio', t: 'A voiceover', next: { result: true, icon: 'audio', name: 'Audio Studio', desc: 'Any script, your voice — instant voiceover.', go: 'audio' } },
+ { i: 'scissors', t: 'Edit a video I have', next: { result: true, icon: 'scissors', name: 'Editing Studio', desc: 'Captions, elements, CTA — post-ready in one flow.', go: 'editstudio' } },
+ { i: 'wand', t: 'Just a prompt', next: { result: true, icon: 'wand', name: 'Prompt Generator', desc: 'Instant, free, tuned prompts for a character or anything else.', go: 'promptgen' } },
  ] },
 };
 let hgPath = []; // stack of node keys visited, for the progress dots + restart
@@ -681,7 +707,7 @@ function hgRender(nodeKey) {
  $('hgDots').innerHTML = ['start', 'creating'].map((k) => `<i class="${hgPath.includes(k) || k === nodeKey ? 'on' : ''}"></i>`).join('');
  $('hgQ').textContent = node.q;
  $('hgSub').textContent = node.sub;
- $('hgOpts').innerHTML = node.opts.map((o, i) => `<div class="hg-opt" data-i="${i}"><span class="hg-ic">${o.i}</span><span class="hg-t">${o.t}</span></div>`).join('');
+ $('hgOpts').innerHTML = node.opts.map((o, i) => `<div class="hg-opt" data-i="${i}"><span class="hg-ic">${svgIcon(o.i)}</span><span class="hg-t">${o.t}</span></div>`).join('');
  $('hgOpts').querySelectorAll('.hg-opt').forEach((el) => el.onclick = () => {
  const o = node.opts[+el.dataset.i];
  if (typeof o.next === 'string') { hgPath.push(nodeKey); hgRender(o.next); return; }
@@ -694,7 +720,7 @@ function hgRenderResult(r) {
  $('hgSub').textContent = '';
  $('hgOpts').innerHTML = `
  <div class="hg-result" style="grid-column:1/-1">
- <span class="hg-ic">${r.icon}</span>
+ <span class="hg-ic">${svgIcon(r.icon)}</span>
  <h4>${r.name}</h4>
  <p>${r.desc}</p>
  <span class="btn gold sm" style="display:inline-block" id="hgGo">Go to studio →</span>
@@ -710,7 +736,7 @@ function buildHomeGuide() { hgPath = []; hgRender(HG_START); }
 // -- 3. Studio marquee — continuous horizontal auto-scroll --
 function buildMarquee() {
  const tiles = cfg.MARQUEE || [];
- const html = tiles.map((t) => `<div class="marq-tile" data-go="${t.go}"><span class="mt-ic">${t.icon}</span><span class="mt-t">${t.label}</span></div>`).join('');
+ const html = tiles.map((t) => `<div class="marq-tile" data-go="${t.go}"><span class="mt-ic">${svgIcon(t.icon, 16)}</span><span class="mt-t">${t.label}</span></div>`).join('');
  $('marqTrack').innerHTML = html + html; // duplicated once so the -50% loop is seamless
 }
 

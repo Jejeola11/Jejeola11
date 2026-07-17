@@ -67,16 +67,16 @@ window.FUSE = {
   // horizontal row (Higgsfield model-grid style). Tap any to jump straight
   // into that studio.
   MARQUEE: [
-    { icon: '✨', label: 'Generate', go: 'studio:generate' },
-    { icon: '🧑‍🎨', label: 'Avatar', go: 'avatar' },
-    { icon: '🎨', label: 'Flyer', go: 'flyer' },
-    { icon: '🎙', label: 'Audio', go: 'audio' },
-    { icon: '✂️', label: 'Edit', go: 'editstudio' },
-    { icon: '⚛️', label: 'Reactor', go: 'reactor' },
-    { icon: '🧬', label: 'Prompt Gen', go: 'promptgen' },
-    { icon: '🛒', label: 'Market', go: 'market' },
-    { icon: '🎓', label: 'Atelier', go: 'learn' },
-    { icon: '💵', label: '$500 Week', go: 'week' },
+    { icon: 'sparkle', label: 'Generate', go: 'studio:generate' },
+    { icon: 'avatar', label: 'Avatar', go: 'avatar' },
+    { icon: 'target', label: 'Flyer', go: 'flyer' },
+    { icon: 'audio', label: 'Audio', go: 'audio' },
+    { icon: 'scissors', label: 'Edit', go: 'editstudio' },
+    { icon: 'omni', label: 'Reactor', go: 'reactor' },
+    { icon: 'wand', label: 'Prompt Gen', go: 'promptgen' },
+    { icon: 'bag', label: 'Market', go: 'market' },
+    { icon: 'cap', label: 'Atelier', go: 'learn' },
+    { icon: 'target', label: '$500 Week', go: 'week' },
   ],
 
   // Home hero slideshow — auto-advancing, 3 slides for now (swap in real
@@ -99,17 +99,17 @@ window.FUSE = {
 
   // Creative Studios — each is a guided generator using the live engine.
   STUDIOS: [
-    { key: 'generate', name: 'Generate',               icon: '✨', tag: '',         desc: 'Free-form image creation',
+    { key: 'generate', name: 'Generate',               icon: 'sparkle', tag: '',         desc: 'Free-form image creation',
       template: '{input}' },
-    { key: 'brand',    name: 'Brand Identity Studio',  icon: '🎯', tag: 'NEW',      desc: 'Logos, looks & brand visuals',
+    { key: 'brand',    name: 'Brand Identity Studio',  icon: 'target', tag: 'NEW',      desc: 'Logos, looks & brand visuals',
       template: 'professional brand identity concept for {input}, modern logo and visual style, cohesive premium color palette, clean, high-end, editorial' },
-    { key: 'packaging',name: 'Packaging Design Studio',icon: '📦', tag: '',         desc: 'Product packaging mockups',
+    { key: 'packaging',name: 'Packaging Design Studio',icon: 'package', tag: '',         desc: 'Product packaging mockups',
       template: 'premium product packaging design mockup for {input}, realistic studio product photography, elegant label, retail-ready, soft lighting' },
-    { key: 'ugc',      name: 'UGC Creator Studio',     icon: '🎬', tag: 'TRENDING', desc: 'Scroll-stopping ad content',
+    { key: 'ugc',      name: 'UGC Creator Studio',     icon: 'camera', tag: 'TRENDING', desc: 'Scroll-stopping ad content',
       template: 'authentic UGC-style content photo of {input}, natural lighting, candid, relatable, social-media ready, shot on phone aesthetic' },
-    { key: 'movie',    name: 'Movie Studio',           icon: '🎥', tag: '',         desc: 'Cinematic scenes & posters',
+    { key: 'movie',    name: 'Movie Studio',           icon: 'film', tag: '',         desc: 'Cinematic scenes & posters',
       template: 'cinematic film still of {input}, dramatic lighting, movie-grade color grade, depth of field, epic composition, poster quality' },
-    { key: 'avatar',   name: 'AI Avatar Studio',       icon: '🧑‍🎨', tag: 'BETA',    desc: 'Your consistent character face',
+    { key: 'avatar',   name: 'AI Avatar Studio',       icon: 'avatar', tag: 'BETA',    desc: 'Your consistent character face',
       template: 'professional portrait of {input}, consistent character, studio lighting, sharp detail, identity reference',
       advanced: true },
   ],
