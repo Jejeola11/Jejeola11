@@ -1951,6 +1951,10 @@ function selectAvatar(id, name) {
   $('avGenWrap').style.display = 'block';
   $('avVideoWrap').style.display = 'block';
   $('avResult').innerHTML = '<div class="muted">Your consistent-face image appears here.</div>';
+  // A start-frame override is specific to whichever avatar it was picked
+  // for — switching avatars shouldn't silently carry someone else's photo
+  // (or a stale one) into the next generation.
+  avvStartFrameUrl = null; renderAvvStartFrameThumb();
   renderSheet();
   renderAvatarVideoStatus();
   $('avGenWrap').scrollIntoView({ behavior: 'smooth' });
@@ -2056,6 +2060,34 @@ async function uploadAvatarTrainingVideo(file) {
 }
 let avvOwnAudioUrl = null;
 let avvLastUrl = null;
+// Lets a user upload their own start frame directly, instead of the video
+// always starting from the trained avatar's default photo — useful for a
+// specific outfit/setting/pose for just this one video, without retraining
+// the whole avatar. Only the very first chunk uses this; every chunk after
+// that still chains from the previous chunk's own last frame as usual.
+let avvStartFrameUrl = null;
+async function avvPickStartFrame(file) {
+  if (preview) { showAuth('signup'); return; }
+  if (!file) return;
+  note('avvStartFrameNote', 'Uploading…', 'ok');
+  try {
+    const resized = await resizeImageFile(file);
+    const ext = (resized.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = `${user.id}/avvstartframe-${selectedAvatar}-${Date.now()}.${ext}`;
+    await uploadWithRetry('avatars', path, resized);
+    avvStartFrameUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    note('avvStartFrameNote', '✅ This video will start from your uploaded image instead of the trained avatar photo.', 'ok');
+    renderAvvStartFrameThumb();
+  } catch (e) { note('avvStartFrameNote', e.message || 'Upload failed.', 'err'); }
+}
+function renderAvvStartFrameThumb() {
+  const el = $('avvStartFrameThumb');
+  if (!el) return;
+  el.innerHTML = avvStartFrameUrl
+    ? `<div style="position:relative;display:inline-block"><img src="${avvStartFrameUrl}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:2px solid var(--gold)"><span class="ref-x" onclick="window.fuseAvvRmStartFrame()">✕</span></div>`
+    : '';
+}
+window.fuseAvvRmStartFrame = () => { avvStartFrameUrl = null; renderAvvStartFrameThumb(); note('avvStartFrameNote', ''); };
 async function uploadAvatarOwnAudio(file) {
   if (!selectedAvatar) return note('avVoiceNote', 'Pick an avatar first.', 'err');
   note('avVoiceNote', 'Uploading your audio…', 'ok');
@@ -2092,7 +2124,7 @@ async function avvGenerate() {
       body: JSON.stringify({
         avatar_id: selectedAvatar, script, mode, camera_motion: mode === 'motion' ? cameraMotion : undefined,
         audio_url: avvOwnAudioUrl || undefined,
-        settings: { resolution: $('avvResolution').value, prompt: $('avvPrompt').value.trim(), aspect: $('avvAspect').value },
+        settings: { resolution: $('avvResolution').value, prompt: $('avvPrompt').value.trim(), aspect: $('avvAspect').value, start_image: avvStartFrameUrl || undefined },
       }),
     });
     const d = await res.json();
@@ -3706,6 +3738,8 @@ window.addEventListener('DOMContentLoaded', () => {
   $('avFaceVideoFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadAvatarTrainingVideo(f); e.target.value = ''; };
   $('avvGen').onclick = avvGenerate;
   $('avvMode').onchange = avvToggleMode;
+  $('avvStartFramePick').onclick = () => $('avvStartFrameFile').click();
+  $('avvStartFrameFile').onchange = (e) => { avvPickStartFrame(e.target.files[0]); e.target.value = ''; };
   $('avOwnAudioPick').onclick = () => $('avOwnAudioFile').click();
   $('avOwnAudioFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadAvatarOwnAudio(f); e.target.value = ''; };
   $('avvAddCta').onclick = avvAddCta;

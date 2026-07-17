@@ -259,6 +259,11 @@
       <input id="avvPrompt" placeholder="e.g. calm, confident, direct to camera">
       <label class="fld" for="avvAspect">Aspect</label>
       <select id="avvAspect"><option value="9:16">9:16 vertical</option><option value="4:5">4:5 portrait</option><option value="1:1">1:1 square</option></select>
+      <label class="fld" style="margin-top:10px">Start frame (optional) — upload your own image for this video instead of your trained avatar photo</label>
+      <button class="btn ghost sm" id="avvStartFramePick">🖼 Upload start frame</button>
+      <input type="file" id="avvStartFrameFile" accept="image/*" hidden>
+      <div id="avvStartFrameThumb" style="margin-top:8px"></div>
+      <div class="note" id="avvStartFrameNote"></div>
       <button class="btn gold block" id="avvGen" style="margin-top:14px">🎬 Generate video</button>
       <div class="note" id="avvNote"></div>
       <div class="result" id="avvResult" style="margin-top:12px;min-height:160px"><div class="muted">Your finished video appears here.</div></div>
