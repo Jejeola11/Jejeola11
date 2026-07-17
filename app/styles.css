@@ -312,7 +312,9 @@ textarea{min-height:104px;resize:vertical}
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(4,35,31,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:8px 0 calc(8px + env(safe-area-inset-bottom))}
 .tabbar .in{max-width:760px;margin:0 auto;display:flex;justify-content:space-around;align-items:center}
 .tab{background:none;border:0;color:var(--muted);font-size:11px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 10px}
-.tab .ti{font-size:19px;line-height:1}
+.tab .ti{font-size:19px;line-height:1;display:inline-flex}
+.tab .ti svg{width:20px;height:20px;stroke:currentColor}
+.tab.center .ti svg{width:22px;height:22px}
 .tab.active{color:var(--gold)}
 .tab.center .ti{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1205;font-size:22px;box-shadow:0 8px 22px rgba(231,194,92,.4);margin-top:-22px;border:3px solid var(--bg)}
 .tab.center{color:var(--gold)}
@@ -551,7 +553,12 @@ textarea{min-height:104px;resize:vertical}
 .lock-badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.7);color:var(--gold);font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;z-index:2}
 
 /* ===== Avatar extra ref close button ===== */
-.ref-x{position:absolute;top:-4px;right:-4px;background:rgba(0,0,0,.7);color:#fff;border-radius:50%;width:18px;height:18px;display:grid;place-items:center;font-size:11px;cursor:pointer;line-height:1}
+.ref-x{position:absolute;top:-4px;right:-4px;background:rgba(0,0,0,.75);border:1px solid rgba(0,240,224,.35);border-radius:50%;width:18px;height:18px;cursor:pointer}
+.ref-x::before,.ref-x::after{content:"";position:absolute;top:50%;left:50%;width:8px;height:1.6px;background:#fff;border-radius:1px}
+.ref-x::before{transform:translate(-50%,-50%) rotate(45deg)}
+.ref-x::after{transform:translate(-50%,-50%) rotate(-45deg)}
+.ref-check{position:absolute;bottom:-4px;left:-4px;background:var(--gold);border-radius:50%;width:16px;height:16px;display:grid;place-items:center}
+.ref-check svg{width:10px;height:10px;stroke:#1a1205;stroke-width:2.4}
 
 /* ===== Async image grid slots ===== */
 .gen-slot{position:relative;aspect-ratio:1;display:grid;place-items:center;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;overflow:hidden}
@@ -799,7 +806,10 @@ textarea{min-height:104px;resize:vertical}
 .av-thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .av-th{position:relative;width:54px;height:54px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
 .av-th img{width:100%;height:100%;object-fit:cover}
-.av-th-x{position:absolute;top:-2px;right:-2px;background:rgba(0,0,0,.7);color:#fff;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;cursor:pointer;line-height:1}
+.av-th-x{position:absolute;top:-2px;right:-2px;background:rgba(0,0,0,.75);border:1px solid rgba(0,240,224,.35);width:18px;height:18px;border-radius:50%;cursor:pointer}
+.av-th-x::before,.av-th-x::after{content:"";position:absolute;top:50%;left:50%;width:8px;height:1.6px;background:#fff;border-radius:1px}
+.av-th-x::before{transform:translate(-50%,-50%) rotate(45deg)}
+.av-th-x::after{transform:translate(-50%,-50%) rotate(-45deg)}
 
 /* ===== Video frame extraction tools ===== */
 .frame-tools{margin-top:14px;background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:12px}

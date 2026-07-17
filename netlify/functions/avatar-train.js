@@ -1,6 +1,6 @@
 // ============================================================
 // POST /.netlify/functions/avatar-train   (AI Avatar Creator — face/voice training)
-// Body: { avatar_id, source_video_url?, voice_sample_url?, voice_reference_text?, tts_engine?, resemble_voice_uuid? }
+// Body: { avatar_id, source_video_url?, voice_sample_url?, voice_reference_text?, tts_engine?, resemble_voice_uuid?, remove_photo_url? }
 // `avatars` has no client-facing UPDATE policy (by design — every write goes
 // through a service-role function, see schema-phase4.sql), so this is how
 // the front end attaches a training video / voice sample after uploading
@@ -25,14 +25,26 @@ exports.handler = async (event) => {
     const voiceReferenceText = (body.voice_reference_text || '').trim();
     const ttsEngine = body.tts_engine === 'resemble' ? 'resemble' : null;
     const resembleVoiceUuid = (body.resemble_voice_uuid || '').trim();
+    const removePhotoUrl = (body.remove_photo_url || '').trim();
     if (!avatarId) return json(400, { error: 'Missing avatar_id' });
-    if (!sourceVideoUrl && !voiceSampleUrl && !ttsEngine) return json(400, { error: 'Nothing to train.' });
+    if (!sourceVideoUrl && !voiceSampleUrl && !ttsEngine && !removePhotoUrl) return json(400, { error: 'Nothing to train.' });
 
     const db = admin();
-    const { data: avatar } = await db.from('avatars').select('id, user_id').eq('id', avatarId).maybeSingle();
+    const { data: avatar } = await db.from('avatars').select('id, user_id, image_url, image_urls').eq('id', avatarId).maybeSingle();
     if (!avatar || avatar.user_id !== user.id) return json(404, { error: 'Avatar not found.' });
 
     const update = {};
+
+    if (removePhotoUrl) {
+      const current = Array.isArray(avatar.image_urls) ? avatar.image_urls : [];
+      const remaining = current.filter((u) => u !== removePhotoUrl);
+      if (!remaining.length) return json(400, { error: 'An avatar needs at least one training photo.' });
+      update.image_urls = remaining;
+      // The primary image_url is what every generation grounds against
+      // first — if the photo being removed was that one, promote whatever
+      // is left so nothing points at a deleted photo.
+      if (avatar.image_url === removePhotoUrl) update.image_url = remaining[0];
+    }
     if (voiceSampleUrl) { update.voice_sample_url = voiceSampleUrl; update.voice_status = 'ready'; update.voice_reference_text = voiceReferenceText || null; }
     if (ttsEngine === 'resemble' && resembleVoiceUuid) { update.tts_engine = 'resemble'; update.resemble_voice_uuid = resembleVoiceUuid; update.voice_status = 'ready'; }
     else if (body.tts_engine === 'wavespeed') { update.tts_engine = 'wavespeed'; }

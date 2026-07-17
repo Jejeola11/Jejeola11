@@ -1792,26 +1792,54 @@ async function omniAvatarGenerate() {
 }
 
 // ---------------- library / recent ----------------
+const LIB_PAGE = 40;
 let libFilter = 'all';
 let libItems = []; // cached so the project preview can show prompt + settings
+let libHasMore = false;
 async function loadLibrary() {
  if (preview) return demoGrid('libGrid');
- let q = sb.from('generations').select('output_url, type, prompt, model, aspect, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(40);
+ let q = sb.from('generations').select('id, output_url, type, prompt, model, aspect, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).range(0, LIB_PAGE - 1);
  if (libFilter !== 'all') q = q.eq('type', libFilter === 'image' ? 'image' : libFilter);
  const { data } = await q;
  libItems = data || [];
+ libHasMore = libItems.length === LIB_PAGE;
  const g = $('libGrid');
  if (!libItems.length && !pendingJobs.length) { g.innerHTML = '<div class="empty" style="grid-column:1/-1">Nothing here yet — create something </div>'; return; }
- g.innerHTML = libItems.map((x, i) => {
- const media = x.type === 'video' ? `<video src="${x.output_url}" muted loop playsinline></video>`
- : x.type === 'audio' ? `<div class="projitem-audio"></div>`
- : `<img src="${x.output_url}">`;
- return `<div class="projitem" onclick="window.fuseProject(${i})">${media}</div>`;
- }).join('');
+ g.innerHTML = libItems.map((x, i) => `<div class="projitem" onclick="window.fuseProject(${i})">${libItemMedia(x)}</div>`).join('');
+ renderLibLoadMore();
  // Still-processing jobs render as spinner cards ahead of finished work —
  // this is what makes a generation started elsewhere actually visible
  // here the moment you land on Projects, not just after its next poll tick.
  renderLibraryPending();
+}
+function libItemMedia(x) {
+ return x.type === 'video' ? `<video src="${x.output_url}" muted loop playsinline></video>`
+ : x.type === 'audio' ? `<div class="projitem-audio"></div>`
+ : `<img src="${x.output_url}">`;
+}
+function renderLibLoadMore() {
+ const old = document.getElementById('libLoadMore'); if (old) old.remove();
+ if (!libHasMore) return;
+ const g = $('libGrid');
+ const btn = document.createElement('button');
+ btn.id = 'libLoadMore'; btn.className = 'btn ghost block';
+ btn.style.gridColumn = '1/-1'; btn.style.marginTop = '10px';
+ btn.textContent = 'Load more';
+ btn.onclick = loadMoreLibrary;
+ g.appendChild(btn);
+}
+async function loadMoreLibrary() {
+ const btn = $('libLoadMore'); if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+ let q = sb.from('generations').select('id, output_url, type, prompt, model, aspect, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).range(libItems.length, libItems.length + LIB_PAGE - 1);
+ if (libFilter !== 'all') q = q.eq('type', libFilter === 'image' ? 'image' : libFilter);
+ const { data } = await q;
+ const more = data || [];
+ const startIdx = libItems.length;
+ libItems = libItems.concat(more);
+ libHasMore = more.length === LIB_PAGE;
+ const g = $('libGrid');
+ g.insertAdjacentHTML('beforeend', more.map((x, j) => `<div class="projitem" onclick="window.fuseProject(${startIdx + j})">${libItemMedia(x)}</div>`).join(''));
+ renderLibLoadMore();
 }
 // Project preview — shows the creation plus the prompt + settings used to make it.
 window.fuseProject = (i) => {
@@ -1838,6 +1866,8 @@ window.fuseProject = (i) => {
  ${when ? `<div class="pm-row"><span>Created</span><b>${when}</b></div>` : ''}
  ${x.prompt ? `<div class="pm-prompt"><span>Prompt used</span><p>${(x.prompt || '').replace(/</g, '&lt;')}</p>
  <button class="btn ghost sm" onclick="window.fuseReuse(${i})">↺ Use this prompt again</button></div>` : ''}
+ <button class="btn ghost sm" style="margin-top:10px;color:#ff9a8a;border-color:#ff9a8a" onclick="window.fuseDeleteProject(${i})">Delete this project</button>
+ <div class="note" id="lbDeleteNote"></div>
  </div>`;
  $('lbContent').innerHTML = media + frameTools + meta;
  $('lightbox').style.display = 'flex';
@@ -1848,6 +1878,20 @@ window.fuseReuse = (i) => {
  $('lightbox').style.display = 'none';
  openStudio('generate');
  if (x.prompt) $('prompt').value = x.prompt;
+};
+window.fuseDeleteProject = async (i) => {
+ const x = libItems[i]; if (!x) return;
+ if (!confirm('Delete this project? This can\'t be undone.')) return;
+ try {
+ const res = await fetch('/.netlify/functions/delete-generation', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ id: x.id }),
+ });
+ const d = await res.json();
+ if (!res.ok) throw new Error(d.error || 'Failed');
+ $('lightbox').style.display = 'none';
+ loadLibrary();
+ } catch (e) { note('lbDeleteNote', e.message || 'Could not delete.', 'err'); }
 };
 function demoGrid(id) { $(id).innerHTML = Array(6).fill('<div class="empty" style="aspect-ratio:1;display:grid;place-items:center;padding:0"></div>').join(''); }
 
@@ -2092,7 +2136,7 @@ let selectedAvatar = null;
 let avatarMap = {}; // id -> avatar row (incl. model_sheet_url)
 async function loadAvatars() {
  if (preview) { $('avatarList').innerHTML = '<div class="empty" style="grid-column:1/-1">Sign up to create your avatar</div>'; return; }
- let { data, error } = await sb.from('avatars').select('id,name,image_url,model_sheet_url,status,voice_sample_url,voice_reference_text,tts_engine,resemble_voice_uuid,source_video_url,trained_frame_url').order('created_at', { ascending: false });
+ let { data, error } = await sb.from('avatars').select('id,name,image_url,image_urls,model_sheet_url,status,voice_sample_url,voice_reference_text,tts_engine,resemble_voice_uuid,source_video_url,trained_frame_url').order('created_at', { ascending: false });
  if (error) {
  // voice_reference_text/tts_engine/resemble_voice_uuid need
  // schema-phase21/23.sql run first — if those migrations haven't happened
@@ -2120,8 +2164,33 @@ function selectAvatar(id, name) {
  avvStartFrameUrl = null; renderAvvStartFrameThumb();
  renderSheet();
  renderAvatarVideoStatus();
+ renderAvatarManageThumbs();
  $('avGenWrap').scrollIntoView({ behavior: 'smooth' });
 }
+function renderAvatarManageThumbs() {
+ const wrap = $('avManageThumbs'); if (!wrap) return;
+ const a = avatarMap[selectedAvatar] || {};
+ const urls = Array.isArray(a.image_urls) ? a.image_urls : (a.image_url ? [a.image_url] : []);
+ wrap.innerHTML = urls.map((u) => `<div class="av-th"><img src="${u}"><span class="av-th-x" onclick="window.fuseDeleteAvatarPhoto('${u.replace(/'/g, "\\'")}')"></span></div>`).join('');
+}
+window.fuseDeleteAvatarPhoto = async (url) => {
+ if (!selectedAvatar) return;
+ const a = avatarMap[selectedAvatar] || {};
+ const count = Array.isArray(a.image_urls) ? a.image_urls.length : 1;
+ if (count <= 1) return note('avManageNote', 'An avatar needs at least one training photo.', 'err');
+ if (!confirm('Remove this training photo?')) return;
+ try {
+ const res = await fetch('/.netlify/functions/avatar-train', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ avatar_id: selectedAvatar, remove_photo_url: url }),
+ });
+ const d = await res.json();
+ if (!res.ok) throw new Error(d.error || 'Failed');
+ if (avatarMap[selectedAvatar]) { avatarMap[selectedAvatar].image_urls = d.image_urls || (a.image_urls || []).filter((u) => u !== url); if (d.image_url) avatarMap[selectedAvatar].image_url = d.image_url; }
+ renderAvatarManageThumbs();
+ note('avManageNote', ' Photo removed.', 'ok');
+ } catch (e) { note('avManageNote', e.message || 'Could not remove photo.', 'err'); }
+};
 function renderSheet() {
  const a = avatarMap[selectedAvatar] || {};
  const btn = $('avSheetBtn'), view = $('avSheetView');
@@ -2680,7 +2749,7 @@ function renderFlyerRefs() {
  $('flyerRefThumbs').innerHTML = flyerRefUrls.map((r, i) => `
  <div style="position:relative;cursor:pointer" onclick="window.fuseFlyerToggleRef(${i})">
  <img src="${r.url}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:2px solid ${r.on ? 'var(--gold)' : 'var(--line)'};opacity:${r.on ? '1' : '.4'}">
- ${r.on ? '<span style="position:absolute;bottom:-4px;left:-4px;background:var(--gold);color:#1a1205;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center"></span>' : ''}
+ ${r.on ? '<span class="ref-check"><svg viewBox="0 0 22 22" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11.5l4.5 4.5 9-10"/></svg></span>' : ''}
  <span class="ref-x" onclick="event.stopPropagation();window.fuseFlyerRmRef(${i})"></span>
  </div>`).join('');
  // Make the connection to generation visible right where it matters — this
