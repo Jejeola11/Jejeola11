@@ -324,6 +324,18 @@ async function advanceStitching(db, video) {
   const finalUrl = await uploadToStorage(db, outPath, `${video.user_id}/avvid-${video.id}-final.mp4`, 'video/mp4');
 
   await db.from('avatar_videos').update({ stage: 'complete', output_url: finalUrl, updated_at: new Date().toISOString() }).eq('id', video.id);
+  // This is the ONE moment stage ever flips to 'complete' for a given video
+  // (every later poll short-circuits before reaching here — see advance()
+  // below), so this is also the one safe, non-duplicating place to record
+  // it into `generations` — without this, a finished long-form avatar video
+  // never showed up in the Projects/Library grid at all, since that grid
+  // only ever reads from `generations`, never from avatar_videos directly.
+  try {
+    await db.from('generations').insert({
+      user_id: video.user_id, type: 'video', model: 'avatar-video', prompt: video.script,
+      aspect: (video.settings && video.settings.aspect) || null, output_url: finalUrl, credits_spent: video.credits,
+    });
+  } catch (e) {}
   await cleanupTmp(video.id);
   return { stage: 'complete', url: finalUrl };
 }
