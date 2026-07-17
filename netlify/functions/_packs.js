@@ -172,6 +172,18 @@ function estimateScriptMinutes(script) {
   return Math.max(0.2, words / 150);
 }
 
+// Sync Labs' lipsync-2-pro (the resync pass) — confirmed live 2026-07-17,
+// billed per second of audio, $0.08/s ($4.80/min). Genuinely pricier than
+// the original InfiniteTalk generation itself ($3.60/min) — this is a real,
+// meaningful add-on cost, not a rounding difference, so it's kept as an
+// explicit opt-in second pass rather than baked into every video by default.
+const RESYNC_PER_SEC_USD = 0.08;
+const RESYNC_MARGIN = 1.6; // same premium/compute-heavy tier as avatar video itself
+function resyncCredits(durationSec) {
+  const secs = Math.max(1, Math.ceil(durationSec || 0));
+  return creditsFor(secs * RESYNC_PER_SEC_USD, RESYNC_MARGIN);
+}
+
 // ---- Audio Studio (standalone narration/voiceover, Omnivoice) -------------
 // Same real per-minute cost as the avatar pipeline's voice track, priced on
 // its own with a friendlier margin since there's no video-generation cost
@@ -205,4 +217,4 @@ function canUseFree(model) {
   return (model in IMAGE_MODELS) || (model in VIDEO_MODELS) || FREE_REACTOR.includes(model);
 }
 
-module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree, PROMO, promoActive, creditsForPack, avatarVideoCredits, estimateScriptMinutes, audioCredits };
+module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree, PROMO, promoActive, creditsForPack, avatarVideoCredits, estimateScriptMinutes, audioCredits, resyncCredits };

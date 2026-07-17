@@ -440,6 +440,22 @@ async function submitOmniReference({ images, prompt, aspect }) {
   return { requestId: 'ws:' + id, provider: 'wavespeed' };
 }
 
+// ---- Sync Labs' lipsync-2-pro (the Avatar Creator "resync" pass) ----------
+// Zero-shot lipsync resync: takes an ALREADY-GENERATED video + its narration
+// audio and re-syncs the mouth against that same audio for tighter accuracy
+// than InfiniteTalk's own built-in sync — a genuine second pass, not a
+// replacement generation. Confirmed live 2026-07-17: required fields are
+// `video` and `audio` (both singular URLs); optional `sync_mode` controls
+// mismatched-length handling (left at its default here). Billed at
+// $0.08/second of audio — see resyncCredits() in _packs.js.
+async function submitLipsyncResync({ video, audio }) {
+  if (!hasWaveSpeed()) throw new Error('WAVESPEED_KEY missing.');
+  if (!video) throw new Error('Missing video.');
+  if (!audio) throw new Error('Missing audio.');
+  const id = await wsSubmit('sync/lipsync-2-pro', { video, audio });
+  return { requestId: 'ws:' + id, provider: 'wavespeed' };
+}
+
 // ---- Flyer Studio image route (WaveSpeed's GPT Image 2) --------------------
 // The model the user specifically wants for "perfect flyer design" — but
 // MuAPI's wrapper for it genuinely takes 50-90s+ of real inference time
@@ -541,4 +557,4 @@ async function submitToolWS(slug, { image, prompt }) {
   return { requestId: 'ws:' + id, provider: 'wavespeed' };
 }
 
-module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitOmniReference, submitFlyerImage, submitImageWS, submitToolWS, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle, synthesizeResemble, listResembleVoices, hasResemble, chatCompletion, encodeModelImage, decodeModelImage };
+module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitOmniReference, submitLipsyncResync, submitFlyerImage, submitImageWS, submitToolWS, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle, synthesizeResemble, listResembleVoices, hasResemble, chatCompletion, encodeModelImage, decodeModelImage };

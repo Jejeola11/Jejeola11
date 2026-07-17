@@ -1860,18 +1860,51 @@ window.fuseProject = (i) => {
  <button class="btn gold sm" onclick="fuseUseEndAsStart('${x.output_url}')"> Use end frame as next start</button>
  </div><div class="note" id="ftNote"></div></div>`
  : '';
+ const resyncBox = (x.type === 'video' && x.model === 'avatar-video') ? `<div id="resyncBox" style="margin-top:10px"></div>` : '';
  const meta = `<div class="projmeta">
  <div class="pm-row"><span>Model</span><b>${modelName}</b></div>
  ${x.aspect ? `<div class="pm-row"><span>Aspect</span><b>${x.aspect}</b></div>` : ''}
  ${when ? `<div class="pm-row"><span>Created</span><b>${when}</b></div>` : ''}
  ${x.prompt ? `<div class="pm-prompt"><span>Prompt used</span><p>${(x.prompt || '').replace(/</g, '&lt;')}</p>
  <button class="btn ghost sm" onclick="window.fuseReuse(${i})">↺ Use this prompt again</button></div>` : ''}
+ ${resyncBox}
  <button class="btn ghost sm" style="margin-top:10px;color:#ff9a8a;border-color:#ff9a8a" onclick="window.fuseDeleteProject(${i})">Delete this project</button>
  <div class="note" id="lbDeleteNote"></div>
  </div>`;
  $('lbContent').innerHTML = media + frameTools + meta;
  $('lightbox').style.display = 'flex';
+ if (resyncBox) loadResyncBox(x.output_url);
 };
+async function loadResyncBox(outputUrl) {
+ const box = $('resyncBox'); if (!box) return;
+ box.innerHTML = '<div class="muted" style="font-size:12px">Checking resync status…</div>';
+ const { data: av } = await sb.from('avatar_videos').select('id, resynced_url, resync_credits, total_duration_sec').eq('output_url', outputUrl).eq('user_id', user.id).maybeSingle();
+ if (!av) { box.innerHTML = ''; return; }
+ if (av.resynced_url) {
+ box.innerHTML = `<div class="pm-row"><span>Resync</span><b style="color:var(--cyan)">Ready</b></div>
+ <video src="${av.resynced_url}" controls playsinline style="width:100%;border-radius:12px;margin-top:6px"></video>
+ <div class="muted" style="font-size:11px;margin-top:4px">This is the lipsync-resynced version — the original above is untouched.</div>`;
+ return;
+ }
+ const estCredits = av.total_duration_sec ? Math.max(1, Math.ceil(av.total_duration_sec * 0.08 / 0.016 * 1.6)) : null;
+ box.innerHTML = `<button class="btn ghost sm" id="resyncBtn">Resync lipsync${estCredits ? ` (~${estCredits} credits)` : ''}</button><div class="note" id="resyncNote"></div>`;
+ $('resyncBtn').onclick = async () => {
+ const btn = $('resyncBtn'); btn.disabled = true; btn.textContent = 'Starting…';
+ try {
+ const res = await fetch('/.netlify/functions/avatar-video-resync', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ avatar_video_id: av.id }),
+ });
+ const d = await res.json();
+ if (res.status === 402) { note('resyncNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = 'Resync lipsync'; return; }
+ if (!res.ok) throw new Error(d.error || 'Failed');
+ $('creditCount').textContent = d.credits;
+ queueJob({ request_id: d.request_id, endpoint: 'job-status', mediaType: 'video', label: 'Lipsync resync', model: 'resync' });
+ startGlobalPoller();
+ note('resyncNote', ' Started — this can take a few minutes, check back on this project.', 'ok');
+ } catch (e) { note('resyncNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = 'Resync lipsync'; }
+ };
+}
 // Re-open the studio with this project's prompt prefilled.
 window.fuseReuse = (i) => {
  const x = libItems[i]; if (!x) return;

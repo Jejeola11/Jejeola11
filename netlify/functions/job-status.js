@@ -241,6 +241,13 @@ exports.handler = async (event) => {
       if (job.project_id) { try { await db.from('video_edit_projects').update({ final_video_url: url, updated_at: new Date().toISOString() }).eq('id', job.project_id); } catch (e) {} }
       return json(200, { status: 'completed', url, kind: job.kind, project_id: job.project_id });
     }
+    // Lipsync resync pass result — saved onto resynced_url, alongside the
+    // ORIGINAL output_url (never overwritten), so both are still there to
+    // compare.
+    if (job.kind === 'avatar-video-resync') {
+      if (job.project_id) { try { await db.from('avatar_videos').update({ resynced_url: url, updated_at: new Date().toISOString() }).eq('id', job.project_id); } catch (e) {} }
+      return json(200, { status: 'completed', url, kind: job.kind, project_id: job.project_id });
+    }
     await db.from('generations').insert({
       user_id: user.id, type: job.kind, model: job.model, prompt: job.prompt, aspect: job.aspect,
       output_url: url, credits_spent: job.credits, cost_usd: r.cost_usd,
