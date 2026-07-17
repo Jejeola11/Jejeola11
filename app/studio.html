@@ -1037,6 +1037,15 @@
         <input id="adminCredits" type="number" min="1" placeholder="e.g. 350" inputmode="numeric">
         <button class="btn ghost block" id="adminGrantCredits" style="margin-top:8px">Add custom credits</button>
         <div class="note" id="adminNote"></div>
+
+        <p class="muted" style="margin:16px 0 6px;font-size:12px;padding-top:12px;border-top:1px dashed var(--line)">Undo a mistaken grant:</p>
+        <input id="revokeEmail" type="email" placeholder="buyer@email.com" autocomplete="off">
+        <input id="revokeCredits" type="number" min="0" placeholder="Credits to remove (e.g. 350)" inputmode="numeric" style="margin-top:8px">
+        <label class="muted" style="display:flex;align-items:center;gap:8px;font-size:13px;margin:8px 0">
+          <input id="revokePlanCheck" type="checkbox" style="width:auto"> Also drop them back to the Free plan
+        </label>
+        <button class="btn ghost block" id="revokeBtn">Revoke</button>
+        <div class="note" id="revokeNote"></div>
       </div>
     </div>
 

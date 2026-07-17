@@ -351,16 +351,31 @@ let pendingJobs = [];
 function loadPendingJobs() {
   try { pendingJobs = JSON.parse(localStorage.getItem(PENDING_JOBS_KEY) || '[]'); } catch (e) { pendingJobs = []; }
 }
+function readSharedPendingJobs() {
+  try { return JSON.parse(localStorage.getItem(PENDING_JOBS_KEY) || '[]'); } catch (e) { return []; }
+}
 function savePendingJobs() { try { localStorage.setItem(PENDING_JOBS_KEY, JSON.stringify(pendingJobs)); } catch (e) {} }
 // job: { request_id, endpoint: 'job-status'|'avatar-video-status', mediaType: 'image'|'video', label, model, started_at }
+// Multiple tabs share this one localStorage key, so a plain "read once at
+// boot, mutate in memory, write" would let a second tab's write silently
+// clobber a first tab's still-in-flight job the moment both tabs queue or
+// dequeue anything close together. queueJob/dequeueJob instead re-read the
+// CURRENT shared list right before merging in this tab's own change and
+// writing back — each tab still only actively polls the jobs it itself
+// queued (that part genuinely doesn't need cross-tab coordination), this
+// just stops one tab's write from silently erasing another tab's entry.
 function queueJob(job) {
-  pendingJobs.push({ ...job, started_at: job.started_at || Date.now() });
-  savePendingJobs();
+  const entry = { ...job, started_at: job.started_at || Date.now() };
+  pendingJobs.push(entry);
+  const shared = readSharedPendingJobs();
+  shared.push(entry);
+  localStorage.setItem(PENDING_JOBS_KEY, JSON.stringify(shared));
   renderLibraryPending();
 }
 function dequeueJob(requestId) {
   pendingJobs = pendingJobs.filter((j) => j.request_id !== requestId);
-  savePendingJobs();
+  const shared = readSharedPendingJobs().filter((j) => j.request_id !== requestId);
+  localStorage.setItem(PENDING_JOBS_KEY, JSON.stringify(shared));
   renderLibraryPending();
 }
 function activeJobCount() { return pendingJobs.length; }
@@ -1865,6 +1880,26 @@ async function adminGrant(custom) {
     $('adminEmail').value = ''; $('adminCredits').value = '';
   } catch (e) { note('adminNote', e.message || 'Failed', 'err'); }
   btn.disabled = false; btn.textContent = label;
+}
+async function adminRevoke() {
+  const email = $('revokeEmail').value.trim();
+  if (!email) return note('revokeNote', 'Enter the buyer\'s email.', 'err');
+  const credits = parseInt($('revokeCredits').value, 10) || 0;
+  const revoke_plan = $('revokePlanCheck').checked;
+  if (credits <= 0 && !revoke_plan) return note('revokeNote', 'Enter a credit amount, or check "drop to Free plan".', 'err');
+  const btn = $('revokeBtn'); btn.disabled = true; btn.textContent = 'Revoking…';
+  try {
+    const res = await fetch('/.netlify/functions/admin-revoke', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ email, credits, revoke_plan }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    const shortfall = d.short_of_requested > 0 ? ` (${d.short_of_requested} short — they'd already spent some of it)` : '';
+    note('revokeNote', `✅ Removed ${d.credits_removed} credits${shortfall}${d.plan_revoked ? ', dropped to Free plan' : ''} for ${d.email}.`, 'ok');
+    $('revokeEmail').value = ''; $('revokeCredits').value = ''; $('revokePlanCheck').checked = false;
+  } catch (e) { note('revokeNote', e.message || 'Failed', 'err'); }
+  btn.disabled = false; btn.textContent = 'Revoke';
 }
 async function adminGrantCourse() {
   const email = $('adminEmail').value.trim();
@@ -4132,6 +4167,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('logoutBtn').onclick = logout;
   $('adminGrant').onclick = () => adminGrant(false);
   $('adminGrantCredits').onclick = () => adminGrant(true);
+  { const rb = $('revokeBtn'); if (rb) rb.onclick = adminRevoke; }
   { const gc = $('adminGrantCourse'); if (gc) gc.onclick = adminGrantCourse; }
   $('lbClose').onclick = () => $('lightbox').style.display = 'none';
   $('lbDl').onclick = () => downloadFile(lbUrl);
