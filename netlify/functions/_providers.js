@@ -287,6 +287,55 @@ async function submitSpeech({ audio, text, speed, referenceText }) {
   return { requestId: 'ws:' + id, provider: 'wavespeed' };
 }
 
+// ---- Resemble AI (a second, higher-fidelity voice option alongside
+// Omnivoice) ------------------------------------------------------------------
+// Unlike Omnivoice's every-call "clone from a fresh sample" approach,
+// Resemble voices are trained ONCE ahead of time in Resemble's own dashboard
+// (or via their separate voice-training API — not wired up here) and reused
+// by a persistent voice_uuid. Its /synthesize endpoint is genuinely
+// SYNCHRONOUS — the audio comes back in the same response, no polling, no
+// request_id — confirmed live 2026-07-17 (a real call against
+// f.cluster.resemble.ai/synthesize with a trained voice_uuid returned base64
+// WAV audio directly, ~1-2s regardless of clip length so far tested).
+// Needs RESEMBLE_API_KEY (Netlify env var, never hardcoded here).
+const RESEMBLE_SYNC_BASE = 'https://f.cluster.resemble.ai';
+const RESEMBLE_API_BASE = 'https://app.resemble.ai/api/v2';
+
+function hasResemble() { return !!process.env.RESEMBLE_API_KEY; }
+
+async function synthesizeResemble({ text, voiceUuid }) {
+  if (!hasResemble()) throw new Error('Resemble voice needs RESEMBLE_API_KEY.');
+  if (!voiceUuid) throw new Error('Missing Resemble voice.');
+  if (!text) throw new Error('Missing script text.');
+  const res = await fetch(`${RESEMBLE_SYNC_BASE}/synthesize`, {
+    method: 'POST',
+    headers: { Authorization: `Token ${process.env.RESEMBLE_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ voice_uuid: voiceUuid, data: text }),
+  });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok || j.success === false) throw new Error((j && j.message) || `Resemble HTTP ${res.status}`);
+  if (!j.audio_content) throw new Error('Resemble returned no audio.');
+  return { base64: j.audio_content, format: j.output_format || 'wav', durationSec: j.duration };
+}
+
+// Lists only the voices actually trained on this account (real clones and
+// marketplace add-ons), never the 150+ built-in stock voices every Resemble
+// account starts with — distinguished by `source`: stock voices carry
+// source "Resemble Voice", this account's own trained clones carry an empty
+// source. page_size=200 in one call comfortably covers a real account's own
+// voice count (confirmed live: 159 total stock+own fit on a single page).
+async function listResembleVoices() {
+  if (!hasResemble()) return [];
+  const res = await fetch(`${RESEMBLE_API_BASE}/voices?page=1&page_size=200`, {
+    headers: { Authorization: `Token ${process.env.RESEMBLE_API_KEY}` },
+  });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok || j.success === false) throw new Error((j && j.message) || `Resemble HTTP ${res.status}`);
+  return (j.items || [])
+    .filter((v) => !v.source && v.voice_status === 'Ready')
+    .map((v) => ({ uuid: v.uuid, name: v.name }));
+}
+
 // ---- WaveSpeed's Gemini Omni Video Edit (video-to-video, holistic AI edit) ---
 // Real, prompt-driven video editing — captions, restyling, relighting, cuts,
 // whatever a single instruction can describe — as opposed to this app's own
@@ -406,4 +455,4 @@ async function submitToolWS(slug, { image, prompt }) {
   return { requestId: 'ws:' + id, provider: 'wavespeed' };
 }
 
-module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitFlyerImage, submitImageWS, submitToolWS, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle };
+module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitFlyerImage, submitImageWS, submitToolWS, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle, synthesizeResemble, listResembleVoices, hasResemble };

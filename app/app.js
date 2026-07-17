@@ -2952,6 +2952,24 @@ async function loadAudioVoices() {
   } else {
     sel.style.display = 'none';
   }
+  loadResembleVoices();
+}
+async function loadResembleVoices() {
+  if (preview) return;
+  const rsel = $('adResemblePicker');
+  try {
+    const res = await fetch('/.netlify/functions/resemble-voices', { headers: { ...(await authHeader()) } });
+    const d = await res.json();
+    const voices = (d && d.voices) || [];
+    rsel.innerHTML = voices.length
+      ? voices.map((v) => `<option value="${v.uuid}">${(v.name || 'Voice').replace(/</g, '&lt;')}</option>`).join('')
+      : '<option value="">No Resemble voices found on this account yet</option>';
+  } catch (e) { rsel.innerHTML = '<option value="">Could not load Resemble voices</option>'; }
+}
+function adToggleEngine() {
+  const isResemble = $('adEngine').value === 'resemble';
+  $('adWaveWrap').style.display = isResemble ? 'none' : 'block';
+  $('adResembleWrap').style.display = isResemble ? 'block' : 'none';
 }
 async function saveTrainedVoice() {
   if (preview) { showAuth('signup'); return; }
@@ -2990,27 +3008,40 @@ async function adGenerate() {
   if (preview) { showAuth('signup'); return; }
   const text = $('adScript').value.trim();
   if (!text) return note('adNote', 'Write the script first.', 'err');
+  const isResemble = $('adEngine').value === 'resemble';
   const voiceUrl = $('adVoicePicker').value || adUploadedVoiceUrl;
-  if (!voiceUrl) return note('adNote', 'Add a voice sample first.', 'err');
+  const resembleVoiceUuid = $('adResemblePicker').value;
+  if (isResemble && !resembleVoiceUuid) return note('adNote', 'Pick a Resemble voice first.', 'err');
+  if (!isResemble && !voiceUrl) return note('adNote', 'Add a voice sample first.', 'err');
   if (jobCapReached('adNote')) return;
   const btn = $('adGen'); const label = '🎙 Generate voiceover'; btn.disabled = true; btn.textContent = 'Submitting…';
   note('adNote', '');
   try {
+    const payload = isResemble
+      ? { text, engine: 'resemble', resemble_voice_uuid: resembleVoiceUuid }
+      : { text, voice_sample_url: voiceUrl, speed: parseFloat($('adSpeed').value), reference_text: $('adVoiceRefText').value.trim() };
     const res = await fetch('/.netlify/functions/audio-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ text, voice_sample_url: voiceUrl, speed: parseFloat($('adSpeed').value), reference_text: $('adVoiceRefText').value.trim() }),
+      body: JSON.stringify(payload),
     });
     const d = await res.json();
     if (res.status === 503) { note('adNote', d.error, 'err'); btn.disabled = false; btn.textContent = label; return; }
     if (res.status === 402) { note('adNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; return; }
     if (!res.ok) throw new Error(d.error || 'Failed');
     $('creditCount').textContent = d.credits;
-    queueJob({ request_id: d.request_id, endpoint: 'job-status', mediaType: 'audio', label: text.slice(0, 60), model: 'audio' });
-    startGlobalPoller();
-    note('adNote', '✅ Started — rolling in Projects now.', 'ok');
+    if (d.done) {
+      // Resemble's call already finished synchronously — nothing to queue
+      // or poll, the finished audio is ready right now.
+      $('adResult').innerHTML = `<audio controls src="${d.url}" style="width:100%"></audio>`;
+      note('adNote', '✅ Done.', 'ok');
+    } else {
+      queueJob({ request_id: d.request_id, endpoint: 'job-status', mediaType: 'audio', label: text.slice(0, 60), model: 'audio' });
+      startGlobalPoller();
+      note('adNote', '✅ Started — rolling in Projects now.', 'ok');
+      showView('library');
+    }
     btn.disabled = false; btn.textContent = label;
     $('adScript').value = '';
-    showView('library');
   } catch (e) { note('adNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 function pollAudioJob(reqId, btn, label) {
@@ -3903,6 +3934,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('adVoicePick').onclick = () => $('adVoiceFile').click();
   $('adVoiceFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadAudioVoiceSample(f); e.target.value = ''; };
   $('adVoicePicker').onchange = (e) => { const opt = e.target.selectedOptions[0]; $('adVoiceRefText').value = (opt && opt.dataset.ref) || ''; };
+  $('adEngine').onchange = adToggleEngine;
   $('adSaveVoice').onclick = saveTrainedVoice;
   $('adGen').onclick = adGenerate;
   $('editBack').onclick = () => showView('home');

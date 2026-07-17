@@ -393,7 +393,13 @@
     <div class="studio-head"><div class="ic">🎙</div><div><h2>Audio Studio</h2><p>Any script, your voice — instant voiceover</p></div></div>
 
     <div class="panel">
-      <div class="sheet-box">
+      <label class="fld" for="adEngine">Voice engine</label>
+      <select id="adEngine">
+        <option value="wavespeed">WaveSpeed — clone from your own sample</option>
+        <option value="resemble">Resemble — your trained voice (higher fidelity)</option>
+      </select>
+
+      <div class="sheet-box" id="adWaveWrap">
         <div class="sheet-head">🎙 Voice</div>
         <div class="muted" id="adVoiceStatus" style="font-size:12px;margin-bottom:8px">Upload a 15-30s clear, natural, expressive voice sample, or reuse a trained avatar's voice below.</div>
         <button class="btn ghost sm" id="adVoicePick">🎙 Upload voice sample</button>
@@ -406,6 +412,12 @@
           <button class="btn ghost sm" id="adSaveVoice">💾 Save this voice for reuse</button>
         </div>
         <div class="note" id="adVoiceNote"></div>
+      </div>
+
+      <div class="sheet-box" id="adResembleWrap" style="display:none">
+        <div class="sheet-head">🎙 Resemble voice</div>
+        <select id="adResemblePicker"></select>
+        <div class="note" id="adResembleNote"></div>
       </div>
 
       <label class="fld" for="adScript" style="margin-top:12px">Script</label>
