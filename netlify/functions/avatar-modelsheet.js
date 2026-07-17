@@ -10,13 +10,19 @@
 // slug is `gpt-image-2-image-to-image` (not `gpt-image-2-edit`, which 404s),
 // takes `prompt` + `images_list` (confirmed up to 20 images accepted) +
 // optional `aspect_ratio`/`size`. Real cost $0.09/generation.
+//
+// Routed through WaveSpeed now (was still hardcoded straight to MuAPI,
+// same gap as avatar-generate.js — found 2026-07-17). Same submitFlyerImage()
+// WaveSpeed path, same MuAPI fallback if WAVESPEED_KEY isn't set.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
 const { muapiHostImage } = require('./_muapi');
+const { submitFlyerImage, hasWaveSpeed } = require('./_providers');
 
 const SHEET_COST = 15;
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
-const MODEL = 'gpt-image-2-image-to-image';
+const MODEL_WS = 'gpt-image-2-ws-edit';
+const MODEL_MUAPI = 'gpt-image-2-image-to-image';
 
 function muapiError(j, status) {
   if (j && j.detail) {
@@ -36,7 +42,7 @@ exports.handler = async (event) => {
   let db, user, cost = 0;
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
-    if (!process.env.MUAPI_KEY) return json(503, { error: 'Engine not connected (MUAPI_KEY missing).' });
+    if (!process.env.MUAPI_KEY && !hasWaveSpeed()) return json(503, { error: 'Engine not connected (WAVESPEED_KEY/MUAPI_KEY missing).' });
 
     user = await getUser(event);
     if (!user) return json(401, { error: 'Please sign in again.' });
@@ -64,19 +70,29 @@ exports.handler = async (event) => {
     // JSON error to show). 8 is comfortably more identity signal than the
     // old 6-photo cap without that risk.
     const hosted = await Promise.all(photos.slice(0, 8).map(muapiHostImage));
-    const sub = await fetch(`${MUAPI_BASE}/${MODEL}`, {
-      method: 'POST',
-      headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: SHEET_PROMPT, aspect_ratio: '1:1', size: '1024x1024', images_list: hosted }),
-    });
-    const j = await sub.json();
-    if (!sub.ok) throw new Error(muapiError(j, sub.status));
-    const id = j.request_id || j.id;
+    const wantsWS = hasWaveSpeed();
+    const model = wantsWS ? MODEL_WS : MODEL_MUAPI;
+
+    let id;
+    if (wantsWS) {
+      const r = await submitFlyerImage(model, { prompt: SHEET_PROMPT, aspect: '1:1', images: hosted });
+      if (!r) throw new Error('WaveSpeed did not start the job');
+      id = r.requestId;
+    } else {
+      const sub = await fetch(`${MUAPI_BASE}/${model}`, {
+        method: 'POST',
+        headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: SHEET_PROMPT, aspect_ratio: '1:1', size: '1024x1024', images_list: hosted }),
+      });
+      const j = await sub.json();
+      if (!sub.ok) throw new Error(muapiError(j, sub.status));
+      id = j.request_id || j.id;
+    }
     if (!id) throw new Error('Engine did not start the job');
 
     // Carry the avatar id inside `prompt` so job-status can save the sheet onto the
     // avatar without depending on an extra jobs column.
-    await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'modelsheet', model: MODEL, prompt: 'MODELSHEET::' + avatarId, aspect: '1:1', credits: SHEET_COST, status: 'processing' });
+    await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'modelsheet', model, prompt: 'MODELSHEET::' + avatarId, aspect: '1:1', credits: SHEET_COST, status: 'processing' });
     return json(200, { request_id: id, credits: balance });
   } catch (e) {
     try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}

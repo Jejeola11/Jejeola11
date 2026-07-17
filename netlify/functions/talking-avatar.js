@@ -11,22 +11,19 @@
 // Field names confirmed via a clean MuAPI validation error (no plan gate, no
 // charge): both families require 'image_url' and 'audio_url' (singular).
 // Async submit -> poll via the shared job-status.js (kind:'video').
+//
+// Routed through submitAvatar() (_providers.js) now, which already had a
+// working WaveSpeed AVATAR_ROUTES entry for all three of these models —
+// this endpoint was just still calling MuAPI directly instead of using it
+// (found in the same audit that caught avatar-generate.js/avatar-
+// modelsheet.js, 2026-07-17).
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { VIDEO_MODELS, canUseFree } = require('./_packs');
 const { muapiHostFile } = require('./_muapi');
+const { submitAvatar } = require('./_providers');
 
-const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 const ALLOWED = ['omnihuman-1-5', 'kling-v2-avatar-pro', 'kling-v2-avatar-standard'];
-
-function muapiError(j, status) {
-  if (j && j.detail) {
-    if (Array.isArray(j.detail)) return j.detail.map((d) => (d && d.msg) || JSON.stringify(d)).join('; ');
-    if (typeof j.detail === 'string') return j.detail;
-    return JSON.stringify(j.detail);
-  }
-  return 'Engine HTTP ' + status;
-}
 
 exports.handler = async (event) => {
   try {
@@ -55,20 +52,11 @@ exports.handler = async (event) => {
     try {
       const hostedImage = await muapiHostFile(image_url, 'image');
       const hostedAudio = await muapiHostFile(audio_url, 'audio');
-      const payload = { image_url: hostedImage, audio_url: hostedAudio };
+      const { requestId } = await submitAvatar(model, { image: hostedImage, audio: hostedAudio });
+      if (!requestId) throw new Error('Engine did not start the job');
 
-      const sub = await fetch(`${MUAPI_BASE}/${model}`, {
-        method: 'POST',
-        headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const j = await sub.json();
-      if (!sub.ok) throw new Error(muapiError(j, sub.status));
-      const id = j.request_id || j.id;
-      if (!id) throw new Error('Engine did not start the job');
-
-      await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'video', model, prompt: '(talking avatar)', aspect: '9:16', credits: cost, status: 'processing' });
-      return json(200, { request_id: id, credits: balance });
+      await db.from('jobs').insert({ request_id: requestId, user_id: user.id, kind: 'video', model, prompt: '(talking avatar)', aspect: '9:16', credits: cost, status: 'processing' });
+      return json(200, { request_id: requestId, credits: balance });
     } catch (e) {
       const msg = e.message || 'Could not start the video';
       try { await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
