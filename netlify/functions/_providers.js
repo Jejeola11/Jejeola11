@@ -422,6 +422,24 @@ async function submitVideoEdit({ video, prompt }) {
   return { requestId: 'ws:' + id, provider: 'wavespeed' };
 }
 
+// ---- WaveSpeed's Gemini Omni Flash "reference-to-video" (Omni Studio) ------
+// Generates video with visual/character consistency from reference images —
+// the WaveSpeed equivalent of what Omni Studio's reference feature needed;
+// the MuAPI model it used before (Seedance omni-reference) was never found
+// on WaveSpeed under any slug. Required fields confirmed live 2026-07-17 via
+// clean validation errors: `images` (array), then `prompt`. Audio-reference
+// support (the MuAPI model's other input) is NOT confirmed here — this is
+// image+prompt only until proven otherwise; don't assume audio_urls works.
+async function submitOmniReference({ images, prompt, aspect }) {
+  if (!hasWaveSpeed()) throw new Error('WAVESPEED_KEY missing.');
+  if (!images || !images.length) throw new Error('Add at least one reference image.');
+  if (!prompt) throw new Error('Describe the video you want.');
+  const body = { images: images.slice(0, 9), prompt };
+  if (aspect) body.aspect_ratio = aspect;
+  const id = await wsSubmit('google/gemini-omni-flash/reference-to-video', body);
+  return { requestId: 'ws:' + id, provider: 'wavespeed' };
+}
+
 // ---- Flyer Studio image route (WaveSpeed's GPT Image 2) --------------------
 // The model the user specifically wants for "perfect flyer design" — but
 // MuAPI's wrapper for it genuinely takes 50-90s+ of real inference time
@@ -523,4 +541,4 @@ async function submitToolWS(slug, { image, prompt }) {
   return { requestId: 'ws:' + id, provider: 'wavespeed' };
 }
 
-module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitFlyerImage, submitImageWS, submitToolWS, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle, synthesizeResemble, listResembleVoices, hasResemble, chatCompletion, encodeModelImage, decodeModelImage };
+module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitOmniReference, submitFlyerImage, submitImageWS, submitToolWS, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle, synthesizeResemble, listResembleVoices, hasResemble, chatCompletion, encodeModelImage, decodeModelImage };

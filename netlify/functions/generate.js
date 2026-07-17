@@ -120,8 +120,19 @@ exports.handler = async (event) => {
   const refs = (Array.isArray(body.reference_image_urls) ? body.reference_image_urls
     : (body.reference_image_url ? [body.reference_image_url] : [])).filter(Boolean);
   const useRef = refs.length > 0;
-  // With references we use Nano Banana EDIT (multi-image). Plain nano-banana is text-only.
-  const model = useRef ? 'nano-banana-edit' : (body.model || 'flux-schnell-image');
+  // With references, models that have their own edit/i2i variant (WaveSpeed's
+  // IMAGE_ROUTES has i2i for all of these) keep whatever the user actually
+  // selected — submitImageWS already picks .i2i vs .t2i internally based on
+  // whether images are present. This used to ALWAYS hardcode the literal
+  // string 'nano-banana-edit' regardless of the dropdown, which silently
+  // discarded picks like Nano Banana 2 AND doesn't match any real
+  // IMAGE_ROUTES key (WaveSpeed keys by the base model name, not a separate
+  // "-edit" slug) — so it always fell through to MuAPI even with a funded
+  // WaveSpeed account. Only substitute a known edit-capable default for
+  // models that genuinely have no editing variant at all (e.g. flux-schnell).
+  const selectedModel = body.model || 'flux-schnell-image';
+  const EDIT_CAPABLE = ['nano-banana', 'nano-banana-2', 'gpt-image-2-text-to-image', 'qwen-image', 'flux-2-pro', 'seedream-5.0', 'hunyuan-image-3.0', 'hidream_i1_full_image', 'flux-dev-image'];
+  const model = useRef ? (EDIT_CAPABLE.includes(selectedModel) ? selectedModel : 'nano-banana-edit') : selectedModel;
   if (!prompt) return json(400, { error: 'Add a prompt first.' });
   const base = IMAGE_MODELS[model];
   if (!base) return json(400, { error: 'Unknown model.' });
