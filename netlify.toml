@@ -42,12 +42,28 @@
   to = "/app/studio.html"
   status = 200
 
-# Fuse Atelier 2.0 sales page lives on its own dedicated site (atelier-site/).
+# Fuse Atelier sales page — served on THIS same domain/site at /atelier
+# (no second Netlify site needed). publish = "." already exposes
+# atelier-site/ as real files; these three rules just rewrite the clean
+# /atelier URL to it while keeping its own relative asset paths
+# (assets/*, proof/*) working, since the browser resolves those against
+# whatever URL is in the address bar.
 [[redirects]]
   from = "/atelier"
-  to = "https://fuse-atelier.netlify.app"
-  status = 302
+  to = "/atelier/"
+  status = 301
   force = true
+
+[[redirects]]
+  from = "/atelier/"
+  to = "/atelier-site/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/atelier/*"
+  to = "/atelier-site/:splat"
+  status = 200
 
 [[redirects]]
   from = "/app"
