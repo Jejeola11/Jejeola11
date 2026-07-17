@@ -13,6 +13,7 @@
 // Uses the same MuAPI Claude wrapper as flyer-brief.js's design assistant.
 // ============================================================
 const { getUser, json } = require('./_supabase');
+const { extractErrorMessage } = require('./_errors');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 const MODEL = 'claude-sonnet-4-5';
@@ -49,7 +50,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({ prompt: `${SYSTEM_PROMPT}\n\nSCRIPT TO REWRITE:\n${text}` }),
     });
     const j = await sub.json().catch(() => ({}));
-    if (!sub.ok) throw new Error((j && (j.error || j.message)) || `Engine HTTP ${sub.status}`);
+    if (!sub.ok) throw new Error(extractErrorMessage(j) || `Engine HTTP ${sub.status}`);
 
     const raw = j.output_text || j.text || (Array.isArray(j.output) && j.output.map((o) => o.content || o.text).join('')) || j.content;
     if (raw) return json(200, { text: String(raw).trim() });

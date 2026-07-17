@@ -13,6 +13,7 @@
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { REACTOR_COST, canUseFree } = require('./_packs');
 const { buildDesignBrainPrompt } = require('./_flyer-knowledge');
+const { extractErrorMessage } = require('./_errors');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 const MODEL = 'claude-sonnet-4-5';
@@ -137,7 +138,7 @@ exports.handler = async (event) => {
     });
     const txt = await sub.text();
     let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
-    if (!sub.ok) throw new Error((j && (j.error || j.message)) || ('Engine HTTP ' + sub.status));
+    if (!sub.ok) throw new Error(extractErrorMessage(j) || ('Engine HTTP ' + sub.status));
     const id = j.request_id || j.id;
     if (!id) throw new Error('Engine did not return a job id.');
 

@@ -11,6 +11,7 @@
 const { admin, getUser, json } = require('./_supabase');
 const { ensureWorkDir, cleanupTmp, downloadToFile, ffmpeg, uploadToStorage } = require('./_ffmpeg');
 const { muapiHostFile } = require('./_muapi');
+const { extractErrorMessage } = require('./_errors');
 const path = require('path');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
@@ -62,7 +63,7 @@ exports.handler = async (event) => {
     });
     const txt = await sub.text();
     let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
-    if (!sub.ok) throw new Error((j && (j.error || j.message)) || ('Engine HTTP ' + sub.status));
+    if (!sub.ok) throw new Error(extractErrorMessage(j) || ('Engine HTTP ' + sub.status));
     const id = j.request_id || j.id;
     if (!id) throw new Error('Engine did not start the job');
 
