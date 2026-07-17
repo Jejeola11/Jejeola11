@@ -56,6 +56,15 @@ const CHUNK_SECONDS_MOTION = 10;
 // Comfortably under the ~6,180-char length we confirmed WaveSpeed accepts at
 // submit time for a single omnivoice/voice-clone call.
 const SPEECH_BATCH_CHARS = 3000;
+// Resemble's sync /synthesize is a MUCH smaller ceiling than WaveSpeed's --
+// confirmed live 2026-07-17: a ~270-word (~1,650 char) single call came back
+// as an outright 504 from Resemble's own upstream, and a real ~300-word
+// script that DID return audio came back with words dropped/substituted and
+// at least one fully hallucinated phrase throughout the clip (not just at
+// one spot) -- a classic long-single-shot-TTS failure mode, not a markup
+// bug. Every short test (~50-350 chars) came back clean. Keeping batches
+// well under that failure zone.
+const RESEMBLE_BATCH_CHARS = 450;
 
 // Split a script into batches at sentence boundaries, each <= maxChars. A
 // single sentence longer than maxChars is hard-split (rare, but must not
@@ -103,13 +112,13 @@ async function advanceSpeech(db, video, avatar) {
   const { data: rows } = await db.from('avatar_video_chunks').select('*').eq('avatar_video_id', video.id).eq('kind', 'speech').order('seq');
 
   if (!rows || !rows.length) {
-    const batches = splitScript(video.script);
+    const useResemble = avatar.tts_engine === 'resemble' && avatar.resemble_voice_uuid;
+    const batches = splitScript(video.script, useResemble ? RESEMBLE_BATCH_CHARS : SPEECH_BATCH_CHARS);
     const inserted = [];
     for (let seq = 0; seq < batches.length; seq++) {
       const { data } = await db.from('avatar_video_chunks').insert({ avatar_video_id: video.id, kind: 'speech', seq, status: 'pending' }).select().single();
       inserted.push({ row: data, text: batches[seq] });
     }
-    const useResemble = avatar.tts_engine === 'resemble' && avatar.resemble_voice_uuid;
     if (useResemble) {
       // Resemble's /synthesize is genuinely synchronous — no request_id/poll
       // cycle needed, each batch just finishes right here in this same pass.
@@ -343,4 +352,4 @@ async function advance(db, videoId) {
   return { stage: video.stage };
 }
 
-module.exports = { advance, splitScript, CHUNK_SECONDS, CHUNK_SECONDS_MOTION, SPEECH_BATCH_CHARS };
+module.exports = { advance, splitScript, CHUNK_SECONDS, CHUNK_SECONDS_MOTION, SPEECH_BATCH_CHARS, RESEMBLE_BATCH_CHARS };

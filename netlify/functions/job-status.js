@@ -7,6 +7,10 @@
 const { admin, getUser, json } = require('./_supabase');
 const { pollAny, synthesizeResemble } = require('./_providers');
 const { cropToAspect } = require('./_canvas');
+const { splitScript, RESEMBLE_BATCH_CHARS } = require('./_avatar-video');
+const { ensureWorkDir, cleanupTmp, concatAudio, uploadToStorage } = require('./_ffmpeg');
+const fs = require('fs').promises;
+const path = require('path');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 const ASPECT_RATIO = { '1:1': 1, '9:16': 9 / 16, '4:5': 4 / 5, '3:4': 3 / 4, '16:9': 16 / 9 };
@@ -69,17 +73,33 @@ exports.handler = async (event) => {
   // rather than crashing the user-facing submit call with a raw timeout.
   if (job.kind === 'audio' && job.model && job.model.indexOf('resemble:') === 0) {
     const voiceUuid = job.model.slice('resemble:'.length);
+    const jobWorkId = 'resemble-' + id;
     try {
-      const { base64, format } = await synthesizeResemble({ text: job.prompt, voiceUuid });
-      const buf = Buffer.from(base64, 'base64');
-      const path = `${user.id}/resemble-${Date.now()}.${format}`;
-      const { error: upErr } = await db.storage.from('avatars').upload(path, buf, { contentType: `audio/${format}`, upsert: true });
-      if (upErr) throw new Error(upErr.message);
-      const url = db.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+      // Confirmed live 2026-07-17: Resemble's sync /synthesize is unreliable
+      // past a few hundred characters in one call — a ~270-word single call
+      // came back an outright 504, and a real ~300-word script that DID
+      // return audio had words dropped/substituted throughout, not just at
+      // one spot. Same fix as the Avatar Creator's long-form path: split at
+      // sentence boundaries, synthesize each small piece in parallel (fast,
+      // confirmed clean at this size), then stitch into one continuous track.
+      const chunks = splitScript(job.prompt, RESEMBLE_BATCH_CHARS);
+      const dir = await ensureWorkDir(jobWorkId);
+      const localPaths = await Promise.all(chunks.map(async (chunkText, i) => {
+        const { base64, format } = await synthesizeResemble({ text: chunkText, voiceUuid });
+        const localPath = path.join(dir, `resemble-chunk-${i}.${format}`);
+        await fs.writeFile(localPath, Buffer.from(base64, 'base64'));
+        return localPath;
+      }));
+      const joined = path.join(dir, 'resemble-joined.m4a');
+      await concatAudio(localPaths, joined, jobWorkId);
+      const storagePath = `${user.id}/resemble-${Date.now()}.m4a`;
+      const url = await uploadToStorage(db, joined, storagePath, 'audio/mp4');
+      await cleanupTmp(jobWorkId);
       await db.from('jobs').update({ status: 'completed', output_url: url }).eq('request_id', id);
       try { await db.from('generations').insert({ user_id: user.id, type: 'audio', model: 'resemble', prompt: job.prompt, output_url: url, credits_spent: job.credits }); } catch (e) {}
       return json(200, { status: 'completed', url });
     } catch (e) {
+      try { await cleanupTmp(jobWorkId); } catch (_) {}
       // A single failed attempt (network blip, cold start) shouldn't burn
       // the user's credits or dead-end the job — leave it 'processing' so
       // the next poll just tries again. But an unbounded retry would loop
