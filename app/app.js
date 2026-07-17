@@ -2030,7 +2030,15 @@ let selectedAvatar = null;
 let avatarMap = {};   // id -> avatar row (incl. model_sheet_url)
 async function loadAvatars() {
   if (preview) { $('avatarList').innerHTML = '<div class="empty" style="grid-column:1/-1">Sign up to create your avatar</div>'; return; }
-  const { data } = await sb.from('avatars').select('id,name,image_url,model_sheet_url,status,voice_sample_url,voice_reference_text,source_video_url,trained_frame_url').order('created_at', { ascending: false });
+  let { data, error } = await sb.from('avatars').select('id,name,image_url,model_sheet_url,status,voice_sample_url,voice_reference_text,source_video_url,trained_frame_url').order('created_at', { ascending: false });
+  if (error) {
+    // voice_reference_text needs schema-phase21.sql run first — if that
+    // migration hasn't happened yet on this database, asking for a column
+    // that doesn't exist fails the WHOLE query (not just that field), which
+    // would otherwise wipe the entire avatar list. Fall back to the older
+    // column set so avatars still show while the migration catches up.
+    ({ data, error } = await sb.from('avatars').select('id,name,image_url,model_sheet_url,status,voice_sample_url,source_video_url,trained_frame_url').order('created_at', { ascending: false }));
+  }
   avatarMap = {}; (data || []).forEach((a) => { avatarMap[a.id] = a; });
   $('avatarList').innerHTML = (data && data.length)
     ? data.map((a) => `<div style="text-align:center;position:relative"><img src="${a.image_url}" data-id="${a.id}" data-name="${a.name}" class="avThumb" style="aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer">${a.model_sheet_url ? '<span class="av-sheet-badge">📐</span>' : ''}<div style="font-size:11px;margin-top:4px" class="muted">${a.name}</div></div>`).join('')
@@ -2922,10 +2930,15 @@ async function loadAudioVoices() {
   // sample attached, and standalone voices trained once here and reused by
   // name — independent of any specific avatar, exactly what "train it once,
   // pick it for any script later" needs.
-  const [{ data: avatarsWithVoice }, voicesRes] = await Promise.all([
+  let [avatarsRes, voicesRes] = await Promise.all([
     sb.from('avatars').select('id,name,voice_sample_url,voice_reference_text').not('voice_sample_url', 'is', null),
     sb.from('voices').select('id,name,sample_url,reference_text').order('created_at', { ascending: false }),
   ]);
+  // Same schema-lag fallback as loadAvatars() — an unrun migration must
+  // never take the whole picker down, just the extra reference-text field.
+  if (avatarsRes.error) avatarsRes = await sb.from('avatars').select('id,name,voice_sample_url').not('voice_sample_url', 'is', null);
+  if (voicesRes.error) voicesRes = await sb.from('voices').select('id,name,sample_url');
+  const avatarsWithVoice = avatarsRes.data;
   const savedVoices = (voicesRes && voicesRes.data) || [];
   const sel = $('adVoicePicker');
   const esc = (s) => (s || '').replace(/"/g, '&quot;');
