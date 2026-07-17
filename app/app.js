@@ -1572,6 +1572,7 @@ function buildReactor() {
  $('reactorList').querySelectorAll('.rcard').forEach((el) => el.onclick = () => {
  const m = cfg.REACTOR_MODELS.find((x) => x.id === el.dataset.id);
  $('reactorChat').style.display = 'block'; rcRefs = []; renderRcThumbs(); $('rcOut').innerHTML = ''; note('rcNote', '');
+ if ($('rcIcon')) $('rcIcon').innerHTML = svgIcon(m.kind === 'image' ? 'camera' : 'sparkle');
  if (!m.live) { note('rcNote', `${m.name} comes online soon — video AIs are being connected.`, 'err'); $('rcName').textContent = m.name; $('rcCost').textContent = 'Coming soon'; return; }
  rcModel = m;
  const isImg = m.kind === 'image';
