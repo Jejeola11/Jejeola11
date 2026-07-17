@@ -158,7 +158,7 @@ function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video'
       const r = await fetch(`/.netlify/functions/job-status?id=${requestId}`, { headers: { ...(await authHeader()) } });
       const d = await r.json();
       if (d.status === 'completed') {
-        clearInterval(timer); clearPending();
+        clearInterval(timer);
         lastOutput = d.url;
         const media = mediaType === 'image'
           ? `<img src="${d.url}" onclick="fuseLightbox('${d.url}','image')" style="cursor:pointer">`
@@ -177,7 +177,7 @@ function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video'
         if (btn) { btn.disabled = false; btn.textContent = btnLabel; }
         if (onComplete) onComplete(d.url);
       } else if (d.status === 'failed') {
-        clearInterval(timer); clearPending();
+        clearInterval(timer);
         resultEl.innerHTML = '<div>⚠ ' + (d.error || 'Failed') + '</div>';
         note(noteId, (d.error || 'Failed') + ' — credits refunded.', 'err');
         if (user) loadProfile();
@@ -328,24 +328,102 @@ function restoreRoute() {
     else showView(r.view);
   } catch (e) {}
 }
-// In-progress video survives a refresh: remember the job and re-attach the poller.
-function savePending(id, where) { try { localStorage.setItem('fuse_pendingVideo', JSON.stringify({ id, where })); } catch (e) {} }
+// Legacy single-slot pending-video key — kept as a harmless no-op stub since
+// pollGrid (still used by Prompt Gen + Omni Studio, not retrofitted below)
+// still calls it; nothing writes to fuse_pendingVideo anymore, superseded by
+// the multi-job queue below.
 function clearPending() { try { localStorage.removeItem('fuse_pendingVideo'); } catch (e) {} }
-function resumePending() {
-  let p; try { p = JSON.parse(localStorage.getItem('fuse_pendingVideo') || 'null'); } catch (e) {}
-  if (!p || !p.id) return;
-  // Map the pending job back to its view + result element + media type.
-  const map = {
-    video:  { view: 'video',  resultId: 'vResult',  noteId: 'vNote',     media: 'video' },
-    avatar: { view: 'avatar', resultId: 'avResult', noteId: 'avGenNote', media: 'image' },
-    studio: { view: 'studio', resultId: 'result',   noteId: 'genNote',   media: 'image' },
-  };
-  const m = map[p.where] || map.studio;
-  if (p.where === 'avatar') { showView('avatar'); } else { showView(m.view); }
-  const resultEl = $(m.resultId); if (!resultEl) return;
-  resultEl.innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Resuming your render…</div></div>';
-  note(m.noteId, 'Reconnected to your render — still working ⏳', 'ok');
-  pollJob(p.id, resultEl, m.noteId, null, null, m.media);
+
+// ============================================================
+// Global generation queue (Higgsfield-style) — a "Generate" tap submits and
+// immediately frees the studio for another one, instead of disabling the
+// button and polling inline tied to that view's DOM (which silently died
+// the moment you switched views, reloaded, or the tab lost focus long
+// enough for the browser to throttle its setInterval). Every job below is
+// tracked centrally in localStorage and polled by ONE interval that runs
+// for the life of the whole app, independent of whatever view is open —
+// so it survives navigation, reload, and backgrounding, and up to
+// MAX_CONCURRENT_JOBS can genuinely run side by side.
+// ============================================================
+const PENDING_JOBS_KEY = 'fuse_pending_jobs';
+const MAX_CONCURRENT_JOBS = 10;
+let pendingJobs = [];
+function loadPendingJobs() {
+  try { pendingJobs = JSON.parse(localStorage.getItem(PENDING_JOBS_KEY) || '[]'); } catch (e) { pendingJobs = []; }
+}
+function savePendingJobs() { try { localStorage.setItem(PENDING_JOBS_KEY, JSON.stringify(pendingJobs)); } catch (e) {} }
+// job: { request_id, endpoint: 'job-status'|'avatar-video-status', mediaType: 'image'|'video', label, model, started_at }
+function queueJob(job) {
+  pendingJobs.push({ ...job, started_at: job.started_at || Date.now() });
+  savePendingJobs();
+  renderLibraryPending();
+}
+function dequeueJob(requestId) {
+  pendingJobs = pendingJobs.filter((j) => j.request_id !== requestId);
+  savePendingJobs();
+  renderLibraryPending();
+}
+function activeJobCount() { return pendingJobs.length; }
+// Call this before every retrofitted submit — returns true (and shows the
+// note) if the 10-concurrent cap is already hit, so the caller can bail out
+// before spending credits on a submission that would just queue forever.
+function jobCapReached(noteId) {
+  if (pendingJobs.length < MAX_CONCURRENT_JOBS) return false;
+  note(noteId, `You've got ${MAX_CONCURRENT_JOBS} generations running already — check Projects, or wait for one to finish before starting another.`, 'err');
+  return true;
+}
+
+let globalPollTimer = null;
+function startGlobalPoller() {
+  if (globalPollTimer) return;
+  globalPollTimer = setInterval(pollAllPendingJobs, 6000);
+  pollAllPendingJobs();
+}
+async function pollAllPendingJobs() {
+  if (!pendingJobs.length) return;
+  const snapshot = [...pendingJobs];
+  for (const job of snapshot) {
+    try {
+      const path = job.endpoint === 'avatar-video-status' ? `avatar-video-status?id=${job.request_id}` : `job-status?id=${job.request_id}`;
+      const r = await fetch(`/.netlify/functions/${path}`, { headers: { ...(await authHeader()) } });
+      const d = await r.json();
+      const done = job.endpoint === 'avatar-video-status' ? d.stage === 'complete' : d.status === 'completed';
+      const failed = job.endpoint === 'avatar-video-status' ? d.stage === 'failed' : d.status === 'failed';
+      if (done || failed) {
+        dequeueJob(job.request_id);
+        if (user) loadProfile();
+        if (curView === 'library') loadLibrary();
+        showJobToast(job, done ? 'done' : 'failed', d);
+      }
+    } catch (e) {}
+  }
+}
+function showJobToast(job, outcome, data) {
+  const el = document.createElement('div');
+  el.className = 'fuse-toast' + (outcome === 'failed' ? ' err' : '');
+  el.innerHTML = outcome === 'done'
+    ? `✅ ${(job.label || 'Your generation')} is ready — <a onclick="showView('library')">view in Projects</a>`
+    : `⚠ ${(job.label || 'A generation')} failed — credits refunded`;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 6000);
+}
+// Renders the "processing" cards at the top of the Projects grid — called
+// whenever the queue changes AND every time loadLibrary() itself runs, so
+// pending jobs are visible immediately even before the first poll tick.
+function renderLibraryPending() {
+  if (curView !== 'library') return;
+  const g = $('libGrid'); if (!g) return;
+  const existingPending = g.querySelectorAll('.projitem.processing');
+  existingPending.forEach((n) => n.remove());
+  if (!pendingJobs.length) return;
+  const html = pendingJobs.slice().reverse().map((j) => `
+    <div class="projitem processing">
+      <div class="proj-spin"><span class="spin"></span></div>
+      <div class="proj-pending-label">${(j.label || j.model || 'Generating…').replace(/</g, '&lt;')}</div>
+    </div>`).join('');
+  g.insertAdjacentHTML('afterbegin', html);
+  const empty = g.querySelector('.empty'); if (empty) empty.remove();
 }
 
 // ---------------- model gallery (Create — Higgsfield-style picker) ----------------
@@ -420,11 +498,11 @@ function setStudioMode(video) {
   else { buildModelSelect(); $('genBtn').textContent = '✨ Generate'; }
 }
 async function generateStudioVideo(prompt) {
+  if (jobCapReached('genNote')) return;
   const model = $('model').value, aspect = $('aspect').value;
   const cameraMotion = $('cameraMotion').value.trim();
   const fullPrompt = cameraMotion ? `${prompt}. Camera: ${cameraMotion}` : prompt;
   const btn = $('genBtn'); const label = '🎬 Generate video'; btn.disabled = true; btn.textContent = 'Submitting…';
-  $('result').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Sending to the engine…</div></div>';
   note('genNote', '');
   try {
     const res = await fetch('/.netlify/functions/video-generate', {
@@ -432,13 +510,15 @@ async function generateStudioVideo(prompt) {
       body: JSON.stringify({ model, prompt: fullPrompt, aspect, duration: $('studioDuration').value, image_url: refUrls[0] || undefined }),
     });
     const data = await res.json();
-    if (res.status === 402) { note('genNote', 'Out of credits — top up.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; btn.disabled = false; btn.textContent = label; return; }
+    if (res.status === 402) { note('genNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; return; }
     if (!res.ok) throw new Error(data.error || 'Failed');
     $('creditCount').textContent = data.credits;
-    note('genNote', 'Rendering… this can take 1–3 min ⏳', 'ok'); btn.textContent = 'Rendering…';
-    savePending(data.request_id, 'studio');
-    pollJob(data.request_id, $('result'), 'genNote', btn, label);
-  } catch (e) { $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
+    queueJob({ request_id: data.request_id, endpoint: 'job-status', mediaType: 'video', label: prompt.slice(0, 60), model });
+    startGlobalPoller();
+    note('genNote', '✅ Started — rolling in Projects now.', 'ok');
+    btn.disabled = false; btn.textContent = label;
+    showView('library');
+  } catch (e) { note('genNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 
 // ---------------- video studio ----------------
@@ -495,8 +575,8 @@ async function videoGenerate() {
   if (!vModel) return;
   const prompt = $('vPrompt').value.trim();
   if (!prompt && !vRefUrl) return note('vNote', 'Add a prompt or a starting image.', 'err');
+  if (jobCapReached('vNote')) return;
   const btn = $('vGen'); const label = `🎬 Generate video (${vModel.credits} credits)`; btn.disabled = true; btn.textContent = 'Submitting…';
-  $('vResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Sending to the engine…</div></div>';
   note('vNote', '');
   try {
     const res = await fetch('/.netlify/functions/video-generate', {
@@ -504,13 +584,15 @@ async function videoGenerate() {
       body: JSON.stringify({ model: vModel.slug, prompt, aspect: $('vAspect').value, duration: $('vDuration').value, resolution: $('vRes').value, image_url: vRefUrl || undefined, reference_image_urls: vMoreRefs.length ? vMoreRefs : undefined }),
     });
     const data = await res.json();
-    if (res.status === 402) { note('vNote', 'Out of credits — top up.', 'err'); openBuy(); $('vResult').innerHTML = '<div>Out of credits.</div>'; btn.disabled = false; btn.textContent = label; return; }
+    if (res.status === 402) { note('vNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; return; }
     if (!res.ok) throw new Error(data.error || 'Failed');
     $('creditCount').textContent = data.credits;
-    note('vNote', 'Rendering… this can take 1–3 min ⏳', 'ok'); btn.textContent = 'Rendering…';
-    savePending(data.request_id, 'video');
-    pollJob(data.request_id, $('vResult'), 'vNote', btn, label);
-  } catch (e) { $('vResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('vNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
+    queueJob({ request_id: data.request_id, endpoint: 'job-status', mediaType: 'video', label: (prompt || vModel.name).slice(0, 60), model: vModel.slug });
+    startGlobalPoller();
+    note('vNote', '✅ Started — rolling in Projects now.', 'ok');
+    btn.disabled = false; btn.textContent = label;
+    showView('library');
+  } catch (e) { note('vNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 
 function openStudio(key) {
@@ -1173,35 +1255,39 @@ async function generate() {
   if (preview) { showAuth('signup'); return; }
   const raw = $('prompt').value.trim();
   if (!raw) return note('genNote', 'Describe what you want to create.', 'err');
+  if (jobCapReached('genNote')) return;
   lastPrompt = raw;
   const prompt = activeStudio.template.replace('{input}', raw);
   if (studioVideo) return generateStudioVideo(prompt);
   const model = $('model').value, aspect = $('aspect').value;
 
-  const btn = $('genBtn'); btn.disabled = true; btn.textContent = 'Generating…';
-  $('result').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Sending to the engine…</div></div>';
+  const btn = $('genBtn'); btn.disabled = true; btn.textContent = 'Submitting…';
   note('genNote', '');
-  let t = 0; const iv = setInterval(() => { t += 2.5; const d = $('result').querySelector('div div'); if (d) d.textContent = `Creating… (${Math.round(t)}s)`; }, 2500);
 
   try {
     const res = await fetch('/.netlify/functions/generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
       body: JSON.stringify({ prompt, model, aspect, count: +$('imgCount').value, res: +$('imgRes').value, reference_image_urls: refUrls.length ? refUrls : undefined }),
     });
-    const data = await res.json(); clearInterval(iv);
-    if (res.status === 402) { note('genNote', 'Out of credits — top up to keep creating.', 'err'); openBuy(); $('result').innerHTML = '<div>Out of credits.</div>'; btn.disabled = false; btn.textContent = '✨ Generate'; return; }
-    else if (res.status === 403) { note('genNote', data.error || 'Upgrade to unlock this model.', 'err'); openBuy(); $('result').innerHTML = '<div>🔒 This model needs a subscription.</div>'; btn.disabled = false; btn.textContent = '✨ Generate'; return; }
+    const data = await res.json();
+    if (res.status === 402) { note('genNote', 'Out of credits — top up to keep creating.', 'err'); openBuy(); btn.disabled = false; btn.textContent = '✨ Generate'; return; }
+    else if (res.status === 403) { note('genNote', data.error || 'Upgrade to unlock this model.', 'err'); openBuy(); btn.disabled = false; btn.textContent = '✨ Generate'; return; }
     else if (!res.ok) throw new Error(data.error || 'Generation failed');
     else {
-      // Async: every image is a job we poll. Fills the grid as results arrive.
+      // Fire and forget, Higgsfield-style — every image is queued globally
+      // and tracked in Projects, so you never have to sit here waiting;
+      // reset the form immediately so the next generation can start right away.
       const ids = data.request_ids && data.request_ids.length ? data.request_ids : [data.request_id];
       $('creditCount').textContent = data.credits;
-      note('genNote', 'Creating… this can take up to a minute ⏳', 'ok'); btn.textContent = 'Rendering…';
-      if (ids.length === 1) savePending(ids[0], 'studio');
-      pollGrid(ids, $('result'), 'genNote', btn, '✨ Generate', data.watermark);
+      ids.forEach((id) => queueJob({ request_id: id, endpoint: 'job-status', mediaType: 'image', label: raw.slice(0, 60), model }));
+      startGlobalPoller();
+      note('genNote', `✅ Started${ids.length > 1 ? ` (${ids.length})` : ''} — rolling in Projects now.`, 'ok');
+      btn.disabled = false; btn.textContent = '✨ Generate';
+      $('prompt').value = '';
+      showView('library');
       return;
     }
-  } catch (e) { clearInterval(iv); $('result').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('genNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = '✨ Generate'; }
+  } catch (e) { note('genNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = '✨ Generate'; }
 }
 
 // ---------------- The $500 Week — AI UGC course ----------------
@@ -1673,13 +1759,17 @@ async function loadLibrary() {
   const { data } = await q;
   libItems = data || [];
   const g = $('libGrid');
-  if (!libItems.length) { g.innerHTML = '<div class="empty" style="grid-column:1/-1">Nothing here yet — create something ✨</div>'; return; }
+  if (!libItems.length && !pendingJobs.length) { g.innerHTML = '<div class="empty" style="grid-column:1/-1">Nothing here yet — create something ✨</div>'; return; }
   g.innerHTML = libItems.map((x, i) => {
-    const media = x.type === 'video'
-      ? `<video src="${x.output_url}" muted loop playsinline></video>`
+    const media = x.type === 'video' ? `<video src="${x.output_url}" muted loop playsinline></video>`
+      : x.type === 'audio' ? `<div class="projitem-audio">🎙</div>`
       : `<img src="${x.output_url}">`;
     return `<div class="projitem" onclick="window.fuseProject(${i})">${media}</div>`;
   }).join('');
+  // Still-processing jobs render as spinner cards ahead of finished work —
+  // this is what makes a generation started elsewhere actually visible
+  // here the moment you land on Projects, not just after its next poll tick.
+  renderLibraryPending();
 }
 // Project preview — shows the creation plus the prompt + settings used to make it.
 window.fuseProject = (i) => {
@@ -1687,6 +1777,8 @@ window.fuseProject = (i) => {
   lbUrl = x.output_url;
   const media = (x.type === 'video')
     ? `<video src="${x.output_url}" controls autoplay loop muted playsinline style="max-width:92vw;max-height:56vh;border-radius:14px"></video>`
+    : (x.type === 'audio')
+    ? `<audio src="${x.output_url}" controls style="width:92vw;max-width:420px"></audio>`
     : `<img src="${x.output_url}" style="max-width:92vw;max-height:56vh;border-radius:14px">`;
   const modelName = (cfg.IMAGE_MODELS.concat(cfg.VIDEO_MODELS, cfg.TOOL_MODELS).find((m) => m.slug === x.model) || {}).name || x.model || '—';
   const when = x.created_at ? new Date(x.created_at).toLocaleDateString() : '';
@@ -2111,11 +2203,11 @@ async function avvGenerate() {
   if (!script) return note('avvNote', 'Write or paste the script first.', 'err');
   const a = avatarMap[selectedAvatar] || {};
   if (!avvOwnAudioUrl && !a.voice_sample_url) return note('avvNote', 'Upload a voice sample (or your own audio) above first.', 'err');
+  if (jobCapReached('avvNote')) return;
   const mode = $('avvMode').value;
   const cameraMotion = $('avvCameraMotion').value.trim();
   if (mode === 'motion' && !cameraMotion) return note('avvNote', 'Describe the camera motion / action for a motion video.', 'err');
   const btn = $('avvGen'); const label = '🎬 Generate video'; btn.disabled = true; btn.textContent = 'Submitting…';
-  $('avvResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Starting your video…</div></div>';
   $('avvCtaWrap').style.display = 'none';
   note('avvNote', '');
   try {
@@ -2128,16 +2220,22 @@ async function avvGenerate() {
       }),
     });
     const d = await res.json();
-    if (res.status === 503) { $('avvResult').innerHTML = '<div class="muted">Avatar Creator is being connected.</div>'; note('avvNote', d.error, 'err'); btn.disabled = false; btn.textContent = label; }
+    if (res.status === 503) { note('avvNote', d.error, 'err'); btn.disabled = false; btn.textContent = label; }
     else if (res.status === 402) { note('avvNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; }
     else if (!res.ok) throw new Error(d.error || 'Failed');
     else {
       $('creditCount').textContent = d.credits;
-      note('avvNote', `Working… (~${d.estimated_minutes} min of video) this can take a while ⏳`, 'ok');
-      btn.textContent = 'Rendering…';
-      pollAvatarVideo(d.id, btn, label);
+      // Long-form avatar videos poll a different endpoint (avatar-video-status,
+      // keyed by the avatar_videos row id, not a plain job request_id) — the
+      // global queue already knows how to route that via job.endpoint.
+      queueJob({ request_id: d.id, endpoint: 'avatar-video-status', mediaType: 'video', label: `${a.name || 'Avatar'} video (~${d.estimated_minutes} min)`, model: 'avatar-video' });
+      startGlobalPoller();
+      note('avvNote', `✅ Started — ~${d.estimated_minutes} min of video, rolling in Projects now.`, 'ok');
+      btn.disabled = false; btn.textContent = label;
+      $('avvScript').value = '';
+      showView('library');
     }
-  } catch (e) { $('avvResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('avvNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
+  } catch (e) { note('avvNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 const AVV_STAGE_LABEL = { speech: 'Cloning your voice…', slicing: 'Preparing chunks…', video: 'Generating video', stitching: 'Combining the final video…' };
 function pollAvatarVideo(id, btn, label) {
@@ -2257,9 +2355,9 @@ async function avatarGenerate() {
   if (!selectedAvatar) return note('avGenNote', 'Pick an avatar first.', 'err');
   const prompt = $('avPrompt').value.trim();
   if (!prompt) return note('avGenNote', 'Describe the scene.', 'err');
+  if (jobCapReached('avGenNote')) return;
   const aspect = $('avAspect').value;
   const btn = $('avGen'); const label = '✨ Generate (10 credits)'; btn.disabled = true; btn.textContent = 'Submitting…';
-  $('avResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Locking your face into the scene…</div></div>';
   note('avGenNote', '');
   try {
     const res = await fetch('/.netlify/functions/avatar-generate', {
@@ -2267,16 +2365,18 @@ async function avatarGenerate() {
       body: JSON.stringify({ avatar_id: selectedAvatar, prompt, aspect, extra_refs: avExtraRefs.length ? avExtraRefs : undefined }),
     });
     const data = await res.json();
-    if (res.status === 503) { $('avResult').innerHTML = '<div class="muted">Avatar Studio is being connected.</div>'; note('avGenNote', data.error, 'err'); btn.disabled = false; btn.textContent = label; }
+    if (res.status === 503) { note('avGenNote', data.error, 'err'); btn.disabled = false; btn.textContent = label; }
     else if (res.status === 402) { note('avGenNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; }
     else if (!res.ok) throw new Error(data.error || 'Failed');
     else {
       $('creditCount').textContent = data.credits;
-      note('avGenNote', 'Rendering your avatar… this can take up to a minute ⏳', 'ok'); btn.textContent = 'Rendering…';
-      savePending(data.request_id, 'avatar');
-      pollJob(data.request_id, $('avResult'), 'avGenNote', btn, label, 'image');
+      queueJob({ request_id: data.request_id, endpoint: 'job-status', mediaType: 'image', label: prompt.slice(0, 60), model: 'avatar' });
+      startGlobalPoller();
+      note('avGenNote', '✅ Started — rolling in Projects now.', 'ok');
+      btn.disabled = false; btn.textContent = label;
+      showView('library');
     }
-  } catch (e) { $('avResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('avGenNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
+  } catch (e) { note('avGenNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 
 // Shared by Flyer Studio and Editing Studio's assistants — the backend
@@ -2816,14 +2916,45 @@ window.fuseFlyerRmStructureRef = () => { flyerStructureRefUrl = null; renderFlye
 let adUploadedVoiceUrl = null;
 async function loadAudioVoices() {
   if (preview) return;
-  const { data } = await sb.from('avatars').select('id,name,voice_sample_url').not('voice_sample_url', 'is', null);
+  // Two sources feed the same picker: avatars that happen to have a voice
+  // sample attached, and standalone voices trained once here and reused by
+  // name — independent of any specific avatar, exactly what "train it once,
+  // pick it for any script later" needs.
+  const [{ data: avatarsWithVoice }, voicesRes] = await Promise.all([
+    sb.from('avatars').select('id,name,voice_sample_url').not('voice_sample_url', 'is', null),
+    sb.from('voices').select('id,name,sample_url').order('created_at', { ascending: false }),
+  ]);
+  const savedVoices = (voicesRes && voicesRes.data) || [];
   const sel = $('adVoicePicker');
-  if (data && data.length) {
-    sel.innerHTML = '<option value="">Use uploaded sample instead…</option>' + data.map((a) => `<option value="${a.voice_sample_url}">${a.name}'s voice</option>`).join('');
+  const options = [
+    ...savedVoices.map((v) => `<option value="${v.sample_url}">🎙 ${(v.name || 'Untitled voice').replace(/</g, '&lt;')}</option>`),
+    ...((avatarsWithVoice || []).map((a) => `<option value="${a.voice_sample_url}">${(a.name || 'Avatar').replace(/</g, '&lt;')}'s voice</option>`)),
+  ];
+  if (options.length) {
+    sel.innerHTML = '<option value="">Use uploaded sample instead…</option>' + options.join('');
     sel.style.display = 'block';
   } else {
     sel.style.display = 'none';
   }
+}
+async function saveTrainedVoice() {
+  if (preview) { showAuth('signup'); return; }
+  const name = $('adVoiceName').value.trim();
+  if (!name) return note('adVoiceNote', 'Give this voice a name first.', 'err');
+  if (!adUploadedVoiceUrl) return note('adVoiceNote', 'Upload a voice sample first.', 'err');
+  const btn = $('adSaveVoice'); btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await fetch('/.netlify/functions/voice-train', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ name, sample_url: adUploadedVoiceUrl }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Failed');
+    note('adVoiceNote', `✅ "${name}" saved — pick it from the dropdown any time.`, 'ok');
+    $('adVoiceName').value = '';
+    loadAudioVoices();
+  } catch (e) { note('adVoiceNote', e.message || 'Could not save this voice.', 'err'); }
+  btn.disabled = false; btn.textContent = '💾 Save this voice for reuse';
 }
 async function uploadAudioVoiceSample(file) {
   if (preview) { showAuth('signup'); return; }
@@ -2844,8 +2975,8 @@ async function adGenerate() {
   if (!text) return note('adNote', 'Write the script first.', 'err');
   const voiceUrl = $('adVoicePicker').value || adUploadedVoiceUrl;
   if (!voiceUrl) return note('adNote', 'Add a voice sample first.', 'err');
+  if (jobCapReached('adNote')) return;
   const btn = $('adGen'); const label = '🎙 Generate voiceover'; btn.disabled = true; btn.textContent = 'Submitting…';
-  $('adResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Generating…</div></div>';
   note('adNote', '');
   try {
     const res = await fetch('/.netlify/functions/audio-generate', {
@@ -2853,13 +2984,17 @@ async function adGenerate() {
       body: JSON.stringify({ text, voice_sample_url: voiceUrl, speed: parseFloat($('adSpeed').value) }),
     });
     const d = await res.json();
-    if (res.status === 503) { $('adResult').innerHTML = '<div class="muted">Audio Studio is being connected.</div>'; note('adNote', d.error, 'err'); btn.disabled = false; btn.textContent = label; return; }
+    if (res.status === 503) { note('adNote', d.error, 'err'); btn.disabled = false; btn.textContent = label; return; }
     if (res.status === 402) { note('adNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; return; }
     if (!res.ok) throw new Error(d.error || 'Failed');
     $('creditCount').textContent = d.credits;
-    note('adNote', 'Rendering… ⏳', 'ok'); btn.textContent = 'Rendering…';
-    pollAudioJob(d.request_id, btn, label);
-  } catch (e) { $('adResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('adNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
+    queueJob({ request_id: d.request_id, endpoint: 'job-status', mediaType: 'audio', label: text.slice(0, 60), model: 'audio' });
+    startGlobalPoller();
+    note('adNote', '✅ Started — rolling in Projects now.', 'ok');
+    btn.disabled = false; btn.textContent = label;
+    $('adScript').value = '';
+    showView('library');
+  } catch (e) { note('adNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 function pollAudioJob(reqId, btn, label) {
   let s = 0;
@@ -3583,8 +3718,8 @@ async function pickToolImage(file) {
 async function runTool() {
   if (preview) { showAuth('signup'); return; }
   if (!toolImg) return note('toolNote', 'Upload an image first.', 'err');
+  if (jobCapReached('toolNote')) return;
   const btn = $('toolRun'); const label = 'Run tool'; btn.disabled = true; btn.textContent = 'Submitting…';
-  $('toolResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Processing…</div></div>';
   try {
     const res = await fetch('/.netlify/functions/tool-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
@@ -3595,8 +3730,11 @@ async function runTool() {
     else if (!res.ok) throw new Error(data.error || 'Failed');
     else {
       $('creditCount').textContent = data.credits;
-      note('toolNote', 'Processing… ⏳', 'ok'); btn.textContent = 'Processing…';
-      pollJob(data.request_id, $('toolResult'), 'toolNote', btn, label, 'image');
+      queueJob({ request_id: data.request_id, endpoint: 'job-status', mediaType: 'image', label: toolSlug, model: toolSlug });
+      startGlobalPoller();
+      note('toolNote', '✅ Started — rolling in Projects now.', 'ok');
+      btn.disabled = false; btn.textContent = label;
+      showView('library');
     }
   } catch (e) { $('toolResult').innerHTML = '<div>⚠ ' + (e.message || 'Failed') + '</div>'; note('toolNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
@@ -3668,7 +3806,8 @@ async function boot() {
   await claimReferral();
   // Restore the view you were on before a refresh, and re-attach any in-progress render.
   restoreRoute();
-  resumePending();
+  loadPendingJobs();
+  startGlobalPoller();
   maybePromo();
   // Came from the Atelier page "Get instant access" -> start the course purchase.
   // Deep-link checkout: /studio?buy=<pack> opens the buy flow for that pack
@@ -3746,6 +3885,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('audioBack').onclick = () => showView('home');
   $('adVoicePick').onclick = () => $('adVoiceFile').click();
   $('adVoiceFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadAudioVoiceSample(f); e.target.value = ''; };
+  $('adSaveVoice').onclick = saveTrainedVoice;
   $('adGen').onclick = adGenerate;
   $('editBack').onclick = () => showView('home');
   $('editVideoPick').onclick = () => $('editVideoFile').click();

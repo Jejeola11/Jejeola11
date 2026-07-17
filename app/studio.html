@@ -397,6 +397,10 @@
         <button class="btn ghost sm" id="adVoicePick">🎙 Upload voice sample</button>
         <input type="file" id="adVoiceFile" accept="audio/*" hidden>
         <select id="adVoicePicker" style="margin-top:8px;display:none"></select>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input id="adVoiceName" placeholder="Name this voice (e.g. 'My voice')" style="flex:1">
+          <button class="btn ghost sm" id="adSaveVoice">💾 Save this voice for reuse</button>
+        </div>
         <div class="note" id="adVoiceNote"></div>
       </div>
 
