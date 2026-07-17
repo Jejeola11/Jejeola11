@@ -8,25 +8,27 @@
    doesn't need touching — only the values shifted.
    ============================================================ */
 :root{
-  --bg:#04181D;          /* deep teal-BLUE (the "black") */
-  --bg-2:#062430;
-  --panel:#0A2E38;       /* cards / panels — teal-blue */
-  --panel-2:#0E3944;
-  --line:#1C4F5C;        /* hairlines / borders — teal-blue */
-  --ink:#F7FAFA;         /* cool near-white text */
-  --muted:#9FC1C9;       /* silvery secondary text */
+  --bg:#020F12;          /* near-black deep teal — darker, more premium than v2 */
+  --bg-2:#051D22;
+  --panel:#082A32;       /* cards / panels — deep teal-blue */
+  --panel-2:#0C3941;
+  --line:#164752;        /* hairlines / borders — teal-blue */
+  --ink:#F5FAFA;         /* cool near-white text */
+  --muted:#8FB4BC;       /* silvery secondary text */
   --silver:#C9D8DA;      /* explicit silver — dividers, icon strokes, quiet badges */
-  --gold:#F5C518;        /* primary warm accent — vibrant golden yellow */
-  --gold-2:#FFD84A;      /* hover / glow */
-  --gold-deep:#D9A91A;
-  --cyan:#00E0C6;        /* vivid teal-blue accent */
+  --gold:#F0C24A;        /* primary warm accent — refined champagne-gold, less neon-yellow */
+  --gold-2:#FFDD7A;      /* hover / glow */
+  --gold-deep:#C4922B;
+  --cyan:#00F0E0;        /* NEON teal-blue — the signature accent, per brand reference */
+  --cyan-2:#4DF7FF;
+  --cyan-deep:#00A8A0;
   --blue:#2FB8E0;        /* vivid sky-blue accent */
   --violet:#8B6BFF;      /* vivid accent — chat/AI surfaces */
   --coral:#FF5C8A;       /* vivid accent — trending/energy */
   --radius:18px;
-  --shadow:0 18px 50px rgba(0,0,0,.5);
-  --glow:0 0 30px rgba(245,197,24,.28);
-  --glow-cyan:0 0 30px rgba(0,224,198,.24);
+  --shadow:0 18px 50px rgba(0,0,0,.55);
+  --glow:0 0 30px rgba(240,194,74,.28);
+  --glow-cyan:0 0 34px rgba(0,240,224,.30);
   --maxw:1120px;
   font-synthesis:none;
 }
@@ -35,10 +37,10 @@
 html,body{margin:0;padding:0}
 body{
   background:
-    radial-gradient(1000px 560px at 85% -8%, rgba(245,197,24,.20), transparent 58%),
-    radial-gradient(820px 520px at -12% 10%, rgba(0,224,198,.17), transparent 60%),
-    radial-gradient(760px 520px at 105% 45%, rgba(139,107,255,.14), transparent 62%),
-    radial-gradient(680px 460px at 10% 85%, rgba(255,92,138,.09), transparent 60%),
+    radial-gradient(900px 620px at 88% -10%, rgba(0,240,224,.20), transparent 58%),
+    radial-gradient(760px 560px at -14% 8%, rgba(0,240,224,.13), transparent 60%),
+    radial-gradient(640px 520px at 50% 0%, rgba(240,194,74,.10), transparent 62%),
+    radial-gradient(680px 460px at 108% 78%, rgba(240,194,74,.08), transparent 60%),
     var(--bg);
   color:var(--ink);
   font-family:"Archivo",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
@@ -89,21 +91,29 @@ h2.display{font-size:clamp(28px,4.5vw,46px)}
 .nav-links a{color:var(--muted);font-weight:600;font-size:14px}
 .nav-links a:hover{color:var(--ink)}
 
-/* ---- Buttons ---- */
+/* ---- Buttons (premium: champagne-gold surface, neon-teal rim light) ---- */
 .btn{
   display:inline-flex;align-items:center;gap:8px;justify-content:center;
-  font-family:"Archivo";font-weight:700;font-size:15px;
-  padding:12px 20px;border-radius:999px;border:1px solid transparent;cursor:pointer;
-  transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+  font-family:"Archivo";font-weight:700;font-size:14.5px;letter-spacing:.02em;
+  padding:13px 22px;border-radius:14px;border:1px solid transparent;cursor:pointer;
+  transition:transform .14s ease, box-shadow .18s ease, background .14s ease, border-color .14s ease;
+  position:relative;
 }
-.btn:active{transform:translateY(1px)}
-.btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1205;box-shadow:0 10px 26px rgba(231,194,92,.30)}
-.btn.gold:hover{background:linear-gradient(135deg,var(--gold-2),var(--gold))}
-.btn.ghost{background:transparent;border-color:var(--line);color:var(--ink)}
-.btn.ghost:hover{border-color:var(--gold);color:var(--gold)}
-.btn.sm{padding:8px 14px;font-size:13px}
+.btn:active{transform:translateY(1px) scale(.99)}
+.btn.gold{
+  background:linear-gradient(155deg,var(--gold-2) 0%,var(--gold) 46%,var(--gold-deep) 100%);
+  color:#191006;
+  box-shadow:0 12px 28px rgba(240,194,74,.24), 0 0 0 1px rgba(0,240,224,.16), 0 0 22px rgba(0,240,224,.10);
+}
+.btn.gold:hover{
+  box-shadow:0 14px 34px rgba(240,194,74,.32), 0 0 0 1px rgba(0,240,224,.30), 0 0 30px rgba(0,240,224,.20);
+  transform:translateY(-1px);
+}
+.btn.ghost{background:rgba(8,42,50,.4);border-color:var(--line);color:var(--ink);backdrop-filter:blur(6px)}
+.btn.ghost:hover{border-color:var(--cyan);color:var(--cyan-2);box-shadow:0 0 0 1px rgba(0,240,224,.18), 0 0 18px rgba(0,240,224,.14)}
+.btn.sm{padding:9px 15px;font-size:13px;border-radius:11px}
 .btn.block{width:100%}
-.btn[disabled]{opacity:.55;cursor:not-allowed}
+.btn[disabled]{opacity:.5;cursor:not-allowed;box-shadow:none}
 
 /* ---- Hero ---- */
 .hero{padding:84px 0 40px;text-align:center}
@@ -308,8 +318,18 @@ textarea{min-height:104px;resize:vertical}
 .tab.center{color:var(--gold)}
 
 /* studio generator panel (reused for all studios) */
-.studio-head{display:flex;align-items:center;gap:10px;margin:16px 0 4px}
-.studio-head .ic{font-size:26px}
+.studio-head{display:flex;align-items:center;gap:14px;margin:16px 0 4px}
+.studio-head .ic{
+  width:38px;height:38px;border-radius:11px;flex:none;
+  background:linear-gradient(155deg,var(--gold-2),var(--gold) 55%,var(--gold-deep));
+  box-shadow:0 8px 20px rgba(240,194,74,.22), 0 0 0 1px rgba(0,240,224,.20), 0 0 16px rgba(0,240,224,.14);
+  position:relative;
+  font-size:0; /* legacy emoji glyphs collapse to nothing — icon reads as a pure glow badge */
+}
+.studio-head .ic::after{
+  content:"";position:absolute;inset:9px;border-radius:5px;
+  background:linear-gradient(155deg,rgba(2,15,18,.85),rgba(2,15,18,.55));
+}
 .studio-head h2{font-family:"Bricolage Grotesque";font-weight:800;margin:0;font-size:20px}
 .studio-head p{margin:0;color:var(--muted);font-size:13px}
 .backlink{color:var(--gold);font-weight:700;font-size:13px;cursor:pointer;display:inline-flex;gap:5px;align-items:center;margin:14px 0 0}
