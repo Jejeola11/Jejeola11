@@ -1,6 +1,6 @@
 // ============================================================
 // POST /.netlify/functions/avatar-train   (AI Avatar Creator — face/voice training)
-// Body: { avatar_id, source_video_url?, voice_sample_url? }
+// Body: { avatar_id, source_video_url?, voice_sample_url?, voice_reference_text? }
 // `avatars` has no client-facing UPDATE policy (by design — every write goes
 // through a service-role function, see schema-phase4.sql), so this is how
 // the front end attaches a training video / voice sample after uploading
@@ -22,6 +22,7 @@ exports.handler = async (event) => {
     const avatarId = body.avatar_id;
     const sourceVideoUrl = (body.source_video_url || '').trim();
     const voiceSampleUrl = (body.voice_sample_url || '').trim();
+    const voiceReferenceText = (body.voice_reference_text || '').trim();
     if (!avatarId) return json(400, { error: 'Missing avatar_id' });
     if (!sourceVideoUrl && !voiceSampleUrl) return json(400, { error: 'Nothing to train.' });
 
@@ -30,7 +31,7 @@ exports.handler = async (event) => {
     if (!avatar || avatar.user_id !== user.id) return json(404, { error: 'Avatar not found.' });
 
     const update = {};
-    if (voiceSampleUrl) { update.voice_sample_url = voiceSampleUrl; update.voice_status = 'ready'; }
+    if (voiceSampleUrl) { update.voice_sample_url = voiceSampleUrl; update.voice_status = 'ready'; update.voice_reference_text = voiceReferenceText || null; }
 
     if (sourceVideoUrl) {
       const jobId = 'train-' + avatarId + '-' + Date.now();

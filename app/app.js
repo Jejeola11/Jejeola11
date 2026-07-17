@@ -2030,7 +2030,7 @@ let selectedAvatar = null;
 let avatarMap = {};   // id -> avatar row (incl. model_sheet_url)
 async function loadAvatars() {
   if (preview) { $('avatarList').innerHTML = '<div class="empty" style="grid-column:1/-1">Sign up to create your avatar</div>'; return; }
-  const { data } = await sb.from('avatars').select('id,name,image_url,model_sheet_url,status,voice_sample_url,source_video_url,trained_frame_url').order('created_at', { ascending: false });
+  const { data } = await sb.from('avatars').select('id,name,image_url,model_sheet_url,status,voice_sample_url,voice_reference_text,source_video_url,trained_frame_url').order('created_at', { ascending: false });
   avatarMap = {}; (data || []).forEach((a) => { avatarMap[a.id] = a; });
   $('avatarList').innerHTML = (data && data.length)
     ? data.map((a) => `<div style="text-align:center;position:relative"><img src="${a.image_url}" data-id="${a.id}" data-name="${a.name}" class="avThumb" style="aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer">${a.model_sheet_url ? '<span class="av-sheet-badge">📐</span>' : ''}<div style="font-size:11px;margin-top:4px" class="muted">${a.name}</div></div>`).join('')
@@ -2105,6 +2105,7 @@ function pollSheet(reqId) {
 function renderAvatarVideoStatus() {
   const a = avatarMap[selectedAvatar] || {};
   $('avVoiceStatus').textContent = a.voice_sample_url ? '✅ Voice sample attached.' : 'No voice sample yet.';
+  if ($('avVoiceRefText')) $('avVoiceRefText').value = a.voice_reference_text || '';
   $('avFaceVideoStatus').textContent = a.trained_frame_url
     ? '✅ Trained from your uploaded video.'
     : 'No training video yet — your model sheet / photos will be used instead.';
@@ -2118,13 +2119,14 @@ async function uploadAvatarVoice(file) {
     const { error: upErr } = await sb.storage.from('avatars').upload(path, file);
     if (upErr) throw upErr;
     const url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    const refText = ($('avVoiceRefText') && $('avVoiceRefText').value.trim()) || '';
     const res = await fetch('/.netlify/functions/avatar-train', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ avatar_id: selectedAvatar, voice_sample_url: url }),
+      body: JSON.stringify({ avatar_id: selectedAvatar, voice_sample_url: url, voice_reference_text: refText }),
     });
     const d = await res.json();
     if (!res.ok) throw new Error(d.error || 'Failed');
-    if (avatarMap[selectedAvatar]) avatarMap[selectedAvatar].voice_sample_url = url;
+    if (avatarMap[selectedAvatar]) { avatarMap[selectedAvatar].voice_sample_url = url; avatarMap[selectedAvatar].voice_reference_text = refText; }
     renderAvatarVideoStatus();
     note('avVoiceNote', '✅ Voice sample saved.', 'ok');
   } catch (e) { note('avVoiceNote', e.message || 'Upload failed.', 'err'); }
@@ -2921,14 +2923,15 @@ async function loadAudioVoices() {
   // name — independent of any specific avatar, exactly what "train it once,
   // pick it for any script later" needs.
   const [{ data: avatarsWithVoice }, voicesRes] = await Promise.all([
-    sb.from('avatars').select('id,name,voice_sample_url').not('voice_sample_url', 'is', null),
-    sb.from('voices').select('id,name,sample_url').order('created_at', { ascending: false }),
+    sb.from('avatars').select('id,name,voice_sample_url,voice_reference_text').not('voice_sample_url', 'is', null),
+    sb.from('voices').select('id,name,sample_url,reference_text').order('created_at', { ascending: false }),
   ]);
   const savedVoices = (voicesRes && voicesRes.data) || [];
   const sel = $('adVoicePicker');
+  const esc = (s) => (s || '').replace(/"/g, '&quot;');
   const options = [
-    ...savedVoices.map((v) => `<option value="${v.sample_url}">🎙 ${(v.name || 'Untitled voice').replace(/</g, '&lt;')}</option>`),
-    ...((avatarsWithVoice || []).map((a) => `<option value="${a.voice_sample_url}">${(a.name || 'Avatar').replace(/</g, '&lt;')}'s voice</option>`)),
+    ...savedVoices.map((v) => `<option value="${v.sample_url}" data-ref="${esc(v.reference_text)}">🎙 ${(v.name || 'Untitled voice').replace(/</g, '&lt;')}</option>`),
+    ...((avatarsWithVoice || []).map((a) => `<option value="${a.voice_sample_url}" data-ref="${esc(a.voice_reference_text)}">${(a.name || 'Avatar').replace(/</g, '&lt;')}'s voice</option>`)),
   ];
   if (options.length) {
     sel.innerHTML = '<option value="">Use uploaded sample instead…</option>' + options.join('');
@@ -2946,7 +2949,7 @@ async function saveTrainedVoice() {
   try {
     const res = await fetch('/.netlify/functions/voice-train', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ name, sample_url: adUploadedVoiceUrl }),
+      body: JSON.stringify({ name, sample_url: adUploadedVoiceUrl, reference_text: $('adVoiceRefText').value.trim() }),
     });
     const d = await res.json();
     if (!res.ok) throw new Error(d.error || 'Failed');
@@ -2966,6 +2969,7 @@ async function uploadAudioVoiceSample(file) {
     if (error) throw error;
     adUploadedVoiceUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
     $('adVoicePicker').value = '';
+    $('adVoiceRefText').value = '';
     note('adVoiceNote', '✅ Voice sample ready.', 'ok');
   } catch (e) { note('adVoiceNote', e.message || 'Upload failed.', 'err'); }
 }
@@ -2981,7 +2985,7 @@ async function adGenerate() {
   try {
     const res = await fetch('/.netlify/functions/audio-generate', {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
-      body: JSON.stringify({ text, voice_sample_url: voiceUrl, speed: parseFloat($('adSpeed').value) }),
+      body: JSON.stringify({ text, voice_sample_url: voiceUrl, speed: parseFloat($('adSpeed').value), reference_text: $('adVoiceRefText').value.trim() }),
     });
     const d = await res.json();
     if (res.status === 503) { note('adNote', d.error, 'err'); btn.disabled = false; btn.textContent = label; return; }
@@ -3885,6 +3889,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('audioBack').onclick = () => showView('home');
   $('adVoicePick').onclick = () => $('adVoiceFile').click();
   $('adVoiceFile').onchange = (e) => { const f = e.target.files[0]; if (f) uploadAudioVoiceSample(f); e.target.value = ''; };
+  $('adVoicePicker').onchange = (e) => { const opt = e.target.selectedOptions[0]; $('adVoiceRefText').value = (opt && opt.dataset.ref) || ''; };
   $('adSaveVoice').onclick = saveTrainedVoice;
   $('adGen').onclick = adGenerate;
   $('editBack').onclick = () => showView('home');

@@ -1,6 +1,6 @@
 // ============================================================
 // POST /.netlify/functions/voice-train   (Audio Studio — save a reusable voice)
-// Body: { name, sample_url }
+// Body: { name, sample_url, reference_text? }
 // WaveSpeed's Omnivoice has no separate "train a voice" step of its own —
 // every generation call just re-supplies a short reference sample. So
 // "training" here means exactly one thing: saving that sample under a name
@@ -20,11 +20,12 @@ exports.handler = async (event) => {
     let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
     const name = (body.name || '').trim();
     const sampleUrl = (body.sample_url || '').trim();
+    const referenceText = (body.reference_text || '').trim();
     if (!name) return json(400, { error: 'Give this voice a name.' });
     if (!sampleUrl) return json(400, { error: 'Missing the voice sample.' });
 
     const db = admin();
-    const { data, error } = await db.from('voices').insert({ user_id: user.id, name, sample_url: sampleUrl }).select().single();
+    const { data, error } = await db.from('voices').insert({ user_id: user.id, name, sample_url: sampleUrl, reference_text: referenceText || null }).select().single();
     if (error) throw new Error(error.message);
     return json(200, { voice: data });
   } catch (e) {

@@ -269,13 +269,21 @@ async function submitImageGoogle(model, opts) {
 // id to manage. Every call re-supplies the reference sample, so this is a
 // WaveSpeed-only feature with no external voice provider involved.
 // Fields verified live 2026-07-16 via a clean validation error: `text` and
-// `audio` are required, `speed` is optional (default 1). Routes through the
-// same "ws:"-prefixed pollAny() as video/avatar jobs.
-async function submitSpeech({ audio, text, speed }) {
+// `audio` are required, `speed` is optional (default 1). `reference_text` —
+// the exact transcript of the reference audio clip — is confirmed via
+// WaveSpeed's published docs (checked 2026-07-17) as an optional field that
+// "significantly improves cloning accuracy" (phoneme-level alignment between
+// what was said and how it sounds); omitting it is a real contributor to a
+// cloned voice drifting toward a generic/default accent instead of the
+// speaker's own. Routes through the same "ws:"-prefixed pollAny() as
+// video/avatar jobs.
+async function submitSpeech({ audio, text, speed, referenceText }) {
   if (!hasWaveSpeed()) throw new Error('Voice cloning needs WAVESPEED_KEY.');
   if (!audio) throw new Error('Missing reference voice sample.');
   if (!text) throw new Error('Missing script text.');
-  const id = await wsSubmit('wavespeed-ai/omnivoice/voice-clone', { audio, text, speed: speed || 1 });
+  const body = { audio, text, speed: speed || 1 };
+  if (referenceText) body.reference_text = referenceText;
+  const id = await wsSubmit('wavespeed-ai/omnivoice/voice-clone', body);
   return { requestId: 'ws:' + id, provider: 'wavespeed' };
 }
 

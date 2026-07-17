@@ -10,11 +10,12 @@
 -- Run after earlier files. Safe to re-run.
 -- ============================================================
 create table if not exists public.voices (
-  id          uuid primary key default gen_random_uuid(),
-  user_id     uuid not null references auth.users(id) on delete cascade,
-  name        text not null,
-  sample_url  text not null,
-  created_at  timestamptz not null default now()
+  id              uuid primary key default gen_random_uuid(),
+  user_id         uuid not null references auth.users(id) on delete cascade,
+  name            text not null,
+  sample_url      text not null,
+  reference_text  text,
+  created_at      timestamptz not null default now()
 );
 
 create index if not exists voices_user_idx on public.voices (user_id, created_at desc);

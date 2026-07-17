@@ -1,11 +1,15 @@
 // ============================================================
 // POST /.netlify/functions/audio-generate   (Audio Studio — voiceover/narration)
-// Body: { text, voice_sample_url, speed? }
+// Body: { text, voice_sample_url, speed?, reference_text? }
 // Standalone text-to-speech using WaveSpeed's Omnivoice voice-clone model —
 // the same one driving the Avatar Creator's narration, exposed here on its
 // own so a script can become a ready-to-use voiceover without training a
-// full avatar. voice_sample_url is a short (3-10s) reference clip; every
-// call re-supplies it, so there's no separate "create voice" step.
+// full avatar. voice_sample_url is a reference clip (15-30s of clear,
+// expressive speech is the accurate range — every call re-supplies it, so
+// there's no separate "create voice" step). reference_text is the exact
+// transcript of that clip, optional but confirmed by WaveSpeed's docs to
+// meaningfully improve accent/timbre accuracy — pass it whenever it was
+// captured alongside the sample.
 // Async submit + poll via job-status.js (kind:'audio' falls through to the
 // generic video/image completion branch, saved into `generations`).
 // ============================================================
@@ -27,6 +31,7 @@ exports.handler = async (event) => {
     let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
     const text = (body.text || '').trim();
     const voiceSampleUrl = (body.voice_sample_url || '').trim();
+    const referenceText = (body.reference_text || '').trim();
     const speed = body.speed || 1;
     if (!text) return json(400, { error: 'Write the script first.' });
     if (!voiceSampleUrl) return json(400, { error: 'Add a voice sample (upload one, or pick a trained avatar\'s voice).' });
@@ -37,7 +42,7 @@ exports.handler = async (event) => {
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
-    const { requestId } = await submitSpeech({ audio: voiceSampleUrl, text, speed });
+    const { requestId } = await submitSpeech({ audio: voiceSampleUrl, text, speed, referenceText });
     await db.from('jobs').insert({ request_id: requestId, user_id: user.id, kind: 'audio', model: MODEL, prompt: text, credits: cost, status: 'processing' });
     return json(200, { request_id: requestId, credits: balance });
   } catch (e) {

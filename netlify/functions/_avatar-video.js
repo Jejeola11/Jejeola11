@@ -111,7 +111,7 @@ async function advanceSpeech(db, video, avatar) {
     // Independent batches — submit them all in parallel.
     await Promise.all(inserted.map(async ({ row, text }) => {
       try {
-        const { requestId } = await submitSpeech({ audio: avatar.voice_sample_url, text, speed: (video.settings && video.settings.speed) || 1 });
+        const { requestId } = await submitSpeech({ audio: avatar.voice_sample_url, text, speed: (video.settings && video.settings.speed) || 1, referenceText: avatar.voice_reference_text });
         await db.from('avatar_video_chunks').update({ request_id: requestId, status: 'processing' }).eq('id', row.id);
       } catch (e) {
         await db.from('avatar_video_chunks').update({ status: 'failed' }).eq('id', row.id);

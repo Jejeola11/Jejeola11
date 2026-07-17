@@ -221,8 +221,10 @@
       <div class="sheet-box">
         <div class="sheet-head">🎙 Voice</div>
         <div class="muted" id="avVoiceStatus" style="font-size:12px;margin-bottom:8px">No voice sample yet.</div>
-        <button class="btn ghost sm" id="avVoicePick">🎙 Upload voice sample (3-10s of clear speech)</button>
+        <button class="btn ghost sm" id="avVoicePick">🎙 Upload voice sample (15-30s of clear, natural speech — the longer/more expressive, the more accurate the clone)</button>
         <input type="file" id="avVoiceFile" accept="audio/*" hidden>
+        <label class="fld" for="avVoiceRefText" style="margin-top:8px;font-size:11px">What did you say in that clip? (optional, but fixes accent/timbre drift)</label>
+        <textarea id="avVoiceRefText" placeholder="Paste the exact words you spoke in the sample…" style="min-height:50px;font-size:12px"></textarea>
         <div class="note" id="avVoiceNote"></div>
         <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)">
           <div class="muted" style="font-size:12px;margin-bottom:6px">Or skip cloning — attach audio you've already recorded, matching the script below.</div>
@@ -254,7 +256,7 @@
       </div>
 
       <label class="fld" for="avvResolution">Resolution</label>
-      <select id="avvResolution"><option value="480p">480p (cheaper)</option><option value="720p">720p</option></select>
+      <select id="avvResolution"><option value="720p">720p (recommended — sharper mouth detail, more natural lipsync)</option><option value="480p">480p (cheaper)</option></select>
       <label class="fld" for="avvPrompt">Extra direction (optional)</label>
       <input id="avvPrompt" placeholder="e.g. calm, confident, direct to camera">
       <label class="fld" for="avvAspect">Aspect</label>
@@ -393,10 +395,12 @@
     <div class="panel">
       <div class="sheet-box">
         <div class="sheet-head">🎙 Voice</div>
-        <div class="muted" id="adVoiceStatus" style="font-size:12px;margin-bottom:8px">Upload a short (3-10s) clear voice sample, or reuse a trained avatar's voice below.</div>
+        <div class="muted" id="adVoiceStatus" style="font-size:12px;margin-bottom:8px">Upload a 15-30s clear, natural, expressive voice sample, or reuse a trained avatar's voice below.</div>
         <button class="btn ghost sm" id="adVoicePick">🎙 Upload voice sample</button>
         <input type="file" id="adVoiceFile" accept="audio/*" hidden>
         <select id="adVoicePicker" style="margin-top:8px;display:none"></select>
+        <label class="fld" for="adVoiceRefText" style="margin-top:8px;font-size:11px">What did you say in that clip? (optional, but fixes accent/timbre drift)</label>
+        <textarea id="adVoiceRefText" placeholder="Paste the exact words you spoke in the sample…" style="min-height:50px;font-size:12px"></textarea>
         <div style="display:flex;gap:8px;margin-top:8px">
           <input id="adVoiceName" placeholder="Name this voice (e.g. 'My voice')" style="flex:1">
           <button class="btn ghost sm" id="adSaveVoice">💾 Save this voice for reuse</button>
