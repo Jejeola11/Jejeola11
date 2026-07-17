@@ -2730,12 +2730,21 @@ async function flyerSend() {
 }
 function flyerPollBrief(reqId, btn) {
  let s = 0;
+ // setInterval doesn't wait for the previous tick's fetch to resolve, so a
+ // reply that takes longer than one 4s interval leaves several ticks in
+ // flight at once. clearInterval() only stops FUTURE ticks — it doesn't
+ // cancel whichever ones already went out — so without this flag, every
+ // one of those in-flight ticks would independently see the same
+ // now-'completed' job and append its own duplicate copy of the answer.
+ let handled = false;
  const timer = setInterval(async () => {
  s += 4;
  try {
  const r = await fetch(`/.netlify/functions/job-status?id=${reqId}`, { headers: { ...(await authHeader()) } });
  const d = await r.json();
+ if (handled) return;
  if (d.status === 'completed') {
+ handled = true;
  clearInterval(timer);
  const parsed = parseFlyerBriefResponse(d.text);
  // Keep the full brief in the resent conversation history too, not
@@ -2775,6 +2784,7 @@ function flyerPollBrief(reqId, btn) {
  }
  btn.disabled = false; btn.textContent = 'Send';
  } else if (d.status === 'failed') {
+ handled = true;
  clearInterval(timer);
  note('flyerNote', (d.error || 'Failed') + ' — credits refunded.', 'err');
  btn.disabled = false; btn.textContent = 'Send';

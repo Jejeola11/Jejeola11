@@ -72,6 +72,17 @@ exports.handler = async (event) => {
   // to a single retry-able poll cycle (the browser just asks again in 6s)
   // rather than crashing the user-facing submit call with a raw timeout.
   if (job.kind === 'audio' && job.model && job.model.indexOf('resemble:') === 0) {
+    // Atomically claim the job before doing the real (slow) work below —
+    // setInterval on the frontend fires every few seconds regardless of
+    // whether the PREVIOUS poll's fetch has resolved yet, so if synthesis
+    // takes longer than one poll interval, multiple overlapping polls would
+    // otherwise all see status:'processing' and all kick off their own
+    // synth run for the same job (real duplicate Resemble cost, not just a
+    // display glitch). Only the poll that successfully flips
+    // 'processing' -> 'generating' proceeds; every other concurrent poll
+    // sees the claim fail and just reports "still processing".
+    const { data: claimed } = await db.from('jobs').update({ status: 'generating' }).eq('request_id', id).eq('status', 'processing').select().maybeSingle();
+    if (!claimed) return json(200, { status: 'processing' });
     const voiceUuid = job.model.slice('resemble:'.length);
     const jobWorkId = 'resemble-' + id;
     try {
@@ -113,6 +124,10 @@ exports.handler = async (event) => {
         await db.from('jobs').update({ status: 'failed' }).eq('request_id', id);
         return json(200, { status: 'failed', error: (e && e.message) || 'Resemble synthesis failed.' });
       }
+      // Hand the claim back so the NEXT poll can retry — leaving it stuck
+      // at 'generating' would mean nothing ever matches the claim's
+      // .eq('status','processing') again, permanently wedging the job.
+      await db.from('jobs').update({ status: 'processing' }).eq('request_id', id);
       return json(200, { status: 'processing' });
     }
   }
@@ -129,6 +144,16 @@ exports.handler = async (event) => {
   // MuAPI. Isolating it to a single retry-able poll cycle instead means a
   // slow reply just costs one more 6s wait, not a hard failure.
   if (isTextKind) {
+    // Same atomic claim as the Resemble branch above — confirmed live as
+    // the exact cause of Flyer Studio's chat coming back with the same
+    // reply duplicated up to 6 times over: setInterval polls every few
+    // seconds without waiting for the previous tick's fetch to resolve, so
+    // a reply that takes longer than one poll interval let SEVERAL
+    // overlapping polls each see status:'processing' and each fire their
+    // own real (paid) chatCompletion() call for the same job, and each one
+    // then got appended to the chat log independently.
+    const { data: claimed } = await db.from('jobs').update({ status: 'generating' }).eq('request_id', id).eq('status', 'processing').select().maybeSingle();
+    if (!claimed) return json(200, { status: 'processing' });
     const { model, imageUrl } = decodeModelImage(job.model);
     try {
       const text = await chatCompletion({ prompt: job.prompt, imageUrl, model });
@@ -141,6 +166,7 @@ exports.handler = async (event) => {
         await db.from('jobs').update({ status: 'failed' }).eq('request_id', id);
         return json(200, { status: 'failed', error: (e && e.message) || 'AI failed' });
       }
+      await db.from('jobs').update({ status: 'processing' }).eq('request_id', id);
       return json(200, { status: 'processing' });
     }
   }
