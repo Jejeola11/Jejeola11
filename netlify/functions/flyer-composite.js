@@ -83,7 +83,7 @@ exports.handler = async (event) => {
 
     db = admin();
     const { data: project } = await db.from('flyer_projects').select('*').eq('id', projectId).maybeSingle();
-    if (!project || project.user_id !== user.id) return json(404, { error: 'Project not found.' });
+    if (!project || project.user_id !== user.id) return json(404, { error: 'This project could not be found — generate a new hero visual to start fresh, then try compositing again.' });
     if (!project.hero_image_url) return json(400, { error: 'Generate the hero visual first.' });
 
     const wantsWS = hasWaveSpeed();

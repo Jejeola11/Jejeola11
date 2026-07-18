@@ -57,9 +57,18 @@ exports.handler = async (event) => {
     // has to be respected exactly, not silently re-expanded back out to
     // everything ever uploaded to the project.
     let refs = referenceImageUrls;
+    let project = null;
     if (projectId) {
-      const { data: project } = await db.from('flyer_projects').select('id, user_id, reference_image_urls').eq('id', projectId).maybeSingle();
-      if (!project || project.user_id !== user.id) return json(404, { error: 'Project not found.' });
+      const { data } = await db.from('flyer_projects').select('id, user_id, reference_image_urls').eq('id', projectId).maybeSingle();
+      if (data && data.user_id === user.id) project = data;
+      // else: the client's remembered project_id doesn't resolve (stale
+      // localStorage from a different account/session, or the project was
+      // otherwise removed) -- confirmed live 2026-07-18 as a real dead-end
+      // for the user (a hard 404 here with no recovery). Falls through to
+      // the same "create fresh" path as no project_id at all, instead of
+      // blocking generation entirely.
+    }
+    if (project) {
       // The project's reference LIBRARY still only ever grows (union) so
       // nothing uploaded is lost and the chat keeps full context — but that
       // library is bookkeeping, separate from what this specific render uses.
@@ -69,9 +78,9 @@ exports.handler = async (event) => {
       if (library.length !== stored.length) projUpdate.reference_image_urls = library;
       try { await db.from('flyer_projects').update(projUpdate).eq('id', projectId); } catch (e) {}
     } else {
-      // Generating straight from a typed prompt with no chat/project yet —
-      // create one on the fly so this still slots into the same iterate-
-      // and-layer flow afterward.
+      // Generating straight from a typed prompt with no chat/project yet
+      // (or a stale/invalid project_id, see above) — create one fresh so
+      // this still slots into the same iterate-and-layer flow afterward.
       const { data: newProj } = await db.from('flyer_projects').insert({ user_id: user.id, brief: prompt, reference_image_urls: referenceImageUrls, aspect }).select().single();
       projectId = newProj && newProj.id;
     }
