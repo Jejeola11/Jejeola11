@@ -3318,6 +3318,11 @@ let editProjectId = null;
 let editHistory = [];
 async function uploadEditVideo(file) {
  if (preview) { showAuth('signup'); return; }
+ const MAX_VIDEO_MB = 48;
+ if (file.size > MAX_VIDEO_MB * 1024 * 1024) {
+ note('editVideoNote', `That video is ${(file.size / 1024 / 1024).toFixed(0)}MB — this account's storage caps uploads at ${MAX_VIDEO_MB}MB. Trim the clip shorter or compress it, then try again.`, 'err');
+ return;
+ }
  note('editVideoNote', 'Uploading…', 'ok');
  try {
  const ext = (file.name.split('.').pop() || 'mp4').toLowerCase();
