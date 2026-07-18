@@ -81,15 +81,14 @@ section{padding:72px 0;position:relative}
 .hero-front{background:
   radial-gradient(1200px 600px at 75% -10%, rgba(20,82,74,.55), transparent 60%),
   radial-gradient(900px 500px at 10% 110%, rgba(176,141,87,.25), transparent 60%),
-  linear-gradient(160deg,#031A16 30%,#052620 70%,#031A16)}
+  linear-gradient(160deg,rgba(3,26,22,.94) 30%,rgba(5,38,32,.88) 70%,rgba(3,26,22,.94))}
 .hero-in{position:relative;z-index:2;text-align:center;max-width:860px;padding:0 20px}
 .hero h1{font-size:clamp(34px,6.4vw,64px);margin:16px 0 18px;letter-spacing:-.5px}
 .hero p.sub{color:#C7D8D3;font-size:clamp(16px,2.4vw,19.5px);max-width:640px;margin:0 auto 28px}
 .hero .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 .trust-strip{display:flex;gap:18px 26px;justify-content:center;flex-wrap:wrap;margin-top:34px;color:var(--muted);font-size:13.5px;font-weight:600}
 .trust-strip b{color:var(--gold-2)}
-.hint{position:absolute;bottom:16px;left:0;right:0;text-align:center;color:var(--muted);font-size:12px;z-index:2;animation:pulse 2.4s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:.45}50%{opacity:1}}
+.hint{position:absolute;bottom:16px;left:0;right:0;text-align:center;color:var(--muted);font-size:12px;z-index:2;opacity:.65}
 .spark{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--gold);opacity:0;animation:float 7s linear infinite;z-index:1}
 @keyframes float{0%{transform:translateY(20px);opacity:0}12%{opacity:.85}88%{opacity:.35}100%{transform:translateY(-92svh);opacity:0}}
 
@@ -221,7 +220,7 @@ footer a{color:var(--gold)}
   <a class="btn btn-gold" href="#pricing"><span class="cta-l">Start earning this week →</span><span class="cta-s">Start now →</span></a>
 </div></div>
 
-<!-- ===== HERO (cursor image-reveal) ===== -->
+<!-- ===== HERO (static image background) ===== -->
 <header class="hero" id="hero">
   <div class="hero-reveal" aria-hidden="true">
     <img src="assets/s1.jpg" alt="">
@@ -243,7 +242,7 @@ footer a{color:var(--gold)}
       <span>🔒 <b>Paystack</b> secured checkout</span>
     </div>
   </div>
-  <div class="hint">✨ move your finger or cursor — everything hiding under this page was made with the studio you get</div>
+  <div class="hint">✨ this flyer was made with Fuse Studio — the studio you get</div>
 </header>
 
 <!-- ===== PROOF WALL ===== -->
@@ -511,38 +510,6 @@ footer a{color:var(--gold)}
 </div>
 
 <script>
-// ============ Hero cursor/touch image reveal (CSS mask, rAF-throttled) ============
-(function(){
-  var hero = document.getElementById('hero');
-  var front = document.getElementById('heroFront');
-  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduced) return;
-  var raf = null, px = 50, py = 45, r = 150, interacting = false;
-  function paint(){
-    front.style.webkitMaskImage = front.style.maskImage =
-      'radial-gradient(circle ' + r + 'px at ' + px + '% ' + py + '%, transparent 55%, black 92%)';
-    raf = null;
-  }
-  function move(x, y){
-    var b = hero.getBoundingClientRect();
-    px = ((x - b.left) / b.width) * 100; py = ((y - b.top) / b.height) * 100; r = 180;
-    interacting = true;
-    if (!raf) raf = requestAnimationFrame(paint);
-  }
-  hero.addEventListener('mousemove', function(e){ move(e.clientX, e.clientY); });
-  hero.addEventListener('mouseleave', function(){ interacting = false; });
-  hero.addEventListener('touchmove', function(e){ var t = e.touches[0]; move(t.clientX, t.clientY); }, {passive:true});
-  hero.addEventListener('touchend', function(){ setTimeout(function(){ interacting = false; }, 1200); });
-  // Idle auto-drift: phone users see the reveal even before touching
-  var t = 0;
-  setInterval(function(){
-    if (interacting) return;
-    t += .05;
-    px = 50 + Math.cos(t) * 32; py = 42 + Math.sin(t * 1.35) * 24; r = 120;
-    if (!raf) raf = requestAnimationFrame(paint);
-  }, 50);
-})();
-
 // ============ Gold particles ============
 (function(){
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
