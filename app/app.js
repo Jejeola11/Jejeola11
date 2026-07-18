@@ -883,7 +883,7 @@ async function loadCommunity() {
 
 // ---------------- Fuse Atelier course (Whop-style) ----------------
 const COURSE = (window.FUSE_COURSE && window.FUSE_COURSE.pillars) ? window.FUSE_COURSE.pillars : [];
-let courseVideos = {}; // lesson_key -> { url, duration_sec }
+let courseVideos = {}; // lesson_key -> { hasVideo, duration_sec, url? (only once opened -- see openLesson()) }
 let courseUnlocks = new Set(); // module_key the user unlocked
 let courseProgress = new Set(); // lesson_key completed
 let coursePillar = COURSE[0] ? COURSE[0].key : 'orient';
@@ -974,10 +974,14 @@ function captureLessonDuration(key, url) {
 
 async function openCourse() {
  showView('course');
- // Load videos (public), plus unlocks + progress for logged-in users.
+ // Load the public list (which lessons have a video + how long), plus
+ // unlocks + progress for logged-in users. The real playable `url` is
+ // deliberately NOT selectable here (see supabase/schema-phase25.sql) --
+ // it only ever comes from the tier-gated lesson-video.js function, fetched
+ // per-lesson when the student actually opens one (see openLesson()).
  try {
- const { data: v } = await sb.from('course_videos').select('lesson_key, url, duration_sec');
- courseVideos = {}; (v || []).forEach((r) => { courseVideos[r.lesson_key] = { url: r.url, duration_sec: r.duration_sec }; });
+ const { data: v } = await sb.from('course_videos').select('lesson_key, has_video, duration_sec');
+ courseVideos = {}; (v || []).forEach((r) => { courseVideos[r.lesson_key] = { hasVideo: r.has_video, duration_sec: r.duration_sec }; });
  } catch (e) {}
  if (user && !preview) {
  try { const { data: u } = await sb.from('module_unlocks').select('module_key').eq('user_id', user.id); courseUnlocks = new Set((u || []).map((r) => r.module_key)); } catch (e) {}
@@ -1011,7 +1015,7 @@ function buildCourseBody() {
  const unlocked = moduleUnlocked(m.key, p.key);
  const lessons = m.lessons.map((l) => {
  const vid = courseVideos[l.key];
- const hasVid = !!(vid && vid.url);
+ const hasVid = !!(vid && vid.hasVideo);
  const doneCls = courseProgress.has(l.key) ? ' done' : '';
  return `<div class="lrow${doneCls}" data-l="${l.key}" data-locked="${unlocked ? '' : '1'}">
  <span class="lr-ic">${courseProgress.has(l.key) ? '' : (unlocked ? '▶' : '')}</span>
@@ -1066,7 +1070,23 @@ async function unlockModule(mKey) {
  } catch (e) { toast(e.message || 'Could not unlock'); }
 }
 let curLesson = null;
-function openLesson(key) {
+// Fetches the real, playable URL for one lesson from the tier-gated
+// endpoint -- course_videos.url is no longer publicly readable (phase 25),
+// so this is the only place a real video link ever reaches the client, and
+// only once the server has independently re-checked the same tier/module
+// access moduleUnlocked() already checked here for the UI.
+async function fetchLessonUrl(key) {
+ try {
+ const res = await fetch('/.netlify/functions/lesson-video', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ lesson_key: key }),
+ });
+ const d = await res.json().catch(() => ({}));
+ if (!res.ok) return { url: null, error: d.error || 'Could not load video.' };
+ return { url: d.url || null, error: null };
+ } catch (e) { return { url: null, error: 'Network error loading video.' }; }
+}
+async function openLesson(key) {
  // find lesson (and its module + pillar, so the lock check can't be skipped
  // by calling this directly — the row click handler isn't the only gate)
  let found = null, modOf = null, pillarOf = null;
@@ -1074,22 +1094,12 @@ function openLesson(key) {
  if (!found) return;
  if (!moduleUnlocked(modOf.key, pillarOf.key)) { toast(' Unlock this module first'); return; }
  curLesson = found;
- // Shields over the two spots YouTube always keeps tappable regardless of
- // embed params: the title/channel strip at the top (shown on load/pause)
- // and the small YouTube logo watermark bottom-right (shown during
- // playback) -- YouTube's own embed terms don't allow removing that
- // logo's link, so covering it is the only way to actually block the tap.
- // Controls (play/pause/scrub/volume) stay usable since neither shield
- // covers the center or the control bar.
- const vidUrl = courseVideos[key] && courseVideos[key].url;
- const isYt = /youtube|youtu\.be/.test(vidUrl || '');
- $('lessonPlayer').innerHTML = lessonEmbed(vidUrl)
- + (isYt ? '<div oncontextmenu="return false" style="position:absolute;top:0;left:0;right:0;height:56px;z-index:5"></div>'
- + '<div oncontextmenu="return false" style="position:absolute;bottom:0;right:0;width:64px;height:44px;z-index:5"></div>'
- : '');
+ showView('lesson');
+ // Everything that doesn't need the real video URL renders immediately --
+ // only the player itself waits on the network round-trip below.
+ $('lessonPlayer').innerHTML = '<div class="lp-empty"> Loading…</div>';
  $('lessonPlayer').style.position = 'relative';
  $('lessonPlayer').classList.toggle('wide', found.aspect === '16:9');
- captureLessonDuration(key, vidUrl);
  $('lessonTitle').textContent = found.n + ' · ' + found.title;
  const durLbl = lessonDurLabel(courseVideos[key], found);
  $('lessonMeta').innerHTML = `<span class="muted">${modOf.title}${durLbl ? ' · ' + durLbl : ''}</span>`;
@@ -1099,11 +1109,36 @@ function openLesson(key) {
  : '') + (hasTask
  ? `<a class="btn gold block" href="${ATELIER_WHATSAPP}" target="_blank" style="margin:4px 0 18px"> Submit this task in the discussion group</a>`
  : '');
- // admin video setter
+ // mark complete
+ const dn = $('lessonDone');
+ const isDone = courseProgress.has(key);
+ dn.textContent = isDone ? ' Completed' : ' Mark complete';
+ dn.onclick = async () => {
+ if (preview || !user) { showAuth('signup'); return; }
+ if (courseProgress.has(key)) return;
+ try { await sb.from('course_progress').insert({ user_id: user.id, lesson_key: key }); courseProgress.add(key); dn.textContent = ' Completed'; } catch (e) {}
+ };
+ const renderPlayer = (vidUrl) => {
+ if (curLesson !== found) return; // navigated away while we were fetching
+ // Shields over the two spots YouTube always keeps tappable regardless of
+ // embed params: the title/channel strip at the top (shown on load/pause)
+ // and the small YouTube logo watermark bottom-right (shown during
+ // playback) -- YouTube's own embed terms don't allow removing that
+ // logo's link, so covering it is the only way to actually block the tap.
+ // Controls (play/pause/scrub/volume) stay usable since neither shield
+ // covers the center or the control bar.
+ const isYt = /youtube|youtu\.be/.test(vidUrl || '');
+ $('lessonPlayer').innerHTML = lessonEmbed(vidUrl)
+ + (isYt ? '<div oncontextmenu="return false" style="position:absolute;top:0;left:0;right:0;height:56px;z-index:5"></div>'
+ + '<div oncontextmenu="return false" style="position:absolute;bottom:0;right:0;width:64px;height:44px;z-index:5"></div>'
+ : '');
+ captureLessonDuration(key, vidUrl);
+ };
+ // admin video setter -- pre-fills once the real URL lands below.
  if (userIsAdmin) {
  $('lessonAdmin').innerHTML = `<div class="lesson-admin">
  <label class="fld"> Video URL (YouTube / Vimeo / MP4) — loads for everyone</label>
- <input id="lvUrl" placeholder="https://youtu.be/… or https://…/video.mp4" value="${((courseVideos[key] && courseVideos[key].url) || '').replace(/"/g, '&quot;')}">
+ <input id="lvUrl" placeholder="https://youtu.be/… or https://…/video.mp4" value="">
  <button class="btn gold sm" id="lvSave" style="margin-top:8px">Save video</button>
  <span class="note" id="lvNote"></span></div>`;
  $('lvSave').onclick = async () => {
@@ -1115,24 +1150,25 @@ function openLesson(key) {
  body: JSON.stringify({ lesson_key: key, url }),
  });
  const d = await res.json(); if (!res.ok) throw new Error(d.error || 'Failed');
- courseVideos[key] = { url, duration_sec: null }; // new url -> old duration no longer applies
- $('lessonPlayer').innerHTML = lessonEmbed(url);
- captureLessonDuration(key, url);
+ courseVideos[key] = { hasVideo: !!url, duration_sec: null }; // new url -> old duration no longer applies
+ renderPlayer(url);
  note('lvNote', ' Saved & live', 'ok');
  } catch (e) { note('lvNote', e.message || 'Failed', 'err'); }
  $('lvSave').disabled = false; $('lvSave').textContent = 'Save video';
  };
  } else { $('lessonAdmin').innerHTML = ''; }
- // mark complete
- const dn = $('lessonDone');
- const isDone = courseProgress.has(key);
- dn.textContent = isDone ? ' Completed' : ' Mark complete';
- dn.onclick = async () => {
- if (preview || !user) { showAuth('signup'); return; }
- if (courseProgress.has(key)) return;
- try { await sb.from('course_progress').insert({ user_id: user.id, lesson_key: key }); courseProgress.add(key); dn.textContent = ' Completed'; } catch (e) {}
- };
- showView('lesson');
+ // Real URL only ever comes from the gated endpoint -- never from the
+ // public course_videos list fetched in openCourse().
+ const { url: vidUrl, error } = await fetchLessonUrl(key);
+ if (curLesson !== found) return; // navigated away while we were fetching
+ if (vidUrl) {
+ const lvUrl = $('lvUrl'); if (lvUrl) lvUrl.value = vidUrl;
+ renderPlayer(vidUrl);
+ } else {
+ $('lessonPlayer').innerHTML = error && /unlock/i.test(error)
+ ? `<div class="lp-empty"> ${error}</div>`
+ : '<div class="lp-empty"> Video coming soon</div>';
+ }
 }
 
 // ---------------- The Arena (Ria posts challenges; everyone participates in the WhatsApp group) ----------------
