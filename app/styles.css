@@ -228,7 +228,11 @@ textarea{min-height:104px;resize:vertical}
 .pk-arrow{color:var(--gold)}
 .pk-now{font-size:15px}
 .pk-promo-strip{background:linear-gradient(90deg,rgba(245,197,24,.18),rgba(245,197,24,.06));border:1px solid var(--gold);color:var(--gold);font-weight:800;font-size:12.5px;text-align:center;padding:8px;border-radius:10px;margin-bottom:10px}
-.close{float:right;cursor:pointer;color:var(--muted);font-size:20px;border:0;background:none}
+.close{float:right;cursor:pointer;border:0;background:none;position:relative;width:26px;height:26px}
+.close::before,.close::after{content:"";position:absolute;top:50%;left:50%;width:15px;height:2px;background:var(--muted);border-radius:1px}
+.close::before{transform:translate(-50%,-50%) rotate(45deg)}
+.close::after{transform:translate(-50%,-50%) rotate(-45deg)}
+.close:hover::before,.close:hover::after{background:var(--gold)}
 
 @media (max-width:900px){
   .tiles{grid-template-columns:repeat(2,1fr)}

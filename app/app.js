@@ -2181,10 +2181,24 @@ async function loadAvatars() {
  }
  avatarMap = {}; (data || []).forEach((a) => { avatarMap[a.id] = a; });
  $('avatarList').innerHTML = (data && data.length)
- ? data.map((a) => `<div style="text-align:center;position:relative"><img src="${a.image_url}" data-id="${a.id}" data-name="${a.name}" class="avThumb" style="aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer">${a.model_sheet_url ? '<span class="av-sheet-badge"></span>' : ''}<div style="font-size:11px;margin-top:4px" class="muted">${a.name}</div></div>`).join('')
+ ? data.map((a) => `<div style="text-align:center;position:relative"><img src="${a.image_url}" data-id="${a.id}" data-name="${a.name}" class="avThumb" style="aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer">${a.model_sheet_url ? '<span class="av-sheet-badge"></span>' : ''}<span class="av-th-x" style="top:4px;left:4px;right:auto" title="Delete avatar" onclick="event.stopPropagation();window.fuseDeleteAvatar('${a.id}')"></span><div style="font-size:11px;margin-top:4px" class="muted">${a.name}</div></div>`).join('')
  : '<div class="empty" style="grid-column:1/-1">No avatars yet — create one below </div>';
  $('avatarList').querySelectorAll('.avThumb').forEach((el) => el.onclick = () => selectAvatar(el.dataset.id, el.dataset.name));
 }
+window.fuseDeleteAvatar = async (id) => {
+ const a = avatarMap[id];
+ if (!confirm(`Delete "${(a && a.name) || 'this avatar'}"? This also removes any avatar videos made with it. This can't be undone.`)) return;
+ try {
+ const res = await fetch('/.netlify/functions/avatar-delete', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ avatar_id: id }),
+ });
+ const d = await res.json();
+ if (!res.ok) throw new Error(d.error || 'Failed');
+ if (selectedAvatar === id) { selectedAvatar = null; $('avGenWrap').style.display = 'none'; $('avVideoWrap').style.display = 'none'; }
+ loadAvatars();
+ } catch (e) { alert(e.message || 'Could not delete this avatar.'); }
+};
 function selectAvatar(id, name) {
  selectedAvatar = id;
  $('avSelName').textContent = name;
