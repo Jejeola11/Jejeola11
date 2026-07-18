@@ -910,7 +910,7 @@ function moduleUnlocked(mKey, pillarKey) {
 function ytId(u) { const m = u.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{6,})/); return m ? m[1] : ''; }
 function lessonEmbed(url) {
  if (!url) return '<div class="lp-empty"> Video coming soon</div>';
- if (/youtube|youtu\.be/.test(url)) return `<iframe src="https://www.youtube-nocookie.com/embed/${ytId(url)}?rel=0&modestbranding=1" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>`;
+ if (/youtube|youtu\.be/.test(url)) return `<iframe src="https://www.youtube-nocookie.com/embed/${ytId(url)}?rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&playsinline=1" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>`;
  if (/vimeo\.com/.test(url)) { const id = (url.match(/vimeo\.com\/(\d+)/) || [])[1] || ''; return `<iframe src="https://player.vimeo.com/video/${id}" allow="autoplay; fullscreen" allowfullscreen></iframe>`; }
  return `<video src="${url}" controls playsinline></video>`;
 }
@@ -1007,9 +1007,18 @@ function openLesson(key) {
  if (!found) return;
  if (!moduleUnlocked(modOf.key, pillarOf.key)) { toast(' Unlock this module first'); return; }
  curLesson = found;
- // Shield over the video's top strip: blocks the YouTube title/logo link so
- // students can't tap through and copy the raw URL. Controls stay usable.
- $('lessonPlayer').innerHTML = lessonEmbed(courseVideos[key]) + '<div oncontextmenu="return false" style="position:absolute;top:0;left:0;right:0;height:56px;z-index:5"></div>';
+ // Shields over the two spots YouTube always keeps tappable regardless of
+ // embed params: the title/channel strip at the top (shown on load/pause)
+ // and the small YouTube logo watermark bottom-right (shown during
+ // playback) -- YouTube's own embed terms don't allow removing that
+ // logo's link, so covering it is the only way to actually block the tap.
+ // Controls (play/pause/scrub/volume) stay usable since neither shield
+ // covers the center or the control bar.
+ const isYt = /youtube|youtu\.be/.test(courseVideos[key] || '');
+ $('lessonPlayer').innerHTML = lessonEmbed(courseVideos[key])
+ + (isYt ? '<div oncontextmenu="return false" style="position:absolute;top:0;left:0;right:0;height:56px;z-index:5"></div>'
+ + '<div oncontextmenu="return false" style="position:absolute;bottom:0;right:0;width:64px;height:44px;z-index:5"></div>'
+ : '');
  $('lessonPlayer').style.position = 'relative';
  $('lessonPlayer').classList.toggle('wide', found.aspect === '16:9');
  $('lessonTitle').textContent = found.n + ' · ' + found.title;

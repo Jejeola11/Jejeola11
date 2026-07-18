@@ -4,8 +4,13 @@
 //   that unlocks every module in that pillar (checked in app.js).
 //   Lesson keys that already have uploaded videos in course_videos are
 //   PRESERVED from the old structure (orient-*, spark-*, gold-3_5) so
-//   nothing needs re-linking. Every lesson follows the 4-beat formula:
-//   one idea → example → action step → bridge.
+//   nothing needs re-linking, EXCEPT Skill 1 (Social Media & Event
+//   Flyers, the "design" pillar's flyer-m1..flyer-m6), which was
+//   deliberately rebuilt from 3 shallow lessons into the real 21-lesson
+//   flagship course from the recording package -- those are new keys
+//   (flyer-1_1 etc), not preserved from the old spark-1_1/design-1_3.
+//   Every other lesson still follows the 4-beat formula: one idea →
+//   example → action step → bridge.
 // ============================================================
 window.FUSE_COURSE = {
 "pillars": [
@@ -15,7 +20,7 @@ window.FUSE_COURSE = {
 { "key": "orient-0_1", "n": "0.1", "title": "Welcome — What You Just Unlocked", "dur": "2 min", "aspect": "16:9",
 "notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Fuse Atelier is three things in one: the course (6 skill families), the studio (where you create), and the Money Engine (how you get paid). Your tier unlocks your families — and every tier includes the Money Engine.</p><div class='vault-action'><b>Action step:</b> Open the Create tab and look around for 2 minutes. Next: the one rule that makes this course work.</div>" },
 { "key": "orient-0_2", "n": "0.2", "title": "The Rule: One Skill → Money → Stack The Next", "dur": "1 min", "aspect": "16:9",
-"notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>People fail courses by learning everything and selling nothing. Here you learn ONE skill (2–3 short lessons), monetize it the same week with the Money Engine, then stack the next skill. Momentum beats knowledge.</p><div class='vault-action'><b>Action step:</b> Say your commitment out loud: one skill, one week, one client. Next: your quick self-audit.</div>" },
+"notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>People fail courses by learning everything and selling nothing. Here you learn ONE skill in short, focused lessons, monetize it the same week with the Money Engine, then stack the next skill. Momentum beats knowledge.</p><div class='vault-action'><b>Action step:</b> Say your commitment out loud: one skill, one week, one client. Next: your quick self-audit.</div>" },
 { "key": "orient-0_3", "n": "0.3", "title": "Your Starter Audit", "dur": "2 min", "aspect": "16:9",
 "notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Rate yourself 1–5 on: AI tools, design eye, selling confidence, and consistency. No wrong answers — this tells you which lessons to slow down on. You'll re-rate at day 30 and shock yourself.</p><div class='vault-action'><b>Action step:</b> Write your 4 ratings somewhere you'll find them again. Next: meet the studio.</div>" },
 { "key": "orient-0_4", "n": "0.4", "title": "Meet Your Studio (Make Your First Image Now)", "dur": "4 min", "aspect": "16:9",
@@ -26,13 +31,59 @@ window.FUSE_COURSE = {
 ]},
 
 { "key": "design", "name": "DESIGN & FLYERS", "sub": "The fastest money — every business buys these", "tier": "starter", "modules": [
-{ "key": "design-m1", "title": "Skill 1 · Social Media & Event Flyers", "lessons": [
-{ "key": "spark-1_1", "n": "1.1", "title": "Learn It: Your Design Toolkit — Which Model For Which Job", "dur": "2 min", "aspect": "16:9",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>One studio, many engines: fast models for drafts, premium models for the final client render. Concept cheap, finish expensive — that's how pros protect their credits and their margins.</p><div class='vault-action'><b>Action step:</b> Generate the same flyer concept on two models and compare. Next: the prompt formula that makes designs look professional.</div>" },
-{ "key": "spark-1_2", "n": "1.2", "title": "Build It: The 6-Part Prompt Formula", "dur": "7 min", "aspect": "16:9",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Subject + Material + Lighting + Camera + Atmosphere + Quality. Stack all six in one flowing sentence and you get professional output on the first try. Example: 'Bold party flyer design for a Lagos beach party, vibrant sunset colours, clean modern typography space, energetic premium look, ultra-detailed, 4:5.'</p><div class='vault-action'><b>Action step:</b> Write one full 6-part prompt for an event flyer and generate it. Next: turning designs into deliverables clients pay for.</div>" },
-{ "key": "design-1_3", "n": "1.3", "title": "Sell It: Flyer Packages Clients Pay ₦3k–15k For", "dur": "6 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Sell packages, not one-offs: single flyer ₦3,000–5,000 · flyer + WhatsApp status version ₦7,000 · monthly pack ₦15,000+. Deliver same-day — speed is your unfair advantage over designers who take a week.</p><div class='vault-action'><b>Action step:</b> Make 3 portfolio flyers (party, business promo, product sale) — these are your proof pieces. Then open the Money Engine and run Day 1.</div>" }
+{ "key": "flyer-m1", "title": "Module 1 · The Foundations Nobody Skips", "lessons": [
+{ "key": "flyer-1_1", "n": "1.1", "title": "The Four Rules That Make Anything Look Designed",
+"notes": "<span class='vault-tag'>🎙 Avatar</span><h4>The Idea</h4><p>Every flyer that looks \"off\" is breaking one of four rules — C.R.A.P: Contrast (make different things very different), Repetition (repeat a colour/shape/weight so it reads as one system), Alignment (nothing sits randomly), Proximity (related things sit close, unrelated things get space).</p><div class='vault-action'><b>Action step:</b> Find one flyer online that looks a bit off and name which of the four rules it's breaking.</div>" },
+{ "key": "flyer-1_2", "n": "1.2", "title": "Color That Doesn't Fight Itself",
+"notes": "<span class='vault-tag'>🎙 Avatar</span><h4>The Idea</h4><p>Pick exactly ONE saturated accent color — it shows up in the headline accent, badge, bullets and CTA; everything else stays dark or neutral. Complementary colors = high energy (use sparingly), analogous = calm, triadic = vibrant but hard to balance. For white text on a photo, it needs a genuinely dark area behind it — that's what shadows/glass panels in Fuse Studio are for.</p><div class='vault-action'><b>Action step:</b> Pick your one accent color for your next flyer before you open the studio, not after.</div>" },
+{ "key": "flyer-1_3", "n": "1.3", "title": "Typography That Doesn't Look Homemade",
+"notes": "<span class='vault-tag'>🎙 Avatar</span><h4>The Idea</h4><p>Max 2-3 fonts: one bold headline font, one clean body font, optional script/mono accent. Pair by CONTRAST not similarity — two similar sans-serifs fight each other. Build hierarchy with size, weight, AND color, in that order, so someone knows what to read first even from a blurry thumbnail.</p><div class='vault-action'><b>Action step:</b> Audit your last flyer — count the fonts. More than three? Cut it down.</div>" },
+{ "key": "flyer-1_4", "n": "1.4", "title": "Composition and Layout",
+"notes": "<span class='vault-tag'>🎙 Avatar</span><h4>The Idea</h4><p>Rule of thirds — your focal point sits on the grid lines, not dead center. One focal point, period: two things competing for attention loses the reader. Whitespace isn't empty — it's what makes the one focal point feel important, even when a client asks for \"more.\"</p><div class='vault-action'><b>Action step:</b> Re-crop one old flyer so the hero sits on a third instead of dead center and compare.</div>" }
+]},
+{ "key": "flyer-m2", "title": "Module 2 · The Anatomy of a Flyer That Actually Converts", "lessons": [
+{ "key": "flyer-2_1", "n": "2.1", "title": "The 7 Layers of a Working Flyer",
+"notes": "<span class='vault-tag'>🎙 Avatar</span><h4>The Idea</h4><p>Every flyer that works has 7 layers: the field (background, never flat white), the hero (one dominant subject, one light source), one accent color reused everywhere, the headline zone (protected space, upper-third to mid-frame), the information card (bullets/pricing in a rounded panel), a signature micro-motif (repeats 2-4x), and the contact footer.</p><div class='vault-action'><b>Action step:</b> Take your next flyer and label which of the 7 layers each element belongs to — if something doesn't fit a layer, question why it's there.</div>" },
+{ "key": "flyer-2_2", "n": "2.2", "title": "Flyer Types and Their Real Conventions",
+"notes": "<span class='vault-tag'>🎙 Avatar</span><h4>The Idea</h4><p>Event flyers: date/time/venue readable at a glance, mood over density. Promo/sale flyers: the offer IS the headline, urgency in a badge. Business/service flyers: credibility over flash — badge, guarantee line, one clear CTA. Personal-brand flyers: the face and name carry the hierarchy.</p><div class='vault-action'><b>Action step:</b> Identify which of the 4 types your next 3 client jobs are, before you design a single one.</div>" },
+{ "key": "flyer-2_3", "n": "2.3", "title": "Sizing and Platforms",
+"notes": "<span class='vault-tag'>🎙 Avatar</span><h4>The Idea</h4><p>1:1 and 4:5 = IG/FB feed (4:5 gets more scroll real estate). 9:16 = Stories/Reels covers/WhatsApp Status — keep text clear of the very top/bottom. 3:4 is the middle ground. Print jobs need extra edge \"bleed\" space that gets trimmed after printing.</p><div class='vault-action'><b>Action step:</b> Before your next job, confirm every size the client actually needs — don't assume it's just one.</div>" },
+{ "key": "flyer-2_4", "n": "2.4", "title": "The Mistakes That Scream \"Beginner\"",
+"notes": "<span class='vault-tag'>🎙 Avatar</span><h4>The Idea</h4><p>The 6-point checklist: wall of text with no hierarchy, white text on a busy photo with nothing behind it, more than 3 fonts, no single focal point, generic stock-photo energy, more than one color trying to \"pop.\"</p><div class='vault-action'><b>Action step:</b> Run your last 3 delivered flyers through this checklist. Fix whatever fails before your next delivery.</div>" }
+]},
+{ "key": "flyer-m3", "title": "Module 3 · Designing with AI (Fuse Studio Workflow)", "lessons": [
+{ "key": "flyer-3_1", "n": "3.1", "title": "Prompts That Don't Look AI-Generated",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Live in the Hero visual panel: name real camera/lens language (\"shot on a Sony A7IV, 50mm, shallow depth of field\"), name the lighting explicitly, add natural-imperfection language, and always say \"no text, no words, no logos.\"</p><div class='vault-action'><b>Action step:</b> Write and generate one full prompt using every element from this lesson.</div>" },
+{ "key": "flyer-3_2", "n": "3.2", "title": "Reference Images, Live",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Why edit mode (not plain text-to-image) is what keeps an uploaded product looking like itself instead of a reinterpretation.</p><div class='vault-action'><b>Action step:</b> Generate the same product with and without a reference image and compare accuracy.</div>" },
+{ "key": "flyer-3_3", "n": "3.3", "title": "The Full Pipeline, Live",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Brief chat → Hero → Add a Layer → Typography, start to finish on one real brief, narrating every choice — aspect ratio, layer, text effect.</p><div class='vault-action'><b>Action step:</b> Run one real or example brief through the full pipeline yourself, out loud, narrating each choice the way the lesson does.</div>" },
+{ "key": "flyer-3_4", "n": "3.4", "title": "Text Effects, Live",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>The same flyer shown with shadow, glass, and gradient text effects side by side — and when to reach for each one.</p><div class='vault-action'><b>Action step:</b> Apply all 3 effects to one flyer and pick the one that actually serves the design, not just the one that looks flashiest.</div>" },
+{ "key": "flyer-3_5", "n": "3.5", "title": "When Something Goes Wrong",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>A real failure, live — skipping the reference image, or asking for text inside the image prompt — and the real fix. This is the single most valuable lesson in the module: showing the failure builds more trust than a flawless walkthrough.</p><div class='vault-action'><b>Action step:</b> Deliberately break your own generation once (skip a reference, ask for in-image text) so you recognize the failure mode before a client ever sees it.</div>" }
+]},
+{ "key": "flyer-m4", "title": "Module 4 · Research Like a Real Designer, for Any Niche", "lessons": [
+{ "key": "flyer-4_1", "n": "4.1", "title": "The Method",
+"notes": "<span class='vault-tag'>🎙 Avatar</span><h4>The Idea</h4><p>4 steps for any new niche: find 2-4 real respected brands/creators in it, find the lazy default vs. what the respected players do instead, pin one color anchor + one typography mood + one motif, then restraint beats maximalism — always.</p><div class='vault-action'><b>Action step:</b> Run all 4 steps on paper for the very next niche a client hands you, before opening Fuse Studio.</div>" },
+{ "key": "flyer-4_2", "n": "4.2", "title": "Worked Example: Web3/Crypto",
+"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Live research + generation: the lazy default (flat indigo-purple gradient on black — now a tired AI cliché) vs. what respected Web3 brands actually do (restrained palette, one accent, geometric sans or mono type, community-specific motifs).</p><div class='vault-action'><b>Action step:</b> Pick one niche you'd never normally design for and find its \"lazy default\" before you ever get a real brief in it.</div>" },
+{ "key": "flyer-4_3", "n": "4.3", "title": "Building This Instinct For Every New Niche",
+"notes": "<span class='vault-tag'>🎙 Avatar</span><h4>The Idea</h4><p>The real assignment: run the 4-step method from 4.1 on 3 unfamiliar niches (e.g. a fashion boutique, a fintech app, a fitness coach) BEFORE touching Fuse Studio, then generate all 3. The results won't look generic or like each other — that's the whole point.</p><div class='vault-action'><b>Action step:</b> Do the 3-niche exercise for real. Don't skip to generating — the research step is the actual skill being taught.</div>" }
+]},
+{ "key": "flyer-m5", "title": "Module 5 · From Brief to Paid Delivery", "lessons": [
+{ "key": "flyer-5_1", "n": "5.1", "title": "Running the Real Client Conversation",
+"notes": "<span class='vault-tag'>🎙 Avatar</span><h4>The Idea</h4><p>The 5 questions to ask before generating anything: what's it for, who's the audience, is there an existing brand/palette, what's the one thing it must communicate, any reference images. When a client's vague, fill the gaps yourself and show them a complete direction — clients react far better than they describe from nothing.</p><div class='vault-action'><b>Action step:</b> Write these 5 questions into a saved WhatsApp quick-reply for your next client intake.</div>" },
+{ "key": "flyer-5_2", "n": "5.2", "title": "Revisions Without Scope Creep",
+"notes": "<span class='vault-tag'>🎙 Avatar</span><h4>The Idea</h4><p>Agree on revision rounds upfront (2 is standard for a simple flyer). A revision = a change within the agreed brief; a brand-new direction after approval is a NEW job. \"Happy to explore that — since it's a new direction, let's scope it as a separate small job\" protects your time.</p><div class='vault-action'><b>Action step:</b> Save that exact sentence into your phone's quick replies.</div>" },
+{ "key": "flyer-5_3", "n": "5.3", "title": "Delivery",
+"notes": "<span class='vault-tag'>🎙 Avatar</span><h4>The Idea</h4><p>Deliver every size the brief actually called for, all from the SAME visual. PNG when transparency/text sharpness matters, JPEG for a final flat flyer going straight to WhatsApp. Right sizes + right format + on time beats fancier design delivered sloppily.</p><div class='vault-action'><b>Action step:</b> Build yourself a delivery checklist (sizes, formats, filenames) and use it on every job from now on.</div>" },
+{ "key": "flyer-5_4", "n": "5.4", "title": "Every Job Is a Portfolio Piece",
+"notes": "<span class='vault-tag'>🎙 Avatar</span><h4>The Idea</h4><p>Save the brief next to the final result for every job, even the small ₦10,000 ones. A portfolio piece with a real brief attached proves you can interpret direction — a gallery of pretty images alone proves nothing.</p><div class='vault-action'><b>Action step:</b> Go back and pair up briefs with results for your existing portfolio pieces, starting today.</div>" }
+]},
+{ "key": "flyer-m6", "title": "Module 6 · Practice Curriculum", "lessons": [
+{ "key": "flyer-6_1", "n": "6", "title": "Your 5 Practice Briefs",
+"notes": "<span class='vault-tag'>🎙 Avatar</span><h4>The Idea</h4><p>5 briefs, increasing difficulty: (1) a promo flyer with zero references, (2) a product flyer using one real reference photo, (3) an event flyer in an unfamiliar niche, (4) clone a real flyer's structure with new copy/product, (5) a full client-style brief delivered in all 3 platform sizes with a 2-round revision cycle.</p><div class='vault-action'><b>Action step:</b> Do all 5, in order, don't skip ahead — by the end you'll have 5 real portfolio pieces and the muscle memory for a real paying job.</div>" }
 ]},
 { "key": "design-m2", "title": "Skill 2 · Ad Flyers & Promo Graphics", "lessons": [
 { "key": "design-2_1", "n": "2.1", "title": "Learn It: Ads That Sell vs Designs That Decorate", "dur": "5 min",
