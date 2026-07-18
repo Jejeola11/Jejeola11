@@ -945,11 +945,17 @@ async function saveLessonDuration(key, sec) {
  courseVideos[key] = { ...(courseVideos[key] || {}), duration_sec: Math.round(sec) };
  buildCourseBody();
  try {
- await fetch('/.netlify/functions/course-set-video', {
+ const res = await fetch('/.netlify/functions/course-set-video', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ lesson_key: key, duration_sec: Math.round(sec) }),
  });
- } catch (e) {}
+ // The on-screen number above updated optimistically the moment this ran --
+ // that's a LOCAL preview only, not proof the DB has it. If this save
+ // fails, surface it (admin-only path) instead of swallowing it silently,
+ // since a silent failure here previously made "it looks saved on my
+ // screen" a false signal for whether other users would see it too.
+ if (!res.ok) toast(' Duration save failed for ' + key + ' — students may still see "soon"');
+ } catch (e) { toast(' Duration save failed for ' + key + ' (network) — students may still see "soon"'); }
 }
 function captureLessonDuration(key, url) {
  if (!userIsAdmin || !url) return;
@@ -4444,4 +4450,15 @@ window.addEventListener('DOMContentLoaded', () => {
  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js').catch(() => {});
 
  boot();
+});
+
+// A tab left open across an admin's video upload never re-fetches
+// course_videos on its own -- openCourse() only queries it when that view
+// is entered, so a student who was already sitting on the Course tab (or
+// just switched back to this browser tab after time away) keeps seeing
+// "soon" even after the video is live for everyone else. Re-pull it
+// whenever this tab regains focus while the Course view is open, so
+// coming back to it is enough to pick up anything the admin just added.
+document.addEventListener('visibilitychange', () => {
+ if (document.visibilityState === 'visible' && curView === 'course') openCourse();
 });
