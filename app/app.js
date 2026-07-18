@@ -907,7 +907,7 @@ function moduleUnlocked(mKey, pillarKey) {
  if (atelierTier() >= need) return true;
  return courseUnlocks.has(mKey); // legacy per-module unlocks still honoured
 }
-function ytId(u) { const m = u.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{6,})/); return m ? m[1] : ''; }
+function ytId(u) { const m = u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{6,})/); return m ? m[1] : ''; }
 function lessonEmbed(url) {
  if (!url) return '<div class="lp-empty"> Video coming soon</div>';
  if (/youtube|youtu\.be/.test(url)) return `<iframe src="https://www.youtube-nocookie.com/embed/${ytId(url)}?rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&playsinline=1" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>`;
