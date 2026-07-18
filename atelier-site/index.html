@@ -76,7 +76,7 @@ section{padding:72px 0;position:relative}
 /* ===== Hero with cursor image-reveal ===== */
 .hero{position:relative;min-height:92svh;display:grid;place-items:center;overflow:hidden;padding:80px 0 60px}
 .hero-reveal,.hero-front{position:absolute;inset:0}
-.hero-reveal{display:grid;grid-template-columns:repeat(3,1fr);gap:0;filter:saturate(1.1)}
+.hero-reveal{display:grid;grid-template-columns:1fr;gap:0;filter:saturate(1.1)}
 .hero-reveal img{width:100%;height:100%;object-fit:cover}
 .hero-front{background:
   radial-gradient(1200px 600px at 75% -10%, rgba(20,82,74,.55), transparent 60%),
@@ -224,7 +224,7 @@ footer a{color:var(--gold)}
 <!-- ===== HERO (cursor image-reveal) ===== -->
 <header class="hero" id="hero">
   <div class="hero-reveal" aria-hidden="true">
-    <img src="assets/s1.jpg" alt=""><img src="assets/s4.jpg" alt=""><img src="assets/s2.jpg" alt="">
+    <img src="assets/s1.jpg" alt="">
   </div>
   <div class="hero-front" id="heroFront" aria-hidden="true"></div>
   <div class="hero-in">
