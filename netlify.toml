@@ -47,11 +47,16 @@
 # atelier-site/ as real files; these three rules just rewrite the clean
 # /atelier URL to it while keeping its own relative asset paths
 # (assets/*, proof/*) working, since the browser resolves those against
-# whatever URL is in the address bar.
+# whatever URL is in the address bar. All three are 200 rewrites (proxy,
+# not redirect) -- a 301 here previously bounced /atelier -> /atelier/
+# and back, since Netlify's redirect matching didn't treat the trailing
+# slash as a different path, so the browser looped forever
+# (ERR_TOO_MANY_REDIRECTS). A 200 never changes the URL the browser
+# sees, so that loop can't happen.
 [[redirects]]
   from = "/atelier"
-  to = "/atelier/"
-  status = 301
+  to = "/atelier-site/index.html"
+  status = 200
   force = true
 
 [[redirects]]
