@@ -33,7 +33,7 @@ exports.handler = async (event) => {
       currency: 'NGN',
       // Let customers pay by bank transfer (and card/ussd if they prefer).
       channels: ['bank_transfer', 'card', 'bank', 'ussd'],
-      callback_url: `${appUrl}/studio?paid=1`,
+      callback_url: `${appUrl}/studio?paid=1&pack=${encodeURIComponent(body.pack)}`,
       metadata: {
         user_id: user.id,
         pack: body.pack,

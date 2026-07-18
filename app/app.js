@@ -4342,7 +4342,20 @@ window.addEventListener('DOMContentLoaded', () => {
  $('authPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doAuth(); });
  $('previewLink').onclick = enterPreview;
 
- if (new URLSearchParams(location.search).get('paid')) setTimeout(() => user && loadProfile(), 2500);
+ if (new URLSearchParams(location.search).get('paid')) {
+ const paidPack = new URLSearchParams(location.search).get('pack');
+ const isCoursePack = paidPack && (cfg.PACKS || []).some((p) => p.key === paidPack && p.kind === 'course');
+ setTimeout(async () => {
+ if (!user) return;
+ await loadProfile();
+ if (!isCoursePack) return;
+ // The Paystack webhook that actually unlocks the module can land a beat
+ // after this redirect does — give it one retry before giving up so we
+ // don't drop them into a course view that still shows "locked".
+ await openCourse();
+ if (atelierTier() < 1) setTimeout(openCourse, 3000);
+ }, 2500);
+ }
  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js').catch(() => {});
 
  boot();
