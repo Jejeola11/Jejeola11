@@ -3366,6 +3366,14 @@ async function editOmniSend() {
  if (!editProjectId) return note('editOmniNote', 'Upload a video first.', 'err');
  const instructions = $('editOmniMsg').value.trim();
  if (!instructions) return note('editOmniNote', 'Describe the edit first.', 'err');
+ // Gemini Omni's video-edit model only accepts clips up to 10 seconds —
+ // anything longer submits fine but always fails the actual generation
+ // (WaveSpeed confirmed live), burning credits with no useful error back.
+ // Catch it here instead so a 1-2 minute reel never even tries.
+ const dur = $('editVideoPreview') && $('editVideoPreview').duration;
+ if (dur && isFinite(dur) && dur > 10) {
+ return note('editOmniNote', `AI Auto-Edit only handles clips up to 10 seconds — this video is ${Math.round(dur)}s. Use the chat box below instead (it's built for full-length videos): describe the edit, then burn in captions and add screenshots with the tools that appear after.`, 'err');
+ }
  const btn = $('editOmniSend'); const label = ' Auto-edit this video'; btn.disabled = true; btn.textContent = 'Editing…';
  $('editResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Applying the AI edit… this can take a while ⏳</div></div>';
  note('editOmniNote', '');
