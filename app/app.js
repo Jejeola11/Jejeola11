@@ -883,10 +883,20 @@ async function loadCommunity() {
 
 // ---------------- Fuse Atelier course (Whop-style) ----------------
 const COURSE = (window.FUSE_COURSE && window.FUSE_COURSE.pillars) ? window.FUSE_COURSE.pillars : [];
-let courseVideos = {}; // lesson_key -> url
+let courseVideos = {}; // lesson_key -> { url, duration_sec }
 let courseUnlocks = new Set(); // module_key the user unlocked
 let courseProgress = new Set(); // lesson_key completed
 let coursePillar = COURSE[0] ? COURSE[0].key : 'orient';
+let expandedModules = new Set(); // module_key -> open in the accordion (persists across re-renders)
+// Formats a lesson's duration: the REAL measured length once a video's
+// been opened at least once (captured live off the player, see
+// openLesson()) takes priority over the hand-typed estimate in course.js
+// — "exact minutes" per Ria, not a guess dressed up as fact.
+function lessonDurLabel(vid, lesson) {
+ const sec = vid && vid.duration_sec;
+ if (sec) { const m = Math.floor(sec / 60), s = Math.round(sec % 60); return m > 0 ? `${m}m ${s}s` : `${s}s`; }
+ return lesson.dur || '';
+}
 // Courses are purchase-only now — a Pro/Agency image-credits plan does NOT
 // grant course access on its own. Only admin (for testing) or an explicit
 // module_unlocks row (real payment) unlocks a course.
@@ -910,17 +920,58 @@ function moduleUnlocked(mKey, pillarKey) {
 function ytId(u) { const m = u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{6,})/); return m ? m[1] : ''; }
 function lessonEmbed(url) {
  if (!url) return '<div class="lp-empty"> Video coming soon</div>';
- if (/youtube|youtu\.be/.test(url)) return `<iframe src="https://www.youtube-nocookie.com/embed/${ytId(url)}?rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&playsinline=1" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>`;
+ // id + enablejsapi=1 let captureLessonDuration() bind a real YT.Player to
+ // this exact iframe to read its real length once loaded.
+ if (/youtube|youtu\.be/.test(url)) return `<iframe id="ytLessonFrame" src="https://www.youtube-nocookie.com/embed/${ytId(url)}?rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&playsinline=1&enablejsapi=1" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>`;
  if (/vimeo\.com/.test(url)) { const id = (url.match(/vimeo\.com\/(\d+)/) || [])[1] || ''; return `<iframe src="https://player.vimeo.com/video/${id}" allow="autoplay; fullscreen" allowfullscreen></iframe>`; }
  return `<video src="${url}" controls playsinline></video>`;
+}
+// Real duration capture -- only bothers admin-side (Ria, the one who sets
+// videos), and only once per lesson (skips if we already have a stored
+// duration_sec). YouTube needs the real IFrame Player API (postMessage
+// under the hood) since a plain <iframe> exposes no metadata directly;
+// native <video>/Vimeo can't be read this cheaply either, so only the
+// YouTube + plain <video> cases are covered -- Vimeo lessons keep the
+// hand-typed estimate until one is actually used.
+let ytApiReady = false, ytApiLoading = false;
+function ensureYtApi(cb) {
+ if (window.YT && window.YT.Player) { cb(); return; }
+ const prev = window.onYouTubeIframeAPIReady;
+ window.onYouTubeIframeAPIReady = () => { ytApiReady = true; if (prev) prev(); cb(); };
+ if (!ytApiLoading) { ytApiLoading = true; const tag = document.createElement('script'); tag.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(tag); }
+}
+async function saveLessonDuration(key, sec) {
+ if (!sec || !isFinite(sec)) return;
+ courseVideos[key] = { ...(courseVideos[key] || {}), duration_sec: Math.round(sec) };
+ buildCourseBody();
+ try {
+ await fetch('/.netlify/functions/course-set-video', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ lesson_key: key, duration_sec: Math.round(sec) }),
+ });
+ } catch (e) {}
+}
+function captureLessonDuration(key, url) {
+ if (!userIsAdmin || !url) return;
+ if (courseVideos[key] && courseVideos[key].duration_sec) return; // already have the real one
+ if (/youtube|youtu\.be/.test(url)) {
+ ensureYtApi(() => {
+ try {
+ new YT.Player('ytLessonFrame', { events: { onReady: (e) => { const d = e.target.getDuration(); if (d) saveLessonDuration(key, d); } } });
+ } catch (err) {}
+ });
+ } else if (!/vimeo\.com/.test(url)) {
+ const v = document.querySelector('#lessonPlayer video');
+ if (v) v.addEventListener('loadedmetadata', () => saveLessonDuration(key, v.duration), { once: true });
+ }
 }
 
 async function openCourse() {
  showView('course');
  // Load videos (public), plus unlocks + progress for logged-in users.
  try {
- const { data: v } = await sb.from('course_videos').select('lesson_key, url');
- courseVideos = {}; (v || []).forEach((r) => { courseVideos[r.lesson_key] = r.url; });
+ const { data: v } = await sb.from('course_videos').select('lesson_key, url, duration_sec');
+ courseVideos = {}; (v || []).forEach((r) => { courseVideos[r.lesson_key] = { url: r.url, duration_sec: r.duration_sec }; });
  } catch (e) {}
  if (user && !preview) {
  try { const { data: u } = await sb.from('module_unlocks').select('module_key').eq('user_id', user.id); courseUnlocks = new Set((u || []).map((r) => r.module_key)); } catch (e) {}
@@ -953,27 +1004,37 @@ function buildCourseBody() {
  $('courseBody').innerHTML = p.modules.map((m, mi) => {
  const unlocked = moduleUnlocked(m.key, p.key);
  const lessons = m.lessons.map((l) => {
- const hasVid = !!courseVideos[l.key];
+ const vid = courseVideos[l.key];
+ const hasVid = !!(vid && vid.url);
  const doneCls = courseProgress.has(l.key) ? ' done' : '';
  return `<div class="lrow${doneCls}" data-l="${l.key}" data-locked="${unlocked ? '' : '1'}">
  <span class="lr-ic">${courseProgress.has(l.key) ? '' : (unlocked ? '▶' : '')}</span>
  <span class="lr-t">${l.n} ${l.title}</span>
- <span class="lr-d">${hasVid ? '' : '<i>soon</i> '}${l.dur || ''}</span>
+ <span class="lr-d">${hasVid ? '' : '<i>soon</i> '}${lessonDurLabel(vid, l)}</span>
  </div>`;
  }).join('');
+ // Open/closed state persists in expandedModules (keyed by the module's
+ // real key, not this render's array index) — buildCourseBody() re-runs
+ // every time openCourse() does (e.g. just switching back to the Create
+ // tab), which used to silently reset every accordion to closed since the
+ // old code only tracked state as live DOM style with nothing backing it.
+ const isOpen = expandedModules.has(m.key);
  return `<div class="cmod">
- <div class="cmod-h" data-acc="${mi}">
+ <div class="cmod-h" data-acc="${mi}" data-mkey="${m.key}">
  <div><div class="cmod-t">${m.title}</div><div class="cmod-s">${m.lessons.length} lessons${unlocked ? '' : ' · locked'}</div></div>
  <span class="cmod-x">${unlocked ? '▾' : `<button class="btn gold sm" data-unlock="${m.key}">Unlock · 100 cr</button>`}</span>
  </div>
- <div class="cmod-body" id="acc${mi}" style="display:none">${lessons}</div>
+ <div class="cmod-body" id="acc${mi}" style="display:${isOpen ? 'block' : 'none'}">${lessons}</div>
  </div>`;
  }).join('');
  // accordion
  $('courseBody').querySelectorAll('.cmod-h').forEach((h) => h.onclick = (e) => {
  if (e.target.closest('[data-unlock]')) return;
  const b = document.getElementById('acc' + h.dataset.acc);
- if (b) b.style.display = b.style.display === 'none' ? 'block' : 'none';
+ if (!b) return;
+ const open = b.style.display === 'none';
+ b.style.display = open ? 'block' : 'none';
+ if (open) expandedModules.add(h.dataset.mkey); else expandedModules.delete(h.dataset.mkey);
  });
  $('courseBody').querySelectorAll('[data-unlock]').forEach((b) => b.onclick = (e) => { e.stopPropagation(); unlockModule(b.dataset.unlock); });
  $('courseBody').querySelectorAll('.lrow').forEach((r) => r.onclick = () => {
@@ -1014,15 +1075,18 @@ function openLesson(key) {
  // logo's link, so covering it is the only way to actually block the tap.
  // Controls (play/pause/scrub/volume) stay usable since neither shield
  // covers the center or the control bar.
- const isYt = /youtube|youtu\.be/.test(courseVideos[key] || '');
- $('lessonPlayer').innerHTML = lessonEmbed(courseVideos[key])
+ const vidUrl = courseVideos[key] && courseVideos[key].url;
+ const isYt = /youtube|youtu\.be/.test(vidUrl || '');
+ $('lessonPlayer').innerHTML = lessonEmbed(vidUrl)
  + (isYt ? '<div oncontextmenu="return false" style="position:absolute;top:0;left:0;right:0;height:56px;z-index:5"></div>'
  + '<div oncontextmenu="return false" style="position:absolute;bottom:0;right:0;width:64px;height:44px;z-index:5"></div>'
  : '');
  $('lessonPlayer').style.position = 'relative';
  $('lessonPlayer').classList.toggle('wide', found.aspect === '16:9');
+ captureLessonDuration(key, vidUrl);
  $('lessonTitle').textContent = found.n + ' · ' + found.title;
- $('lessonMeta').innerHTML = `<span class="muted">${modOf.title}${found.dur ? ' · ' + found.dur : ''}</span>`;
+ const durLbl = lessonDurLabel(courseVideos[key], found);
+ $('lessonMeta').innerHTML = `<span class="muted">${modOf.title}${durLbl ? ' · ' + durLbl : ''}</span>`;
  const hasTask = /vault-action/.test(found.notes || '');
  $('lessonBody').innerHTML = (found.notes
  ? `<div class="vault-note"><div class="vault-h"> The Vault — read the lesson</div>${found.notes}</div>`
@@ -1033,7 +1097,7 @@ function openLesson(key) {
  if (userIsAdmin) {
  $('lessonAdmin').innerHTML = `<div class="lesson-admin">
  <label class="fld"> Video URL (YouTube / Vimeo / MP4) — loads for everyone</label>
- <input id="lvUrl" placeholder="https://youtu.be/… or https://…/video.mp4" value="${(courseVideos[key] || '').replace(/"/g, '&quot;')}">
+ <input id="lvUrl" placeholder="https://youtu.be/… or https://…/video.mp4" value="${((courseVideos[key] && courseVideos[key].url) || '').replace(/"/g, '&quot;')}">
  <button class="btn gold sm" id="lvSave" style="margin-top:8px">Save video</button>
  <span class="note" id="lvNote"></span></div>`;
  $('lvSave').onclick = async () => {
@@ -1045,7 +1109,9 @@ function openLesson(key) {
  body: JSON.stringify({ lesson_key: key, url }),
  });
  const d = await res.json(); if (!res.ok) throw new Error(d.error || 'Failed');
- courseVideos[key] = url; $('lessonPlayer').innerHTML = lessonEmbed(url);
+ courseVideos[key] = { url, duration_sec: null }; // new url -> old duration no longer applies
+ $('lessonPlayer').innerHTML = lessonEmbed(url);
+ captureLessonDuration(key, url);
  note('lvNote', ' Saved & live', 'ok');
  } catch (e) { note('lvNote', e.message || 'Failed', 'err'); }
  $('lvSave').disabled = false; $('lvSave').textContent = 'Save video';

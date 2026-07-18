@@ -17,15 +17,15 @@ window.FUSE_COURSE = {
 
 { "key": "orient", "name": "Orientation", "sub": "Start here — 20 minutes, then you create", "tier": "starter", "modules": [
 { "key": "orient-m1", "title": "Start Here", "lessons": [
-{ "key": "orient-0_1", "n": "0.1", "title": "Welcome — What You Just Unlocked", "dur": "2 min", "aspect": "16:9",
+{ "key": "orient-0_1", "n": "0.1", "title": "Welcome — What You Just Unlocked", "dur": "2 min",
 "notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Fuse Atelier is three things in one: the course (6 skill families), the studio (where you create), and the Money Engine (how you get paid). Your tier unlocks your families — and every tier includes the Money Engine.</p><div class='vault-action'><b>Action step:</b> Open the Create tab and look around for 2 minutes. Next: the one rule that makes this course work.</div>" },
-{ "key": "orient-0_2", "n": "0.2", "title": "The Rule: One Skill → Money → Stack The Next", "dur": "1 min", "aspect": "16:9",
+{ "key": "orient-0_2", "n": "0.2", "title": "The Rule: One Skill → Money → Stack The Next", "dur": "1 min",
 "notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>People fail courses by learning everything and selling nothing. Here you learn ONE skill in short, focused lessons, monetize it the same week with the Money Engine, then stack the next skill. Momentum beats knowledge.</p><div class='vault-action'><b>Action step:</b> Say your commitment out loud: one skill, one week, one client. Next: your quick self-audit.</div>" },
-{ "key": "orient-0_3", "n": "0.3", "title": "Your Starter Audit", "dur": "2 min", "aspect": "16:9",
+{ "key": "orient-0_3", "n": "0.3", "title": "Your Starter Audit", "dur": "2 min",
 "notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Rate yourself 1–5 on: AI tools, design eye, selling confidence, and consistency. No wrong answers — this tells you which lessons to slow down on. You'll re-rate at day 30 and shock yourself.</p><div class='vault-action'><b>Action step:</b> Write your 4 ratings somewhere you'll find them again. Next: meet the studio.</div>" },
-{ "key": "orient-0_4", "n": "0.4", "title": "Meet Your Studio (Make Your First Image Now)", "dur": "4 min", "aspect": "16:9",
+{ "key": "orient-0_4", "n": "0.4", "title": "Meet Your Studio (Make Your First Image Now)", "dur": "4 min",
 "notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>A 3-minute tour of Fuse Studio — Image, Video, Avatar, Reactor — ending with YOU generating your first image. The tool is included in your tier; your credits are already loaded.</p><div class='vault-action'><b>Action step:</b> Generate one image of anything. Post it in the community. You're officially a creator. Next: pick your first money skill.</div>" },
-{ "key": "orient-0_5", "n": "0.5", "title": "Pick Your First Skill (60-Second Quiz)", "dur": "3 min", "aspect": "16:9",
+{ "key": "orient-0_5", "n": "0.5", "title": "Pick Your First Skill (60-Second Quiz)", "dur": "3 min",
 "notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Fastest money for most people: flyers (every business needs them). Have product-seller friends? Start with product photography. Love video? AI UGC. Pick with your gut — you'll stack the others later anyway.</p><div class='vault-action'><b>Action step:</b> Open your chosen family and start lesson 1 TODAY, not tomorrow. The WhatsApp coach will hold you to it.</div>" }
 ]}
 ]},
@@ -112,7 +112,7 @@ window.FUSE_COURSE = {
 
 { "key": "product", "name": "PRODUCT & E-COMMERCE", "sub": "Sellers pay for photos that sell things", "tier": "creator", "modules": [
 { "key": "product-m1", "title": "Skill 7 · AI Product Photography", "lessons": [
-{ "key": "spark-2_1", "n": "7.1", "title": "Learn It: What Clients Actually Pay For", "dur": "2 min", "aspect": "16:9",
+{ "key": "spark-2_1", "n": "7.1", "title": "Learn It: What Clients Actually Pay For", "dur": "2 min",
 "notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Brands need shots for their website, IG grid, ads and packaging — studio photography costs hundreds of dollars per shot. You deliver the same from one phone photo, in minutes, and still charge well.</p><div class='vault-action'><b>Action step:</b> Take one plain reference photo of any product near you. Next: turning it into a studio shot.</div>" },
 { "key": "spark-2_2", "n": "7.2", "title": "Build It: Surfaces, Environments & Brand Colours", "dur": "9 min",
 "notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Upload the reference photo, then prompt the world around it: marble counter with soft morning light, or a bold colour-matched backdrop. The product stays accurate because it's grounded in a real image. Match backdrops to the client's brand colour — consistency beats prettiness.</p><div class='vault-action'><b>Action step:</b> Generate 3 context variations of your product: luxury, bold brand-colour, outdoor lifestyle. Next: premium finishes and delivery.</div>" },
