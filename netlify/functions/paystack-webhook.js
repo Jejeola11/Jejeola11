@@ -57,7 +57,7 @@ exports.handler = async (event) => {
   // 4) Subscription packs also extend plan access by 30 days.
   if (pack.kind === 'sub') {
     const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-    await db.from('profiles').update({ plan: pack.plan, plan_expires_at: expires }).eq('id', userId);
+    await db.from('profiles').update({ plan: pack.plan, plan_expires_at: expires, plan_source: 'subscription' }).eq('id', userId);
   }
 
   // 4b) Course packs unlock their content. Tiered Atelier packs carry their
@@ -78,9 +78,11 @@ exports.handler = async (event) => {
 
   // 4c) Course tiers that carry a plan (Creator/Empire) also get 30 days of
   // that plan so premium studio features work during their first month.
+  // plan_source: 'course_bonus' -- NOT the same thing as actually buying the
+  // Studio subscription (see schema-phase26.sql) -- keep the two auditable.
   if (pack.kind === 'course' && pack.plan) {
     const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-    await db.from('profiles').update({ plan: pack.plan, plan_expires_at: expires }).eq('id', userId);
+    await db.from('profiles').update({ plan: pack.plan, plan_expires_at: expires, plan_source: 'course_bonus' }).eq('id', userId);
   }
 
   // 5) Record the payment.

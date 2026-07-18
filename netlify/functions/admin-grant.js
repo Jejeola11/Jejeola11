@@ -69,7 +69,7 @@ exports.handler = async (event) => {
     if (pack && (pack.kind === 'sub' || pack.kind === 'course')) {
       const plan = pack.plan || 'pro';
       const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-      await db.from('profiles').update({ plan, plan_expires_at: expires }).eq('id', target.id);
+      await db.from('profiles').update({ plan, plan_expires_at: expires, plan_source: pack.kind === 'course' ? 'course_bonus' : 'admin_grant' }).eq('id', target.id);
     }
     try {
       await db.from('payments').insert({
