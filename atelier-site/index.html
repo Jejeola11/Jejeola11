@@ -14,6 +14,23 @@
 <meta name="description" content="The course + the AI creative studio + the client system in one place. Phone-only friendly. First $500 in 30 days — or we work with you free until you get there.">
 <meta name="theme-color" content="#031A16">
 <link rel="icon" href="assets/icon-192.png">
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1558555608390410');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -265,7 +282,7 @@ footer a{color:var(--gold)}
           <li>The Arena challenges</li>
           <li>WhatsApp coach bot</li>
         </ul>
-        <a class="btn btn-ghost" href="/studio?buy=atelier_starter">Start with Starter</a>
+        <a class="btn btn-ghost" href="/studio?buy=atelier_starter" onclick="typeof fbq==='function'&&fbq('track','InitiateCheckout',{value:10000,currency:'NGN',content_name:'atelier_starter'})">Start with Starter</a>
       </div>
 
       <div class="tier mid rv">
@@ -283,7 +300,7 @@ footer a{color:var(--gold)}
           <li>Full template vault + client scripts</li>
           <li><b>Upwork masterclass</b> — from 12 real jobs, $4k+ earned</li>
         </ul>
-        <a class="btn btn-gold" href="/studio?buy=atelier_creator">Get Creator →</a>
+        <a class="btn btn-gold" href="/studio?buy=atelier_creator" onclick="typeof fbq==='function'&&fbq('track','InitiateCheckout',{value:25000,currency:'NGN',content_name:'atelier_creator'})">Get Creator →</a>
       </div>
 
       <div class="tier rv">
@@ -299,7 +316,7 @@ footer a{color:var(--gold)}
           <li>Certificate + featured on the wins wall</li>
           <li><b>Limited seats</b> — real capacity, real access</li>
         </ul>
-        <a class="btn btn-ghost" href="/studio?buy=atelier_empire">Claim an Empire seat</a>
+        <a class="btn btn-ghost" href="/studio?buy=atelier_empire" onclick="typeof fbq==='function'&&fbq('track','InitiateCheckout',{value:70000,currency:'NGN',content_name:'atelier_empire'})">Claim an Empire seat</a>
       </div>
     </div>
     <p class="anchor-note">The old Fuse Atelier sold for <b>₦60,000</b> with less inside it. The merged 2.0 launch price won't stay — <b>enroll while it's open.</b></p>

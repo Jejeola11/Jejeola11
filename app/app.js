@@ -4419,7 +4419,17 @@ window.addEventListener('DOMContentLoaded', () => {
 
  if (new URLSearchParams(location.search).get('paid')) {
  const paidPack = new URLSearchParams(location.search).get('pack');
- const isCoursePack = paidPack && (cfg.PACKS || []).some((p) => p.key === paidPack && p.kind === 'course');
+ const packDef = paidPack && (cfg.PACKS || []).find((p) => p.key === paidPack);
+ const isCoursePack = !!(packDef && packDef.kind === 'course');
+ // Meta Pixel: this is the actual Purchase event -- fired once, right
+ // here, since this is the one place that confirms a real successful
+ // Paystack checkout (the ?paid=1&pack=... redirect target). Strip the
+ // query params right after so a reload/revisit of this same URL can't
+ // re-fire a duplicate fake purchase.
+ if (packDef && typeof fbq === 'function') {
+ fbq('track', 'Purchase', { value: packDef.naira, currency: 'NGN', content_name: paidPack });
+ }
+ history.replaceState({}, '', location.pathname);
  setTimeout(async () => {
  if (!user) return;
  await loadProfile();
