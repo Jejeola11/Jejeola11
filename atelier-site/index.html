@@ -110,13 +110,14 @@ section{padding:72px 0;position:relative}
 .skill-card h4{font-size:16.5px;margin-bottom:6px;padding-right:52px}
 .skill-card p{color:var(--muted);font-size:13.8px;margin-bottom:12px}
 .skill-card .pay{display:inline-block;font-size:12.5px;font-weight:800;color:var(--gold-2);background:rgba(245,197,24,.08);border:1px solid var(--line);padding:4px 10px;border-radius:20px}
-.skill-card .tier-tag{display:inline-block;font-size:11px;color:var(--muted);margin-left:8px}
+.skill-card .tier-tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--teal-1);background:var(--gold-2);padding:3px 9px;border-radius:20px;margin-bottom:10px}
 .fam-note{margin-top:16px;color:var(--muted);font-size:13.5px}
 
 /* ===== Scrub gallery ===== */
 .demo{background:var(--teal-0)}
 .scrub-box{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);margin-top:28px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
-.scrub-box video{width:100%;aspect-ratio:16/9;object-fit:cover;background:#000}
+.scrub-box video{width:100%;aspect-ratio:9/16;max-height:80vh;object-fit:cover;background:#000;margin:0 auto}
+.scrub-box{max-width:420px}
 .scrub-bar{position:absolute;left:0;right:0;bottom:0;height:4px;background:rgba(255,255,255,.15)}
 .scrub-fill{height:100%;width:0%;background:linear-gradient(90deg,#F5C518,#B08D57)}
 .scrub-cap{position:absolute;top:14px;left:16px;background:rgba(3,26,22,.75);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:30px;padding:6px 14px;font-size:12.5px;font-weight:700;color:var(--gold-2)}
@@ -209,7 +210,7 @@ footer a{color:var(--gold)}
 <!-- ===== Top bar ===== -->
 <div class="top"><div class="wrap in">
   <a class="brand" href="#hero"><span class="dot">F</span> Fuse&nbsp;Atelier</a>
-  <a class="btn btn-gold" href="#pricing">Enroll now →</a>
+  <a class="btn btn-gold" href="#pricing">Start earning this week →</a>
 </div></div>
 
 <!-- ===== HERO (cursor image-reveal) ===== -->
@@ -220,8 +221,9 @@ footer a{color:var(--gold)}
   <div class="hero-front" id="heroFront" aria-hidden="true"></div>
   <div class="hero-in">
     <span class="kick">The AI Creative Income System</span>
-    <h1>Learn <span class="goldgrad">one AI skill.</span><br>Land your first paying client in <span class="goldgrad">7 days.</span></h1>
-    <p class="sub">Fuse Atelier is the course, the AI creative studio and the client-getting system — in one place, built for your phone. Hit your first <b class="gold">$500 in 30 days</b> or we work with you free until you get there.</p>
+    <h1>You've watched everyone else <span class="goldgrad">cash out with AI</span> — while you're still stuck figuring out where to even start.</h1>
+    <p class="sub">Every week without a sellable skill is a week someone else takes the client that could've been yours. Fuse Atelier fixes that: learn <b class="gold">one</b> AI skill, land your first paying client in <b class="gold">7 days</b> — imagine that payment hitting your account this time next week.</p>
+    <p class="sub" style="margin-top:-14px;font-size:14.5px;color:var(--muted)">No client after the 7-day plan and 30 documented pitches? We work with you 1-on-1, free, until you land one. Real Upwork earnings, Paystack checkout, named students — not another "make money online" scam page.</p>
     <div class="cta-row">
       <a class="btn btn-gold" href="#pricing">Start earning this week →</a>
       <a class="btn btn-ghost" href="#skills">See the skill families</a>
@@ -254,9 +256,6 @@ footer a{color:var(--gold)}
       <div class="proof-card rv"><img src="proof/contract-2.jpg" alt="Upwork contract, $420 budget" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Contract card — drops in here&lt;/div&gt;'"><div class="cap">Completed job — $420 budget, 4.4★ rating, T-shirt design pack</div></div>
       <div class="proof-card rv"><img src="proof/contract-3.jpg" alt="Upwork contract, $750 budget" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Contract card — drops in here&lt;/div&gt;'"><div class="cap">Active contract — $750 budget, AI video generation</div></div>
       <div class="proof-card rv"><img src="proof/contract-4.jpg" alt="Upwork contract, $500 budget" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Contract card — drops in here&lt;/div&gt;'"><div class="cap">Active contract — $500 budget, AI ad design</div></div>
-      <div class="proof-card rv"><img src="proof/review-1.jpg" alt="5-star client review" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Client review — drops in here&lt;/div&gt;'"><div class="cap">"Very responsive and did a great job" — 5.0 review</div></div>
-      <div class="proof-card rv"><img src="proof/review-2.jpg" alt="5-star completed job review" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Client review — drops in here&lt;/div&gt;'"><div class="cap">Completed jobs, 5.0 rating — "exceptional from start to finish"</div></div>
-      <div class="proof-card rv"><img src="proof/student-1.jpg" alt="Student's first Upwork win" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Student win — drops in here&lt;/div&gt;'"><div class="cap">A student's first $100 fixed-price Upwork job — named, contactable</div></div>
     </div>
     <p class="fam-note" style="text-align:center;margin-top:18px">Every win on this wall is from a named, contactable person. No fake alerts. Ask any of them.</p>
   </div>
@@ -273,23 +272,22 @@ footer a{color:var(--gold)}
       <div class="tier rv">
         <h3>Starter</h3>
         <div class="t-for">Land your first client with design & flyers</div>
-        <div class="t-price">₦10,000</div>
         <ul>
-          <li><b>Design & Flyers</b> — the flagship 21-lesson flyer course</li>
+          <li><b>Design & Flyers</b> — the flagship 21-lesson flyer course, so you can make a flyer a client will pay $10–$50 for, on your phone</li>
           <li><b>Money Engine</b> — full client system</li>
           <li>100 studio credits included</li>
           <li>Flyer templates pack</li>
           <li>The Arena challenges</li>
           <li>WhatsApp coach bot</li>
         </ul>
-        <a class="btn btn-ghost" href="/studio?buy=atelier_starter" onclick="typeof fbq==='function'&&fbq('track','InitiateCheckout',{value:10000,currency:'NGN',content_name:'atelier_starter'})">Start with Starter</a>
+        <div class="t-price">₦10,000</div>
+        <a class="btn btn-ghost" href="/studio?buy=atelier_starter" onclick="typeof fbq==='function'&&fbq('track','InitiateCheckout',{value:10000,currency:'NGN',content_name:'atelier_starter'})">Start earning this week →</a>
       </div>
 
       <div class="tier mid rv">
         <span class="t-badge">⭐ MOST PICKED — BEST VALUE</span>
         <h3>Creator</h3>
         <div class="t-for">The full creative business — 4 skill families</div>
-        <div class="t-price">₦25,000 <span class="was">₦60,000</span></div>
         <ul>
           <li>Everything in Starter, plus:</li>
           <li><b>Brand, Product & Video</b> families unlocked</li>
@@ -300,13 +298,13 @@ footer a{color:var(--gold)}
           <li>Full template vault + client scripts</li>
           <li><b>Upwork masterclass</b> — from 12 real jobs, $4k+ earned</li>
         </ul>
-        <a class="btn btn-gold" href="/studio?buy=atelier_creator" onclick="typeof fbq==='function'&&fbq('track','InitiateCheckout',{value:25000,currency:'NGN',content_name:'atelier_creator'})">Get Creator →</a>
+        <div class="t-price">₦25,000 <span class="was">₦60,000</span></div>
+        <a class="btn btn-gold" href="/studio?buy=atelier_creator" onclick="typeof fbq==='function'&&fbq('track','InitiateCheckout',{value:25000,currency:'NGN',content_name:'atelier_creator'})">Start earning this week →</a>
       </div>
 
       <div class="tier rv">
         <h3>Empire</h3>
         <div class="t-for">Become the agency — everything, plus Ria</div>
-        <div class="t-price">₦70,000 <small>or 2 × ₦37,500</small></div>
         <ul>
           <li>Everything in Creator, plus:</li>
           <li><b>Web & Funnels</b> family — premium $500+ skills</li>
@@ -316,10 +314,11 @@ footer a{color:var(--gold)}
           <li>Certificate + featured on the wins wall</li>
           <li><b>Limited seats</b> — real capacity, real access</li>
         </ul>
-        <a class="btn btn-ghost" href="/studio?buy=atelier_empire" onclick="typeof fbq==='function'&&fbq('track','InitiateCheckout',{value:70000,currency:'NGN',content_name:'atelier_empire'})">Claim an Empire seat</a>
+        <div class="t-price">₦70,000 <small>or 2 × ₦37,500</small></div>
+        <a class="btn btn-ghost" href="/studio?buy=atelier_empire" onclick="typeof fbq==='function'&&fbq('track','InitiateCheckout',{value:70000,currency:'NGN',content_name:'atelier_empire'})">Start earning this week →</a>
       </div>
     </div>
-    <p class="anchor-note">The old Fuse Atelier sold for <b>₦60,000</b> with less inside it. The merged 2.0 launch price won't stay — <b>enroll while it's open.</b></p>
+    <p class="anchor-note">The old Fuse Atelier sold for <b>₦60,000</b> with less inside it. This is the launch price for the merged 2.0 version — <b>once the cohort fills, it moves to full price.</b></p>
   </div>
 </section>
 
@@ -393,52 +392,52 @@ footer a{color:var(--gold)}
 
     <div class="fam-panel active" data-f="a">
       <div class="skill-grid">
-        <div class="skill-card"><span class="badge">FASTEST $</span><h4>Social media & event flyers</h4><p>Parties, businesses, promos — the most requested design job in Nigeria, made in minutes. A full 21-lesson flagship course, not a quick overview.</p><span class="pay">clients pay $10–$50</span><span class="tier-tag">Starter+</span></div>
+        <div class="skill-card"><span class="badge">FASTEST $</span><h4>Social media & event flyers</h4><span class="tier-tag">Starter+</span><p>Parties, businesses, promos — the most requested design job in Nigeria, made in minutes. A full 21-lesson flagship course, not a quick overview.</p><span class="pay">clients pay $10–$50</span></div>
       </div>
       <p class="fam-note">Included in every tier — this skill plus the Money Engine is how Starter students land week-one clients.</p>
     </div>
 
     <div class="fam-panel" data-f="b">
       <div class="skill-grid">
-        <div class="skill-card"><h4>Logo & brand kits</h4><p>Logo, colours, fonts and a brand board delivered as one premium package.</p><span class="pay">$50–$200</span><span class="tier-tag">Creator+</span></div>
-        <div class="skill-card"><h4>Brand stationery</h4><p>Business cards, letterheads, email signatures — the easy add-on sale.</p><span class="pay">$20–$65</span><span class="tier-tag">Creator+</span></div>
-        <div class="skill-card"><h4>Brand voice & captions</h4><p>Bios, taglines and 30-day content calendars written with Fuse Reactor.</p><span class="pay">$35–$100</span><span class="tier-tag">Creator+</span></div>
+        <div class="skill-card"><h4>Logo & brand kits</h4><span class="tier-tag">Creator+</span><p>Logo, colours, fonts and a brand board delivered as one premium package.</p><span class="pay">$50–$200</span></div>
+        <div class="skill-card"><h4>Brand stationery</h4><span class="tier-tag">Creator+</span><p>Business cards, letterheads, email signatures — the easy add-on sale.</p><span class="pay">$20–$65</span></div>
+        <div class="skill-card"><h4>Brand voice & captions</h4><span class="tier-tag">Creator+</span><p>Bios, taglines and 30-day content calendars written with Fuse Reactor.</p><span class="pay">$35–$100</span></div>
       </div>
     </div>
 
     <div class="fam-panel" data-f="c">
       <div class="skill-grid">
-        <div class="skill-card"><span class="badge">HOT</span><h4>AI product photography</h4><p>One phone photo → studio-grade product shots. Every seller on Instagram needs this.</p><span class="pay">$10–$20/shot</span><span class="tier-tag">Creator+</span></div>
-        <div class="skill-card"><h4>Product ads & campaign shots</h4><p>Lifestyle scenes and seasonal campaign visuals that sell out stock.</p><span class="pay">$35–$130/set</span><span class="tier-tag">Creator+</span></div>
-        <div class="skill-card"><h4>Packaging & label design</h4><p>Labels, boxes and pouch mockups for small brands going premium.</p><span class="pay">$70–$250</span><span class="tier-tag">Creator+</span></div>
-        <div class="skill-card"><span class="badge">VIRAL</span><h4>CGI ads</h4><p>The "impossible" product videos — a giant product landing in the street. Brands love these.</p><span class="pay">$150–$600</span><span class="tier-tag">Creator+</span></div>
+        <div class="skill-card"><span class="badge">HOT</span><h4>AI product photography</h4><span class="tier-tag">Creator+</span><p>One phone photo → studio-grade product shots. Every seller on Instagram needs this.</p><span class="pay">$10–$20/shot</span></div>
+        <div class="skill-card"><h4>Product ads & campaign shots</h4><span class="tier-tag">Creator+</span><p>Lifestyle scenes and seasonal campaign visuals that sell out stock.</p><span class="pay">$35–$130/set</span></div>
+        <div class="skill-card"><h4>Packaging & label design</h4><span class="tier-tag">Creator+</span><p>Labels, boxes and pouch mockups for small brands going premium.</p><span class="pay">$70–$250</span></div>
+        <div class="skill-card"><span class="badge">VIRAL</span><h4>CGI ads</h4><span class="tier-tag">Creator+</span><p>The "impossible" product videos — a giant product landing in the street. Brands love these.</p><span class="pay">$150–$600</span></div>
       </div>
     </div>
 
     <div class="fam-panel" data-f="d">
       <div class="skill-grid">
-        <div class="skill-card"><span class="badge">HOT</span><h4>AI UGC ads</h4><p>Testimonial-style video ads — without ever showing your face. Brands pay in dollars.</p><span class="pay">$50–150/video</span><span class="tier-tag">Creator+</span></div>
-        <div class="skill-card"><span class="badge">NEW</span><h4>Clone yourself — hyper-real avatar videos</h4><p>Upload one video of yourself, generate unlimited videos with your exact face in any scene. So real nobody can tell.</p><span class="pay">$100–500/video</span><span class="tier-tag">Creator+</span></div>
-        <div class="skill-card"><h4>Advert videos</h4><p>Script → scenes → final cut. Full short-form ads for local and foreign clients.</p><span class="pay">$100–$500</span><span class="tier-tag">Creator+</span></div>
-        <div class="skill-card"><h4>Cinematic brand films</h4><p>Premium storytelling videos for bigger clients and agencies.</p><span class="pay">$300+</span><span class="tier-tag">Empire</span></div>
+        <div class="skill-card"><span class="badge">HOT</span><h4>AI UGC ads</h4><span class="tier-tag">Creator+</span><p>Testimonial-style video ads — without ever showing your face. Brands pay in dollars.</p><span class="pay">$50–150/video</span></div>
+        <div class="skill-card"><span class="badge">NEW</span><h4>Clone yourself — hyper-real avatar videos</h4><span class="tier-tag">Creator+</span><p>Upload one video of yourself, generate unlimited videos with your exact face in any scene. So real nobody can tell.</p><span class="pay">$100–500/video</span></div>
+        <div class="skill-card"><h4>Advert videos</h4><span class="tier-tag">Creator+</span><p>Script → scenes → final cut. Full short-form ads for local and foreign clients.</p><span class="pay">$100–$500</span></div>
+        <div class="skill-card"><h4>Cinematic brand films</h4><span class="tier-tag">Empire</span><p>Premium storytelling videos for bigger clients and agencies.</p><span class="pay">$300+</span></div>
       </div>
     </div>
 
     <div class="fam-panel" data-f="e">
       <div class="skill-grid">
-        <div class="skill-card"><h4>Landing pages</h4><p>One-page business sites built and delivered in a day — the DemoForge method.</p><span class="pay">$150–$800</span><span class="tier-tag">Empire</span></div>
-        <div class="skill-card"><h4>Email design & sequences</h4><p>Welcome and sales emails businesses pay for monthly.</p><span class="pay">$70–$250/month</span><span class="tier-tag">Empire</span></div>
-        <div class="skill-card"><span class="badge">PREMIUM</span><h4>Interactive "wow" pages</h4><p>Scroll-effect, cursor-reactive premium sites — like this very page you're on.</p><span class="pay">$500+</span><span class="tier-tag">Empire</span></div>
+        <div class="skill-card"><h4>Landing pages</h4><span class="tier-tag">Empire</span><p>One-page business sites built and delivered in a day — the DemoForge method.</p><span class="pay">$150–$800</span></div>
+        <div class="skill-card"><h4>Email design & sequences</h4><span class="tier-tag">Empire</span><p>Welcome and sales emails businesses pay for monthly.</p><span class="pay">$70–$250/month</span></div>
+        <div class="skill-card"><span class="badge">PREMIUM</span><h4>Interactive "wow" pages</h4><span class="tier-tag">Empire</span><p>Scroll-effect, cursor-reactive premium sites — like this very page you're on.</p><span class="pay">$500+</span></div>
       </div>
       <p class="fam-note">Yes — this page you're scrolling is an example of the skill. That's the standard.</p>
     </div>
 
     <div class="fam-panel" data-f="f">
       <div class="skill-grid">
-        <div class="skill-card"><span class="badge">EVERY TIER</span><h4>The First-Client System</h4><p>The 7-day plan: pick one skill, build 3 portfolio pieces, run the outreach playbooks, get paid.</p><span class="pay">outcome: first client</span><span class="tier-tag">All tiers</span></div>
-        <div class="skill-card"><h4>Client playbooks — WhatsApp, IG, Facebook, TikTok, walk-ins</h4><p>Exact scripts and daily numbers for every channel that works in Nigeria — plus diaspora & foreign clients by email.</p><span class="pay">outcome: pipeline</span><span class="tier-tag">All tiers</span></div>
-        <div class="skill-card"><span class="badge">PROVEN</span><h4>Upwork — taught from real wins</h4><p>Your instructor has landed 12 Upwork jobs worth $4,000+. The exact profile, proposals and pricing that did it.</p><span class="pay">$50–500/job</span><span class="tier-tag">Creator+</span></div>
-        <div class="skill-card"><h4>Get paid & scale</h4><p>Receiving dollars in Nigeria (Grey, Raenest, Payoneer), pricing in ₦ and $, retainers, repeat clients.</p><span class="pay">outcome: keep 100%</span><span class="tier-tag">All tiers</span></div>
+        <div class="skill-card"><span class="badge">EVERY TIER</span><h4>The First-Client System</h4><span class="tier-tag">All tiers</span><p>The 7-day plan: pick one skill, build 3 portfolio pieces, run the outreach playbooks, get paid.</p><span class="pay">outcome: first client</span></div>
+        <div class="skill-card"><h4>Client playbooks — WhatsApp, IG, Facebook, TikTok, walk-ins</h4><span class="tier-tag">All tiers</span><p>Exact scripts and daily numbers for every channel that works in Nigeria — plus diaspora & foreign clients by email.</p><span class="pay">outcome: pipeline</span></div>
+        <div class="skill-card"><span class="badge">PROVEN</span><h4>Upwork — taught from real wins</h4><span class="tier-tag">Creator+</span><p>Your instructor has landed 12 Upwork jobs worth $4,000+. The exact profile, proposals and pricing that did it.</p><span class="pay">$50–500/job</span></div>
+        <div class="skill-card"><h4>Get paid & scale</h4><span class="tier-tag">All tiers</span><p>Receiving dollars in Nigeria (Grey, Raenest, Payoneer), pricing in ₦ and $, retainers, repeat clients.</p><span class="pay">outcome: keep 100%</span></div>
       </div>
     </div>
   </div>
@@ -485,7 +484,7 @@ footer a{color:var(--gold)}
   <div class="wrap">
     <h2>Your first client is <span class="goldgrad">7 days away.</span></h2>
     <p>One skill. One week. A system that doesn't let you quit.</p>
-    <a class="btn btn-gold" style="font-size:18px;padding:18px 38px" href="#pricing">Enroll in Fuse Atelier →</a>
+    <a class="btn btn-gold" style="font-size:18px;padding:18px 38px" href="#pricing">Start earning this week →</a>
   </div>
 </section>
 
