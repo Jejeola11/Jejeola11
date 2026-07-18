@@ -90,11 +90,34 @@ async function chatCompletion({ prompt, imageUrl, model }) {
     ? [{ type: 'text', text: prompt }, { type: 'image_url', image_url: { url: imageUrl } }]
     : prompt;
   const wsModel = (model && REACTOR_MODEL_MAP[model]) || model || WS_LLM_MODEL;
-  const res = await fetch(`${WS_LLM_BASE}/chat/completions`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${process.env.WAVESPEED_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: wsModel, messages: [{ role: 'user', content }] }),
-  });
+  // Callers of this (job-status.js's lazy-completion branch) run it INSIDE
+  // a Netlify function invocation with its own short execution window --
+  // if WaveSpeed itself takes longer than that window, Netlify kills the
+  // whole function process mid-flight. That's not a catchable JS error, so
+  // the atomic-claim status this call was mid-write to (DB flipped to
+  // 'generating' right before this runs) never gets reverted -- the job
+  // is stuck forever with no retry, no failure, no refund (confirmed live
+  // 2026-07-18 against a complex multi-image brief request). Bounding the
+  // fetch itself to well under Netlify's own limit means a slow response
+  // always surfaces as a normal thrown error instead, which the existing
+  // retry-then-fail-after-90s logic in job-status.js already handles
+  // correctly (reverts to 'processing' so the next poll retries).
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 9000);
+  let res;
+  try {
+    res = await fetch(`${WS_LLM_BASE}/chat/completions`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${process.env.WAVESPEED_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: wsModel, messages: [{ role: 'user', content }] }),
+      signal: controller.signal,
+    });
+  } catch (e) {
+    if (e && e.name === 'AbortError') throw new Error('WaveSpeed LLM took too long to respond — retrying.');
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
   const j = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error((j && j.error && j.error.message) || `WaveSpeed LLM HTTP ${res.status}`);
   const text = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
