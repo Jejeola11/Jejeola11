@@ -84,22 +84,6 @@ window.FUSE_COURSE = {
 { "key": "flyer-m6", "title": "Module 6 · Practice Curriculum", "lessons": [
 { "key": "flyer-6_1", "n": "6", "title": "Your 5 Practice Briefs",
 "notes": "<span class='vault-tag'>🎙 Avatar</span><h4>The Idea</h4><p>5 briefs, increasing difficulty: (1) a promo flyer with zero references, (2) a product flyer using one real reference photo, (3) an event flyer in an unfamiliar niche, (4) clone a real flyer's structure with new copy/product, (5) a full client-style brief delivered in all 3 platform sizes with a 2-round revision cycle.</p><div class='vault-action'><b>Action step:</b> Do all 5, in order, don't skip ahead — by the end you'll have 5 real portfolio pieces and the muscle memory for a real paying job.</div>" }
-]},
-{ "key": "design-m2", "title": "Skill 2 · Ad Flyers & Promo Graphics", "lessons": [
-{ "key": "design-2_1", "n": "2.1", "title": "Learn It: Ads That Sell vs Designs That Decorate", "dur": "5 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>An ad flyer has one job: make the viewer act. Hook (big claim), offer (the deal), action (call/DM now) — everything else is decoration. Businesses pay for the structure, not the prettiness.</p><div class='vault-action'><b>Action step:</b> Screenshot 3 ads you've seen on WhatsApp status and identify hook/offer/action in each. Next: building them in the studio.</div>" },
-{ "key": "design-2_2", "n": "2.2", "title": "Build It: Sales Banners, Price Lists & Status Ads", "dur": "8 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Build the 3 formats every Nigerian business asks for: the sales banner, the price-list design, and the WhatsApp status ad (9:16). Same 6-part formula, plus clean text space for their offer.</p><div class='vault-action'><b>Action step:</b> Make one of each format for an imaginary shop. Next: pricing and selling them as a bundle.</div>" },
-{ "key": "design-2_3", "n": "2.3", "title": "Sell It: The Promo Pack Retainer", "dur": "5 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Businesses run promos weekly — sell a monthly promo pack (4 designs, ₦10,000–20,000) instead of hunting new clients every week. One yes = recurring income.</p><div class='vault-action'><b>Action step:</b> Write your promo-pack offer in one WhatsApp message. Save it — the Money Engine playbooks will tell you exactly who to send it to.</div>" }
-]},
-{ "key": "design-m3", "title": "Skill 3 · Carousels & Content Packs", "lessons": [
-{ "key": "design-3_1", "n": "3.1", "title": "Learn It: Why Brands Pay Monthly For Content", "dur": "5 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Every serious brand needs 12–30 posts a month and hates making them. Carousels, quote cards and tip posts are the easiest recurring design income that exists — and AI makes you faster than any agency.</p><div class='vault-action'><b>Action step:</b> Find 2 Instagram business pages posting inconsistently — they're your future clients. Next: batch-producing a month of content.</div>" },
-{ "key": "design-3_2", "n": "3.2", "title": "Build It: A Month of Content In One Afternoon", "dur": "8 min",
-"notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>Lock one visual style (same colours, same layout family), then batch: 8 carousels + 8 quote cards + 8 promo posts. Fuse Reactor writes the captions; the studio renders the visuals; you assemble.</p><div class='vault-action'><b>Action step:</b> Produce a 6-post sample pack for one of the pages you found. That sample IS your pitch. Next: closing the retainer.</div>" },
-{ "key": "design-3_3", "n": "3.3", "title": "Sell It: Closing ₦15k–50k Monthly Retainers", "dur": "5 min",
-"notes": "<span class='vault-tag'>🎙 Voice</span><h4>The Idea</h4><p>Pitch with the sample attached: 'I made these 6 posts for your page already — want the full month?' Price: ₦15,000 (12 posts) to ₦50,000 (30 posts + captions). Retainers compound: 3 clients = steady salary.</p><div class='vault-action'><b>Action step:</b> Send the sample pack to both pages using the DM script from the Money Engine. Congratulations — you now have a pipeline.</div>" }
 ]}
 ]},
 
