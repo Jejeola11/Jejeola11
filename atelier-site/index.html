@@ -126,8 +126,6 @@ section{padding:72px 0;position:relative}
 .scrub-box{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);margin-top:28px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
 .scrub-box video{width:100%;aspect-ratio:9/16;max-height:80vh;object-fit:cover;background:#000;margin:0 auto}
 .scrub-box{max-width:420px}
-.scrub-bar{position:absolute;left:0;right:0;bottom:0;height:4px;background:rgba(255,255,255,.15)}
-.scrub-fill{height:100%;width:0%;background:linear-gradient(90deg,#F5C518,#B08D57)}
 .scrub-cap{position:absolute;top:14px;left:16px;background:rgba(3,26,22,.75);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:30px;padding:6px 14px;font-size:12.5px;font-weight:700;color:var(--gold-2)}
 .mini-gal{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}
 .mini-gal img{border-radius:12px;aspect-ratio:1;object-fit:cover;border:1px solid rgba(255,255,255,.08);transition:transform .18s}
@@ -259,7 +257,7 @@ footer a{color:var(--gold)}
       <div class="stat rv"><b>7 days</b><span>to your first paying client</span></div>
     </div>
     <div class="proof-grid" id="proofGrid">
-      <div class="proof-card rv"><img src="proof/upwork-1.jpg" alt="Upwork verified profile" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Upwork profile screenshot — drops in here&lt;/div&gt;'"><div class="cap">Real Upwork profile — 78% Job Success, $4K+ earned, verified</div></div>
+      <div class="proof-card rv"><img src="proof/upwork-1.jpg" alt="Upwork verified profile" style="object-position:center bottom" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Upwork profile screenshot — drops in here&lt;/div&gt;'"><div class="cap">Real Upwork profile — 78% Job Success, $4K+ earned, verified</div></div>
       <div class="proof-card rv"><img src="proof/upwork-2.jpg" alt="Upwork contract, $3,500 budget" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Client contract screenshot — drops in here&lt;/div&gt;'"><div class="cap">Live client contract — $3,500 budget, AI Character Creator</div></div>
       <div class="proof-card rv"><img src="proof/contract-1.jpg" alt="Upwork contract, $2,000 budget" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Contract card — drops in here&lt;/div&gt;'"><div class="cap">Completed project — $2,000 budget, 4.0★ rating</div></div>
       <div class="proof-card rv"><img src="proof/contract-2.jpg" alt="Upwork contract, $420 budget" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Contract card — drops in here&lt;/div&gt;'"><div class="cap">Completed job — $420 budget, 4.4★ rating, T-shirt design pack</div></div>
@@ -344,16 +342,15 @@ footer a{color:var(--gold)}
   </div>
 </section>
 
-<!-- ===== DEMO (mouse-scrub showcase) ===== -->
+<!-- ===== DEMO (autoplay showcase) ===== -->
 <section class="demo">
   <div class="wrap">
     <span class="kick">Proof of skill — see it, don't take our word</span>
     <h2 class="sec-h">Everything here was made inside <span class="goldgrad">Fuse Studio</span> — the studio you get.</h2>
-    <p class="sec-sub">Slide your finger (or sweep your mouse) across the film to scrub through it. This is the quality you'll be selling.</p>
+    <p class="sec-sub">This is the quality you'll be selling.</p>
     <div class="scrub-box" id="scrubBox">
-      <video id="scrubVid" src="assets/hero.mp4" muted playsinline preload="auto"></video>
-      <span class="scrub-cap">🎬 made with Fuse Studio — sweep to scrub</span>
-      <div class="scrub-bar"><div class="scrub-fill" id="scrubFill"></div></div>
+      <video src="assets/hero.mp4" muted playsinline autoplay loop preload="auto"></video>
+      <span class="scrub-cap">🎬 made with Fuse Studio</span>
     </div>
     <div class="mini-gal">
       <img src="assets/mw1.jpg" alt="AI product flyer made in Fuse Studio — AirPods Max" loading="lazy">
@@ -533,22 +530,6 @@ document.getElementById('famTabs').addEventListener('click', function(e){
   document.querySelectorAll('.fam-tab').forEach(function(t){ t.classList.toggle('active', t === b); });
   document.querySelectorAll('.fam-panel').forEach(function(p){ p.classList.toggle('active', p.dataset.f === b.dataset.f); });
 });
-
-// ============ Mouse/touch video scrub (pointer X → currentTime, video stays paused) ============
-(function(){
-  var box = document.getElementById('scrubBox'), vid = document.getElementById('scrubVid'), fill = document.getElementById('scrubFill');
-  var ready = false, raf = null, frac = 0;
-  vid.addEventListener('loadedmetadata', function(){ ready = true; vid.currentTime = 0.04; });
-  function apply(){ if (ready && vid.duration) { vid.currentTime = frac * (vid.duration - 0.05); fill.style.width = (frac * 100) + '%'; } raf = null; }
-  function scrub(x){
-    var b = box.getBoundingClientRect();
-    frac = Math.min(1, Math.max(0, (x - b.left) / b.width));
-    if (!raf) raf = requestAnimationFrame(apply);
-  }
-  box.addEventListener('mousemove', function(e){ scrub(e.clientX); });
-  box.addEventListener('touchmove', function(e){ scrub(e.touches[0].clientX); }, {passive:true});
-  vid.pause();
-})();
 
 // ============ Reveal on scroll ============
 (function(){
