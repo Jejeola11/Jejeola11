@@ -1,25 +1,23 @@
 // ============================================================
 // POST /.netlify/functions/video-transcribe   (Video Editing Studio)
 // Body: { project_id?, video_url }
-// Extracts the audio track and transcribes it via MuAPI's openai-whisper
-// (confirmed live: standard OpenAI-compatible fields — audio_url,
-// response_format, timestamp_granularities) with word-level timestamps,
-// so captions can be synced precisely. Async submit + poll via
-// job-status.js (kind:'video-transcribe'), which saves the parsed
-// transcript onto video_edit_projects.transcript on completion.
+// Inserts a pending job and returns immediately — the actual work
+// (download the video, extract audio via ffmpeg, host it, submit to
+// MuAPI's openai-whisper) happens lazily on the FIRST poll in
+// job-status.js. Doing all of that inline in this POST handler used to
+// run well past Netlify's function execution window on anything but a
+// very short clip, killing the connection mid-request — the browser saw
+// a raw "Failed to fetch" (not even a clean error response), never a
+// timeout the frontend could explain. Same lazy-completion pattern used
+// for Resemble audio and every chat/brief endpoint elsewhere in this app.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
-const { ensureWorkDir, cleanupTmp, downloadToFile, ffmpeg, uploadToStorage } = require('./_ffmpeg');
-const { muapiHostFile } = require('./_muapi');
-const { extractErrorMessage } = require('./_errors');
-const path = require('path');
 
-const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 const MODEL = 'openai-whisper';
 const TRANSCRIBE_COST = 3;
 
 exports.handler = async (event) => {
-  let db, user, cost = 0, jobId;
+  let db, user, cost = 0;
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
     if (!process.env.MUAPI_KEY) return json(503, { error: 'Editing Studio is being connected (MUAPI_KEY missing).' });
@@ -45,32 +43,10 @@ exports.handler = async (event) => {
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
-    jobId = 'transcribe-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
-    const dir = await ensureWorkDir(jobId);
-    const localVideo = path.join(dir, 'in.mp4');
-    await downloadToFile(videoUrl, localVideo);
-    const audioPath = path.join(dir, 'audio.mp3');
-    await ffmpeg(['-y', '-i', localVideo, '-vn', '-acodec', 'libmp3lame', '-q:a', '2', audioPath]);
-    const audioUrl = await uploadToStorage(db, audioPath, `${user.id}/transcribe-${Date.now()}.mp3`, 'audio/mpeg');
-    // Re-host on MuAPI's own CDN — Supabase storage URLs aren't always
-    // reachable by MuAPI directly (see _muapi.js).
-    const hostedAudioUrl = await muapiHostFile(audioUrl, 'audio');
-    await cleanupTmp(jobId);
-
-    const sub = await fetch(`${MUAPI_BASE}/${MODEL}`, {
-      method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ audio_url: hostedAudioUrl, response_format: 'verbose_json', timestamp_granularities: ['word'] }),
-    });
-    const txt = await sub.text();
-    let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
-    if (!sub.ok) throw new Error(extractErrorMessage(j) || ('Engine HTTP ' + sub.status));
-    const id = j.request_id || j.id;
-    if (!id) throw new Error('Engine did not start the job');
-
-    await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'video-transcribe', model: MODEL, prompt: videoUrl, credits: cost, status: 'processing', project_id: projectId });
-    return json(200, { request_id: id, credits: balance, project_id: projectId });
+    const requestId = 'vt:' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+    await db.from('jobs').insert({ request_id: requestId, user_id: user.id, kind: 'video-transcribe', model: MODEL, prompt: videoUrl, credits: cost, status: 'processing', project_id: projectId });
+    return json(200, { request_id: requestId, credits: balance, project_id: projectId });
   } catch (e) {
-    try { if (jobId) await cleanupTmp(jobId); } catch (_) {}
     try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
     return json(502, { error: (e && e.message) || 'Could not start transcription', refunded: cost });
   }

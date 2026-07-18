@@ -8,11 +8,14 @@ const { admin, getUser, json } = require('./_supabase');
 const { pollAny, synthesizeResemble, chatCompletion, decodeModelImage } = require('./_providers');
 const { cropToAspect } = require('./_canvas');
 const { splitScript, RESEMBLE_BATCH_CHARS } = require('./_avatar-video');
-const { ensureWorkDir, cleanupTmp, concatAudio, uploadToStorage } = require('./_ffmpeg');
+const { ensureWorkDir, cleanupTmp, concatAudio, uploadToStorage, downloadToFile, ffmpeg } = require('./_ffmpeg');
+const { muapiHostFile } = require('./_muapi');
+const { extractErrorMessage } = require('./_errors');
 const fs = require('fs').promises;
 const path = require('path');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
+const MUAPI_SUB_SEP = '::sub::';
 const ASPECT_RATIO = { '1:1': 1, '9:16': 9 / 16, '4:5': 4 / 5, '3:4': 3 / 4, '16:9': 16 / 9 };
 
 // GPT Image 2 only has 3 fixed native sizes, so an aspect like 4:5 comes back
@@ -286,9 +289,59 @@ async function handleTranscribeJob(db, user, job, id) {
   if (job.status === 'completed') return json(200, { status: 'completed', transcript: job.output_text ? JSON.parse(job.output_text) : null, project_id: job.project_id });
   if (job.status === 'failed') return json(200, { status: 'failed' });
 
+  const sepIdx = (job.model || '').indexOf(MUAPI_SUB_SEP);
+  if (sepIdx === -1) {
+    // Not submitted to MuAPI yet — this is the first poll. Claim atomically
+    // (overlapping polls fire every 5s regardless of whether the previous
+    // tick's fetch resolved) so only one poll ever downloads+processes the
+    // source video and submits it — everyone else just reports "processing".
+    const { data: claimed } = await db.from('jobs').update({ status: 'generating' }).eq('request_id', id).eq('status', 'processing').select().maybeSingle();
+    if (!claimed) return json(200, { status: 'processing' });
+    const jobWorkId = 'transcribe-' + id.replace(/[^a-zA-Z0-9]/g, '');
+    try {
+      const dir = await ensureWorkDir(jobWorkId);
+      const localVideo = path.join(dir, 'in.mp4');
+      await downloadToFile(job.prompt, localVideo);
+      const audioPath = path.join(dir, 'audio.mp3');
+      await ffmpeg(['-y', '-i', localVideo, '-vn', '-acodec', 'libmp3lame', '-q:a', '2', audioPath]);
+      const audioUrl = await uploadToStorage(db, audioPath, `${user.id}/transcribe-${Date.now()}.mp3`, 'audio/mpeg');
+      // Re-host on MuAPI's own CDN — Supabase storage URLs aren't always
+      // reachable by MuAPI directly (see _muapi.js).
+      const hostedAudioUrl = await muapiHostFile(audioUrl, 'audio');
+      await cleanupTmp(jobWorkId);
+
+      const sub = await fetch(`${MUAPI_BASE}/${job.model}`, {
+        method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audio_url: hostedAudioUrl, response_format: 'verbose_json', timestamp_granularities: ['word'] }),
+      });
+      const txt = await sub.text();
+      let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Engine error: ' + txt.slice(0, 140)); }
+      if (!sub.ok) throw new Error(extractErrorMessage(j) || ('Engine HTTP ' + sub.status));
+      const muapiId = j.request_id || j.id;
+      if (!muapiId) throw new Error('Engine did not start the job');
+
+      // Stash the real MuAPI prediction id onto the model column (our own
+      // request_id stays the frontend's stable polling key) so the NEXT
+      // poll knows to check MuAPI's result instead of re-submitting.
+      await db.from('jobs').update({ status: 'processing', model: job.model + MUAPI_SUB_SEP + muapiId }).eq('request_id', id);
+      return json(200, { status: 'processing' });
+    } catch (e) {
+      try { await cleanupTmp(jobWorkId); } catch (_) {}
+      const ageMs = Date.now() - new Date(job.created_at).getTime();
+      if (ageMs > 90000) {
+        await db.rpc('add_credits', { uid: user.id, amount: job.credits, why: 'refund' });
+        await db.from('jobs').update({ status: 'failed' }).eq('request_id', id);
+        return json(200, { status: 'failed', error: (e && e.message) || 'Transcription failed' });
+      }
+      await db.from('jobs').update({ status: 'processing' }).eq('request_id', id);
+      return json(200, { status: 'processing' });
+    }
+  }
+
+  const muapiId = job.model.slice(sepIdx + MUAPI_SUB_SEP.length);
   let p;
   try {
-    p = await (await fetch(`${MUAPI_BASE}/predictions/${id}/result`, { headers: { 'x-api-key': process.env.MUAPI_KEY } })).json();
+    p = await (await fetch(`${MUAPI_BASE}/predictions/${muapiId}/result`, { headers: { 'x-api-key': process.env.MUAPI_KEY } })).json();
   } catch (e) { return json(200, { status: 'processing' }); }
   if (p.status === 'completed') {
     const raw = extractText(p) || (p.output && typeof p.output === 'object' ? p.output : null);
