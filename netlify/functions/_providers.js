@@ -84,26 +84,22 @@ function decodeModelImage(encoded) {
   return { model: encoded.slice(0, idx), imageUrl: encoded.slice(idx + MODEL_IMG_SEP.length) };
 }
 
-async function chatCompletion({ prompt, imageUrl, model }) {
+async function chatCompletion({ prompt, imageUrl, model, timeoutMs = 9000 }) {
   if (!hasWaveSpeed()) throw new Error('WAVESPEED_KEY missing.');
   const content = imageUrl
     ? [{ type: 'text', text: prompt }, { type: 'image_url', image_url: { url: imageUrl } }]
     : prompt;
   const wsModel = (model && REACTOR_MODEL_MAP[model]) || model || WS_LLM_MODEL;
-  // Callers of this (job-status.js's lazy-completion branch) run it INSIDE
-  // a Netlify function invocation with its own short execution window --
-  // if WaveSpeed itself takes longer than that window, Netlify kills the
-  // whole function process mid-flight. That's not a catchable JS error, so
-  // the atomic-claim status this call was mid-write to (DB flipped to
-  // 'generating' right before this runs) never gets reverted -- the job
-  // is stuck forever with no retry, no failure, no refund (confirmed live
-  // 2026-07-18 against a complex multi-image brief request). Bounding the
-  // fetch itself to well under Netlify's own limit means a slow response
-  // always surfaces as a normal thrown error instead, which the existing
-  // retry-then-fail-after-90s logic in job-status.js already handles
-  // correctly (reverts to 'processing' so the next poll retries).
+  // Bounding the fetch converts a slow response into a normal catchable
+  // error instead of letting the caller's own execution window (if any)
+  // kill the process uncleanly. Default timeoutMs (9s) suits a short,
+  // no-image, synchronous caller like audio-rewrite.js. A vision call with
+  // even one small image measured 27s+ live (confirmed 2026-07-18) --
+  // callers expecting that (text-job-worker-background.js) must pass a
+  // much longer timeoutMs explicitly; the whole reason that caller exists
+  // as a Background Function (15-minute budget) instead of a normal one.
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 9000);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   let res;
   try {
     res = await fetch(`${WS_LLM_BASE}/chat/completions`, {
@@ -123,6 +119,24 @@ async function chatCompletion({ prompt, imageUrl, model }) {
   const text = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
   if (!text) throw new Error('WaveSpeed LLM returned no text.');
   return text;
+}
+
+// Fires text-job-worker-background.js for a just-inserted text-kind job
+// (chat/flyer-brief/video-edit-brief/flyer-suggest-layers) — fire-and-
+// forget: Netlify Background Functions return 202 near-instantly on
+// invocation while the real work (the actual chatCompletion call, which
+// can genuinely take 30s+ with an image attached) continues server-side.
+// Never throws — job-status.js's own retry-trigger safety net covers a
+// failed/missed invocation, so a failure here must never block the
+// caller's own response to the browser.
+async function triggerTextWorker(requestId) {
+  if (!process.env.APP_URL) return;
+  try {
+    await fetch(`${process.env.APP_URL}/.netlify/functions/text-job-worker-background`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ request_id: requestId }),
+    });
+  } catch (e) {}
 }
 
 // ---- WaveSpeed video routes -------------------------------------------------
@@ -586,4 +600,4 @@ async function submitToolWS(slug, { image, prompt }) {
   return { requestId: 'ws:' + id, provider: 'wavespeed' };
 }
 
-module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitOmniReference, submitLipsyncResync, submitFlyerImage, submitImageWS, submitToolWS, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle, synthesizeResemble, listResembleVoices, hasResemble, chatCompletion, encodeModelImage, decodeModelImage };
+module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitOmniReference, submitLipsyncResync, submitFlyerImage, submitImageWS, submitToolWS, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle, synthesizeResemble, listResembleVoices, hasResemble, chatCompletion, encodeModelImage, decodeModelImage, triggerTextWorker };

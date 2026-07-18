@@ -10,7 +10,7 @@
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { REACTOR_COST, canUseFree } = require('./_packs');
-const { hasWaveSpeed, encodeModelImage } = require('./_providers');
+const { hasWaveSpeed, encodeModelImage, triggerTextWorker } = require('./_providers');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
@@ -49,6 +49,7 @@ exports.handler = async (event) => {
       request_id: id, user_id: user.id, kind: 'chat', model: encodeModelImage(model, images[0]), prompt, credits: cost,
       status: 'processing',
     });
+    triggerTextWorker(id);
     return json(200, { request_id: id, credits: balance });
   } catch (e) {
     await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' });

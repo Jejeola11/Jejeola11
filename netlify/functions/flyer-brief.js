@@ -13,7 +13,7 @@
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { REACTOR_COST, canUseFree } = require('./_packs');
 const { buildDesignBrainPrompt } = require('./_flyer-knowledge');
-const { hasWaveSpeed, encodeModelImage } = require('./_providers');
+const { hasWaveSpeed, encodeModelImage, triggerTextWorker } = require('./_providers');
 
 const MODEL = 'claude-sonnet-4-5';
 
@@ -138,6 +138,7 @@ exports.handler = async (event) => {
       request_id: id, user_id: user.id, kind: 'flyer-brief', model: encodeModelImage(MODEL, refs[0]), prompt: fullPrompt, credits: cost,
       status: 'processing', project_id: projectId,
     });
+    triggerTextWorker(id);
     return json(200, { request_id: id, credits: balance, project_id: projectId });
   } catch (e) {
     try { await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}

@@ -11,7 +11,7 @@
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { REACTOR_COST, canUseFree } = require('./_packs');
 const { buildEditingBrainPrompt } = require('./_video-knowledge');
-const { hasWaveSpeed, encodeModelImage } = require('./_providers');
+const { hasWaveSpeed, encodeModelImage, triggerTextWorker } = require('./_providers');
 
 const MODEL = 'claude-sonnet-4-5';
 
@@ -86,6 +86,7 @@ exports.handler = async (event) => {
       request_id: id, user_id: user.id, kind: 'video-edit-brief', model: encodeModelImage(MODEL, null), prompt: fullPrompt, credits: cost,
       status: 'processing', project_id: project.id,
     });
+    triggerTextWorker(id);
     return json(200, { request_id: id, credits: balance, project_id: project.id });
   } catch (e) {
     try { await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}

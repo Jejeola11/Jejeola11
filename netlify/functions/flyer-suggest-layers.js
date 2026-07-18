@@ -10,7 +10,7 @@
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { REACTOR_COST, canUseFree } = require('./_packs');
-const { hasWaveSpeed, encodeModelImage } = require('./_providers');
+const { hasWaveSpeed, encodeModelImage, triggerTextWorker } = require('./_providers');
 
 const MODEL = 'claude-sonnet-4-5';
 
@@ -48,6 +48,7 @@ exports.handler = async (event) => {
       request_id: id, user_id: user.id, kind: 'flyer-suggest-layers', model: encodeModelImage(MODEL, project.hero_image_url), prompt: SYSTEM, credits: cost,
       status: 'processing', project_id: projectId,
     });
+    triggerTextWorker(id);
     return json(200, { request_id: id, credits: balance });
   } catch (e) {
     try { await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}

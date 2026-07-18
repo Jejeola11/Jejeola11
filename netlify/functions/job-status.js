@@ -5,7 +5,7 @@
 // The browser calls this every few seconds until done.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
-const { pollAny, synthesizeResemble, chatCompletion, decodeModelImage } = require('./_providers');
+const { pollAny, synthesizeResemble, triggerTextWorker } = require('./_providers');
 const { cropToAspect } = require('./_canvas');
 const { splitScript, RESEMBLE_BATCH_CHARS } = require('./_avatar-video');
 const { ensureWorkDir, cleanupTmp, concatAudio, uploadToStorage, downloadToFile, ffmpeg } = require('./_ffmpeg');
@@ -65,7 +65,7 @@ exports.handler = async (event) => {
   if (job.status === 'completed') {
     return isTextKind ? json(200, { status: 'completed', text: job.output_text }) : json(200, { status: 'completed', url: job.output_url });
   }
-  if (job.status === 'failed') return json(200, { status: 'failed' });
+  if (job.status === 'failed') return json(200, isTextKind && job.output_text ? { status: 'failed', error: job.output_text } : { status: 'failed' });
 
   // Resemble voice jobs never got a real external request_id at submit time
   // (audio-generate.js only inserted a pending row) — the actual synth +
@@ -147,31 +147,24 @@ exports.handler = async (event) => {
   // MuAPI. Isolating it to a single retry-able poll cycle instead means a
   // slow reply just costs one more 6s wait, not a hard failure.
   if (isTextKind) {
-    // Same atomic claim as the Resemble branch above — confirmed live as
-    // the exact cause of Flyer Studio's chat coming back with the same
-    // reply duplicated up to 6 times over: setInterval polls every few
-    // seconds without waiting for the previous tick's fetch to resolve, so
-    // a reply that takes longer than one poll interval let SEVERAL
-    // overlapping polls each see status:'processing' and each fire their
-    // own real (paid) chatCompletion() call for the same job, and each one
-    // then got appended to the chat log independently.
-    const { data: claimed } = await db.from('jobs').update({ status: 'generating' }).eq('request_id', id).eq('status', 'processing').select().maybeSingle();
-    if (!claimed) return json(200, { status: 'processing' });
-    const { model, imageUrl } = decodeModelImage(job.model);
-    try {
-      const text = await chatCompletion({ prompt: job.prompt, imageUrl, model });
-      await db.from('jobs').update({ status: 'completed', output_text: text }).eq('request_id', id);
-      return json(200, { status: 'completed', text });
-    } catch (e) {
+    // The actual WaveSpeed call now runs in text-job-worker-background.js,
+    // a real Netlify Background Function (15-minute budget) triggered
+    // fire-and-forget by whichever endpoint inserted this job -- doing it
+    // inline HERE (the old design) meant a slow vision call got killed
+    // mid-flight by this function's own short execution window, leaving
+    // the job stuck at 'generating' forever with no retry, no failure, no
+    // refund. This poll is now a pure read of whatever that worker
+    // eventually writes.
+    if (job.status === 'processing') {
+      // Safety net: if the worker was never actually triggered (the
+      // original endpoint's own trigger fetch failed) or is slow to start,
+      // re-fire it after a few seconds. The worker's own atomic claim
+      // makes this idempotent -- re-triggering a job someone else already
+      // claimed just no-ops.
       const ageMs = Date.now() - new Date(job.created_at).getTime();
-      if (ageMs > 90000) {
-        await db.rpc('add_credits', { uid: user.id, amount: job.credits, why: 'refund' });
-        await db.from('jobs').update({ status: 'failed' }).eq('request_id', id);
-        return json(200, { status: 'failed', error: (e && e.message) || 'AI failed' });
-      }
-      await db.from('jobs').update({ status: 'processing' }).eq('request_id', id);
-      return json(200, { status: 'processing' });
+      if (ageMs > 6000) triggerTextWorker(id);
     }
+    return json(200, { status: 'processing' });
   }
 
   // Video / avatar / modelsheet: pollAny routes by the request_id prefix
