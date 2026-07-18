@@ -2206,7 +2206,15 @@ function renderPacks() {
  $('curToggle').textContent = showUsd ? 'Show ₦' : 'Show $';
 }
 async function buy(pack, el) {
- if (preview) { showAuth('signup'); return; }
+ // Persisted (not just the ?buy= URL param) so this survives Supabase's
+ // email-confirmation round trip: if "Confirm email" is on, signUp() below
+ // doesn't return a session, the visitor has to leave the site to click a
+ // link in their inbox, and whatever page that link lands them back on
+ // almost never still has ?buy=<pack> in it -- the URL-only version of this
+ // silently drops every guest who hits that path, which for cold ad traffic
+ // clicking straight from a landing-page pricing button is likely most of
+ // them. localStorage has no such gap: boot() and doAuth() both check it.
+ if (preview) { try { localStorage.setItem('fuse_pending_buy', pack); } catch (e) {} showAuth('signup'); return; }
  const pay = cfg.PAYMENT || { mode: 'paystack' };
  // While Paystack is pending, show bank-transfer / Selar instructions instead.
  if (pay.mode === 'manual') return showManualPay(pack);
@@ -4205,11 +4213,7 @@ async function doAuth() {
  if (error) throw error;
  }
  await claimReferral();
- await boot();
- // If they arrived from the sales page with ?buy=<pack>, continue straight
- // into checkout after signup/login instead of dropping them on the home view.
- const pendingBuy = new URLSearchParams(location.search).get('buy');
- if (pendingBuy && (cfg.PACKS.some((p) => p.key === pendingBuy) || pendingBuy === 'course')) setTimeout(() => buy(pendingBuy), 800);
+ await boot(); // boot() itself resumes any pending buy (URL param or the localStorage fallback) -- don't duplicate that here.
  } catch (e) { note('authNote', e.message || 'Something went wrong.', 'err'); }
  $('authBtn').disabled = false;
 }
@@ -4248,8 +4252,15 @@ async function boot() {
  // Came from the Atelier page "Get instant access" -> start the course purchase.
  // Deep-link checkout: /studio?buy=<pack> opens the buy flow for that pack
  // (used by the Atelier sales page tier buttons — course, atelier_starter, …).
+ // Falls back to the localStorage flag buy() sets when a guest first clicks
+ // buy -- covers landing back here via Supabase's email-confirmation link,
+ // which never carries the original ?buy= param.
  const qBuy = new URLSearchParams(location.search).get('buy');
- if (qBuy && (cfg.PACKS.some((p) => p.key === qBuy) || qBuy === 'course')) setTimeout(() => buy(qBuy), 600);
+ let pendingPack = qBuy;
+ if (!pendingPack) { try { pendingPack = localStorage.getItem('fuse_pending_buy'); } catch (e) {} }
+ if (pendingPack && (cfg.PACKS.some((p) => p.key === pendingPack) || pendingPack === 'course')) {
+   setTimeout(() => { try { localStorage.removeItem('fuse_pending_buy'); } catch (e) {} buy(pendingPack); }, 600);
+ }
  // Came from an external link (e.g. Selar's post-purchase redirect) with ?view=week —
  // open straight to that view. wkcode (if present) is picked up inside openWeek().
  const qView = new URLSearchParams(location.search).get('view');
