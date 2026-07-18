@@ -499,6 +499,12 @@ async function submitLipsyncResync({ video, audio }) {
 const FLYER_IMAGE_ROUTES = {
   'gpt-image-2-ws-text-to-image': 'openai/gpt-image-2/text-to-image',
   'gpt-image-2-ws-edit': 'openai/gpt-image-2/edit',
+  // Nano Banana Pro (Gemini 3.0 Pro Image) -- confirmed live 2026-07-18 via
+  // validation-error probing (real slugs, not guessed). Used for the hero
+  // visual + layer steps per Ria's explicit request; flyer-composite.js
+  // (the final text-compositing pass) stays on GPT Image 2 above.
+  'nano-banana-pro-ws-text-to-image': 'google/nano-banana-pro/text-to-image',
+  'nano-banana-pro-ws-edit': 'google/nano-banana-pro/edit',
 };
 // Returns null (never throws) when WAVESPEED_KEY isn't set, so callers can
 // fall back to their own MuAPI route — same graceful-degrade pattern as

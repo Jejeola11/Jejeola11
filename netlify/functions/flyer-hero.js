@@ -2,17 +2,12 @@
 // POST /.netlify/functions/flyer-hero   (Flyer Studio — generate hero visual)
 // Body: { project_id, prompt, aspect }
 // Generates the background/hero visual ONLY (no text/logos — that's
-// composited afterward via flyer-composite.js). Uses GPT Image 2 — the
-// model confirmed (both by user testing and by our own quality comparison)
-// to give the most hyper-realistic, "perfect flyer design" result — routed
-// through WaveSpeed rather than MuAPI: MuAPI's wrapper for this exact same
-// OpenAI model genuinely takes 50-90s+ of real inference regardless of
-// quality/resolution settings (confirmed live 2026-07-16), while WaveSpeed's
-// wrapper (confirmed live the same day — WaveSpeed DOES host GPT Image 2,
-// contrary to an earlier wrong assumption here) completes in ~38-48s with no
-// visible quality loss, because it defaults to a lighter quality/resolution
-// tier. Falls back to nano-banana (fast, good quality, but not what was
-// asked for) only if WAVESPEED_KEY isn't configured. When the project has
+// composited afterward via flyer-composite.js). Uses Nano Banana Pro
+// (Gemini 3.0 Pro Image, routed through WaveSpeed) per Ria's explicit
+// request — the final text-compositing pass (flyer-composite.js) stays on
+// GPT Image 2; only hero + layer generation moved. Falls back to
+// nano-banana-2 (still Google's own model family) only if WAVESPEED_KEY
+// isn't configured. When the project has
 // reference images attached (product photos, inspiration flyers — up to 20,
 // set at flyer-brief.js time), uses the image-to-image (edit) variant so
 // those refs are REAL visual grounding on the actual generation, not just
@@ -27,15 +22,17 @@ const { muapiHostImage } = require('./_muapi');
 const { submitFlyerImage, hasWaveSpeed } = require('./_providers');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
-const MODEL_T2I = 'gpt-image-2-ws-text-to-image';
-const MODEL_I2I = 'gpt-image-2-ws-edit';
+const MODEL_T2I = 'nano-banana-pro-ws-text-to-image';
+const MODEL_I2I = 'nano-banana-pro-ws-edit';
+// Fallback (MuAPI, only used if WAVESPEED_KEY is missing) stays on the
+// original nano-banana slugs -- these are real, confirmed MuAPI model
+// names; MuAPI doesn't host Nano Banana Pro, so this is just a safety
+// net, not the model Ria asked for on the main route above.
 const FALLBACK_T2I = 'nano-banana';
 const FALLBACK_I2I = 'nano-banana-edit';
-// GPT Image 2 (via WaveSpeed) takes a real aspect_ratio enum directly
-// (confirmed live via validation-error probing AND by successfully
-// submitting every ratio Flyer Studio offers: '1:1','4:5','3:4','9:16',
-// '16:9') — no center-crop-after-generation workaround needed on this
-// route, unlike MuAPI's GPT Image 2 which only has 3 fixed sizes.
+// Nano Banana Pro (via WaveSpeed) takes a real aspect_ratio enum directly
+// (confirmed live via validation-error probing) — same as the GPT Image 2
+// route this replaced, no center-crop-after-generation workaround needed.
 
 exports.handler = async (event) => {
   let db, user, cost = 0;

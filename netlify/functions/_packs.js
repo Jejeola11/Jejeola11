@@ -101,6 +101,12 @@ const IMAGE_COST = {
   // ~38-48s real inference (vs MuAPI's 50-90s+), confirmed live 2026-07-16.
   'gpt-image-2-ws-text-to-image': 0.057,
   'gpt-image-2-ws-edit': 0.0665,
+  // google/nano-banana-pro (Gemini 3.0 Pro Image) — $0.14/image at the
+  // default 1k/2k resolution WaveSpeed uses (confirmed live 2026-07-18),
+  // same for both the text-to-image and edit variants. Flyer Studio's hero
+  // + layer steps now use this; flyer-composite.js stays on GPT Image 2.
+  'nano-banana-pro-ws-text-to-image': 0.14,
+  'nano-banana-pro-ws-edit': 0.14,
   'nano-banana': 0.038,       // WaveSpeed's google/nano-banana/text-to-image (0.038) verified live — a few cents above MuAPI's 0.03, but WaveSpeed's edit variant genuinely accepts up to 10 reference images vs the 3 this app used to hard-cap at, which is the more valuable trade for Flyer Studio's "not all my references are being used" problem
   'nano-banana-edit': 0.038,  // google/nano-banana/edit, same reasoning — 10-image cap confirmed via its own live schema (maxItems: 10)
   'nano-banana-2': 0.07,       // google/nano-banana-2/text-to-image + /edit, both 0.07 — edit variant allows up to 14 references (schema-confirmed)

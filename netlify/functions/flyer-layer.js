@@ -7,10 +7,10 @@
 //   this endpoint just makes sure the image(s) are actually in front of the
 //   model when it edits.
 // Adds ONE requested visual layer to the project's current working image
-// via GPT Image 2's edit variant, routed through WaveSpeed (see
-// flyer-hero.js's comment for the live-verified reasoning — same model,
-// same route, falls back to nano-banana-edit only if WAVESPEED_KEY isn't
-// configured), using the current hero image as the primary reference so
+// via Nano Banana Pro's edit variant, routed through WaveSpeed (matches
+// flyer-hero.js — Ria's explicit request; falls back to nano-banana-edit
+// on MuAPI only if WAVESPEED_KEY isn't configured), using the current
+// hero image as the primary reference so
 // everything already in place is preserved — plus this call's attached
 // images, plus a few of the project's original reference images, so
 // product identity doesn't drift over successive edits. This is for
@@ -26,7 +26,7 @@ const { muapiHostImage } = require('./_muapi');
 const { submitFlyerImage, hasWaveSpeed } = require('./_providers');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
-const MODEL = 'gpt-image-2-ws-edit';
+const MODEL = 'nano-banana-pro-ws-edit';
 const FALLBACK_MODEL = 'nano-banana-edit';
 // Total across hero + this call's attachments + project refs. Was 5 out of
 // caution — raised to 10 now that GPT Image 2's real edit endpoint (via
@@ -76,10 +76,10 @@ exports.handler = async (event) => {
     const projectRefBudget = Math.max(0, MAX_IMAGES - 1 - layerImages.length);
     const extraRefs = (Array.isArray(project.reference_image_urls) ? project.reference_image_urls : []).slice(0, projectRefBudget);
     const hosted = await Promise.all([project.hero_image_url, ...layerImages, ...extraRefs].map(muapiHostImage));
-    // GPT Image 2 has no "keep current aspect" option like nano-banana's
-    // 'Auto' — it needs a real enum value every time, so this reads back the
-    // project's own chosen aspect (persisted at flyer-hero.js time) so an
-    // edit on the working hero never reshapes it.
+    // Nano Banana Pro has no "keep current aspect" auto option — it needs a
+    // real enum value every time, so this reads back the project's own
+    // chosen aspect (persisted at flyer-hero.js time) so an edit on the
+    // working hero never reshapes it.
     const aspect = project.aspect || '4:5';
 
     let id;
