@@ -2259,43 +2259,39 @@ function showManualPay(packKey) {
 // signup form. They give an email, go straight to Paystack, and only get
 // asked to set a password once a real payment has actually confirmed (see
 // the claim-account flow below, triggered off ?paid=1&guest=1).
-function startGuestCheckout(packKey) {
- const p = (cfg.PACKS || []).find((x) => x.key === packKey);
- $('guestBuySub').textContent = p ? `${p.name} — ${naira(p.naira)}` : '';
- $('guestBuyNote').textContent = '';
- $('guestBuyEmail').value = '';
- $('guestBuyOverlay').style.display = 'flex';
- $('guestBuyLoginLink').onclick = () => { $('guestBuyOverlay').style.display = 'none'; showAuth('login'); };
- $('guestBuyBtn').onclick = async () => {
- const email = $('guestBuyEmail').value.trim();
- if (!email || !email.includes('@')) return note('guestBuyNote', 'Enter a valid email.', 'err');
- $('guestBuyBtn').disabled = true; $('guestBuyBtn').textContent = 'Opening secure checkout…';
+// Tapping a tier goes straight to Paystack -- no prompt of any kind on our
+// side. Paystack's initialize API requires SOME email, but paystack-init-
+// guest.js fills in a random placeholder server-side; the buyer's real
+// email is only ever collected once, on the claim-account screen right
+// after they've actually paid (see startClaimAccount() below).
+async function startGuestCheckout(packKey) {
  try {
  const res = await fetch('/.netlify/functions/paystack-init-guest', {
  method: 'POST', headers: { 'Content-Type': 'application/json' },
- body: JSON.stringify({ pack: packKey, email }),
+ body: JSON.stringify({ pack: packKey }),
  });
  const data = await res.json();
  if (!res.ok) throw new Error(data.error || 'Could not start payment');
  window.location.href = data.authorization_url;
  } catch (e) {
- note('guestBuyNote', e.message, 'err');
- $('guestBuyBtn').disabled = false; $('guestBuyBtn').textContent = 'Continue to payment →';
+ toast(e.message || 'Could not start payment — try again.');
  }
- };
 }
-// Landing back from a real guest-checkout payment (?paid=1&guest=1&email=&
-// reference=). Collects a password, hands it to claim-guest-account.js
-// (which only accepts it once it finds a real, confirmed payment matching
-// that reference), then signs them straight in -- this IS the "sign up"
-// step, it just happens to come after payment instead of before it.
-function startClaimAccount(email, reference, pack) {
- $('claimSub').textContent = `Set a password for ${email} to access your studio.`;
+// Landing back from a real guest-checkout payment (?paid=1&guest=1&
+// reference=). Collects a real email + password for the first time, hands
+// them to claim-guest-account.js (which only accepts it once it finds a
+// real, confirmed payment matching that reference), then signs them
+// straight in -- this IS the "sign up" step, it just happens to come after
+// payment instead of before it.
+function startClaimAccount(reference, pack) {
  $('claimNote').textContent = '';
+ $('claimEmail').value = '';
  $('claimPass').value = '';
  $('claimOverlay').style.display = 'flex';
  $('claimBtn').onclick = async () => {
+ const email = $('claimEmail').value.trim();
  const password = $('claimPass').value;
+ if (!email || !email.includes('@')) return note('claimNote', 'Enter a valid email.', 'err');
  if (password.length < 8) return note('claimNote', 'Password must be at least 8 characters.', 'err');
  $('claimBtn').disabled = true; $('claimBtn').textContent = 'Setting up your account…';
  // The webhook can land a beat after Paystack's own redirect does --
@@ -2327,7 +2323,7 @@ function startClaimAccount(email, reference, pack) {
  }
  if (res.status !== 404) throw new Error(data.error || 'Could not finish setup.');
  } catch (e) {
- if (attempt === 4) { note('claimNote', e.message || 'Something went wrong -- message us on WhatsApp and we\'ll sort it out.', 'err'); $('claimBtn').disabled = false; $('claimBtn').textContent = 'Set password & continue →'; return; }
+ if (attempt === 4) { note('claimNote', e.message || 'Something went wrong -- message us on WhatsApp and we\'ll sort it out.', 'err'); $('claimBtn').disabled = false; $('claimBtn').textContent = 'Continue →'; return; }
  }
  await new Promise((r) => setTimeout(r, 2500));
  }
@@ -4597,7 +4593,6 @@ window.addEventListener('DOMContentLoaded', () => {
  // too, not just successful ones).
  const paidReference = paidQS.get('reference') || paidQS.get('trxref');
  const isGuest = paidQS.get('guest') === '1';
- const guestEmail = paidQS.get('email') || '';
  const packDef = paidPack && (cfg.PACKS || []).find((p) => p.key === paidPack);
  const isCoursePack = !!(packDef && packDef.kind === 'course');
  history.replaceState({}, '', location.pathname);
@@ -4609,8 +4604,8 @@ window.addEventListener('DOMContentLoaded', () => {
  // rather than returning out of the whole DOMContentLoaded handler below
  // (which still needs to reach the service-worker registration + boot()
  // fallback for the non-guest path).
- if (isGuest && paidReference && guestEmail) {
- setTimeout(() => startClaimAccount(guestEmail, paidReference, paidPack), 600);
+ if (isGuest && paidReference) {
+ setTimeout(() => startClaimAccount(paidReference, paidPack), 600);
  } else {
  setTimeout(async () => {
  if (!user) return;

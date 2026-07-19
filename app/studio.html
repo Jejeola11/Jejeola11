@@ -1119,30 +1119,19 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  </div>
 </div>
 
-<!-- ===== Guest checkout (pay first, account after -- no signup wall before payment) ===== -->
-<div class="overlay" id="guestBuyOverlay" style="display:none">
- <div class="modal">
- <div class="brand" style="justify-content:center;margin-bottom:8px"><span class="dot">F</span> Fuse&nbsp;Studio</div>
- <h2 id="guestBuyTitle" style="text-align:center">Complete your purchase</h2>
- <p class="muted" id="guestBuySub" style="text-align:center;margin:0 0 14px"></p>
- <label class="fld" for="guestBuyEmail">Email</label>
- <input id="guestBuyEmail" type="email" placeholder="you@email.com" autocomplete="email">
- <p class="muted" style="font-size:12.5px;margin-top:6px">We'll send your receipt here. You'll set a password after payment — no account needed to check out.</p>
- <button class="btn gold block" id="guestBuyBtn" style="margin-top:16px">Continue to payment →</button>
- <div class="note" id="guestBuyNote"></div>
- <div class="switch"><span>Already have an account?</span> <a id="guestBuyLoginLink">Log in instead</a></div>
- </div>
-</div>
-
-<!-- ===== Claim account (shown right after a real, confirmed guest-checkout payment) ===== -->
+<!-- ===== Claim account (shown right after a real, confirmed guest-checkout
+     payment -- tapping a tier goes straight to Paystack with no prompt on
+     our side, so this is the first time email + password are collected) ===== -->
 <div class="overlay" id="claimOverlay" style="display:none">
  <div class="modal">
  <div class="brand" style="justify-content:center;margin-bottom:8px"><span class="dot">F</span> Fuse&nbsp;Studio</div>
  <h2 style="text-align:center"> Payment received</h2>
- <p class="muted" id="claimSub" style="text-align:center;margin:0 0 14px">Set a password to access your studio.</p>
- <label class="fld" for="claimPass">Password</label>
+ <p class="muted" id="claimSub" style="text-align:center;margin:0 0 14px">Set up your account to access your studio.</p>
+ <label class="fld" for="claimEmail">Email</label>
+ <input id="claimEmail" type="email" placeholder="you@email.com" autocomplete="email">
+ <label class="fld" for="claimPass" style="margin-top:10px">Password</label>
  <input id="claimPass" type="password" placeholder="••••••••" autocomplete="new-password">
- <button class="btn gold block" id="claimBtn" style="margin-top:16px">Set password & continue →</button>
+ <button class="btn gold block" id="claimBtn" style="margin-top:16px">Continue →</button>
  <div class="note" id="claimNote"></div>
  </div>
 </div>
