@@ -34,27 +34,54 @@ exports.handler = async (event) => {
   const d = payload.data || {};
   const reference = d.reference;
   const meta = d.metadata || {};
-  const userId = meta.user_id;
   const pack = PACKS[meta.pack];
   const amountNaira = Math.round((d.amount || 0) / 100);
 
-  if (!reference || !userId || !pack) {
+  if (!reference || !pack) {
     return { statusCode: 200, body: 'missing data' };
   }
 
   const db = admin();
 
-  // 2) Idempotency — if we've already recorded this reference, stop.
+  // 2) Idempotency — if we've already recorded this reference, stop. Checked
+  // BEFORE resolving/creating a user below, so a Paystack webhook retry
+  // (it does retry on anything but a prompt 200) can never create a second
+  // duplicate guest account for the same payment.
   const { data: existing } = await db
     .from('payments').select('id').eq('reference', reference).maybeSingle();
   if (existing) return { statusCode: 200, body: 'already processed' };
 
-  // 3) Credit the user — multiplied during the launch promo for subscription
+  // 3) Resolve the buyer's account. Logged-in purchases (from inside the
+  // app) carry meta.user_id directly. Guest checkouts (landing-page tier
+  // buttons -- see paystack-init-guest.js) only carry the email Paystack
+  // collected, since no account exists yet at checkout time: find an
+  // existing account by that email, or create one now that payment is
+  // actually confirmed. This IS the "sign up happens after payment"
+  // flow -- the account is real, service-role-created, and picks up its
+  // profiles row automatically via the on_auth_user_created trigger.
+  let userId = meta.user_id;
+  if (!userId && meta.guest_email) {
+    const email = meta.guest_email;
+    const { data: existingProfile } = await db.from('profiles').select('id').ilike('email', email).maybeSingle();
+    if (existingProfile) {
+      userId = existingProfile.id;
+    } else {
+      const { data: created, error } = await db.auth.admin.createUser({ email, email_confirm: true });
+      if (error || !created || !created.user) {
+        console.error('guest account create failed:', error && error.message);
+        return { statusCode: 200, body: 'account create failed' }; // Paystack will retry
+      }
+      userId = created.user.id;
+    }
+  }
+  if (!userId) return { statusCode: 200, body: 'missing user' };
+
+  // 4) Credit the user — multiplied during the launch promo for subscription
   // packs, or overridden to a flat bonus for the course pack (see _packs.js).
   const credits = creditsForPack(meta.pack, pack.credits);
   await db.rpc('add_credits', { uid: userId, amount: credits, why: 'purchase' });
 
-  // 4) Subscription packs also extend plan access by 30 days.
+  // 4a) Subscription packs also extend plan access by 30 days.
   if (pack.kind === 'sub') {
     const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
     await db.from('profiles').update({ plan: pack.plan, plan_expires_at: expires, plan_source: 'subscription' }).eq('id', userId);

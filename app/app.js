@@ -2206,15 +2206,14 @@ function renderPacks() {
  $('curToggle').textContent = showUsd ? 'Show ₦' : 'Show $';
 }
 async function buy(pack, el) {
- // Persisted (not just the ?buy= URL param) so this survives Supabase's
- // email-confirmation round trip: if "Confirm email" is on, signUp() below
- // doesn't return a session, the visitor has to leave the site to click a
- // link in their inbox, and whatever page that link lands them back on
- // almost never still has ?buy=<pack> in it -- the URL-only version of this
- // silently drops every guest who hits that path, which for cold ad traffic
- // clicking straight from a landing-page pricing button is likely most of
- // them. localStorage has no such gap: boot() and doAuth() both check it.
- if (preview) { try { localStorage.setItem('fuse_pending_buy', pack); } catch (e) {} showAuth('signup'); return; }
+ // No account required to start checkout -- straight to Paystack on your
+ // own email, account only gets created (and a password only gets set)
+ // AFTER payment actually confirms. See startGuestCheckout() /
+ // claim-guest-account.js. This replaced an earlier version that showed
+ // the signup modal first: that meant someone who just tapped "pay
+ // ₦25,000" landed on a screen asking them to create an account before
+ // Paystack ever opened, which is exactly the confusion this fixes.
+ if (preview) { startGuestCheckout(pack); return; }
  const pay = cfg.PAYMENT || { mode: 'paystack' };
  // While Paystack is pending, show bank-transfer / Selar instructions instead.
  if (pay.mode === 'manual') return showManualPay(pack);
@@ -2253,6 +2252,86 @@ function showManualPay(packKey) {
  $('packList').style.display = 'none';
  const t = $('curToggle'); if (t) t.style.display = 'none';
  $('payManual').style.display = 'block';
+}
+
+// ---------------- guest checkout (pay first, account after) ----------------
+// The whole point: someone tapping a landing-page tier button never sees a
+// signup form. They give an email, go straight to Paystack, and only get
+// asked to set a password once a real payment has actually confirmed (see
+// the claim-account flow below, triggered off ?paid=1&guest=1).
+function startGuestCheckout(packKey) {
+ const p = (cfg.PACKS || []).find((x) => x.key === packKey);
+ $('guestBuySub').textContent = p ? `${p.name} — ${naira(p.naira)}` : '';
+ $('guestBuyNote').textContent = '';
+ $('guestBuyEmail').value = '';
+ $('guestBuyOverlay').style.display = 'flex';
+ $('guestBuyLoginLink').onclick = () => { $('guestBuyOverlay').style.display = 'none'; showAuth('login'); };
+ $('guestBuyBtn').onclick = async () => {
+ const email = $('guestBuyEmail').value.trim();
+ if (!email || !email.includes('@')) return note('guestBuyNote', 'Enter a valid email.', 'err');
+ $('guestBuyBtn').disabled = true; $('guestBuyBtn').textContent = 'Opening secure checkout…';
+ try {
+ const res = await fetch('/.netlify/functions/paystack-init-guest', {
+ method: 'POST', headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({ pack: packKey, email }),
+ });
+ const data = await res.json();
+ if (!res.ok) throw new Error(data.error || 'Could not start payment');
+ window.location.href = data.authorization_url;
+ } catch (e) {
+ note('guestBuyNote', e.message, 'err');
+ $('guestBuyBtn').disabled = false; $('guestBuyBtn').textContent = 'Continue to payment →';
+ }
+ };
+}
+// Landing back from a real guest-checkout payment (?paid=1&guest=1&email=&
+// reference=). Collects a password, hands it to claim-guest-account.js
+// (which only accepts it once it finds a real, confirmed payment matching
+// that reference), then signs them straight in -- this IS the "sign up"
+// step, it just happens to come after payment instead of before it.
+function startClaimAccount(email, reference, pack) {
+ $('claimSub').textContent = `Set a password for ${email} to access your studio.`;
+ $('claimNote').textContent = '';
+ $('claimPass').value = '';
+ $('claimOverlay').style.display = 'flex';
+ $('claimBtn').onclick = async () => {
+ const password = $('claimPass').value;
+ if (password.length < 8) return note('claimNote', 'Password must be at least 8 characters.', 'err');
+ $('claimBtn').disabled = true; $('claimBtn').textContent = 'Setting up your account…';
+ // The webhook can land a beat after Paystack's own redirect does --
+ // retry a few times before giving up, same pattern used elsewhere for
+ // this exact race.
+ for (let attempt = 0; attempt < 5; attempt++) {
+ try {
+ const res = await fetch('/.netlify/functions/claim-guest-account', {
+ method: 'POST', headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({ email, password, reference }),
+ });
+ const data = await res.json();
+ if (res.ok && data.ok) {
+ const { error } = await sb.auth.signInWithPassword({ email, password });
+ if (error) throw error;
+ $('claimOverlay').style.display = 'none';
+ // claim-guest-account.js only ever succeeds against a payments row it
+ // already confirmed is status success/manual -- unlike the logged-in
+ // checkout path, there's no separate verify-payment.js round trip
+ // needed here, the successful claim itself IS the confirmation.
+ const packDef = pack && (cfg.PACKS || []).find((p) => p.key === pack);
+ if (packDef && typeof fbq === 'function') fbq('track', 'Purchase', { value: packDef.naira, currency: 'NGN', content_name: pack });
+ await boot();
+ if (packDef && packDef.kind === 'course') {
+ await openCourse();
+ if (atelierTier() < 1) setTimeout(openCourse, 3000);
+ }
+ return;
+ }
+ if (res.status !== 404) throw new Error(data.error || 'Could not finish setup.');
+ } catch (e) {
+ if (attempt === 4) { note('claimNote', e.message || 'Something went wrong -- message us on WhatsApp and we\'ll sort it out.', 'err'); $('claimBtn').disabled = false; $('claimBtn').textContent = 'Set password & continue →'; return; }
+ }
+ await new Promise((r) => setTimeout(r, 2500));
+ }
+ };
 }
 
 // ---------------- daily streak ----------------
@@ -4184,17 +4263,15 @@ async function runTool() {
 }
 
 // ---------------- auth ----------------
+// This modal is only ever reached now via "Already have an account? Log in
+// instead" on the guest-checkout screen (see startGuestCheckout()) -- a
+// fresh purchase never shows a signup form before payment anymore. Kept
+// pending-buy-aware so someone who arrived via /studio?buy=<pack> and
+// chooses to log in first still sees "Log in to finish your purchase"
+// instead of generic copy.
 let authMode = 'signup';
-// Someone who just tapped a ₦25,000 tier button and lands on a modal titled
-// "Create your account" / "Start with 12 free credits -- no card needed" /
-// "Start free ->" has every reason to think they wandered into an unrelated
-// free-trial signup, not step 1 of the purchase they just tried to make --
-// confirmed as a likely real drop-off point, not just a hunch. When a buy is
-// pending (URL ?buy= or the localStorage flag buy() sets), the modal now
-// says so explicitly instead of showing the generic free-trial copy.
 function pendingBuyPack() {
- let p = new URLSearchParams(location.search).get('buy');
- if (!p) { try { p = localStorage.getItem('fuse_pending_buy'); } catch (e) {} }
+ const p = new URLSearchParams(location.search).get('buy');
  if (!p) return null;
  return (cfg.PACKS || []).find((x) => x.key === p) || (p === 'course' ? { name: 'Fuse Atelier', naira: 60000 } : null);
 }
@@ -4260,7 +4337,19 @@ function prompt0(m) { return window.prompt(m); }
 async function boot() {
  const { data } = await sb.auth.getSession();
  user = data.session ? data.session.user : null;
- if (!user) { if (localStorage.getItem('fuse_quiz')) showAuth('signup'); else showQuiz(); return; }
+ if (!user) {
+ // A pending purchase (arrived via /studio?buy=<pack>, e.g. a landing-page
+ // tier button) skips the onboarding quiz and the old signup wall
+ // entirely -- straight to guest checkout instead, which is the whole
+ // point of this flow. Without this check, every first-time visitor hit
+ // the quiz/signup screen BEFORE ?buy= was ever read (that only happened
+ // later, deep in the logged-in branch below), so the guest-checkout
+ // rewrite in buy() never actually got triggered for the exact people
+ // it was built for.
+ const qBuy = new URLSearchParams(location.search).get('buy');
+ if (qBuy && (cfg.PACKS.some((p) => p.key === qBuy) || qBuy === 'course')) { startGuestCheckout(qBuy); return; }
+ if (localStorage.getItem('fuse_quiz')) showAuth('signup'); else showQuiz(); return;
+ }
  hideAuth(); preview = false; $('previewRibbon').style.display = 'none';
  buildHome();
  await loadProfile();
@@ -4274,14 +4363,13 @@ async function boot() {
  // Came from the Atelier page "Get instant access" -> start the course purchase.
  // Deep-link checkout: /studio?buy=<pack> opens the buy flow for that pack
  // (used by the Atelier sales page tier buttons — course, atelier_starter, …).
- // Falls back to the localStorage flag buy() sets when a guest first clicks
- // buy -- covers landing back here via Supabase's email-confirmation link,
- // which never carries the original ?buy= param.
+ // Only reached here for an already-logged-in user (a fresh guest never
+ // reaches boot()'s logged-in branch before paying -- see
+ // startGuestCheckout()), so this always goes straight to the
+ // authenticated paystack-init.js path inside buy().
  const qBuy = new URLSearchParams(location.search).get('buy');
- let pendingPack = qBuy;
- if (!pendingPack) { try { pendingPack = localStorage.getItem('fuse_pending_buy'); } catch (e) {} }
- if (pendingPack && (cfg.PACKS.some((p) => p.key === pendingPack) || pendingPack === 'course')) {
-   setTimeout(() => { try { localStorage.removeItem('fuse_pending_buy'); } catch (e) {} buy(pendingPack); }, 600);
+ if (qBuy && (cfg.PACKS.some((p) => p.key === qBuy) || qBuy === 'course')) {
+   setTimeout(() => buy(qBuy), 600);
  }
  // Came from an external link (e.g. Selar's post-purchase redirect) with ?view=week —
  // open straight to that view. wkcode (if present) is picked up inside openWeek().
@@ -4500,9 +4588,22 @@ window.addEventListener('DOMContentLoaded', () => {
  // of ?paid=1 (Paystack lands here on declined/failed/abandoned attempts
  // too, not just successful ones).
  const paidReference = paidQS.get('reference') || paidQS.get('trxref');
+ const isGuest = paidQS.get('guest') === '1';
+ const guestEmail = paidQS.get('email') || '';
  const packDef = paidPack && (cfg.PACKS || []).find((p) => p.key === paidPack);
  const isCoursePack = !!(packDef && packDef.kind === 'course');
  history.replaceState({}, '', location.pathname);
+ // Guest checkout (no account existed at checkout time -- see
+ // startGuestCheckout()): this is where "sign up" actually happens, after
+ // payment, not before it. startClaimAccount() calls boot() itself once
+ // signed in, which re-renders everything normally from there -- nothing
+ // else in this block applies until that's done, so it's skipped here
+ // rather than returning out of the whole DOMContentLoaded handler below
+ // (which still needs to reach the service-worker registration + boot()
+ // fallback for the non-guest path).
+ if (isGuest && paidReference && guestEmail) {
+ setTimeout(() => startClaimAccount(guestEmail, paidReference, paidPack), 600);
+ } else {
  setTimeout(async () => {
  if (!user) return;
  // Meta Pixel Purchase: only fires once verify-payment.js confirms a real
@@ -4533,6 +4634,7 @@ window.addEventListener('DOMContentLoaded', () => {
  await openCourse();
  if (atelierTier() < 1) setTimeout(openCourse, 3000);
  }, 2500);
+ }
  }
  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js').catch(() => {});
 
