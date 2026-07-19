@@ -425,7 +425,7 @@ async function pollAllPendingJobs() {
  const snapshot = [...pendingJobs];
  for (const job of snapshot) {
  try {
- const path = job.endpoint === 'avatar-video-status' ? `avatar-video-status?id=${job.request_id}` : `job-status?id=${job.request_id}`;
+ const path = job.endpoint === 'avatar-video-status' ? `avatar-media?id=${job.request_id}` : `job-status?id=${job.request_id}`;
  const r = await fetch(`/.netlify/functions/${path}`, { headers: { ...(await authHeader()) } });
  const d = await r.json();
  const done = job.endpoint === 'avatar-video-status' ? d.stage === 'complete' : d.status === 'completed';
@@ -2431,9 +2431,9 @@ window.fuseDeleteAvatarPhoto = async (url) => {
  if (count <= 1) return note('avManageNote', 'An avatar needs at least one training photo.', 'err');
  if (!confirm('Remove this training photo?')) return;
  try {
- const res = await fetch('/.netlify/functions/avatar-train', {
+ const res = await fetch('/.netlify/functions/avatar-media', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
- body: JSON.stringify({ avatar_id: selectedAvatar, remove_photo_url: url }),
+ body: JSON.stringify({ action: 'train', avatar_id: selectedAvatar, remove_photo_url: url }),
  });
  const d = await res.json();
  if (!res.ok) throw new Error(d.error || 'Failed');
@@ -2542,14 +2542,14 @@ async function loadAvatarResembleVoices(selectedUuid) {
 async function avSaveEngine() {
  if (!selectedAvatar) return;
  const engine = $('avEngine').value;
- const body = { avatar_id: selectedAvatar, tts_engine: engine };
+ const body = { action: 'train', avatar_id: selectedAvatar, tts_engine: engine };
  if (engine === 'resemble') {
  const uuid = $('avResemblePicker').value;
  if (!uuid) return note('avResembleNote', 'Pick a Resemble voice first.', 'err');
  body.resemble_voice_uuid = uuid;
  }
  try {
- const res = await fetch('/.netlify/functions/avatar-train', {
+ const res = await fetch('/.netlify/functions/avatar-media', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify(body),
  });
@@ -2569,9 +2569,9 @@ async function uploadAvatarVoice(file) {
  if (upErr) throw upErr;
  const url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
  const refText = ($('avVoiceRefText') && $('avVoiceRefText').value.trim()) || '';
- const res = await fetch('/.netlify/functions/avatar-train', {
+ const res = await fetch('/.netlify/functions/avatar-media', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
- body: JSON.stringify({ avatar_id: selectedAvatar, voice_sample_url: url, voice_reference_text: refText }),
+ body: JSON.stringify({ action: 'train', avatar_id: selectedAvatar, voice_sample_url: url, voice_reference_text: refText }),
  });
  const d = await res.json();
  if (!res.ok) throw new Error(d.error || 'Failed');
@@ -2590,9 +2590,9 @@ async function uploadAvatarTrainingVideo(file) {
  if (upErr) throw upErr;
  const url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
  note('avFaceVideoNote', 'Training… this can take a moment ⏳', 'ok');
- const res = await fetch('/.netlify/functions/avatar-train', {
+ const res = await fetch('/.netlify/functions/avatar-media', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
- body: JSON.stringify({ avatar_id: selectedAvatar, source_video_url: url }),
+ body: JSON.stringify({ action: 'train', avatar_id: selectedAvatar, source_video_url: url }),
  });
  const d = await res.json();
  if (!res.ok) throw new Error(d.error || 'Failed');
@@ -2662,10 +2662,10 @@ async function avvGenerate() {
  $('avvCtaWrap').style.display = 'none';
  note('avvNote', '');
  try {
- const res = await fetch('/.netlify/functions/avatar-video-create', {
+ const res = await fetch('/.netlify/functions/avatar-media', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({
- avatar_id: selectedAvatar, script, mode, camera_motion: mode === 'motion' ? cameraMotion : undefined,
+ action: 'create', avatar_id: selectedAvatar, script, mode, camera_motion: mode === 'motion' ? cameraMotion : undefined,
  audio_url: avvOwnAudioUrl || undefined,
  settings: { resolution: $('avvResolution').value, prompt: $('avvPrompt').value.trim(), aspect: $('avvAspect').value, start_image: avvStartFrameUrl || undefined },
  }),
@@ -2694,7 +2694,7 @@ function pollAvatarVideo(id, btn, label) {
  const timer = setInterval(async () => {
  s += 10;
  try {
- const r = await fetch(`/.netlify/functions/avatar-video-status?id=${id}`, { headers: { ...(await authHeader()) } });
+ const r = await fetch(`/.netlify/functions/avatar-media?id=${id}`, { headers: { ...(await authHeader()) } });
  const d = await r.json();
  if (d.stage === 'complete') {
  clearInterval(timer);
