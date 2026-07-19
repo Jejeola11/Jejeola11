@@ -4352,6 +4352,24 @@ async function boot() {
  if (localStorage.getItem('fuse_quiz')) showAuth('signup'); else showQuiz(); return;
  }
  hideAuth(); preview = false; $('previewRibbon').style.display = 'none';
+ // Came from the Atelier page "Get instant access" -> start the course purchase.
+ // Deep-link checkout: /studio?buy=<pack> opens the buy flow for that pack
+ // (used by the Atelier sales page tier buttons — course, atelier_starter, …).
+ // Fires FIRST, before buildHome()/loadProfile()/restoreRoute() below — same
+ // fix as the !user branch above. Waiting until after the home page had
+ // already rendered (the old setTimeout(...,600) placed way down here) meant
+ // anyone already logged in landed on the app shell first and only reached
+ // Paystack a beat later, or not at all if anything earlier in this branch
+ // threw. An already-logged-in buyer should hit checkout exactly as
+ // immediately as a guest does.
+ const qBuy = new URLSearchParams(location.search).get('buy');
+ if (qBuy && (cfg.PACKS.some((p) => p.key === qBuy) || qBuy === 'course')) {
+   // openBuy() first so the note/pack-list overlay is actually visible if
+   // buy() hits an error (no credits card, network hiccup) — otherwise a
+   // failed redirect would leave the buyer staring at a blank page with no
+   // sign anything happened, since buildHome() below never runs in this path.
+   openBuy(); buy(qBuy); return;
+ }
  buildHome();
  await loadProfile();
 
@@ -4361,17 +4379,6 @@ async function boot() {
  loadPendingJobs();
  startGlobalPoller();
  maybePromo();
- // Came from the Atelier page "Get instant access" -> start the course purchase.
- // Deep-link checkout: /studio?buy=<pack> opens the buy flow for that pack
- // (used by the Atelier sales page tier buttons — course, atelier_starter, …).
- // Only reached here for an already-logged-in user (a fresh guest never
- // reaches boot()'s logged-in branch before paying -- see
- // startGuestCheckout()), so this always goes straight to the
- // authenticated paystack-init.js path inside buy().
- const qBuy = new URLSearchParams(location.search).get('buy');
- if (qBuy && (cfg.PACKS.some((p) => p.key === qBuy) || qBuy === 'course')) {
-   setTimeout(() => buy(qBuy), 600);
- }
  // Came from an external link (e.g. Selar's post-purchase redirect) with ?view=week —
  // open straight to that view. wkcode (if present) is picked up inside openWeek().
  const qView = new URLSearchParams(location.search).get('view');
