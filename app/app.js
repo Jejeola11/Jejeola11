@@ -687,9 +687,14 @@ const HG_START = 'start';
 const HG_TREE = {
  start: { q: 'What are you doing today?', sub: "We'll point you the right way.",
  opts: [
- { i: 'learn', t: 'Learning', next: { result: true, icon: 'atelier', name: 'Fuse Atelier', desc: 'The AI Creative Income System — courses, walkthroughs, real income paths.', go: 'learn' } },
+ { i: 'learn', t: 'Learning', next: 'learning' },
  { i: 'sparkle', t: 'Creating', next: 'creating' },
  { i: 'explore', t: 'Just exploring', next: { result: true, icon: 'explore', name: 'Explore Fuse Studio', desc: "Have a look around — everything's free to browse.", go: 'view:models' } },
+ ] },
+ learning: { q: 'What kind of income are you going for?', sub: "We'll point you to the right course.",
+ opts: [
+ { i: 'atelier', t: 'Design & creative skills', next: { result: true, icon: 'atelier', name: 'Fuse Atelier', desc: 'The AI Creative Income System — courses, walkthroughs, real income paths.', go: 'learn' } },
+ { i: 'target', t: 'AI UGC & influencer income', next: { result: true, icon: 'target', name: 'The $500 Week', desc: 'AI UGC & influencer income — 7-day course.', go: 'week' } },
  ] },
  creating: { q: 'What do you want to create?', sub: "We'll open the exact studio for it.",
  opts: [
@@ -704,7 +709,12 @@ const HG_TREE = {
 let hgPath = []; // stack of node keys visited, for the progress dots + restart
 function hgRender(nodeKey) {
  const node = HG_TREE[nodeKey];
- $('hgDots').innerHTML = ['start', 'creating'].map((k) => `<i class="${hgPath.includes(k) || k === nodeKey ? 'on' : ''}"></i>`).join('');
+ // Every branch is exactly 2 questions deep (start, then one second-level
+ // node — creating/learning/etc.) — dot 2 lighting up is just "not on the
+ // start screen anymore", not tied to any specific second-level node name,
+ // so this works the same for every branch without listing them here.
+ const depth = nodeKey === HG_START ? 0 : 1;
+ $('hgDots').innerHTML = [0, 1].map((i) => `<i class="${i <= depth ? 'on' : ''}"></i>`).join('');
  $('hgQ').textContent = node.q;
  $('hgSub').textContent = node.sub;
  $('hgOpts').innerHTML = node.opts.map((o, i) => `<div class="hg-opt" data-i="${i}"><span class="hg-ic">${svgIcon(o.i)}</span><span class="hg-t">${o.t}</span></div>`).join('');
