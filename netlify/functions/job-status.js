@@ -6,7 +6,7 @@
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
 const { pollAny, synthesizeResemble, triggerTextWorker } = require('./_providers');
-const { cropToAspect } = require('./_canvas');
+const { cropToAspect, createCanvas, loadImage, pasteFeathered } = require('./_canvas');
 // Deliberately from _speech-batch.js, NOT _avatar-video.js -- this function
 // is the single most frequently invoked one in the whole app (every job
 // polls it every few seconds), and _avatar-video.js pulls in ffprobe (via
@@ -238,6 +238,48 @@ exports.handler = async (event) => {
         });
       } catch (e) {}
       return json(200, { status: 'completed', url, kind: job.kind, project_id: job.project_id });
+    }
+    // Flyer Studio "spot fix" — the edited crop `url` is just the small
+    // marked region on its own; paste it back into the original full flyer
+    // at the exact pixel position flyer-spot-fix.js recorded in job.meta,
+    // feathered at the edges so there's no visible seam, then that becomes
+    // the project's new final_url. See _canvas.js's pasteFeathered.
+    if (job.kind === 'flyer-spot-fix') {
+      const meta = job.meta || {};
+      if (!meta.original_url) return json(200, { status: 'failed', error: 'Missing crop position — try the fix again.' });
+      try {
+        const [origRes, editedRes] = await Promise.all([fetch(meta.original_url), fetch(url)]);
+        const [origBuf, editedBuf] = await Promise.all([origRes.arrayBuffer(), editedRes.arrayBuffer()]);
+        const origImg = await loadImage(Buffer.from(origBuf));
+        const editedImg = await loadImage(Buffer.from(editedBuf));
+        const canvas = createCanvas(origImg.width, origImg.height);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(origImg, 0, 0);
+        pasteFeathered(ctx, editedImg, meta.x, meta.y, meta.w, meta.h);
+        const finalBuf = canvas.toBuffer('image/png');
+        const storagePath = `${user.id}/spotfix-${job.project_id}-${Date.now()}.png`;
+        const { error: upErr } = await db.storage.from('avatars').upload(storagePath, finalBuf, { contentType: 'image/png', upsert: true });
+        if (upErr) throw new Error(upErr.message);
+        const finalUrl = db.storage.from('avatars').getPublicUrl(storagePath).data.publicUrl;
+        if (job.project_id) {
+          try {
+            const { data: proj } = await db.from('flyer_projects').select('credits').eq('id', job.project_id).maybeSingle();
+            await db.from('flyer_projects').update({ final_url: finalUrl, updated_at: new Date().toISOString(), credits: (proj && proj.credits || 0) + job.credits }).eq('id', job.project_id);
+          } catch (e) {}
+        }
+        try {
+          await db.from('generations').insert({
+            user_id: user.id, type: 'image', model: job.model, prompt: job.prompt, aspect: job.aspect,
+            output_url: finalUrl, credits_spent: job.credits, cost_usd: r.cost_usd,
+          });
+        } catch (e) {}
+        await db.from('jobs').update({ status: 'completed', output_url: finalUrl }).eq('request_id', id);
+        return json(200, { status: 'completed', url: finalUrl, kind: job.kind, project_id: job.project_id });
+      } catch (e) {
+        await db.from('jobs').update({ status: 'failed', error_message: e.message }).eq('request_id', id);
+        try { await db.rpc('add_credits', { uid: user.id, amount: job.credits, why: 'refund' }); } catch (_) {}
+        return json(200, { status: 'failed', error: e.message || 'Could not paste the fix back in.' });
+      }
     }
     // AI Auto-Edit (Gemini Omni) result — same "current working video"
     // pointer every Editing Studio step reads/writes.

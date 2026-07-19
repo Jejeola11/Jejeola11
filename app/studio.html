@@ -436,8 +436,28 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  <button class="btn gold block" id="flyerComposite" style="margin-top:10px"> Composite final flyer</button>
  <div class="note" id="flyerCompositeNote"></div>
  <div class="result" id="flyerFinalResult" style="margin-top:12px;min-height:220px"><div class="muted">Your finished flyer appears here.</div></div>
+ <button class="btn ghost block" id="flyerSpotFixOpen" style="margin-top:10px;display:none">✏️ Fix a spot</button>
  </div>
  </section>
+
+<!-- ===== Flyer Studio — Spot Fix (circle a part, say what's wrong, fix just that) ===== -->
+<div class="overlay" id="flyerSpotFixOverlay" style="display:none">
+ <div class="modal" style="max-width:560px">
+ <button class="close" id="flyerSpotFixClose"></button>
+ <h2>Fix a spot</h2>
+ <p class="muted" style="margin:2px 0 14px;font-size:13.5px">Draw over the part that needs fixing, then say what to change — only that area gets touched, everything else stays exactly as it is.</p>
+ <div style="position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#000">
+ <canvas id="flyerSpotFixCanvas" style="width:100%;display:block;touch-action:none;cursor:crosshair"></canvas>
+ </div>
+ <div style="display:flex;gap:8px;margin-top:10px">
+ <button class="btn ghost sm" id="flyerSpotFixClear">↺ Clear mark</button>
+ </div>
+ <label class="fld" for="flyerSpotFixInput" style="margin-top:14px">What needs fixing there?</label>
+ <input id="flyerSpotFixInput" placeholder="e.g. make this button match the headline's accent gradient">
+ <button class="btn gold block" id="flyerSpotFixGo" style="margin-top:14px">Fix this spot →</button>
+ <div class="note" id="flyerSpotFixNote"></div>
+ </div>
+</div>
 
  <!-- ===== AUDIO STUDIO (standalone voiceover/narration) ===== -->
  <section class="view" id="view-audio">

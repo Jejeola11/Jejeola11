@@ -2948,6 +2948,7 @@ function flyerNewProject() {
  $('flyerHeroResult').innerHTML = '<div class="muted">Your background/hero visual appears here.</div>';
  $('flyerLayerLog').innerHTML = ''; $('flyerLayerPanel').style.display = 'none'; $('flyerTextPanel').style.display = 'none';
  $('flyerFinalResult').innerHTML = '<div class="muted">Your finished flyer appears here.</div>';
+ $('flyerSpotFixOpen').style.display = 'none';
  renderFlyerRefs();
  note('flyerResumeNote', '');
  note('flyerLayerNote', ''); note('flyerCompositeNote', '');
@@ -2974,7 +2975,8 @@ function flyerLoadProject(p) {
  note('flyerLayerNote', ''); note('flyerCompositeNote', '');
  }
  $('flyerLayerLog').innerHTML = flyerLayers.map((l) => `<div class="muted" style="font-size:12px"> ${l}</div>`).join('');
- if (p.final_url) $('flyerFinalResult').innerHTML = `<div><img src="${p.final_url}" style="width:100%;border-radius:12px"><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${p.final_url}')">⬇ Download</button></div></div>`;
+ if (p.final_url) { $('flyerFinalResult').innerHTML = `<div><img src="${p.final_url}" style="width:100%;border-radius:12px"><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${p.final_url}')">⬇ Download</button></div></div>`; $('flyerSpotFixOpen').style.display = 'block'; }
+ else $('flyerSpotFixOpen').style.display = 'none';
  $('flyerVisualPanel').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -3448,8 +3450,116 @@ async function flyerComposite() {
  // to 4 total: hero + headline + features + cta), and GPT Image 2's real
  // inference time grows with image count (confirmed live: ~94s with one
  // extra reference vs ~48s with none) — 180s covers even all three attached.
- pollJob(d.request_id, $('flyerFinalResult'), 'flyerCompositeNote', btn, label, 'image', 180);
+ pollJob(d.request_id, $('flyerFinalResult'), 'flyerCompositeNote', btn, label, 'image', 180, () => { $('flyerSpotFixOpen').style.display = 'block'; });
  } catch (e) { $('flyerFinalResult').innerHTML = '<div> ' + (e.message || 'Failed') + '</div>'; note('flyerCompositeNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
+}
+
+// ---------------- Flyer Studio: Spot Fix (circle a part, say what's
+// wrong, fix just that) ----------------
+// Draws directly on a canvas showing the current final flyer; every
+// point the user marks gets recorded in CANVAS-PIXEL space, then
+// collapsed to one bounding box and sent as FRACTIONS (0-1) of the
+// image's own width/height — resolution-independent, so it doesn't
+// matter how big the canvas was displayed at. flyer-spot-fix.js crops
+// that exact region (with padding for context) out of the full-res
+// original, edits just the crop, and job-status.js pastes it back in.
+let flyerSpotFixPoints = [];
+let flyerSpotFixCtx = null;
+let flyerSpotFixBaseImg = null;
+function flyerOpenSpotFix() {
+ if (preview) { showAuth('signup'); return; }
+ const img = $('flyerFinalResult').querySelector('img');
+ if (!img || !img.src) return note('flyerCompositeNote', 'Composite the final flyer first.', 'err');
+ note('flyerSpotFixNote', ''); $('flyerSpotFixInput').value = ''; flyerSpotFixPoints = [];
+ $('flyerSpotFixOverlay').style.display = 'flex';
+ // No crossOrigin needed here -- this canvas is only ever drawn to/
+ // displayed, never read back with getImageData (the actual crop happens
+ // server-side, fetched fresh in flyer-spot-fix.js), so there's nothing
+ // to gain from it except a real risk of the image failing to load at
+ // all if the storage host's CORS headers aren't exactly right.
+ const source = new Image();
+ source.onload = () => {
+ flyerSpotFixBaseImg = source;
+ const MAXW = 500;
+ const scale = Math.min(1, MAXW / source.naturalWidth);
+ const canvas = $('flyerSpotFixCanvas');
+ canvas.width = Math.round(source.naturalWidth * scale);
+ canvas.height = Math.round(source.naturalHeight * scale);
+ flyerSpotFixCtx = canvas.getContext('2d');
+ flyerSpotFixRedraw();
+ };
+ source.onerror = () => note('flyerSpotFixNote', 'Could not load the flyer image to draw on.', 'err');
+ source.src = img.src;
+}
+function flyerSpotFixRedraw() {
+ const canvas = $('flyerSpotFixCanvas');
+ const ctx = flyerSpotFixCtx;
+ if (!ctx || !flyerSpotFixBaseImg) return;
+ ctx.clearRect(0, 0, canvas.width, canvas.height);
+ ctx.drawImage(flyerSpotFixBaseImg, 0, 0, canvas.width, canvas.height);
+ if (flyerSpotFixPoints.length) {
+ ctx.save();
+ ctx.strokeStyle = 'rgba(245,197,24,.7)'; ctx.lineWidth = Math.max(14, canvas.width * 0.045);
+ ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+ ctx.beginPath();
+ flyerSpotFixPoints.forEach((p, i) => { if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y); });
+ ctx.stroke();
+ ctx.restore();
+ }
+}
+function flyerSpotFixPos(e, canvas) {
+ const rect = canvas.getBoundingClientRect();
+ const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
+ const cx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+ const cy = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+ return { x: cx * scaleX, y: cy * scaleY };
+}
+function flyerSpotFixWire() {
+ const canvas = $('flyerSpotFixCanvas');
+ let drawing = false;
+ const start = (e) => { drawing = true; flyerSpotFixPoints.push(flyerSpotFixPos(e, canvas)); flyerSpotFixRedraw(); e.preventDefault(); };
+ const move = (e) => { if (!drawing) return; flyerSpotFixPoints.push(flyerSpotFixPos(e, canvas)); flyerSpotFixRedraw(); e.preventDefault(); };
+ const end = () => { drawing = false; };
+ canvas.addEventListener('pointerdown', start);
+ canvas.addEventListener('pointermove', move);
+ window.addEventListener('pointerup', end);
+ $('flyerSpotFixClear').onclick = () => { flyerSpotFixPoints = []; flyerSpotFixRedraw(); };
+ $('flyerSpotFixClose').onclick = () => { $('flyerSpotFixOverlay').style.display = 'none'; };
+ $('flyerSpotFixGo').onclick = flyerSubmitSpotFix;
+}
+async function flyerSubmitSpotFix() {
+ if (!flyerSpotFixPoints.length) return note('flyerSpotFixNote', 'Draw over the part that needs fixing first.', 'err');
+ const instruction = $('flyerSpotFixInput').value.trim();
+ if (!instruction) return note('flyerSpotFixNote', 'Say what needs fixing there.', 'err');
+ const canvas = $('flyerSpotFixCanvas');
+ const xs = flyerSpotFixPoints.map((p) => p.x), ys = flyerSpotFixPoints.map((p) => p.y);
+ const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+ // A single tap (no drag) leaves min===max — give it a little real area
+ // instead of sending a zero-size region.
+ const padMin = Math.max(canvas.width, canvas.height) * 0.04;
+ const region = {
+ x: Math.max(0, minX - padMin) / canvas.width,
+ y: Math.max(0, minY - padMin) / canvas.height,
+ w: (Math.min(canvas.width, maxX + padMin) - Math.max(0, minX - padMin)) / canvas.width,
+ h: (Math.min(canvas.height, maxY + padMin) - Math.max(0, minY - padMin)) / canvas.height,
+ };
+ const btn = $('flyerSpotFixGo'); btn.disabled = true; btn.textContent = 'Submitting…';
+ note('flyerSpotFixNote', '');
+ try {
+ const res = await fetch('/.netlify/functions/flyer-spot-fix', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ project_id: flyerProjectId, region, instruction }),
+ });
+ const d = await res.json();
+ if (res.status === 402) { note('flyerSpotFixNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = 'Fix this spot →'; return; }
+ if (!res.ok) throw new Error(d.error || 'Failed');
+ if (d.credits != null) $('creditCount').textContent = d.credits;
+ $('flyerSpotFixOverlay').style.display = 'none';
+ $('flyerFinalResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Fixing that spot…</div></div>';
+ note('flyerCompositeNote', 'Fixing that spot… ⏳', 'ok');
+ pollJob(d.request_id, $('flyerFinalResult'), 'flyerCompositeNote', null, '', 'image', 180, () => { $('flyerSpotFixOpen').style.display = 'block'; });
+ btn.disabled = false; btn.textContent = 'Fix this spot →';
+ } catch (e) { note('flyerSpotFixNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = 'Fix this spot →'; }
 }
 
 // Three INDEPENDENT structure references — each clones only its own part
@@ -4607,6 +4717,8 @@ window.addEventListener('DOMContentLoaded', () => {
  $(ids[0]).onclick = () => $(ids[1]).click();
  $(ids[1]).onchange = (e) => { flyerPickCompositeRef(kind, e.target.files[0]); e.target.value = ''; };
  });
+ $('flyerSpotFixOpen').onclick = flyerOpenSpotFix;
+ flyerSpotFixWire();
  // Omni Studio
  { const ob = $('omniBack'); if (ob) ob.onclick = () => showView('home'); }
  document.querySelectorAll('[data-omni]').forEach((b) => b.onclick = () => omniSwitch(b.dataset.omni));

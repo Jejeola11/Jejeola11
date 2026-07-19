@@ -94,6 +94,28 @@ async function cropToAspect(buf, targetRatio) {
   return canvas.toBuffer('image/png');
 }
 
+// Draws `img` onto `ctx` at (x,y), resized to exactly (w,h), through a
+// radial-fade alpha mask instead of a hard rectangle — used to paste an
+// edited crop back into the image it came from (Flyer Studio's "spot fix"
+// tool) without a visible seam at the crop's edges. `destination-in`
+// keeps only the drawn pixels where the mask is opaque, so the crop's
+// outer ~35% fades to fully transparent before compositing onto the base.
+function pasteFeathered(ctx, img, x, y, w, h) {
+  const soft = createCanvas(w, h);
+  const sctx = soft.getContext('2d');
+  sctx.drawImage(img, 0, 0, w, h);
+  sctx.globalCompositeOperation = 'destination-in';
+  const cx = w / 2, cy = h / 2;
+  const outerR = Math.max(w, h) / 2;
+  const innerR = outerR * 0.65;
+  const grad = sctx.createRadialGradient(cx, cy, innerR, cx, cy, outerR);
+  grad.addColorStop(0, 'rgba(0,0,0,1)');
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+  sctx.fillStyle = grad;
+  sctx.fillRect(0, 0, w, h);
+  ctx.drawImage(soft, x, y);
+}
+
 // Word-wrap into lines that fit maxWidth at the given font.
 function wrapText(ctx, text, maxWidth) {
   const words = text.split(/\s+/);
@@ -350,5 +372,5 @@ function drawFooterBar(ctx, { text, width, y, height, accentColor, bg = '#0a0a0a
 module.exports = {
   createCanvas, loadImage, ensureFonts, FONT_ROLES,
   drawCover, wrapText, roundRect, drawHeadline, drawSubhead, drawInfoCard, drawBadge, drawFooterBar, drawCtaBanner, hexToRgba, cropToAspect,
-  drawGlassPanel, drawUnderlineSwipe, applyTextEffect, resetTextEffect,
+  drawGlassPanel, drawUnderlineSwipe, applyTextEffect, resetTextEffect, pasteFeathered,
 };
