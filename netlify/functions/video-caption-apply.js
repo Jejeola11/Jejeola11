@@ -12,7 +12,8 @@
 // while dialing in the style.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
-const { ensureWorkDir, cleanupTmp, downloadToFile, probeDimensions, overlayTimedImages, uploadToStorage } = require('./_ffmpeg');
+const { ensureWorkDir, cleanupTmp, downloadToFile, overlayTimedImages, uploadToStorage } = require('./_ffmpeg');
+const { probeDimensions } = require('./_ffprobe');
 const { chunkWords, extractWords, renderCaptionCard } = require('./_captions');
 const path = require('path');
 const fs = require('fs/promises');

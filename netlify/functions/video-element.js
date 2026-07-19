@@ -9,7 +9,8 @@
 // Studio's hero_image_url. Synchronous — a single ffmpeg overlay pass.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
-const { ensureWorkDir, cleanupTmp, downloadToFile, probeDimensions, overlayImageAtTime, uploadToStorage } = require('./_ffmpeg');
+const { ensureWorkDir, cleanupTmp, downloadToFile, overlayImageAtTime, uploadToStorage } = require('./_ffmpeg');
+const { probeDimensions } = require('./_ffprobe');
 const { loadImage, createCanvas } = require('./_canvas');
 const path = require('path');
 const fs = require('fs/promises');

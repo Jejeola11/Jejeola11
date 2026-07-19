@@ -1,10 +1,13 @@
 // ============================================================
-// Shared ffmpeg/ffprobe helpers for the Avatar Video pipeline.
-// Binaries come from @ffmpeg-installer/ffmpeg + @ffprobe-installer/ffprobe —
-// both are fully static builds distributed as plain npm packages (hosted on
-// registry.npmjs.org, not GitHub Releases), so they install cleanly in every
-// environment and need no system ffmpeg. netlify.toml force-includes both
-// binaries in the function bundle (see the `included_files` comment there).
+// Shared ffmpeg helpers for the Avatar Video pipeline. Binaries come from
+// @ffmpeg-installer/ffmpeg, a fully static build distributed as a plain npm
+// package, so it installs cleanly in every environment and needs no system
+// ffmpeg. netlify.toml force-includes it in the function bundle (see the
+// `external_node_modules` comment there).
+//
+// ffprobe-only helpers (probeDuration/probeDimensions) live in _ffprobe.js
+// instead, deliberately -- see that file's header for why keeping the two
+// binaries genuinely separable matters for bundle size.
 //
 // Netlify Functions only allow writes under /tmp — every helper here reads
 // and writes exclusively inside /tmp/avatar-video-<job>/ so concurrent jobs
@@ -18,7 +21,6 @@ const os = require('os');
 
 const execFileP = promisify(execFile);
 const FFMPEG = require('@ffmpeg-installer/ffmpeg').path;
-const FFPROBE = require('@ffprobe-installer/ffprobe').path;
 
 function workDir(jobId) {
   return path.join(os.tmpdir(), 'avvid-' + jobId);
@@ -50,18 +52,6 @@ async function ffmpeg(args) {
     const stderr = (e && e.stderr) ? String(e.stderr).slice(-2000) : '';
     throw new Error('ffmpeg failed: ' + (stderr || e.message));
   }
-}
-
-// Duration in seconds (float), via ffprobe's format JSON — exact, not parsed
-// from ffmpeg's human-readable banner.
-async function probeDuration(filePath) {
-  const { stdout } = await execFileP(FFPROBE, [
-    '-v', 'error', '-show_entries', 'format=duration', '-of', 'json', filePath,
-  ]);
-  const j = JSON.parse(stdout);
-  const d = parseFloat(j.format && j.format.duration);
-  if (!isFinite(d)) throw new Error('Could not read duration of ' + filePath);
-  return d;
 }
 
 // Extract a single frame at a given timestamp — used to pull the "master"
@@ -143,17 +133,6 @@ async function muxAudio(videoPath, audioPath, outPath) {
   return outPath;
 }
 
-// Get pixel dimensions (for sizing a CTA overlay to match exactly).
-async function probeDimensions(filePath) {
-  const { stdout } = await execFileP(FFPROBE, [
-    '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'json', filePath,
-  ]);
-  const j = JSON.parse(stdout);
-  const s = j.streams && j.streams[0];
-  if (!s) throw new Error('Could not read video dimensions of ' + filePath);
-  return { width: s.width, height: s.height };
-}
-
 // Composite a transparent PNG overlay (e.g. a CTA card/button rendered via
 // _canvas.js) over the full duration of a video — used to make a finished
 // clip ad-ready with a burned-in CTA for IG/TikTok/ad placements.
@@ -204,6 +183,6 @@ async function uploadToStorage(db, localPath, storagePath, contentType, bucket =
 
 module.exports = {
   workDir, ensureWorkDir, cleanupTmp, downloadToFile, ffmpeg,
-  probeDuration, probeDimensions, extractFrameAt, extractLastFrame, sliceAudio, concatAudio, concatVideos,
+  extractFrameAt, extractLastFrame, sliceAudio, concatAudio, concatVideos,
   muxAudio, overlayImageOnVideo, overlayImageAtTime, overlayTimedImages, uploadToStorage,
 };

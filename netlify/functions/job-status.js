@@ -7,7 +7,15 @@
 const { admin, getUser, json } = require('./_supabase');
 const { pollAny, synthesizeResemble, triggerTextWorker } = require('./_providers');
 const { cropToAspect } = require('./_canvas');
-const { splitScript, RESEMBLE_BATCH_CHARS } = require('./_avatar-video');
+// Deliberately from _speech-batch.js, NOT _avatar-video.js -- this function
+// is the single most frequently invoked one in the whole app (every job
+// polls it every few seconds), and _avatar-video.js pulls in ffprobe (via
+// probeDuration) that this file never actually needs; every extra native
+// binary a function's dependency graph touches gets its own full copy
+// bundled in (Netlify doesn't dedupe these across functions), so keeping
+// this specific import graph minimal has an outsized effect on total
+// deploy size. See _speech-batch.js's header.
+const { splitScript, RESEMBLE_BATCH_CHARS } = require('./_speech-batch');
 const { ensureWorkDir, cleanupTmp, concatAudio, uploadToStorage, downloadToFile, ffmpeg } = require('./_ffmpeg');
 const { muapiHostFile } = require('./_muapi');
 const { extractErrorMessage } = require('./_errors');

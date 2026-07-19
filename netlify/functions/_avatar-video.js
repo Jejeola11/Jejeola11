@@ -39,9 +39,14 @@
 // ============================================================
 const { submitAvatar, submitVideo, submitSpeech, synthesizeResemble, pollAny } = require('./_providers');
 const {
-  ensureWorkDir, cleanupTmp, downloadToFile, probeDuration,
+  ensureWorkDir, cleanupTmp, downloadToFile,
   extractLastFrame, sliceAudio, concatAudio, concatVideos, muxAudio, uploadToStorage,
 } = require('./_ffmpeg');
+const { probeDuration } = require('./_ffprobe');
+// Pure string-batching helpers, split into their own zero-dependency file so
+// job-status.js's Resemble branch can use them without pulling in this
+// entire (ffmpeg/ffprobe-heavy) module — see _speech-batch.js.
+const { splitScript, SPEECH_BATCH_CHARS, RESEMBLE_BATCH_CHARS } = require('./_speech-batch');
 
 const path = require('path');
 const fs = require('fs').promises;
@@ -53,38 +58,6 @@ const CHUNK_SECONDS = 8 * 60;
 // (it has no concept of "drive the length from audio" the way InfiniteTalk
 // does) — 10s keeps chunk count (and therefore generation calls) reasonable.
 const CHUNK_SECONDS_MOTION = 10;
-// Comfortably under the ~6,180-char length we confirmed WaveSpeed accepts at
-// submit time for a single omnivoice/voice-clone call.
-const SPEECH_BATCH_CHARS = 3000;
-// Resemble's sync /synthesize is a MUCH smaller ceiling than WaveSpeed's --
-// confirmed live 2026-07-17: a ~270-word (~1,650 char) single call came back
-// as an outright 504 from Resemble's own upstream, and a real ~300-word
-// script that DID return audio came back with words dropped/substituted and
-// at least one fully hallucinated phrase throughout the clip (not just at
-// one spot) -- a classic long-single-shot-TTS failure mode, not a markup
-// bug. Every short test (~50-350 chars) came back clean. Keeping batches
-// well under that failure zone.
-const RESEMBLE_BATCH_CHARS = 450;
-
-// Split a script into batches at sentence boundaries, each <= maxChars. A
-// single sentence longer than maxChars is hard-split (rare, but must not
-// throw).
-function splitScript(script, maxChars = SPEECH_BATCH_CHARS) {
-  const sentences = script.replace(/\s+/g, ' ').trim().match(/[^.!?]+[.!?]*\s*/g) || [script];
-  const batches = [];
-  let cur = '';
-  for (const s of sentences) {
-    if ((cur + s).length > maxChars && cur) { batches.push(cur.trim()); cur = ''; }
-    if (s.length > maxChars) {
-      // one giant sentence — hard-split it
-      for (let i = 0; i < s.length; i += maxChars) batches.push(s.slice(i, i + maxChars).trim());
-      continue;
-    }
-    cur += s;
-  }
-  if (cur.trim()) batches.push(cur.trim());
-  return batches.filter(Boolean);
-}
 
 async function refundAndFail(db, video, message) {
   try { if (video.credits) await db.rpc('add_credits', { uid: video.user_id, amount: video.credits, why: 'refund' }); } catch (e) {}

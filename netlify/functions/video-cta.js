@@ -13,7 +13,8 @@
 // you like while you dial in the wording.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
-const { ensureWorkDir, cleanupTmp, downloadToFile, probeDimensions, overlayImageOnVideo, uploadToStorage } = require('./_ffmpeg');
+const { ensureWorkDir, cleanupTmp, downloadToFile, overlayImageOnVideo, uploadToStorage } = require('./_ffmpeg');
+const { probeDimensions } = require('./_ffprobe');
 const { createCanvas, drawCtaBanner } = require('./_canvas');
 const path = require('path');
 
