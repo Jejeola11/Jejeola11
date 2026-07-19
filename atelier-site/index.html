@@ -150,6 +150,13 @@ section{padding:72px 0;position:relative}
 .skill-card .sk-tier{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--gold-2);background:rgba(245,197,24,.1);border:1px solid var(--line);border-radius:20px;padding:4px 11px;margin-bottom:8px}
 .skill-card p{color:var(--muted);font-size:13.5px;margin:0}
 
+/* ===== Offer bonuses (founding-cohort-only, sit directly under the tiers) ===== */
+.bonus-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:26px}
+.bonus-card{background:linear-gradient(160deg,rgba(245,197,24,.07),rgba(13,58,51,.3));border:1px solid var(--line);border-radius:18px;padding:22px}
+.bonus-card .bonus-ic{font-size:24px}
+.bonus-card h4{font-size:15.5px;margin:10px 0 6px}
+.bonus-card p{color:var(--muted);font-size:13.5px;margin:0;line-height:1.55}
+
 /* ===== Pricing ===== */
 .tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px;margin-top:34px;align-items:start}
 .tier{position:relative;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);border-radius:24px;padding:28px 24px;transition:transform .2s}
@@ -390,12 +397,13 @@ footer a{color:var(--gold)}
   </div>
 </section>
 
-<!-- ===== PRICING ===== -->
+<!-- ===== PRICING / OFFER ===== -->
 <section id="pricing">
   <div class="wrap">
     <span class="kick">What you're getting</span>
     <h2 class="sec-h">The Complete <span class="goldgrad">AI Creative Income System.</span></h2>
     <p class="sec-sub">Not just a course. The skill, the AI studio to create it, and the Money Engine to get paid for it — every tier below is complete on its own, nothing held back for a future upgrade. One-time payment — not a subscription.</p>
+    <p class="sec-sub" style="margin-top:12px">This isn't really ₦10,000–₦70,000 for lessons and credits. It's the price of your first piece of undeniable proof — the moment you stop being "someone trying to figure out AI" and become someone who gets paid for a real skill. Your first payment is proof you can show the people who doubted you. It's the screenshot that makes your next sale easier. And it's what finally gives you permission to charge properly for your work — instead of underpricing out of self-doubt.</p>
 
     <div class="tiers">
       <div class="tier rv">
@@ -447,19 +455,39 @@ footer a{color:var(--gold)}
       </div>
     </div>
     <p class="anchor-note">The old Fuse Atelier sold for <b>₦60,000</b> with less inside it. This is the launch price for the merged 2.0 version — <b>once the cohort fills, it moves to full price.</b></p>
-  </div>
-</section>
 
-<!-- ===== GUARANTEE ===== -->
-<section class="demo">
-  <div class="wrap">
-    <div class="guarantee rv">
+    <div class="bonus-grid">
+      <div class="bonus-card rv">
+        <span class="bonus-ic">🎯</span>
+        <h4>Done-for-you outreach pack</h4>
+        <p>Enroll this week and get a first outreach message pack written for your exact niche, so day one isn't a blank page. You don't start by figuring out what to say — you start by sending something that already works.</p>
+      </div>
+      <div class="bonus-card rv">
+        <span class="bonus-ic">🏅</span>
+        <h4>Founding cohort badge</h4>
+        <p>This batch is the founding cohort of the merged Atelier. Founding members get a badge marking them as one of the first through the new version — visible in the community and on the wins wall. Once this cohort closes, that status is gone.</p>
+      </div>
+      <div class="bonus-card rv">
+        <span class="bonus-ic">🏆</span>
+        <h4>Featured on the wins wall</h4>
+        <p>Land your first client in your first 14 days and you're featured on the wins wall — the same wall of real names and real screenshots on this page. Not just a customer. Proof, with your name on it.</p>
+      </div>
+    </div>
+
+    <div class="guarantee rv" style="margin-top:32px">
       <div class="shield">🛡️</div>
       <div>
         <h3>The "We Don't Leave You" Guarantee</h3>
-        <p>Finish the 7-day plan and send 30 documented pitches with our scripts (your coach bot tracks them automatically). If you haven't landed a client within 30 days, <b class="gold">we work with you 1-on-1, free, until you do.</b> You cannot fall through the cracks — the system literally won't let you.</p>
+        <p>Finish the 7-day plan, send your 30 pitches — and if you haven't landed a client in 30 days, <b class="gold">we work with you 1-on-1, free, until you do.</b> You cannot fall through the cracks — the system literally won't let you.</p>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ===== URGENCY ===== -->
+<section class="demo rv">
+  <div class="wrap" style="max-width:680px;text-align:center;margin-left:auto;margin-right:auto">
+    <p style="font-size:16px;color:var(--ink)">These three things exist only for this cohort. The badge won't be given to a later batch — it wouldn't mean "founding" anymore if it was. Once this round closes, this exact offer closes with it.</p>
   </div>
 </section>
 
@@ -515,11 +543,11 @@ footer a{color:var(--gold)}
     <span class="kick">Questions, answered straight</span>
     <h2 class="sec-h">Everything you're thinking, <span class="goldgrad">answered.</span></h2>
     <div style="margin-top:24px">
+      <details><summary>Is this another "make money online" scam?</summary><p>Fair question — this market is full of them. Here's the difference: our instructor's earnings are verifiable (live Upwork profile, 12 jobs, $4,000+), student wins are named and contactable, checkout is via Paystack (not some untraceable wallet), and the guarantee is written above in plain language. Judge us on that.</p></details>
       <details><summary>Can I really do this with just my phone?</summary><p>Yes — every skill is taught and executed phone-first. Fuse Studio runs in your browser, lessons are short and downloadable, and we state the data budget of each module upfront so nothing surprises you.</p></details>
       <details><summary>Do I need to buy AI tools separately?</summary><p>No. That's the whole point. Fuse Studio — image, video, avatar and AI-writing engines — is inside the product, with credits included in every tier. No dollar subscriptions, no extra tools.</p></details>
       <details><summary>What exactly are "studio credits"?</summary><p>Credits are what you spend inside Fuse Studio to generate something — one flyer hero image, one product photo, one video, etc. They're not a subscription fee; you just spend them as you create. A full flyer (hero image + finished design) runs about 16 credits, so Starter's 100 credits covers roughly 6 full flyers to build your first portfolio — Creator's 400 stretches across every skill you unlock. If you run out, you can top up or upgrade anytime; you're never locked out mid-course.</p></details>
       <details><summary>How fast will I actually make money?</summary><p>The plan targets your first paying client within 7 days (clients pay $10–$50 for flyers and product shots). $500 stacks up over your first weeks as you repeat and raise prices. Top students hit it faster — but we promise what the average committed student achieves, not the lottery ticket.</p></details>
-      <details><summary>Is this another "make money online" scam?</summary><p>Fair question — this market is full of them. Here's the difference: our instructor's earnings are verifiable (live Upwork profile, 12 jobs, $4,000+), student wins are named and contactable, checkout is via Paystack (not some untraceable wallet), and the guarantee is written above in plain language. Judge us on that.</p></details>
       <details><summary>How do I receive dollars in Nigeria?</summary><p>It's taught inside the Money Engine: setting up Grey or Raenest for free USD accounts, Payoneer for marketplaces, and pricing/invoicing so foreign clients can actually pay you. Nobody else teaches this part properly.</p></details>
       <details><summary>What if I'm a complete beginner?</summary><p>The course assumes zero experience. Orientation takes 20 minutes, your first AI generation happens in lesson one, and every skill is broken into short, focused lessons before you're selling it.</p></details>
       <details><summary>Can I upgrade my tier later?</summary><p>Yes — you pay only the difference, and your progress, credits and community access carry over. Most students start where their budget is and upgrade after their first client pays.</p></details>
