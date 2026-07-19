@@ -3009,7 +3009,7 @@ async function flyerPickRefs(files) {
 // tagged into an explicit numbered instruction for the image model.
 // Untagged ("General") references still work exactly as before.
 const FLYER_REF_ROLES = [
- ['', 'General'], ['subject', 'Exact subject'], ['background', 'Background'],
+ ['', 'General'], ['hero', 'Hero structure'], ['subject', 'Exact subject'], ['background', 'Background'],
  ['layout', 'Layout'], ['headline', 'Headline area'], ['features', 'Features area'], ['cta', 'CTA area'],
 ];
 function renderFlyerRefs() {

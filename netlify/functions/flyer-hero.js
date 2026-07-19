@@ -49,6 +49,7 @@ const FALLBACK_I2I = 'nano-banana-edit';
 // flyer-composite.js's job) -- tagging a reference with one of those roles
 // means "leave the right kind of open space", not "render this text".
 const ROLE_LABELS = {
+  hero: 'HERO IMAGE STRUCTURE reference — replicate this image\'s exact overall staging: camera angle, framing, product positioning and negative space for the whole shot (not just one element) — substituting in the correct subject from another tagged reference where applicable',
   subject: 'EXACT SUBJECT/PRODUCT reference — use this exact subject, matching its color, shape and identity precisely',
   background: 'BACKGROUND/TEXTURE reference — use this exact texture or material as the background',
   layout: 'LAYOUT/COMPOSITION reference — replicate how elements are arranged in this image (substituting in the correct subject from another tagged reference where applicable)',
