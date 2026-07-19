@@ -104,21 +104,6 @@ section{padding:72px 0;position:relative}
 .shift h3{font-size:clamp(20px,3.4vw,28px);margin-bottom:10px}
 .shift p{color:#C7D8D3;max-width:680px;margin:0 auto}
 
-/* ===== Skill explorer ===== */
-.fam-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:26px 0 20px}
-.fam-tab{border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--ink);border-radius:30px;padding:10px 16px;font-weight:700;font-size:13.5px;cursor:pointer;transition:all .15s}
-.fam-tab.active{background:linear-gradient(120deg,#F5C518,#D4A017);color:#1a1200;border-color:transparent;box-shadow:0 3px 18px rgba(245,197,24,.35)}
-.fam-panel{display:none}
-.fam-panel.active{display:block;animation:fadeUp .35s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.skill-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
-.skill-card{position:relative;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:20px;transition:transform .18s,border-color .18s,box-shadow .18s;overflow:hidden}
-.skill-card:hover{transform:translateY(-4px);border-color:var(--gold);box-shadow:0 10px 34px rgba(245,197,24,.14)}
-.skill-card .badge{position:absolute;top:14px;right:14px;font-size:10px;font-weight:800;letter-spacing:.06em;background:var(--gold);color:#1a1200;border-radius:20px;padding:3px 9px}
-.skill-card h4{font-size:16.5px;margin-bottom:6px;padding-right:52px}
-.skill-card p{color:var(--muted);font-size:13.8px;margin-bottom:12px}
-.skill-card .pay{display:inline-block;font-size:12.5px;font-weight:800;color:var(--gold-2);background:rgba(245,197,24,.08);border:1px solid var(--line);padding:4px 10px;border-radius:20px}
-.skill-card .tier-tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--teal-1);background:var(--gold-2);padding:3px 9px;border-radius:20px;margin-bottom:10px}
 .fam-note{margin-top:16px;color:var(--muted);font-size:13.5px}
 
 .demo{background:var(--teal-0)}
@@ -224,7 +209,6 @@ footer a{color:var(--gold)}
     <p class="sub" style="margin-top:-14px;font-size:14.5px;color:var(--muted)">No client after the 7-day plan and 30 documented pitches? We work with you 1-on-1, free, until you land one. Real Upwork earnings, Paystack checkout, named students — not another "make money online" scam page.</p>
     <div class="cta-row">
       <a class="btn btn-gold" href="#pricing">Start earning this week →</a>
-      <a class="btn btn-ghost" href="#skills">See the skill families</a>
     </div>
     <div class="trust-strip">
       <span>🎓 <b>6 skill families</b>, bite-sized lessons</span>
@@ -349,75 +333,6 @@ footer a{color:var(--gold)}
   </div>
 </section>
 
-<!-- ===== SKILL EXPLORER ===== -->
-<section id="skills">
-  <div class="wrap">
-    <span class="kick">Pick your money skill</span>
-    <h2 class="sec-h">Six skill families. <span class="goldgrad">Bite-sized lessons</span> — then you sell it.</h2>
-    <p class="sec-sub">Tap a family. Every skill shows what clients actually pay for it. Learn ONE, monetize it the same week, then stack the next.</p>
-
-    <div class="fam-tabs" id="famTabs">
-      <button class="fam-tab active" data-f="a">🎨 Design & Flyers</button>
-      <button class="fam-tab" data-f="b">🎯 Brand Identity</button>
-      <button class="fam-tab" data-f="c">📦 Product & E-commerce</button>
-      <button class="fam-tab" data-f="d">🎬 Video & Motion</button>
-      <button class="fam-tab" data-f="e">🌐 Web & Funnels</button>
-      <button class="fam-tab" data-f="f">💰 The Money Engine</button>
-    </div>
-
-    <div class="fam-panel active" data-f="a">
-      <div class="skill-grid">
-        <div class="skill-card"><span class="badge">FASTEST $</span><h4>Social media & event flyers</h4><span class="tier-tag">Starter+</span><p>Parties, businesses, promos — the most requested design job in Nigeria, made in minutes. A full 21-lesson flagship course, not a quick overview.</p><span class="pay">clients pay $10–$50</span></div>
-      </div>
-      <p class="fam-note">Included in every tier — this skill plus the Money Engine is how Starter students land week-one clients.</p>
-    </div>
-
-    <div class="fam-panel" data-f="b">
-      <div class="skill-grid">
-        <div class="skill-card"><h4>Logo & brand kits</h4><span class="tier-tag">Creator+</span><p>Logo, colours, fonts and a brand board delivered as one premium package.</p><span class="pay">$50–$200</span></div>
-        <div class="skill-card"><h4>Brand stationery</h4><span class="tier-tag">Creator+</span><p>Business cards, letterheads, email signatures — the easy add-on sale.</p><span class="pay">$20–$65</span></div>
-        <div class="skill-card"><h4>Brand voice & captions</h4><span class="tier-tag">Creator+</span><p>Bios, taglines and 30-day content calendars written with Fuse Reactor.</p><span class="pay">$35–$100</span></div>
-      </div>
-    </div>
-
-    <div class="fam-panel" data-f="c">
-      <div class="skill-grid">
-        <div class="skill-card"><span class="badge">HOT</span><h4>AI product photography</h4><span class="tier-tag">Creator+</span><p>One phone photo → studio-grade product shots. Every seller on Instagram needs this.</p><span class="pay">$10–$20/shot</span></div>
-        <div class="skill-card"><h4>Product ads & campaign shots</h4><span class="tier-tag">Creator+</span><p>Lifestyle scenes and seasonal campaign visuals that sell out stock.</p><span class="pay">$35–$130/set</span></div>
-        <div class="skill-card"><h4>Packaging & label design</h4><span class="tier-tag">Creator+</span><p>Labels, boxes and pouch mockups for small brands going premium.</p><span class="pay">$70–$250</span></div>
-        <div class="skill-card"><span class="badge">VIRAL</span><h4>CGI ads</h4><span class="tier-tag">Creator+</span><p>The "impossible" product videos — a giant product landing in the street. Brands love these.</p><span class="pay">$150–$600</span></div>
-      </div>
-    </div>
-
-    <div class="fam-panel" data-f="d">
-      <div class="skill-grid">
-        <div class="skill-card"><span class="badge">HOT</span><h4>AI UGC ads</h4><span class="tier-tag">Creator+</span><p>Testimonial-style video ads — without ever showing your face. Brands pay in dollars.</p><span class="pay">$50–150/video</span></div>
-        <div class="skill-card"><span class="badge">NEW</span><h4>Clone yourself — hyper-real avatar videos</h4><span class="tier-tag">Creator+</span><p>Upload one video of yourself, generate unlimited videos with your exact face in any scene. So real nobody can tell.</p><span class="pay">$100–500/video</span></div>
-        <div class="skill-card"><h4>Advert videos</h4><span class="tier-tag">Creator+</span><p>Script → scenes → final cut. Full short-form ads for local and foreign clients.</p><span class="pay">$100–$500</span></div>
-        <div class="skill-card"><h4>Cinematic brand films</h4><span class="tier-tag">Empire</span><p>Premium storytelling videos for bigger clients and agencies.</p><span class="pay">$300+</span></div>
-      </div>
-    </div>
-
-    <div class="fam-panel" data-f="e">
-      <div class="skill-grid">
-        <div class="skill-card"><h4>Landing pages</h4><span class="tier-tag">Empire</span><p>One-page business sites built and delivered in a day — the DemoForge method.</p><span class="pay">$150–$800</span></div>
-        <div class="skill-card"><h4>Email design & sequences</h4><span class="tier-tag">Empire</span><p>Welcome and sales emails businesses pay for monthly.</p><span class="pay">$70–$250/month</span></div>
-        <div class="skill-card"><span class="badge">PREMIUM</span><h4>Interactive "wow" pages</h4><span class="tier-tag">Empire</span><p>Scroll-effect, cursor-reactive premium sites — like this very page you're on.</p><span class="pay">$500+</span></div>
-      </div>
-      <p class="fam-note">Yes — this page you're scrolling is an example of the skill. That's the standard.</p>
-    </div>
-
-    <div class="fam-panel" data-f="f">
-      <div class="skill-grid">
-        <div class="skill-card"><span class="badge">EVERY TIER</span><h4>The First-Client System</h4><span class="tier-tag">All tiers</span><p>The 7-day plan: pick one skill, build 3 portfolio pieces, run the outreach playbooks, get paid.</p><span class="pay">outcome: first client</span></div>
-        <div class="skill-card"><h4>Client playbooks — WhatsApp, IG, Facebook, TikTok, walk-ins</h4><span class="tier-tag">All tiers</span><p>Exact scripts and daily numbers for every channel that works in Nigeria — plus diaspora & foreign clients by email.</p><span class="pay">outcome: pipeline</span></div>
-        <div class="skill-card"><span class="badge">PROVEN</span><h4>Upwork — taught from real wins</h4><span class="tier-tag">Creator+</span><p>Your instructor has landed 12 Upwork jobs worth $4,000+. The exact profile, proposals and pricing that did it.</p><span class="pay">$50–500/job</span></div>
-        <div class="skill-card"><h4>Get paid & scale</h4><span class="tier-tag">All tiers</span><p>Receiving dollars in Nigeria (Grey, Raenest, Payoneer), pricing in ₦ and $, retainers, repeat clients.</p><span class="pay">outcome: keep 100%</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ===== FAQ ===== -->
 <section>
   <div class="wrap" style="max-width:760px">
@@ -476,13 +391,6 @@ footer a{color:var(--gold)}
     hero.appendChild(s);
   }
 })();
-
-// ============ Skill family tabs ============
-document.getElementById('famTabs').addEventListener('click', function(e){
-  var b = e.target.closest('.fam-tab'); if (!b) return;
-  document.querySelectorAll('.fam-tab').forEach(function(t){ t.classList.toggle('active', t === b); });
-  document.querySelectorAll('.fam-panel').forEach(function(p){ p.classList.toggle('active', p.dataset.f === b.dataset.f); });
-});
 
 // ============ Reveal on scroll ============
 (function(){
