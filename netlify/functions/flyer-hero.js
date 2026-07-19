@@ -2,19 +2,26 @@
 // POST /.netlify/functions/flyer-hero   (Flyer Studio — generate hero visual)
 // Body: { project_id, prompt, aspect }
 // Generates the background/hero visual ONLY (no text/logos — that's
-// composited afterward via flyer-composite.js). Uses Nano Banana Pro
-// (Gemini 3.0 Pro Image, routed through WaveSpeed) per Ria's explicit
-// request — the final text-compositing pass (flyer-composite.js) stays on
-// GPT Image 2; only hero + layer generation moved. Falls back to
-// nano-banana-2 (still Google's own model family) only if WAVESPEED_KEY
-// isn't configured. When the project has
-// reference images attached (product photos, inspiration flyers — up to 20,
-// set at flyer-brief.js time), uses the image-to-image (edit) variant so
-// those refs are REAL visual grounding on the actual generation, not just
-// something discussed in the abstract; with no references, falls back to
-// plain text-to-image.
+// composited afterward via flyer-composite.js). Back on GPT Image 2
+// (routed through WaveSpeed), matching flyer-composite.js — moved to Nano
+// Banana Pro earlier this session, but multi-reference generations (e.g. a
+// product photo + a separate layout reference + a texture reference, each
+// meant to contribute a different, specific thing) came back not actually
+// grounded in what was attached, even after tightening the prompt with an
+// explicit numbered reference mapping (see flyer-brief.js) -- confirmed via
+// a real side-by-side test. GPT Image 2 is the model this app already
+// trusts for exactly that job (flyer-composite.js's own text-compositing
+// pass never left it), so hero + layer generation move back to it too.
+// When the project has reference images attached (product photos,
+// inspiration flyers — up to 20, set at flyer-brief.js time), uses the
+// image-to-image (edit) variant so those refs are REAL visual grounding on
+// the actual generation, not just something discussed in the abstract;
+// with no references, falls back to plain text-to-image.
 // Async submit + poll via job-status.js, which saves the result onto the
-// project (flyer_projects.hero_image_url) when it completes.
+// project (flyer_projects.hero_image_url) when it completes. job-status.js
+// already center-crops GPT Image 2's 3 fixed native sizes down to the
+// exact aspect ratio requested (see its fixFlyerAspect) for every
+// flyer-hero job regardless of model, so no extra wiring was needed here.
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { IMAGE_MODELS, canUseFree } = require('./_packs');
@@ -22,17 +29,14 @@ const { muapiHostImage } = require('./_muapi');
 const { submitFlyerImage, hasWaveSpeed } = require('./_providers');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
-const MODEL_T2I = 'nano-banana-pro-ws-text-to-image';
-const MODEL_I2I = 'nano-banana-pro-ws-edit';
+const MODEL_T2I = 'gpt-image-2-ws-text-to-image';
+const MODEL_I2I = 'gpt-image-2-ws-edit';
 // Fallback (MuAPI, only used if WAVESPEED_KEY is missing) stays on the
-// original nano-banana slugs -- these are real, confirmed MuAPI model
-// names; MuAPI doesn't host Nano Banana Pro, so this is just a safety
-// net, not the model Ria asked for on the main route above.
+// nano-banana slugs, matching flyer-composite.js's own fallback choice --
+// MuAPI's GPT Image 2 route isn't wired up as a fallback here, nano-banana
+// is just the app-wide safety net when WaveSpeed itself is unavailable.
 const FALLBACK_T2I = 'nano-banana';
 const FALLBACK_I2I = 'nano-banana-edit';
-// Nano Banana Pro (via WaveSpeed) takes a real aspect_ratio enum directly
-// (confirmed live via validation-error probing) — same as the GPT Image 2
-// route this replaced, no center-crop-after-generation workaround needed.
 
 exports.handler = async (event) => {
   let db, user, cost = 0;

@@ -7,11 +7,12 @@
 //   this endpoint just makes sure the image(s) are actually in front of the
 //   model when it edits.
 // Adds ONE requested visual layer to the project's current working image
-// via Nano Banana Pro's edit variant, routed through WaveSpeed (matches
-// flyer-hero.js — Ria's explicit request; falls back to nano-banana-edit
-// on MuAPI only if WAVESPEED_KEY isn't configured), using the current
-// hero image as the primary reference so
-// everything already in place is preserved — plus this call's attached
+// via GPT Image 2's edit variant, routed through WaveSpeed (matches
+// flyer-hero.js — both moved back from Nano Banana Pro after real
+// multi-reference generations weren't actually grounded in what was
+// attached; falls back to nano-banana-edit on MuAPI only if WAVESPEED_KEY
+// isn't configured), using the current hero image as the primary reference
+// so everything already in place is preserved — plus this call's attached
 // images, plus a few of the project's original reference images, so
 // product identity doesn't drift over successive edits. This is for
 // organic/photographic layers only — text, logos, and legible signage are
@@ -26,7 +27,7 @@ const { muapiHostImage } = require('./_muapi');
 const { submitFlyerImage, hasWaveSpeed } = require('./_providers');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
-const MODEL = 'nano-banana-pro-ws-edit';
+const MODEL = 'gpt-image-2-ws-edit';
 const FALLBACK_MODEL = 'nano-banana-edit';
 // Total across hero + this call's attachments + project refs. Was 5 out of
 // caution — raised to 10 now that GPT Image 2's real edit endpoint (via
