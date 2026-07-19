@@ -425,7 +425,7 @@ async function pollAllPendingJobs() {
  const snapshot = [...pendingJobs];
  for (const job of snapshot) {
  try {
- const path = job.endpoint === 'avatar-video-status' ? `avatar-media?id=${job.request_id}` : `job-status?id=${job.request_id}`;
+ const path = job.endpoint === 'avatar-video-status' ? `media-pipeline?id=${job.request_id}` : `job-status?id=${job.request_id}`;
  const r = await fetch(`/.netlify/functions/${path}`, { headers: { ...(await authHeader()) } });
  const d = await r.json();
  const done = job.endpoint === 'avatar-video-status' ? d.stage === 'complete' : d.status === 'completed';
@@ -2427,7 +2427,7 @@ window.fuseDeleteAvatarPhoto = async (url) => {
  if (count <= 1) return note('avManageNote', 'An avatar needs at least one training photo.', 'err');
  if (!confirm('Remove this training photo?')) return;
  try {
- const res = await fetch('/.netlify/functions/avatar-media', {
+ const res = await fetch('/.netlify/functions/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ action: 'train', avatar_id: selectedAvatar, remove_photo_url: url }),
  });
@@ -2545,7 +2545,7 @@ async function avSaveEngine() {
  body.resemble_voice_uuid = uuid;
  }
  try {
- const res = await fetch('/.netlify/functions/avatar-media', {
+ const res = await fetch('/.netlify/functions/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify(body),
  });
@@ -2565,7 +2565,7 @@ async function uploadAvatarVoice(file) {
  if (upErr) throw upErr;
  const url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
  const refText = ($('avVoiceRefText') && $('avVoiceRefText').value.trim()) || '';
- const res = await fetch('/.netlify/functions/avatar-media', {
+ const res = await fetch('/.netlify/functions/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ action: 'train', avatar_id: selectedAvatar, voice_sample_url: url, voice_reference_text: refText }),
  });
@@ -2586,7 +2586,7 @@ async function uploadAvatarTrainingVideo(file) {
  if (upErr) throw upErr;
  const url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
  note('avFaceVideoNote', 'Training… this can take a moment ⏳', 'ok');
- const res = await fetch('/.netlify/functions/avatar-media', {
+ const res = await fetch('/.netlify/functions/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ action: 'train', avatar_id: selectedAvatar, source_video_url: url }),
  });
@@ -2658,7 +2658,7 @@ async function avvGenerate() {
  $('avvCtaWrap').style.display = 'none';
  note('avvNote', '');
  try {
- const res = await fetch('/.netlify/functions/avatar-media', {
+ const res = await fetch('/.netlify/functions/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({
  action: 'create', avatar_id: selectedAvatar, script, mode, camera_motion: mode === 'motion' ? cameraMotion : undefined,
@@ -2690,7 +2690,7 @@ function pollAvatarVideo(id, btn, label) {
  const timer = setInterval(async () => {
  s += 10;
  try {
- const r = await fetch(`/.netlify/functions/avatar-media?id=${id}`, { headers: { ...(await authHeader()) } });
+ const r = await fetch(`/.netlify/functions/media-pipeline?id=${id}`, { headers: { ...(await authHeader()) } });
  const d = await r.json();
  if (d.stage === 'complete') {
  clearInterval(timer);
@@ -2721,7 +2721,7 @@ async function avvAddCta() {
  const btn = $('avvAddCta'); btn.disabled = true; btn.textContent = 'Adding…';
  note('avvCtaNote', '');
  try {
- const res = await fetch('/.netlify/functions/video-overlay', {
+ const res = await fetch('/.netlify/functions/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ type: 'cta', video_url: avvLastUrl, cta_text: ctaText }),
  });
@@ -3695,7 +3695,7 @@ async function editApplyCaptions() {
  $('editResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Applying captions…</div></div>';
  note('editCaptionNote', '');
  try {
- const res = await fetch('/.netlify/functions/video-overlay', {
+ const res = await fetch('/.netlify/functions/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({
   type: 'caption',
@@ -3725,7 +3725,7 @@ async function editAddElement() {
  if (error) throw error;
  const imgUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
  note('editElementNote', 'Compositing…', 'ok');
- const res = await fetch('/.netlify/functions/video-overlay', {
+ const res = await fetch('/.netlify/functions/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ type: 'element', project_id: editProjectId, image_url: imgUrl, start_sec: parseFloat($('editElStart').value), duration_sec: parseFloat($('editElDur').value), position: $('editElPos').value }),
  });
@@ -3743,7 +3743,7 @@ async function editApplyCta() {
  const btn = $('editApplyCta'); btn.disabled = true; btn.textContent = 'Finishing…';
  note('editCtaNote', '');
  try {
- const res = await fetch('/.netlify/functions/video-overlay', {
+ const res = await fetch('/.netlify/functions/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ type: 'cta', project_id: editProjectId, cta_text: ctaText, accent_color: $('editAccentColor').value }),
  });
