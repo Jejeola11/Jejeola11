@@ -141,6 +141,15 @@ section{padding:72px 0;position:relative}
 .win-sub{color:var(--muted);font-size:13px;margin-top:-8px}
 .win-tag{display:inline-block;align-self:flex-start;background:rgba(245,197,24,.1);border:1px solid var(--line);color:var(--gold-2);font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:5px 12px;border-radius:20px}
 
+/* ===== Skills (trimmed, expand-to-reveal) ===== */
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:26px}
+.skill-card{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:18px;padding:22px}
+.skill-card.skill-hidden{display:none}
+.skill-card .sk-ic{font-size:26px}
+.skill-card h4{font-size:16px;margin:10px 0 6px}
+.skill-card .sk-tier{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--gold-2);background:rgba(245,197,24,.1);border:1px solid var(--line);border-radius:20px;padding:4px 11px;margin-bottom:8px}
+.skill-card p{color:var(--muted);font-size:13.5px;margin:0}
+
 /* ===== Pricing ===== */
 .tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px;margin-top:34px;align-items:start}
 .tier{position:relative;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);border-radius:24px;padding:28px 24px;transition:transform .2s}
@@ -231,22 +240,89 @@ footer a{color:var(--gold)}
   <div class="hero-front" id="heroFront" aria-hidden="true"></div>
   <div class="hero-in">
     <span class="kick">Online course · AI studio · client system — all in one</span>
-    <h1>You've watched everyone else <span class="goldgrad">cash out with AI</span> — while you're still stuck figuring out where to even start.</h1>
-    <p class="sub what-is">Fuse Atelier is a step-by-step <b class="gold">course</b> that teaches you ONE paid AI skill — flyer design, product photography, AI video ads and more — then gives you the AI studio to create it and the exact scripts to find clients who'll pay for it. All on your phone.</p>
-    <p class="sub">Every week without a sellable skill is a week someone else takes the client that could've been yours. Land your first paying client in <b class="gold">7 days</b> — imagine that payment hitting your account this time next week.</p>
-    <p class="sub" style="margin-top:-14px;font-size:14.5px;color:var(--muted)">No client after the 7-day plan and 30 documented pitches? We work with you 1-on-1, free, until you land one. Real Upwork earnings, Paystack checkout, named students — not another "make money online" scam page.</p>
+    <h1>Everyone Else is Making Money With AI… <span class="goldgrad">So Why Am I Still Stuck?</span></h1>
+    <p class="sub">If you've ever asked yourself this, here's the truth: it's not that you're behind, and it's not that you're missing some tool everyone else found — you just need a simple, step-by-step plan that actually shows you how to get paid.</p>
+    <div class="trust-strip">
+      <span>🎓 <b>6 skill families</b></span>
+      <span>🛠 <b>Studio included</b></span>
+      <span>📈 <b>12 Upwork jobs</b></span>
+      <span>🔒 <b>Paystack secured</b></span>
+    </div>
     <div class="cta-row">
       <a class="btn btn-gold" href="#pricing">Start earning this week →</a>
-    </div>
-    <div class="trust-strip">
-      <span>🎓 <b>6 skill families</b>, bite-sized lessons</span>
-      <span>🛠 <b>Studio included</b> — no extra tools to buy</span>
-      <span>📈 Taught by a creator with <b>12 Upwork jobs · $4,000+</b> earned</span>
-      <span>🔒 <b>Paystack</b> secured checkout</span>
     </div>
   </div>
   <div class="hint">✨ this flyer was made with Fuse Studio — the studio you get</div>
 </header>
+
+<!-- ===== AGITATE (the emotional bridge — nothing about the product yet) ===== -->
+<section class="rv">
+  <div class="wrap" style="max-width:720px;text-align:center;margin-left:auto;margin-right:auto">
+    <h2 class="sec-h">You've watched the videos. Tried a few tools. <span class="goldgrad">Still nothing turned into money.</span></h2>
+    <p class="sec-sub" style="margin:0 auto">Meanwhile it feels like everyone around you has cracked something you haven't. Same internet. Same tools. Different results.</p>
+    <p class="sec-sub" style="margin:14px auto 0">Here's what's actually going on: you don't need another tutorial or another app. You need one skill, and a real plan for turning it into someone paying you — because that part is usually what's missing, not the AI itself.</p>
+  </div>
+</section>
+
+<!-- ===== SOLUTION ===== -->
+<section class="demo rv">
+  <div class="wrap" style="max-width:720px;text-align:center;margin-left:auto;margin-right:auto">
+    <h2 class="sec-h">Fuse Atelier is <span class="goldgrad">two things in one.</span></h2>
+    <p class="sec-sub" style="margin:0 auto">A course that teaches you one AI skill, and a built-in AI studio — the actual tool you use to make things — already inside, credits included. No separate app to download, no $30/month subscription to find. You learn the skill and use the tool in the same place.</p>
+    <p class="sec-sub" style="margin:14px auto 0">And it doesn't stop at "here's how to make something." Every tier includes the <b class="gold">Money Engine</b> — the exact scripts and 7-day plan that turns what you can now make into someone actually paying you for it.</p>
+    <p style="margin:18px 0 0;font-weight:700;color:var(--ink)">First $500 in 30 days — or we work with you free until you get there.</p>
+    <div class="cta-row" style="margin-top:20px">
+      <a class="btn btn-gold" href="#pricing">Start earning this week →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SKILLS (trimmed — optional depth, not a wall everyone has to get through) ===== -->
+<section class="rv">
+  <div class="wrap">
+    <span class="kick">Pick your money skill</span>
+    <h2 class="sec-h">Six skill families. <span class="goldgrad">Bite-sized lessons — then you sell it.</span></h2>
+    <div class="skills-grid" id="skillsGrid">
+      <div class="skill-card">
+        <span class="sk-ic">🎨</span>
+        <h4>Social media & event flyers</h4>
+        <div class="sk-tier">Starter+</div>
+        <p>Clients pay $10–$50</p>
+      </div>
+      <div class="skill-card">
+        <span class="sk-ic">📸</span>
+        <h4>AI product photography</h4>
+        <div class="sk-tier">🔒 Unlocks in Creator</div>
+        <p>$10–$20/shot</p>
+      </div>
+      <div class="skill-card">
+        <span class="sk-ic">💰</span>
+        <h4>The Money Engine</h4>
+        <div class="sk-tier">All tiers</div>
+        <p>The 7-day plan and scripts that turn any skill into a paying client</p>
+      </div>
+      <div class="skill-card skill-hidden">
+        <span class="sk-ic">🏷️</span>
+        <h4>Logo & brand kits</h4>
+        <div class="sk-tier">🔒 Unlocks in Creator</div>
+        <p>Clients pay well for a professional package</p>
+      </div>
+      <div class="skill-card skill-hidden">
+        <span class="sk-ic">🎥</span>
+        <h4>AI UGC ads</h4>
+        <div class="sk-tier">🔒 Unlocks in Creator</div>
+        <p>Brands pay $50–$150 per video</p>
+      </div>
+      <div class="skill-card skill-hidden">
+        <span class="sk-ic">🌐</span>
+        <h4>Web & funnels</h4>
+        <div class="sk-tier">🔒 Unlocks in Empire</div>
+        <p>The premium $500+ skill</p>
+      </div>
+    </div>
+    <button class="btn btn-ghost sm" id="skillsExpandBtn" style="margin-top:20px">See all 6 skill families →</button>
+  </div>
+</section>
 
 <!-- ===== PROOF WALL ===== -->
 <section class="demo" id="proof">
@@ -536,6 +612,18 @@ function fuseBuy(packKey, el, pixelData) {
   });
   return false;
 }
+
+// ============ Skills section — trimmed to 3 by default, expands to all 6.
+// Kept out of the way until someone actually wants the extra depth,
+// instead of a wall of cards everyone has to scroll past. ============
+(function(){
+  var btn = document.getElementById('skillsExpandBtn');
+  if (!btn) return;
+  btn.onclick = function(){
+    document.querySelectorAll('#skillsGrid .skill-hidden').forEach(function(el){ el.classList.remove('skill-hidden'); });
+    btn.style.display = 'none';
+  };
+})();
 
 // ============ Recent-activity toast -- REAL enrollments only, never
 // fabricated. Pulled from recent-activity.js, which only returns actual
