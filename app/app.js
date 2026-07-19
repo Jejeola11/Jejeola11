@@ -4185,15 +4185,37 @@ async function runTool() {
 
 // ---------------- auth ----------------
 let authMode = 'signup';
+// Someone who just tapped a ₦25,000 tier button and lands on a modal titled
+// "Create your account" / "Start with 12 free credits -- no card needed" /
+// "Start free ->" has every reason to think they wandered into an unrelated
+// free-trial signup, not step 1 of the purchase they just tried to make --
+// confirmed as a likely real drop-off point, not just a hunch. When a buy is
+// pending (URL ?buy= or the localStorage flag buy() sets), the modal now
+// says so explicitly instead of showing the generic free-trial copy.
+function pendingBuyPack() {
+ let p = new URLSearchParams(location.search).get('buy');
+ if (!p) { try { p = localStorage.getItem('fuse_pending_buy'); } catch (e) {} }
+ if (!p) return null;
+ return (cfg.PACKS || []).find((x) => x.key === p) || (p === 'course' ? { name: 'Fuse Atelier', naira: 60000 } : null);
+}
 function showAuth(mode) { setAuthMode(mode || 'signup'); $('authOverlay').style.display = 'flex'; }
 function hideAuth() { $('authOverlay').style.display = 'none'; }
 function setAuthMode(m) {
  authMode = m;
+ const pack = pendingBuyPack();
+ if (pack) {
+ $('authTitle').textContent = m === 'signup' ? `Complete your ${pack.name} purchase` : 'Log in to finish your purchase';
+ $('authBtn').textContent = m === 'signup' ? 'Continue to payment →' : 'Continue to payment →';
+ $('authTrial').innerHTML = ` <b class="gold">${naira(pack.naira)}</b> — quick account setup, then straight to secure Paystack checkout.`;
+ $('authTrial').style.display = 'block';
+ } else {
  $('authTitle').textContent = m === 'signup' ? 'Create your account' : 'Welcome back';
  $('authBtn').textContent = m === 'signup' ? 'Start free →' : 'Log in →';
+ $('authTrial').innerHTML = ' Start with <b class="gold">12 free credits</b> — no card needed.';
+ $('authTrial').style.display = m === 'signup' ? 'block' : 'none';
+ }
  $('authSwitchText').textContent = m === 'signup' ? 'Already have an account?' : 'New here?';
  $('authSwitchLink').textContent = m === 'signup' ? 'Log in' : 'Create one';
- $('authTrial').style.display = m === 'signup' ? 'block' : 'none';
  note('authNote', '');
 }
 async function doAuth() {
