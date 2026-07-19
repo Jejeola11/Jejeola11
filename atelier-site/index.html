@@ -94,12 +94,17 @@ section{padding:72px 0;position:relative}
 @keyframes float{0%{transform:translateY(20px);opacity:0}12%{opacity:.85}88%{opacity:.35}100%{transform:translateY(-92svh);opacity:0}}
 
 /* ===== Pain ===== */
-.pain{background:var(--teal-0)}
-.pain-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:30px}
-.pain-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:22px}
-.pain-card .e{font-size:26px}
-.pain-card h3{font-size:17px;margin:10px 0 6px}
-.pain-card p{color:var(--muted);font-size:14.5px}
+/* ===== Qualify (is this for you?) ===== */
+.qualify-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:28px}
+.qualify-card{border-radius:20px;padding:26px}
+.qualify-card.yes{background:linear-gradient(160deg,rgba(245,197,24,.09),rgba(13,58,51,.4));border:1px solid var(--line)}
+.qualify-card.no{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07)}
+.qualify-card h3{font-size:16px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.qualify-card ul{list-style:none}
+.qualify-card li{display:flex;gap:10px;padding:9px 0;font-size:14.5px;color:#D5E3DF;border-bottom:1px dashed rgba(255,255,255,.06)}
+.qualify-card li:last-child{border-bottom:0}
+.qualify-card.yes li b{color:var(--gold)}
+.qualify-card.no li{color:var(--muted)}
 .shift{margin-top:44px;border:1px solid var(--line);border-radius:22px;padding:30px;background:linear-gradient(140deg,rgba(245,197,24,.08),rgba(13,58,51,.35));text-align:center}
 .shift h3{font-size:clamp(20px,3.4vw,28px);margin-bottom:10px}
 .shift p{color:#C7D8D3;max-width:680px;margin:0 auto}
@@ -353,6 +358,35 @@ footer a{color:var(--gold)}
       <div>
         <h3>The "We Don't Leave You" Guarantee</h3>
         <p>Finish the 7-day plan and send 30 documented pitches with our scripts (your coach bot tracks them automatically). If you haven't landed a client within 30 days, <b class="gold">we work with you 1-on-1, free, until you do.</b> You cannot fall through the cracks — the system literally won't let you.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== IS THIS FOR YOU ===== -->
+<section>
+  <div class="wrap">
+    <span class="kick">Before you enroll</span>
+    <h2 class="sec-h">Is this <span class="goldgrad">for you?</span></h2>
+    <p class="sec-sub">Straight answer — so you're not guessing.</p>
+    <div class="qualify-grid">
+      <div class="qualify-card yes rv">
+        <h3>✅ This is for you if</h3>
+        <ul>
+          <li><b>✓</b> You want a real skill you can sell this week — not just "learn AI" in the abstract</li>
+          <li><b>✓</b> You only have a phone, no laptop, no design background, no budget for expensive tools</li>
+          <li><b>✓</b> You've tried posting content or freelancing before and it never turned into paying clients</li>
+          <li><b>✓</b> You want the AI tools AND the client-getting scripts in one place, not five different subscriptions</li>
+          <li><b>✓</b> You're actually willing to send outreach messages, not just watch lessons</li>
+        </ul>
+      </div>
+      <div class="qualify-card no rv">
+        <h3>❌ This is not for you if</h3>
+        <ul>
+          <li>✕ You're looking for guaranteed money with zero effort — the guarantee covers you doing the plan, not doing nothing</li>
+          <li>✕ You already have a sellable AI skill and a full client pipeline</li>
+          <li>✕ You're not willing to message potential clients or send a single pitch</li>
+        </ul>
       </div>
     </div>
   </div>
