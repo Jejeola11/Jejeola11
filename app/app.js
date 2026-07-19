@@ -3175,7 +3175,7 @@ async function flyerGenHero(auto) {
  // suspenders against Add Layer/Composite ever saying "generate the hero
  // first" for a hero that's plainly sitting on screen: no more needing
  // to download-then-re-upload the very image that was just generated.
- pollJob(d.request_id, $('flyerHeroResult'), 'flyerHeroNote', btn, label, 'image', 100, (url) => { flyerConfirmHero(url); flyerSuggestLayers(); });
+ pollJob(d.request_id, $('flyerHeroResult'), 'flyerHeroNote', btn, label, 'image', 100, (url) => { flyerConfirmHero(url); flyerSuggestLayers(); flyerAutoDetectAccent(url); });
  $('flyerLayerPanel').style.display = 'block';
  $('flyerTextPanel').style.display = 'block';
  } catch (e) { $('flyerHeroResult').innerHTML = '<div> ' + (e.message || 'Failed') + '</div>'; note('flyerHeroNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
@@ -3193,6 +3193,64 @@ async function flyerConfirmHero(url) {
  body: JSON.stringify({ project_id: flyerProjectId, image_url: url, aspect: $('flyerAspect').value }),
  });
  } catch (e) {}
+}
+
+// Pulls the flyer's own accent color straight from the generated hero
+// image instead of making someone hand-pick one every time. Samples the
+// image on an offscreen canvas and buckets pixels by hue (24 buckets,
+// 15° each) -- hue-only bucketing means different lightness/saturation
+// variants of the same color (a gradient, a shadow) still count toward
+// the same bucket, which is exactly what "the accent color" means.
+// Near-white, near-black, and near-gray pixels are excluded entirely --
+// those dominate raw pixel counts (backgrounds, skin, shadow) but are
+// never what anyone means by "accent color". The winning bucket's actual
+// average RGB becomes the hex value, not just one sample pixel from it.
+async function flyerAutoDetectAccent(url) {
+ try {
+ const img = await new Promise((resolve, reject) => {
+ const im = new Image();
+ im.crossOrigin = 'anonymous';
+ im.onload = () => resolve(im);
+ im.onerror = reject;
+ im.src = url;
+ });
+ const SIZE = 80;
+ const canvas = document.createElement('canvas');
+ canvas.width = SIZE; canvas.height = SIZE;
+ const ctx = canvas.getContext('2d');
+ ctx.drawImage(img, 0, 0, SIZE, SIZE);
+ const { data } = ctx.getImageData(0, 0, SIZE, SIZE); // throws if the image host doesn't allow cross-origin pixel reads
+
+ const BUCKETS = 24;
+ const buckets = Array.from({ length: BUCKETS }, () => ({ score: 0, r: 0, g: 0, b: 0, n: 0 }));
+ for (let i = 0; i < data.length; i += 4) {
+ const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+ if (a < 200) continue; // near-transparent
+ const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+ const l = (max + min) / 2 / 255;
+ const s = d === 0 ? 0 : d / (255 - Math.abs(max + min - 255));
+ if (s < 0.35 || l < 0.12 || l > 0.88) continue; // skip near-white/black/gray
+ let h;
+ if (d === 0) h = 0;
+ else if (max === r) h = ((g - b) / d) % 6;
+ else if (max === g) h = (b - r) / d + 2;
+ else h = (r - g) / d + 4;
+ h = Math.round(h * 60); if (h < 0) h += 360;
+ const bucket = buckets[Math.floor(h / (360 / BUCKETS)) % BUCKETS];
+ bucket.score += s; bucket.r += r; bucket.g += g; bucket.b += b; bucket.n++;
+ }
+ let best = null;
+ buckets.forEach((b) => { if (b.n >= 6 && (!best || b.score > best.score)) best = b; });
+ if (!best) return; // no clearly-saturated color in this image -- leave the manual picker as-is
+ const hex = '#' + [best.r, best.g, best.b].map((v) => Math.round(v / best.n).toString(16).padStart(2, '0')).join('');
+ $('flyerAccentColor').value = hex;
+ note('flyerHeroNote', ` Accent color auto-detected from your hero image (${hex}) — adjust it below if you'd like a different one.`, 'ok');
+ } catch (e) {
+ // Image host blocked the cross-origin pixel read, or failed to decode
+ // -- silently skip. This is a convenience on top of the manual color
+ // picker, never a required step, so a quiet no-op is the right failure
+ // mode, not an error message about something the user didn't ask for.
+ }
 }
 
 // Lets a user upload their OWN hero image directly — no generation, no
