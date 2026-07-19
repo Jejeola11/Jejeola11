@@ -3546,9 +3546,9 @@ async function flyerSubmitSpotFix() {
  const btn = $('flyerSpotFixGo'); btn.disabled = true; btn.textContent = 'Submitting…';
  note('flyerSpotFixNote', '');
  try {
- const res = await fetch('/.netlify/functions/flyer-spot-fix', {
+ const res = await fetch('/.netlify/functions/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
- body: JSON.stringify({ project_id: flyerProjectId, region, instruction }),
+ body: JSON.stringify({ op: 'flyer-spot-fix', project_id: flyerProjectId, region, instruction }),
  });
  const d = await res.json();
  if (res.status === 402) { note('flyerSpotFixNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = 'Fix this spot →'; return; }

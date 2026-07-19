@@ -241,7 +241,7 @@ exports.handler = async (event) => {
     }
     // Flyer Studio "spot fix" — the edited crop `url` is just the small
     // marked region on its own; paste it back into the original full flyer
-    // at the exact pixel position flyer-spot-fix.js recorded in job.meta,
+    // at the exact pixel position media-pipeline.js recorded in job.meta,
     // feathered at the edges so there's no visible seam, then that becomes
     // the project's new final_url. See _canvas.js's pasteFeathered.
     if (job.kind === 'flyer-spot-fix') {
