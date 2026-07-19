@@ -1,6 +1,6 @@
 // ============================================================
 // POST /.netlify/functions/paystack-init-guest   (public, no auth)
-// Body: { pack }
+// Body: { pack, code? }
 // The landing-page tier buttons hit this instead of paystack-init.js --
 // no account required, and (as of this version) no email prompt on our
 // side either -- tapping a tier goes straight to Paystack checkout. Same
@@ -14,12 +14,19 @@
 // first time on the claim-account screen right after paying (see
 // claim-guest-account.js), which overwrites the placeholder.
 //
+// Optional `code`: a limited-slot promo code (see schema-phase29.sql /
+// insider.html). This is only a READ-ONLY availability check -- it does
+// NOT reserve a slot, so an abandoned checkout never burns one. If the
+// code is invalid/exhausted, checkout still proceeds at full price rather
+// than blocking the sale entirely (a stale/typo'd code shouldn't be able
+// to stop someone from paying).
+//
 // Only atelier course packs are meant to go through this door -- studio
 // credit top-ups/subscriptions bought from inside the app should keep
 // using the authenticated paystack-init.js, unchanged.
 // ============================================================
 const crypto = require('crypto');
-const { json } = require('./_supabase');
+const { admin, json } = require('./_supabase');
 const { PACKS } = require('./_packs');
 
 exports.handler = async (event) => {
@@ -33,6 +40,19 @@ exports.handler = async (event) => {
 
   const placeholderEmail = `guest-${crypto.randomUUID()}@guest.fuseatelier.ng`;
 
+  let amountNaira = pack.amount_naira;
+  const code = (body.code || '').trim().toUpperCase();
+  let promoCode = null;
+  if (code) {
+    const db = admin();
+    const { data: promo } = await db.from('promo_codes')
+      .select('discount_naira, max_redemptions, redeemed_count, active').eq('code', code).maybeSingle();
+    if (promo && promo.active && promo.redeemed_count < promo.max_redemptions) {
+      amountNaira = Math.max(500, pack.amount_naira - promo.discount_naira);
+      promoCode = code;
+    }
+  }
+
   const appUrl = process.env.APP_URL || '';
   const res = await fetch('https://api.paystack.co/transaction/initialize', {
     method: 'POST',
@@ -42,13 +62,14 @@ exports.handler = async (event) => {
     },
     body: JSON.stringify({
       email: placeholderEmail,
-      amount: pack.amount_naira * 100, // kobo
+      amount: amountNaira * 100, // kobo
       currency: 'NGN',
       channels: ['bank_transfer', 'card', 'bank', 'ussd'],
       callback_url: `${appUrl}/studio?paid=1&pack=${encodeURIComponent(body.pack)}&guest=1`,
       metadata: {
         guest_email: placeholderEmail,
         pack: body.pack,
+        promo_code: promoCode,
         custom_fields: [{ display_name: 'Pack', variable_name: 'pack', value: pack.label }],
       },
     }),

@@ -70,6 +70,21 @@
   to = "/atelier-site/:splat"
   status = 200
 
+# Insider promo page (limited-slot discount codes, e.g. $500 Dollar Week ->
+# Fuse Atelier cross-sell) -- served from the same atelier-site/ folder,
+# same 200-rewrite pattern as /atelier above.
+[[redirects]]
+  from = "/insider"
+  to = "/atelier-site/insider.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/insider/"
+  to = "/atelier-site/insider.html"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/app"
   to = "/app/index.html"

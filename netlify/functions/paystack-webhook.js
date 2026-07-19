@@ -112,6 +112,23 @@ exports.handler = async (event) => {
     await db.from('profiles').update({ plan: pack.plan, plan_expires_at: expires, plan_source: 'course_bonus' }).eq('id', userId);
   }
 
+  // 4d) Redeem the promo code, if this checkout used one (see
+  // paystack-init-guest.js / schema-phase29.sql) -- ONLY now, against a
+  // real confirmed payment, via the atomic RPC so concurrent webhook calls
+  // can never push redemptions past the slot cap. If it returns no rows
+  // (the code got exhausted by other confirmed payments in the tiny window
+  // between this buyer's checkout-init and now -- only possible if the
+  // slot count is genuinely being raced), the sale still stands: they
+  // already paid the discounted amount, fulfillment above already ran, and
+  // undoing a real payment over an edge-case slot race would be a far
+  // worse outcome than letting one extra redemption through.
+  if (meta.promo_code) {
+    const { data: redeemed, error: redeemErr } = await db.rpc('redeem_promo_code', { p_code: meta.promo_code });
+    if (redeemErr || !redeemed || !redeemed.length) {
+      console.error('promo code redeem miss (sale still honored):', meta.promo_code, redeemErr && redeemErr.message);
+    }
+  }
+
   // 5) Record the payment.
   await db.from('payments').insert({
     user_id: userId,
@@ -120,6 +137,7 @@ exports.handler = async (event) => {
     pack: meta.pack,
     credits_added: credits,
     status: 'success',
+    promo_code: meta.promo_code || null,
     raw: d,
   });
 
