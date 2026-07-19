@@ -4493,20 +4493,38 @@ window.addEventListener('DOMContentLoaded', () => {
  $('previewLink').onclick = enterPreview;
 
  if (new URLSearchParams(location.search).get('paid')) {
- const paidPack = new URLSearchParams(location.search).get('pack');
+ const paidQS = new URLSearchParams(location.search);
+ const paidPack = paidQS.get('pack');
+ // Paystack appends its own reference/trxref to the callback redirect --
+ // this is what actually proves a charge happened, not the mere presence
+ // of ?paid=1 (Paystack lands here on declined/failed/abandoned attempts
+ // too, not just successful ones).
+ const paidReference = paidQS.get('reference') || paidQS.get('trxref');
  const packDef = paidPack && (cfg.PACKS || []).find((p) => p.key === paidPack);
  const isCoursePack = !!(packDef && packDef.kind === 'course');
- // Meta Pixel: this is the actual Purchase event -- fired once, right
- // here, since this is the one place that confirms a real successful
- // Paystack checkout (the ?paid=1&pack=... redirect target). Strip the
- // query params right after so a reload/revisit of this same URL can't
- // re-fire a duplicate fake purchase.
- if (packDef && typeof fbq === 'function') {
- fbq('track', 'Purchase', { value: packDef.naira, currency: 'NGN', content_name: paidPack });
- }
  history.replaceState({}, '', location.pathname);
  setTimeout(async () => {
  if (!user) return;
+ // Meta Pixel Purchase: only fires once verify-payment.js confirms a real
+ // payments row with status='success' -- written exclusively by the
+ // webhook after checking Paystack's own signature on a genuine
+ // charge.success event. The webhook can land a beat after this redirect
+ // does, so retry a couple times before giving up (giving up silently is
+ // the safe failure mode here -- an undercounted real sale is far less
+ // damaging to ad optimization than the false purchases this replaces).
+ if (packDef && paidReference && typeof fbq === 'function') {
+ for (let attempt = 0; attempt < 4; attempt++) {
+ try {
+ const res = await fetch('/.netlify/functions/verify-payment', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ reference: paidReference }),
+ });
+ const d = await res.json();
+ if (d.verified) { fbq('track', 'Purchase', { value: packDef.naira, currency: 'NGN', content_name: paidPack }); break; }
+ } catch (e) {}
+ await new Promise((r) => setTimeout(r, 2000));
+ }
+ }
  await loadProfile();
  if (!isCoursePack) return;
  // The Paystack webhook that actually unlocks the module can land a beat
