@@ -121,16 +121,7 @@ section{padding:72px 0;position:relative}
 .skill-card .tier-tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--teal-1);background:var(--gold-2);padding:3px 9px;border-radius:20px;margin-bottom:10px}
 .fam-note{margin-top:16px;color:var(--muted);font-size:13.5px}
 
-/* ===== Scrub gallery ===== */
 .demo{background:var(--teal-0)}
-.scrub-box{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);margin-top:28px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
-.scrub-box video{width:100%;aspect-ratio:9/16;max-height:80vh;object-fit:cover;background:#000;margin:0 auto}
-.scrub-box{max-width:420px}
-.scrub-cap{position:absolute;top:14px;left:16px;background:rgba(3,26,22,.75);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:30px;padding:6px 14px;font-size:12.5px;font-weight:700;color:var(--gold-2)}
-.mini-gal{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}
-.mini-gal img{border-radius:12px;aspect-ratio:1;object-fit:cover;border:1px solid rgba(255,255,255,.08);transition:transform .18s}
-.mini-gal img:hover{transform:scale(1.05)}
-@media(max-width:640px){.mini-gal{grid-template-columns:repeat(3,1fr)}}
 
 /* ===== 7-day path ===== */
 .day-row{display:grid;grid-template-columns:56px 1fr;gap:16px;padding:18px 0;border-bottom:1px solid rgba(255,255,255,.06)}
@@ -299,7 +290,6 @@ footer a{color:var(--gold)}
           <li><b>4 skill families</b> — Design & Flyers, plus Brand (logo & brand kits), Product (AI product photography) and Video (AI UGC ads) — each its own short course</li>
           <li><b>Money Engine</b> — the client-getting system: exact Instagram outreach scripts, pricing and the 7-day plan to your first paid client</li>
           <li><b>AI UGC ads + product photography</b> — the two skills brands pay in dollars for: testimonial-style video ads and studio-grade product shots from one phone photo</li>
-          <li><b>Character Lab</b> — a guided prompt-builder that locks one consistent AI face/character across every image you generate</li>
           <li><b>400 studio credits</b> — about 12 full flyers' worth of generations, or a mix across every skill you unlock, plus 30 days of Studio Creator-tier access to premium AI models</li>
           <li><b>WhatsApp cohort + weekly live session</b> — a community of other students, plus a live call where Ria reviews real outreach with you</li>
           <li><b>Full template vault + client scripts</b> — every layout, caption and outreach script used across all 4 unlocked skills</li>
@@ -314,7 +304,7 @@ footer a{color:var(--gold)}
         <div class="t-for">Become the agency — everything, plus Ria</div>
         <ul>
           <li><b>All 6 skill families</b> — every skill in Creator, plus Web & Funnels: one-page client sites and interactive pages built the same way this page was, the premium $500+ skill</li>
-          <li><b>Money Engine, full studio access + Character Lab, Upwork masterclass</b> — everything Starter and Creator include, complete</li>
+          <li><b>Money Engine, full studio access, Upwork masterclass</b> — everything Starter and Creator include, complete</li>
           <li><b>1,200 credits</b> — enough for dozens of generations, topped up automatically for 3 more months (monthly credit drip)</li>
           <li><b>Direct access to Ria</b> — she personally reviews your portfolio and real client pitches</li>
           <li><b>PitchPilot Pro + contracts pack</b> — writes your outreach pitch (email/WhatsApp/IG/LinkedIn) in one tap, plus ready-to-send client contracts</li>
@@ -338,26 +328,6 @@ footer a{color:var(--gold)}
         <h3>The "We Don't Leave You" Guarantee</h3>
         <p>Finish the 7-day plan and send 30 documented pitches with our scripts (your coach bot tracks them automatically). If you haven't landed a client within 30 days, <b class="gold">we work with you 1-on-1, free, until you do.</b> You cannot fall through the cracks — the system literally won't let you.</p>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== DEMO (autoplay showcase) ===== -->
-<section class="demo">
-  <div class="wrap">
-    <span class="kick">Proof of skill — see it, don't take our word</span>
-    <h2 class="sec-h">Everything here was made inside <span class="goldgrad">Fuse Studio</span> — the studio you get.</h2>
-    <p class="sec-sub">This is the quality you'll be selling.</p>
-    <div class="scrub-box" id="scrubBox">
-      <video src="assets/hero.mp4" muted playsinline autoplay loop preload="auto"></video>
-      <span class="scrub-cap">🎬 made with Fuse Studio</span>
-    </div>
-    <div class="mini-gal">
-      <img src="assets/mw1.jpg" alt="AI product flyer made in Fuse Studio — AirPods Max" loading="lazy">
-      <img src="assets/mw2.jpg" alt="AI product flyer made in Fuse Studio — AirPods Max" loading="lazy">
-      <img src="assets/mw3.jpg" alt="AI product photography made in Fuse Studio — La Mer" loading="lazy">
-      <img src="assets/mw4.jpg" alt="AI product photography made in Fuse Studio — La Mer" loading="lazy">
-      <img src="assets/mw5.jpg" alt="AI product flyer made in Fuse Studio — Curl Crush" loading="lazy">
     </div>
   </div>
 </section>
@@ -527,7 +497,7 @@ document.getElementById('famTabs').addEventListener('click', function(e){
 (function(){
   var FAQ = [
     { q: 'What do I get in each tier?',
-      a: 'Starter (₦10,000): the flagship Design & Flyers course + the full Money Engine + 100 studio credits (about 3 full flyers). Creator (₦25,000): Brand, Product & Video families added — AI UGC ads, product photography and Character Lab, the cohort community, weekly live sessions and 400 credits — it\'s the one most people pick. Empire (₦70,000): everything, plus Web & Funnels, 1,200 credits and direct access to Ria. All tiers are one-time payments.' },
+      a: 'Starter (₦10,000): the flagship Design & Flyers course + the full Money Engine + 100 studio credits (about 3 full flyers). Creator (₦25,000): Brand, Product & Video families added — AI UGC ads, product photography, the cohort community, weekly live sessions and 400 credits — it\'s the one most people pick. Empire (₦70,000): everything, plus Web & Funnels, 1,200 credits and direct access to Ria. All tiers are one-time payments.' },
     { q: 'What are studio credits for?',
       a: 'Credits are what you spend inside Fuse Studio to actually generate something — a flyer, a product photo, a video. A full flyer (hero image + finished design) costs about 33 credits, so Starter\'s 100 covers roughly 3 full flyers to build your first portfolio. Not a subscription fee — you just spend them as you create, and you can top up or upgrade anytime.' },
     { q: 'Can I do this on my phone?',
