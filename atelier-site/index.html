@@ -334,7 +334,7 @@ footer a{color:var(--gold)}
           <li><b>WhatsApp coach bot</b> — messages you daily through the 7-day plan and checks you actually did each step</li>
         </ul>
         <div class="t-price">₦10,000</div>
-        <a class="btn btn-ghost" href="/studio?buy=atelier_starter" onclick="typeof fbq==='function'&&fbq('track','InitiateCheckout',{value:10000,currency:'NGN',content_name:'atelier_starter'})">Start earning this week →</a>
+        <a class="btn btn-ghost" href="/studio?buy=atelier_starter" onclick="return fuseBuy('atelier_starter', this, {value:10000,currency:'NGN',content_name:'atelier_starter'})">Start earning this week →</a>
       </div>
 
       <div class="tier mid rv">
@@ -351,7 +351,7 @@ footer a{color:var(--gold)}
           <li><b>Upwork masterclass</b> — the exact profile, proposals and pricing that landed 12 real jobs worth $4,000+</li>
         </ul>
         <div class="t-price">₦25,000 <span class="was">₦60,000</span></div>
-        <a class="btn btn-gold" href="/studio?buy=atelier_creator" onclick="typeof fbq==='function'&&fbq('track','InitiateCheckout',{value:25000,currency:'NGN',content_name:'atelier_creator'})">Start earning this week →</a>
+        <a class="btn btn-gold" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Start earning this week →</a>
       </div>
 
       <div class="tier rv">
@@ -367,7 +367,7 @@ footer a{color:var(--gold)}
           <li><b>Limited seats</b> — real capacity, real access</li>
         </ul>
         <div class="t-price">₦70,000 <small>or 2 × ₦37,500</small></div>
-        <a class="btn btn-ghost" href="/studio?buy=atelier_empire" onclick="typeof fbq==='function'&&fbq('track','InitiateCheckout',{value:70000,currency:'NGN',content_name:'atelier_empire'})">Start earning this week →</a>
+        <a class="btn btn-ghost" href="/studio?buy=atelier_empire" onclick="return fuseBuy('atelier_empire', this, {value:70000,currency:'NGN',content_name:'atelier_empire'})">Start earning this week →</a>
       </div>
     </div>
     <p class="anchor-note">The old Fuse Atelier sold for <b>₦60,000</b> with less inside it. This is the launch price for the merged 2.0 version — <b>once the cohort fills, it moves to full price.</b></p>
@@ -510,6 +510,32 @@ footer a{color:var(--gold)}
   els.forEach(function(el){ io.observe(el); });
   setTimeout(function(){ els.forEach(function(el){ el.classList.add('in'); }); }, 2600);
 })();
+
+// ============ Tier checkout -- straight to Paystack, no intermediate page.
+// The tier buttons used to link to /studio?buy=<pack>, which meant loading
+// the entire Fuse Studio app shell (Supabase client, session check, the
+// whole app.js bundle) just to read that URL param and redirect -- on a
+// slow connection that shows a real flash of the app's home screen before
+// the redirect fires. This page can call paystack-init-guest.js directly
+// (same-origin, same function every checkout uses), so a tap goes straight
+// to Paystack with nothing in between. href stays as a safety-net fallback
+// (no-JS, or if this fetch ever fails) to the previous, still-working
+// /studio?buy= flow. ============
+function fuseBuy(packKey, el, pixelData) {
+  if (typeof fbq === 'function') fbq('track', 'InitiateCheckout', pixelData);
+  el.style.opacity = '.6'; el.style.pointerEvents = 'none'; el.textContent = 'Opening secure checkout…';
+  fetch('/.netlify/functions/paystack-init-guest', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pack: packKey }),
+  }).then(function(r){
+    return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Could not start payment'); return d; });
+  }).then(function(d){
+    window.location.href = d.authorization_url;
+  }).catch(function(){
+    window.location.href = el.getAttribute('href');
+  });
+  return false;
+}
 
 // ============ Recent-activity toast -- REAL enrollments only, never
 // fabricated. Pulled from recent-activity.js, which only returns actual
