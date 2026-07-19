@@ -2725,9 +2725,9 @@ async function avvAddCta() {
  const btn = $('avvAddCta'); btn.disabled = true; btn.textContent = 'Adding…';
  note('avvCtaNote', '');
  try {
- const res = await fetch('/.netlify/functions/video-cta', {
+ const res = await fetch('/.netlify/functions/video-overlay', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
- body: JSON.stringify({ video_url: avvLastUrl, cta_text: ctaText }),
+ body: JSON.stringify({ type: 'cta', video_url: avvLastUrl, cta_text: ctaText }),
  });
  const d = await res.json();
  if (!res.ok) throw new Error(d.error || 'Failed');
@@ -3699,9 +3699,10 @@ async function editApplyCaptions() {
  $('editResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Applying captions…</div></div>';
  note('editCaptionNote', '');
  try {
- const res = await fetch('/.netlify/functions/video-caption-apply', {
+ const res = await fetch('/.netlify/functions/video-overlay', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({
+  type: 'caption',
  project_id: editProjectId, effect: $('editCaptionEffect').value,
  color: $('editAccentColor').value, color2: $('editAccentColor2').value, position: $('editCaptionPos').value,
  }),
@@ -3728,9 +3729,9 @@ async function editAddElement() {
  if (error) throw error;
  const imgUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
  note('editElementNote', 'Compositing…', 'ok');
- const res = await fetch('/.netlify/functions/video-element', {
+ const res = await fetch('/.netlify/functions/video-overlay', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
- body: JSON.stringify({ project_id: editProjectId, image_url: imgUrl, start_sec: parseFloat($('editElStart').value), duration_sec: parseFloat($('editElDur').value), position: $('editElPos').value }),
+ body: JSON.stringify({ type: 'element', project_id: editProjectId, image_url: imgUrl, start_sec: parseFloat($('editElStart').value), duration_sec: parseFloat($('editElDur').value), position: $('editElPos').value }),
  });
  const d = await res.json();
  if (!res.ok) throw new Error(d.error || 'Failed');
@@ -3746,9 +3747,9 @@ async function editApplyCta() {
  const btn = $('editApplyCta'); btn.disabled = true; btn.textContent = 'Finishing…';
  note('editCtaNote', '');
  try {
- const res = await fetch('/.netlify/functions/video-cta', {
+ const res = await fetch('/.netlify/functions/video-overlay', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
- body: JSON.stringify({ project_id: editProjectId, cta_text: ctaText, accent_color: $('editAccentColor').value }),
+ body: JSON.stringify({ type: 'cta', project_id: editProjectId, cta_text: ctaText, accent_color: $('editAccentColor').value }),
  });
  const d = await res.json();
  if (!res.ok) throw new Error(d.error || 'Failed');
