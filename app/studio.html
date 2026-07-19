@@ -415,10 +415,24 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  </label>
  <label class="fld" for="flyerExtraInstructions" style="margin-top:10px">Extra instructions (optional) — anything specific about layout, positioning, or style</label>
  <textarea id="flyerExtraInstructions" placeholder="e.g. 'put the headline bottom-left instead of top', 'make the info card diagonal', 'no info card at all, just headline and badge'"></textarea>
- <label class="fld" style="margin-top:10px">Clone a reference flyer's layout (optional) — upload a real flyer whose exact structure should be matched</label>
- <button class="btn ghost sm" id="flyerStructureRefPick"> Add reference flyer</button>
- <input type="file" id="flyerStructureRefFile" accept="image/*" hidden>
- <div id="flyerStructureRefThumb" style="margin-top:8px"></div>
+ <label class="fld" style="margin-top:10px">Clone structure from real references (all optional, independent — attach any, none, or all three)</label>
+ <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:6px">
+ <div>
+ <button class="btn ghost sm" id="flyerHeadlineRefPick" style="width:100%">Headline structure</button>
+ <input type="file" id="flyerHeadlineRefFile" accept="image/*" hidden>
+ <div id="flyerHeadlineRefThumb" style="margin-top:6px"></div>
+ </div>
+ <div>
+ <button class="btn ghost sm" id="flyerFeaturesRefPick" style="width:100%">Feature placement</button>
+ <input type="file" id="flyerFeaturesRefFile" accept="image/*" hidden>
+ <div id="flyerFeaturesRefThumb" style="margin-top:6px"></div>
+ </div>
+ <div>
+ <button class="btn ghost sm" id="flyerCtaRefPick" style="width:100%">CTA structure</button>
+ <input type="file" id="flyerCtaRefFile" accept="image/*" hidden>
+ <div id="flyerCtaRefThumb" style="margin-top:6px"></div>
+ </div>
+ </div>
  <button class="btn gold block" id="flyerComposite" style="margin-top:10px"> Composite final flyer</button>
  <div class="note" id="flyerCompositeNote"></div>
  <div class="result" id="flyerFinalResult" style="margin-top:12px;min-height:220px"><div class="muted">Your finished flyer appears here.</div></div>

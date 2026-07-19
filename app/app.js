@@ -2942,7 +2942,7 @@ async function restoreFlyerProject() {
 // to a blank slate for a genuinely new one.
 function flyerNewProject() {
  flyerProjectId = null; flyerHistory = []; flyerLayers = []; flyerRefUrls = [];
- flyerStructureRefUrl = null; renderFlyerStructureRef();
+ flyerCompositeRefs = { headline: null, features: null, cta: null }; ['headline', 'features', 'cta'].forEach(renderFlyerCompositeRef);
  localStorage.removeItem(FLYER_PROJECT_KEY);
  $('flyerLog').innerHTML = ''; $('flyerImgPrompt').value = '';
  $('flyerHeroResult').innerHTML = '<div class="muted">Your background/hero visual appears here.</div>';
@@ -2958,7 +2958,7 @@ function flyerLoadProject(p) {
  flyerProjectId = p.id;
  localStorage.setItem(FLYER_PROJECT_KEY, p.id);
  flyerHistory = [];
- flyerStructureRefUrl = null; renderFlyerStructureRef();
+ flyerCompositeRefs = { headline: null, features: null, cta: null }; ['headline', 'features', 'cta'].forEach(renderFlyerCompositeRef);
  flyerLayers = (Array.isArray(p.layers) ? p.layers : []).map((l) => l.instruction);
  flyerRefUrls = Array.isArray(p.reference_image_urls) ? p.reference_image_urls.map((u) => ({ url: u, on: true })) : [];
  renderFlyerRefs();
@@ -3341,43 +3341,57 @@ async function flyerComposite() {
  try {
  const res = await fetch('/.netlify/functions/flyer-composite', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
- body: JSON.stringify({ project_id: flyerProjectId, text_spec: spec, structure_reference_url: flyerStructureRefUrl || undefined }),
+ body: JSON.stringify({
+ project_id: flyerProjectId, text_spec: spec,
+ headline_reference_url: flyerCompositeRefs.headline || undefined,
+ features_reference_url: flyerCompositeRefs.features || undefined,
+ cta_reference_url: flyerCompositeRefs.cta || undefined,
+ }),
  });
  const d = await res.json();
  if (res.status === 402) { note('flyerCompositeNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; return; }
  if (!res.ok) throw new Error(d.error || 'Failed');
  if (d.credits != null) $('creditCount').textContent = d.credits;
  note('flyerCompositeNote', 'Rendering… ⏳', 'ok'); btn.textContent = 'Rendering…';
- // 180s not 100 — with a structure-reference image attached (2 images
- // total instead of 1), GPT Image 2's real inference time roughly
- // doubles (confirmed live: ~94s vs ~48s for a single reference).
+ // 180s not 100 — every attached structure reference adds an image (up
+ // to 4 total: hero + headline + features + cta), and GPT Image 2's real
+ // inference time grows with image count (confirmed live: ~94s with one
+ // extra reference vs ~48s with none) — 180s covers even all three attached.
  pollJob(d.request_id, $('flyerFinalResult'), 'flyerCompositeNote', btn, label, 'image', 180);
  } catch (e) { $('flyerFinalResult').innerHTML = '<div> ' + (e.message || 'Failed') + '</div>'; note('flyerCompositeNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 
-let flyerStructureRefUrl = null;
-async function flyerPickStructureRef(file) {
+// Three INDEPENDENT structure references — each clones only its own part
+// of a real flyer (headline position/alignment, bullet/feature placement,
+// CTA/badge shape), not the whole layout at once. Attach any, none, or all
+// three; flyer-composite.js numbers whichever are present positionally for
+// the image model, same pattern as flyer-brief.js's reference mapping.
+let flyerCompositeRefs = { headline: null, features: null, cta: null };
+const FLYER_COMPOSITE_REF_LABELS = { headline: 'Headline structure', features: 'Feature placement', cta: 'CTA structure' };
+async function flyerPickCompositeRef(kind, file) {
  if (preview) { showAuth('signup'); return; }
  if (!file) return;
  note('flyerCompositeNote', 'Uploading reference…', 'ok');
  try {
  const resized = await resizeImageFile(file);
  const ext = (resized.name.split('.').pop() || 'jpg').toLowerCase();
- const path = `${user.id}/flyerstructref-${Date.now()}.${ext}`;
+ const path = `${user.id}/flyerstructref-${kind}-${Date.now()}.${ext}`;
  await uploadWithRetry('avatars', path, resized);
- flyerStructureRefUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
- note('flyerCompositeNote', ' Reference flyer attached — its layout will be cloned on the next composite.', 'ok');
- renderFlyerStructureRef();
+ flyerCompositeRefs[kind] = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+ note('flyerCompositeNote', ` ${FLYER_COMPOSITE_REF_LABELS[kind]} reference attached.`, 'ok');
+ renderFlyerCompositeRef(kind);
  } catch (e) { note('flyerCompositeNote', e.message || 'Upload failed', 'err'); }
 }
-function renderFlyerStructureRef() {
- const el = $('flyerStructureRefThumb');
+function renderFlyerCompositeRef(kind) {
+ const ids = { headline: 'flyerHeadlineRefThumb', features: 'flyerFeaturesRefThumb', cta: 'flyerCtaRefThumb' };
+ const el = $(ids[kind]);
  if (!el) return;
- el.innerHTML = flyerStructureRefUrl
- ? `<div style="position:relative;display:inline-block"><img src="${flyerStructureRefUrl}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:2px solid var(--gold)"><span class="ref-x" onclick="window.fuseFlyerRmStructureRef()"></span></div>`
+ const url = flyerCompositeRefs[kind];
+ el.innerHTML = url
+ ? `<div style="position:relative;display:inline-block"><img src="${url}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:2px solid var(--gold)"><span class="ref-x" onclick="window.fuseFlyerRmCompositeRef('${kind}')"></span></div>`
  : '';
 }
-window.fuseFlyerRmStructureRef = () => { flyerStructureRefUrl = null; renderFlyerStructureRef(); };
+window.fuseFlyerRmCompositeRef = (kind) => { flyerCompositeRefs[kind] = null; renderFlyerCompositeRef(kind); };
 
 // ---------------- Audio Studio (standalone voiceover/narration) ----------------
 let adUploadedVoiceUrl = null;
@@ -4497,8 +4511,11 @@ window.addEventListener('DOMContentLoaded', () => {
  $('flyerSuggestLayers').onclick = flyerSuggestLayers;
  $('flyerAddLayer').onclick = flyerAddLayer;
  $('flyerComposite').onclick = flyerComposite;
- $('flyerStructureRefPick').onclick = () => $('flyerStructureRefFile').click();
- $('flyerStructureRefFile').onchange = (e) => { flyerPickStructureRef(e.target.files[0]); e.target.value = ''; };
+ ['headline', 'features', 'cta'].forEach((kind) => {
+ const ids = { headline: ['flyerHeadlineRefPick', 'flyerHeadlineRefFile'], features: ['flyerFeaturesRefPick', 'flyerFeaturesRefFile'], cta: ['flyerCtaRefPick', 'flyerCtaRefFile'] }[kind];
+ $(ids[0]).onclick = () => $(ids[1]).click();
+ $(ids[1]).onchange = (e) => { flyerPickCompositeRef(kind, e.target.files[0]); e.target.value = ''; };
+ });
  // Omni Studio
  { const ob = $('omniBack'); if (ob) ob.onclick = () => showView('home'); }
  document.querySelectorAll('[data-omni]').forEach((b) => b.onclick = () => omniSwitch(b.dataset.omni));
