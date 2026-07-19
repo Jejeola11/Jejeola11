@@ -1,6 +1,13 @@
 // ============================================================
 // POST /.netlify/functions/flyer-hero   (Flyer Studio — generate hero visual)
-// Body: { project_id, prompt, aspect }
+// Body: { project_id, prompt, aspect, reference_image_urls?, reference_roles? }
+//   reference_roles: { [url]: 'subject'|'background'|'layout'|'headline'|'features'|'cta' }
+//   Optional per-reference role tags, set by tapping a reference thumbnail
+//   in the UI (no typing needed) -- each tagged reference gets an explicit,
+//   numbered instruction telling the image model exactly what to take from
+//   it, on top of whatever the chat/typed prompt already says. An untagged
+//   reference still works exactly as before (general visual grounding, no
+//   specific role asserted).
 // Generates the background/hero visual ONLY (no text/logos — that's
 // composited afterward via flyer-composite.js). Back on GPT Image 2
 // (routed through WaveSpeed), matching flyer-composite.js — moved to Nano
@@ -38,6 +45,32 @@ const MODEL_I2I = 'gpt-image-2-ws-edit';
 const FALLBACK_T2I = 'nano-banana';
 const FALLBACK_I2I = 'nano-banana-edit';
 
+// "headline"/"features"/"cta" don't render text here (that's
+// flyer-composite.js's job) -- tagging a reference with one of those roles
+// means "leave the right kind of open space", not "render this text".
+const ROLE_LABELS = {
+  subject: 'EXACT SUBJECT/PRODUCT reference — use this exact subject, matching its color, shape and identity precisely',
+  background: 'BACKGROUND/TEXTURE reference — use this exact texture or material as the background',
+  layout: 'LAYOUT/COMPOSITION reference — replicate how elements are arranged in this image (substituting in the correct subject from another tagged reference where applicable)',
+  headline: 'HEADLINE AREA reference — leave open, uncluttered space in the same position and proportion this image reserves for a headline (no text needs to be rendered here — that happens in a later step, just leave the space)',
+  features: 'FEATURES AREA reference — leave open space in the same position and style this image reserves for feature call-outs (no text needed here — just leave the space)',
+  cta: 'CTA AREA reference — leave open space in the same position and style this image reserves for a call-to-action element (no text needed here — just leave the space)',
+};
+// Builds "Image 1 is a ... reference. Image 3 is a ... reference." for
+// whichever of `refs` (in the SAME order they're actually sent to the
+// model) have a tagged role, looked up by URL rather than array index so a
+// stale/reordered roles map can never mis-bind a tag to the wrong image.
+function buildRoleMapping(refs, rolesByUrl) {
+  if (!rolesByUrl) return '';
+  const lines = [];
+  refs.forEach((url, i) => {
+    const role = rolesByUrl[url];
+    const label = role && ROLE_LABELS[role];
+    if (label) lines.push(`Image ${i + 1} is a ${label}.`);
+  });
+  return lines.length ? lines.join(' ') + ' ' : '';
+}
+
 exports.handler = async (event) => {
   let db, user, cost = 0;
   try {
@@ -52,6 +85,7 @@ exports.handler = async (event) => {
     const prompt = (body.prompt || '').trim();
     const aspect = body.aspect || '4:5';
     const referenceImageUrls = (Array.isArray(body.reference_image_urls) ? body.reference_image_urls : []).filter(Boolean).slice(0, 20);
+    const referenceRoles = (body.reference_roles && typeof body.reference_roles === 'object') ? body.reference_roles : null;
     if (!prompt) return json(400, { error: 'Missing image prompt.' });
 
     db = admin();
@@ -115,15 +149,17 @@ exports.handler = async (event) => {
     // fan-out from growing unbounded. Each hosting call also has its own
     // timeout — see muapiHostFile in _muapi.js — so one slow reference
     // can't stall the submission either way.
-    const hostedRefs = refs.length ? await Promise.all(refs.slice(0, 10).map(muapiHostImage)) : [];
+    const refsSent = refs.slice(0, 10);
+    const hostedRefs = refsSent.length ? await Promise.all(refsSent.map(muapiHostImage)) : [];
+    const finalPrompt = buildRoleMapping(refsSent, referenceRoles) + prompt;
 
     let id;
     if (wantsWS) {
-      const r = await submitFlyerImage(model, { prompt, aspect, images: hostedRefs });
+      const r = await submitFlyerImage(model, { prompt: finalPrompt, aspect, images: hostedRefs });
       if (!r) throw new Error('WaveSpeed did not start the job');
       id = r.requestId;
     } else {
-      const payload = { prompt, aspect_ratio: aspect };
+      const payload = { prompt: finalPrompt, aspect_ratio: aspect };
       if (hostedRefs.length) payload.images_list = hostedRefs;
       const sub = await fetch(`${MUAPI_BASE}/${model}`, {
         method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },

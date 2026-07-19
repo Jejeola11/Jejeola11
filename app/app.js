@@ -2960,7 +2960,7 @@ function flyerLoadProject(p) {
  flyerHistory = [];
  flyerCompositeRefs = { headline: null, features: null, cta: null }; ['headline', 'features', 'cta'].forEach(renderFlyerCompositeRef);
  flyerLayers = (Array.isArray(p.layers) ? p.layers : []).map((l) => l.instruction);
- flyerRefUrls = Array.isArray(p.reference_image_urls) ? p.reference_image_urls.map((u) => ({ url: u, on: true })) : [];
+ flyerRefUrls = Array.isArray(p.reference_image_urls) ? p.reference_image_urls.map((u) => ({ url: u, on: true, role: '' })) : [];
  renderFlyerRefs();
  $('flyerLog').innerHTML = '';
  flyerAppendLog('assistant', `Loaded: ${p.brief || '(untitled)'}`);
@@ -2996,18 +2996,33 @@ async function flyerPickRefs(files) {
  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
  const path = `${user.id}/flyerref-${Date.now()}-${i}.${ext}`;
  await uploadWithRetry('avatars', path, file);
- flyerRefUrls.push({ url: sb.storage.from('avatars').getPublicUrl(path).data.publicUrl, on: true });
+ flyerRefUrls.push({ url: sb.storage.from('avatars').getPublicUrl(path).data.publicUrl, on: true, role: '' });
  } catch (error) { note('flyerRefNote', (error && error.message) || 'Upload failed.', 'err'); }
  }
  renderFlyerRefs();
  note('flyerRefNote', ` ${flyerRefUrls.length} reference(s) attached — tap any to include/exclude it from generation.`, 'ok');
 }
+// Tap-to-tag: each reference can optionally be told exactly what role it
+// plays (exact subject, background texture, overall layout, or where the
+// headline/features/CTA areas should stay open for later) instead of that
+// having to be typed out in the chat -- flyer-hero.js turns whichever are
+// tagged into an explicit numbered instruction for the image model.
+// Untagged ("General") references still work exactly as before.
+const FLYER_REF_ROLES = [
+ ['', 'General'], ['subject', 'Exact subject'], ['background', 'Background'],
+ ['layout', 'Layout'], ['headline', 'Headline area'], ['features', 'Features area'], ['cta', 'CTA area'],
+];
 function renderFlyerRefs() {
  $('flyerRefThumbs').innerHTML = flyerRefUrls.map((r, i) => `
+ <div style="width:74px">
  <div style="position:relative;cursor:pointer" onclick="window.fuseFlyerToggleRef(${i})">
  <img src="${r.url}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:2px solid ${r.on ? 'var(--gold)' : 'var(--line)'};opacity:${r.on ? '1' : '.4'}">
  ${r.on ? '<span class="ref-check"><svg viewBox="0 0 22 22" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11.5l4.5 4.5 9-10"/></svg></span>' : ''}
  <span class="ref-x" onclick="event.stopPropagation();window.fuseFlyerRmRef(${i})"></span>
+ </div>
+ <select style="width:100%;margin-top:4px;font-size:10.5px;padding:2px" onchange="window.fuseFlyerSetRefRole(${i}, this.value)" onclick="event.stopPropagation()">
+ ${FLYER_REF_ROLES.map(([v, label]) => `<option value="${v}" ${(r.role || '') === v ? 'selected' : ''}>${label}</option>`).join('')}
+ </select>
  </div>`).join('');
  // Make the connection to generation visible right where it matters — this
  // panel is well above the "Generate visual" button, so it wasn't obvious
@@ -3015,11 +3030,12 @@ function renderFlyerRefs() {
  const heroNote = $('flyerHeroRefNote');
  if (heroNote) {
  const selected = flyerRefUrls.filter((r) => r.on).length;
- heroNote.textContent = flyerRefUrls.length ? ` ${selected} of ${flyerRefUrls.length} selected for this generation — tap a reference above to include/exclude it.` : '';
+ heroNote.textContent = flyerRefUrls.length ? ` ${selected} of ${flyerRefUrls.length} selected for this generation — tap a reference to include/exclude it, or tag its role below it.` : '';
  }
 }
 window.fuseFlyerRmRef = (i) => { flyerRefUrls.splice(i, 1); renderFlyerRefs(); };
 window.fuseFlyerToggleRef = (i) => { if (flyerRefUrls[i]) flyerRefUrls[i].on = !flyerRefUrls[i].on; renderFlyerRefs(); };
+window.fuseFlyerSetRefRole = (i, role) => { if (flyerRefUrls[i]) flyerRefUrls[i].role = role; };
 
 function flyerAppendLog(role, text) {
  const log = $('flyerLog');
@@ -3128,9 +3144,18 @@ async function flyerGenHero(auto) {
  $('flyerHeroResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Generating the hero visual…</div></div>';
  note('flyerHeroNote', '');
  try {
+ // reference_roles is keyed by URL, not array position, so a tag can
+ // never mis-bind to the wrong image even if refs get reordered/toggled
+ // between renders — only the (usually few) actually-tagged ones are sent.
+ const referenceRoles = {};
+ flyerRefUrls.filter((r) => r.on && r.role).forEach((r) => { referenceRoles[r.url] = r.role; });
  const res = await fetch('/.netlify/functions/flyer-hero', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
- body: JSON.stringify({ project_id: flyerProjectId || undefined, prompt, aspect: $('flyerAspect').value, reference_image_urls: flyerRefUrls.filter((r) => r.on).map((r) => r.url) }),
+ body: JSON.stringify({
+ project_id: flyerProjectId || undefined, prompt, aspect: $('flyerAspect').value,
+ reference_image_urls: flyerRefUrls.filter((r) => r.on).map((r) => r.url),
+ reference_roles: Object.keys(referenceRoles).length ? referenceRoles : undefined,
+ }),
  });
  const d = await res.json();
  if (res.status === 402) { note('flyerHeroNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = label; return; }
@@ -3200,11 +3225,15 @@ async function flyerUploadHero(file) {
  } catch (e) { note('flyerHeroNote', e.message || 'Upload failed', 'err'); }
 }
 
-let flyerLayerImgUrls = [];
+// Each attached layer image carries its OWN optional note ("just the
+// logo", "the badge sticker") saying what to take from THAT image
+// specifically, instead of one shared instruction trying to describe every
+// attached image at once — tap an image, upload it, then say what's in it.
+let flyerLayerImgs = [];
 async function flyerPickLayerImgs(files) {
  if (preview) { showAuth('signup'); return; }
  if (!files || !files.length) return;
- const limit = 5 - flyerLayerImgUrls.length;
+ const limit = 5 - flyerLayerImgs.length;
  if (limit <= 0) return note('flyerLayerNote', 'Max 5 images per layer.', 'err');
  note('flyerLayerNote', 'Uploading…', 'ok');
  for (let i = 0; i < Math.min(files.length, limit); i++) {
@@ -3213,18 +3242,22 @@ async function flyerPickLayerImgs(files) {
  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
  const path = `${user.id}/flyerlayer-${Date.now()}-${i}.${ext}`;
  await uploadWithRetry('avatars', path, file);
- flyerLayerImgUrls.push(sb.storage.from('avatars').getPublicUrl(path).data.publicUrl);
+ flyerLayerImgs.push({ url: sb.storage.from('avatars').getPublicUrl(path).data.publicUrl, note: '' });
  } catch (error) { note('flyerLayerNote', (error && error.message) || 'Upload failed.', 'err'); }
  }
  renderFlyerLayerImgs();
- note('flyerLayerNote', ` ${flyerLayerImgUrls.length} image(s) attached.`, 'ok');
+ note('flyerLayerNote', ` ${flyerLayerImgs.length} image(s) attached — say what to take from each one below it (optional).`, 'ok');
 }
 function renderFlyerLayerImgs() {
- $('flyerLayerImgThumbs').innerHTML = flyerLayerImgUrls.map((u, i) =>
- `<div style="position:relative"><img src="${u}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line)">
- <span class="ref-x" onclick="window.fuseFlyerRmLayerImg(${i})"></span></div>`).join('');
+ $('flyerLayerImgThumbs').innerHTML = flyerLayerImgs.map((img, i) =>
+ `<div style="width:74px">
+ <div style="position:relative"><img src="${img.url}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line)">
+ <span class="ref-x" onclick="window.fuseFlyerRmLayerImg(${i})"></span></div>
+ <input placeholder="e.g. just the logo" value="${(img.note || '').replace(/"/g, '&quot;')}" oninput="window.fuseFlyerSetLayerNote(${i}, this.value)" style="width:100%;margin-top:4px;font-size:10.5px;padding:3px 5px">
+ </div>`).join('');
 }
-window.fuseFlyerRmLayerImg = (i) => { flyerLayerImgUrls.splice(i, 1); renderFlyerLayerImgs(); };
+window.fuseFlyerRmLayerImg = (i) => { flyerLayerImgs.splice(i, 1); renderFlyerLayerImgs(); };
+window.fuseFlyerSetLayerNote = (i, val) => { if (flyerLayerImgs[i]) flyerLayerImgs[i].note = val; };
 
 async function flyerSuggestLayers() {
  if (preview) { showAuth('signup'); return; }
@@ -3279,7 +3312,7 @@ async function flyerAddLayer() {
  try {
  const res = await fetch('/.netlify/functions/flyer-layer', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
- body: JSON.stringify({ project_id: flyerProjectId, instruction, extra_image_urls: flyerLayerImgUrls }),
+ body: JSON.stringify({ project_id: flyerProjectId, instruction, layer_images: flyerLayerImgs }),
  });
  const d = await res.json();
  if (res.status === 402) { note('flyerLayerNote', 'Out of credits — top up.', 'err'); openBuy(); btn.disabled = false; btn.textContent = 'Add layer'; return; }
@@ -3288,7 +3321,7 @@ async function flyerAddLayer() {
  flyerLayers.push(instruction);
  $('flyerLayerLog').innerHTML = flyerLayers.map((l) => `<div class="muted" style="font-size:12px"> ${l}</div>`).join('');
  $('flyerLayerInput').value = '';
- flyerLayerImgUrls = []; renderFlyerLayerImgs();
+ flyerLayerImgs = []; renderFlyerLayerImgs();
  note('flyerLayerNote', 'Applying… ⏳', 'ok');
  let s = 0;
  const timer = setInterval(async () => {

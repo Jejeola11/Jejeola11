@@ -1,11 +1,15 @@
 // ============================================================
 // POST /.netlify/functions/flyer-layer   (Flyer Studio — add a visual layer)
-// Body: { project_id, instruction, extra_image_urls? }
-//   extra_image_urls: up to 5 images attached to THIS specific layer call —
-//   an element to insert (a logo, a product shot, a sticker) or a reference
-//   flyer to copy a specific detail from. The instruction text says which;
-//   this endpoint just makes sure the image(s) are actually in front of the
-//   model when it edits.
+// Body: { project_id, instruction, layer_images? }
+//   layer_images: [{ url, note? }] — up to 5 images attached to THIS
+//   specific layer call, each with its OWN optional short note ("just the
+//   logo", "the badge sticker") saying what to take from THAT image
+//   specifically. Previously this was one shared `instruction` trying to
+//   describe every attached image at once, which an image-editing model has
+//   no reliable way to bind back to the right picture -- each image now
+//   gets its own explicit, numbered instruction; `instruction` itself is
+//   still free for the overall placement/style direction (where it goes,
+//   how big, blended how).
 // Adds ONE requested visual layer to the project's current working image
 // via GPT Image 2's edit variant, routed through WaveSpeed (matches
 // flyer-hero.js — both moved back from Nano Banana Pro after real
@@ -47,7 +51,10 @@ exports.handler = async (event) => {
     let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
     const projectId = body.project_id;
     const instruction = (body.instruction || '').trim();
-    const layerImages = (Array.isArray(body.extra_image_urls) ? body.extra_image_urls : []).filter(Boolean).slice(0, 5);
+    const layerImages = (Array.isArray(body.layer_images) ? body.layer_images : [])
+      .filter((x) => x && typeof x.url === 'string' && x.url)
+      .slice(0, 5)
+      .map((x) => ({ url: x.url, note: (x.note || '').trim() }));
     if (!projectId) return json(400, { error: 'Missing project_id' });
     if (!instruction) return json(400, { error: 'Describe what to add.' });
 
@@ -70,13 +77,22 @@ exports.handler = async (event) => {
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
-    const attachmentNote = layerImages.length
-      ? ` ${layerImages.length} additional reference image(s) are attached for this edit — the instruction above says whether each is an element to insert into the flyer, or a detail/style to copy from.`
-      : '';
-    const editPrompt = `Edit this image: ${instruction}.${attachmentNote} Keep everything else in the image exactly as it is — same subject, same composition, same colors elsewhere. Do NOT add any text, words, logos, watermarks, or legible signage — visual elements only.`;
+    // Image 1 is always the current hero (sent first below) -- each
+    // attached layer image gets an explicit numbered note here rather than
+    // one shared instruction trying to describe every attached image at
+    // once, which an image-editing model has no reliable way to bind back
+    // to the right picture. A blank note still tells the model that image
+    // is a genuine attachment for this edit, not filler.
+    const attachmentNotes = layerImages.map((img, i) => {
+      const n = i + 2;
+      return img.note
+        ? `Image ${n} is an attached reference — take only "${img.note}" from it and ignore everything else in that image.`
+        : `Image ${n} is an attached reference for this edit — use it as described in the instruction below.`;
+    }).join(' ');
+    const editPrompt = `Edit this image: ${instruction}. ${attachmentNotes ? attachmentNotes + ' ' : ''}Keep everything else in the image exactly as it is — same subject, same composition, same colors elsewhere. Do NOT add any text, words, logos, watermarks, or legible signage — visual elements only.`;
     const projectRefBudget = Math.max(0, MAX_IMAGES - 1 - layerImages.length);
     const extraRefs = (Array.isArray(project.reference_image_urls) ? project.reference_image_urls : []).slice(0, projectRefBudget);
-    const hosted = await Promise.all([project.hero_image_url, ...layerImages, ...extraRefs].map(muapiHostImage));
+    const hosted = await Promise.all([project.hero_image_url, ...layerImages.map((x) => x.url), ...extraRefs].map(muapiHostImage));
     // Nano Banana Pro has no "keep current aspect" auto option — it needs a
     // real enum value every time, so this reads back the project's own
     // chosen aspect (persisted at flyer-hero.js time) so an edit on the
