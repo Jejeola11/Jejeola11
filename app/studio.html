@@ -27,10 +27,10 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/app/styles.css?v=20260719a">
-<script src="/app/config.js?v=20260719a"></script>
-<script src="/app/course.js?v=20260719a"></script>
-<script src="/app/fiveweek.js?v=20260719a"></script>
+<link rel="stylesheet" href="/app/styles.css?v=20260720a">
+<script src="/app/config.js?v=20260720a"></script>
+<script src="/app/course.js?v=20260720a"></script>
+<script src="/app/fiveweek.js?v=20260720a"></script>
 </head>
 <body>
 
@@ -1076,6 +1076,14 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  </div>
 
  <div id="adminPanel" style="display:none">
+ <div class="shead"><h2> Admin — check access</h2></div>
+ <div class="panel">
+ <p class="muted" style="margin:0 0 8px;font-size:13px">See exactly what a buyer's account has right now — plan, credits, and every course they're actually unlocked for.</p>
+ <input id="lookupEmail" type="email" placeholder="buyer@email.com" autocomplete="off">
+ <button class="btn ghost block" id="lookupBtn" style="margin-top:8px">Check access</button>
+ <div class="note" id="lookupNote"></div>
+ </div>
+
  <div class="shead"><h2> Admin — grant access</h2></div>
  <div class="panel">
  <p class="muted" style="margin:0 0 8px;font-size:13px">Buyer paid by transfer? Enter their email, pick what they bought, tap Grant. </p>
@@ -1209,6 +1217,6 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  </div>
 </div>
 
-<script type="module" src="/app/app.js?v=20260719a"></script>
+<script type="module" src="/app/app.js?v=20260720a"></script>
 </body>
 </html>

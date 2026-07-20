@@ -2085,6 +2085,28 @@ async function loadProfile() {
  }
  } else { $('adminPanel').style.display = 'none'; }
 }
+async function adminLookup() {
+ const email = $('lookupEmail').value.trim();
+ if (!email) return note('lookupNote', 'Enter an email.', 'err');
+ const btn = $('lookupBtn'); btn.disabled = true; btn.textContent = 'Checking…';
+ try {
+ const res = await fetch('/.netlify/functions/admin-lookup', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ email }),
+ });
+ const d = await res.json();
+ if (!res.ok) throw new Error(d.error || 'Failed');
+ const courseNames = { 'wk-course': 'The $500 Week', 'atelier-full': 'Fuse Atelier (legacy full)', 'atelier-starter': 'Fuse Atelier — Starter', 'atelier-creator': 'Fuse Atelier — Creator', 'atelier-empire': 'Fuse Atelier — Empire' };
+ const unlockList = (d.unlocks || []).map((k) => courseNames[k] || k);
+ const lines = [
+ `Plan: <b>${d.plan}</b>${d.is_admin ? ' (admin)' : ''}`,
+ `Credits: <b>${d.credits}</b>`,
+ `Courses unlocked: <b>${unlockList.length ? unlockList.join(', ') : 'none'}</b>`,
+ ];
+ note('lookupNote', lines.join('<br>'), 'ok');
+ } catch (e) { note('lookupNote', e.message || 'Failed', 'err'); }
+ btn.disabled = false; btn.textContent = 'Check access';
+}
 async function adminGrant(custom) {
  const email = $('adminEmail').value.trim();
  if (!email) return note('adminNote', 'Enter the buyer\'s email.', 'err');
@@ -4803,6 +4825,7 @@ window.addEventListener('DOMContentLoaded', () => {
  $('payoutBtn').onclick = requestPayout;
  $('copyRef').onclick = () => { navigator.clipboard.writeText($('refLink').value); $('copyRef').textContent = 'Copied!'; setTimeout(() => $('copyRef').textContent = 'Copy', 1500); };
  $('logoutBtn').onclick = logout;
+ { const lb = $('lookupBtn'); if (lb) lb.onclick = adminLookup; }
  $('adminGrant').onclick = () => adminGrant(false);
  $('adminGrantCredits').onclick = () => adminGrant(true);
  { const rb = $('revokeBtn'); if (rb) rb.onclick = adminRevoke; }
