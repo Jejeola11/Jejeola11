@@ -148,6 +148,21 @@ window.FUSE = {
     { slug: 'ai-object-eraser',      name: 'Object Eraser',     badge: 'Clean',   credits: 4,  sample: '/app/media/samples/s4.jpg' },
   ],
 
+  // Multi-tool studios (Omni Studio, Editing Studio, Avatar Studio, Flyer
+  // Studio) bundle several priced tools each, so they don't fit the
+  // single-model/single-credit card shape above -- these route straight
+  // into openStudio(route) instead of a single generation. `tabs` controls
+  // which Create-grid filter chips (all/video/image) surface the tile;
+  // every one always shows under "all". Previously only reachable via the
+  // home "Explore more AI features" chip cloud or the guide wizard, not
+  // from the Create grid itself.
+  STUDIO_TILES: [
+    { slug: 'studio-omni',   name: 'Omni Studio',   badge: 'Edit · Avatar · Lip-Sync', route: 'omni',       sample: '/app/media/samples/vid3.mp4', tabs: ['all', 'video'] },
+    { slug: 'studio-edit',   name: 'Editing Studio', badge: 'Captions · CTA · Cuts',    route: 'editstudio', sample: '/app/media/samples/vid1.mp4', tabs: ['all', 'video'] },
+    { slug: 'studio-avatar', name: 'Avatar Studio',  badge: 'Consistent character',     route: 'avatar',     sample: '/app/media/samples/s3.jpg',   tabs: ['all', 'video', 'image'] },
+    { slug: 'studio-flyer',  name: 'Flyer Studio',   badge: 'Design & Flyers',          route: 'flyer',      sample: '/app/media/samples/s6.jpg',   tabs: ['all', 'image'] },
+  ],
+
   // Quick idea chips on Home — tapping fills the FULL prompt (not just the title).
   PRESETS: [
     { label: 'Nigerian entrepreneur', prompt: 'confident Nigerian entrepreneur in a tailored suit, modern office background, soft cinematic lighting, editorial magazine portrait, ultra-detailed, premium color grade' },

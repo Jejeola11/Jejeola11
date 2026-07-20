@@ -484,33 +484,35 @@ function buildModels(kind) {
 
  const tagOf = (s) => (cfg.MODEL_TAGS || {})[s] || '';
  const cat = (arr, c) => arr.map((m) => Object.assign({ cat: c }, m));
- const ALL = cat(cfg.IMAGE_MODELS, 'image').concat(cat(cfg.VIDEO_MODELS, 'video'), cat(cfg.TOOL_MODELS, 'tools'));
+ const studios = (tab) => (cfg.STUDIO_TILES || []).filter((m) => (m.tabs || []).includes(tab)).map((m) => Object.assign({ cat: 'studio' }, m));
+ const ALL = cat(cfg.IMAGE_MODELS, 'image').concat(cat(cfg.VIDEO_MODELS, 'video'), cat(cfg.TOOL_MODELS, 'tools'), studios('all'));
  let list;
  if (modelKind === 'all') list = ALL;
  else if (modelKind === 'new') list = ALL.filter((m) => tagOf(m.slug));
- else if (modelKind === 'video') list = cat(cfg.VIDEO_MODELS, 'video');
+ else if (modelKind === 'video') list = cat(cfg.VIDEO_MODELS, 'video').concat(studios('video'));
  else if (modelKind === 'tools') list = cat(cfg.TOOL_MODELS, 'tools');
- else list = cat(cfg.IMAGE_MODELS, 'image');
+ else list = cat(cfg.IMAGE_MODELS, 'image').concat(studios('image'));
 
  const q = ($('modelSearch').value || '').toLowerCase();
  const shown = list.filter((m) => m.name.toLowerCase().includes(q) || (m.badge || '').toLowerCase().includes(q));
- const catLabel = { image: 'Image', video: 'Video', tools: 'Edit' };
+ const catLabel = { image: 'Image', video: 'Video', tools: 'Edit', studio: 'Studio' };
  $('modelGrid').innerHTML = shown.map((m) => {
  const locked = isLocked(m.slug);
  const t = tagOf(m.slug);
  const media = m.sample
- ? (m.cat === 'video' ? `<video src="${m.sample}" autoplay muted loop playsinline preload="auto"></video>` : `<img src="${m.sample}">`)
+ ? (/\.mp4(\?|$)/i.test(m.sample) ? `<video src="${m.sample}" autoplay muted loop playsinline preload="auto"></video>` : `<img src="${m.sample}">`)
  : '＋';
- return `<div class="ccard${locked ? ' locked' : ''}" data-slug="${m.slug}" data-cat="${m.cat}">
+ return `<div class="ccard${locked ? ' locked' : ''}" data-slug="${m.slug}" data-cat="${m.cat}" data-route="${m.route || ''}">
  <div class="cc-media">${media}
  ${t ? `<span class="cc-tag t-${t.toLowerCase()}">${t}</span>` : ''}
  <span class="cc-cat">${catLabel[m.cat] || ''}</span>
  ${locked ? '<span class="lock-badge"> Pro</span>' : ''}</div>
- <div class="cc-info"><div class="cc-name">${m.name}</div><div class="cc-meta">${m.badge || ''} · ${m.credits} cr</div></div>
+ <div class="cc-info"><div class="cc-name">${m.name}</div><div class="cc-meta">${m.badge || ''}${m.cat === 'studio' ? '' : ' · ' + m.credits + ' cr'}</div></div>
  </div>`;
  }).join('');
  $('modelGrid').querySelectorAll('.ccard').forEach((el) => el.onclick = () => {
  const slug = el.dataset.slug, c = el.dataset.cat;
+ if (c === 'studio') { openStudio(el.dataset.route); return; }
  if (isLocked(slug)) { toast(' Subscribe to unlock this model'); openBuy(); return; }
  if (c === 'video') openVideo(slug);
  else if (c === 'tools') openTool(slug);
