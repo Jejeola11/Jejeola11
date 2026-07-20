@@ -72,7 +72,9 @@ const REFERRAL = { reward: 30, bonus: 15 };
 
 // Naira per US dollar — used only for displaying $ prices to foreigners.
 // Update to taste; pricing should be value-based, not a strict FX conversion.
-const USD_RATE = 1550;
+// Updated 20 Jul 2026 to the real mid-market rate (~₦1,380) + a small
+// buffer for drift, was stuck at 1550 (~12% stale) before this.
+const USD_RATE = 1400;
 
 // ============================================================
 // COST-PLUS PRICING — guarantees profit on every generation.

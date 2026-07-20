@@ -11,7 +11,9 @@ window.FUSE = {
   PREVIEW_CODE: 'FUSE-VIP',
 
   // Naira per US dollar — for showing $ prices to foreigners (display only).
-  USD_RATE: 1550,
+  // Updated 20 Jul 2026 to the real mid-market rate (~₦1,380) + a small
+  // buffer for drift, was stuck at 1550 (~12% stale) before this.
+  USD_RATE: 1400,
 
   // ===== Payments =====
   // Flipped to 'paystack' — the automated checkout (paystack-init.js +
