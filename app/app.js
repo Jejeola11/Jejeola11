@@ -1505,8 +1505,8 @@ function renderWeek() {
  <div class="wk-pay">
  <h3>Get instant access</h3>
  <div class="price">${fmtN(WK.price)}</div>
- <button class="btn gold block" id="wkBuy"> Message me on WhatsApp to pay →</button>
- <p class="muted" style="font-size:12px;margin-top:8px">I'll send you account details. Once you've paid, send me your email and I'll unlock the course for you — <b class="gold">plus 100 bonus credits</b> to create with.</p>
+ <button class="btn gold block" id="wkBuy"> Pay & unlock instantly →</button>
+ <p class="muted" style="font-size:12px;margin-top:8px">Secure checkout via Paystack — card, bank transfer or USSD. You're unlocked the moment payment confirms, <b class="gold">plus 100 bonus credits</b> to create with.</p>
  <a class="btn ghost block" id="wkLanding" href="${WK.landingUrl || '#'}" target="_blank" rel="noopener" style="margin-top:8px"> See everything inside the course →</a>
  <div class="wk-or">— or —</div>
  <button class="btn ghost block" id="wkCredits">Unlock the full course with ${WK.creditsCost} credits</button>
@@ -1517,7 +1517,7 @@ function renderWeek() {
  </div>
  <div class="note" id="wkPayNote"></div>
  </div>`;
- $('wkBuy').onclick = () => { if (WK.buyWhatsapp) window.open(WK.buyWhatsapp, '_blank'); else note('wkPayNote', 'WhatsApp link not set yet — add it in fiveweek.js.', 'err'); };
+ $('wkBuy').onclick = buyWeekCourse;
  $('wkCredits').onclick = weekUnlockCredits;
  $('wkRedeem').onclick = weekRedeemCode;
  $('weekBody').innerHTML = weekLockedPreview();
@@ -1583,7 +1583,7 @@ async function weekUnlockDay(key) {
  try {
  const res = await fetch('/.netlify/functions/unlock-module', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ module_key: key }) });
  const data = await res.json();
- if (res.status === 402) { note('wkPayNote', `Not enough credits (need ${cost}) — top up, or message me on WhatsApp to get the full course.`, 'err'); openBuy(); return; }
+ if (res.status === 402) { note('wkPayNote', `Not enough credits (need ${cost}) — top up, or pay for the full course directly.`, 'err'); openBuy(); return; }
  if (!res.ok) throw new Error(data.error || 'Failed');
  if (data.credits != null) $('creditCount').textContent = data.credits;
  weekDayUnlocks.add(key); toast(`Day ${d.day} unlocked! `);
@@ -1680,7 +1680,7 @@ async function weekUnlockCredits() {
  try {
  const res = await fetch('/.netlify/functions/unlock-module', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ module_key: 'wk-course' }) });
  const d = await res.json();
- if (res.status === 402) { note('wkPayNote', 'Not enough credits — top up, or message me on WhatsApp to pay directly.', 'err'); openBuy(); $('wkCredits').disabled = false; return; }
+ if (res.status === 402) { note('wkPayNote', 'Not enough credits — top up, or pay for the full course directly.', 'err'); openBuy(); $('wkCredits').disabled = false; return; }
  if (!res.ok) throw new Error(d.error || 'Failed');
  if (d.credits != null) $('creditCount').textContent = d.credits;
  weekUnlocked = true; toast('Unlocked! '); renderWeek();
@@ -2259,6 +2259,26 @@ async function buy(pack, el) {
  if (!res.ok) throw new Error(data.error || 'Could not start payment');
  window.location.href = data.authorization_url;
  } catch (e) { note('buyNote', e.message, 'err'); if (el) el.style.opacity = '1'; }
+}
+// The $500 Week's own buy button -- same paystack-init flow as buy() above,
+// just a fixed pack ('wk_course') instead of whatever the user picked from
+// the credit-pack list. Replaces the old "message me on WhatsApp to pay"
+// flow entirely -- every payment on Fuse Studio goes through Paystack now.
+async function buyWeekCourse() {
+ const btn = $('wkBuy'); if (btn) { btn.disabled = true; btn.textContent = 'Opening secure checkout…'; }
+ note('wkPayNote', '');
+ try {
+ const res = await fetch('/.netlify/functions/paystack-init', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ pack: 'wk_course' }),
+ });
+ const data = await res.json();
+ if (!res.ok) throw new Error(data.error || 'Could not start payment');
+ window.location.href = data.authorization_url;
+ } catch (e) {
+ note('wkPayNote', e.message || 'Could not start checkout — try again.', 'err');
+ if (btn) { btn.disabled = false; btn.textContent = ' Pay & unlock instantly →'; }
+ }
 }
 // Bank-transfer / Selar stopgap. Buyer pays, messages proof on WhatsApp,
 // you unlock them with Profile → Admin → Grant access.

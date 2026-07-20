@@ -29,6 +29,11 @@ const PACKS = {
   // Legacy single-price course (kept so old links/grants don't break).
   course: { label: 'Fuse Atelier Course', amount_naira: 60000, credits: 500, kind: 'course', plan: 'pro' },
 
+  // The $500 Week — standalone course, paid straight through Paystack (no
+  // more "message me on WhatsApp to pay" — see fiveweek.js). Matches the
+  // price + bonus already documented there: ₦5,000, 100 bonus credits.
+  wk_course: { label: 'The $500 Week', amount_naira: 5000, credits: 100, kind: 'course', course: 'wk-course' },
+
   // ---- Credit top-up bundles (one-time; buy anytime, even mid-plan) ----
   bundle_120: { label: '120 credits', amount_naira: 3000,  credits: 120, kind: 'pack' },
   bundle_320: { label: '320 credits', amount_naira: 7000,  credits: 320, kind: 'pack' },

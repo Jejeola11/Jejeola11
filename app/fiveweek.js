@@ -9,24 +9,23 @@
 // Fuse Character Lab, Fuse Reactor) instead of the old external tool stack
 // (Ideogram / Kling / Claude).
 //
-// Access:  full-plan/admin  OR  a valid access code (given after you manually
-//          grant them in Admin -> "Unlock course for this email")  OR
-//          unlocked with in-app credits.  First step after access is the
-//          WhatsApp-group gate.
+// Access:  full-plan/admin  OR  a valid access code (Admin -> "Unlock course
+//          for this email", for manual corrections/comps only)  OR  unlocked
+//          with in-app credits.  First step after access is the
+//          WhatsApp-group gate (that's the course *community*, not payment).
 //
-// Payment: buyers tap "Message me on WhatsApp" (prefilled purchase message,
-// same as the landing page) -> you send account details -> they pay -> you
-// take their email -> Admin panel -> "Unlock course for this email". No
-// Selar right now.
+// Payment: buyers tap "Pay & unlock instantly" -> Paystack checkout (see
+// _packs.js's 'wk_course' pack) -> paystack-webhook.js unlocks 'wk-course'
+// in module_unlocks the moment payment confirms, same flow as every other
+// pack/course on Fuse Studio. No more manual WhatsApp-then-Admin-grant step.
 //
 // Video slots: set a URL per day key ('wk-2','wk-3','wk-5') in the course_videos
 // table (same admin flow as Atelier) and it appears automatically. Until then a
 // "coming soon" placeholder shows and the text lesson still works.
 // ============================================================
 window.FUSE_5WEEK = {
-  price: 5000,                  // ₦ course price
-  buyWhatsapp: 'https://wa.me/2349044558101?text=Hi%20Ria%21%20I%20want%20to%20join%20The%20%24500%20Week%20course%20%28AI%20UGC%20%26%20AI%20Influencer%29.%20Please%20send%20me%20the%20payment%20details%20%F0%9F%99%8F',
-  whatsapp: 'https://chat.whatsapp.com/JMVhLvgCs40JXtNv7Yf1zI?s=cl&p=a&mlu=1&amv=2', // course discussion group
+  price: 5000,                  // ₦ course price -- must match _packs.js's 'wk_course' entry
+  whatsapp: 'https://chat.whatsapp.com/JMVhLvgCs40JXtNv7Yf1zI?s=cl&p=a&mlu=1&amv=2', // course discussion group (community, not payment)
   accessCode: 'UGC500',         // code you can hand out manually if you ever want a self-serve unlock
   creditsCost: 250,             // in-app credit price to unlock (optional path, ~ same value as ₦5,000)
   charLabBuyUrl: 'https://fusecharacterlabpage.netlify.app/', // purchase / sales page (Day 2 banner + promo card)
