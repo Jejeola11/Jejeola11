@@ -1798,6 +1798,7 @@ function omniSwitch(tab) {
  $('omniEditPane').style.display = tab === 'edit' ? 'block' : 'none';
  $('omniRefPane').style.display = tab === 'ref' ? 'block' : 'none';
  $('omniAvatarPane').style.display = tab === 'avatar' ? 'block' : 'none';
+ $('omniDialoguePane').style.display = tab === 'dialogue' ? 'block' : 'none';
 }
 
 async function omniUpload(file, kind) {
@@ -1916,6 +1917,58 @@ async function omniAvatarGenerate() {
  else { $('creditCount').textContent = data.credits; pollGrid([data.request_id], $('omniAvatarResult'), 'omniAvatarNote', btn, ' Generate talking video'); return; }
  } catch (e) { note('omniAvatarNote', e.message || 'Failed', 'err'); }
  btn.disabled = false; btn.textContent = ' Generate talking video';
+}
+
+// ---------------- Lip-Sync Dialogue (Omni Studio) ----------------
+let dlgVideoUrl = '';
+let dlgAudioUrl = '';
+let dlgAudioMode = false; // false = type a script (Kling built-in voice), true = upload my own audio
+
+async function dlgPickVideo(files) {
+ if (!files || !files[0]) return;
+ note('dlgNote', 'Uploading…', 'ok');
+ try {
+ dlgVideoUrl = await omniUpload(files[0], 'video');
+ $('dlgVideoPreview').src = dlgVideoUrl; $('dlgVideoPreview').style.display = 'block';
+ note('dlgNote', '');
+ } catch (e) { note('dlgNote', e.message || 'Upload failed', 'err'); }
+}
+async function dlgPickAudio(files) {
+ if (!files || !files[0]) return;
+ note('dlgNote', 'Uploading…', 'ok');
+ try { dlgAudioUrl = await omniUpload(files[0], 'audio'); $('dlgAudioName').textContent = ' ' + files[0].name; note('dlgNote', ''); }
+ catch (e) { note('dlgNote', e.message || 'Upload failed', 'err'); }
+}
+function dlgToggleAudio() {
+ dlgAudioMode = !dlgAudioMode;
+ const btn = $('dlgAudioToggle');
+ btn.setAttribute('aria-pressed', String(dlgAudioMode));
+ btn.textContent = dlgAudioMode ? '🎙 Use my own audio: ON' : '🎙 Use my own audio: OFF';
+ btn.classList.toggle('gold', dlgAudioMode);
+ btn.classList.toggle('ghost', !dlgAudioMode);
+ $('dlgTextWrap').style.display = dlgAudioMode ? 'none' : 'block';
+ $('dlgAudioWrap').style.display = dlgAudioMode ? 'block' : 'none';
+}
+async function dlgGenerate() {
+ if (preview) { showAuth('signup'); return; }
+ if (!dlgVideoUrl) return note('dlgNote', 'Upload the video you want dialogue added to.', 'err');
+ if (dlgAudioMode && !dlgAudioUrl) return note('dlgNote', 'Add an audio clip.', 'err');
+ if (!dlgAudioMode && !$('dlgScript').value.trim()) return note('dlgNote', 'Write the line you want spoken.', 'err');
+ const btn = $('dlgGen'); btn.disabled = true; btn.textContent = 'Starting…'; note('dlgNote', '');
+ try {
+ const body = { video_url: dlgVideoUrl, mode: dlgAudioMode ? 'audio' : 'text' };
+ if (dlgAudioMode) { body.audio_url = dlgAudioUrl; body.duration_sec = $('dlgVideoPreview').duration || undefined; }
+ else { body.text = $('dlgScript').value.trim(); body.voice_language = $('dlgLang').value; body.voice_speed = parseFloat($('dlgSpeed').value); }
+ const res = await fetch('/.netlify/functions/lipsync-dialogue', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify(body),
+ });
+ const data = await res.json();
+ if (res.status === 402) { note('dlgNote', 'Out of credits.', 'err'); openBuy(); }
+ else if (!res.ok) throw new Error(data.error || 'Could not start the dialogue pass');
+ else { $('creditCount').textContent = data.credits; pollGrid([data.request_id], $('dlgResult'), 'dlgNote', btn, ' Add dialogue'); return; }
+ } catch (e) { note('dlgNote', e.message || 'Failed', 'err'); }
+ btn.disabled = false; btn.textContent = ' Add dialogue';
 }
 
 // ---------------- library / recent ----------------
@@ -4799,6 +4852,12 @@ window.addEventListener('DOMContentLoaded', () => {
  { const p = $('omniAvatarAudioPick'); if (p) p.onclick = () => $('omniAvatarAudioFile').click(); }
  { const f = $('omniAvatarAudioFile'); if (f) f.onchange = (e) => { omniAvatarPickAudio(e.target.files); e.target.value = ''; }; }
  { const g = $('omniAvatarGen'); if (g) g.onclick = omniAvatarGenerate; }
+ { const p = $('dlgVideoPick'); if (p) p.onclick = () => $('dlgVideoFile').click(); }
+ { const f = $('dlgVideoFile'); if (f) f.onchange = (e) => { dlgPickVideo(e.target.files); e.target.value = ''; }; }
+ { const p = $('dlgAudioPick'); if (p) p.onclick = () => $('dlgAudioFile').click(); }
+ { const f = $('dlgAudioFile'); if (f) f.onchange = (e) => { dlgPickAudio(e.target.files); e.target.value = ''; }; }
+ { const t = $('dlgAudioToggle'); if (t) t.onclick = dlgToggleAudio; }
+ { const g = $('dlgGen'); if (g) g.onclick = dlgGenerate; }
  $('qSkip').onclick = skipQuiz;
  $('refBtn').onclick = () => $('refFile').click();
  $('refFile').onchange = (e) => pickReferences(e.target.files);

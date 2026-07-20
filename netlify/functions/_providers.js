@@ -493,6 +493,46 @@ async function submitLipsyncResync({ video, audio }) {
   return { requestId: 'ws:' + id, provider: 'wavespeed' };
 }
 
+// ---- Kling Lip-Sync Dialogue — add real speech to an EXISTING video -------
+// Confirmed live on WaveSpeed's own model catalog, 2026-07-20 (schemas
+// pulled from wavespeed.ai/models/kwaivgi/kling-lipsync/*; not yet
+// round-trip tested against a completed generation in this codebase — if
+// either call ever errors on a field name, this comment is the place to
+// correct it). Two variants, same shape as submitLipsyncResync above but a
+// DIFFERENT provider (Kling itself, not Sync Labs) and text mode gets you
+// speech from a typed script with NO separate audio-generation step:
+//   text  -> kwaivgi/kling-lipsync/text-to-video  {video, text, voice_id, voice_language, voice_speed}
+//   audio -> kwaivgi/kling-lipsync/audio-to-video {video, audio}
+// BOTH require a source VIDEO with a visible face (not a still image) --
+// this dubs dialogue onto a clip you already generated (e.g. Kling Turbo
+// Pro's silent motion), it does not animate a photo from scratch.
+const LIPSYNC_DIALOGUE_ROUTES = {
+  text: 'kwaivgi/kling-lipsync/text-to-video',
+  audio: 'kwaivgi/kling-lipsync/audio-to-video',
+};
+// The only publicly documented example voice_id for the text-to-video
+// variant -- WaveSpeed's docs don't list the full catalog of voice
+// characters, so this is the one known-safe default until a real script
+// confirms it works (or needs swapping) against arbitrary text.
+const LIPSYNC_DEFAULT_VOICE_ID = 'genshin_klee2';
+
+async function submitLipsyncDialogue({ video, mode, text, voice_language, voice_speed, audio }) {
+  if (!hasWaveSpeed()) throw new Error('WAVESPEED_KEY missing.');
+  if (!video) throw new Error('Missing source video.');
+  const useAudio = mode === 'audio';
+  const wsModel = LIPSYNC_DIALOGUE_ROUTES[useAudio ? 'audio' : 'text'];
+  let body;
+  if (useAudio) {
+    if (!audio) throw new Error('Missing audio.');
+    body = { video, audio };
+  } else {
+    if (!text) throw new Error('Missing script text.');
+    body = { video, text, voice_id: LIPSYNC_DEFAULT_VOICE_ID, voice_language: voice_language || 'en', voice_speed: voice_speed || 1 };
+  }
+  const id = await wsSubmit(wsModel, body);
+  return { requestId: 'ws:' + id, provider: 'wavespeed' };
+}
+
 // ---- Flyer Studio image route (WaveSpeed's GPT Image 2) --------------------
 // The model the user specifically wants for "perfect flyer design" — but
 // MuAPI's wrapper for it genuinely takes 50-90s+ of real inference time
@@ -600,4 +640,4 @@ async function submitToolWS(slug, { image, prompt }) {
   return { requestId: 'ws:' + id, provider: 'wavespeed' };
 }
 
-module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitOmniReference, submitLipsyncResync, submitFlyerImage, submitImageWS, submitToolWS, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle, synthesizeResemble, listResembleVoices, hasResemble, chatCompletion, encodeModelImage, decodeModelImage, triggerTextWorker };
+module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitOmniReference, submitLipsyncResync, submitLipsyncDialogue, submitFlyerImage, submitImageWS, submitToolWS, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle, synthesizeResemble, listResembleVoices, hasResemble, chatCompletion, encodeModelImage, decodeModelImage, triggerTextWorker };

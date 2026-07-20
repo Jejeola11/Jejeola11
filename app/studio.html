@@ -588,6 +588,7 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  <button class="mtab active" data-omni="edit"> Gemini Omni Edit</button>
  <button class="mtab" data-omni="ref"> Seedance 2 Omni</button>
  <button class="mtab" data-omni="avatar"> Talking Avatar</button>
+ <button class="mtab" data-omni="dialogue"> Lip-Sync Dialogue</button>
  </div>
 
  <!-- Gemini Omni Video Edit -->
@@ -652,6 +653,44 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  <button class="btn gold block" id="omniAvatarGen" style="margin-top:14px"> Generate talking video</button>
  <div class="note" id="omniAvatarNote"></div>
  <div class="result" id="omniAvatarResult" style="margin-top:12px;min-height:200px"><div class="muted">Your talking avatar video appears here.</div></div>
+ </div>
+
+ <!-- Lip-Sync Dialogue -->
+ <div class="panel omni-pane" id="omniDialoguePane" style="display:none">
+ <h3> Lip-Sync Dialogue</h3>
+ <p class="muted" style="margin:0 0 10px;font-size:13px">Already have a video (from Video Studio, Avatar Creator, anywhere)? Dub real, lip-synced speech onto it — powered by Kling's dedicated lip-sync model.</p>
+ <label class="fld">Source video</label>
+ <div class="muted" style="font-size:12px;margin-bottom:6px">Needs a clearly visible face — this adds dialogue to motion you already generated, it doesn't animate a still photo.</div>
+ <button class="btn ghost sm" id="dlgVideoPick"> Upload video</button>
+ <input type="file" id="dlgVideoFile" accept="video/*" hidden>
+ <video id="dlgVideoPreview" style="width:100%;border-radius:12px;margin-top:10px;display:none" controls></video>
+
+ <div style="display:flex;align-items:center;gap:10px;margin-top:16px">
+ <label class="fld" style="margin:0">How should it get the voice?</label>
+ <button type="button" id="dlgAudioToggle" class="btn ghost sm" aria-pressed="false" title="Toggle: type a script, or supply your own audio">🎙 Use my own audio: OFF</button>
+ </div>
+
+ <div id="dlgTextWrap">
+ <label class="fld" for="dlgScript" style="margin-top:10px">Script — what should they say?</label>
+ <textarea id="dlgScript" placeholder="e.g. Give this to Kevin." style="min-height:70px"></textarea>
+ <div class="row2" style="margin-top:8px">
+ <div><label class="fld" for="dlgLang">Language</label><select id="dlgLang"><option value="en">English</option><option value="zh">Chinese</option></select></div>
+ <div><label class="fld" for="dlgSpeed">Speed</label><select id="dlgSpeed"><option value="1">Normal</option><option value="0.9">Slightly slower</option><option value="1.15">Slightly faster</option></select></div>
+ </div>
+ <div class="muted" style="font-size:11.5px;margin-top:6px">Built-in Kling voice — quick, one step. First run tells us if it needs a different voice option.</div>
+ </div>
+
+ <div id="dlgAudioWrap" style="display:none">
+ <label class="fld" style="margin-top:10px">Audio clip</label>
+ <div class="muted" style="font-size:12px;margin-bottom:6px">Use a line from Audio Studio (voice clone or Resemble) for full control over the voice, then sync it here.</div>
+ <button class="btn ghost sm" id="dlgAudioPick"> Add audio</button>
+ <input type="file" id="dlgAudioFile" accept="audio/*" hidden>
+ <div class="muted" id="dlgAudioName" style="font-size:12px;margin-top:6px"></div>
+ </div>
+
+ <button class="btn gold block" id="dlgGen" style="margin-top:14px"> Add dialogue</button>
+ <div class="note" id="dlgNote"></div>
+ <div class="result" id="dlgResult" style="margin-top:12px;min-height:200px"><div class="muted">Your video with dialogue appears here.</div></div>
  </div>
  </section>
 

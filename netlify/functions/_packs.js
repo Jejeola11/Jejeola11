@@ -197,6 +197,21 @@ function resyncCredits(durationSec) {
   return creditsFor(secs * RESYNC_PER_SEC_USD, RESYNC_MARGIN);
 }
 
+// Kling Lip-Sync Dialogue (add speech to an existing video) — confirmed
+// live on WaveSpeed's catalog 2026-07-20. Text mode is a flat $0.14/run
+// (built-in TTS from a typed script, no separate audio cost); audio mode
+// is $0.03/sec of the audio track, $0.15 minimum (5s floor).
+const LIPSYNC_TEXT_FLAT_USD = 0.14;
+const LIPSYNC_AUDIO_PER_SEC_USD = 0.03;
+const LIPSYNC_MARGIN = 1.6; // same premium/compute-heavy tier as the resync pass
+function lipsyncDialogueCredits(mode, durationSec) {
+  if (mode === 'audio') {
+    const secs = Math.max(5, Math.ceil(durationSec || 5));
+    return creditsFor(secs * LIPSYNC_AUDIO_PER_SEC_USD, LIPSYNC_MARGIN);
+  }
+  return creditsFor(LIPSYNC_TEXT_FLAT_USD, LIPSYNC_MARGIN);
+}
+
 // ---- Audio Studio (standalone narration/voiceover, Omnivoice) -------------
 // Same real per-minute cost as the avatar pipeline's voice track, priced on
 // its own with a friendlier margin since there's no video-generation cost
@@ -230,4 +245,4 @@ function canUseFree(model) {
   return (model in IMAGE_MODELS) || (model in VIDEO_MODELS) || FREE_REACTOR.includes(model);
 }
 
-module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree, PROMO, promoActive, creditsForPack, avatarVideoCredits, estimateScriptMinutes, audioCredits, resyncCredits };
+module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree, PROMO, promoActive, creditsForPack, avatarVideoCredits, estimateScriptMinutes, audioCredits, resyncCredits, lipsyncDialogueCredits };
