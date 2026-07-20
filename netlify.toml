@@ -16,18 +16,25 @@
 
 [functions]
   node_bundler = "esbuild"
-  # @ffmpeg-installer/ffmpeg + @ffprobe-installer/ffprobe ship a compiled
-  # binary that's read from disk at runtime (path.join(__dirname, ...)), not
-  # require()'d — so esbuild's dependency-graph bundling has no way to know
-  # it needs to ship that file, and it silently gets left out of the deploy
-  # even though everything works in local/CI tests where node_modules is
-  # fully present. external_node_modules is Netlify's documented mechanism
-  # for exactly this case (native binaries / dynamic-path packages): it skips
-  # bundling these and ships their real, unmodified package directories
-  # (binary included) alongside the function instead.
+  # @ffmpeg-installer/ffmpeg ships a compiled binary that's read from disk at
+  # runtime (path.join(__dirname, ...)), not require()'d — so esbuild's
+  # dependency-graph bundling has no way to know it needs to ship that file,
+  # and it silently gets left out of the deploy even though everything works
+  # in local/CI tests where node_modules is fully present. external_node_modules
+  # is Netlify's documented mechanism for exactly this case (native binaries /
+  # dynamic-path packages): it skips bundling these and ships their real,
+  # unmodified package directories (binary included) alongside the function.
   # @napi-rs/canvas is the same story — a native .node binary for its
   # platform package (@napi-rs/canvas-linux-x64-gnu), loaded dynamically.
-  external_node_modules = ["@ffmpeg-installer/ffmpeg", "@ffmpeg-installer/linux-x64", "@ffprobe-installer/ffprobe", "@ffprobe-installer/linux-x64", "@napi-rs/canvas", "@napi-rs/canvas-linux-x64-gnu"]
+  #
+  # NOTE: this list is applied to EVERY function's bundle (global [functions]
+  # scope), so each package here adds its full size to all ~66 function
+  # bundles the build stages on disk. @ffprobe-installer (~76MB) was removed
+  # entirely once no code needed it — probeDuration/probeDimensions now parse
+  # ffmpeg's own "-i" banner (see _ffmpeg.js) — which cut ~76MB off every
+  # single bundle and is what got the build back under Netlify's disk ceiling
+  # after adding a new function first tipped it over.
+  external_node_modules = ["@ffmpeg-installer/ffmpeg", "@ffmpeg-installer/linux-x64", "@napi-rs/canvas", "@napi-rs/canvas-linux-x64-gnu"]
 
 # ---- Clean routes for the hosted app ----
 # The new Fuse Studio landing is the front door.
