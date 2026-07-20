@@ -164,20 +164,29 @@ exports.handler = async (event) => {
     // Google Imagen direct route (no MuAPI markup) — only the simple case
     // (no reference images, single image, no upscale multiplier) to keep
     // this integration's blast radius small; everything else still goes
-    // through MuAPI exactly as before.
+    // through MuAPI exactly as before. Wrapped in try/catch: Google Cloud
+    // billing on GEMINI_API_KEY is a separate account from MuAPI/WaveSpeed,
+    // so a billing/quota failure here shouldn't dead-end the request — it
+    // just falls through to the normal MuAPI/WaveSpeed submission below
+    // (google-imagen4-ultra already has a real, working MuAPI slug).
     if (model === 'google-imagen4-ultra' && !useRef && count === 1 && resMult === 1 && hasGoogle()) {
-      const g = await submitImageGoogle(model, { prompt, aspect });
-      if (g) {
-        const buf = Buffer.from(g.base64, 'base64');
-        const ext = (g.mimeType || 'image/png').split('/')[1] || 'png';
-        const path = `${user.id}/gen-${Date.now()}.${ext}`;
-        const { error: upErr } = await db.storage.from('avatars').upload(path, buf, { contentType: g.mimeType, upsert: true });
-        if (upErr) throw new Error('Storage upload failed: ' + upErr.message);
-        const url = db.storage.from('avatars').getPublicUrl(path).data.publicUrl;
-        const reqId = 'g-img:' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
-        await db.from('jobs').insert({ request_id: reqId, user_id: user.id, kind: 'image', model, prompt, aspect, credits: cost, status: 'completed', output_url: url });
-        await db.from('generations').insert({ user_id: user.id, type: 'image', model, prompt, aspect, output_url: url, credits_spent: cost });
-        return json(200, { request_ids: [reqId], request_id: reqId, credits: balance, watermark: plan === 'free' && !isAdmin });
+      try {
+        const g = await submitImageGoogle(model, { prompt, aspect });
+        if (g) {
+          const buf = Buffer.from(g.base64, 'base64');
+          const ext = (g.mimeType || 'image/png').split('/')[1] || 'png';
+          const path = `${user.id}/gen-${Date.now()}.${ext}`;
+          const { error: upErr } = await db.storage.from('avatars').upload(path, buf, { contentType: g.mimeType, upsert: true });
+          if (upErr) throw new Error('Storage upload failed: ' + upErr.message);
+          const url = db.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+          const reqId = 'g-img:' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+          await db.from('jobs').insert({ request_id: reqId, user_id: user.id, kind: 'image', model, prompt, aspect, credits: cost, status: 'completed', output_url: url });
+          await db.from('generations').insert({ user_id: user.id, type: 'image', model, prompt, aspect, output_url: url, credits_spent: cost });
+          return json(200, { request_ids: [reqId], request_id: reqId, credits: balance, watermark: plan === 'free' && !isAdmin });
+        }
+      } catch (e) {
+        // Fall through to the MuAPI/WaveSpeed path below instead of failing
+        // the whole request on a Google-only billing/quota error.
       }
     }
 

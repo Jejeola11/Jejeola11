@@ -154,15 +154,15 @@ exports.handler = async (event) => {
     const hostedRefs = refsSent.length ? await Promise.all(refsSent.map(muapiHostImage)) : [];
     const finalPrompt = buildRoleMapping(refsSent, referenceRoles) + prompt;
 
-    let id;
-    if (wantsWS) {
-      const r = await submitFlyerImage(model, { prompt: finalPrompt, aspect, images: hostedRefs });
-      if (!r) throw new Error('WaveSpeed did not start the job');
-      id = r.requestId;
-    } else {
+    // Shared MuAPI submit -- used both as the static fallback (WAVESPEED_KEY
+    // missing entirely) AND as the dynamic fallback below when WaveSpeed IS
+    // configured but errors at runtime (e.g. an exhausted balance) -- a
+    // WaveSpeed top-up doesn't help if the code never actually retries
+    // elsewhere on failure, which is exactly what used to happen here.
+    async function muapiSubmit(fallbackModel) {
       const payload = { prompt: finalPrompt, aspect_ratio: aspect };
       if (hostedRefs.length) payload.images_list = hostedRefs;
-      const sub = await fetch(`${MUAPI_BASE}/${model}`, {
+      const sub = await fetch(`${MUAPI_BASE}/${fallbackModel}`, {
         method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
@@ -174,7 +174,20 @@ exports.handler = async (event) => {
         else if (j && (j.error || j.message)) m = (j.error && j.error.message) || j.error || j.message;
         throw new Error(m);
       }
-      id = j.request_id || j.id;
+      return j.request_id || j.id;
+    }
+
+    let id;
+    if (wantsWS) {
+      try {
+        const r = await submitFlyerImage(model, { prompt: finalPrompt, aspect, images: hostedRefs });
+        if (!r) throw new Error('WaveSpeed did not start the job');
+        id = r.requestId;
+      } catch (e) {
+        id = await muapiSubmit(refs.length ? FALLBACK_I2I : FALLBACK_T2I);
+      }
+    } else {
+      id = await muapiSubmit(model);
     }
     if (!id) throw new Error('Engine did not start the job');
 

@@ -34,6 +34,19 @@ const hasWaveSpeed = () => !!process.env.WAVESPEED_KEY;
 // watching. Test with a small manual generation before relying on it.
 const hasGoogle = () => !!process.env.GEMINI_API_KEY;
 
+// Recognizes an "out of funds/quota" style error from ANY provider (WaveSpeed,
+// Google) so a caller can fall through to the next configured provider
+// instead of dead-ending the user on it -- as opposed to swallowing every
+// error type indiscriminately, which would hide a genuine integration bug
+// (wrong field name, etc.) behind a confusing fallback failure instead.
+// Real-world trigger: WaveSpeed's own "Insufficient balance" text, Google's
+// quota/billing errors (RESOURCE_EXHAUSTED, "billing account"), and generic
+// 402/429 status codes some gateways surface without a matching keyword.
+function isBalanceError(err) {
+  const msg = String((err && err.message) || err || '').toLowerCase();
+  return /insufficient|balance|quota|billing|resource_exhausted|payment required|\b402\b|\b429\b/.test(msg);
+}
+
 // ---- WaveSpeed's own LLM API (replaces MuAPI's Claude wrapper) -------------
 // A genuine unified, OpenAI-compatible chat-completions endpoint — 260+
 // models including Claude, through the SAME WAVESPEED_KEY already used for
@@ -188,6 +201,19 @@ const GOOGLE_VIDEO_ROUTES = {
   'veo3-text-to-video': 'veo-3.1-generate-preview',
   'veo3-image-to-video': 'veo-3.1-generate-preview',
 };
+// Veo3 billed directly against GEMINI_API_KEY's Google Cloud account is a
+// COMPLETELY SEPARATE balance from WaveSpeed/MuAPI -- topping up WaveSpeed
+// does nothing for a Google-billing failure here (this is the actual cause
+// behind a student seeing "insufficient funds" on Veo3 right after a
+// WaveSpeed top-up -- Veo3 was never touching WaveSpeed at all). WaveSpeed
+// also hosts Google's own Veo3.1 model (confirmed live on its catalog,
+// 2026-07-20 -- google/veo3.1-fast/* at the same $1.20 price point already
+// priced into VIDEO_COST for veo3-text-to-video), so it's wired here as a
+// genuine fallback rather than leaving Google as the only path.
+const GOOGLE_FALLBACK_WS_ROUTES = {
+  'veo3-text-to-video': { kind: 't2v', pick: () => 'google/veo3.1-fast/text-to-video' },
+  'veo3-image-to-video': { kind: 'i2v', pick: () => 'google/veo3.1-fast/image-to-video' },
+};
 
 function durInt(duration) { return parseInt(duration, 10) || 5; }
 
@@ -297,31 +323,54 @@ async function googlePollVideo(operationName) {
 // PUBLIC API
 // ============================================================
 
+function wsVideoBody(route, opts, hosted) {
+  // grok-imagine's WaveSpeed duration is a strict {6,10} enum — our app's
+  // duration picker only ever offers "5s"/"10s", so 5 has to round up to
+  // the nearest value grok actually accepts rather than being sent as-is.
+  const rawDuration = durInt(opts.duration);
+  const duration = route.durationEnum ? (route.durationEnum.includes(rawDuration) ? rawDuration : route.durationEnum.reduce((a, b) => Math.abs(b - rawDuration) < Math.abs(a - rawDuration) ? b : a)) : rawDuration;
+  const body = { prompt: opts.prompt || '', aspect_ratio: opts.aspect || '9:16', duration };
+  if (route.kind === 'i2v') {
+    body.image = (hosted && hosted[0]) || opts.image_url;
+    if (hosted && hosted[1]) body.last_image = hosted[1];
+  }
+  return body;
+}
+
 // Submit a VIDEO job. Returns { requestId, provider } — requestId is already
 // prefixed for the poller. `hosted` is the array of already-hosted reference
 // image URLs (start frame first). Tries Google direct first for veo3 models
-// (no MuAPI markup), then WaveSpeed, then falls back to MuAPI.
+// (no MuAPI markup), then WaveSpeed, then falls back to MuAPI — a failure at
+// any tier (including an exhausted balance/quota) falls through to the
+// next one instead of dead-ending the request, since each tier is billed
+// against a genuinely separate account (Google Cloud vs WaveSpeed vs MuAPI).
 async function submitVideo(model, opts, hosted) {
   const googleModel = GOOGLE_VIDEO_ROUTES[model];
   if (googleModel && hasGoogle()) {
-    const opName = await googleSubmitVideo(googleModel, opts);
-    return { requestId: 'g:' + Buffer.from(opName).toString('base64url'), provider: 'google' };
-  }
-  const route = VIDEO_ROUTES[model];
-  if (route && hasWaveSpeed()) {
-    const wsModel = route.pick(opts);
-    // grok-imagine's WaveSpeed duration is a strict {6,10} enum — our app's
-    // duration picker only ever offers "5s"/"10s", so 5 has to round up to
-    // the nearest value grok actually accepts rather than being sent as-is.
-    const rawDuration = durInt(opts.duration);
-    const duration = route.durationEnum ? (route.durationEnum.includes(rawDuration) ? rawDuration : route.durationEnum.reduce((a, b) => Math.abs(b - rawDuration) < Math.abs(a - rawDuration) ? b : a)) : rawDuration;
-    const body = { prompt: opts.prompt || '', aspect_ratio: opts.aspect || '9:16', duration };
-    if (route.kind === 'i2v') {
-      body.image = (hosted && hosted[0]) || opts.image_url;
-      if (hosted && hosted[1]) body.last_image = hosted[1];
+    try {
+      const opName = await googleSubmitVideo(googleModel, opts);
+      return { requestId: 'g:' + Buffer.from(opName).toString('base64url'), provider: 'google' };
+    } catch (e) {
+      // Fall through to WaveSpeed/MuAPI below rather than surfacing this —
+      // a Google Cloud billing/quota failure here has nothing to do with
+      // WaveSpeed's balance, so don't dead-end the user on it when an
+      // alternate provider is configured. Still log anything that ISN'T a
+      // recognized balance/quota error, so a genuine integration bug (bad
+      // field, model renamed) doesn't just vanish behind a silent fallback.
+      if (!isBalanceError(e)) console.error('[submitVideo] Google Veo failed, falling back:', e && e.message);
     }
-    const id = await wsSubmit(wsModel, body);
-    return { requestId: 'ws:' + id, provider: 'wavespeed' };
+  }
+  const route = VIDEO_ROUTES[model] || GOOGLE_FALLBACK_WS_ROUTES[model];
+  if (route && hasWaveSpeed()) {
+    try {
+      const id = await wsSubmit(route.pick(opts), wsVideoBody(route, opts, hosted));
+      return { requestId: 'ws:' + id, provider: 'wavespeed' };
+    } catch (e) {
+      // Same idea: a WaveSpeed balance/quota error shouldn't dead-end the
+      // user either — fall through to MuAPI below (the same fallback that
+      // already runs when WAVESPEED_KEY is simply unset).
+      if (!isBalanceError(e)) console.error('[submitVideo] WaveSpeed failed, falling back:', e && e.message);
+    }
   }
   // MuAPI (default / fallback) — unchanged behaviour.
   const payload = { prompt: opts.prompt, aspect_ratio: opts.aspect, duration: durInt(opts.duration), resolution: opts.resolution };
@@ -334,9 +383,16 @@ async function submitVideo(model, opts, hosted) {
 async function submitAvatar(model, { image, audio, prompt, resolution }) {
   const route = AVATAR_ROUTES[model];
   if (route && hasWaveSpeed()) {
-    const body = { image, audio, prompt: prompt || '', resolution: resolution || '480p' };
-    const id = await wsSubmit(route.pick(), body);
-    return { requestId: 'ws:' + id, provider: 'wavespeed' };
+    try {
+      const body = { image, audio, prompt: prompt || '', resolution: resolution || '480p' };
+      const id = await wsSubmit(route.pick(), body);
+      return { requestId: 'ws:' + id, provider: 'wavespeed' };
+    } catch (e) {
+      // A WaveSpeed balance/quota error shouldn't dead-end the user —
+      // fall through to MuAPI below (the same fallback that already runs
+      // when WAVESPEED_KEY is simply unset).
+      if (!isBalanceError(e)) console.error('[submitAvatar] WaveSpeed failed, falling back:', e && e.message);
+    }
   }
   // MuAPI fallback (existing omnihuman / kling-avatar slugs).
   const id = await muSubmit(model, { image_url: image, audio_url: audio, prompt });

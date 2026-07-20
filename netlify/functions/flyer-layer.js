@@ -99,13 +99,13 @@ exports.handler = async (event) => {
     // working hero never reshapes it.
     const aspect = project.aspect || '4:5';
 
-    let id;
-    if (wantsWS) {
-      const r = await submitFlyerImage(model, { prompt: editPrompt, aspect, images: hosted });
-      if (!r) throw new Error('WaveSpeed did not start the job');
-      id = r.requestId;
-    } else {
-      const sub = await fetch(`${MUAPI_BASE}/${model}`, {
+    // Shared MuAPI submit -- the static fallback when WAVESPEED_KEY is
+    // missing entirely, and ALSO the dynamic fallback below when WaveSpeed
+    // is configured but errors at runtime (e.g. an exhausted balance) --
+    // otherwise a WaveSpeed top-up can't help a request that never retries
+    // elsewhere on failure.
+    async function muapiSubmit() {
+      const sub = await fetch(`${MUAPI_BASE}/${FALLBACK_MODEL}`, {
         method: 'POST', headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: editPrompt, images_list: hosted, aspect_ratio: 'Auto' }),
       });
@@ -117,7 +117,20 @@ exports.handler = async (event) => {
         else if (j && (j.error || j.message)) m = (j.error && j.error.message) || j.error || j.message;
         throw new Error(m);
       }
-      id = j.request_id || j.id;
+      return j.request_id || j.id;
+    }
+
+    let id;
+    if (wantsWS) {
+      try {
+        const r = await submitFlyerImage(model, { prompt: editPrompt, aspect, images: hosted });
+        if (!r) throw new Error('WaveSpeed did not start the job');
+        id = r.requestId;
+      } catch (e) {
+        id = await muapiSubmit();
+      }
+    } else {
+      id = await muapiSubmit();
     }
     if (!id) throw new Error('Engine did not start the job');
 
