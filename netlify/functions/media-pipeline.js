@@ -25,9 +25,8 @@ const { avatarVideoCredits, estimateScriptMinutes, IMAGE_MODELS, canUseFree } = 
 const { advance } = require('./_avatar-video');
 const {
   ensureWorkDir, cleanupTmp, downloadToFile, extractFrameAt, uploadToStorage,
-  overlayImageOnVideo, overlayImageAtTime, overlayTimedImages,
+  overlayImageOnVideo, overlayImageAtTime, overlayTimedImages, probeDimensions,
 } = require('./_ffmpeg');
-const { probeDimensions } = require('./_ffprobe');
 const { createCanvas, loadImage, drawCtaBanner } = require('./_canvas');
 const { chunkWords, extractWords, renderCaptionCard } = require('./_captions');
 const { muapiHostImage } = require('./_muapi');

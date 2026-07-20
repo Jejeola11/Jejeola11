@@ -54,6 +54,45 @@ async function ffmpeg(args) {
   }
 }
 
+// probeDuration/probeDimensions used to shell out to a separate ~76MB
+// @ffprobe-installer/ffprobe binary (see the old _ffprobe.js). That's a
+// second full native package Netlify bundles per function that imports it,
+// on top of the ffmpeg binary already bundled here -- confirmed via
+// side-by-side test against real ffprobe output (both duration to 2
+// decimals and width/height matched exactly, landscape and portrait) that
+// ffmpeg's own "-i" info banner carries the same data. `ffmpeg -i <file>`
+// exits non-zero with no output file given, but still prints the full
+// stream banner to stderr first -- that's the part read below. This banner
+// format (`Duration: HH:MM:SS.ss` and `WxH` inside a `Stream ... Video:`
+// line) has been stable for well over a decade, so this is a safe swap,
+// not a fragile scrape -- and it removes ffprobe as a dependency entirely.
+function ffmpegInfoBanner(filePath) {
+  return new Promise((resolve) => {
+    execFile(FFMPEG, ['-i', filePath], { maxBuffer: 1024 * 1024 * 16 }, (err, stdout, stderr) => {
+      resolve(String(stderr || ''));
+    });
+  });
+}
+
+async function probeDuration(filePath) {
+  const banner = await ffmpegInfoBanner(filePath);
+  const m = banner.match(/Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/);
+  if (!m) throw new Error('Could not read duration of ' + filePath);
+  const d = (+m[1]) * 3600 + (+m[2]) * 60 + parseFloat(m[3]);
+  if (!isFinite(d)) throw new Error('Could not read duration of ' + filePath);
+  return d;
+}
+
+// Get pixel dimensions (for sizing a CTA overlay to match exactly).
+async function probeDimensions(filePath) {
+  const banner = await ffmpegInfoBanner(filePath);
+  const line = banner.split('\n').find((l) => /Stream.*Video:/.test(l));
+  if (!line) throw new Error('Could not read video dimensions of ' + filePath);
+  const m = line.match(/,\s*(\d{2,5})x(\d{2,5})(?:\s|,|\[)/);
+  if (!m) throw new Error('Could not read video dimensions of ' + filePath);
+  return { width: parseInt(m[1], 10), height: parseInt(m[2], 10) };
+}
+
 // Extract a single frame at a given timestamp — used to pull the "master"
 // identity still out of an uploaded training video (near the start, once
 // the person is framed and settled, not mid-blink at frame 0).
@@ -185,4 +224,5 @@ module.exports = {
   workDir, ensureWorkDir, cleanupTmp, downloadToFile, ffmpeg,
   extractFrameAt, extractLastFrame, sliceAudio, concatAudio, concatVideos,
   muxAudio, overlayImageOnVideo, overlayImageAtTime, overlayTimedImages, uploadToStorage,
+  probeDuration, probeDimensions,
 };

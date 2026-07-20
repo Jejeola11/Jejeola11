@@ -41,8 +41,8 @@ const { submitAvatar, submitVideo, submitSpeech, synthesizeResemble, pollAny } =
 const {
   ensureWorkDir, cleanupTmp, downloadToFile,
   extractLastFrame, sliceAudio, concatAudio, concatVideos, muxAudio, uploadToStorage,
+  probeDuration,
 } = require('./_ffmpeg');
-const { probeDuration } = require('./_ffprobe');
 // Pure string-batching helpers, split into their own zero-dependency file so
 // job-status.js's Resemble branch can use them without pulling in this
 // entire (ffmpeg/ffprobe-heavy) module — see _speech-batch.js.
