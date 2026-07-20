@@ -71,10 +71,6 @@ module.exports = {
   "tier": 1,
   "module": "flyer-m3"
  },
- "flyer-3_5": {
-  "tier": 1,
-  "module": "flyer-m3"
- },
  "flyer-4_1": {
   "tier": 1,
   "module": "flyer-m4"
