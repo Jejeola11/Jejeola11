@@ -27,10 +27,10 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/app/styles.css?v=20260720c">
-<script src="/app/config.js?v=20260720c"></script>
-<script src="/app/course.js?v=20260720c"></script>
-<script src="/app/fiveweek.js?v=20260720c"></script>
+<link rel="stylesheet" href="/app/styles.css?v=20260720d">
+<script src="/app/config.js?v=20260720d"></script>
+<script src="/app/course.js?v=20260720d"></script>
+<script src="/app/fiveweek.js?v=20260720d"></script>
 </head>
 <body>
 
@@ -1076,6 +1076,16 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  </div>
 
  <div id="adminPanel" style="display:none">
+ <div class="shead"><h2> Admin — freelance invoice</h2></div>
+ <div class="panel">
+ <p class="muted" style="margin:0 0 8px;font-size:13px">For clients outside Fuse Studio (Sandeep, Michael, etc.) — creates a Paystack link, no account needed for them. Same-day payout, same as everything else here.</p>
+ <input id="invClientName" type="text" placeholder="Client name (e.g. Michael)" autocomplete="off">
+ <input id="invAmount" type="number" min="1" placeholder="Amount in ₦ (e.g. 200000)" inputmode="numeric" style="margin-top:8px">
+ <input id="invDescription" type="text" placeholder="What's it for? (optional)" autocomplete="off" style="margin-top:8px">
+ <button class="btn gold block" id="invCreate" style="margin-top:10px">Create invoice link</button>
+ <div class="note" id="invNote"></div>
+ </div>
+
  <div class="shead"><h2> Admin — check access</h2></div>
  <div class="panel">
  <p class="muted" style="margin:0 0 8px;font-size:13px">See exactly what a buyer's account has right now — plan, credits, and every course they're actually unlocked for.</p>
@@ -1217,6 +1227,6 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  </div>
 </div>
 
-<script type="module" src="/app/app.js?v=20260720c"></script>
+<script type="module" src="/app/app.js?v=20260720d"></script>
 </body>
 </html>

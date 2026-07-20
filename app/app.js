@@ -2085,6 +2085,26 @@ async function loadProfile() {
  }
  } else { $('adminPanel').style.display = 'none'; }
 }
+async function adminCreateInvoice() {
+ const client_name = $('invClientName').value.trim();
+ const amount_naira = parseInt($('invAmount').value, 10) || 0;
+ const description = $('invDescription').value.trim();
+ if (!client_name) return note('invNote', 'Enter the client\'s name.', 'err');
+ if (amount_naira <= 0) return note('invNote', 'Enter a valid amount.', 'err');
+ const btn = $('invCreate'); btn.disabled = true; btn.textContent = 'Creating…';
+ try {
+ const res = await fetch('/.netlify/functions/freelance-invoice', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ client_name, amount_naira, description }),
+ });
+ const d = await res.json();
+ if (!res.ok) throw new Error(d.error || 'Failed');
+ try { await navigator.clipboard.writeText(d.authorization_url); } catch (e) {}
+ note('invNote', `Link copied — send it to ${client_name}: <a href="${d.authorization_url}" target="_blank" rel="noopener" class="gold">${d.authorization_url}</a>`, 'ok');
+ $('invClientName').value = ''; $('invAmount').value = ''; $('invDescription').value = '';
+ } catch (e) { note('invNote', e.message || 'Failed', 'err'); }
+ btn.disabled = false; btn.textContent = 'Create invoice link';
+}
 async function adminLookup() {
  const email = $('lookupEmail').value.trim();
  if (!email) return note('lookupNote', 'Enter an email.', 'err');
@@ -4845,6 +4865,7 @@ window.addEventListener('DOMContentLoaded', () => {
  $('payoutBtn').onclick = requestPayout;
  $('copyRef').onclick = () => { navigator.clipboard.writeText($('refLink').value); $('copyRef').textContent = 'Copied!'; setTimeout(() => $('copyRef').textContent = 'Copy', 1500); };
  $('logoutBtn').onclick = logout;
+ { const ic = $('invCreate'); if (ic) ic.onclick = adminCreateInvoice; }
  { const lb = $('lookupBtn'); if (lb) lb.onclick = adminLookup; }
  $('adminGrant').onclick = () => adminGrant(false);
  $('adminGrantCredits').onclick = () => adminGrant(true);

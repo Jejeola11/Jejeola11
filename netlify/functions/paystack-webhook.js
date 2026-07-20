@@ -34,12 +34,9 @@ exports.handler = async (event) => {
   const d = payload.data || {};
   const reference = d.reference;
   const meta = d.metadata || {};
-  const pack = PACKS[meta.pack];
   const amountNaira = Math.round((d.amount || 0) / 100);
 
-  if (!reference || !pack) {
-    return { statusCode: 200, body: 'missing data' };
-  }
+  if (!reference) return { statusCode: 200, body: 'missing data' };
 
   const db = admin();
 
@@ -50,6 +47,29 @@ exports.handler = async (event) => {
   const { data: existing } = await db
     .from('payments').select('id').eq('reference', reference).maybeSingle();
   if (existing) return { statusCode: 200, body: 'already processed' };
+
+  // 1b) Freelance client invoices (see freelance-invoice.js) -- a one-off
+  // payment from someone with no Fuse Studio account at all (Sandeep,
+  // Michael, etc.). No credits, no course unlock, no user record beyond
+  // logging it under the admin who created the invoice: just record the
+  // payment and sweep it to your bank the same way every other Fuse
+  // Studio payment already does -- same-day, no extra fee, no manual
+  // dashboard clicking. Handled entirely separately from the
+  // pack-purchase flow below since there's no PACKS entry for it.
+  if (meta.kind === 'freelance') {
+    try {
+      await db.from('payments').insert({
+        user_id: meta.admin_user_id || null,
+        reference, amount_naira: amountNaira, pack: 'freelance', credits_added: 0,
+        status: 'success', raw: d,
+      });
+    } catch (e) {}
+    try { await sweepToBank(db, amountNaira, reference); } catch (e) { console.error('freelance payout sweep failed:', e && e.message); }
+    return { statusCode: 200, body: 'ok (freelance)' };
+  }
+
+  const pack = PACKS[meta.pack];
+  if (!pack) return { statusCode: 200, body: 'missing data' };
 
   // 3) Resolve the buyer's account. Logged-in purchases (from inside the
   // app) carry meta.user_id directly. Guest checkouts (landing-page tier
