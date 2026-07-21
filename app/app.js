@@ -164,6 +164,19 @@ window.fuseUseEndAsStart = async (url) => {
  window.scrollTo({ top: 0, behavior: 'smooth' });
  } catch (e) { ftStatus(e.message || 'Could not use end frame.'); }
 };
+// Attach a just-generated AI Avatar Studio image as the video studio's
+// starting frame — same handoff as fuseUseEndAsStart above, just skipping
+// the frame-extraction step since we already have a plain image URL.
+window.fuseUseAvatarAsVideoStart = (url) => {
+ if (preview) { showAuth('signup'); return; }
+ if (!vModel) vModel = cfg.VIDEO_MODELS.find((m) => m.slug === 'kling-v3-turbo-pro-text-to-video') || cfg.VIDEO_MODELS[0];
+ vRefUrl = url;
+ showView('video');
+ $('vRefThumb').src = url; $('vRefPreview').style.display = 'flex'; $('vRefBtn').style.display = 'none';
+ $('vPrompt').value = ''; $('vResult').innerHTML = '<div class="muted">Your avatar image is attached as the starting frame — describe the motion and generate.</div>';
+ note('vNote', ' Avatar image attached as your starting frame.', 'ok');
+ window.scrollTo({ top: 0, behavior: 'smooth' });
+};
 
 // In-app lightbox preview (no new browser tab).
 let lbUrl = '';
@@ -2970,11 +2983,11 @@ async function avatarGenerate() {
  else if (!res.ok) throw new Error(data.error || 'Failed');
  else {
  $('creditCount').textContent = data.credits;
- queueJob({ request_id: data.request_id, endpoint: 'job-status', mediaType: 'image', label: prompt.slice(0, 60), model: 'avatar' });
- startGlobalPoller();
- note('avGenNote', ' Started — rolling in Projects now.', 'ok');
- btn.disabled = false; btn.textContent = label;
- showView('library');
+ note('avGenNote', '');
+ $('avResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Generating…</div></div>';
+ pollJob(data.request_id, $('avResult'), 'avGenNote', btn, label, 'image', 100, (url) => {
+ $('avResult').insertAdjacentHTML('beforeend', `<button class="btn ghost sm" style="margin-top:8px" onclick="fuseUseAvatarAsVideoStart('${url}')">🎬 Use as video starting frame →</button>`);
+ });
  }
  } catch (e) { note('avGenNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
