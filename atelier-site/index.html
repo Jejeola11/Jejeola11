@@ -83,15 +83,12 @@ section{padding:92px 0;position:relative}
   .cta-s{display:inline}
 }
 
-/* ===== Hero with cursor image-reveal ===== */
+/* ===== Hero — solid teal, no background photo ===== */
 .hero{position:relative;min-height:92svh;display:grid;place-items:center;overflow:hidden;padding:80px 0 60px}
-.hero-reveal,.hero-front{position:absolute;inset:0}
-.hero-reveal{display:grid;grid-template-columns:1fr;gap:0;filter:saturate(1.1)}
-.hero-reveal img{width:100%;height:100%;object-fit:cover}
-.hero-front{background:
-  radial-gradient(1200px 600px at 75% -10%, rgba(20,82,74,.55), transparent 60%),
-  radial-gradient(900px 500px at 10% 110%, rgba(176,141,87,.25), transparent 60%),
-  linear-gradient(160deg,rgba(3,26,22,.94) 30%,rgba(5,38,32,.88) 70%,rgba(3,26,22,.94))}
+.hero-front{position:absolute;inset:0;background:
+  radial-gradient(1200px 600px at 75% -10%, rgba(20,82,74,.65), transparent 60%),
+  radial-gradient(900px 500px at 10% 110%, rgba(176,141,87,.2), transparent 60%),
+  linear-gradient(160deg,var(--teal-0) 0%,var(--teal-2) 55%,var(--teal-1) 100%)}
 .hero-in{position:relative;z-index:2;text-align:center;max-width:860px;padding:0 20px}
 .hero h1{font-size:clamp(34px,6.4vw,64px);margin:16px 0 18px;letter-spacing:-.5px}
 .hero p.sub{color:#C7D8D3;font-size:clamp(16px,2.4vw,19.5px);max-width:640px;margin:0 auto 28px}
@@ -263,9 +260,6 @@ footer a{color:var(--gold)}
 
 <!-- ===== HERO (static image background) ===== -->
 <header class="hero" id="hero">
-  <div class="hero-reveal" aria-hidden="true">
-    <img src="assets/s1.jpg" alt="">
-  </div>
   <div class="hero-front" id="heroFront" aria-hidden="true"></div>
   <div class="hero-in">
     <span class="kick">Online course · AI studio · client system — all in one</span>
@@ -281,7 +275,7 @@ footer a{color:var(--gold)}
       <a class="btn btn-gold" href="#pricing">Start earning this week →</a>
     </div>
   </div>
-  <div class="hint">✨ this flyer was made with Fuse Studio — the studio you get</div>
+  <div class="hint">✨ scroll to see the studio you get</div>
 </header>
 
 <!-- ===== AGITATE (the emotional bridge — nothing about the product yet) ===== -->
