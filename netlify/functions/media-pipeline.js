@@ -126,7 +126,8 @@ async function handleAvatarCreate(user, body) {
     db = admin();
     const { data: avatar } = await db.from('avatars').select('*').eq('id', avatarId).maybeSingle();
     if (!avatar || avatar.user_id !== user.id) return json(404, { error: 'Avatar not found.' });
-    if (!audioUrl && !avatar.voice_sample_url) return json(400, { error: 'Upload a voice sample, or attach your own pre-made audio, first.' });
+    const hasResembleVoice = avatar.tts_engine === 'resemble' && avatar.resemble_voice_uuid;
+    if (!audioUrl && !avatar.voice_sample_url && !hasResembleVoice) return json(400, { error: 'Upload a voice sample, attach your own pre-made audio, or pick a Resemble voice, first.' });
     const masterFrame = settings.start_image || avatar.trained_frame_url || avatar.model_sheet_url || avatar.image_url;
     if (!masterFrame) return json(400, { error: 'This avatar has no reference photo yet.' });
 

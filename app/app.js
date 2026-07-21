@@ -2815,7 +2815,8 @@ async function avvGenerate() {
  const script = $('avvScript').value.trim();
  if (!script) return note('avvNote', 'Write or paste the script first.', 'err');
  const a = avatarMap[selectedAvatar] || {};
- if (!avvOwnAudioUrl && !a.voice_sample_url) return note('avvNote', 'Upload a voice sample (or your own audio) above first.', 'err');
+ const hasResembleVoice = a.tts_engine === 'resemble' && a.resemble_voice_uuid;
+ if (!avvOwnAudioUrl && !a.voice_sample_url && !hasResembleVoice) return note('avvNote', 'Upload a voice sample (or your own audio), or pick a Resemble voice, above first.', 'err');
  if (jobCapReached('avvNote')) return;
  const mode = $('avvMode').value;
  const cameraMotion = $('avvCameraMotion').value.trim();
