@@ -843,6 +843,11 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  <div class="pillar-tabs" id="pillarTabs"></div>
  <div id="courseBody"></div>
 
+ <div id="courseResources" style="display:none;margin-top:22px">
+ <div class="shead"><h2> Resources</h2></div>
+ <div id="courseResourceList"></div>
+ </div>
+
  <div class="shead" style="margin-top:22px"><h2> The Arena</h2></div>
  <p class="muted" style="font-size:13px;margin:0 0 12px">Ria posts a challenge here — hop on it in the discussion group.</p>
  <div id="challengeList"></div>
@@ -1141,13 +1146,16 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  <button class="btn gold block" id="adminGrant" style="margin-top:10px">Grant access</button>
  <p class="muted" style="margin:14px 0 6px;font-size:12px">Manual correction / comp only — everyone pays through Paystack now:</p>
  <select id="adminCourse" style="margin-bottom:8px">
- <option value="atelier-full">Fuse Atelier course</option>
+ <option value="atelier-starter">Fuse Atelier — Starter (100 credits)</option>
+ <option value="atelier-creator">Fuse Atelier — Creator (400 credits)</option>
+ <option value="atelier-empire">Fuse Atelier — Empire (1200 credits)</option>
  <option value="wk-course">The $500 Week course</option>
+ <option value="atelier-full">Fuse Atelier — legacy full course (old ₦60k buyers)</option>
  </select>
  <label class="muted" style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:8px">
- <input id="adminCourseBonus" type="checkbox" style="width:auto"> Also give 500 bonus credits
+ <input id="adminCourseBonus" type="checkbox" style="width:auto" checked> <span id="adminCourseBonusLabel">Also give this tier's studio credits</span>
  </label>
- <button class="btn ghost block" id="adminGrantCourse">Unlock course for this email</button>
+ <button class="btn ghost block" id="adminGrantCourse">Grant this tier for this email</button>
  <p class="muted" style="margin:14px 0 6px;font-size:12px">Or add an exact number of credits (corrections / top-ups):</p>
  <input id="adminCredits" type="number" min="1" placeholder="e.g. 350" inputmode="numeric">
  <button class="btn ghost block" id="adminGrantCredits" style="margin-top:8px">Add custom credits</button>

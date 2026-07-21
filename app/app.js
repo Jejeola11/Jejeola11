@@ -1018,7 +1018,20 @@ async function openCourse() {
  $('cpFill').style.width = totalLessons ? Math.round((done / totalLessons) * 100) + '%' : '0%';
  $('cpText').textContent = `${done}/${totalLessons} lessons complete`;
  buildCourseBody();
+ buildCourseResources();
  loadAtelierFeed();
+}
+function buildCourseResources() {
+ const p = COURSE.find((x) => x.key === coursePillar);
+ const resources = (p && p.resources) || [];
+ const wrap = $('courseResources');
+ if (!resources.length) { wrap.style.display = 'none'; return; }
+ wrap.style.display = 'block';
+ $('courseResourceList').innerHTML = resources.map((r) => `
+ <a class="res-card" href="${r.url}" target="_blank" rel="noopener">
+ <div class="res-ic">⬇</div>
+ <div><div class="res-t">${r.title}</div><div class="res-d">${r.desc || ''}</div></div>
+ </a>`).join('');
 }
 function buildCourseBody() {
  const p = COURSE.find((x) => x.key === coursePillar); if (!p) return;
@@ -2229,11 +2242,21 @@ async function adminRevoke() {
  } catch (e) { note('revokeNote', e.message || 'Failed', 'err'); }
  btn.disabled = false; btn.textContent = 'Revoke';
 }
+// Matches each course/tier's real Paystack credit allotment (_packs.js) so a
+// manually-granted buyer (paid by transfer, whatsapp, etc.) gets the exact
+// same credits as someone who checked out normally for that tier — not a
+// flat guessed number.
+const ADMIN_COURSE_CREDITS = { 'atelier-starter': 100, 'atelier-creator': 400, 'atelier-empire': 1200, 'wk-course': 100, 'atelier-full': 500 };
+function adminCourseBonusForSelection() { return ADMIN_COURSE_CREDITS[$('adminCourse').value] || 0; }
+function updateAdminCourseBonusLabel() {
+ const n = adminCourseBonusForSelection();
+ $('adminCourseBonusLabel').textContent = n ? `Also give ${n} bonus credits (this tier's normal allotment)` : `Also give bonus credits`;
+}
 async function adminGrantCourse() {
  const email = $('adminEmail').value.trim();
  if (!email) return note('adminNote', 'Enter the buyer\'s email.', 'err');
  const course = $('adminCourse').value;
- const bonus_credits = $('adminCourseBonus').checked ? 500 : 0;
+ const bonus_credits = $('adminCourseBonus').checked ? adminCourseBonusForSelection() : 0;
  const btn = $('adminGrantCourse'); btn.disabled = true; btn.textContent = 'Unlocking…';
  try {
  const res = await fetch('/.netlify/functions/admin-grant', {
@@ -2242,10 +2265,10 @@ async function adminGrantCourse() {
  });
  const d = await res.json();
  if (!res.ok) throw new Error(d.error || 'Failed');
- note('adminNote', ` Course unlocked for ${d.email}${d.credits ? ` (+${d.credits} credits)` : ''}.`, 'ok');
- $('adminEmail').value = ''; $('adminCourseBonus').checked = false;
+ note('adminNote', ` ${course} granted for ${d.email}${d.credits ? ` (+${d.credits} credits)` : ''}.`, 'ok');
+ $('adminEmail').value = '';
  } catch (e) { note('adminNote', e.message || 'Failed', 'err'); }
- btn.disabled = false; btn.textContent = 'Unlock course for this email';
+ btn.disabled = false; btn.textContent = 'Grant this tier for this email';
 }
 
 // ---------------- community ----------------
@@ -4935,6 +4958,7 @@ window.addEventListener('DOMContentLoaded', () => {
  $('adminGrantCredits').onclick = () => adminGrant(true);
  { const rb = $('revokeBtn'); if (rb) rb.onclick = adminRevoke; }
  { const gc = $('adminGrantCourse'); if (gc) gc.onclick = adminGrantCourse; }
+ { const ac = $('adminCourse'); if (ac) { ac.onchange = updateAdminCourseBonusLabel; updateAdminCourseBonusLabel(); } }
  $('lbClose').onclick = () => $('lightbox').style.display = 'none';
  $('lbDl').onclick = () => downloadFile(lbUrl);
  $('authBtn').onclick = doAuth;
