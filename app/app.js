@@ -2291,9 +2291,13 @@ function promoCreditsFor(pack) {
  return mult ? pack.credits * mult : pack.credits;
 }
 function renderPacks() {
- // Free users see only subscription plans (no credit top-ups). Subscribers see everything.
- const isFree = userPlan === 'free' && !userIsAdmin;
- const packs = isFree ? cfg.PACKS.filter((p) => p.kind === 'sub' || p.kind === 'course') : cfg.PACKS;
+ // Every plan sees every pack, including one-time credit top-ups -- free
+ // users used to only see subscription/course tiers here (top-ups were
+ // subscriber-only), so a free user who just wanted a few more credits had
+ // no way to buy them without subscribing. Tools (upscale, background-
+ // remove, object-erase) still need a subscription regardless of credit
+ // balance -- that's a separate, unrelated gate, see isLocked().
+ const packs = cfg.PACKS;
  const promo = promoActive();
  $('packList').innerHTML = packs.map((p) => {
  const credits = promoCreditsFor(p);
@@ -2308,7 +2312,6 @@ function renderPacks() {
  <div class="pka">${price(p.naira)}</div></div>`;
  }).join('');
  if (promo) $('packList').insertAdjacentHTML('afterbegin', '<div class="pk-promo-strip"> FULL LAUNCH PROMO — boosted credits, 2 days only</div>');
- else if (isFree) $('packList').insertAdjacentHTML('afterbegin', '<div class="muted" style="font-size:12px;margin-bottom:8px;text-align:center">Subscribe to unlock all models + credit top-ups</div>');
  $('packList').querySelectorAll('.pk').forEach((el) => el.onclick = () => buy(el.dataset.pack, el));
  $('curToggle').textContent = showUsd ? 'Show ₦' : 'Show $';
 }
