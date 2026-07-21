@@ -35,9 +35,9 @@ const PACKS = {
   wk_course: { label: 'The $500 Week', amount_naira: 5000, credits: 100, kind: 'course', course: 'wk-course' },
 
   // ---- Credit top-up bundles (one-time; buy anytime, even mid-plan) ----
-  bundle_120: { label: '120 credits', amount_naira: 3000,  credits: 120, kind: 'pack' },
-  bundle_320: { label: '320 credits', amount_naira: 7000,  credits: 320, kind: 'pack' },
-  bundle_750: { label: '750 credits', amount_naira: 15000, credits: 750, kind: 'pack' },
+  bundle_120: { label: '100 credits', amount_naira: 3000,  credits: 100, kind: 'pack' },
+  bundle_320: { label: '300 credits', amount_naira: 7000,  credits: 300, kind: 'pack' },
+  bundle_750: { label: '700 credits', amount_naira: 15000, credits: 700, kind: 'pack' },
 };
 
 // ============================================================

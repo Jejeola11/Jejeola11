@@ -48,9 +48,9 @@ window.FUSE = {
     { key: 'atelier_starter', name: 'Fuse Atelier — Starter', naira: 10000, credits: 100,  note: 'Design skills + Money Engine', kind: 'course' },
     { key: 'atelier_creator', name: 'Fuse Atelier — Creator', naira: 25000, credits: 400,  note: '16 skills + community + Character Lab', kind: 'course', featured: true },
     { key: 'atelier_empire',  name: 'Fuse Atelier — Empire',  naira: 70000, credits: 1200, note: 'Everything + direct access to Ria', kind: 'course' },
-    { key: 'bundle_120', name: '120 credits',   naira: 3000,  credits: 120,  note: 'Top-up · never expires', kind: 'pack' },
-    { key: 'bundle_320', name: '320 credits',   naira: 7000,  credits: 320,  note: 'Top-up · best value',    kind: 'pack' },
-    { key: 'bundle_750', name: '750 credits',   naira: 15000, credits: 750,  note: 'Top-up · bulk',          kind: 'pack' },
+    { key: 'bundle_120', name: '100 credits',   naira: 3000,  credits: 100,  note: 'Top-up · never expires', kind: 'pack' },
+    { key: 'bundle_320', name: '300 credits',   naira: 7000,  credits: 300,  note: 'Top-up · best value',    kind: 'pack' },
+    { key: 'bundle_750', name: '700 credits',   naira: 15000, credits: 700,  note: 'Top-up · bulk',          kind: 'pack' },
   ],
 
   // Launch promo — mirrors netlify/functions/_packs.js exactly (dates + multipliers
