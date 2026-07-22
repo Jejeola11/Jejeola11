@@ -40,7 +40,21 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
   --gold:#F5C518; --gold-2:#E7C25C; --gold-deep:#B08D57;
   --ink:#EDF5F2; --muted:#93ADA6; --line:rgba(231,194,92,.16);
   --cream:#F6EFDF; --cream-2:#EFE4CB; --cream-ink:#16241F; --cream-muted:#5B6B62; --cream-amber:#8A6A2C;
+  /* ===== Rebrand palette (hero pass) — green/yellow/white gradient on a
+     light-teal-to-near-black background. Kept as its own set of tokens
+     rather than overwriting --gold/--teal-* above, since only the hero is
+     being rebuilt this pass — the rest of the page still reads the old
+     tokens until it's rebuilt too. ===== */
+  --re-green:#A9FF67; --re-yellow:#F4DB5E; --re-teal-l:#25454A; --re-teal-d:#090909;
 }
+.re-grad{background:linear-gradient(100deg,var(--re-green) 0%,var(--re-yellow) 45%,#FFFFFF 90%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite}
+.re-underline{position:relative;display:inline-block}
+.re-underline::after{content:'';position:absolute;left:2px;right:2px;bottom:-4px;height:7px;border-radius:5px;background:linear-gradient(100deg,var(--re-green),var(--re-yellow),#FFFFFF);box-shadow:0 0 14px rgba(169,255,103,.55)}
+.re-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(169,255,103,.35);background:rgba(169,255,103,.07);color:#E8F5D8;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:9px 18px;border-radius:30px}
+.re-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--re-green);box-shadow:0 0 8px 2px rgba(169,255,103,.7)}
+.re-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(100deg,var(--re-green),var(--re-yellow) 60%,#fff 120%);color:var(--re-teal-d);font-weight:800;border:0;border-radius:30px;padding:16px 30px;font-size:16px;text-decoration:none;box-shadow:0 10px 34px rgba(169,255,103,.3);transition:transform .15s,box-shadow .15s}
+.re-btn:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(169,255,103,.45)}
+.re-btn-ghost{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.35);color:#fff;background:rgba(255,255,255,.05);font-weight:700;font-size:13.5px;border-radius:30px;padding:9px 16px;text-decoration:none;white-space:nowrap}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:Archivo,system-ui,sans-serif;background:var(--teal-1);color:var(--ink);line-height:1.6;overflow-x:hidden}
@@ -99,6 +113,29 @@ section{padding:92px 0;position:relative}
 .hint{position:absolute;bottom:16px;left:0;right:0;text-align:center;color:var(--muted);font-size:12px;z-index:2;opacity:.65}
 .spark{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--gold);opacity:0;animation:float 7s linear infinite;z-index:1}
 @keyframes float{0%{transform:translateY(20px);opacity:0}12%{opacity:.85}88%{opacity:.35}100%{transform:translateY(-92svh);opacity:0}}
+
+/* ===== Rebrand hero specifics ===== */
+.re-hero-bg{background:linear-gradient(180deg,var(--re-teal-d) 0%,var(--re-teal-d) 45%,var(--re-teal-l) 100%)}
+.re-h1{font-size:clamp(32px,7vw,58px);line-height:1.12;margin:18px 0 16px;letter-spacing:-.5px;color:#fff}
+.re-quote{color:var(--re-yellow);font-style:italic;font-weight:600}
+.re-hero .sub{color:#CFE0DC}
+
+.re-video-frame{position:relative;margin:44px auto 0;max-width:640px;padding:14px}
+.re-video-glow{position:absolute;inset:0;border-radius:26px;background:linear-gradient(120deg,var(--re-green),var(--re-yellow),#fff,var(--re-green));background-size:300% auto;filter:blur(18px);opacity:.55;animation:regradmove 6s linear infinite;z-index:0}
+@keyframes regradmove{to{background-position:300% center}}
+.re-video-box{position:relative;z-index:1;border-radius:22px;padding:3px;background:linear-gradient(120deg,var(--re-green),var(--re-yellow),#fff,var(--re-green));background-size:300% auto;animation:regradmove 6s linear infinite}
+.re-video-poster{aspect-ratio:16/9;border-radius:20px;background:
+  radial-gradient(600px 300px at 30% 20%,rgba(169,255,103,.18),transparent 60%),
+  linear-gradient(160deg,#0f2a2c,var(--re-teal-d));display:grid;place-items:center;position:relative;overflow:hidden}
+.re-play{width:64px;height:64px;border-radius:50%;border:0;background:rgba(255,255,255,.95);color:var(--re-teal-d);font-size:20px;cursor:pointer;display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.re-video-chip{position:absolute;left:20px;bottom:16px;display:inline-flex;align-items:center;gap:7px;background:rgba(9,9,9,.6);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;font-weight:700;padding:7px 14px;border-radius:20px;z-index:1}
+.re-video-chip .dot{width:6px;height:6px;border-radius:50%;background:#ff5c5c}
+.re-fly{position:absolute;font-size:22px;z-index:2;filter:drop-shadow(0 0 6px var(--re-green)) drop-shadow(0 0 12px var(--re-yellow));animation:reflutter 3.2s ease-in-out infinite}
+.re-fly-1{top:-10px;left:8%;animation-delay:.2s}
+.re-fly-2{top:20%;right:-6px;animation-delay:1s;font-size:16px}
+.re-fly-3{bottom:-8px;left:38%;animation-delay:1.8s;font-size:18px}
+@keyframes reflutter{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(10deg) scale(1.12)}}
+@media(prefers-reduced-motion:reduce){.re-video-glow,.re-video-box,.re-fly{animation:none}}
 
 /* ===== Pain ===== */
 /* ===== Qualify (is this for you?) ===== */
@@ -255,27 +292,33 @@ footer a{color:var(--gold)}
 <!-- ===== Top bar ===== -->
 <div class="top"><div class="wrap in">
   <a class="brand" href="#hero"><span class="dot">F</span> Fuse&nbsp;Atelier</a>
-  <a class="btn btn-gold" href="#pricing"><span class="cta-l">Start earning this week →</span><span class="cta-s">Start now →</span></a>
+  <a class="re-btn-ghost" href="#pricing">See if you fit →</a>
 </div></div>
 
-<!-- ===== HERO (static image background) ===== -->
-<header class="hero" id="hero">
-  <div class="hero-front" id="heroFront" aria-hidden="true"></div>
+<!-- ===== HERO (rebrand pass — green/yellow/white gradient, light-teal-to-near-black bg) ===== -->
+<header class="hero re-hero" id="hero">
+  <div class="hero-front re-hero-bg" id="heroFront" aria-hidden="true"></div>
   <div class="hero-in">
-    <span class="kick">Online course · AI studio · client system — all in one</span>
-    <h1>Everyone Else is Making Money With AI… <span class="goldgrad">So Why Am I Still Stuck?</span></h1>
-    <p class="sub">If you've ever asked yourself this, here's the truth: it's not that you're behind, and it's not that you're missing some tool everyone else found — you just need a simple, step-by-step plan that actually shows you how to get paid.</p>
-    <div class="trust-strip">
-      <span>🎓 <b>6 skill families</b></span>
-      <span>🛠 <b>Studio included</b></span>
-      <span>📈 <b>12 Upwork jobs</b></span>
-      <span>🔒 <b>Paystack secured</b></span>
-    </div>
+    <span class="re-pill"><span class="dot"></span>The AI Creative Income System</span>
+    <h1 class="re-h1">Turn your phone into a <span class="re-underline">paycheck</span> <span class="re-grad">with AI creative</span></h1>
+    <p class="sub">Taking everyday people from <em class="re-quote">"I don't know where to start"</em> to making consistent income creating AI contents for brands.</p>
     <div class="cta-row">
-      <a class="btn btn-gold" href="#pricing">Start earning this week →</a>
+      <a class="re-btn" href="#pricing">Start earning this week →</a>
+    </div>
+    <div class="re-video-frame">
+      <div class="re-video-glow" aria-hidden="true"></div>
+      <span class="re-fly re-fly-1" aria-hidden="true">🦋</span>
+      <span class="re-fly re-fly-2" aria-hidden="true">🦋</span>
+      <span class="re-fly re-fly-3" aria-hidden="true">🦋</span>
+      <div class="re-video-box">
+        <!-- Swap this poster + add a real <video>/embed once the intro clip is ready -->
+        <div class="re-video-poster">
+          <button class="re-play" aria-label="Play intro video">▶</button>
+        </div>
+        <span class="re-video-chip"><span class="dot"></span> Intro video</span>
+      </div>
     </div>
   </div>
-  <div class="hint">✨ scroll to see the studio you get</div>
 </header>
 
 <!-- ===== AGITATE (the emotional bridge — nothing about the product yet) ===== -->
