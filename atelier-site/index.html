@@ -244,6 +244,12 @@ section{padding:92px 0;position:relative}
 .re-wins-kicker .re-grad{font-family:"Caveat",cursive}
 .re-wins h2{font-size:clamp(30px,8vw,42px);line-height:1.15;margin:12px 0 40px;color:#fff}
 .re-wins h2 em{font-style:italic}
+/* The animated 200%-wide shine gradient only shows a slice of its color
+   range once it wraps/clips at a line edge -- these two spots (the kicker
+   and the wrapping "real people" em) need the flat, fully-covering variant
+   instead, same fix as the hard-truth bullets. */
+.re-wins-kicker .re-grad,
+.re-wins h2 em.re-grad{background-size:100% auto;animation:none;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 .re-polaroid{background:#f7f1e6;border-radius:6px;padding:14px 14px 0;box-shadow:0 24px 46px -10px rgba(0,0,0,.55);position:relative;margin:0 auto 60px;max-width:320px}
 .re-polaroid:nth-child(odd){transform:rotate(-2deg)}
 .re-polaroid:nth-child(even){transform:rotate(1.8deg)}
@@ -270,10 +276,6 @@ section{padding:92px 0;position:relative}
 .re-walk-lead{color:#fff;font-size:16px;line-height:1.65;margin:0 0 28px;max-width:420px}
 .re-walk-cards{position:relative;margin-top:66px;padding-bottom:50px}
 .re-walk-card{position:relative;border-radius:20px;padding:2.5px;background:linear-gradient(150deg,var(--re-teal-l),var(--re-teal-d) 70%);margin-bottom:36px;box-shadow:0 35px 60px -18px rgba(9,9,9,.6),0 0 45px -10px rgba(37,69,74,.6)}
-.re-walk-card:nth-child(1){transform:rotate(-1.6deg);margin-left:0}
-.re-walk-card:nth-child(2){transform:rotate(1.3deg);margin-left:14px}
-.re-walk-card:nth-child(3){transform:rotate(-1.3deg);margin-left:4px}
-.re-walk-card:nth-child(4){transform:rotate(1.6deg);margin-left:16px}
 .re-walk-card-in{border-radius:18px;background:linear-gradient(135deg,var(--re-green) 0%,var(--re-yellow) 55%,#fff 100%);padding:26px 22px}
 .re-walk-num{font-family:"Playfair Display",serif;font-weight:900;font-size:13px;color:rgba(9,9,9,.5);letter-spacing:.1em}
 .re-walk-card-in h3{font-family:"Playfair Display",serif;font-weight:900;font-size:22px;color:var(--re-teal-d);margin:8px 0 8px}
@@ -299,7 +301,21 @@ section{padding:92px 0;position:relative}
 .re-studio-kicker{background:linear-gradient(100deg,var(--re-green) 0%,var(--re-yellow) 45%,#FFFFFF 90%);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;font-size:14px;letter-spacing:.1em;text-transform:uppercase}
 .re-studio h2{color:#fff;font-family:"Bricolage Grotesque";font-weight:800;font-size:clamp(26px,7vw,36px);line-height:1.25;margin:16px 0 18px}
 .re-studio-note{color:#CFE0DC;font-size:15.5px;line-height:1.65;margin:0 auto 36px;max-width:400px}
-.re-studio-card{border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:8px 22px;text-align:left;margin-bottom:30px;background:rgba(255,255,255,.03)}
+.re-studio-card-outline{border-radius:22px;padding:2px;margin-bottom:24px;background:linear-gradient(135deg,var(--re-green),var(--re-yellow),#fff);box-shadow:0 0 40px -8px rgba(169,255,103,.45),0 0 40px -8px rgba(244,219,94,.3)}
+.re-studio-card{border-radius:20.5px;padding:8px 22px;text-align:left;background:var(--re-teal-d)}
+.re-studio-credits{border-radius:20px;padding:26px 24px;text-align:center;margin-bottom:30px;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 80%)}
+.re-studio-credits h3{font-family:"Playfair Display",serif;font-weight:900;font-size:22px;margin:0 0 18px}
+.re-studio-credits ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.re-studio-credits li{color:#fff;font-size:15.5px;font-weight:600}
+.re-studio-credits li b{font-weight:800}
+
+/* ===== Meet the founder ===== */
+.re-founder{background:var(--re-teal-d);padding:70px 0}
+.re-founder .wrap{max-width:340px}
+.re-founder-tag{display:inline-flex;align-items:center;background:var(--re-green);border-radius:20px;padding:8px 16px;box-shadow:0 0 24px -2px rgba(169,255,103,.7),0 0 32px -4px rgba(244,219,94,.5)}
+.re-founder-tag span{font-weight:800;font-size:13px}
+.re-founder-kicker{font-family:"Caveat",cursive;font-weight:700;font-size:24px;color:var(--re-yellow);margin:40px 0 12px}
+.re-founder h2{font-family:"Playfair Display",serif;font-weight:900;font-size:clamp(28px,7vw,38px);line-height:1.2;margin:0}
 .re-studio-feat{display:flex;gap:14px;align-items:flex-start;padding:20px 0;border-bottom:1px solid rgba(255,255,255,.08)}
 .re-studio-feat:last-child{border-bottom:0}
 .re-studio-feat-ic{font-size:23px;flex:0 0 auto;line-height:1}
@@ -971,37 +987,68 @@ footer a{color:var(--gold)}
     <div class="re-studio-kicker">A Course And A Creative Studio</div>
     <h2>One Tier, Every Skill, Tool And Workflow You Need</h2>
     <p class="re-studio-note">Everything happens inside Fuse Studio — no extra subscriptions, no separate apps to pay for. You generate, edit, and deliver client work in one place.</p>
-    <div class="re-studio-card">
-      <div class="re-studio-feat">
-        <span class="re-studio-feat-ic">🎨</span>
-        <div>
-          <div class="re-studio-feat-t">Flyer &amp; Design Studio</div>
-          <div class="re-studio-feat-d">AI flyers, product shots, and brand kits — client-ready in minutes.</div>
+    <div class="re-studio-card-outline">
+      <div class="re-studio-card">
+        <div class="re-studio-feat">
+          <span class="re-studio-feat-ic">🎨</span>
+          <div>
+            <div class="re-studio-feat-t">Flyer &amp; Design Studio</div>
+            <div class="re-studio-feat-d">AI flyers, product shots, and brand kits — client-ready in minutes.</div>
+          </div>
         </div>
-      </div>
-      <div class="re-studio-feat">
-        <span class="re-studio-feat-ic">🎬</span>
-        <div>
-          <div class="re-studio-feat-t">Video &amp; Avatar Studio</div>
-          <div class="re-studio-feat-d">AI avatars, UGC-style ads, and long-form video content.</div>
+        <div class="re-studio-feat">
+          <span class="re-studio-feat-ic">🎬</span>
+          <div>
+            <div class="re-studio-feat-t">Video &amp; Avatar Studio</div>
+            <div class="re-studio-feat-d">AI avatars, UGC-style ads, and long-form video content.</div>
+          </div>
         </div>
-      </div>
-      <div class="re-studio-feat">
-        <span class="re-studio-feat-ic">🎧</span>
-        <div>
-          <div class="re-studio-feat-t">Audio Studio</div>
-          <div class="re-studio-feat-d">Voice cloning and scripted audio for any project.</div>
+        <div class="re-studio-feat">
+          <span class="re-studio-feat-ic">🎧</span>
+          <div>
+            <div class="re-studio-feat-t">Audio Studio</div>
+            <div class="re-studio-feat-d">Voice cloning and scripted audio for any project.</div>
+          </div>
         </div>
-      </div>
-      <div class="re-studio-feat">
-        <span class="re-studio-feat-ic">📚</span>
-        <div>
-          <div class="re-studio-feat-t">Full course + WhatsApp community</div>
-          <div class="re-studio-feat-d">Templates, pitch scripts, and live feedback on your work.</div>
+        <div class="re-studio-feat">
+          <span class="re-studio-feat-ic">📚</span>
+          <div>
+            <div class="re-studio-feat-t">Full course + WhatsApp community</div>
+            <div class="re-studio-feat-d">Templates, pitch scripts, and live feedback on your work.</div>
+          </div>
         </div>
       </div>
     </div>
+    <div class="re-studio-credits">
+      <h3 class="re-grad">Every Tier Comes With Credits</h3>
+      <ul>
+        <li><b>Starter</b> — 100 credits</li>
+        <li><b>Creator</b> — 400 credits</li>
+        <li><b>Empire</b> — 1,200 credits</li>
+      </ul>
+    </div>
     <a class="re-btn" href="#pricing">Start earning this week →</a>
+  </div>
+</section>
+
+<!-- ===== MEET THE FOUNDER ===== -->
+<section class="re-founder">
+  <div class="wrap">
+    <div class="re-polaroid">
+      <span class="re-tape"></span>
+      <div class="re-polaroid-photo">
+        <img src="proof/ria-portrait.jpg" alt="Ria, founder of Fuse Atelier" loading="lazy">
+      </div>
+      <div class="re-polaroid-cap">
+        <p class="re-polaroid-quote">"I built this to actually change people's lives."</p>
+        <div class="re-polaroid-foot">
+          <span class="re-polaroid-name">Ria — Founder</span>
+          <span class="re-founder-tag"><span class="re-teal-grad">Fuse Atelier</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="re-founder-kicker">meet the founder ↘</div>
+    <h2 class="re-grad">The educator behind the system.</h2>
   </div>
 </section>
 
