@@ -125,7 +125,7 @@ section{padding:92px 0;position:relative}
 /* ===== Rebrand hero specifics ===== */
 .re-hero-bg{background:linear-gradient(180deg,var(--re-teal-d) 0%,var(--re-teal-d) 45%,var(--re-teal-l) 100%)}
 .re-h1{font-size:clamp(32px,7vw,58px);line-height:1.28;margin:18px 0 16px;letter-spacing:-.5px;color:#fff}
-.re-quote{color:var(--re-yellow);font-family:"Caveat",cursive;font-weight:700;font-size:1.35em}
+.re-quote{color:var(--re-yellow);font-family:"Caveat",cursive;font-weight:700;font-size:1.35em;margin-right:6px;display:inline-block}
 .re-hero .sub{color:#CFE0DC}
 .re-price-line{margin-top:20px;text-align:center}
 .re-price-tiers{color:#fff;font-size:14.5px;font-weight:700}
@@ -292,6 +292,31 @@ section{padding:92px 0;position:relative}
 .re-opp-num{font-family:"Playfair Display",serif;font-weight:900;font-size:clamp(32px,9vw,44px);margin-bottom:10px}
 .re-opp-desc{color:#fff;font-size:16px;font-weight:700;line-height:1.4;margin-bottom:10px}
 .re-opp-src{color:rgba(255,255,255,.4);font-size:13px}
+
+/* ===== A course and a creative studio ===== */
+.re-studio{background:var(--re-teal-d);padding:70px 0}
+.re-studio .wrap{max-width:480px;text-align:center}
+.re-studio-kicker{background:linear-gradient(100deg,var(--re-green) 0%,var(--re-yellow) 45%,#FFFFFF 90%);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;font-size:14px;letter-spacing:.1em;text-transform:uppercase}
+.re-studio h2{color:#fff;font-family:"Bricolage Grotesque";font-weight:800;font-size:clamp(26px,7vw,36px);line-height:1.25;margin:16px 0 18px}
+.re-studio-note{color:#CFE0DC;font-size:15.5px;line-height:1.65;margin:0 auto 36px;max-width:400px}
+.re-studio-card{border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:8px 22px;text-align:left;margin-bottom:30px;background:rgba(255,255,255,.03)}
+.re-studio-feat{display:flex;gap:14px;align-items:flex-start;padding:20px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.re-studio-feat:last-child{border-bottom:0}
+.re-studio-feat-ic{font-size:23px;flex:0 0 auto;line-height:1}
+.re-studio-feat-t{color:#fff;font-weight:800;font-size:15.5px;margin-bottom:4px}
+.re-studio-feat-d{color:#9fb8b4;font-size:13.5px;line-height:1.45}
+
+/* ===== Is Fuse Atelier right for you ===== */
+.re-fit{background:var(--re-teal-d);padding:0 0 70px}
+.re-fit .wrap{max-width:480px}
+.re-fit h2{color:#fff;font-family:"Bricolage Grotesque";font-weight:800;font-size:clamp(26px,6.5vw,32px);text-align:center;margin:0 0 32px;line-height:1.3}
+.re-fit-box{border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:26px 24px;margin-bottom:16px;background:rgba(255,255,255,.02)}
+.re-fit-box h3{color:#fff;font-family:"Bricolage Grotesque";font-weight:800;font-size:19px;margin:0 0 20px}
+.re-fit-box h3 .bad{color:#ff5c5c}
+.re-fit-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:20px}
+.re-fit-list li{display:flex;gap:12px;align-items:flex-start;color:#CFE0DC;font-size:15px;line-height:1.5}
+.re-fit-check{color:var(--re-green);font-weight:900;flex:0 0 auto}
+.re-fit-x{color:#ff5c5c;font-weight:900;flex:0 0 auto}
 .re-quiz-card{max-width:520px;margin:0;border-radius:22px;padding:26px;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 75%);border:1px solid rgba(169,255,103,.18);box-shadow:0 20px 50px -20px rgba(0,0,0,.6)}
 .re-quiz-progress{display:flex;gap:6px;margin-bottom:20px}
 .re-quiz-progress i{flex:1;height:5px;border-radius:4px;background:rgba(255,255,255,.14);overflow:hidden;display:block;font-style:normal}
@@ -936,6 +961,71 @@ footer a{color:var(--gold)}
         <div class="re-opp-desc">wage premium after ~1 month upskilling</div>
         <div class="re-opp-src">PwC</div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== A COURSE AND A CREATIVE STUDIO ===== -->
+<section class="re-studio">
+  <div class="wrap">
+    <div class="re-studio-kicker">A Course And A Creative Studio</div>
+    <h2>One Tier, Every Skill, Tool And Workflow You Need</h2>
+    <p class="re-studio-note">Everything happens inside Fuse Studio — no extra subscriptions, no separate apps to pay for. You generate, edit, and deliver client work in one place.</p>
+    <div class="re-studio-card">
+      <div class="re-studio-feat">
+        <span class="re-studio-feat-ic">🎨</span>
+        <div>
+          <div class="re-studio-feat-t">Flyer &amp; Design Studio</div>
+          <div class="re-studio-feat-d">AI flyers, product shots, and brand kits — client-ready in minutes.</div>
+        </div>
+      </div>
+      <div class="re-studio-feat">
+        <span class="re-studio-feat-ic">🎬</span>
+        <div>
+          <div class="re-studio-feat-t">Video &amp; Avatar Studio</div>
+          <div class="re-studio-feat-d">AI avatars, UGC-style ads, and long-form video content.</div>
+        </div>
+      </div>
+      <div class="re-studio-feat">
+        <span class="re-studio-feat-ic">🎧</span>
+        <div>
+          <div class="re-studio-feat-t">Audio Studio</div>
+          <div class="re-studio-feat-d">Voice cloning and scripted audio for any project.</div>
+        </div>
+      </div>
+      <div class="re-studio-feat">
+        <span class="re-studio-feat-ic">📚</span>
+        <div>
+          <div class="re-studio-feat-t">Full course + WhatsApp community</div>
+          <div class="re-studio-feat-d">Templates, pitch scripts, and live feedback on your work.</div>
+        </div>
+      </div>
+    </div>
+    <a class="re-btn" href="#pricing">Start earning this week →</a>
+  </div>
+</section>
+
+<!-- ===== IS FUSE ATELIER RIGHT FOR YOU ===== -->
+<section class="re-fit">
+  <div class="wrap">
+    <h2>Is <span class="re-grad">Fuse Atelier</span> Right For You?</h2>
+    <div class="re-fit-box">
+      <h3>This Is For You If…</h3>
+      <ul class="re-fit-list">
+        <li><span class="re-fit-check">✓</span>You want a real path and proper training, not 40 YouTube tabs and a guess</li>
+        <li><span class="re-fit-check">✓</span>You want your AI creative work to become income, not just another hobby</li>
+        <li><span class="re-fit-check">✓</span>You want eyes on your work and people to ask the moment you're stuck</li>
+        <li><span class="re-fit-check">✓</span>You will actually make things, because that's the only place the skill comes from</li>
+      </ul>
+    </div>
+    <div class="re-fit-box">
+      <h3>This Is <span class="bad">Not</span> For You If…</h3>
+      <ul class="re-fit-list">
+        <li><span class="re-fit-x">✕</span>You want the money without doing the reps</li>
+        <li><span class="re-fit-x">✕</span>You are looking for a magic button instead of a skill</li>
+        <li><span class="re-fit-x">✕</span>You will collect lessons and never create anything</li>
+        <li><span class="re-fit-x">✕</span>You go quiet the moment someone gives you honest feedback</li>
+      </ul>
     </div>
   </div>
 </section>
