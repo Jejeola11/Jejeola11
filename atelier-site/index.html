@@ -376,6 +376,19 @@ section{padding:92px 0;position:relative}
 .re-reviews-foot-note{color:#9fb8b4;font-size:15px;line-height:1.5;margin:0 0 18px}
 .re-reviews-foot-join{color:#fff;font-weight:800;font-size:16.5px;margin:0 0 8px}
 .re-reviews-foot-price{color:var(--re-yellow);font-weight:700;font-size:13.5px;margin:0}
+
+/* ===== FAQ (rebrand pass) ===== */
+.re-faq{background:var(--re-teal-d);padding:70px 0}
+.re-faq .wrap{max-width:480px}
+.re-faq-kicker{color:var(--re-yellow);font-weight:800;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+.re-faq h2{color:#fff;font-family:"Bricolage Grotesque";font-weight:800;font-size:clamp(26px,7vw,36px);line-height:1.3;margin:14px 0 34px}
+.re-faq-item-outline{border-radius:20px;padding:2px;margin-bottom:18px;background:linear-gradient(135deg,var(--re-green),var(--re-yellow),#fff)}
+.re-faq-item{border-radius:18.5px;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 80%);overflow:hidden}
+.re-faq-item summary{list-style:none;cursor:pointer;padding:22px;display:flex;justify-content:space-between;align-items:center;gap:14px;color:#fff;font-weight:800;font-size:16px;line-height:1.35}
+.re-faq-item summary::-webkit-details-marker{display:none}
+.re-faq-item summary::after{content:'+';font-size:22px;color:var(--re-green);flex:0 0 auto}
+.re-faq-item[open] summary::after{content:'✕';color:#fff;font-size:16px}
+.re-faq-item p{margin:0;padding:0 22px 22px;color:#CFE0DC;font-size:14.5px;line-height:1.65}
 .re-studio-feat{display:flex;gap:14px;align-items:flex-start;padding:20px 0;border-bottom:1px solid rgba(255,255,255,.08)}
 .re-studio-feat:last-child{border-bottom:0}
 .re-studio-feat-ic{font-size:23px;flex:0 0 auto;line-height:1}
@@ -1501,21 +1514,47 @@ footer a{color:var(--gold)}
   </div>
 </section>
 
-<!-- ===== FAQ ===== -->
-<section>
-  <div class="wrap" style="max-width:760px">
-    <span class="kick">Questions, answered straight</span>
-    <h2 class="sec-h">Everything you're thinking, <span class="goldgrad">answered.</span></h2>
-    <div style="margin-top:24px">
-      <details><summary>Is this another "make money online" scam?</summary><p>Fair question — this market is full of them. Here's the difference: our instructor's earnings are verifiable (live Upwork profile, 12 jobs, $4,000+), student wins are named and contactable, checkout is via Paystack (not some untraceable wallet), and the guarantee is written above in plain language. Judge us on that.</p></details>
-      <details><summary>Can I really do this with just my phone?</summary><p>Yes — every skill is taught and executed phone-first. Fuse Studio runs in your browser, lessons are short and downloadable, and we state the data budget of each module upfront so nothing surprises you.</p></details>
-      <details><summary>Do I need to buy AI tools separately?</summary><p>No. That's the whole point. Fuse Studio — image, video, avatar and AI-writing engines — is inside the product, with credits included in every tier. No dollar subscriptions, no extra tools.</p></details>
-      <details><summary>What exactly are "studio credits"?</summary><p>Credits are what you spend inside Fuse Studio to generate something — one flyer hero image, one product photo, one video, etc. They're not a subscription fee; you just spend them as you create. A full flyer (hero image + finished design) runs about 16 credits, so Starter's 100 credits covers roughly 6 full flyers to build your first portfolio — Creator's 400 stretches across every skill you unlock. If you run out, you can top up or upgrade anytime; you're never locked out mid-course.</p></details>
-      <details><summary>How fast will I actually make money?</summary><p>The plan targets your first paying client within 7 days (clients pay $10–$50 for flyers and product shots). $500 stacks up over your first weeks as you repeat and raise prices. Top students hit it faster — but we promise what the average committed student achieves, not the lottery ticket.</p></details>
-      <details><summary>How do I receive dollars in Nigeria?</summary><p>It's taught inside the Money Engine: setting up Grey or Raenest for free USD accounts, Payoneer for marketplaces, and pricing/invoicing so foreign clients can actually pay you. Nobody else teaches this part properly.</p></details>
-      <details><summary>What if I'm a complete beginner?</summary><p>The course assumes zero experience. Orientation takes 20 minutes, your first AI generation happens in lesson one, and every skill is broken into short, focused lessons before you're selling it.</p></details>
-      <details><summary>Can I upgrade my tier later?</summary><p>Yes — you pay only the difference, and your progress, credits and community access carry over. Most students start where their budget is and upgrade after their first client pays.</p></details>
-      <details><summary>How do I get help when I'm stuck?</summary><p>Three layers: the WhatsApp coach bot (instant, 24/7), the cohort community (Creator+), and direct access to Ria (Empire). Nobody gets left on read.</p></details>
+<!-- ===== FAQ (rebrand pass) ===== -->
+<section class="re-faq">
+  <div class="wrap">
+    <div class="re-faq-kicker">Questions, Answered Straight</div>
+    <h2>Everything you're thinking, answered.</h2>
+
+    <div class="re-faq-item-outline">
+      <details class="re-faq-item">
+        <summary>Is this another "make money online" scam?</summary>
+        <p>Fair question — this market is full of them. Here's the difference: our instructor's earnings are verifiable (live Upwork profile, 12 jobs, $4,000+), student wins are named and contactable, checkout is via Paystack, and the guarantee is written above in plain language. Judge us on that.</p>
+      </details>
+    </div>
+    <div class="re-faq-item-outline">
+      <details class="re-faq-item">
+        <summary>Do I need experience or a following?</summary>
+        <p>No. Most students start from zero — no portfolio, no following, no design background. The system is built for complete beginners and everyday people learning AI content creation for the first time.</p>
+      </details>
+    </div>
+    <div class="re-faq-item-outline">
+      <details class="re-faq-item">
+        <summary>How fast will I actually make money?</summary>
+        <p>The plan targets your first paying client within 7 days (clients pay ₦10,000–₦50,000 for flyers and product shots). Most students land their first real deal within 3–4 weeks. Top students move faster — but we promise what the average committed student achieves, not the lottery ticket.</p>
+      </details>
+    </div>
+    <div class="re-faq-item-outline">
+      <details class="re-faq-item">
+        <summary>Do I get to work with Ria directly?</summary>
+        <p>Yes. Ria personally teaches inside the WhatsApp community, runs weekly challenges, and reviews real client pitches. On Empire, she personally reviews your portfolio — and on every tier, the WhatsApp coach bot gets you back on track if you fall behind.</p>
+      </details>
+    </div>
+    <div class="re-faq-item-outline">
+      <details class="re-faq-item">
+        <summary>What exactly are "studio credits"?</summary>
+        <p>Credits are what you spend inside Fuse Studio to generate something — one flyer, one product photo, one video. A full flyer runs about 16 credits, so Starter's 100 credits covers around 6 full flyers for your first portfolio. Run out and you can top up or upgrade anytime.</p>
+      </details>
+    </div>
+    <div class="re-faq-item-outline">
+      <details class="re-faq-item">
+        <summary>What if I don't get results?</summary>
+        <p>Finish the 7-day plan and send your 30 pitches. If you haven't landed a paid deal in 30 days, we keep working with you 1-on-1, free, until you do. You won't fall through the cracks.</p>
+      </details>
     </div>
   </div>
 </section>
