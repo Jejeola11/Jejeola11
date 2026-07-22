@@ -116,12 +116,15 @@ section{padding:92px 0;position:relative}
 
 /* ===== Rebrand hero specifics ===== */
 .re-hero-bg{background:linear-gradient(180deg,var(--re-teal-d) 0%,var(--re-teal-d) 45%,var(--re-teal-l) 100%)}
-.re-h1{font-size:clamp(32px,7vw,58px);line-height:1.12;margin:18px 0 16px;letter-spacing:-.5px;color:#fff}
+.re-h1{font-size:clamp(32px,7vw,58px);line-height:1.5;margin:18px 0 16px;letter-spacing:-.5px;color:#fff}
 .re-quote{color:var(--re-yellow);font-style:italic;font-weight:600}
 .re-hero .sub{color:#CFE0DC}
+.re-price-line{margin-top:20px;text-align:center}
+.re-price-tiers{color:#fff;font-size:14.5px;font-weight:700}
+.re-price-urgency{color:var(--re-green);font-size:13.5px;font-weight:800;margin-top:6px}
 
-.re-video-frame{position:relative;margin:44px auto 0;max-width:640px;padding:14px}
-.re-video-glow{position:absolute;inset:0;border-radius:26px;background:linear-gradient(120deg,var(--re-green),var(--re-yellow),#fff,var(--re-green));background-size:300% auto;filter:blur(18px);opacity:.55;animation:regradmove 6s linear infinite;z-index:0}
+.re-video-frame{position:relative;margin:36px auto 0;max-width:640px;padding:14px}
+.re-video-glow{position:absolute;inset:0;border-radius:26px;background:linear-gradient(120deg,var(--re-green),var(--re-yellow),var(--re-teal-l),var(--re-green));background-size:300% auto;filter:blur(20px);opacity:.5;animation:regradmove 6s linear infinite;z-index:0}
 @keyframes regradmove{to{background-position:300% center}}
 .re-video-box{position:relative;z-index:1;border-radius:22px;padding:3px;background:linear-gradient(120deg,var(--re-green),var(--re-yellow),#fff,var(--re-green));background-size:300% auto;animation:regradmove 6s linear infinite}
 .re-video-poster{aspect-ratio:16/9;border-radius:20px;background:
@@ -130,12 +133,20 @@ section{padding:92px 0;position:relative}
 .re-play{width:64px;height:64px;border-radius:50%;border:0;background:rgba(255,255,255,.95);color:var(--re-teal-d);font-size:20px;cursor:pointer;display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 .re-video-chip{position:absolute;left:20px;bottom:16px;display:inline-flex;align-items:center;gap:7px;background:rgba(9,9,9,.6);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;font-weight:700;padding:7px 14px;border-radius:20px;z-index:1}
 .re-video-chip .dot{width:6px;height:6px;border-radius:50%;background:#ff5c5c}
-.re-fly{position:absolute;font-size:22px;z-index:2;filter:drop-shadow(0 0 6px var(--re-green)) drop-shadow(0 0 12px var(--re-yellow));animation:reflutter 3.2s ease-in-out infinite}
-.re-fly-1{top:-10px;left:8%;animation-delay:.2s}
-.re-fly-2{top:20%;right:-6px;animation-delay:1s;font-size:16px}
-.re-fly-3{bottom:-8px;left:38%;animation-delay:1.8s;font-size:18px}
-@keyframes reflutter{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(10deg) scale(1.12)}}
+.re-fly{position:absolute;z-index:2;filter:drop-shadow(0 0 4px rgba(169,255,103,.8)) drop-shadow(0 0 8px rgba(244,219,94,.6));animation:reflutter ease-in-out infinite;pointer-events:none}
+.re-fly svg{width:100%;height:100%;display:block}
+@keyframes reflutter{0%,100%{transform:rotate(-10deg) scale(1)}50%{transform:rotate(12deg) scale(1.14)}}
 @media(prefers-reduced-motion:reduce){.re-video-glow,.re-video-box,.re-fly{animation:none}}
+
+/* ===== Stat cards (rebrand pass) — hard offset shadow, deep-teal section bg ===== */
+.re-stats{background:var(--re-teal-d);padding:56px 0}
+.re-stats .wrap{display:flex;flex-direction:column;gap:30px;max-width:460px}
+.re-stat-card{border-radius:20px;padding:34px 22px;text-align:center;box-shadow:9px 9px 0 var(--re-teal-l)}
+.re-stat-green{background:var(--re-green)}
+.re-stat-yellow{background:var(--re-yellow)}
+.re-stat-white{background:#fff}
+.re-stat-n{font-family:"Bricolage Grotesque",Archivo,sans-serif;font-weight:800;font-size:clamp(28px,7vw,40px);color:var(--re-teal-d)}
+.re-stat-d{color:#000;font-size:15px;margin-top:8px;font-weight:600}
 
 /* ===== Pain ===== */
 /* ===== Qualify (is this for you?) ===== */
@@ -305,11 +316,12 @@ footer a{color:var(--gold)}
     <div class="cta-row">
       <a class="re-btn" href="#pricing">Start earning this week →</a>
     </div>
-    <div class="re-video-frame">
+    <div class="re-price-line">
+      <p class="re-price-tiers">10k starter • 25K creator • 70k Empire • instant access.</p>
+      <p class="re-price-urgency">Price increases 2x at 500 members, currently 300+.</p>
+    </div>
+    <div class="re-video-frame" id="reVideoFrame">
       <div class="re-video-glow" aria-hidden="true"></div>
-      <span class="re-fly re-fly-1" aria-hidden="true">🦋</span>
-      <span class="re-fly re-fly-2" aria-hidden="true">🦋</span>
-      <span class="re-fly re-fly-3" aria-hidden="true">🦋</span>
       <div class="re-video-box">
         <!-- Swap this poster + add a real <video>/embed once the intro clip is ready -->
         <div class="re-video-poster">
@@ -320,6 +332,62 @@ footer a{color:var(--gold)}
     </div>
   </div>
 </header>
+
+<!-- ===== STATS (rebrand pass) ===== -->
+<section class="re-stats">
+  <div class="wrap">
+    <div class="re-stat-card re-stat-green">
+      <div class="re-stat-n">$10k+</div>
+      <div class="re-stat-d">Earned by me and my students</div>
+    </div>
+    <div class="re-stat-card re-stat-yellow">
+      <div class="re-stat-n">6 skills</div>
+      <div class="re-stat-d">Learning, creating &amp; earning</div>
+    </div>
+    <div class="re-stat-card re-stat-white">
+      <div class="re-stat-n">100%</div>
+      <div class="re-stat-d">Make your first $500 in 30 days</div>
+    </div>
+  </div>
+</section>
+
+<!-- Scattered gradient-colored butterflies around the video frame, generated
+     rather than hand-placed so the count/positions are easy to tune later. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="flyGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#A9FF67"/>
+      <stop offset="55%" stop-color="#F4DB5E"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+</svg>
+<script>
+(function(){
+  var frame = document.getElementById('reVideoFrame');
+  if (!frame) return;
+  var svgFly = '<svg viewBox="0 0 24 24"><path d="M12 12C10 6 4 4 3 8C2 11 6 14 12 12ZM12 12C14 6 20 4 21 8C22 11 18 14 12 12Z" fill="url(#flyGrad)"/><rect x="11.3" y="7" width="1.4" height="10" rx="0.7" fill="#173033"/></svg>';
+  var count = 20;
+  for (var i = 0; i < count; i++) {
+    var el = document.createElement('span');
+    el.className = 're-fly';
+    el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = svgFly;
+    var side = i % 4, top, left;
+    if (side === 0) { top = -10 - Math.random() * 12; left = Math.random() * 100; }
+    else if (side === 1) { top = 100 + Math.random() * 8; left = Math.random() * 100; }
+    else if (side === 2) { left = -10 - Math.random() * 10; top = Math.random() * 100; }
+    else { left = 100 + Math.random() * 6; top = Math.random() * 100; }
+    el.style.position = 'absolute';
+    el.style.top = top + '%'; el.style.left = left + '%';
+    var size = 20 + Math.random() * 20;
+    el.style.width = size + 'px'; el.style.height = size + 'px';
+    el.style.animationDelay = (Math.random() * 3.4).toFixed(2) + 's';
+    el.style.animationDuration = (2.4 + Math.random() * 1.6).toFixed(2) + 's';
+    frame.appendChild(el);
+  }
+})();
+</script>
 
 <!-- ===== AGITATE (the emotional bridge — nothing about the product yet) ===== -->
 <section class="rv">
