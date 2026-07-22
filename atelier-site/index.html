@@ -33,7 +33,7 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
 <!-- End Meta Pixel Code -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Archivo:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Archivo:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --teal-0:#020F0D; --teal-1:#031A16; --teal-2:#0D3A33; --teal-3:#14524a;
@@ -47,7 +47,7 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
      tokens until it's rebuilt too. ===== */
   --re-green:#A9FF67; --re-yellow:#F4DB5E; --re-teal-l:#25454A; --re-teal-d:#090909;
 }
-.re-grad{background:linear-gradient(100deg,var(--re-green) 0%,var(--re-yellow) 45%,#FFFFFF 90%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite}
+.re-grad{background:linear-gradient(100deg,var(--re-green) 0%,var(--re-yellow) 45%,#FFFFFF 90%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 .re-underline{position:relative;display:inline-block}
 .re-underline::after{content:'';position:absolute;left:2px;right:2px;bottom:-4px;height:7px;border-radius:5px;background:linear-gradient(100deg,var(--re-green),var(--re-yellow),#FFFFFF);box-shadow:0 0 14px rgba(169,255,103,.55)}
 .re-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(169,255,103,.35);background:rgba(169,255,103,.07);color:#E8F5D8;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:9px 18px;border-radius:30px}
@@ -56,7 +56,13 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
 .re-btn:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(169,255,103,.45)}
 .re-btn-ghost{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.35);color:#fff;background:rgba(255,255,255,.05);font-weight:700;font-size:13.5px;border-radius:30px;padding:9px 16px;text-decoration:none;white-space:nowrap}
 .re-btn-nav{padding:10px 18px;font-size:13.5px;white-space:nowrap}
-.re-grad-caps{text-transform:uppercase;font-size:1.14em}
+.re-grad-caps{text-transform:uppercase;font-size:.85em;white-space:nowrap;display:inline-block}
+/* Non-animated, 100%-sized variant for bold gradient text INSIDE wrapping
+   paragraphs -- the shine animation's 200%-wide background looks broken up
+   (only a slice of the 3-stop gradient shows) once box-decoration-break
+   clones it across several line fragments, so long inline phrases need this
+   flatter version instead of the shimmering headline one. */
+.re-grad-static{background:linear-gradient(100deg,var(--re-green) 0%,var(--re-yellow) 50%,#FFFFFF 100%);background-size:100% auto;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:Archivo,system-ui,sans-serif;background:var(--teal-1);color:var(--ink);line-height:1.6;overflow-x:hidden}
@@ -176,11 +182,32 @@ section{padding:92px 0;position:relative}
 @media(max-width:480px){.re-mcard{width:135px}}
 
 /* ===== Tier-fit quiz ===== */
-.re-quiz-section{background:var(--re-teal-d);padding:64px 0}
-.re-quiz-banner{max-width:640px;margin:0 auto 26px;border-radius:20px;padding:22px 26px;text-align:center;background:linear-gradient(100deg,var(--re-green),var(--re-yellow) 60%,#fff 120%);color:var(--re-teal-d)}
-.re-quiz-banner .tag{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#000}
-.re-quiz-banner .headline{font-size:clamp(19px,3.4vw,24px);font-weight:800;margin-top:6px;color:var(--re-teal-d)}
-.re-quiz-card{max-width:520px;margin:0 auto;border-radius:22px;padding:26px;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 75%);border:1px solid rgba(169,255,103,.18);box-shadow:0 20px 50px -20px rgba(0,0,0,.6)}
+.re-quiz-section{background:var(--re-teal-d);padding:64px 0;text-align:left}
+.re-quiz-section .wrap{text-align:left}
+.re-quiz-kicker{font-family:"Caveat",cursive;font-weight:700;font-size:26px;color:var(--re-green)}
+.re-quiz-h2{font-family:"Playfair Display",serif;font-weight:900;font-size:clamp(28px,7vw,42px);line-height:1.15;color:#fff;margin:8px 0 16px}
+.re-quiz-lead{color:#CFE0DC;font-size:15.5px;line-height:1.65;max-width:520px}
+.re-quiz-list{list-style:none;margin:20px 0 30px;padding:0;display:flex;flex-direction:column;gap:12px}
+.re-quiz-list li{display:flex;gap:10px;align-items:flex-start;color:#fff;font-size:15px;font-weight:600;line-height:1.4}
+.re-quiz-list li::before{content:'✦';color:var(--re-green);flex:0 0 auto;font-size:14px;margin-top:1px}
+.re-quiz-heading{font-size:clamp(20px,4.4vw,26px);font-weight:800;color:#fff;line-height:1.35;margin:0 0 22px;max-width:520px}
+.re-quiz-outro{color:#CFE0DC;font-size:15.5px;line-height:1.7;max-width:560px;margin:26px 0 0}
+
+/* ===== The hard truth ===== */
+.re-truth{background:var(--re-teal-d);padding:64px 0}
+.re-truth .wrap{max-width:640px}
+.re-truth .kicker{color:var(--re-yellow);font-weight:800;font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+.re-truth h2{font-size:clamp(26px,6vw,38px);line-height:1.3;margin:14px 0 18px;color:#fff}
+.re-truth .lead{color:#CFE0DC;font-size:16px;line-height:1.65;margin-bottom:28px}
+.re-truth-box{position:relative;border-radius:20px;padding:1.5px;background:linear-gradient(135deg,var(--re-green),var(--re-yellow),#fff)}
+.re-truth-box-in{border-radius:18.5px;padding:26px 22px;background:var(--re-teal-d)}
+.re-truth-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:20px}
+.re-truth-list li{display:flex;gap:12px;align-items:flex-start}
+.re-truth-x{flex:0 0 auto;width:22px;height:22px;border-radius:50%;border:2px solid #ff5c5c;color:#ff5c5c;font-size:12px;font-weight:800;display:grid;place-items:center;margin-top:2px}
+.re-truth-list p{color:#fff;font-size:15px;line-height:1.55;margin:0}
+.re-truth-outro{color:#CFE0DC;font-size:16px;line-height:1.7;margin:30px 0 26px}
+.re-truth-end{font-weight:900;text-transform:uppercase}
+.re-quiz-card{max-width:520px;margin:0;border-radius:22px;padding:26px;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 75%);border:1px solid rgba(169,255,103,.18);box-shadow:0 20px 50px -20px rgba(0,0,0,.6)}
 .re-quiz-progress{display:flex;gap:6px;margin-bottom:20px}
 .re-quiz-progress i{flex:1;height:5px;border-radius:4px;background:rgba(255,255,255,.14);overflow:hidden;display:block;font-style:normal}
 .re-quiz-progress i b{display:block;height:100%;width:0;background:linear-gradient(100deg,var(--re-green),var(--re-yellow));transition:width .35s}
@@ -352,7 +379,7 @@ footer a{color:var(--gold)}
 <!-- ===== Top bar ===== -->
 <div class="top"><div class="wrap in">
   <a class="brand" href="#hero"><span class="dot">F</span> Fuse&nbsp;Atelier</a>
-  <a class="re-btn re-btn-nav" href="#pricing">See if you fit →</a>
+  <a class="re-btn re-btn-nav" href="#tier-quiz">Pick your path →</a>
 </div></div>
 
 <!-- ===== HERO (rebrand pass — green/yellow/white gradient, light-teal-to-near-black bg) ===== -->
@@ -483,12 +510,18 @@ footer a{color:var(--gold)}
 </script>
 
 <!-- ===== TIER-FIT QUIZ ===== -->
-<section class="re-quiz-section">
+<section class="re-quiz-section" id="tier-quiz">
   <div class="wrap" style="max-width:640px">
-    <div class="re-quiz-banner">
-      <div class="tag">Cohort 02 · Starts Soon</div>
-      <div class="headline">Not sure which tier fits you? Answer 3 quick questions and we'll tell you.</div>
-    </div>
+    <div class="re-quiz-kicker">Pick your path →</div>
+    <h2 class="re-quiz-h2">One start.<br>Six ways forward.</h2>
+    <p class="re-quiz-lead">We are only accepting 100 more students. Every plan has the money making engine. Choose a skill that matches your vibe or what you actually want to create and follow a step-by-step roadmap to get there.</p>
+    <ul class="re-quiz-list">
+      <li>6 skills curriculum + weekly challenge</li>
+      <li>Supportive WhatsApp community</li>
+      <li>500+ prompts &amp; pitch templates and resources</li>
+      <li>Money making system — working with you free till you make your first $500</li>
+    </ul>
+    <div class="re-quiz-heading">Not sure which tier fits you? Answer 3 quick questions and we'll tell you.</div>
     <div class="re-quiz-card" id="reQuiz">
       <div class="re-quiz-progress">
         <i data-i="0"><b></b></i><i data-i="1"><b></b></i><i data-i="2"><b></b></i>
@@ -496,6 +529,7 @@ footer a{color:var(--gold)}
       <div id="reQuizBody"></div>
       <button class="re-quiz-back" id="reQuizBack" hidden>← Back</button>
     </div>
+    <p class="re-quiz-outro">Whether your goal is flyer design, product photography, or AI avatars — or something else entirely — every skill is included. Start with one, explore them all, and build the skills that turn AI from a tool into an unfair advantage.</p>
   </div>
 </section>
 <script>
@@ -603,6 +637,30 @@ footer a{color:var(--gold)}
   renderQuestion();
 })();
 </script>
+
+<!-- ===== THE HARD TRUTH ===== -->
+<section class="re-truth">
+  <div class="wrap">
+    <div class="kicker">The hard truth</div>
+    <h2>Right Now, Someone With Less Talent Than You Is <span class="re-grad">Getting Paid</span> For AI Work.</h2>
+    <p class="lead">They are not more creative, and they did not start with better tools. They just learned the full workflow before you did, found the clients, and started charging. Meanwhile, here is what stands in your way:</p>
+    <div class="re-truth-box">
+      <div class="re-truth-box-in">
+        <ul class="re-truth-list">
+          <li><span class="re-truth-x">✕</span><p>Your AI work looks great on its own, but it <b class="re-grad-static">does not hold up next to professional commercial work</b>.</p></li>
+          <li><span class="re-truth-x">✕</span><p>The free stuff online shows you a tool, <b class="re-grad-static">never the full client-ready workflow</b> from brief to delivery.</p></li>
+          <li><span class="re-truth-x">✕</span><p>Twenty years into your craft, clients are asking <b class="re-grad-static">whether AI can do your job</b>, juniors are going for your briefs, and <b class="re-grad-static">the layoffs are landing</b>.</p></li>
+          <li><span class="re-truth-x">✕</span><p>Competitors are pitching <b class="re-grad-static">faster turnarounds, more variations, and lower costs</b> to the same clients.</p></li>
+          <li><span class="re-truth-x">✕</span><p>There is a <b class="re-grad-static">new tool every week</b>, and more time goes into choosing what to learn than actually learning it.</p></li>
+          <li><span class="re-truth-x">✕</span><p>Making good work is one thing. <b class="re-grad-static">Finding clients who will pay seriously for it, and knowing what to charge</b>, is another.</p></li>
+          <li><span class="re-truth-x">✕</span><p><b class="re-grad-static">Working alone</b> means no feedback, no network, and no one to ask the moment it breaks.</p></li>
+        </ul>
+      </div>
+    </div>
+    <p class="re-truth-outro">This was never a talent problem. Nobody showed you the whole picture, and <b class="re-grad-static">the window where these skills feel rare is closing fast</b>. You don't need another tool or tutorial, you need the full system, the workflows that ship real client work, and a room of people already doing it. <span class="re-grad-static re-truth-end">That's what Fuse Atelier is.</span></p>
+    <a class="re-btn" href="#tier-quiz">Pick your path →</a>
+  </div>
+</section>
 
 <!-- ===== AGITATE (the emotional bridge — nothing about the product yet) ===== -->
 <section class="rv">
