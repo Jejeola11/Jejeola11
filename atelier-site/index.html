@@ -341,12 +341,13 @@ section{padding:92px 0;position:relative}
 .re-invest-total{display:flex;justify-content:space-between;gap:12px;padding-top:14px;margin:2px 0 20px;border-top:1px solid rgba(9,9,9,.2);color:#000;font-size:14.5px}
 .re-invest-total b{text-decoration:line-through;font-weight:700;color:rgba(9,9,9,.55)}
 .re-invest-save{color:var(--re-teal-d);font-family:"Caveat",cursive;font-weight:700;font-size:18px;text-align:center;margin:16px 0 0}
-.re-invest-cta{display:flex;width:100%;justify-content:center;margin-top:18px}
+.re-invest-cta-wrap{border-radius:32px;padding:3px;margin-top:18px;background:linear-gradient(100deg,var(--re-teal-l),var(--re-teal-d));box-shadow:0 8px 0 -2px rgba(9,9,9,.45),0 16px 28px -10px rgba(9,9,9,.55)}
+.re-invest-cta{display:flex;width:100%;justify-content:center;margin:0}
 
 /* ===== Break it down / the math / zero-risk ===== */
 .re-breakdown{background:var(--re-teal-d);padding:0 0 70px}
 .re-breakdown .wrap{max-width:480px}
-.re-bd-card{border-radius:22px;padding:28px 24px;margin-bottom:22px;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 80%)}
+.re-bd-card{display:block;border-radius:22px;padding:28px 24px;margin-bottom:22px;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 80%);text-decoration:none}
 .re-bd-kicker{color:rgba(255,255,255,.55);font-size:12.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px}
 .re-bd-tier{color:#fff;font-family:"Playfair Display",serif;font-weight:900;font-size:20px;margin-bottom:6px}
 .re-bd-price{font-family:"Playfair Display",serif;font-weight:900;font-size:44px;color:#fff}
@@ -354,6 +355,10 @@ section{padding:92px 0;position:relative}
 .re-bd-note{color:#CFE0DC;font-size:14.5px;margin-top:10px;line-height:1.4}
 .re-bd-text{color:#fff;font-size:16px;line-height:1.65;margin:0 0 14px}
 .re-bd-sub{color:rgba(255,255,255,.55);font-size:14px;line-height:1.5;margin:0}
+.re-bd-card.brand{background:linear-gradient(135deg,var(--re-green) 0%,var(--re-yellow) 55%,#fff 100%)}
+.re-bd-card.brand .re-bd-kicker{color:rgba(9,9,9,.55)}
+.re-bd-card.brand .re-bd-text{color:#000}
+.re-bd-card.brand .re-bd-sub{color:rgba(9,9,9,.6)}
 .re-bd-zero-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .re-bd-lock{font-size:22px}
 .re-bd-zero-head h3{color:#fff;font-size:19px;font-weight:800;margin:0}
@@ -1143,7 +1148,9 @@ footer a{color:var(--gold)}
         <div class="re-invest-box-price re-grad">₦10,000</div>
       </div>
       <p class="re-invest-save">You save ₦25,000 — everything bundled in one tier.</p>
-      <a class="re-btn re-invest-cta" href="/studio?buy=atelier_starter" onclick="return fuseBuy('atelier_starter', this, {value:10000,currency:'NGN',content_name:'atelier_starter'})">Get Starter →</a>
+      <div class="re-invest-cta-wrap">
+        <a class="re-btn re-invest-cta" href="/studio?buy=atelier_starter" onclick="return fuseBuy('atelier_starter', this, {value:10000,currency:'NGN',content_name:'atelier_starter'})">Get Starter →</a>
+      </div>
     </div>
 
     <div class="re-invest-card yellow" id="tier-creator">
@@ -1161,7 +1168,9 @@ footer a{color:var(--gold)}
         <div class="re-invest-box-price re-grad">₦25,000</div>
       </div>
       <p class="re-invest-save">You save ₦35,000 — everything bundled in one tier.</p>
-      <a class="re-btn re-invest-cta" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Get Creator →</a>
+      <div class="re-invest-cta-wrap">
+        <a class="re-btn re-invest-cta" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Get Creator →</a>
+      </div>
     </div>
 
     <div class="re-invest-card green" id="tier-empire">
@@ -1179,7 +1188,9 @@ footer a{color:var(--gold)}
         <div class="re-invest-box-price re-grad">₦70,000</div>
       </div>
       <p class="re-invest-save">You save ₦60,000 — everything bundled in one tier.</p>
-      <a class="re-btn re-invest-cta" href="/studio?buy=atelier_empire" onclick="return fuseBuy('atelier_empire', this, {value:70000,currency:'NGN',content_name:'atelier_empire'})">Get Empire →</a>
+      <div class="re-invest-cta-wrap">
+        <a class="re-btn re-invest-cta" href="/studio?buy=atelier_empire" onclick="return fuseBuy('atelier_empire', this, {value:70000,currency:'NGN',content_name:'atelier_empire'})">Get Empire →</a>
+      </div>
     </div>
   </div>
 </section>
@@ -1187,26 +1198,26 @@ footer a{color:var(--gold)}
 <!-- ===== BREAK IT DOWN / THE MATH / ZERO-RISK ===== -->
 <section class="re-breakdown">
   <div class="wrap">
-    <div class="re-bd-card">
+    <a class="re-bd-card" href="/studio?buy=atelier_starter" onclick="return fuseBuy('atelier_starter', this, {value:10000,currency:'NGN',content_name:'atelier_starter'})">
       <div class="re-bd-kicker">Break It Down</div>
       <div class="re-bd-tier">Starter</div>
-      <div class="re-bd-price">₦333<span>/day</span></div>
-      <div class="re-bd-note">Or about ₦333 a day — to build a skill that pays you for years.</div>
-    </div>
-    <div class="re-bd-card">
+      <div class="re-bd-price">₦10,000</div>
+      <div class="re-bd-note">About ₦333 a day — to build a skill that pays you for years.</div>
+    </a>
+    <a class="re-bd-card" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">
       <div class="re-bd-kicker">Break It Down</div>
       <div class="re-bd-tier">Creator</div>
-      <div class="re-bd-price">₦833<span>/day</span></div>
-      <div class="re-bd-note">Or about ₦833 a day — to build a skill that pays you for years.</div>
-    </div>
-    <div class="re-bd-card">
+      <div class="re-bd-price">₦25,000</div>
+      <div class="re-bd-note">About ₦833 a day — to build a skill that pays you for years.</div>
+    </a>
+    <a class="re-bd-card" href="/studio?buy=atelier_empire" onclick="return fuseBuy('atelier_empire', this, {value:70000,currency:'NGN',content_name:'atelier_empire'})">
       <div class="re-bd-kicker">Break It Down</div>
       <div class="re-bd-tier">Empire</div>
-      <div class="re-bd-price">₦2,333<span>/day</span></div>
-      <div class="re-bd-note">Or about ₦2,333 a day — to build a skill that pays you for years.</div>
-    </div>
+      <div class="re-bd-price">₦70,000</div>
+      <div class="re-bd-note">About ₦2,333 a day — to build a skill that pays you for years.</div>
+    </a>
 
-    <div class="re-bd-card">
+    <div class="re-bd-card brand">
       <div class="re-bd-kicker">The Math</div>
       <p class="re-bd-text">Most students land their first brand deal within 3–4 weeks. Average first deal: $100–$1,000, with many achieving $2,000+ in month one.</p>
       <p class="re-bd-sub">That means the mentorship typically pays for itself in multiple folds with your first deal.</p>
