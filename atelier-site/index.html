@@ -216,7 +216,8 @@ section{padding:92px 0;position:relative}
 .re-tiers-kicker{font-family:"Caveat",cursive;font-weight:700;font-size:22px;color:var(--re-yellow)}
 .re-tiers h2{font-family:"Playfair Display",serif;font-weight:900;font-size:clamp(28px,7vw,40px);line-height:1.2;margin:10px 0 14px}
 .re-tiers .sub2{color:#fff;font-size:16px;margin:0 0 36px}
-.re-tier-card{border-radius:22px;padding:28px 24px;margin-bottom:24px;box-shadow:9px 9px 0 var(--re-teal-l);text-align:left}
+.re-tier-outline{border-radius:24px;padding:2px;margin-bottom:24px;background:linear-gradient(135deg,var(--re-green),var(--re-yellow),#fff);box-shadow:9px 9px 0 var(--re-teal-l)}
+.re-tier-card{border-radius:22.5px;padding:28px 24px;text-align:left}
 .re-tier-green{background:var(--re-green)}
 .re-tier-yellow{background:var(--re-yellow)}
 .re-tier-white{background:#fff}
@@ -229,6 +230,30 @@ section{padding:92px 0;position:relative}
 .re-tier-block:last-child{margin-bottom:0}
 .re-tier-block-label{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
 .re-tier-block-copy{color:#000;font-size:14.5px;line-height:1.55;margin:0}
+
+/* ===== Student wins (polaroid wall) ===== */
+.re-wins{background:var(--re-teal-d);padding:70px 0 64px}
+.re-wins .wrap{max-width:420px}
+.re-wins-kicker{display:flex;align-items:center;gap:8px;font-family:"Caveat",cursive;font-weight:700;font-size:26px}
+.re-wins-kicker .re-grad{font-family:"Caveat",cursive}
+.re-wins h2{font-size:clamp(30px,8vw,42px);line-height:1.15;margin:12px 0 40px;color:#fff}
+.re-wins h2 em{font-style:italic}
+.re-polaroid{background:#f7f1e6;border-radius:6px;padding:14px 14px 0;box-shadow:0 24px 46px -10px rgba(0,0,0,.55);position:relative;margin:0 auto 60px;max-width:320px}
+.re-polaroid:nth-child(odd){transform:rotate(-2deg)}
+.re-polaroid:nth-child(even){transform:rotate(1.8deg)}
+.re-tape{position:absolute;top:-13px;left:50%;transform:translateX(-50%) rotate(-3deg);width:104px;height:32px;background:linear-gradient(100deg,var(--re-green),var(--re-yellow) 60%,#fff);border-radius:2px;box-shadow:0 4px 10px rgba(0,0,0,.35);z-index:2}
+.re-polaroid-photo{border-radius:2px;overflow:hidden;aspect-ratio:4/5;background:var(--re-teal-d);display:flex;align-items:center;justify-content:center}
+.re-polaroid-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.re-polaroid-avatar{width:56%;height:56%}
+.re-polaroid-cap{margin:14px -14px 0;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 85%);border-radius:0 0 4px 4px;padding:16px 18px 20px}
+.re-polaroid-quote{font-family:"Caveat",cursive;font-weight:600;font-size:19px;color:#fff;line-height:1.35;margin:0 0 12px}
+.re-polaroid-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.re-polaroid-name{font-weight:800;font-size:14px;color:#fff}
+.re-polaroid-tag{background:var(--re-green);color:var(--re-teal-d);font-weight:800;font-size:12px;padding:6px 13px;border-radius:20px;white-space:nowrap}
+.re-more-kicker{font-family:"Caveat",cursive;font-weight:700;font-size:22px;color:var(--re-yellow);margin:14px 0 22px}
+.re-jobs-grid{display:flex;flex-direction:column;gap:20px}
+.re-job-card{border-radius:18px;padding:3px;background:linear-gradient(135deg,var(--re-green),var(--re-yellow),#fff);box-shadow:0 0 34px -6px rgba(169,255,103,.5),0 0 34px -6px rgba(244,219,94,.3)}
+.re-job-card img{display:block;width:100%;border-radius:15.5px}
 .re-quiz-card{max-width:520px;margin:0;border-radius:22px;padding:26px;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 75%);border:1px solid rgba(169,255,103,.18);box-shadow:0 20px 50px -20px rgba(0,0,0,.6)}
 .re-quiz-progress{display:flex;gap:6px;margin-bottom:20px}
 .re-quiz-progress i{flex:1;height:5px;border-radius:4px;background:rgba(255,255,255,.14);overflow:hidden;display:block;font-style:normal}
@@ -693,46 +718,115 @@ footer a{color:var(--gold)}
     <h2 class="re-grad">How does this actually work?</h2>
     <p class="sub2">An AI Creative System that gets you paid</p>
 
-    <div class="re-tier-card re-tier-green">
-      <div class="re-tier-top"><span class="re-tier-label">Tier</span><span class="re-tier-num">1</span></div>
-      <h3 class="re-tier-name re-teal-grad">Starter</h3>
-      <p class="re-tier-sub">Land your first client with design &amp; flyers</p>
-      <div class="re-tier-block">
-        <div class="re-tier-block-label re-teal-grad">You'll make</div>
-        <p class="re-tier-block-copy">Scroll-stopping AI flyers, product mockups, and quick social ads.</p>
-      </div>
-      <div class="re-tier-block">
-        <div class="re-tier-block-label re-teal-grad">You'll learn to</div>
-        <p class="re-tier-block-copy">Turn a phone and a prompt into client-ready design work — and land your first paying flyer client.</p>
-      </div>
-    </div>
-
-    <div class="re-tier-card re-tier-yellow">
-      <div class="re-tier-top"><span class="re-tier-label">Tier</span><span class="re-tier-num">2</span></div>
-      <h3 class="re-tier-name re-teal-grad">Creator</h3>
-      <p class="re-tier-sub">The full creative business — 4 skill families</p>
-      <div class="re-tier-block">
-        <div class="re-tier-block-label re-teal-grad">You'll make</div>
-        <p class="re-tier-block-copy">Flyers, product photography, UGC-style ads, and short brand videos.</p>
-      </div>
-      <div class="re-tier-block">
-        <div class="re-tier-block-label re-teal-grad">You'll learn to</div>
-        <p class="re-tier-block-copy">Run AI creative as a real service — pricing, pitching, and delivering across 4 skill families.</p>
+    <div class="re-tier-outline">
+      <div class="re-tier-card re-tier-green">
+        <div class="re-tier-top"><span class="re-tier-label">Tier</span><span class="re-tier-num">1</span></div>
+        <h3 class="re-tier-name re-teal-grad">Starter</h3>
+        <p class="re-tier-sub">Land your first client with design &amp; flyers</p>
+        <div class="re-tier-block">
+          <div class="re-tier-block-label re-teal-grad">You'll make</div>
+          <p class="re-tier-block-copy">Scroll-stopping AI flyers, product mockups, and quick social ads.</p>
+        </div>
+        <div class="re-tier-block">
+          <div class="re-tier-block-label re-teal-grad">You'll learn to</div>
+          <p class="re-tier-block-copy">Turn a phone and a prompt into client-ready design work — and land your first paying flyer client.</p>
+        </div>
       </div>
     </div>
 
-    <div class="re-tier-card re-tier-white">
-      <div class="re-tier-top"><span class="re-tier-label">Tier</span><span class="re-tier-num">3</span></div>
-      <h3 class="re-tier-name re-teal-grad">Empire</h3>
-      <p class="re-tier-sub">Become the agency — everything, plus Ria</p>
-      <div class="re-tier-block">
-        <div class="re-tier-block-label re-teal-grad">You'll make</div>
-        <p class="re-tier-block-copy">Every skill family, including AI avatars and long-form ad videos.</p>
+    <div class="re-tier-outline">
+      <div class="re-tier-card re-tier-yellow">
+        <div class="re-tier-top"><span class="re-tier-label">Tier</span><span class="re-tier-num">2</span></div>
+        <h3 class="re-tier-name re-teal-grad">Creator</h3>
+        <p class="re-tier-sub">The full creative business — 4 skill families</p>
+        <div class="re-tier-block">
+          <div class="re-tier-block-label re-teal-grad">You'll make</div>
+          <p class="re-tier-block-copy">Flyers, product photography, UGC-style ads, and short brand videos.</p>
+        </div>
+        <div class="re-tier-block">
+          <div class="re-tier-block-label re-teal-grad">You'll learn to</div>
+          <p class="re-tier-block-copy">Run AI creative as a real service — pricing, pitching, and delivering across 4 skill families.</p>
+        </div>
       </div>
-      <div class="re-tier-block">
-        <div class="re-tier-block-label re-teal-grad">You'll learn to</div>
-        <p class="re-tier-block-copy">Run this like an agency — manage multiple clients, build a team, and get direct access to Ria.</p>
+    </div>
+
+    <div class="re-tier-outline">
+      <div class="re-tier-card re-tier-white">
+        <div class="re-tier-top"><span class="re-tier-label">Tier</span><span class="re-tier-num">3</span></div>
+        <h3 class="re-tier-name re-teal-grad">Empire</h3>
+        <p class="re-tier-sub">Become the agency — everything, plus Ria</p>
+        <div class="re-tier-block">
+          <div class="re-tier-block-label re-teal-grad">You'll make</div>
+          <p class="re-tier-block-copy">Every skill family, including AI avatars and long-form ad videos.</p>
+        </div>
+        <div class="re-tier-block">
+          <div class="re-tier-block-label re-teal-grad">You'll learn to</div>
+          <p class="re-tier-block-copy">Run this like an agency — manage multiple clients, build a team, and get direct access to Ria.</p>
+        </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STUDENT WINS (polaroid wall) ===== -->
+<section class="re-wins">
+  <div class="wrap">
+    <div class="re-wins-kicker"><span class="re-grad">Fuse Atelier student wins</span> <span class="re-grad">✦</span></div>
+    <h2>Real receipts, <em class="re-grad">real people</em>.</h2>
+
+    <div class="re-polaroid">
+      <span class="re-tape"></span>
+      <div class="re-polaroid-photo">
+        <img src="proof/win-progress.jpg" alt="Progress Godwill's first paid Upwork job" loading="lazy" style="object-fit:contain" onerror="this.parentElement.innerHTML='&lt;div style=&quot;color:#fff;font-size:13px;padding:20px;text-align:center&quot;&gt;📸 Screenshot drops in here&lt;/div&gt;'">
+      </div>
+      <div class="re-polaroid-cap">
+        <p class="re-polaroid-quote">His first paid Upwork job using what he learned inside Fuse Atelier.</p>
+        <div class="re-polaroid-foot">
+          <span class="re-polaroid-name">Progress Godwill</span>
+          <span class="re-polaroid-tag">First $100</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="re-polaroid">
+      <span class="re-tape"></span>
+      <div class="re-polaroid-photo">
+        <svg class="re-polaroid-avatar" viewBox="0 0 120 120" aria-label="Nana Aisha">
+          <path d="M60 14C40 14 26 30 26 52c0 10 3 18 8 24-6 10-10 22-10 30h72c0-8-4-20-10-30 5-6 8-14 8-24 0-22-14-38-34-38z" fill="var(--re-teal-l)"/>
+          <ellipse cx="60" cy="58" rx="21" ry="25" fill="#f2e6d8"/>
+        </svg>
+      </div>
+      <div class="re-polaroid-cap">
+        <p class="re-polaroid-quote">Closed her first deal in her very first week inside Fuse Atelier.</p>
+        <div class="re-polaroid-foot">
+          <span class="re-polaroid-name">Nana Aisha</span>
+          <span class="re-polaroid-tag">First brand deal</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="re-polaroid">
+      <span class="re-tape"></span>
+      <div class="re-polaroid-photo">
+        <img src="proof/ria-portrait.jpg" alt="Ria" loading="lazy" onerror="this.parentElement.innerHTML='&lt;div style=&quot;color:#fff;font-size:13px;padding:20px;text-align:center&quot;&gt;📸 Photo drops in here&lt;/div&gt;'">
+      </div>
+      <div class="re-polaroid-cap">
+        <p class="re-polaroid-quote">Closed a $3,500/month Upwork deal creating AI content.</p>
+        <div class="re-polaroid-foot">
+          <span class="re-polaroid-name">Ria</span>
+          <span class="re-polaroid-tag">$4,000+ earned</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="re-more-kicker">more jobs landed by Ria and her students ↓</div>
+    <div class="re-jobs-grid">
+      <div class="re-job-card"><img src="proof/upwork-1.jpg" alt="Real Upwork profile — 78% Job Success, $4K+ earned" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
+      <div class="re-job-card"><img src="proof/upwork-2.jpg" alt="Live client contract — $3,500 budget, AI Character Creator" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
+      <div class="re-job-card"><img src="proof/contract-1.jpg" alt="Completed project — $2,000 budget, 4.0 star rating" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
+      <div class="re-job-card"><img src="proof/contract-2.jpg" alt="Completed job — $420 budget, T-shirt design pack" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
+      <div class="re-job-card"><img src="proof/contract-3.jpg" alt="Active contract — $750 budget, AI video generation" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
+      <div class="re-job-card"><img src="proof/contract-4.jpg" alt="Active contract — $500 budget, AI ad design" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
     </div>
   </div>
 </section>
@@ -803,29 +897,6 @@ footer a{color:var(--gold)}
       </div>
     </div>
     <button class="btn btn-ghost sm" id="skillsExpandBtn" style="margin-top:20px">See all 6 skill families →</button>
-  </div>
-</section>
-
-<!-- ===== PROOF WALL ===== -->
-<section class="demo" id="proof">
-  <div class="wrap">
-    <span class="kick">Real jobs · real money</span>
-    <h2 class="sec-h">This system already <span class="goldgrad">pays.</span></h2>
-    <div class="stat-row">
-      <div class="stat rv"><b>12</b><span>Upwork jobs landed by your instructor</span></div>
-      <div class="stat rv"><b>$4,000+</b><span>earned from AI creative work</span></div>
-      <div class="stat rv"><b>6</b><span>skill families, all finishable — not a 40-hour dump</span></div>
-      <div class="stat rv"><b>7 days</b><span>to your first paying client</span></div>
-    </div>
-    <div class="proof-grid" id="proofGrid">
-      <div class="proof-card rv"><img src="proof/upwork-1.jpg" alt="Upwork verified profile" style="object-position:center 76%" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Upwork profile screenshot — drops in here&lt;/div&gt;'"><div class="cap">Real Upwork profile — 78% Job Success, $4K+ earned, verified</div></div>
-      <div class="proof-card rv"><img src="proof/upwork-2.jpg" alt="Upwork contract, $3,500 budget" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Client contract screenshot — drops in here&lt;/div&gt;'"><div class="cap">Live client contract — $3,500 budget, AI Character Creator</div></div>
-      <div class="proof-card rv"><img src="proof/contract-1.jpg" alt="Upwork contract, $2,000 budget" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Contract card — drops in here&lt;/div&gt;'"><div class="cap">Completed project — $2,000 budget, 4.0★ rating</div></div>
-      <div class="proof-card rv"><img src="proof/contract-2.jpg" alt="Upwork contract, $420 budget" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Contract card — drops in here&lt;/div&gt;'"><div class="cap">Completed job — $420 budget, 4.4★ rating, T-shirt design pack</div></div>
-      <div class="proof-card rv"><img src="proof/contract-3.jpg" alt="Upwork contract, $750 budget" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Contract card — drops in here&lt;/div&gt;'"><div class="cap">Active contract — $750 budget, AI video generation</div></div>
-      <div class="proof-card rv"><img src="proof/contract-4.jpg" alt="Upwork contract, $500 budget" onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;📸 Contract card — drops in here&lt;/div&gt;'"><div class="cap">Active contract — $500 budget, AI ad design</div></div>
-    </div>
-    <p class="fam-note" style="text-align:center;margin-top:18px">Every win on this wall is from a named, contactable person. No fake alerts. Ask any of them.</p>
   </div>
 </section>
 
