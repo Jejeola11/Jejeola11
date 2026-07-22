@@ -94,12 +94,12 @@ section{padding:92px 0;position:relative}
 .top{position:sticky;top:0;z-index:60;background:rgba(3,26,22,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 .top .in{display:flex;justify-content:space-between;align-items:center;flex-wrap:nowrap;min-height:62px;padding-top:8px;padding-bottom:8px;gap:10px}
 .brand{display:flex;align-items:center;gap:9px;font-family:"Bricolage Grotesque";font-weight:800;font-size:18px;color:var(--ink);text-decoration:none;white-space:nowrap;flex-shrink:0}
-.brand .dot{width:30px;height:30px;border-radius:9px;background:linear-gradient(120deg,#F5C518,#B08D57);color:#1a1200;display:grid;place-items:center;font-size:15px;flex-shrink:0}
+.brand .dot{width:30px;height:30px;border-radius:9px;display:block;flex-shrink:0}
 .top .btn{padding:10px 18px;font-size:14px;white-space:nowrap;flex-shrink:0}
 .cta-s{display:none}
 @media(max-width:480px){
   .brand{font-size:15px;gap:6px}
-  .brand .dot{width:26px;height:26px;font-size:13px}
+  .brand .dot{width:26px;height:26px}
   .top .btn{padding:9px 14px;font-size:12.5px}
   .cta-l{display:none}
   .cta-s{display:inline}
@@ -158,6 +158,9 @@ section{padding:92px 0;position:relative}
 .re-stats{background:var(--re-teal-d);padding:56px 0}
 .re-stats .wrap{display:flex;flex-direction:column;gap:30px;max-width:460px}
 .re-stat-card{border-radius:20px;padding:34px 22px;text-align:center;box-shadow:9px 9px 0 var(--re-teal-l)}
+.re-stat-card:nth-child(1){transform:rotate(-1.5deg)}
+.re-stat-card:nth-child(2){transform:rotate(1.4deg)}
+.re-stat-card:nth-child(3){transform:rotate(-1.3deg)}
 .re-stat-green{background:var(--re-green)}
 .re-stat-yellow{background:var(--re-yellow)}
 .re-stat-white{background:#fff}
@@ -217,14 +220,17 @@ section{padding:92px 0;position:relative}
 .re-tiers h2{font-family:"Playfair Display",serif;font-weight:900;font-size:clamp(28px,7vw,40px);line-height:1.2;margin:10px 0 14px}
 .re-tiers .sub2{color:#fff;font-size:16px;margin:0 0 36px}
 .re-tier-outline{border-radius:24px;padding:2px;margin-bottom:24px;background:linear-gradient(135deg,var(--re-green),var(--re-yellow),#fff);box-shadow:9px 9px 0 var(--re-teal-l)}
+.re-tier-outline.t1{transform:rotate(-1.6deg)}
+.re-tier-outline.t2{transform:rotate(1.4deg)}
+.re-tier-outline.t3{transform:rotate(-1.4deg)}
 .re-tier-card{border-radius:22.5px;padding:28px 24px;text-align:left}
 .re-tier-green{background:var(--re-green)}
 .re-tier-yellow{background:var(--re-yellow)}
 .re-tier-white{background:#fff}
 .re-tier-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
 .re-tier-label{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(9,9,9,.55)}
-.re-tier-num{font-family:"Playfair Display",serif;font-weight:900;font-size:44px;color:var(--re-teal-d);line-height:1}
-.re-tier-name{font-family:"Playfair Display",serif;font-weight:900;font-size:26px;margin:0 0 6px}
+.re-tier-num{font-family:"Playfair Display",serif;font-style:italic;font-weight:900;font-size:clamp(56px,15vw,76px);color:var(--re-teal-d);line-height:1}
+.re-tier-name{font-family:"Playfair Display",serif;font-weight:900;font-size:34px;margin:0 0 6px}
 .re-tier-sub{color:#000;font-size:15px;font-weight:600;margin:0 0 20px;line-height:1.4}
 .re-tier-block{margin-bottom:14px}
 .re-tier-block:last-child{margin-bottom:0}
@@ -264,14 +270,28 @@ section{padding:92px 0;position:relative}
 .re-walk-lead{color:#fff;font-size:16px;line-height:1.65;margin:0 0 28px;max-width:420px}
 .re-walk-cards{position:relative;margin-top:66px;padding-bottom:50px}
 .re-walk-card{position:relative;border-radius:20px;padding:2.5px;background:linear-gradient(150deg,var(--re-teal-l),var(--re-teal-d) 70%);margin-bottom:36px;box-shadow:0 35px 60px -18px rgba(9,9,9,.6),0 0 45px -10px rgba(37,69,74,.6)}
-.re-walk-card:nth-child(1){transform:rotate(-4deg);margin-left:0}
-.re-walk-card:nth-child(2){transform:rotate(3deg);margin-left:30px}
-.re-walk-card:nth-child(3){transform:rotate(-3deg);margin-left:10px}
-.re-walk-card:nth-child(4){transform:rotate(4deg);margin-left:34px}
+.re-walk-card:nth-child(1){transform:rotate(-1.6deg);margin-left:0}
+.re-walk-card:nth-child(2){transform:rotate(1.3deg);margin-left:14px}
+.re-walk-card:nth-child(3){transform:rotate(-1.3deg);margin-left:4px}
+.re-walk-card:nth-child(4){transform:rotate(1.6deg);margin-left:16px}
 .re-walk-card-in{border-radius:18px;background:linear-gradient(135deg,var(--re-green) 0%,var(--re-yellow) 55%,#fff 100%);padding:26px 22px}
 .re-walk-num{font-family:"Playfair Display",serif;font-weight:900;font-size:13px;color:rgba(9,9,9,.5);letter-spacing:.1em}
 .re-walk-card-in h3{font-family:"Playfair Display",serif;font-weight:900;font-size:22px;color:var(--re-teal-d);margin:8px 0 8px}
 .re-walk-card-in p{color:#000;font-size:14.5px;line-height:1.5;margin:0}
+
+/* ===== The opportunity is real ===== */
+.re-opp{background:var(--re-teal-d);padding:70px 0}
+.re-opp .wrap{max-width:480px;text-align:center}
+.re-opp-kicker{background:linear-gradient(100deg,var(--re-green) 0%,var(--re-yellow) 45%,#FFFFFF 90%);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;font-size:14px;letter-spacing:.1em;text-transform:uppercase;line-height:1.6}
+.re-opp h2{color:#fff;font-family:"Bricolage Grotesque";font-weight:800;font-size:clamp(26px,7vw,36px);line-height:1.3;margin:16px 0 44px}
+.re-opp-card{border-radius:20px;padding:32px 24px;margin-bottom:22px;background:linear-gradient(160deg,var(--re-teal-l),var(--re-teal-d) 80%);border:1px solid rgba(255,255,255,.08)}
+.re-opp-card:nth-child(1){transform:rotate(-1.4deg)}
+.re-opp-card:nth-child(2){transform:rotate(1.3deg)}
+.re-opp-card:nth-child(3){transform:rotate(-1.5deg)}
+.re-opp-card:nth-child(4){transform:rotate(1.2deg)}
+.re-opp-num{font-family:"Playfair Display",serif;font-weight:900;font-size:clamp(32px,9vw,44px);margin-bottom:10px}
+.re-opp-desc{color:#fff;font-size:16px;font-weight:700;line-height:1.4;margin-bottom:10px}
+.re-opp-src{color:rgba(255,255,255,.4);font-size:13px}
 .re-quiz-card{max-width:520px;margin:0;border-radius:22px;padding:26px;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 75%);border:1px solid rgba(169,255,103,.18);box-shadow:0 20px 50px -20px rgba(0,0,0,.6)}
 .re-quiz-progress{display:flex;gap:6px;margin-bottom:20px}
 .re-quiz-progress i{flex:1;height:5px;border-radius:4px;background:rgba(255,255,255,.14);overflow:hidden;display:block;font-style:normal}
@@ -443,7 +463,7 @@ footer a{color:var(--gold)}
 
 <!-- ===== Top bar ===== -->
 <div class="top"><div class="wrap in">
-  <a class="brand" href="#hero"><span class="dot">F</span> Fuse&nbsp;Atelier</a>
+  <a class="brand" href="#hero"><img class="dot" src="assets/logo-fs.png" alt="Fuse Studio"> Fuse&nbsp;Atelier</a>
   <a class="re-btn re-btn-nav" href="#tier-quiz">Pick your path →</a>
 </div></div>
 
@@ -736,7 +756,7 @@ footer a{color:var(--gold)}
     <h2 class="re-grad">How does this actually work?</h2>
     <p class="sub2">An AI Creative System that gets you paid</p>
 
-    <div class="re-tier-outline">
+    <div class="re-tier-outline t1">
       <div class="re-tier-card re-tier-green">
         <div class="re-tier-top"><span class="re-tier-label">Tier</span><span class="re-tier-num">1</span></div>
         <h3 class="re-tier-name re-teal-grad">Starter</h3>
@@ -752,7 +772,7 @@ footer a{color:var(--gold)}
       </div>
     </div>
 
-    <div class="re-tier-outline">
+    <div class="re-tier-outline t2">
       <div class="re-tier-card re-tier-yellow">
         <div class="re-tier-top"><span class="re-tier-label">Tier</span><span class="re-tier-num">2</span></div>
         <h3 class="re-tier-name re-teal-grad">Creator</h3>
@@ -768,7 +788,7 @@ footer a{color:var(--gold)}
       </div>
     </div>
 
-    <div class="re-tier-outline">
+    <div class="re-tier-outline t3">
       <div class="re-tier-card re-tier-white">
         <div class="re-tier-top"><span class="re-tier-label">Tier</span><span class="re-tier-num">3</span></div>
         <h3 class="re-tier-name re-teal-grad">Empire</h3>
@@ -885,6 +905,36 @@ footer a{color:var(--gold)}
           <h3>A repeatable workflow</h3>
           <p>The exact prompts, pricing, and process to do it again, any day of the week.</p>
         </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== THE OPPORTUNITY IS REAL ===== -->
+<section class="re-opp">
+  <div class="wrap">
+    <div class="re-opp-kicker">The opportunity is real, and it's now</div>
+    <h2>Demand Is Exploding. The Talent To Meet It Isn't.</h2>
+    <div class="re-opp-cards">
+      <div class="re-opp-card">
+        <div class="re-opp-num re-grad">1 in 10</div>
+        <div class="re-opp-desc">job postings now require AI skills</div>
+        <div class="re-opp-src">PwC</div>
+      </div>
+      <div class="re-opp-card">
+        <div class="re-opp-num re-grad">+44%</div>
+        <div class="re-opp-desc">more per hour for AI freelancers</div>
+        <div class="re-opp-src">Upwork</div>
+      </div>
+      <div class="re-opp-card">
+        <div class="re-opp-num re-grad">+329%</div>
+        <div class="re-opp-desc">growth in AI video, the fastest-rising skill</div>
+        <div class="re-opp-src">Upwork</div>
+      </div>
+      <div class="re-opp-card">
+        <div class="re-opp-num re-grad">56%</div>
+        <div class="re-opp-desc">wage premium after ~1 month upskilling</div>
+        <div class="re-opp-src">PwC</div>
       </div>
     </div>
   </div>
