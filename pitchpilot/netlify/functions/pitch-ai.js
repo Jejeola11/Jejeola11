@@ -1,12 +1,18 @@
 // ============================================================
 // POST /.netlify/functions/pitch-ai   (auth required, spends 1 use)
-// Two modes:
+// Three modes:
 //   mode:'job'       — { jobText, client:{name,company,location,history}, prevJobs:[..] }
 //   mode:'instagram' — { ig:{username, website, about, pitching, goal} }
-// Plus: { profile, projects, project, extra } in both modes.
+//   mode:'lead'      — { lead:{id, business_name, category, website, address, phone, has_website} }
+//                       A lead found via Lead Finder (Google Maps). Writes
+//                       problem-first outreach (their specific gap, then the
+//                       fix, then a CTA to see a sample) plus a sampleBrief —
+//                       what to actually build them before following up.
+// Plus: { profile, projects, project, extra } in all modes.
 // Claude Sonnet 4.5 (via MUAPI_KEY) writes 4 outreach messages + a LinkedIn
 // connect note. Every generation costs 1 use — new accounts get 5 free,
-// plans top up the allowance (see pp-grant.js).
+// plans top up the allowance (see pp-grant.js). mode:'job' also returns a
+// fitScore (1-10) so you can triage fast, GigRadar-style.
 // Env needed on this site: MUAPI_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
 // ============================================================
 const { admin, getUser, spendUse, refundUse, json } = require('./_pp');
@@ -64,11 +70,26 @@ exports.handler = async (event) => {
   if (!user) return json(401, { error: 'Please sign in.' });
 
   let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
-  const mode = body.mode === 'instagram' ? 'instagram' : 'job';
+  const mode = body.mode === 'instagram' ? 'instagram' : body.mode === 'lead' ? 'lead' : 'job';
 
   // ---- build the target-specific context ----
   let targetBlock = '';
-  if (mode === 'job') {
+  if (mode === 'lead') {
+    const lead = body.lead || {};
+    if (!lead.business_name) return json(400, { error: 'Missing lead details.' });
+    targetBlock =
+`THE TARGET (a real local business found on Google Maps through Lead Finder — no job post, this is proactive outreach to someone who almost certainly doesn't know you exist yet):
+- Business name: ${lead.business_name}
+- Category: ${lead.category || '(unknown)'}
+- Address: ${lead.address || '(unknown)'}
+- Website: ${lead.website || '(none found)'}
+- Phone: ${lead.phone || '(unknown)'}
+- Google rating: ${lead.rating || '(unknown)'}${lead.reviews_count != null ? ` (${lead.reviews_count} reviews)` : ''}
+- Specific gaps found on their Google listing: ${lead.gap_summary || (lead.has_website === false ? 'No website' : 'none flagged — use your judgement on what\'s missing')}
+
+Lead with the MOST SPECIFIC gap above (never a generic compliment, never "I noticed your business"). State it plainly and kindly, then offer to share what you found — no charge, no strings — instead of asking for a call. A tiny, low-friction ask ("want me to send what I found?") gets far more replies than a big one ("can we hop on a call?").
+Pick ONE fitting entry-point service based on the gap, and mention it lightly (don't oversell): no website -> a simple, fast website/landing page; low review count or no responses to reviews -> a review-request system that texts customers after every job; if calls likely go unanswered (small business, no site) -> a simple missed-call / "always answers" solution. Only offer what actually fits the gap you led with.`;
+  } else if (mode === 'job') {
     const jobText = (body.jobText || '').slice(0, 6000);
     if (!jobText.trim()) return json(400, { error: 'Paste the job post first.' });
     const c = body.client || {};
@@ -133,7 +154,7 @@ ${extra ? `\nExtra to weave in naturally: ${extra}` : ''}
 Write FOUR outreach messages plus one short LinkedIn connect note. Each must feel freshly written for THIS target. Return ONLY valid minified JSON (no prose, no markdown):
 
 {"projectSuggestion":"",
-"pitches":{"email":"","whatsapp":"","instagram":"","linkedin":"","connect":""}}
+"pitches":{"email":"","whatsapp":"","instagram":"","linkedin":"","connect":""}${mode === 'lead' ? ',\n"sampleBrief":""' : ''}${mode === 'job' ? ',\n"fitScore":0,\n"fitReason":""' : ''}}
 
 Rules:
 - projectSuggestion: one sentence naming which saved project best fits and why - or, if none fit, what kind of demo/sample to create for them before reaching out.
@@ -142,13 +163,21 @@ Rules:
 - instagram: casual DM tone, under 80 words, can use one emoji, must reference something real about their page/brand.
 - linkedin: professional but personable, under 200 words.
 - connect: a LinkedIn connection request note, UNDER 200 characters.
-- Address them by first name if known, else warm neutral. Never invent a fake fact, email, phone number, or result not given above.
+- Address them by first name if known, else warm neutral. Never invent a fake fact, email, phone number, or result not given above.${mode === 'lead' ? '\n- sampleBrief: a short, concrete brief (2-4 sentences) telling the freelancer EXACTLY what to build/send once this business replies wanting to see what you found - matched to the gap you led with. No website -> describe a specific 1-page mockup (their real name/category, a booking or call button, a clean modern style). Low reviews / no review responses -> write the actual short review-request text/email they could set up (e.g. "Thanks for choosing [Business] - mind leaving a quick review? [link]"). Missed calls likely -> describe a simple always-answers setup (an auto-text back with hours/booking info when they can\'t pick up). Be concrete, not vague ("something nice") - give them the actual thing to build or send.' : ''}${mode === 'job' ? '\n- fitScore: your honest 1-10 score of how well this freelancer\'s profile/portfolio actually fits what this job needs (10 = perfect match, 1 = wrong skillset entirely). Score on fit, not on how nice the job sounds.\n- fitReason: one short sentence explaining the score.' : ''}
 - Output JSON ONLY.`;
 
     const raw = await claude(prompt);
     const data = parseJSON(raw);
     if (!data || !data.pitches) { await refundUse(db, user.id); return json(502, { error: 'AI did not return usable output - tap generate again (use refunded).' }); }
-    return json(200, { ok: true, projectSuggestion: data.projectSuggestion || '', pitches: data.pitches, uses_left: usesLeft });
+    return json(200, {
+      ok: true,
+      projectSuggestion: data.projectSuggestion || '',
+      pitches: data.pitches,
+      uses_left: usesLeft,
+      sampleBrief: mode === 'lead' ? (data.sampleBrief || '') : undefined,
+      fitScore: mode === 'job' ? (data.fitScore || null) : undefined,
+      fitReason: mode === 'job' ? (data.fitReason || '') : undefined,
+    });
   } catch (e) {
     await refundUse(db, user.id);
     return json(500, { error: (e && e.message) || 'pitch-ai failed (use refunded)' });
