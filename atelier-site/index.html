@@ -350,15 +350,16 @@ section{padding:92px 0;position:relative}
 .re-bd-card{display:block;border-radius:22px;padding:28px 24px;margin-bottom:22px;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 80%);text-decoration:none}
 .re-bd-kicker{color:rgba(255,255,255,.55);font-size:12.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px}
 .re-bd-tier{color:#fff;font-family:"Playfair Display",serif;font-weight:900;font-size:20px;margin-bottom:6px}
-.re-bd-price{font-family:"Playfair Display",serif;font-weight:900;font-size:44px;color:#fff}
-.re-bd-price span{font-family:"Bricolage Grotesque";font-weight:700;font-size:16px;color:rgba(255,255,255,.7);margin-left:4px}
+.re-bd-price-row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.re-bd-price{font-family:"Playfair Display",serif;font-weight:900;font-size:44px}
+.re-bd-tap{color:var(--re-yellow);font-size:13px;font-weight:700}
 .re-bd-note{color:#CFE0DC;font-size:14.5px;margin-top:10px;line-height:1.4}
 .re-bd-text{color:#fff;font-size:16px;line-height:1.65;margin:0 0 14px}
 .re-bd-sub{color:rgba(255,255,255,.55);font-size:14px;line-height:1.5;margin:0}
-.re-bd-card.brand{background:linear-gradient(135deg,var(--re-green) 0%,var(--re-yellow) 55%,#fff 100%)}
-.re-bd-card.brand .re-bd-kicker{color:rgba(9,9,9,.55)}
-.re-bd-card.brand .re-bd-text{color:#000}
-.re-bd-card.brand .re-bd-sub{color:rgba(9,9,9,.6)}
+.re-bd-card.re-bd-brand{background:linear-gradient(135deg,var(--re-green) 0%,var(--re-yellow) 55%,#fff 100%)}
+.re-bd-card.re-bd-brand .re-bd-kicker{color:rgba(9,9,9,.55)}
+.re-bd-card.re-bd-brand .re-bd-text{color:#000}
+.re-bd-card.re-bd-brand .re-bd-sub{color:rgba(9,9,9,.6)}
 .re-bd-zero-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .re-bd-lock{font-size:22px}
 .re-bd-zero-head h3{color:#fff;font-size:19px;font-weight:800;margin:0}
@@ -389,6 +390,14 @@ section{padding:92px 0;position:relative}
 .re-faq-item summary::after{content:'+';font-size:22px;color:var(--re-green);flex:0 0 auto}
 .re-faq-item[open] summary::after{content:'✕';color:#fff;font-size:16px}
 .re-faq-item p{margin:0;padding:0 22px 22px;color:#CFE0DC;font-size:14.5px;line-height:1.65}
+
+/* ===== A month from now ===== */
+.re-final{background:var(--re-teal-d);padding:70px 0;text-align:center}
+.re-final .wrap{max-width:480px}
+.re-final h2{font-family:"Bricolage Grotesque";font-weight:800;font-size:clamp(28px,7.5vw,40px);line-height:1.3;margin:0 0 28px}
+.re-final p{color:#CFE0DC;font-size:16px;line-height:1.7;margin:0 0 18px}
+.re-final .re-btn{margin:14px auto 18px}
+.re-final-price{color:#fff;font-size:14.5px;font-weight:700;margin:0}
 .re-studio-feat{display:flex;gap:14px;align-items:flex-start;padding:20px 0;border-bottom:1px solid rgba(255,255,255,.08)}
 .re-studio-feat:last-child{border-bottom:0}
 .re-studio-feat-ic{font-size:23px;flex:0 0 auto;line-height:1}
@@ -1228,23 +1237,23 @@ footer a{color:var(--gold)}
     <a class="re-bd-card" href="/studio?buy=atelier_starter" onclick="return fuseBuy('atelier_starter', this, {value:10000,currency:'NGN',content_name:'atelier_starter'})">
       <div class="re-bd-kicker">Break It Down</div>
       <div class="re-bd-tier">Starter</div>
-      <div class="re-bd-price">₦10,000</div>
+      <div class="re-bd-price-row"><span class="re-bd-price re-grad">₦10,000</span><span class="re-bd-tap">Tap to enroll →</span></div>
       <div class="re-bd-note">About ₦333 a day — to build a skill that pays you for years.</div>
     </a>
     <a class="re-bd-card" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">
       <div class="re-bd-kicker">Break It Down</div>
       <div class="re-bd-tier">Creator</div>
-      <div class="re-bd-price">₦25,000</div>
+      <div class="re-bd-price-row"><span class="re-bd-price re-grad">₦25,000</span><span class="re-bd-tap">Tap to enroll →</span></div>
       <div class="re-bd-note">About ₦833 a day — to build a skill that pays you for years.</div>
     </a>
     <a class="re-bd-card" href="/studio?buy=atelier_empire" onclick="return fuseBuy('atelier_empire', this, {value:70000,currency:'NGN',content_name:'atelier_empire'})">
       <div class="re-bd-kicker">Break It Down</div>
       <div class="re-bd-tier">Empire</div>
-      <div class="re-bd-price">₦70,000</div>
+      <div class="re-bd-price-row"><span class="re-bd-price re-grad">₦70,000</span><span class="re-bd-tap">Tap to enroll →</span></div>
       <div class="re-bd-note">About ₦2,333 a day — to build a skill that pays you for years.</div>
     </a>
 
-    <div class="re-bd-card brand">
+    <div class="re-bd-card re-bd-brand">
       <div class="re-bd-kicker">The Math</div>
       <p class="re-bd-text">Most students land their first brand deal within 3–4 weeks. Average first deal: $100–$1,000, with many achieving $2,000+ in month one.</p>
       <p class="re-bd-sub">That means the mentorship typically pays for itself in multiple folds with your first deal.</p>
@@ -1311,209 +1320,6 @@ footer a{color:var(--gold)}
   </div>
 </section>
 
-<!-- ===== AGITATE (the emotional bridge — nothing about the product yet) ===== -->
-<section class="rv">
-  <div class="wrap" style="max-width:720px;text-align:center;margin-left:auto;margin-right:auto">
-    <h2 class="sec-h">You've watched the videos. Tried a few tools. <span class="goldgrad">Still nothing turned into money.</span></h2>
-    <p class="sec-sub" style="margin:0 auto">Meanwhile it feels like everyone around you has cracked something you haven't. Same internet. Same tools. Different results.</p>
-    <p class="sec-sub" style="margin:14px auto 0">Here's what's actually going on: you don't need another tutorial or another app. You need one skill, and a real plan for turning it into someone paying you — because that part is usually what's missing, not the AI itself.</p>
-  </div>
-</section>
-
-<!-- ===== SOLUTION ===== -->
-<section class="demo rv">
-  <div class="wrap" style="max-width:720px;text-align:center;margin-left:auto;margin-right:auto">
-    <h2 class="sec-h">Fuse Atelier is <span class="goldgrad">two things in one.</span></h2>
-    <p class="sec-sub" style="margin:0 auto">A course that teaches you one AI skill, and a built-in AI studio — the actual tool you use to make things — already inside, credits included. No separate app to download, no $30/month subscription to find. You learn the skill and use the tool in the same place.</p>
-    <p class="sec-sub" style="margin:14px auto 0">And it doesn't stop at "here's how to make something." Every tier includes the <b class="gold">Money Engine</b> — the exact scripts and 7-day plan that turns what you can now make into someone actually paying you for it.</p>
-    <p style="margin:18px 0 0;font-weight:700;color:var(--ink)">First $500 in 30 days — or we work with you free until you get there.</p>
-    <div class="cta-row" style="margin-top:20px">
-      <a class="btn btn-gold" href="#pricing">Start earning this week →</a>
-    </div>
-  </div>
-</section>
-
-<!-- ===== SKILLS (trimmed — optional depth, not a wall everyone has to get through) ===== -->
-<section class="rv">
-  <div class="wrap">
-    <span class="kick">Pick your money skill</span>
-    <h2 class="sec-h">Six skill families. <span class="goldgrad">Bite-sized lessons — then you sell it.</span></h2>
-    <div class="skills-grid" id="skillsGrid">
-      <div class="skill-card">
-        <span class="sk-ic">🎨</span>
-        <h4>Social media & event flyers</h4>
-        <div class="sk-tier">Starter+</div>
-        <p>Clients pay $10–$50</p>
-      </div>
-      <div class="skill-card">
-        <span class="sk-ic">📸</span>
-        <h4>AI product photography</h4>
-        <div class="sk-tier">🔒 Unlocks in Creator</div>
-        <p>$10–$20/shot</p>
-      </div>
-      <div class="skill-card">
-        <span class="sk-ic">💰</span>
-        <h4>The Money Engine</h4>
-        <div class="sk-tier">All tiers</div>
-        <p>The 7-day plan and scripts that turn any skill into a paying client</p>
-      </div>
-      <div class="skill-card skill-hidden">
-        <span class="sk-ic">🏷️</span>
-        <h4>Logo & brand kits</h4>
-        <div class="sk-tier">🔒 Unlocks in Creator</div>
-        <p>Clients pay well for a professional package</p>
-      </div>
-      <div class="skill-card skill-hidden">
-        <span class="sk-ic">🎥</span>
-        <h4>AI UGC ads</h4>
-        <div class="sk-tier">🔒 Unlocks in Creator</div>
-        <p>Brands pay $50–$150 per video</p>
-      </div>
-      <div class="skill-card skill-hidden">
-        <span class="sk-ic">🌐</span>
-        <h4>Web & funnels</h4>
-        <div class="sk-tier">🔒 Unlocks in Empire</div>
-        <p>The premium $500+ skill</p>
-      </div>
-    </div>
-    <button class="btn btn-ghost sm" id="skillsExpandBtn" style="margin-top:20px">See all 6 skill families →</button>
-  </div>
-</section>
-
-<!-- ===== STUDENT WINS ===== -->
-<section class="demo" id="wins">
-  <div class="wrap">
-    <span class="kick">Real results</span>
-    <h2 class="sec-h">Real students. <span class="goldgrad">Real wins.</span></h2>
-    <p class="sec-sub">Fuse Atelier students — named, real, contactable. Ask any of them.</p>
-    <div class="win-grid">
-      <div class="win-card rv">
-        <img src="proof/win-progress.jpg" alt="Progress Godwill's first paid Upwork job, hired by BINAIRE FZE" loading="lazy">
-        <p class="win-quote">"You're hired oooo 😂😂😂"</p>
-        <div class="win-amt">$100</div>
-        <div class="win-sub">his first paid Upwork job, using what he learned inside Fuse Atelier</div>
-        <div class="win-who">Progress Godwill <span>· Fuse Atelier student</span></div>
-        <span class="win-tag">First Paid Client</span>
-      </div>
-      <div class="win-card rv">
-        <div class="win-amt">$500+</div>
-        <div class="win-sub">earned taking on client work using skills from Fuse Atelier</div>
-        <div class="win-who">Umulkhair <span>· Fuse Atelier student</span></div>
-        <span class="win-tag">Top Earner</span>
-      </div>
-      <div class="win-card rv">
-        <div class="win-amt">$200</div>
-        <div class="win-sub">landed a paid client project using what he learned inside Fuse Atelier</div>
-        <div class="win-who">Adeyemo Paul <span>· Fuse Atelier student</span></div>
-        <span class="win-tag">Client Paid</span>
-      </div>
-      <div class="win-card rv">
-        <div class="win-amt">$50</div>
-        <div class="win-sub">closed her first deal in her very first week inside Fuse Atelier</div>
-        <div class="win-who">Precious <span>· Fuse Atelier student</span></div>
-        <span class="win-tag">First Week Win</span>
-      </div>
-      <div class="win-card rv">
-        <div class="win-amt">On track for $1,000</div>
-        <div class="win-sub">building toward his first $1,000 with clients lined up right now</div>
-        <div class="win-who">Joseph <span>· Fuse Atelier student</span></div>
-        <span class="win-tag">In Progress</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== OBJECTION PREEMPT ===== -->
-<section class="cream rv">
-  <div class="wrap" style="text-align:center;max-width:780px;margin-left:auto;margin-right:auto">
-    <span class="kick">Before you talk yourself out of it</span>
-    <h2 class="sec-h">This works even if…</h2>
-    <div class="chips-grid">
-      <div class="chip-card rv"><span class="x">✕</span> You have 0 followers right now</div>
-      <div class="chip-card rv"><span class="x">✕</span> You've never made a naira online before</div>
-      <div class="chip-card rv"><span class="x">✕</span> You don't want to show your face on camera</div>
-      <div class="chip-card rv"><span class="x">✕</span> You've never designed anything in your life</div>
-      <div class="chip-card rv"><span class="x">✕</span> You only have a phone — no laptop, no fancy setup</div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== BONUSES ===== -->
-<section>
-  <div class="wrap">
-    <div class="bonus-grid">
-      <div class="bonus-card rv">
-        <span class="bonus-ic">🎯</span>
-        <h4>Done-for-you outreach pack</h4>
-        <p>Enroll this week and get a first outreach message pack written for your exact niche, so day one isn't a blank page. You don't start by figuring out what to say — you start by sending something that already works.</p>
-      </div>
-      <div class="bonus-card rv">
-        <span class="bonus-ic">🏅</span>
-        <h4>Founding cohort badge</h4>
-        <p>This batch is the founding cohort of the merged Atelier. Founding members get a badge marking them as one of the first through the new version — visible in the community and on the wins wall. Once this cohort closes, that status is gone.</p>
-      </div>
-      <div class="bonus-card rv">
-        <span class="bonus-ic">🏆</span>
-        <h4>Featured on the wins wall</h4>
-        <p>Land your first client in your first 14 days and you're featured on the wins wall — the same wall of real names and real screenshots on this page. Not just a customer. Proof, with your name on it.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== URGENCY ===== -->
-<section class="demo rv">
-  <div class="wrap" style="max-width:680px;text-align:center;margin-left:auto;margin-right:auto">
-    <p style="font-size:16px;color:var(--ink)">These three things exist only for this cohort. The badge won't be given to a later batch — it wouldn't mean "founding" anymore if it was. Once this round closes, this exact offer closes with it.</p>
-  </div>
-</section>
-
-<!-- ===== IS THIS FOR YOU ===== -->
-<section>
-  <div class="wrap">
-    <span class="kick">Before you enroll</span>
-    <h2 class="sec-h">Is this <span class="goldgrad">for you?</span></h2>
-    <p class="sec-sub">Straight answer — so you're not guessing.</p>
-    <div class="qualify-grid">
-      <div class="qualify-card yes rv">
-        <h3>✅ This is for you if</h3>
-        <ul>
-          <li><b>✓</b> You want a real skill you can sell this week — not just "learn AI" in the abstract</li>
-          <li><b>✓</b> You only have a phone, no laptop, no design background, no budget for expensive tools</li>
-          <li><b>✓</b> You've tried posting content or freelancing before and it never turned into paying clients</li>
-          <li><b>✓</b> You want the AI tools AND the client-getting scripts in one place, not five different subscriptions</li>
-          <li><b>✓</b> You're actually willing to send outreach messages, not just watch lessons</li>
-        </ul>
-      </div>
-      <div class="qualify-card no rv">
-        <h3>❌ This is not for you if</h3>
-        <ul>
-          <li>✕ You're looking for guaranteed money with zero effort — the guarantee covers you doing the plan, not doing nothing</li>
-          <li>✕ You already have a sellable AI skill and a full client pipeline</li>
-          <li>✕ You're not willing to message potential clients or send a single pitch</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== 7-DAY PATH ===== -->
-<section>
-  <div class="wrap">
-    <span class="kick">The First-Client System</span>
-    <h2 class="sec-h">Your first <span class="goldgrad">7 days,</span> planned to the hour.</h2>
-    <p class="sec-sub">No figuring it out alone. The WhatsApp coach follows you through every day — and checks you actually did it.</p>
-    <div style="margin-top:26px">
-      <div class="day-row rv"><div class="day-n">1</div><div><h4>Set up shop + pick your skill</h4><p>Orientation, your skill quiz, WhatsApp Business set up, first portfolio piece generated before you sleep.</p></div></div>
-      <div class="day-row rv"><div class="day-n">2</div><div><h4>Build your proof</h4><p>3 portfolio pieces in your skill — made in Fuse Studio with our exact prompts and templates.</p></div></div>
-      <div class="day-row rv"><div class="day-n">3</div><div><h4>Open your pipeline</h4><p>First 10 outreach messages sent with our scripts — WhatsApp, Instagram or walk-ins. The coach confirms it.</p></div></div>
-      <div class="day-row rv"><div class="day-n">4–5</div><div><h4>Follow up + keep sending</h4><p>Daily numbers, follow-up scripts, handling "how much?" without folding on price.</p></div></div>
-      <div class="day-row rv"><div class="day-n">6</div><div><h4>Close & deliver</h4><p>Close your first yes, deliver same-day with the studio, get paid to your account.</p></div></div>
-      <div class="day-row rv"><div class="day-n">7</div><div><h4>Raise your price + repeat</h4><p>Turn one client into three. Post your win. Start your next skill.</p></div></div>
-    </div>
-  </div>
-</section>
-
 <!-- ===== FAQ (rebrand pass) ===== -->
 <section class="re-faq">
   <div class="wrap">
@@ -1556,6 +1362,18 @@ footer a{color:var(--gold)}
         <p>Finish the 7-day plan and send your 30 pitches. If you haven't landed a paid deal in 30 days, we keep working with you 1-on-1, free, until you do. You won't fall through the cracks.</p>
       </details>
     </div>
+  </div>
+</section>
+
+<!-- ===== A MONTH FROM NOW ===== -->
+<section class="re-final">
+  <div class="wrap">
+    <h2 class="re-grad">A Month From Now, Two Things Will Be True</h2>
+    <p>You'll be a month older.</p>
+    <p>Or you'll be a month older with real AI creative skills, a portfolio taking shape, and a network of the top 1% in creative AI — with job opportunities posted inside every week.</p>
+    <p>Most people are still watching tutorials. The people in this room are getting paid.</p>
+    <a class="re-btn" href="#pricing">Start earning this week →</a>
+    <p class="re-final-price">10k starter • 25K creator • 70k Empire • instant access.</p>
   </div>
 </section>
 
