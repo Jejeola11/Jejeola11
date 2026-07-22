@@ -125,7 +125,7 @@ section{padding:92px 0;position:relative}
 /* ===== Rebrand hero specifics ===== */
 .re-hero-bg{background:linear-gradient(180deg,var(--re-teal-d) 0%,var(--re-teal-d) 45%,var(--re-teal-l) 100%)}
 .re-h1{font-size:clamp(32px,7vw,58px);line-height:1.28;margin:18px 0 16px;letter-spacing:-.5px;color:#fff}
-.re-quote{color:var(--re-yellow);font-style:italic;font-weight:600}
+.re-quote{color:var(--re-yellow);font-family:"Caveat",cursive;font-weight:700;font-size:1.35em}
 .re-hero .sub{color:#CFE0DC}
 .re-price-line{margin-top:20px;text-align:center}
 .re-price-tiers{color:#fff;font-size:14.5px;font-weight:700}
@@ -242,9 +242,9 @@ section{padding:92px 0;position:relative}
 .re-polaroid:nth-child(odd){transform:rotate(-2deg)}
 .re-polaroid:nth-child(even){transform:rotate(1.8deg)}
 .re-tape{position:absolute;top:-13px;left:50%;transform:translateX(-50%) rotate(-3deg);width:104px;height:32px;background:linear-gradient(100deg,var(--re-green),var(--re-yellow) 60%,#fff);border-radius:2px;box-shadow:0 4px 10px rgba(0,0,0,.35);z-index:2}
-.re-polaroid-photo{border-radius:2px;overflow:hidden;aspect-ratio:4/5;background:var(--re-teal-d);display:flex;align-items:center;justify-content:center}
-.re-polaroid-photo img{width:100%;height:100%;object-fit:cover;display:block}
-.re-polaroid-avatar{width:56%;height:56%}
+.re-polaroid-photo{border-radius:2px;overflow:hidden;background:var(--re-teal-d);display:flex;align-items:center;justify-content:center}
+.re-polaroid-photo img{width:100%;height:auto;display:block}
+.re-polaroid-avatar{width:100%;height:260px}
 .re-polaroid-cap{margin:14px -14px 0;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 85%);border-radius:0 0 4px 4px;padding:16px 18px 20px}
 .re-polaroid-quote{font-family:"Caveat",cursive;font-weight:600;font-size:19px;color:#fff;line-height:1.35;margin:0 0 12px}
 .re-polaroid-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -254,6 +254,24 @@ section{padding:92px 0;position:relative}
 .re-jobs-grid{display:flex;flex-direction:column;gap:20px}
 .re-job-card{border-radius:18px;padding:3px;background:linear-gradient(135deg,var(--re-green),var(--re-yellow),#fff);box-shadow:0 0 34px -6px rgba(169,255,103,.5),0 0 34px -6px rgba(244,219,94,.3)}
 .re-job-card img{display:block;width:100%;border-radius:15.5px}
+
+/* ===== What you actually walk away with ===== */
+.re-walk{background:var(--re-teal-d);padding:70px 0 30px}
+.re-walk .wrap{max-width:480px}
+.re-walk-kicker{color:#fff;font-family:"Caveat",cursive;font-weight:700;font-size:24px}
+.re-walk h2{font-family:"Playfair Display",serif;font-weight:900;font-size:clamp(30px,8vw,44px);line-height:1.15;margin:10px 0 20px}
+.re-walk h2 em{font-style:italic}
+.re-walk-lead{color:#fff;font-size:16px;line-height:1.65;margin:0 0 28px;max-width:420px}
+.re-walk-cards{position:relative;margin-top:66px;padding-bottom:50px}
+.re-walk-card{position:relative;border-radius:20px;padding:2.5px;background:linear-gradient(150deg,var(--re-teal-l),var(--re-teal-d) 70%);margin-bottom:36px;box-shadow:0 35px 60px -18px rgba(9,9,9,.6),0 0 45px -10px rgba(37,69,74,.6)}
+.re-walk-card:nth-child(1){transform:rotate(-4deg);margin-left:0}
+.re-walk-card:nth-child(2){transform:rotate(3deg);margin-left:30px}
+.re-walk-card:nth-child(3){transform:rotate(-3deg);margin-left:10px}
+.re-walk-card:nth-child(4){transform:rotate(4deg);margin-left:34px}
+.re-walk-card-in{border-radius:18px;background:linear-gradient(135deg,var(--re-green) 0%,var(--re-yellow) 55%,#fff 100%);padding:26px 22px}
+.re-walk-num{font-family:"Playfair Display",serif;font-weight:900;font-size:13px;color:rgba(9,9,9,.5);letter-spacing:.1em}
+.re-walk-card-in h3{font-family:"Playfair Display",serif;font-weight:900;font-size:22px;color:var(--re-teal-d);margin:8px 0 8px}
+.re-walk-card-in p{color:#000;font-size:14.5px;line-height:1.5;margin:0}
 .re-quiz-card{max-width:520px;margin:0;border-radius:22px;padding:26px;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 75%);border:1px solid rgba(169,255,103,.18);box-shadow:0 20px 50px -20px rgba(0,0,0,.6)}
 .re-quiz-progress{display:flex;gap:6px;margin-bottom:20px}
 .re-quiz-progress i{flex:1;height:5px;border-radius:4px;background:rgba(255,255,255,.14);overflow:hidden;display:block;font-style:normal}
@@ -707,7 +725,7 @@ footer a{color:var(--gold)}
       </div>
     </div>
     <p class="re-truth-outro">This was never a talent problem. Nobody showed you the whole picture, and <b class="re-grad-static">the window where these skills feel rare is closing fast</b>. You don't need another tool or tutorial, you need the full system, the workflows that ship real client work, and a room of people already doing it. <span class="re-grad-static re-truth-end">That's what Fuse Atelier is.</span></p>
-    <a class="re-btn" href="#tier-quiz">Pick your path →</a>
+    <a class="re-btn" href="#pricing">Start earning this week →</a>
   </div>
 </section>
 
@@ -827,6 +845,47 @@ footer a{color:var(--gold)}
       <div class="re-job-card"><img src="proof/contract-2.jpg" alt="Completed job — $420 budget, T-shirt design pack" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
       <div class="re-job-card"><img src="proof/contract-3.jpg" alt="Active contract — $750 budget, AI video generation" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
       <div class="re-job-card"><img src="proof/contract-4.jpg" alt="Active contract — $500 budget, AI ad design" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHAT YOU ACTUALLY WALK AWAY WITH ===== -->
+<section class="re-walk">
+  <div class="wrap">
+    <div class="re-walk-kicker">with 6 skills ↘</div>
+    <h2 class="re-grad">What you <em>actually</em><br>walk away with.</h2>
+    <p class="re-walk-lead">Not a course library that gathers dust. Actual education, a real brand deal, real revenue, and a workflow you could run any day of the week.</p>
+    <a class="re-btn" href="#pricing">Start earning this week →</a>
+
+    <div class="re-walk-cards">
+      <div class="re-walk-card">
+        <div class="re-walk-card-in">
+          <span class="re-walk-num">01</span>
+          <h3>Actual education</h3>
+          <p>Hands-on training inside Fuse Atelier, not another video course to abandon.</p>
+        </div>
+      </div>
+      <div class="re-walk-card">
+        <div class="re-walk-card-in">
+          <span class="re-walk-num">02</span>
+          <h3>A real client deal</h3>
+          <p>The pitch scripts and Money Engine that get you your first paying client.</p>
+        </div>
+      </div>
+      <div class="re-walk-card">
+        <div class="re-walk-card-in">
+          <span class="re-walk-num">03</span>
+          <h3>Real revenue</h3>
+          <p>Your first real income from AI creative work, tracked and verified.</p>
+        </div>
+      </div>
+      <div class="re-walk-card">
+        <div class="re-walk-card-in">
+          <span class="re-walk-num">04</span>
+          <h3>A repeatable workflow</h3>
+          <p>The exact prompts, pricing, and process to do it again, any day of the week.</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
