@@ -318,6 +318,8 @@ section{padding:92px 0;position:relative}
 .re-founder h2{font-family:"Playfair Display",serif;font-weight:900;font-size:clamp(28px,7vw,38px);line-height:1.2;margin:0}
 .re-founder-bio{color:#CFE0DC;font-size:15.5px;line-height:1.7;margin:20px 0 0}
 .re-founder .re-btn{margin-top:30px}
+.re-founder .re-polaroid{background:linear-gradient(135deg,var(--re-green),var(--re-yellow) 55%,#fff)}
+.re-founder .re-tape{background:linear-gradient(100deg,var(--re-teal-l),var(--re-teal-d))}
 
 /* ===== The investment ===== */
 .re-invest{background:var(--re-teal-d);padding:70px 0}
@@ -564,9 +566,9 @@ footer a{color:var(--re-yellow)}
 
 /* ===== Chat bot ===== */
 .bot-fab{position:fixed;bottom:20px;right:20px;z-index:80;width:58px;height:58px;border-radius:50%;background:linear-gradient(140deg,var(--re-green),var(--re-yellow) 60%,#fff 120%);border:0;cursor:pointer;font-size:24px;box-shadow:0 6px 30px rgba(169,255,103,.45);animation:tierglow 3s ease-in-out infinite}
-.bot-panel{position:fixed;bottom:90px;right:20px;z-index:80;width:min(360px,calc(100vw - 32px));max-height:70svh;background:#052620;border:1px solid var(--line);border-radius:20px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.bot-panel{position:fixed;bottom:90px;right:20px;z-index:80;width:min(360px,calc(100vw - 32px));max-height:70svh;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 80%);border:1px solid var(--line);border-radius:20px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.55)}
 .bot-panel.open{display:flex}
-.bot-head{background:var(--teal-1);padding:14px 16px;font-weight:800;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center}
+.bot-head{background:rgba(0,0,0,.12);padding:14px 16px;font-weight:800;color:#fff;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center}
 .bot-body{padding:14px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:8px}
 .bot-msg{background:rgba(255,255,255,.05);border-radius:14px 14px 14px 4px;padding:10px 14px;font-size:14px;max-width:88%}
 .bot-msg.user{background:rgba(245,197,24,.14);border-radius:14px 14px 4px 14px;align-self:flex-end}
@@ -574,13 +576,21 @@ footer a{color:var(--re-yellow)}
 .bot-chip{border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink);border-radius:20px;padding:7px 12px;font-size:12.5px;cursor:pointer}
 .bot-chip:hover{border-color:var(--gold)}
 .bot-foot{padding:10px 14px;border-top:1px solid var(--line)}
-.bot-foot a{color:var(--gold);font-size:13px;font-weight:700;text-decoration:none}
+.bot-foot a{background:linear-gradient(100deg,var(--re-green) 0%,var(--re-yellow) 50%,#FFFFFF 100%);background-size:100% auto;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-box-decoration-break:clone;box-decoration-break:clone;font-size:13px;font-weight:700;text-decoration:none}
+.bot-head .re-grad{font-family:inherit}
 
 /* reveal-on-scroll */
 .rv{opacity:0;transform:translateY(22px);transition:opacity .5s ease,transform .5s ease}
 .rv.in{opacity:1;transform:none}
 @media (prefers-reduced-motion: reduce){.rv{opacity:1;transform:none;transition:none}.goldgrad{animation:none}.spark{display:none}}
 </style>
+<script>
+/* Some mobile browsers restore the last scroll position when a tab is
+   reopened/reloaded, which makes the page look like it "jumps down" on
+   open. Force every fresh load/reload to start at the very top. */
+if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+window.addEventListener('load', function(){ window.scrollTo(0, 0); });
+</script>
 </head>
 <body>
 
@@ -1405,7 +1415,7 @@ footer a{color:var(--re-yellow)}
 <!-- ===== Chat bot ===== -->
 <button class="bot-fab" id="botFab" aria-label="Chat with us">💬</button>
 <div class="bot-panel" id="botPanel">
-  <div class="bot-head">✨ Atelier Assistant <span style="margin-left:auto;font-size:11px;color:var(--muted)">answers in seconds</span></div>
+  <div class="bot-head"><span class="re-grad">★</span> Atelier Assistant <span style="margin-left:auto;font-size:11px;color:var(--muted)">answers in seconds</span></div>
   <div class="bot-body" id="botBody">
     <div class="bot-msg">Hey! 👋 I can answer anything about Fuse Atelier — tap a question below.</div>
   </div>
@@ -1524,7 +1534,7 @@ function fuseBuy(packKey, el, pixelData) {
     { q: 'Is the AI studio really included?',
       a: 'Yes — Fuse Studio (image, video, avatar + AI writing engines) is inside the product with credits included in every tier. You don\'t need to buy any other AI tool or dollar subscription.' },
     { q: 'How do I pay?',
-      a: 'Checkout is via Paystack — card, bank transfer or USSD, in naira. Tap any tier button, create your account, and you\'re in within 2 minutes of payment. Want to split Empire into 2 payments of ₦35,000? Message Ria on WhatsApp and she\'ll set that up for you directly.' },
+      a: 'Checkout is via Paystack — card, bank transfer or USSD, in naira. Tap any tier button, create your account, and you\'re in within 2 minutes of payment. Every tier, including Empire, is a single one-time payment — no installments.' },
     { q: 'What if it doesn\'t work for me?',
       a: 'The guarantee is simple: finish the 7-day plan, send 30 documented pitches with our scripts (your coach bot tracks this automatically) — if no client in 30 days, we work with you 1-on-1 free until you land one. Also: our instructor\'s Upwork profile is public (12 jobs, $4,000+), and student wins are named, contactable people.' },
     { q: 'Can I upgrade later?',
