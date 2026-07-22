@@ -337,6 +337,11 @@ section{padding:92px 0;position:relative}
 .re-invest-box{background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 80%);border-radius:16px;padding:18px 20px;text-align:center}
 .re-invest-box-label{color:#fff;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
 .re-invest-box-price{font-family:"Playfair Display",serif;font-weight:900;font-size:30px}
+.re-invest-cols{display:flex;justify-content:space-between;color:rgba(9,9,9,.5);font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(9,9,9,.15)}
+.re-invest-total{display:flex;justify-content:space-between;gap:12px;padding-top:14px;margin:2px 0 20px;border-top:1px solid rgba(9,9,9,.2);color:#000;font-size:14.5px}
+.re-invest-total b{text-decoration:line-through;font-weight:700;color:rgba(9,9,9,.55)}
+.re-invest-save{color:var(--re-teal-d);font-family:"Caveat",cursive;font-weight:700;font-size:18px;text-align:center;margin:16px 0 0}
+.re-invest-cta{display:flex;width:100%;justify-content:center;margin-top:18px}
 
 /* ===== Break it down / the math / zero-risk ===== */
 .re-breakdown{background:var(--re-teal-d);padding:0 0 70px}
@@ -1117,52 +1122,64 @@ footer a{color:var(--gold)}
 </section>
 
 <!-- ===== THE INVESTMENT ===== -->
-<section class="re-invest">
+<section class="re-invest" id="pricing">
   <div class="wrap">
     <div class="re-invest-kicker">the investment ↓</div>
     <h2 class="re-grad">Less than you think to change your life.</h2>
     <p class="re-invest-sub">Transparency upfront — no hidden fees, ever.</p>
 
-    <div class="re-invest-card white">
+    <div class="re-invest-card white" id="tier-starter">
       <div class="re-invest-name re-teal-grad">Starter</div>
+      <div class="re-invest-cols"><span>Item</span><span>Value</span></div>
       <div class="re-invest-list">
-        <div class="re-invest-row"><span>6-week curriculum + weekly challenges</span><b>₦15,000</b></div>
-        <div class="re-invest-row"><span>100 image/video credits</span><b>₦10,000</b></div>
-        <div class="re-invest-row"><span>Pitch, contract &amp; invoice templates</span><b>₦5,000</b></div>
-        <div class="re-invest-row"><span>WhatsApp community access</span><b>₦5,000</b></div>
+        <div class="re-invest-row"><span>Design &amp; Flyers course (21 lessons)</span><b>₦15,000</b></div>
+        <div class="re-invest-row"><span>Money Engine — client-getting system</span><b>₦8,000</b></div>
+        <div class="re-invest-row"><span>100 studio credits</span><b>₦7,000</b></div>
+        <div class="re-invest-row"><span>WhatsApp community + weekly challenges</span><b>₦5,000</b></div>
       </div>
+      <div class="re-invest-total"><span>Total value if bought separately</span><b>₦35,000</b></div>
       <div class="re-invest-box">
         <div class="re-invest-box-label">Your Investment</div>
         <div class="re-invest-box-price re-grad">₦10,000</div>
       </div>
+      <p class="re-invest-save">You save ₦25,000 — everything bundled in one tier.</p>
+      <a class="re-btn re-invest-cta" href="/studio?buy=atelier_starter" onclick="return fuseBuy('atelier_starter', this, {value:10000,currency:'NGN',content_name:'atelier_starter'})">Get Starter →</a>
     </div>
 
-    <div class="re-invest-card yellow">
+    <div class="re-invest-card yellow" id="tier-creator">
       <div class="re-invest-name re-teal-grad">Creator</div>
+      <div class="re-invest-cols"><span>Item</span><span>Value</span></div>
       <div class="re-invest-list">
-        <div class="re-invest-row"><span>Everything in Starter, plus 4 skill families</span><b>₦35,000</b></div>
-        <div class="re-invest-row"><span>400 image/video credits</span><b>₦25,000</b></div>
-        <div class="re-invest-row"><span>Full Money Making System</span><b>₦15,000</b></div>
-        <div class="re-invest-row"><span>Priority community feedback</span><b>₦10,000</b></div>
+        <div class="re-invest-row"><span>4 skill families — Design, Brand, Product, Video</span><b>₦25,000</b></div>
+        <div class="re-invest-row"><span>Money Engine + Upwork masterclass</span><b>₦10,000</b></div>
+        <div class="re-invest-row"><span>400 studio credits</span><b>₦15,000</b></div>
+        <div class="re-invest-row"><span>WhatsApp cohort + weekly live session</span><b>₦10,000</b></div>
       </div>
+      <div class="re-invest-total"><span>Total value if bought separately</span><b>₦60,000</b></div>
       <div class="re-invest-box">
         <div class="re-invest-box-label">Your Investment</div>
         <div class="re-invest-box-price re-grad">₦25,000</div>
       </div>
+      <p class="re-invest-save">You save ₦35,000 — everything bundled in one tier.</p>
+      <a class="re-btn re-invest-cta" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Get Creator →</a>
     </div>
 
-    <div class="re-invest-card green">
+    <div class="re-invest-card green" id="tier-empire">
       <div class="re-invest-name re-teal-grad">Empire</div>
+      <div class="re-invest-cols"><span>Item</span><span>Value</span></div>
       <div class="re-invest-list">
-        <div class="re-invest-row"><span>Everything in Creator, plus all 6 skill families</span><b>₦60,000</b></div>
-        <div class="re-invest-row"><span>1,200 image/video credits</span><b>₦60,000</b></div>
-        <div class="re-invest-row"><span>AI avatars &amp; long-form video training</span><b>₦40,000</b></div>
-        <div class="re-invest-row"><span>Direct access to Ria</span><b>₦30,000</b></div>
+        <div class="re-invest-row"><span>All 6 skill families + Money Engine + Upwork masterclass</span><b>₦50,000</b></div>
+        <div class="re-invest-row"><span>1,200 studio credits (3-month drip)</span><b>₦40,000</b></div>
+        <div class="re-invest-row"><span>Direct access to Ria + PitchPilot Pro</span><b>₦30,000</b></div>
+        <div class="re-invest-row"><span>Certificate + featured on the wins wall</span><b>₦10,000</b></div>
       </div>
+      <div class="re-invest-total"><span>Total value if bought separately</span><b>₦130,000</b></div>
       <div class="re-invest-box">
         <div class="re-invest-box-label">Your Investment</div>
         <div class="re-invest-box-price re-grad">₦70,000</div>
       </div>
+      <p class="re-invest-save">You save ₦60,000 — everything bundled in one tier.</p>
+      <a class="re-btn re-invest-cta" href="/studio?buy=atelier_empire" onclick="return fuseBuy('atelier_empire', this, {value:70000,currency:'NGN',content_name:'atelier_empire'})">Get Empire →</a>
     </div>
   </div>
 </section>
@@ -1347,65 +1364,9 @@ footer a{color:var(--gold)}
   </div>
 </section>
 
-<!-- ===== PRICING / OFFER ===== -->
-<section id="pricing">
+<!-- ===== BONUSES ===== -->
+<section>
   <div class="wrap">
-    <span class="kick">What you're getting</span>
-    <h2 class="sec-h">The Complete <span class="goldgrad">AI Creative Income System.</span></h2>
-    <p class="sec-sub">Not just a course. The skill, the AI studio to create it, and the Money Engine to get paid for it — every tier below is complete on its own, nothing held back for a future upgrade. One-time payment — not a subscription.</p>
-    <p class="sec-sub" style="margin-top:12px">This isn't really ₦10,000–₦70,000 for lessons and credits. It's the price of your first piece of undeniable proof — the moment you stop being "someone trying to figure out AI" and become someone who gets paid for a real skill. Your first payment is proof you can show the people who doubted you. It's the screenshot that makes your next sale easier. And it's what finally gives you permission to charge properly for your work — instead of underpricing out of self-doubt.</p>
-
-    <div class="tiers">
-      <div class="tier rv" id="tier-starter">
-        <h3>Starter</h3>
-        <div class="t-for">Land your first client with design & flyers</div>
-        <ul>
-          <li><b>Design & Flyers</b> — the flagship 21-lesson course; make a flyer a client will pay $10–$50 for, on your phone</li>
-          <li><b>Money Engine</b> — the client-getting system: exact Instagram outreach scripts, pricing and the 7-day plan to your first paid client</li>
-          <li><b>100 studio credits</b> — about 6 full flyers (hero image + finished design) inside the AI studio, enough to build your first portfolio pieces</li>
-          <li><b>Flyer templates pack</b> — ready-made layouts you drop your client's content into instead of starting from a blank page</li>
-          <li><b>The Arena</b> — Ria posts a new paid-skill challenge weekly in the WhatsApp group to sharpen your work and get seen</li>
-          <li><b>WhatsApp coach bot</b> — messages you daily through the 7-day plan and checks you actually did each step</li>
-        </ul>
-        <div class="t-price">₦10,000</div>
-        <a class="btn btn-ghost" href="/studio?buy=atelier_starter" onclick="return fuseBuy('atelier_starter', this, {value:10000,currency:'NGN',content_name:'atelier_starter'})">Start earning this week →</a>
-      </div>
-
-      <div class="tier mid rv" id="tier-creator">
-        <span class="t-badge">⭐ MOST PICKED — BEST VALUE</span>
-        <h3>Creator</h3>
-        <div class="t-for">The full creative business — 4 skill families</div>
-        <ul>
-          <li><b>4 skill families</b> — Design & Flyers, plus Brand (logo & brand kits), Product (AI product photography) and Video (AI UGC ads) — each its own short course</li>
-          <li><b>Money Engine</b> — the client-getting system: exact Instagram outreach scripts, pricing and the 7-day plan to your first paid client</li>
-          <li><b>AI UGC ads + product photography</b> — the two skills brands pay in dollars for: testimonial-style video ads and studio-grade product shots from one phone photo</li>
-          <li><b>400 studio credits</b> — about 25 full flyers' worth of generations, or a mix across every skill you unlock, plus 30 days of Studio Creator-tier access to premium AI models</li>
-          <li><b>WhatsApp cohort + weekly live session</b> — a community of other students, plus a live call where Ria reviews real outreach with you</li>
-          <li><b>Full template vault + client scripts</b> — every layout, caption and outreach script used across all 4 unlocked skills</li>
-          <li><b>Upwork masterclass</b> — the exact profile, proposals and pricing that landed 12 real jobs worth $4,000+</li>
-        </ul>
-        <div class="t-price">₦25,000 <span class="was">₦60,000</span></div>
-        <a class="btn btn-gold" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Start earning this week →</a>
-      </div>
-
-      <div class="tier rv" id="tier-empire">
-        <h3>Empire</h3>
-        <div class="t-for">Become the agency — everything, plus Ria</div>
-        <ul>
-          <li><b>All 6 skill families</b> — every skill in Creator, plus Web & Funnels: one-page client sites and interactive pages built the same way this page was, the premium $500+ skill</li>
-          <li><b>Money Engine, full studio access, Upwork masterclass</b> — everything Starter and Creator include, complete</li>
-          <li><b>1,200 credits</b> — enough for dozens of generations, topped up automatically for 3 more months (monthly credit drip)</li>
-          <li><b>Direct access to Ria</b> — she personally reviews your portfolio and real client pitches</li>
-          <li><b>PitchPilot Pro + contracts pack</b> — writes your outreach pitch (email/WhatsApp/IG/LinkedIn) in one tap, plus ready-to-send client contracts</li>
-          <li><b>Certificate + featured on the wins wall</b> — proof you can show clients, and your win becomes social proof for future students</li>
-          <li><b>Limited seats</b> — real capacity, real access</li>
-        </ul>
-        <div class="t-price">₦70,000 <small>or 2 × ₦37,500</small></div>
-        <a class="btn btn-ghost" href="/studio?buy=atelier_empire" onclick="return fuseBuy('atelier_empire', this, {value:70000,currency:'NGN',content_name:'atelier_empire'})">Start earning this week →</a>
-      </div>
-    </div>
-    <p class="anchor-note">The old Fuse Atelier sold for <b>₦60,000</b> with less inside it. This is the launch price for the merged 2.0 version — <b>once the cohort fills, it moves to full price.</b></p>
-
     <div class="bonus-grid">
       <div class="bonus-card rv">
         <span class="bonus-ic">🎯</span>
@@ -1421,14 +1382,6 @@ footer a{color:var(--gold)}
         <span class="bonus-ic">🏆</span>
         <h4>Featured on the wins wall</h4>
         <p>Land your first client in your first 14 days and you're featured on the wins wall — the same wall of real names and real screenshots on this page. Not just a customer. Proof, with your name on it.</p>
-      </div>
-    </div>
-
-    <div class="guarantee rv" style="margin-top:32px">
-      <div class="shield">🛡️</div>
-      <div>
-        <h3>The "We Don't Leave You" Guarantee</h3>
-        <p>Finish the 7-day plan, send your 30 pitches — and if you haven't landed a client in 30 days, <b class="gold">we work with you 1-on-1, free, until you do.</b> You cannot fall through the cracks — the system literally won't let you.</p>
       </div>
     </div>
   </div>
