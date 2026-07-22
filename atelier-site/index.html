@@ -33,7 +33,7 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
 <!-- End Meta Pixel Code -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Archivo:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
 <style>
 :root{
   --teal-0:#020F0D; --teal-1:#031A16; --teal-2:#0D3A33; --teal-3:#14524a;
@@ -55,6 +55,8 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
 .re-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(100deg,var(--re-green),var(--re-yellow) 60%,#fff 120%);color:var(--re-teal-d);font-weight:800;border:0;border-radius:30px;padding:16px 30px;font-size:16px;text-decoration:none;box-shadow:0 10px 34px rgba(169,255,103,.3);transition:transform .15s,box-shadow .15s}
 .re-btn:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(169,255,103,.45)}
 .re-btn-ghost{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.35);color:#fff;background:rgba(255,255,255,.05);font-weight:700;font-size:13.5px;border-radius:30px;padding:9px 16px;text-decoration:none;white-space:nowrap}
+.re-btn-nav{padding:10px 18px;font-size:13.5px;white-space:nowrap}
+.re-grad-caps{text-transform:uppercase;font-size:1.14em}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:Archivo,system-ui,sans-serif;background:var(--teal-1);color:var(--ink);line-height:1.6;overflow-x:hidden}
@@ -116,7 +118,7 @@ section{padding:92px 0;position:relative}
 
 /* ===== Rebrand hero specifics ===== */
 .re-hero-bg{background:linear-gradient(180deg,var(--re-teal-d) 0%,var(--re-teal-d) 45%,var(--re-teal-l) 100%)}
-.re-h1{font-size:clamp(32px,7vw,58px);line-height:1.5;margin:18px 0 16px;letter-spacing:-.5px;color:#fff}
+.re-h1{font-size:clamp(32px,7vw,58px);line-height:1.28;margin:18px 0 16px;letter-spacing:-.5px;color:#fff}
 .re-quote{color:var(--re-yellow);font-style:italic;font-weight:600}
 .re-hero .sub{color:#CFE0DC}
 .re-price-line{margin-top:20px;text-align:center}
@@ -133,9 +135,17 @@ section{padding:92px 0;position:relative}
 .re-play{width:64px;height:64px;border-radius:50%;border:0;background:rgba(255,255,255,.95);color:var(--re-teal-d);font-size:20px;cursor:pointer;display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 .re-video-chip{position:absolute;left:20px;bottom:16px;display:inline-flex;align-items:center;gap:7px;background:rgba(9,9,9,.6);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;font-weight:700;padding:7px 14px;border-radius:20px;z-index:1}
 .re-video-chip .dot{width:6px;height:6px;border-radius:50%;background:#ff5c5c}
-.re-fly{position:absolute;z-index:2;filter:drop-shadow(0 0 4px rgba(169,255,103,.8)) drop-shadow(0 0 8px rgba(244,219,94,.6));animation:reflutter ease-in-out infinite;pointer-events:none}
+.re-fly{position:absolute;z-index:2;filter:drop-shadow(0 0 4px rgba(169,255,103,.8)) drop-shadow(0 0 8px rgba(244,219,94,.6));transform:translate(-50%,-50%) rotate(var(--jit,0deg));animation:reflutter ease-in-out infinite;pointer-events:none}
 .re-fly svg{width:100%;height:100%;display:block}
-@keyframes reflutter{0%,100%{transform:rotate(-10deg) scale(1)}50%{transform:rotate(12deg) scale(1.14)}}
+/* The border-position translate(-50%,-50%) and each butterfly's own jitter
+   rotation (--jit) both have to be baked INTO the keyframe itself -- a CSS
+   animation on `transform` replaces the whole property for its duration, so
+   without this the flutter would silently override the fixed position and
+   every butterfly would jump to the frame's top-left corner. */
+@keyframes reflutter{
+  0%,100%{transform:translate(-50%,-50%) rotate(calc(var(--jit,0deg) - 10deg)) scale(1)}
+  50%{transform:translate(-50%,-50%) rotate(calc(var(--jit,0deg) + 12deg)) scale(1.14)}
+}
 @media(prefers-reduced-motion:reduce){.re-video-glow,.re-video-box,.re-fly{animation:none}}
 
 /* ===== Stat cards (rebrand pass) — hard offset shadow, deep-teal section bg ===== */
@@ -145,8 +155,47 @@ section{padding:92px 0;position:relative}
 .re-stat-green{background:var(--re-green)}
 .re-stat-yellow{background:var(--re-yellow)}
 .re-stat-white{background:#fff}
-.re-stat-n{font-family:"Bricolage Grotesque",Archivo,sans-serif;font-weight:800;font-size:clamp(28px,7vw,40px);color:var(--re-teal-d)}
+.re-stat-n{font-family:"Playfair Display",serif;font-style:italic;font-weight:900;font-size:clamp(38px,11vw,58px);text-transform:uppercase;color:var(--re-teal-d);letter-spacing:-.5px}
 .re-stat-d{color:#000;font-size:15px;margin-top:8px;font-weight:600}
+
+/* ===== Showcase marquee (the kind of work you'll learn to make) ===== */
+.re-showcase{background:linear-gradient(180deg,var(--re-teal-d) 0%,var(--re-teal-l) 100%);padding:64px 0;overflow:hidden}
+.re-showcase .wrap{max-width:680px;text-align:center;margin:0 auto 40px}
+.re-showcase .kicker{color:#fff;font-weight:800;font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+.re-showcase h2{font-size:clamp(26px,5vw,40px);margin:14px 0 16px}
+.re-showcase .sub{color:#CFE0DC;font-size:16px;line-height:1.6;max-width:560px;margin:0 auto}
+.re-marquee{width:100%;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.re-marquee-track{display:flex;gap:18px;width:max-content;animation:remarquee 32s linear infinite}
+.re-marquee:hover .re-marquee-track{animation-play-state:paused}
+@keyframes remarquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.re-mcard{position:relative;flex:0 0 auto;width:170px;aspect-ratio:9/16;border-radius:18px;padding:2.5px;background:linear-gradient(135deg,var(--re-green),var(--re-yellow),#fff)}
+.re-mcard-in{width:100%;height:100%;border-radius:16px;background:linear-gradient(160deg,#0f2a2c,var(--re-teal-d));display:flex;align-items:flex-end;padding:14px;position:relative;overflow:hidden;box-shadow:0 18px 40px -10px rgba(169,255,103,.35),0 10px 26px -6px rgba(244,219,94,.28)}
+.re-mcard-in::before{content:'';position:absolute;inset:0;background:radial-gradient(260px 160px at 30% 15%,rgba(169,255,103,.18),transparent 60%)}
+.re-mcard-label{position:relative;color:#fff;font-size:13px;font-weight:700;line-height:1.3}
+@media(prefers-reduced-motion:reduce){.re-marquee-track{animation:none}}
+@media(max-width:480px){.re-mcard{width:135px}}
+
+/* ===== Tier-fit quiz ===== */
+.re-quiz-section{background:var(--re-teal-d);padding:64px 0}
+.re-quiz-banner{max-width:640px;margin:0 auto 26px;border-radius:20px;padding:22px 26px;text-align:center;background:linear-gradient(100deg,var(--re-green),var(--re-yellow) 60%,#fff 120%);color:var(--re-teal-d)}
+.re-quiz-banner .tag{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#000}
+.re-quiz-banner .headline{font-size:clamp(19px,3.4vw,24px);font-weight:800;margin-top:6px;color:var(--re-teal-d)}
+.re-quiz-card{max-width:520px;margin:0 auto;border-radius:22px;padding:26px;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 75%);border:1px solid rgba(169,255,103,.18);box-shadow:0 20px 50px -20px rgba(0,0,0,.6)}
+.re-quiz-progress{display:flex;gap:6px;margin-bottom:20px}
+.re-quiz-progress i{flex:1;height:5px;border-radius:4px;background:rgba(255,255,255,.14);overflow:hidden;display:block;font-style:normal}
+.re-quiz-progress i b{display:block;height:100%;width:0;background:linear-gradient(100deg,var(--re-green),var(--re-yellow));transition:width .35s}
+.re-quiz-progress i.done b{width:100%}
+.re-quiz-step-label{color:var(--re-green);font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.re-quiz-q{color:#fff;font-size:18px;font-weight:700;line-height:1.4;margin-bottom:16px}
+.re-quiz-opts{display:flex;flex-direction:column;gap:10px}
+.re-quiz-opt{display:block;width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:#fff;font-size:14.5px;font-weight:600;padding:14px 16px;border-radius:14px;cursor:pointer;transition:background .15s,border-color .15s}
+.re-quiz-opt:hover{background:rgba(169,255,103,.12);border-color:rgba(169,255,103,.4)}
+.re-quiz-back{background:none;border:0;color:#9fb8b4;font-size:13px;font-weight:700;margin-top:14px;cursor:pointer;padding:4px 0}
+.re-quiz-back[hidden]{display:none}
+.re-quiz-bubble{background:rgba(169,255,103,.08);border:1px solid rgba(169,255,103,.3);border-radius:16px;padding:18px;color:#fff;font-size:14.5px;line-height:1.6;margin-bottom:16px}
+.re-quiz-bubble b{color:var(--re-green)}
+.re-quiz-result .re-btn{width:100%;justify-content:center}
+.re-quiz-restart{display:block;width:100%;text-align:center;margin-top:12px;background:none;border:0;color:#9fb8b4;font-size:13px;font-weight:700;cursor:pointer}
 
 /* ===== Pain ===== */
 /* ===== Qualify (is this for you?) ===== */
@@ -303,7 +352,7 @@ footer a{color:var(--gold)}
 <!-- ===== Top bar ===== -->
 <div class="top"><div class="wrap in">
   <a class="brand" href="#hero"><span class="dot">F</span> Fuse&nbsp;Atelier</a>
-  <a class="re-btn-ghost" href="#pricing">See if you fit →</a>
+  <a class="re-btn re-btn-nav" href="#pricing">See if you fit →</a>
 </div></div>
 
 <!-- ===== HERO (rebrand pass — green/yellow/white gradient, light-teal-to-near-black bg) ===== -->
@@ -311,7 +360,7 @@ footer a{color:var(--gold)}
   <div class="hero-front re-hero-bg" id="heroFront" aria-hidden="true"></div>
   <div class="hero-in">
     <span class="re-pill"><span class="dot"></span>The AI Creative Income System</span>
-    <h1 class="re-h1">Turn your phone into a <span class="re-underline">paycheck</span> <span class="re-grad">with AI creative</span></h1>
+    <h1 class="re-h1">Turn your phone into a <span class="re-underline">paycheck</span> <span class="re-grad re-grad-caps">with AI creative</span></h1>
     <p class="sub">Taking everyday people from <em class="re-quote">"I don't know where to start"</em> to making consistent income creating AI contents for brands.</p>
     <div class="cta-row">
       <a class="re-btn" href="#pricing">Start earning this week →</a>
@@ -367,25 +416,191 @@ footer a{color:var(--gold)}
   var frame = document.getElementById('reVideoFrame');
   if (!frame) return;
   var svgFly = '<svg viewBox="0 0 24 24"><path d="M12 12C10 6 4 4 3 8C2 11 6 14 12 12ZM12 12C14 6 20 4 21 8C22 11 18 14 12 12Z" fill="url(#flyGrad)"/><rect x="11.3" y="7" width="1.4" height="10" rx="0.7" fill="#173033"/></svg>';
-  var count = 20;
-  for (var i = 0; i < count; i++) {
-    var el = document.createElement('span');
-    el.className = 're-fly';
-    el.setAttribute('aria-hidden', 'true');
-    el.innerHTML = svgFly;
-    var side = i % 4, top, left;
-    if (side === 0) { top = -10 - Math.random() * 12; left = Math.random() * 100; }
-    else if (side === 1) { top = 100 + Math.random() * 8; left = Math.random() * 100; }
-    else if (side === 2) { left = -10 - Math.random() * 10; top = Math.random() * 100; }
-    else { left = 100 + Math.random() * 6; top = Math.random() * 100; }
-    el.style.position = 'absolute';
-    el.style.top = top + '%'; el.style.left = left + '%';
-    var size = 20 + Math.random() * 20;
-    el.style.width = size + 'px'; el.style.height = size + 'px';
-    el.style.animationDelay = (Math.random() * 3.4).toFixed(2) + 's';
-    el.style.animationDuration = (2.4 + Math.random() * 1.6).toFixed(2) + 's';
-    frame.appendChild(el);
+  // Butterflies sit ON the border itself (straddling it, half in/half out via
+  // the transform below) and run evenly along all 4 edges like a picture-
+  // frame border, instead of scattered loosely around the box -- top/bottom
+  // get more of them since this frame is a wide 16:9 box (long edges),
+  // left/right get fewer (short edges).
+  var edges = [
+    { count: 7, place: function(t){ return { top: 0, left: 6 + t * 88 }; } },
+    { count: 7, place: function(t){ return { top: 100, left: 6 + t * 88 }; } },
+    { count: 3, place: function(t){ return { left: 0, top: 12 + t * 76 }; } },
+    { count: 3, place: function(t){ return { left: 100, top: 12 + t * 76 }; } },
+  ];
+  edges.forEach(function(edge){
+    for (var i = 0; i < edge.count; i++) {
+      var t = edge.count > 1 ? i / (edge.count - 1) : 0.5;
+      var pos = edge.place(t);
+      var el = document.createElement('span');
+      el.className = 're-fly';
+      el.setAttribute('aria-hidden', 'true');
+      el.innerHTML = svgFly;
+      el.style.position = 'absolute';
+      if (pos.top !== undefined) el.style.top = pos.top + '%';
+      if (pos.left !== undefined) el.style.left = pos.left + '%';
+      var size = 22 + Math.random() * 14;
+      el.style.width = size + 'px'; el.style.height = size + 'px';
+      var jitterRot = (Math.random() * 30 - 15).toFixed(1);
+      el.style.setProperty('--jit', jitterRot + 'deg');
+      el.style.transformOrigin = 'center';
+      el.style.animationDelay = (Math.random() * 3.4).toFixed(2) + 's';
+      el.style.animationDuration = (2.4 + Math.random() * 1.6).toFixed(2) + 's';
+      frame.appendChild(el);
+    }
+  });
+})();
+</script>
+
+<!-- ===== SHOWCASE (the kind of work you'll learn to make) ===== -->
+<section class="re-showcase">
+  <div class="wrap">
+    <div class="kicker">See what creative AI can do</div>
+    <h2 class="re-grad">The kind of work you'll learn to make</h2>
+    <p class="sub">Real flyers, product shots and AI ads our own students are getting paid for — the kind of content that stops the scroll, once you know the exact workflow behind it.</p>
+  </div>
+  <div class="re-marquee">
+    <div class="re-marquee-track" id="reShowcaseTrack"></div>
+  </div>
+</section>
+<script>
+(function(){
+  var track = document.getElementById('reShowcaseTrack');
+  if (!track) return;
+  var items = [
+    'Web3 & product flyer design',
+    'AI product photography',
+    'UGC-style talking ads',
+    'Brand content reels',
+    'AI avatars & digital twins',
+    'Long-form ad videos'
+  ];
+  var html = '';
+  items.concat(items).forEach(function(label){
+    html += '<div class="re-mcard"><div class="re-mcard-in"><div class="re-mcard-label">' + label + '</div></div></div>';
+  });
+  track.innerHTML = html;
+})();
+</script>
+
+<!-- ===== TIER-FIT QUIZ ===== -->
+<section class="re-quiz-section">
+  <div class="wrap" style="max-width:640px">
+    <div class="re-quiz-banner">
+      <div class="tag">Cohort 02 · Starts Soon</div>
+      <div class="headline">Not sure which tier fits you? Answer 3 quick questions and we'll tell you.</div>
+    </div>
+    <div class="re-quiz-card" id="reQuiz">
+      <div class="re-quiz-progress">
+        <i data-i="0"><b></b></i><i data-i="1"><b></b></i><i data-i="2"><b></b></i>
+      </div>
+      <div id="reQuizBody"></div>
+      <button class="re-quiz-back" id="reQuizBack" hidden>← Back</button>
+    </div>
+  </div>
+</section>
+<script>
+(function(){
+  var body = document.getElementById('reQuizBody');
+  var backBtn = document.getElementById('reQuizBack');
+  var bars = document.querySelectorAll('#reQuiz .re-quiz-progress i');
+  if (!body) return;
+
+  var QUESTIONS = [
+    {
+      q: "What's your main goal right now?",
+      opts: [
+        { t: 'Learn AI skills for myself / side income', w: 'starter' },
+        { t: 'Build a real service I can sell to clients', w: 'creator' },
+        { t: 'Turn this into a full business or team', w: 'empire' }
+      ]
+    },
+    {
+      q: 'How much time can you commit weekly?',
+      opts: [
+        { t: '1–2 hours', w: 'starter' },
+        { t: '3–6 hours', w: 'creator' },
+        { t: "7+ hours — I'm all in", w: 'empire' }
+      ]
+    },
+    {
+      q: 'What do you already have?',
+      opts: [
+        { t: 'Just my phone, starting from zero', w: 'starter' },
+        { t: 'A phone + some client leads already', w: 'creator' },
+        { t: 'Existing clients or a team to scale', w: 'empire' }
+      ]
+    }
+  ];
+
+  var RESULTS = {
+    starter: {
+      name: 'Starter',
+      anchor: '#tier-starter',
+      copy: "<b>Fuse Atelier Starter</b> is your fit. You're starting from zero, so Starter gets you the exact AI workflows — flyers, images, quick ads — using only your phone, built to land your first paid job fast."
+    },
+    creator: {
+      name: 'Creator',
+      anchor: '#tier-creator',
+      copy: '<b>Fuse Atelier Creator</b> is your fit. You already move faster, so Creator layers in AI video, avatars and ad creation so you can start charging real clients and repeat the work.'
+    },
+    empire: {
+      name: 'Empire',
+      anchor: '#tier-empire',
+      copy: "<b>Fuse Atelier Empire</b> is your fit. You're ready to run this like a business, so Empire unlocks the full studio, every workflow, and the systems to manage multiple clients or build a team."
+    }
+  };
+
+  var step = 0;
+  var answers = [];
+
+  function setProgress(){
+    bars.forEach(function(bar, i){ bar.classList.toggle('done', i < step); });
   }
+
+  function renderQuestion(){
+    setProgress();
+    backBtn.hidden = step === 0;
+    var qd = QUESTIONS[step];
+    var html = '<div class="re-quiz-step-label">Step ' + (step + 1) + ' of 3</div>';
+    html += '<div class="re-quiz-q">' + qd.q + '</div>';
+    html += '<div class="re-quiz-opts">';
+    qd.opts.forEach(function(opt){
+      html += '<button class="re-quiz-opt" data-w="' + opt.w + '">' + opt.t + '</button>';
+    });
+    html += '</div>';
+    body.innerHTML = html;
+    body.querySelectorAll('.re-quiz-opt').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        answers[step] = btn.getAttribute('data-w');
+        step++;
+        if (step < QUESTIONS.length) { renderQuestion(); } else { renderResult(); }
+      });
+    });
+  }
+
+  function renderResult(){
+    bars.forEach(function(bar){ bar.classList.add('done'); });
+    backBtn.hidden = false;
+    var tally = { starter: 0, creator: 0, empire: 0 };
+    answers.forEach(function(w){ if (tally[w] !== undefined) tally[w]++; });
+    var best = 'starter';
+    ['creator', 'empire'].forEach(function(k){ if (tally[k] > tally[best]) best = k; });
+    var r = RESULTS[best];
+    body.innerHTML =
+      '<div class="re-quiz-result">' +
+        '<div class="re-quiz-bubble">' + r.copy + '</div>' +
+        '<a class="re-btn" href="' + r.anchor + '">See ' + r.name + ' →</a>' +
+        '<button class="re-quiz-restart" id="reQuizRestart">Start over</button>' +
+      '</div>';
+    var restart = document.getElementById('reQuizRestart');
+    if (restart) restart.addEventListener('click', function(){ step = 0; answers = []; renderQuestion(); });
+  }
+
+  backBtn.addEventListener('click', function(){
+    if (step > 0) { step--; answers.pop(); renderQuestion(); }
+  });
+
+  renderQuestion();
 })();
 </script>
 
@@ -566,7 +781,7 @@ footer a{color:var(--gold)}
     <p class="sec-sub" style="margin-top:12px">This isn't really ₦10,000–₦70,000 for lessons and credits. It's the price of your first piece of undeniable proof — the moment you stop being "someone trying to figure out AI" and become someone who gets paid for a real skill. Your first payment is proof you can show the people who doubted you. It's the screenshot that makes your next sale easier. And it's what finally gives you permission to charge properly for your work — instead of underpricing out of self-doubt.</p>
 
     <div class="tiers">
-      <div class="tier rv">
+      <div class="tier rv" id="tier-starter">
         <h3>Starter</h3>
         <div class="t-for">Land your first client with design & flyers</div>
         <ul>
@@ -581,7 +796,7 @@ footer a{color:var(--gold)}
         <a class="btn btn-ghost" href="/studio?buy=atelier_starter" onclick="return fuseBuy('atelier_starter', this, {value:10000,currency:'NGN',content_name:'atelier_starter'})">Start earning this week →</a>
       </div>
 
-      <div class="tier mid rv">
+      <div class="tier mid rv" id="tier-creator">
         <span class="t-badge">⭐ MOST PICKED — BEST VALUE</span>
         <h3>Creator</h3>
         <div class="t-for">The full creative business — 4 skill families</div>
@@ -598,7 +813,7 @@ footer a{color:var(--gold)}
         <a class="btn btn-gold" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Start earning this week →</a>
       </div>
 
-      <div class="tier rv">
+      <div class="tier rv" id="tier-empire">
         <h3>Empire</h3>
         <div class="t-for">Become the agency — everything, plus Ria</div>
         <ul>
