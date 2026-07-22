@@ -542,28 +542,28 @@ details[open] summary::after{content:'–'}
 details p{padding:0 20px 18px;color:var(--muted);font-size:14.5px}
 
 /* ===== Finale ===== */
-.finale{min-height:70svh;display:grid;place-items:center;text-align:center;background:
-  radial-gradient(900px 500px at 50% 120%, rgba(245,197,24,.16), transparent 65%),
-  linear-gradient(180deg,var(--teal-0),#052018)}
+.finale{min-height:70svh;display:grid;place-items:center;text-align:center;background:var(--re-teal-d)}
 .finale h2{font-size:clamp(30px,6vw,54px);max-width:800px;margin-bottom:18px}
-.finale p{color:var(--muted);margin-bottom:30px;font-size:17px}
-footer{border-top:1px solid rgba(255,255,255,.06);padding:26px 0;color:var(--muted);font-size:12.5px;text-align:center}
-footer a{color:var(--gold)}
+.finale h2.re-grad{background-size:100% auto;animation:none;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.finale p{color:#fff;margin-bottom:30px;font-size:17px}
+footer{background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 80%);border-top:1px solid rgba(255,255,255,.06);padding:26px 0;color:#CFE0DC;font-size:12.5px;text-align:center}
+footer a{color:var(--re-yellow)}
 
 /* ===== Recent-activity toast (real data only -- see recent-activity.js) ===== */
-.activity-toast{position:fixed;left:16px;bottom:16px;z-index:75;max-width:340px;background:#052620;border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;box-shadow:0 16px 46px rgba(0,0,0,.5);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .35s ease,transform .35s ease}
+.activity-toast{position:fixed;left:16px;bottom:16px;z-index:75;max-width:340px;border-radius:18px;padding:2.5px;box-shadow:0 16px 40px -8px rgba(0,0,0,.55),0 0 30px -6px rgba(169,255,103,.4);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .35s ease,transform .35s ease;background:linear-gradient(135deg,var(--re-green),var(--re-yellow),#fff)}
 .activity-toast.show{opacity:1;transform:none;pointer-events:auto}
-.activity-toast .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(140deg,#F5C518,#B08D57);color:#1a1200;display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0}
-.activity-toast .tx{font-size:13px;line-height:1.4}
-.activity-toast .tx b{color:var(--ink)}
-.activity-toast .meta{display:flex;gap:6px;align-items:center;margin-top:3px;color:var(--muted);font-size:11.5px}
-.activity-toast .meta .ok{color:#5FD3A8}
-.activity-toast .x{margin-left:auto;background:none;border:0;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:2px 4px;flex-shrink:0}
-.activity-toast .x:hover{color:var(--ink)}
+.activity-toast-in{background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 80%);border-radius:15.5px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+.activity-toast .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(140deg,var(--re-green),var(--re-yellow));color:var(--re-teal-d);display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0}
+.activity-toast .tx{font-size:13px;line-height:1.4;color:#fff}
+.activity-toast .tx b{color:#fff}
+.activity-toast .meta{display:flex;gap:6px;align-items:center;margin-top:3px;color:#CFE0DC;font-size:11.5px}
+.activity-toast .meta .ok{color:var(--re-green)}
+.activity-toast .x{margin-left:auto;background:none;border:0;color:#CFE0DC;cursor:pointer;font-size:16px;line-height:1;padding:2px 4px;flex-shrink:0}
+.activity-toast .x:hover{color:#fff}
 @media(max-width:480px){.activity-toast{left:10px;right:10px;max-width:none;bottom:10px}}
 
 /* ===== Chat bot ===== */
-.bot-fab{position:fixed;bottom:20px;right:20px;z-index:80;width:58px;height:58px;border-radius:50%;background:linear-gradient(140deg,#F5C518,#B08D57);border:0;cursor:pointer;font-size:24px;box-shadow:0 6px 30px rgba(245,197,24,.45);animation:tierglow 3s ease-in-out infinite}
+.bot-fab{position:fixed;bottom:20px;right:20px;z-index:80;width:58px;height:58px;border-radius:50%;background:linear-gradient(140deg,var(--re-green),var(--re-yellow) 60%,#fff 120%);border:0;cursor:pointer;font-size:24px;box-shadow:0 6px 30px rgba(169,255,103,.45);animation:tierglow 3s ease-in-out infinite}
 .bot-panel{position:fixed;bottom:90px;right:20px;z-index:80;width:min(360px,calc(100vw - 32px));max-height:70svh;background:#052620;border:1px solid var(--line);border-radius:20px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.55)}
 .bot-panel.open{display:flex}
 .bot-head{background:var(--teal-1);padding:14px 16px;font-weight:800;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center}
@@ -1380,9 +1380,9 @@ footer a{color:var(--gold)}
 <!-- ===== FINALE ===== -->
 <section class="finale">
   <div class="wrap">
-    <h2>Your first client is <span class="goldgrad">7 days away.</span></h2>
+    <h2 class="re-grad">Your first client is 7 days away.</h2>
     <p>One skill. One week. A system that doesn't let you quit.</p>
-    <a class="btn btn-gold" style="font-size:18px;padding:18px 38px" href="#pricing">Start earning this week →</a>
+    <a class="re-btn" style="font-size:18px;padding:18px 38px" href="#pricing">Start earning this week →</a>
   </div>
 </section>
 
@@ -1392,12 +1392,14 @@ footer a{color:var(--gold)}
 
 <!-- ===== Recent-activity toast (real enrollments only) ===== -->
 <div class="activity-toast" id="activityToast" role="status" aria-live="polite">
-  <div class="av" id="atAvatar">?</div>
-  <div class="tx">
-    <div id="atText">Someone just enrolled in <b>Fuse Atelier</b></div>
-    <div class="meta"><span class="ok">✓ verified enrollment</span> · <span id="atWhen"></span></div>
+  <div class="activity-toast-in">
+    <div class="av" id="atAvatar">?</div>
+    <div class="tx">
+      <div id="atText">Someone just enrolled in <b>Fuse Atelier</b></div>
+      <div class="meta"><span class="ok">✓ verified enrollment</span> · <span id="atWhen"></span></div>
+    </div>
+    <button class="x" id="atClose" aria-label="Dismiss">✕</button>
   </div>
-  <button class="x" id="atClose" aria-label="Dismiss">✕</button>
 </div>
 
 <!-- ===== Chat bot ===== -->
@@ -1522,7 +1524,7 @@ function fuseBuy(packKey, el, pixelData) {
     { q: 'Is the AI studio really included?',
       a: 'Yes — Fuse Studio (image, video, avatar + AI writing engines) is inside the product with credits included in every tier. You don\'t need to buy any other AI tool or dollar subscription.' },
     { q: 'How do I pay?',
-      a: 'Checkout is via Paystack — card, bank transfer or USSD, in naira. Tap any tier button, create your account, and you\'re in within 2 minutes of payment. Empire can be split into 2 payments of ₦37,500.' },
+      a: 'Checkout is via Paystack — card, bank transfer or USSD, in naira. Tap any tier button, create your account, and you\'re in within 2 minutes of payment. Want to split Empire into 2 payments of ₦35,000? Message Ria on WhatsApp and she\'ll set that up for you directly.' },
     { q: 'What if it doesn\'t work for me?',
       a: 'The guarantee is simple: finish the 7-day plan, send 30 documented pitches with our scripts (your coach bot tracks this automatically) — if no client in 30 days, we work with you 1-on-1 free until you land one. Also: our instructor\'s Upwork profile is public (12 jobs, $4,000+), and student wins are named, contactable people.' },
     { q: 'Can I upgrade later?',
