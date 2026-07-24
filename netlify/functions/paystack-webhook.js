@@ -98,8 +98,25 @@ exports.handler = async (event) => {
 
   // 4) Credit the user — multiplied during the launch promo for subscription
   // packs, or overridden to a flat bonus for the course pack (see _packs.js).
+  // add_credits (see schema-phase31.sql) now RAISES if `userId` doesn't match
+  // a profiles row instead of silently leaving the balance untouched — that
+  // used to mean a real, confirmed Paystack payment could land with zero
+  // credits added and zero trace of it anywhere. If that ever happens again,
+  // record it as a visibly-failed payment (not a false "success") instead of
+  // pretending fulfillment worked — nothing downstream here (plan/course
+  // unlocks) would work either without the same profiles row, so bail out
+  // honestly rather than papering over it.
   const credits = creditsForPack(meta.pack, pack.credits);
-  await db.rpc('add_credits', { uid: userId, amount: credits, why: 'purchase' });
+  try {
+    await db.rpc('add_credits', { uid: userId, amount: credits, why: 'purchase' });
+  } catch (e) {
+    console.error('add_credits failed — no profiles row for', userId, 'pack', meta.pack, e && e.message);
+    await db.from('payments').insert({
+      user_id: userId, reference, amount_naira: amountNaira, pack: meta.pack,
+      credits_added: 0, status: 'credit_failed', raw: d,
+    });
+    return { statusCode: 200, body: 'credit grant failed — needs manual reconciliation' };
+  }
 
   // 4a) Subscription packs also extend plan access by 30 days.
   if (pack.kind === 'sub') {
