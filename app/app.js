@@ -3200,7 +3200,7 @@ function flyerAppendLog(role, text) {
  const log = $('flyerLog');
  const bubble = document.createElement('div');
  bubble.style.cssText = role === 'user'
- ? 'align-self:flex-end;background:var(--gold);color:#1a1200;padding:10px 14px;border-radius:14px 14px 2px 14px;max-width:85%;white-space:pre-wrap;font-size:14px'
+ ? 'align-self:flex-end;background:var(--gold);color:var(--bg);padding:10px 14px;border-radius:14px 14px 2px 14px;max-width:85%;white-space:pre-wrap;font-size:14px'
  : 'align-self:flex-start;background:var(--card);border:1px solid var(--line);padding:10px 14px;border-radius:14px 14px 14px 2px;max-width:85%;white-space:pre-wrap;font-size:14px';
  bubble.textContent = text;
  log.appendChild(bubble);
@@ -4018,7 +4018,7 @@ function editAppendLog(role, text) {
  const log = $('editLog');
  const bubble = document.createElement('div');
  bubble.style.cssText = role === 'user'
- ? 'align-self:flex-end;background:var(--gold);color:#1a1200;padding:10px 14px;border-radius:14px 14px 2px 14px;max-width:85%;white-space:pre-wrap;font-size:14px'
+ ? 'align-self:flex-end;background:var(--gold);color:var(--bg);padding:10px 14px;border-radius:14px 14px 2px 14px;max-width:85%;white-space:pre-wrap;font-size:14px'
  : 'align-self:flex-start;background:var(--card);border:1px solid var(--line);padding:10px 14px;border-radius:14px 14px 14px 2px;max-width:85%;white-space:pre-wrap;font-size:14px';
  bubble.textContent = text;
  log.appendChild(bubble);

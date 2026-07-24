@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fuse Studio — Stunning AI photos, videos & avatars</title>
 <meta name="description" content="Fuse Studio — create stunning AI photos, videos and consistent avatars in seconds. Start with 12 free credits.">
-<meta name="theme-color" content="#031A16">
+<meta name="theme-color" content="#090909">
 <meta property="og:title" content="Fuse Studio — the face that earns for you">
 <meta property="og:description" content="Create stunning AI photos, videos & consistent avatars. Start free.">
 <link rel="manifest" href="/app/manifest.webmanifest">
@@ -16,9 +16,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --teal-0:#020F0D; --teal-1:#031A16; --teal-2:#0D3A33;
-  --gold:#F5C518; --gold-2:#E7C25C; --gold-deep:#B08D57;
-  --ink:#EDF5F2; --muted:#93ADA6; --line:rgba(231,194,92,.16);
+  --teal-0:#090909; --teal-1:#0d1719; --teal-2:#14282c;
+  --gold:#A9FF67; --gold-2:#F4DB5E; --gold-deep:#25454A;
+  --ink:#F5FAFA; --muted:#9fb8b4; --line:rgba(169,255,103,.16);
+  --brand-grad:linear-gradient(100deg,var(--gold) 0%,var(--gold-2) 60%,#fff 120%);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -27,11 +28,11 @@ h1,h2,h3{font-family:"Bricolage Grotesque",Archivo,sans-serif;line-height:1.1}
 img,video{max-width:100%;display:block}
 .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
 .gold{color:var(--gold)}
-.goldgrad{background:linear-gradient(100deg,#F5C518 10%,#FFF3C4 30%,#E7C25C 50%,#B08D57 75%,#F5C518 95%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite}
+.goldgrad{background:linear-gradient(100deg,var(--gold) 10%,#fff 30%,var(--gold-2) 50%,var(--gold-deep) 75%,var(--gold) 95%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite}
 @keyframes shine{to{background-position:200% center}}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;text-decoration:none;font-family:Archivo;font-weight:800;border-radius:14px;padding:14px 24px;font-size:15.5px;transition:transform .15s,box-shadow .15s}
-.btn-gold{background:linear-gradient(120deg,#F5C518,#D4A017);color:#1a1200;box-shadow:0 4px 26px rgba(245,197,24,.35)}
-.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 34px rgba(245,197,24,.5)}
+.btn-gold{background:var(--brand-grad);color:var(--teal-0);box-shadow:0 4px 26px rgba(169,255,103,.35)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 34px rgba(169,255,103,.5)}
 .btn-ghost{background:rgba(255,255,255,.05);color:var(--ink);border:1px solid var(--line)}
 .kick{letter-spacing:.22em;font-size:11.5px;font-weight:800;color:var(--gold);text-transform:uppercase}
 section{padding:70px 0;position:relative}
@@ -39,10 +40,10 @@ section{padding:70px 0;position:relative}
 .sec-sub{color:var(--muted);max-width:640px;font-size:16px}
 
 /* ===== Nav ===== */
-.top{position:fixed;top:0;left:0;right:0;z-index:60;background:rgba(3,26,22,.7);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);transition:background .3s}
+.top{position:fixed;top:0;left:0;right:0;z-index:60;background:rgba(9,9,9,.7);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);transition:background .3s}
 .top .in{display:flex;justify-content:space-between;align-items:center;height:62px}
 .brand{display:flex;align-items:center;gap:9px;font-family:"Bricolage Grotesque";font-weight:800;font-size:18px;color:var(--ink);text-decoration:none}
-.brand .dot{width:30px;height:30px;border-radius:9px;background:linear-gradient(120deg,#F5C518,#B08D57);color:#1a1200;display:grid;place-items:center;font-size:15px}
+.brand .dot{width:30px;height:30px;border-radius:9px;display:block;flex-shrink:0;object-fit:cover;box-shadow:0 6px 18px rgba(169,255,103,.30)}
 .nav-links{display:flex;gap:16px;align-items:center;font-size:14px}
 .nav-links a{color:var(--muted);text-decoration:none;font-weight:600}
 .nav-links a:hover{color:var(--gold-2)}
@@ -54,19 +55,19 @@ section{padding:70px 0;position:relative}
 .svh-pin{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;place-items:center;background:var(--teal-0)}
 .svh-pin video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.72) saturate(1.1)}
 .svh-veil{position:absolute;inset:0;background:
-  radial-gradient(1100px 520px at 50% 115%, rgba(3,26,22,.9), transparent 60%),
-  linear-gradient(180deg, rgba(3,26,22,.55), transparent 30%, transparent 62%, rgba(3,26,22,.88))}
+  radial-gradient(1100px 520px at 50% 115%, rgba(9,9,9,.9), transparent 60%),
+  linear-gradient(180deg, rgba(9,9,9,.55), transparent 30%, transparent 62%, rgba(9,9,9,.88))}
 .svh-copy{position:absolute;inset:0;z-index:3;text-align:center}
 .svh-state{position:absolute;left:50%;top:50%;width:min(900px,92vw);transform:translate(-50%,-40%);opacity:0;transition:opacity .45s ease,transform .45s ease;padding:0 22px}
 .svh-state.on{opacity:1;transform:translate(-50%,-50%)}
 .svh-state h1{font-size:clamp(34px,6.6vw,68px);letter-spacing:-.5px;margin-bottom:16px;text-shadow:0 2px 30px rgba(0,0,0,.5)}
 .svh-state p{color:#D5E3DF;font-size:clamp(15.5px,2.3vw,19px);max-width:620px;margin:0 auto 24px;text-shadow:0 1px 14px rgba(0,0,0,.6)}
 .svh-prog{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.12);z-index:4}
-.svh-prog i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#F5C518,#B08D57)}
+.svh-prog i{display:block;height:100%;width:0%;background:var(--brand-grad)}
 .svh-hint{position:absolute;bottom:18px;left:0;right:0;text-align:center;color:#C7D8D3;font-size:12.5px;z-index:4;animation:pulse 2.4s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
 .svh-badge{position:absolute;top:78px;left:0;right:0;display:flex;justify-content:center;z-index:4}
-.svh-badge span{background:rgba(3,26,22,.6);backdrop-filter:blur(8px);border:1px solid var(--line);color:var(--gold-2);border-radius:30px;padding:7px 16px;font-size:12.5px;font-weight:700}
+.svh-badge span{background:rgba(9,9,9,.6);backdrop-filter:blur(8px);border:1px solid var(--line);color:var(--gold-2);border-radius:30px;padding:7px 16px;font-size:12.5px;font-weight:700}
 
 /* ===== Marquee showcase ===== */
 .made{background:var(--teal-0);padding:56px 0}
@@ -82,15 +83,15 @@ section{padding:70px 0;position:relative}
 /* ===== Model wall ===== */
 .mwall{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:30px}
 .mw-card{position:relative;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:22px;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;transform-style:preserve-3d}
-.mw-card:hover{transform:translateY(-5px);border-color:var(--gold);box-shadow:0 14px 44px rgba(245,197,24,.16)}
-.mw-card .tag{position:absolute;top:14px;right:14px;font-size:10px;font-weight:800;background:var(--gold);color:#1a1200;border-radius:20px;padding:3px 9px}
+.mw-card:hover{transform:translateY(-5px);border-color:var(--gold);box-shadow:0 14px 44px rgba(169,255,103,.16)}
+.mw-card .tag{position:absolute;top:14px;right:14px;font-size:10px;font-weight:800;background:var(--gold);color:var(--teal-0);border-radius:20px;padding:3px 9px}
 .mw-card h3{font-size:17px;margin-bottom:6px}
 .mw-card p{color:var(--muted);font-size:13.5px}
-.mw-card .glowline{position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,#F5C518,transparent);opacity:0;transition:opacity .2s}
+.mw-card .glowline{position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity .2s}
 .mw-card:hover .glowline{opacity:1}
 
 /* ===== Atelier banner ===== */
-.atelier-cta{border:1.5px solid var(--gold);border-radius:26px;padding:34px 30px;background:linear-gradient(145deg,rgba(245,197,24,.12),rgba(13,58,51,.45));display:grid;grid-template-columns:1fr auto;gap:22px;align-items:center;box-shadow:0 0 44px rgba(245,197,24,.14)}
+.atelier-cta{border:1.5px solid var(--gold);border-radius:26px;padding:34px 30px;background:linear-gradient(145deg,rgba(169,255,103,.12),rgba(20,40,44,.45));display:grid;grid-template-columns:1fr auto;gap:22px;align-items:center;box-shadow:0 0 44px rgba(169,255,103,.14)}
 .atelier-cta h3{font-size:clamp(21px,3.4vw,30px);margin-bottom:8px}
 .atelier-cta p{color:#C7D8D3;font-size:15px;max-width:560px}
 @media(max-width:720px){.atelier-cta{grid-template-columns:1fr;text-align:center}}
@@ -98,8 +99,8 @@ section{padding:70px 0;position:relative}
 /* ===== Pricing ===== */
 .prices{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:30px;align-items:start}
 .price{position:relative;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);border-radius:20px;padding:24px 20px}
-.price.featured{border:1.5px solid var(--gold);background:linear-gradient(160deg,rgba(245,197,24,.11),rgba(13,58,51,.45));box-shadow:0 0 34px rgba(245,197,24,.18)}
-.price .tag{position:absolute;top:-11px;left:18px;background:linear-gradient(120deg,#F5C518,#D4A017);color:#1a1200;font-weight:900;font-size:10.5px;padding:4px 12px;border-radius:20px}
+.price.featured{border:1.5px solid var(--gold);background:linear-gradient(160deg,rgba(169,255,103,.11),rgba(20,40,44,.45));box-shadow:0 0 34px rgba(169,255,103,.18)}
+.price .tag{position:absolute;top:-11px;left:18px;background:var(--brand-grad);color:var(--teal-0);font-weight:900;font-size:10.5px;padding:4px 12px;border-radius:20px}
 .price .amt{font-family:"Bricolage Grotesque";font-weight:800;font-size:28px;color:var(--gold);margin:6px 0 4px}
 .price .amt small{font-size:13px;color:var(--muted);font-weight:600}
 .price ul{list-style:none;margin:12px 0 18px}
@@ -115,8 +116,8 @@ details p{padding:0 20px 16px;color:var(--muted);font-size:14.5px}
 
 /* ===== Finale ===== */
 .finale{min-height:62svh;display:grid;place-items:center;text-align:center;background:
-  radial-gradient(900px 480px at 50% 120%, rgba(245,197,24,.16), transparent 65%),
-  linear-gradient(180deg,var(--teal-0),#052018)}
+  radial-gradient(900px 480px at 50% 120%, rgba(169,255,103,.16), transparent 65%),
+  linear-gradient(180deg,var(--teal-0),var(--teal-1))}
 .finale h2{font-size:clamp(30px,5.6vw,52px);max-width:760px;margin-bottom:16px}
 .finale p{color:var(--muted);margin-bottom:28px;font-size:16.5px}
 footer{border-top:1px solid rgba(255,255,255,.06);padding:24px 0;color:var(--muted);font-size:12.5px;text-align:center}
@@ -137,7 +138,7 @@ footer a{color:var(--gold);text-decoration:none}
 
 <!-- ===== Nav ===== -->
 <div class="top"><div class="wrap in">
-  <a class="brand" href="/app/index.html"><span class="dot">F</span> Fuse&nbsp;Studio</a>
+  <a class="brand" href="/app/index.html"><img class="dot" src="/app/icons/icon-192.png" alt="Fuse Studio"> Fuse&nbsp;Studio</a>
   <div class="nav-links">
     <a class="plain" href="#models">Models</a>
     <a class="plain" href="#pricing">Pricing</a>
