@@ -177,10 +177,11 @@ section{padding:92px 0;position:relative}
 .re-marquee-track{display:flex;gap:18px;width:max-content;animation:remarquee 32s linear infinite}
 .re-marquee:hover .re-marquee-track{animation-play-state:paused}
 @keyframes remarquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.re-mcard{position:relative;flex:0 0 auto;width:170px;aspect-ratio:9/16;border-radius:18px;padding:2.5px;background:linear-gradient(135deg,var(--re-green),var(--re-yellow),#fff)}
+.re-mcard{position:relative;flex:0 0 auto;width:210px;aspect-ratio:4/5;border-radius:18px;padding:2.5px;background:linear-gradient(135deg,var(--re-green),var(--re-yellow),#fff)}
 .re-mcard-in{width:100%;height:100%;border-radius:16px;background:linear-gradient(160deg,#0f2a2c,var(--re-teal-d));display:flex;align-items:flex-end;padding:14px;position:relative;overflow:hidden;box-shadow:0 18px 40px -10px rgba(169,255,103,.35),0 10px 26px -6px rgba(244,219,94,.28)}
-.re-mcard-in::before{content:'';position:absolute;inset:0;background:radial-gradient(260px 160px at 30% 15%,rgba(169,255,103,.18),transparent 60%)}
-.re-mcard-label{position:relative;color:#fff;font-size:13px;font-weight:700;line-height:1.3}
+.re-mcard-in::before{content:'';position:absolute;inset:0;background:radial-gradient(260px 160px at 30% 15%,rgba(169,255,103,.18),transparent 60%);z-index:1}
+.re-mcard-in img,.re-mcard-in video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.re-mcard-label{position:relative;z-index:2;color:#fff;font-size:13px;font-weight:700;line-height:1.3;text-shadow:0 2px 10px rgba(0,0,0,.7)}
 @media(prefers-reduced-motion:reduce){.re-marquee-track{animation:none}}
 @media(max-width:480px){.re-mcard{width:135px}}
 
@@ -712,16 +713,27 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
   var track = document.getElementById('reShowcaseTrack');
   if (!track) return;
   var items = [
-    'Web3 & product flyer design',
-    'AI product photography',
-    'UGC-style talking ads',
-    'Brand content reels',
-    'AI avatars & digital twins',
-    'Long-form ad videos'
+    { label: 'Product ad flyers', img: 'assets/showcase/slamit-beatup.jpg' },
+    { label: 'Talking-head brand videos', video: 'assets/showcase/vid-fuse-office.mp4' },
+    { label: 'AI product photography', img: 'assets/showcase/lamer-underwater.jpg' },
+    { label: 'UGC-style talking ads', video: 'assets/showcase/vid-ugc-skincare.mp4' },
+    { label: 'Web3 & crypto design', img: 'assets/showcase/web3-voidkey.jpg' },
+    { label: 'Viral CGI product ads', video: 'assets/showcase/vid-cgi-explosion.mp4' },
+    { label: 'Sports & campaign flyers', img: 'assets/showcase/slamit-heat.jpg' },
+    { label: 'AI avatars & digital twins', video: 'assets/showcase/vid-ai-avatar-man.mp4' },
+    { label: 'Tech product ads', img: 'assets/showcase/airpods-feel.jpg' },
+    { label: 'Consistent AI portraits', img: 'assets/showcase/avatar-pink-boutique.jpg' },
+    { label: 'Pet & product photography', img: 'assets/showcase/bulldog-product.jpg' },
+    { label: 'Consistent AI portraits', img: 'assets/showcase/avatar-car-night.jpg' },
+    { label: 'Brand content flyers', img: 'assets/showcase/slamit-grandma.jpg' },
+    { label: 'Consistent AI portraits', img: 'assets/showcase/avatar-trench-beret.jpg' }
   ];
   var html = '';
-  items.concat(items).forEach(function(label){
-    html += '<div class="re-mcard"><div class="re-mcard-in"><div class="re-mcard-label">' + label + '</div></div></div>';
+  items.concat(items).forEach(function(it){
+    var media = it.video
+      ? '<video src="' + it.video + '" muted loop autoplay playsinline preload="metadata"></video>'
+      : '<img src="' + it.img + '" alt="" loading="lazy">';
+    html += '<div class="re-mcard"><div class="re-mcard-in">' + media + '<div class="re-mcard-label">' + it.label + '</div></div></div>';
   });
   track.innerHTML = html;
 })();

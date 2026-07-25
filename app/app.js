@@ -765,17 +765,33 @@ function buildMarquee() {
  $('marqTrack').innerHTML = html + html; // duplicated once so the -50% loop is seamless
 }
 
-// -- 4. "Made with Fuse Studio" gallery — real creations only, no placeholders --
-async function loadGallery() {
+// -- 4. "Made with Fuse Studio" gallery — curated preview only. -------------
+// Was pulling live rows straight from public_showcase and, on click, opening
+// the raw output_url in a new tab — meaning any visitor could save/download
+// anyone's actual generation straight off the home screen. Replaced with a
+// fixed, hand-picked set of real Fuse Studio output (no live user data), and
+// dropped the click-to-open handler entirely — preview only, no full-size/
+// raw file is ever exposed. The context-menu block + controlsList/download
+// removal deter the casual right-click-save; this is presentation, not DRM.
+const GALLERY_CURATED = [
+ { type: 'image', url: '/app/media/showcase/slamit-beatup.jpg' },
+ { type: 'video', url: '/app/media/showcase/vid-fuse-office.mp4' },
+ { type: 'image', url: '/app/media/showcase/lamer-underwater.jpg' },
+ { type: 'video', url: '/app/media/showcase/vid-ugc-skincare.mp4' },
+ { type: 'image', url: '/app/media/showcase/web3-voidkey.jpg' },
+ { type: 'video', url: '/app/media/showcase/vid-cgi-explosion.mp4' },
+ { type: 'image', url: '/app/media/showcase/slamit-heat.jpg' },
+ { type: 'video', url: '/app/media/showcase/vid-ai-avatar-man.mp4' },
+ { type: 'image', url: '/app/media/showcase/airpods-feel.jpg' },
+ { type: 'image', url: '/app/media/showcase/avatar-pink-boutique.jpg' },
+ { type: 'image', url: '/app/media/showcase/bulldog-product.jpg' },
+ { type: 'image', url: '/app/media/showcase/avatar-car-night.jpg' },
+];
+function loadGallery() {
  const row = $('galRow'); if (!row) return;
- if (preview) { row.innerHTML = '<div class="gal-empty">Sign up to see the community gallery </div>'; return; }
- const { data } = await sb.from('public_showcase').select('output_url, type').limit(12);
- row.innerHTML = (data && data.length)
- ? data.map((x) => `<div class="gal-card">${x.type === 'video'
- ? `<video src="${x.output_url}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()"></video><span class="gal-tag"> Video</span>`
- : `<img src="${x.output_url}"><span class="gal-tag"> Image</span>`}</div>`).join('')
- : '<div class="gal-empty">Your creations will show here once you generate something </div>';
- row.querySelectorAll('.gal-card').forEach((el, i) => el.onclick = () => window.open(data[i].output_url, '_blank'));
+ row.innerHTML = GALLERY_CURATED.map((x) => `<div class="gal-card" oncontextmenu="return false">${x.type === 'video'
+ ? `<video src="${x.url}" muted loop playsinline preload="metadata" disablePictureInPicture controlsList="nodownload noremoteplayback" oncontextmenu="return false" onmouseover="this.play()" onmouseout="this.pause()"></video><span class="gal-tag"> Video</span>`
+ : `<img src="${x.url}" draggable="false" oncontextmenu="return false"><span class="gal-tag"> Image</span>`}</div>`).join('');
 }
 
 function buildHome() {

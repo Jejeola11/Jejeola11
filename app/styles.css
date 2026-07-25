@@ -943,8 +943,8 @@ textarea{min-height:104px;resize:vertical}
 
 /* ---- 4. "Made with Fuse Studio" gallery (real data) ---- */
 .gal-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
-.gal-card{flex:0 0 auto;width:140px;border-radius:14px;overflow:hidden;position:relative;background:var(--panel);border:1px solid var(--line);cursor:pointer}
-.gal-card img,.gal-card video{width:140px;height:178px;object-fit:cover;display:block;background:#000}
+.gal-card{flex:0 0 auto;width:140px;border-radius:14px;overflow:hidden;position:relative;background:var(--panel);border:1px solid var(--line);user-select:none;-webkit-user-select:none}
+.gal-card img,.gal-card video{width:140px;height:178px;object-fit:cover;display:block;background:#000;-webkit-user-drag:none;user-drag:none}
 .gal-card .gal-tag{position:absolute;top:7px;left:7px;background:rgba(4,24,29,.72);backdrop-filter:blur(4px);color:var(--silver);font-size:9px;font-weight:700;padding:3px 8px;border-radius:99px}
 .gal-empty{border:1px dashed var(--line);border-radius:14px;padding:26px 16px;text-align:center;color:var(--muted);font-size:12.5px}
 
