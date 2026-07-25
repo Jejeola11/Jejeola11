@@ -138,7 +138,9 @@ section{padding:92px 0;position:relative}
 .re-video-poster{aspect-ratio:16/9;border-radius:20px;background:
   radial-gradient(600px 300px at 30% 20%,rgba(169,255,103,.18),transparent 60%),
   linear-gradient(160deg,#0f2a2c,var(--re-teal-d));display:grid;place-items:center;position:relative;overflow:hidden}
+.re-video-poster video{grid-area:1/1;width:100%;height:100%;object-fit:cover;display:block}
 .re-play{width:64px;height:64px;border-radius:50%;border:0;background:rgba(255,255,255,.95);color:var(--re-teal-d);font-size:20px;cursor:pointer;display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.re-mute-btn{grid-area:1/1;align-self:end;justify-self:end;margin:0 16px 16px 0;width:40px;height:40px;border-radius:50%;border:0;background:rgba(9,9,9,.6);backdrop-filter:blur(6px);color:#fff;font-size:15px;cursor:pointer;display:grid;place-items:center;z-index:2;border:1px solid rgba(255,255,255,.25)}
 .re-video-chip{position:absolute;left:20px;bottom:16px;display:inline-flex;align-items:center;gap:7px;background:rgba(9,9,9,.6);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;font-weight:700;padding:7px 14px;border-radius:20px;z-index:1}
 .re-video-chip .dot{width:6px;height:6px;border-radius:50%;background:#ff5c5c}
 .re-fly{position:absolute;z-index:2;filter:drop-shadow(0 0 4px rgba(169,255,103,.8)) drop-shadow(0 0 8px rgba(244,219,94,.6));transform:translate(-50%,-50%) rotate(var(--jit,0deg));animation:reflutter ease-in-out infinite;pointer-events:none}
@@ -597,7 +599,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
 
 <!-- ===== Top bar ===== -->
 <div class="top"><div class="wrap in">
-  <a class="brand" href="#hero"><img class="dot" src="assets/logo-fs.png" alt="Fuse Studio"> Fuse&nbsp;Atelier</a>
+  <a class="brand" href="#hero"><img class="dot" src="assets/logo-fuse-real.png" alt="Fuse Atelier"> Fuse&nbsp;Atelier</a>
   <a class="re-btn re-btn-nav" href="#tier-quiz">Pick your path →</a>
 </div></div>
 
@@ -618,9 +620,9 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
     <div class="re-video-frame" id="reVideoFrame">
       <div class="re-video-glow" aria-hidden="true"></div>
       <div class="re-video-box">
-        <!-- Swap this poster + add a real <video>/embed once the intro clip is ready -->
         <div class="re-video-poster">
-          <button class="re-play" aria-label="Play intro video">▶</button>
+          <video id="reHeroVideo" src="assets/hero.mp4" poster="assets/hero-poster.jpg" autoplay muted loop playsinline preload="auto"></video>
+          <button class="re-mute-btn" id="reHeroMuteBtn" aria-label="Unmute video">🔇</button>
         </div>
         <span class="re-video-chip"><span class="dot"></span> Intro video</span>
       </div>
@@ -974,10 +976,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
     <div class="re-polaroid">
       <span class="re-tape"></span>
       <div class="re-polaroid-photo">
-        <svg class="re-polaroid-avatar" viewBox="0 0 120 120" aria-label="Nana Aisha">
-          <path d="M60 14C40 14 26 30 26 52c0 10 3 18 8 24-6 10-10 22-10 30h72c0-8-4-20-10-30 5-6 8-14 8-24 0-22-14-38-34-38z" fill="var(--re-teal-l)"/>
-          <ellipse cx="60" cy="58" rx="21" ry="25" fill="#f2e6d8"/>
-        </svg>
+        <img src="proof/nana-aisha-review.jpg" alt="Nana Aisha's real message" loading="lazy">
       </div>
       <div class="re-polaroid-cap">
         <p class="re-polaroid-quote">Closed her first deal in her very first week inside Fuse Atelier.</p>
@@ -1449,6 +1448,19 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
     s.style.animationDuration = (5 + Math.random() * 5) + 's';
     hero.appendChild(s);
   }
+})();
+
+// ============ Hero intro video — sound toggle ============
+// Autoplay only works muted (browser policy) — this lets a visitor opt
+// into sound with one tap instead of the video staying silent forever.
+(function(){
+  var vid = document.getElementById('reHeroVideo'), btn = document.getElementById('reHeroMuteBtn');
+  if (!vid || !btn) return;
+  btn.onclick = function(){
+    vid.muted = !vid.muted;
+    btn.textContent = vid.muted ? '🔇' : '🔊';
+    btn.setAttribute('aria-label', vid.muted ? 'Unmute video' : 'Mute video');
+  };
 })();
 
 // ============ Reveal on scroll ============
