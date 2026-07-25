@@ -140,9 +140,9 @@ section{padding:92px 0;position:relative}
   linear-gradient(160deg,#0f2a2c,var(--re-teal-d));display:grid;place-items:center;position:relative;overflow:hidden}
 .re-video-poster video{grid-area:1/1;width:100%;height:100%;object-fit:cover;display:block}
 .re-play{width:64px;height:64px;border-radius:50%;border:0;background:rgba(255,255,255,.95);color:var(--re-teal-d);font-size:20px;cursor:pointer;display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4)}
-.re-mute-btn{grid-area:1/1;align-self:end;justify-self:end;margin:0 16px 16px 0;width:40px;height:40px;border-radius:50%;border:0;background:rgba(9,9,9,.6);backdrop-filter:blur(6px);color:#fff;font-size:15px;cursor:pointer;display:grid;place-items:center;z-index:2;border:1px solid rgba(255,255,255,.25)}
-.re-video-chip{position:absolute;left:20px;bottom:16px;display:inline-flex;align-items:center;gap:7px;background:rgba(9,9,9,.6);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;font-weight:700;padding:7px 14px;border-radius:20px;z-index:1}
-.re-video-chip .dot{width:6px;height:6px;border-radius:50%;background:#ff5c5c}
+.re-sound-btn{grid-area:1/1;align-self:start;justify-self:end;margin:12px 12px 0 0;display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.3);background:rgba(9,9,9,.65);backdrop-filter:blur(6px);color:#fff;font-size:11.5px;font-weight:700;padding:7px 12px;border-radius:20px;cursor:pointer;z-index:2}
+.re-video-chip{position:absolute;left:12px;top:12px;display:inline-flex;align-items:center;gap:6px;background:rgba(9,9,9,.6);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:10.5px;font-weight:700;padding:5px 11px;border-radius:20px;z-index:1}
+.re-video-chip .dot{width:5px;height:5px;border-radius:50%;background:#ff5c5c}
 .re-fly{position:absolute;z-index:2;filter:drop-shadow(0 0 4px rgba(169,255,103,.8)) drop-shadow(0 0 8px rgba(244,219,94,.6));transform:translate(-50%,-50%) rotate(var(--jit,0deg));animation:reflutter ease-in-out infinite;pointer-events:none}
 .re-fly svg{width:100%;height:100%;display:block}
 /* The border-position translate(-50%,-50%) and each butterfly's own jitter
@@ -618,9 +618,9 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
       <div class="re-video-box">
         <div class="re-video-poster">
           <video id="reHeroVideo" src="assets/hero.mp4" poster="assets/hero-poster.jpg" autoplay muted loop playsinline preload="auto"></video>
-          <button class="re-mute-btn" id="reHeroMuteBtn" aria-label="Unmute video">🔇</button>
+          <span class="re-video-chip"><span class="dot"></span> Intro video</span>
+          <button class="re-sound-btn" id="reHeroMuteBtn" aria-label="Turn sound on">🔊 Tap for sound</button>
         </div>
-        <span class="re-video-chip"><span class="dot"></span> Intro video</span>
       </div>
     </div>
     <div class="re-price-line">
@@ -1458,8 +1458,8 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
   if (!vid || !btn) return;
   btn.onclick = function(){
     vid.muted = !vid.muted;
-    btn.textContent = vid.muted ? '🔇' : '🔊';
-    btn.setAttribute('aria-label', vid.muted ? 'Unmute video' : 'Mute video');
+    btn.textContent = vid.muted ? '🔊 Tap for sound' : '🔇 Mute';
+    btn.setAttribute('aria-label', vid.muted ? 'Turn sound on' : 'Turn sound off');
   };
 })();
 
