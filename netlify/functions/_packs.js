@@ -161,21 +161,35 @@ const TOOL_MODELS = Object.fromEntries(Object.entries(TOOL_COST).map(([k, v]) =>
 const MODEL_COST = IMAGE_MODELS; // back-compat alias
 
 // ---- AI Avatar Creator (long-form video) — WaveSpeed-only cost model ------
-// InfiniteTalk (chunked, image+audio -> talking video) is the real cost
-// driver; Omnivoice voice-clone narration is comparatively tiny. Both
-// verified live 2026-07-15/16. Priced per minute of FINISHED video, charged
-// up-front from the script's estimated speech duration (~150 words/min) so
-// the user knows the cost before anything runs; refunded pro-rata if a job
-// fails partway (see avatar-video-create.js / avatar-video-status.js).
-const AVATAR_VIDEO_PER_MIN_USD = 3.6;   // InfiniteTalk, upper end of the $54-108/30min range
+// Two completely different engines depending on mode, so two completely
+// different per-minute costs — this used to be one flat number for both,
+// which undercharged motion mode badly once verified against the real
+// model actually being called (see 'avatar-motion-seedance-2' in
+// _providers.js). Omnivoice voice-clone narration is comparatively tiny
+// either way. Priced per minute of FINISHED video, charged up-front from
+// the script's estimated speech duration (~150 words/min) so the user
+// knows the cost before anything runs; refunded pro-rata if a job fails
+// partway (see media-pipeline.js / _avatar-video.js).
+const AVATAR_VIDEO_PER_MIN_USD = 3.6;   // InfiniteTalk (talking mode), verified live 2026-07-15 -- $0.30/5s at 720p tier * 12
+// Seedance 2.0 image-to-video (motion mode) -- confirmed live 2026-07-25 via
+// GET /api/v3/models: base_price $0.60 per 5s at 480p, formula scales
+// linearly with duration and by a flat resolution multiplier (720p=2x,
+// 1080p=5x, 4k=10x). Genuinely pricier than talking mode -- full
+// Hollywood-grade cinematic generation per chunk instead of a constrained
+// talking-head animation -- this is real, not a rounding artifact.
+const AVATAR_MOTION_PER_MIN_USD = { '480p': 7.2, '720p': 14.4 };
 const AVATAR_VOICE_PER_MIN_USD = 0.05;  // Omnivoice narration
 const AVATAR_VIDEO_MARGIN = 1.6;        // this is a premium, compute-heavy feature — thinner margin, still profitable
 // `includeVoice` is false when the user supplies their own pre-made
 // narration (skips Omnivoice cloning entirely) — no voice-generation cost
-// applies in that case, just the video-generation cost.
-function avatarVideoCredits(estimatedMinutes, includeVoice = true) {
+// applies in that case, just the video-generation cost. `mode`/`resolution`
+// select which engine's per-minute cost applies -- default stays talking/
+// InfiniteTalk so every existing call site (which never passed these)
+// keeps its exact current price.
+function avatarVideoCredits(estimatedMinutes, includeVoice = true, mode = 'talking', resolution = '480p') {
   const mins = Math.max(1, Math.ceil(estimatedMinutes));
-  const cost = mins * (AVATAR_VIDEO_PER_MIN_USD + (includeVoice ? AVATAR_VOICE_PER_MIN_USD : 0));
+  const perMin = mode === 'motion' ? (AVATAR_MOTION_PER_MIN_USD[resolution] || AVATAR_MOTION_PER_MIN_USD['480p']) : AVATAR_VIDEO_PER_MIN_USD;
+  const cost = mins * (perMin + (includeVoice ? AVATAR_VOICE_PER_MIN_USD : 0));
   return creditsFor(cost, AVATAR_VIDEO_MARGIN);
 }
 // ~150 spoken words/minute — used to estimate a script's runtime before any

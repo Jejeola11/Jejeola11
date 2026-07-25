@@ -288,13 +288,14 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  <option value="talking"> Talking head — close to camera, lip-synced</option>
  <option value="motion"> In motion — walking, dressing, makeup, any action</option>
  </select>
+ <div class="muted" style="font-size:11px;margin-top:4px">Motion mode is full cinematic generation per scene, not just lip-sync — it costs noticeably more per minute than talking head. Add precision lip-sync afterward from the Projects tab if you need the mouth to match the words exactly.</div>
  <div id="avvMotionWrap" style="display:none">
  <label class="fld" for="avvCameraMotion">Camera motion / action</label>
  <textarea id="avvCameraMotion" placeholder="e.g. 'camera follows her walking down a city street, slight handheld sway' or 'she's applying makeup at a vanity, camera slowly pushes in'" style="min-height:80px"></textarea>
  </div>
 
  <label class="fld" for="avvResolution">Resolution</label>
- <select id="avvResolution"><option value="720p">720p (recommended — sharper mouth detail, more natural lipsync)</option><option value="480p">480p (cheaper)</option></select>
+ <select id="avvResolution"><option value="720p">720p (recommended — sharper detail; motion mode costs noticeably more at this tier)</option><option value="480p">480p (cheaper)</option></select>
  <label class="fld" for="avvPrompt">Extra direction (optional)</label>
  <input id="avvPrompt" placeholder="e.g. calm, confident, direct to camera">
  <label class="fld" for="avvAspect">Aspect</label>
@@ -303,7 +304,14 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  <button class="btn ghost sm" id="avvStartFramePick"> Upload start frame</button>
  <input type="file" id="avvStartFrameFile" accept="image/*" hidden>
  <div id="avvStartFrameThumb" style="margin-top:8px"></div>
+ <button class="btn ghost sm" id="avvSaveStill" style="margin-top:6px"> Save to My Photos</button>
  <div class="note" id="avvStartFrameNote"></div>
+
+ <div class="sheet-box" style="margin-top:10px">
+ <div class="sheet-head"> My Photos — reuse any saved avatar photo as a start frame</div>
+ <div id="avvStillsGrid" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+ </div>
+ <div class="muted" id="avvCostEstimate" style="font-size:12px;margin-top:10px"></div>
  <button class="btn gold block" id="avvGen" style="margin-top:14px"> Generate video</button>
  <div class="note" id="avvNote"></div>
  <div class="result" id="avvResult" style="margin-top:12px;min-height:160px"><div class="muted">Your finished video appears here.</div></div>

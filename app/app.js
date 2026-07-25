@@ -2102,7 +2102,7 @@ window.fuseProject = (i) => {
 async function loadResyncBox(outputUrl) {
  const box = $('resyncBox'); if (!box) return;
  box.innerHTML = '<div class="muted" style="font-size:12px">Checking resync status…</div>';
- const { data: av } = await sb.from('avatar_videos').select('id, resynced_url, resync_credits, total_duration_sec').eq('output_url', outputUrl).eq('user_id', user.id).maybeSingle();
+ const { data: av } = await sb.from('avatar_videos').select('id, mode, resynced_url, resync_credits, total_duration_sec').eq('output_url', outputUrl).eq('user_id', user.id).maybeSingle();
  if (!av) { box.innerHTML = ''; return; }
  if (av.resynced_url) {
  box.innerHTML = `<div class="pm-row"><span>Resync</span><b style="color:var(--cyan)">Ready</b></div>
@@ -2111,7 +2111,16 @@ async function loadResyncBox(outputUrl) {
  return;
  }
  const estCredits = av.total_duration_sec ? Math.max(1, Math.ceil(av.total_duration_sec * 0.08 / 0.016 * 1.6)) : null;
- box.innerHTML = `<button class="btn ghost sm" id="resyncBtn">Resync lipsync${estCredits ? ` (~${estCredits} credits)` : ''}</button><div class="note" id="resyncNote"></div>`;
+ // Motion-mode videos never had word-accurate lip-sync in the first place —
+ // Seedance has no audio input at all, it just animates a scene from a
+ // camera-motion prompt. This pass is the ONLY way to get the mouth to
+ // actually match the narration on a motion video, so it's surfaced as a
+ // clear recommendation here instead of a generic, easy-to-miss button.
+ const isMotion = av.mode === 'motion';
+ const heading = isMotion
+ ? `<div class="muted" style="font-size:12px;margin-bottom:6px"> Motion videos don't lip-sync to the exact words on their own — run this once to snap the mouth to your narration.</div>`
+ : '';
+ box.innerHTML = `${heading}<button class="btn ${isMotion ? 'gold' : 'ghost'} sm" id="resyncBtn">${isMotion ? 'Get precision lip-sync' : 'Resync lipsync'}${estCredits ? ` (~${estCredits} credits)` : ''}</button><div class="note" id="resyncNote"></div>`;
  $('resyncBtn').onclick = async () => {
  const btn = $('resyncBtn'); btn.disabled = true; btn.textContent = 'Starting…';
  try {
@@ -2591,6 +2600,7 @@ function selectAvatar(id, name) {
  // for — switching avatars shouldn't silently carry someone else's photo
  // (or a stale one) into the next generation.
  avvStartFrameUrl = null; renderAvvStartFrameThumb();
+ loadAvvStills(id);
  renderSheet();
  renderAvatarVideoStatus();
  renderAvatarManageThumbs();
@@ -2809,6 +2819,55 @@ function renderAvvStartFrameThumb() {
  : '';
 }
 window.fuseAvvRmStartFrame = () => { avvStartFrameUrl = null; renderAvvStartFrameThumb(); note('avvStartFrameNote', ''); };
+
+// ---- Avatar Stills Library — save/reuse multiple reference photos per
+// avatar, instead of being stuck with the one trained_frame_url forever.
+let avvStills = [];
+async function loadAvvStills(avatarId) {
+ if (!avatarId) { avvStills = []; renderAvvStills(); return; }
+ try {
+ const res = await fetch(`/.netlify/functions/avatar-stills?avatar_id=${avatarId}`, { headers: await authHeader() });
+ const d = await res.json();
+ avvStills = (res.ok && d.stills) || [];
+ } catch (e) { avvStills = []; }
+ renderAvvStills();
+}
+function renderAvvStills() {
+ const el = $('avvStillsGrid'); if (!el) return;
+ if (!avvStills.length) { el.innerHTML = '<div class="muted" style="font-size:12px">No saved photos yet — upload a start frame or generate one in Model Sheet, then tap "Save to My Photos".</div>'; return; }
+ el.innerHTML = avvStills.map((s) => `
+ <div class="av-th" style="position:relative">
+ <img src="${s.image_url}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="window.fuseAvvPickStill('${s.image_url.replace(/'/g, "\\'")}')">
+ <span class="av-th-x" onclick="window.fuseAvvDeleteStill('${s.id}')"></span>
+ </div>`).join('');
+}
+window.fuseAvvPickStill = (url) => {
+ avvStartFrameUrl = url;
+ renderAvvStartFrameThumb();
+ note('avvStartFrameNote', ' This video will start from the saved photo you picked.', 'ok');
+};
+window.fuseAvvDeleteStill = async (id) => {
+ try {
+ await fetch('/.netlify/functions/avatar-stills', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ action: 'delete', id }) });
+ avvStills = avvStills.filter((s) => s.id !== id);
+ renderAvvStills();
+ } catch (e) {}
+};
+async function avvSaveStillToLibrary() {
+ if (!selectedAvatar) return;
+ if (!avvStartFrameUrl) return note('avvStartFrameNote', 'Upload or pick a start frame first, then save it.', 'err');
+ try {
+ const res = await fetch('/.netlify/functions/avatar-stills', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ action: 'save', avatar_id: selectedAvatar, image_url: avvStartFrameUrl, source: 'uploaded' }),
+ });
+ const d = await res.json();
+ if (!res.ok) throw new Error(d.error || 'Could not save.');
+ avvStills.unshift(d.still);
+ renderAvvStills();
+ note('avvStartFrameNote', ' Saved to My Photos — pick it any time for a future video.', 'ok');
+ } catch (e) { note('avvStartFrameNote', e.message || 'Could not save.', 'err'); }
+}
 async function uploadAvatarOwnAudio(file) {
  if (!selectedAvatar) return note('avVoiceNote', 'Pick an avatar first.', 'err');
  note('avVoiceNote', 'Uploading your audio…', 'ok');
@@ -2820,10 +2879,37 @@ async function uploadAvatarOwnAudio(file) {
  avvOwnAudioUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
  $('avOwnAudioStatus').textContent = ' Using your own audio — voice cloning will be skipped for this video.';
  note('avVoiceNote', '', '');
+ avvUpdateCostEstimate();
  } catch (e) { note('avVoiceNote', e.message || 'Upload failed.', 'err'); }
 }
 function avvToggleMode() {
  $('avvMotionWrap').style.display = $('avvMode').value === 'motion' ? 'block' : 'none';
+ avvUpdateCostEstimate();
+}
+// Live pre-submission cost preview -- mirrors avatarVideoCredits() in
+// netlify/functions/_packs.js exactly (same constants, same formula). Motion
+// mode (real Seedance 2.0) costs noticeably more per minute than talking
+// mode (InfiniteTalk) -- showing this BEFORE the user commits credits is the
+// whole point, since the two modes' real cost gap is large enough that
+// picking one by accident should never be a silent surprise. If those
+// constants ever change server-side, update them here too.
+const AVV_PER_MIN_TALKING = 3.6;
+const AVV_PER_MIN_MOTION = { '480p': 7.2, '720p': 14.4 };
+const AVV_VOICE_PER_MIN = 0.05;
+const AVV_MARGIN = 1.6;
+const AVV_CREDIT_USD = 0.016;
+function avvUpdateCostEstimate() {
+ const el = $('avvCostEstimate'); if (!el) return;
+ const words = ($('avvScript').value || '').trim().split(/\s+/).filter(Boolean).length;
+ if (!words) { el.textContent = ''; return; }
+ const mins = Math.max(1, Math.ceil(Math.max(0.2, words / 150)));
+ const mode = $('avvMode').value;
+ const resolution = $('avvResolution').value;
+ const includeVoice = !avvOwnAudioUrl;
+ const perMin = mode === 'motion' ? (AVV_PER_MIN_MOTION[resolution] || AVV_PER_MIN_MOTION['480p']) : AVV_PER_MIN_TALKING;
+ const costUsd = mins * (perMin + (includeVoice ? AVV_VOICE_PER_MIN : 0));
+ const credits = Math.max(1, Math.ceil((costUsd / AVV_CREDIT_USD) * AVV_MARGIN));
+ el.textContent = `~${mins} min of video · ${credits} credits` + (mode === 'motion' ? ' (motion mode costs more — full cinematic generation per chunk)' : '');
 }
 async function avvGenerate() {
  if (preview) { showAuth('signup'); return; }
@@ -4839,6 +4925,9 @@ window.addEventListener('DOMContentLoaded', () => {
  $('avvGen').onclick = avvGenerate;
  $('avvRewrite').onclick = avvRewriteScript;
  $('avvMode').onchange = avvToggleMode;
+ $('avvScript').oninput = avvUpdateCostEstimate;
+ $('avvResolution').onchange = avvUpdateCostEstimate;
+ $('avvSaveStill').onclick = avvSaveStillToLibrary;
  $('avvStartFramePick').onclick = () => $('avvStartFrameFile').click();
  $('avvStartFrameFile').onchange = (e) => { avvPickStartFrame(e.target.files[0]); e.target.value = ''; };
  $('avOwnAudioPick').onclick = () => $('avOwnAudioFile').click();

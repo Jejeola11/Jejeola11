@@ -225,10 +225,13 @@ async function advanceVideo(db, video, avatar) {
     try {
       let requestId;
       if (video.mode === 'motion') {
-        // Seedance image-to-video: no audio, driven by the camera-motion
-        // instruction instead of lip-sync. Fixed short duration per chunk.
+        // Seedance 2.0 image-to-video: no lip-sync (it has no audio-input
+        // parameter at all — that's InfiniteTalk's job, see 'talking' mode
+        // below), driven by the camera-motion instruction instead. Fixed
+        // short duration per chunk, silent (generate_audio suppressed by
+        // the route itself — see 'avatar-motion-seedance-2' in _providers.js).
         const motionPrompt = [video.camera_motion, prompt].filter(Boolean).join('. ');
-        ({ requestId } = await submitVideo('seedance-2-image-to-video', {
+        ({ requestId } = await submitVideo('avatar-motion-seedance-2', {
           prompt: motionPrompt, aspect: (video.settings && video.settings.aspect) || '9:16',
           duration: `${CHUNK_SECONDS_MOTION}s`, resolution: (video.settings && video.settings.resolution) || '480p',
         }, [refImage]));

@@ -176,6 +176,17 @@ const VIDEO_ROUTES = {
   // never actually compared against WaveSpeed before.
   'grok-imagine-text-to-video': { kind: 't2v', pick: () => 'x-ai/grok-imagine-video/text-to-video', durationEnum: [6, 10] },
   'grok-imagine-image-to-video': { kind: 'i2v', pick: () => 'x-ai/grok-imagine-video/image-to-video', durationEnum: [6, 10] },
+  // Real ByteDance Seedance 2.0 (not the "seedance-2-*" slugs above, which
+  // are actually the older v1-lite/v1-pro family — the "2" there is just
+  // this app's own naming tier, a coincidence against WaveSpeed's real
+  // version number). Used ONLY by the Avatar Creator's motion mode — kept
+  // as its own slug rather than repointing 'seedance-2-image-to-video' so
+  // Video Studio's existing pricing/behavior for that shared slug is
+  // untouched. Confirmed live via GET /api/v3/models 2026-07-25: duration is
+  // a continuous 4-15s range (not the v1 family's fixed enum), resolution
+  // 480p/720p/1080p/4k, and it natively accepts a `last_image` end-frame —
+  // exactly the chained-continuation shape the avatar pipeline already uses.
+  'avatar-motion-seedance-2': { kind: 'i2v', pick: () => 'bytedance/seedance-2.0/image-to-video', durationRange: [4, 15], resolutionParam: true, noGenAudio: true },
 };
 
 // ---- WaveSpeed avatar routes (hyper-real talking-head clone) -----------------
@@ -328,8 +339,16 @@ function wsVideoBody(route, opts, hosted) {
   // duration picker only ever offers "5s"/"10s", so 5 has to round up to
   // the nearest value grok actually accepts rather than being sent as-is.
   const rawDuration = durInt(opts.duration);
-  const duration = route.durationEnum ? (route.durationEnum.includes(rawDuration) ? rawDuration : route.durationEnum.reduce((a, b) => Math.abs(b - rawDuration) < Math.abs(a - rawDuration) ? b : a)) : rawDuration;
+  let duration = rawDuration;
+  if (route.durationEnum) duration = route.durationEnum.includes(rawDuration) ? rawDuration : route.durationEnum.reduce((a, b) => Math.abs(b - rawDuration) < Math.abs(a - rawDuration) ? b : a);
+  else if (route.durationRange) duration = Math.min(route.durationRange[1], Math.max(route.durationRange[0], rawDuration));
   const body = { prompt: opts.prompt || '', aspect_ratio: opts.aspect || '9:16', duration };
+  if (route.resolutionParam) body.resolution = opts.resolution || '720p';
+  // Seedance 2.0 can generate its own ambient/sound-effect audio track, but
+  // the avatar pipeline always mutes+discards per-chunk audio and muxes the
+  // cloned narration on once at the end — asking it to generate audio here
+  // would just be wasted compute with no effect on the final video.
+  if (route.noGenAudio) body.generate_audio = false;
   if (route.kind === 'i2v') {
     body.image = (hosted && hosted[0]) || opts.image_url;
     if (hosted && hosted[1]) body.last_image = hosted[1];

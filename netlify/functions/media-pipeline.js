@@ -132,7 +132,7 @@ async function handleAvatarCreate(user, body) {
     if (!masterFrame) return json(400, { error: 'This avatar has no reference photo yet.' });
 
     const minutes = estimateScriptMinutes(script);
-    cost = avatarVideoCredits(minutes, !audioUrl);
+    cost = avatarVideoCredits(minutes, !audioUrl, mode, settings.resolution || '480p');
 
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
