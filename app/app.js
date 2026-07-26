@@ -3777,6 +3777,316 @@ async function flyerComposite() {
  } catch (e) { $('flyerFinalResult').innerHTML = '<div> ' + (e.message || 'Failed') + '</div>'; note('flyerCompositeNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 
+// ---------------- Design Studio (Flyer Studio, Phase 1) ----------------
+// "Design it yourself" — a real interactive canvas editor (Fabric.js,
+// loaded lazily so it never costs anything on page load unless someone
+// actually opens it) sitting alongside the AI-drawn and font-picker
+// composite modes. Opens with the project's own hero visual as the
+// background; text/shapes/images are real Fabric objects, not a fixed
+// server-side layout like flyer-composite-fonts.js's deterministic
+// stack — the whole point here is the user positions everything by hand.
+let dsFabric = null;      // the fabric module, imported once
+let dsCanvas = null;      // the live fabric.Canvas instance
+let dsProject = null;     // { id, hero_image_url, aspect }
+let dsHistory = [];       // undo stack of JSON snapshots
+let dsHistoryIndex = -1;
+let dsApplyingHistory = false;
+
+const DS_ASPECT_SIZE = { '1:1': [1024, 1024], '4:5': [1024, 1280], '3:4': [1024, 1366], '9:16': [832, 1472], '16:9': [1472, 832] };
+function dsIsText(obj) { return !!(obj && dsFabric && obj instanceof dsFabric.Textbox); }
+function dsIsImage(obj) { return !!(obj && dsFabric && obj instanceof dsFabric.FabricImage); }
+function dsIsCircle(obj) { return !!(obj && dsFabric && obj instanceof dsFabric.Circle); }
+function dsIsLine(obj) { return !!(obj && dsFabric && obj instanceof dsFabric.Line); }
+
+async function loadFabric() {
+ if (!dsFabric) dsFabric = await import('https://esm.sh/fabric@6.5.1');
+ return dsFabric;
+}
+
+// Google Fonts, loaded on demand straight in the browser (NOT the same
+// base64 library flyer-composite-fonts.js bundles server-side — that one
+// exists so a headless Node canvas can register real font bytes with no
+// browser involved; here a real browser is already rendering the page, so
+// a normal @font-face stylesheet link is simpler and lets the browser's
+// own cache do the work across sessions).
+const dsLoadedFontCss = new Set();
+async function ensureBrowserFont(family) {
+ if (dsLoadedFontCss.has(family)) return document.fonts.ready;
+ dsLoadedFontCss.add(family);
+ const link = document.createElement('link');
+ link.rel = 'stylesheet';
+ link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(family).replace(/%20/g, '+') + ':wght@400;700&display=swap';
+ document.head.appendChild(link);
+ try { await document.fonts.load('700 40px "' + family + '"'); } catch (e) {}
+ return document.fonts.ready;
+}
+
+function dsPushHistory() {
+ if (dsApplyingHistory || !dsCanvas) return;
+ const snap = JSON.stringify(dsCanvas.toJSON());
+ dsHistory = dsHistory.slice(0, dsHistoryIndex + 1);
+ dsHistory.push(snap);
+ if (dsHistory.length > 40) dsHistory.shift(); // cap memory — 40 steps is plenty for one session
+ dsHistoryIndex = dsHistory.length - 1;
+}
+async function dsRestoreHistory(index) {
+ if (!dsCanvas || index < 0 || index >= dsHistory.length) return;
+ dsApplyingHistory = true;
+ await dsCanvas.loadFromJSON(JSON.parse(dsHistory[index]));
+ dsCanvas.renderAll();
+ dsHistoryIndex = index;
+ dsApplyingHistory = false;
+ dsRefreshLayers();
+}
+
+async function openDesignStudio() {
+ if (preview) { showAuth('signup'); return; }
+ if (!flyerProjectId) await restoreFlyerProject();
+ if (!flyerProjectId) return note('flyerCompositeNote', 'Generate the hero visual first.', 'err');
+ const { data: proj } = await sb.from('flyer_projects').select('id,hero_image_url,aspect,final_url').eq('id', flyerProjectId).maybeSingle();
+ if (!proj || !proj.hero_image_url) return note('flyerCompositeNote', 'Generate the hero visual first.', 'err');
+ dsProject = proj;
+ $('dsOverlay').style.display = 'flex';
+ note('dsNote', 'Loading…');
+ try {
+ const fabric = await loadFabric();
+ await dsInitCanvas(fabric, proj.final_url || proj.hero_image_url, proj.aspect || '4:5');
+ dsPopulateFontPicker();
+ note('dsNote', '');
+ } catch (e) { note('dsNote', e.message || 'Could not open the editor.', 'err'); }
+}
+
+function closeDesignStudio() {
+ $('dsOverlay').style.display = 'none';
+ if (dsCanvas) { dsCanvas.dispose(); dsCanvas = null; }
+ dsHistory = []; dsHistoryIndex = -1;
+}
+
+async function dsInitCanvas(fabric, bgUrl, aspect) {
+ const [w, h] = DS_ASPECT_SIZE[aspect] || DS_ASPECT_SIZE['4:5'];
+ const stage = $('dsCanvasStage');
+ // Fit the real (often ~1000px+) canvas into the available screen space —
+ // Fabric renders at canvasScale, objects still use real coordinates.
+ const maxW = Math.min(window.innerWidth - 380, 900), maxH = window.innerHeight - 140;
+ const scale = Math.min(maxW / w, maxH / h, 1);
+ const dispW = Math.round(w * scale), dispH = Math.round(h * scale);
+ stage.style.width = dispW + 'px'; stage.style.height = dispH + 'px';
+
+ const canvasEl = $('dsCanvas');
+ if (dsCanvas) { dsCanvas.dispose(); }
+ dsCanvas = new fabric.Canvas(canvasEl, { width: w, height: h, backgroundColor: '#0a0a0a', preserveObjectStacking: true });
+ dsCanvas.setDimensions({ width: dispW, height: dispH }, { cssOnly: true });
+ dsCanvas.setZoom(scale);
+
+ try {
+ const img = await fabric.FabricImage.fromURL(bgUrl, { crossOrigin: 'anonymous' });
+ img.set({ selectable: false, evented: false });
+ const s = Math.max(w / img.width, h / img.height);
+ img.set({ scaleX: s, scaleY: s, left: w / 2, top: h / 2, originX: 'center', originY: 'center' });
+ dsCanvas.backgroundImage = img;
+ dsCanvas.renderAll();
+ } catch (e) {}
+
+ dsCanvas.on('selection:created', dsOnSelectionChange);
+ dsCanvas.on('selection:updated', dsOnSelectionChange);
+ dsCanvas.on('selection:cleared', dsOnSelectionChange);
+ dsCanvas.on('object:modified', dsPushHistory);
+ dsCanvas.on('object:added', () => { dsPushHistory(); dsRefreshLayers(); });
+ dsCanvas.on('object:removed', () => { dsPushHistory(); dsRefreshLayers(); });
+ dsHistory = []; dsHistoryIndex = -1;
+ dsPushHistory();
+ dsRefreshLayers();
+}
+
+function dsPopulateFontPicker() {
+ const sel = $('dsTextFont');
+ if (sel.options.length) return;
+ const byCat = {};
+ FLYER_FONT_META.forEach((f) => { (byCat[f.category] = byCat[f.category] || []).push(f); });
+ Object.keys(FLYER_FONT_CATEGORY_LABEL).forEach((cat) => {
+ if (!byCat[cat]) return;
+ const group = document.createElement('optgroup');
+ group.label = FLYER_FONT_CATEGORY_LABEL[cat];
+ byCat[cat].forEach((f) => { const o = document.createElement('option'); o.value = f.family; o.textContent = f.family; group.appendChild(o); });
+ sel.appendChild(group);
+ });
+}
+
+// ---- Add tools ----
+async function dsAddText() {
+ if (!dsCanvas) return;
+ const fabric = await loadFabric();
+ const family = $('dsTextFont').value || 'Poppins';
+ await ensureBrowserFont(family);
+ const t = new fabric.Textbox('Your text here', {
+ left: dsCanvas.getWidth() / (2 * dsCanvas.getZoom()), top: dsCanvas.getHeight() / (2 * dsCanvas.getZoom()),
+ originX: 'center', originY: 'center', fontFamily: family, fontSize: 48, fill: '#ffffff', width: 300, textAlign: 'center',
+ });
+ dsCanvas.add(t); dsCanvas.setActiveObject(t); dsCanvas.renderAll();
+}
+async function dsAddShape(kind) {
+ if (!dsCanvas) return;
+ const fabric = await loadFabric();
+ const cx = dsCanvas.getWidth() / (2 * dsCanvas.getZoom()), cy = dsCanvas.getHeight() / (2 * dsCanvas.getZoom());
+ let obj;
+ if (kind === 'rect') obj = new fabric.Rect({ left: cx, top: cy, originX: 'center', originY: 'center', width: 220, height: 150, fill: '#00e0c6' });
+ else if (kind === 'circle') obj = new fabric.Circle({ left: cx, top: cy, originX: 'center', originY: 'center', radius: 90, fill: '#00e0c6' });
+ else obj = new fabric.Line([cx - 120, cy, cx + 120, cy], { stroke: '#ffffff', strokeWidth: 6 });
+ dsCanvas.add(obj); dsCanvas.setActiveObject(obj); dsCanvas.renderAll();
+}
+async function dsAddImageFromFile(file) {
+ if (!dsCanvas || !file) return;
+ const fabric = await loadFabric();
+ const dataUrl = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
+ const img = await fabric.FabricImage.fromURL(dataUrl);
+ const maxDim = Math.min(dsCanvas.getWidth(), dsCanvas.getHeight()) / (2 * dsCanvas.getZoom());
+ const s = Math.min(1, maxDim / Math.max(img.width, img.height));
+ img.set({ left: dsCanvas.getWidth() / (2 * dsCanvas.getZoom()), top: dsCanvas.getHeight() / (2 * dsCanvas.getZoom()), originX: 'center', originY: 'center', scaleX: s, scaleY: s });
+ dsCanvas.add(img); dsCanvas.setActiveObject(img); dsCanvas.renderAll();
+}
+
+// ---- Selection / properties panel ----
+function dsOnSelectionChange() {
+ const obj = dsCanvas && dsCanvas.getActiveObject();
+ $('dsPropsEmpty').style.display = obj ? 'none' : 'block';
+ $('dsTextProps').style.display = obj && dsIsText(obj) ? 'block' : 'none';
+ $('dsShapeProps').style.display = obj && !dsIsText(obj) && obj.fill !== undefined ? 'block' : 'none';
+ $('dsCommonProps').style.display = obj ? 'block' : 'none';
+ if (!obj) return;
+ if (dsIsText(obj)) {
+ $('dsTextValue').value = obj.text || '';
+ $('dsTextFont').value = obj.fontFamily || 'Poppins';
+ $('dsTextSize').value = obj.fontSize || 48;
+ $('dsTextColor').value = dsToHex(obj.fill) || '#ffffff';
+ $('dsTextBold').checked = obj.fontWeight === 'bold' || obj.fontWeight === 700;
+ } else {
+ $('dsShapeFill').value = dsToHex(obj.fill) || '#00e0c6';
+ $('dsShapeStroke').value = dsToHex(obj.stroke) || '#ffffff';
+ $('dsShapeStrokeWidth').value = obj.strokeWidth || 0;
+ }
+ $('dsOpacity').value = Math.round((obj.opacity != null ? obj.opacity : 1) * 100);
+}
+function dsToHex(c) { return (typeof c === 'string' && /^#/.test(c)) ? c : null; }
+
+function dsSwitchRightTab(panelId) {
+ document.querySelectorAll('.ds-right-tab').forEach((b) => b.classList.toggle('active', b.dataset.panel === panelId));
+ document.querySelectorAll('.ds-right-panel').forEach((p) => { p.style.display = p.id === panelId ? 'block' : 'none'; });
+}
+
+// ---- Layers panel ----
+function dsLayerIcon(obj) {
+ if (dsIsText(obj)) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 6h14M12 6v14"/></svg>';
+ if (dsIsImage(obj)) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/></svg>';
+ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>';
+}
+function dsLayerName(obj, i) {
+ if (dsIsText(obj)) return (obj.text || 'Text').slice(0, 24);
+ if (dsIsImage(obj)) return 'Image ' + (i + 1);
+ return (dsIsCircle(obj) ? 'Circle' : dsIsLine(obj) ? 'Line' : 'Rectangle') + ' ' + (i + 1);
+}
+function dsRefreshLayers() {
+ if (!dsCanvas) return;
+ const list = $('dsLayersList');
+ const objs = dsCanvas.getObjects().slice().reverse(); // top layer first, matches visual stacking
+ $('dsLayersEmpty').style.display = objs.length ? 'none' : 'block';
+ const active = dsCanvas.getActiveObject();
+ list.innerHTML = objs.map((obj, i) => {
+ const idx = objs.length - 1 - i;
+ return '<div class="ds-layer-row' + (obj === active ? ' active' : '') + '" data-idx="' + idx + '">' +
+ '<span class="ds-layer-icon">' + dsLayerIcon(obj) + '</span>' +
+ '<span class="ds-layer-name">' + dsLayerName(obj, idx) + '</span>' +
+ '<button data-act="hide" title="Show/hide">' + (obj.visible === false ? '🙈' : '👁') + '</button>' +
+ '<button data-act="del" title="Delete">🗑</button></div>';
+ }).join('');
+ list.querySelectorAll('.ds-layer-row').forEach((row) => {
+ const idx = Number(row.dataset.idx);
+ const obj = dsCanvas.getObjects()[idx];
+ row.addEventListener('click', (e) => {
+ if (e.target.closest('button')) return;
+ dsCanvas.setActiveObject(obj); dsCanvas.renderAll(); dsOnSelectionChange(); dsRefreshLayers();
+ });
+ row.querySelector('[data-act="hide"]').addEventListener('click', () => { obj.visible = !obj.visible; dsCanvas.renderAll(); dsRefreshLayers(); });
+ row.querySelector('[data-act="del"]').addEventListener('click', () => { dsCanvas.remove(obj); dsCanvas.renderAll(); });
+ });
+}
+
+// ---- Save ----
+async function saveDesign() {
+ if (!dsCanvas || !dsProject) return;
+ const btn = $('dsSave'); const label = btn.textContent;
+ btn.disabled = true; btn.textContent = 'Saving…';
+ note('dsNote', '');
+ try {
+ dsCanvas.discardActiveObject(); dsCanvas.renderAll();
+ const dataUrl = dsCanvas.toDataURL({ format: 'png', multiplier: 1 / dsCanvas.getZoom() });
+ const blob = await (await fetch(dataUrl)).blob();
+ const path = (await sb.auth.getUser()).data.user.id + '/flyer-design-' + dsProject.id + '-' + Date.now() + '.png';
+ const { error: upErr } = await sb.storage.from('avatars').upload(path, blob, { contentType: 'image/png', upsert: true });
+ if (upErr) throw new Error(upErr.message);
+ const url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+ const res = await fetch('/.netlify/functions/flyer-design-save', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ project_id: dsProject.id, url }),
+ });
+ const d = await res.json();
+ if (!res.ok) throw new Error(d.error || 'Failed to save');
+ $('flyerFinalResult').innerHTML = '<img src="' + url + '" style="width:100%;border-radius:12px" alt="">';
+ $('flyerSpotFixOpen').style.display = 'block';
+ note('dsNote', 'Saved ✓', 'ok');
+ setTimeout(closeDesignStudio, 700);
+ } catch (e) { note('dsNote', e.message || 'Failed to save', 'err'); }
+ btn.disabled = false; btn.textContent = label;
+}
+
+function initDesignStudio() {
+ $('openDesignStudio').onclick = openDesignStudio;
+ $('dsClose').onclick = closeDesignStudio;
+ $('dsSave').onclick = saveDesign;
+ $('dsUndo').onclick = () => dsRestoreHistory(dsHistoryIndex - 1);
+ $('dsRedo').onclick = () => dsRestoreHistory(dsHistoryIndex + 1);
+ $('dsAddText').onclick = dsAddText;
+ $('dsAddRect').onclick = () => dsAddShape('rect');
+ $('dsAddCircle').onclick = () => dsAddShape('circle');
+ $('dsAddLine').onclick = () => dsAddShape('line');
+ $('dsAddImagePick').onclick = () => $('dsImageFile').click();
+ $('dsImageFile').onchange = (e) => { dsAddImageFromFile(e.target.files[0]); e.target.value = ''; };
+ $('dsDuplicate').onclick = async () => {
+ const obj = dsCanvas && dsCanvas.getActiveObject();
+ if (!obj) return;
+ const clone = await obj.clone();
+ clone.set({ left: (obj.left || 0) + 24, top: (obj.top || 0) + 24 });
+ dsCanvas.add(clone); dsCanvas.setActiveObject(clone); dsCanvas.renderAll();
+ };
+ $('dsBringFwd').onclick = () => { const o = dsCanvas.getActiveObject(); if (o) { dsCanvas.bringForward(o); dsCanvas.renderAll(); dsRefreshLayers(); } };
+ $('dsSendBack').onclick = () => { const o = dsCanvas.getActiveObject(); if (o) { dsCanvas.sendBackwards(o); dsCanvas.renderAll(); dsRefreshLayers(); } };
+ $('dsDelete').onclick = () => { const o = dsCanvas.getActiveObject(); if (o) { dsCanvas.remove(o); dsCanvas.discardActiveObject(); dsCanvas.renderAll(); } };
+
+ document.querySelectorAll('.ds-right-tab').forEach((b) => b.onclick = () => dsSwitchRightTab(b.dataset.panel));
+
+ // Text properties
+ $('dsTextValue').oninput = (e) => { const o = dsCanvas.getActiveObject(); if (o && dsIsText(o)) { o.set('text', e.target.value); dsCanvas.renderAll(); } };
+ $('dsTextFont').onchange = async (e) => { const o = dsCanvas.getActiveObject(); if (o && dsIsText(o)) { await ensureBrowserFont(e.target.value); o.set('fontFamily', e.target.value); dsCanvas.renderAll(); dsPushHistory(); } };
+ $('dsTextSize').oninput = (e) => { const o = dsCanvas.getActiveObject(); if (o && dsIsText(o)) { o.set('fontSize', Number(e.target.value)); dsCanvas.renderAll(); } };
+ $('dsTextColor').oninput = (e) => { const o = dsCanvas.getActiveObject(); if (o && dsIsText(o)) { o.set('fill', e.target.value); dsCanvas.renderAll(); } };
+ $('dsTextBold').onchange = (e) => { const o = dsCanvas.getActiveObject(); if (o && dsIsText(o)) { o.set('fontWeight', e.target.checked ? 'bold' : 'normal'); dsCanvas.renderAll(); dsPushHistory(); } };
+
+ // Shape properties
+ $('dsShapeFill').oninput = (e) => { const o = dsCanvas.getActiveObject(); if (o) { o.set('fill', e.target.value); dsCanvas.renderAll(); } };
+ $('dsShapeStroke').oninput = (e) => { const o = dsCanvas.getActiveObject(); if (o) { o.set('stroke', e.target.value); dsCanvas.renderAll(); } };
+ $('dsShapeStrokeWidth').oninput = (e) => { const o = dsCanvas.getActiveObject(); if (o) { o.set('strokeWidth', Number(e.target.value)); dsCanvas.renderAll(); } };
+
+ $('dsOpacity').oninput = (e) => { const o = dsCanvas.getActiveObject(); if (o) { o.set('opacity', Number(e.target.value) / 100); dsCanvas.renderAll(); } };
+
+ // Canvas tab
+ $('dsBgColor').oninput = (e) => { if (dsCanvas) { dsCanvas.backgroundColor = e.target.value; dsCanvas.renderAll(); } };
+ $('dsBgTransparent').onclick = () => { if (dsCanvas) { dsCanvas.backgroundColor = null; dsCanvas.renderAll(); } };
+ $('dsAspect').onchange = async (e) => {
+ if (!dsProject) return;
+ dsProject.aspect = e.target.value;
+ await dsInitCanvas(dsFabric, dsProject.final_url || dsProject.hero_image_url, e.target.value);
+ };
+}
+
 // ---------------- Flyer Studio: Spot Fix (circle a part, say what's
 // wrong, fix just that) ----------------
 // Draws directly on a canvas showing the current final flyer; every
@@ -5043,6 +5353,7 @@ window.addEventListener('DOMContentLoaded', () => {
  const isFont = $('flyerRenderMode').value === 'font';
  $('flyerFontPickerWrap').style.display = isFont ? 'block' : 'none';
  };
+ initDesignStudio();
  ['headline', 'features', 'cta'].forEach((kind) => {
  const ids = { headline: ['flyerHeadlineRefPick', 'flyerHeadlineRefFile'], features: ['flyerFeaturesRefPick', 'flyerFeaturesRefFile'], cta: ['flyerCtaRefPick', 'flyerCtaRefFile'] }[kind];
  $(ids[0]).onclick = () => $(ids[1]).click();

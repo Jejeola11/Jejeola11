@@ -389,6 +389,7 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  <div class="panel" id="flyerTextPanel" style="margin-top:14px;display:none">
  <h3> Typography</h3>
  <button class="btn ghost sm" data-flyer-hero-upload style="margin-bottom:10px">⬆ Upload/replace hero image</button>
+ <button class="btn ghost sm" id="openDesignStudio" style="margin-bottom:10px;margin-left:8px">🎨 Design it yourself</button>
  <label class="fld">How should the text be rendered?</label>
  <select id="flyerRenderMode">
  <option value="ai">AI-matched typeface (default — the model picks a style to fit the visual)</option>
@@ -1293,6 +1294,126 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  </div>
 </div>
 
-<script type="module" src="/app/app.js?v=20260720d"></script>
+<!-- ===== Design Studio — full-screen "design it yourself" canvas editor,
+     opened from Flyer Studio's Typography step (Phase 1: layers, text,
+     shapes, background, crop, export). ===== -->
+<div id="dsOverlay" class="ds-overlay" style="display:none">
+ <div class="ds-topbar">
+ <div class="ds-topbar-left">
+ <button class="btn ghost sm" id="dsClose">✕ Close</button>
+ <span class="ds-title">Design Studio</span>
+ </div>
+ <div class="ds-topbar-right">
+ <button class="btn ghost sm" id="dsUndo" title="Undo">↺ Undo</button>
+ <button class="btn ghost sm" id="dsRedo" title="Redo">↻ Redo</button>
+ <button class="btn gold sm" id="dsSave">💾 Save &amp; use this</button>
+ </div>
+ </div>
+ <div class="ds-body">
+ <div class="ds-toolbar">
+ <button class="ds-tool" id="dsAddText" title="Add text">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 6h14M12 6v14"/></svg>
+ <span>Text</span>
+ </button>
+ <button class="ds-tool" id="dsAddRect" title="Add rectangle">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="6" width="16" height="12" rx="1.5"/></svg>
+ <span>Rectangle</span>
+ </button>
+ <button class="ds-tool" id="dsAddCircle" title="Add circle">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/></svg>
+ <span>Circle</span>
+ </button>
+ <button class="ds-tool" id="dsAddLine" title="Add line">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 19 19 5"/></svg>
+ <span>Line</span>
+ </button>
+ <button class="ds-tool" id="dsAddImagePick" title="Upload an image">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>
+ <span>Image</span>
+ </button>
+ <input type="file" id="dsImageFile" accept="image/*" hidden>
+ <div class="ds-tool-sep"></div>
+ <button class="ds-tool" id="dsDuplicate" title="Duplicate selection">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="1.5"/><path d="M4 16V5a1 1 0 0 1 1-1h11"/></svg>
+ <span>Duplicate</span>
+ </button>
+ <button class="ds-tool" id="dsBringFwd" title="Bring forward">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+ <span>Forward</span>
+ </button>
+ <button class="ds-tool" id="dsSendBack" title="Send backward">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+ <span>Backward</span>
+ </button>
+ <button class="ds-tool" id="dsDelete" title="Delete selection">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg>
+ <span>Delete</span>
+ </button>
+ </div>
+ <div class="ds-canvas-wrap">
+ <div class="ds-canvas-stage" id="dsCanvasStage">
+ <canvas id="dsCanvas"></canvas>
+ </div>
+ </div>
+ <div class="ds-right">
+ <div class="ds-right-tabs">
+ <button class="ds-right-tab active" data-panel="dsPanelProps">Style</button>
+ <button class="ds-right-tab" data-panel="dsPanelLayers">Layers</button>
+ <button class="ds-right-tab" data-panel="dsPanelCanvas">Canvas</button>
+ </div>
+ <div class="ds-right-panel" id="dsPanelProps">
+ <p class="muted ds-empty-hint" id="dsPropsEmpty">Select something on the canvas to style it.</p>
+ <div id="dsTextProps" style="display:none">
+ <label class="fld">Text</label>
+ <textarea id="dsTextValue" rows="2"></textarea>
+ <label class="fld">Font</label>
+ <select id="dsTextFont"></select>
+ <label class="fld">Size</label>
+ <input type="range" id="dsTextSize" min="10" max="240" value="48">
+ <label class="fld">Color</label>
+ <input type="color" id="dsTextColor" value="#ffffff">
+ <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;cursor:pointer">
+ <input type="checkbox" id="dsTextBold" style="width:auto"> Bold
+ </label>
+ </div>
+ <div id="dsShapeProps" style="display:none">
+ <label class="fld">Fill color</label>
+ <input type="color" id="dsShapeFill" value="#00e0c6">
+ <label class="fld">Stroke color</label>
+ <input type="color" id="dsShapeStroke" value="#ffffff">
+ <label class="fld">Stroke width</label>
+ <input type="range" id="dsShapeStrokeWidth" min="0" max="20" value="0">
+ </div>
+ <div id="dsCommonProps" style="display:none;margin-top:10px">
+ <label class="fld">Opacity</label>
+ <input type="range" id="dsOpacity" min="0" max="100" value="100">
+ </div>
+ </div>
+ <div class="ds-right-panel" id="dsPanelLayers" style="display:none">
+ <p class="muted ds-empty-hint" id="dsLayersEmpty">No layers yet — add text, a shape, or an image.</p>
+ <div id="dsLayersList"></div>
+ </div>
+ <div class="ds-right-panel" id="dsPanelCanvas" style="display:none">
+ <label class="fld">Background</label>
+ <div style="display:flex;gap:8px;align-items:center">
+ <input type="color" id="dsBgColor" value="#0a0a0a">
+ <button class="btn ghost sm" id="dsBgTransparent">Transparent</button>
+ </div>
+ <label class="fld" style="margin-top:12px">Canvas size</label>
+ <select id="dsAspect">
+ <option value="1:1">Square 1:1</option>
+ <option value="4:5">Portrait 4:5</option>
+ <option value="3:4">Portrait 3:4</option>
+ <option value="9:16">Story 9:16</option>
+ <option value="16:9">Landscape 16:9</option>
+ </select>
+ <p class="muted" style="font-size:11.5px;margin-top:6px">Changing this resizes the canvas — objects keep their position, so re-check the layout after switching.</p>
+ </div>
+ </div>
+ </div>
+ <div class="note" id="dsNote" style="padding:8px 16px"></div>
+</div>
+
+<script type="module" src="/app/app.js?v=20260726a"></script>
 </body>
 </html>
