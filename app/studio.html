@@ -1304,78 +1304,35 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  <span class="ds-title">Design Studio</span>
  </div>
  <div class="ds-topbar-right">
- <button class="btn ghost sm" id="dsUndo" title="Undo">↺ Undo</button>
- <button class="btn ghost sm" id="dsRedo" title="Redo">↻ Redo</button>
- <button class="btn gold sm" id="dsSave">💾 Save &amp; use this</button>
+ <button class="btn ghost sm" id="dsUndo" title="Undo">↺</button>
+ <button class="btn ghost sm" id="dsRedo" title="Redo">↻</button>
+ <button class="btn gold sm" id="dsSave">💾 Save</button>
  </div>
  </div>
- <div class="ds-body">
- <div class="ds-toolbar">
- <button class="ds-tool" id="dsAddText" title="Add text">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 6h14M12 6v14"/></svg>
- <span>Text</span>
- </button>
- <button class="ds-tool" id="dsAddRect" title="Add rectangle">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="6" width="16" height="12" rx="1.5"/></svg>
- <span>Rectangle</span>
- </button>
- <button class="ds-tool" id="dsAddCircle" title="Add circle">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/></svg>
- <span>Circle</span>
- </button>
- <button class="ds-tool" id="dsAddLine" title="Add line">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 19 19 5"/></svg>
- <span>Line</span>
- </button>
- <button class="ds-tool" id="dsAddImagePick" title="Upload an image">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>
- <span>Image</span>
- </button>
- <input type="file" id="dsImageFile" accept="image/*" hidden>
- <div class="ds-tool-sep"></div>
- <button class="ds-tool" id="dsDrawTool" title="Freehand draw">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-6L5 2 2 5l5 11.5L13 18l5-5z"/></svg>
- <span>Draw</span>
- </button>
- <button class="ds-tool" id="dsPenTool" title="Pen — click to place points, double-click to finish">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="19" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="8" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/><path d="M5 19 12 8l7 4"/></svg>
- <span>Pen</span>
- </button>
- <div class="ds-tool-sep"></div>
- <button class="ds-tool" id="dsDuplicate" title="Duplicate selection">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="1.5"/><path d="M4 16V5a1 1 0 0 1 1-1h11"/></svg>
- <span>Duplicate</span>
- </button>
- <button class="ds-tool" id="dsBringFwd" title="Bring forward">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
- <span>Forward</span>
- </button>
- <button class="ds-tool" id="dsSendBack" title="Send backward">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
- <span>Backward</span>
- </button>
- <button class="ds-tool" id="dsDelete" title="Delete selection">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg>
- <span>Delete</span>
- </button>
- </div>
+
  <div class="ds-canvas-wrap">
  <div class="ds-canvas-stage" id="dsCanvasStage">
  <canvas id="dsCanvas"></canvas>
  </div>
  </div>
- <div class="ds-right">
- <div class="ds-right-tabs">
- <button class="ds-right-tab active" data-panel="dsPanelProps">Style</button>
- <button class="ds-right-tab" data-panel="dsPanelLayers">Layers</button>
- <button class="ds-right-tab" data-panel="dsPanelCanvas">Canvas</button>
- <button class="ds-right-tab" data-panel="dsPanelStickers">Stickers</button>
- <button class="ds-right-tab" data-panel="dsPanelAI">✨ AI</button>
+
+ <input type="file" id="dsImageFile" accept="image/*" hidden>
+
+ <!-- PixelLab-style drawer: slides up ABOVE the fixed bottom icon bar, one
+ icon's content visible at a time. Selecting something on canvas jumps
+ straight to Style; tapping a bottom icon opens that drawer instead. -->
+ <div class="ds-drawer" id="dsDrawer" style="display:none">
+
+ <div class="ds-drawer-panel" id="dsPanelProps">
+ <div class="ds-quick-actions" id="dsQuickActions" style="display:none">
+ <button class="ds-qa" id="dsDuplicate" title="Duplicate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="1.5"/><path d="M4 16V5a1 1 0 0 1 1-1h11"/></svg></button>
+ <button class="ds-qa" id="dsBringFwd" title="Bring forward"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+ <button class="ds-qa" id="dsSendBack" title="Send backward"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button>
+ <button class="ds-qa" id="dsDelete" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg></button>
  </div>
- <div class="ds-right-panel" id="dsPanelProps">
- <p class="muted ds-empty-hint" id="dsPropsEmpty">Select something on the canvas to style it.</p>
+ <p class="muted ds-empty-hint" id="dsPropsEmpty">Tap anything on the canvas to style it.</p>
  <div id="dsDrawProps" style="display:none">
- <p class="muted" style="font-size:12px;margin-bottom:8px">Drawing mode is on — click and drag on the canvas. Pick "Select" (or press Esc) to stop.</p>
+ <p class="muted" style="font-size:12px;margin-bottom:8px">Drawing — drag on the canvas. Tap "Done" (or press Esc) to stop.</p>
  <label class="fld">Brush color</label>
  <input type="color" id="dsBrushColor" value="#ffffff">
  <label class="fld">Brush size</label>
@@ -1383,7 +1340,7 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  <button class="btn ghost sm" id="dsStopDraw" style="margin-top:10px">✓ Done drawing</button>
  </div>
  <div id="dsPenProps" style="display:none">
- <p class="muted" style="font-size:12px;margin-bottom:8px">Click to place points. Double-click (or the button below) to finish the shape.</p>
+ <p class="muted" style="font-size:12px;margin-bottom:8px">Tap the canvas to place points. Double-tap (or Finish) to close the shape.</p>
  <label style="display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px;cursor:pointer">
  <input type="checkbox" id="dsPenClose" style="width:auto"> Close the shape (fill it in)
  </label>
@@ -1433,22 +1390,13 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  <input type="range" id="dsOpacity" min="0" max="100" value="100">
  </div>
  </div>
- <div class="ds-right-panel" id="dsPanelLayers" style="display:none">
+
+ <div class="ds-drawer-panel" id="dsPanelLayers" style="display:none">
  <p class="muted ds-empty-hint" id="dsLayersEmpty">No layers yet — add text, a shape, or an image.</p>
  <div id="dsLayersList"></div>
  </div>
- <div class="ds-right-panel" id="dsPanelStickers" style="display:none">
- <p class="muted" style="font-size:12px;margin-bottom:10px">Tap a sticker to drop it on the canvas.</p>
- <div id="dsStickerGrid"></div>
- </div>
- <div class="ds-right-panel" id="dsPanelAI" style="display:none">
- <label class="fld">Describe what you want</label>
- <textarea id="dsAiPrompt" rows="3" placeholder="e.g. a small gold trophy icon, a coffee cup doodle, a lightning bolt"></textarea>
- <button class="btn gold sm" id="dsAiGenerate" style="width:100%;margin-top:8px">✨ Generate sticker</button>
- <p class="muted" style="font-size:11.5px;margin-top:8px">Generates an isolated object, then automatically cuts the background so it drops on as a clean sticker. Costs the same as a normal AI image generation.</p>
- <div id="dsAiStatus" style="margin-top:10px;font-size:12.5px;color:var(--muted)"></div>
- </div>
- <div class="ds-right-panel" id="dsPanelCanvas" style="display:none">
+
+ <div class="ds-drawer-panel" id="dsPanelCanvas" style="display:none">
  <label class="fld">Background</label>
  <div style="display:flex;gap:8px;align-items:center">
  <input type="color" id="dsBgColor" value="#0a0a0a">
@@ -1464,9 +1412,83 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  </select>
  <p class="muted" style="font-size:11.5px;margin-top:6px">Changing this resizes the canvas — objects keep their position, so re-check the layout after switching.</p>
  </div>
+
+ <div class="ds-drawer-panel" id="dsPanelAdd" style="display:none">
+ <div class="ds-add-row">
+ <button class="ds-tool" id="dsAddText" title="Add text">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 6h14M12 6v14"/></svg>
+ <span>Text</span>
+ </button>
+ <button class="ds-tool" id="dsAddRect" title="Add rectangle">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="6" width="16" height="12" rx="1.5"/></svg>
+ <span>Rectangle</span>
+ </button>
+ <button class="ds-tool" id="dsAddCircle" title="Add circle">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/></svg>
+ <span>Circle</span>
+ </button>
+ <button class="ds-tool" id="dsAddLine" title="Add line">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 19 19 5"/></svg>
+ <span>Line</span>
+ </button>
+ <button class="ds-tool" id="dsAddImagePick" title="Upload an image">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>
+ <span>Image</span>
+ </button>
+ <button class="ds-tool" id="dsDrawTool" title="Freehand draw">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-6L5 2 2 5l5 11.5L13 18l5-5z"/></svg>
+ <span>Draw</span>
+ </button>
+ <button class="ds-tool" id="dsPenTool" title="Pen — tap to place points, double-tap to finish">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="19" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="8" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/><path d="M5 19 12 8l7 4"/></svg>
+ <span>Pen</span>
+ </button>
+ <button class="ds-tool" id="dsOpenStickers" title="Stickers">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.2 6.1-.7z"/></svg>
+ <span>Stickers</span>
+ </button>
  </div>
  </div>
- <div class="note" id="dsNote" style="padding:8px 16px"></div>
+
+ <div class="ds-drawer-panel" id="dsPanelStickers" style="display:none">
+ <p class="muted" style="font-size:12px;margin-bottom:10px">Tap a sticker to drop it on the canvas.</p>
+ <div id="dsStickerGrid"></div>
+ </div>
+
+ <div class="ds-drawer-panel" id="dsPanelAI" style="display:none">
+ <label class="fld">Describe what you want</label>
+ <textarea id="dsAiPrompt" rows="3" placeholder="e.g. a small gold trophy icon, a coffee cup doodle, a lightning bolt"></textarea>
+ <button class="btn gold sm" id="dsAiGenerate" style="width:100%;margin-top:8px">✨ Generate sticker</button>
+ <p class="muted" style="font-size:11.5px;margin-top:8px">Generates an isolated object, then automatically cuts the background so it drops on as a clean sticker. Costs the same as a normal AI image generation.</p>
+ <div id="dsAiStatus" style="margin-top:10px;font-size:12.5px;color:var(--muted)"></div>
+ </div>
+ </div>
+
+ <!-- Fixed bottom icon bar — always visible, matches PixelLab's own layout. -->
+ <div class="ds-bottombar">
+ <button class="ds-bicon" data-drawer="dsPanelCanvas" title="Canvas">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="13.5" cy="6.5" r="2.5"/><path d="M12 3a9 9 0 1 0 0 18c1 0 1.5-.6 1.5-1.4 0-.4-.2-.7-.4-1a1.6 1.6 0 0 1 1.3-2.6H16a4 4 0 0 0 4-4c0-4.4-3.8-8-8-8Z"/><circle cx="7.5" cy="10.5" r="1.3"/><circle cx="7.5" cy="15.5" r="1.3"/><circle cx="12.5" cy="17.5" r="1.3"/></svg>
+ <span>Canvas</span>
+ </button>
+ <button class="ds-bicon" data-drawer="dsPanelAdd" title="Add">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+ <span>Add</span>
+ </button>
+ <button class="ds-bicon active" data-drawer="dsPanelProps" title="Style">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-6L5 2 2 5l5 11.5L13 18l5-5z"/></svg>
+ <span>Style</span>
+ </button>
+ <button class="ds-bicon" data-drawer="dsPanelLayers" title="Layers">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="M3 12l9 5 9-5"/><path d="M3 16l9 5 9-5"/></svg>
+ <span>Layers</span>
+ </button>
+ <button class="ds-bicon" data-drawer="dsPanelAI" title="AI">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l1.2 3.6L17 8l-3.8 1.4L12 13l-1.2-3.6L7 8l3.8-1.4L12 3Z"/><path d="M19 14l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7Z"/></svg>
+ <span>AI</span>
+ </button>
+ </div>
+
+ <div class="note" id="dsNote" style="padding:6px 16px"></div>
 </div>
 
 <script type="module" src="/app/app.js?v=20260726a"></script>

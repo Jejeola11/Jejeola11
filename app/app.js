@@ -3847,6 +3847,7 @@ async function openDesignStudio() {
  if (!proj || !proj.hero_image_url) return note('flyerCompositeNote', 'Generate the hero visual first.', 'err');
  dsProject = proj;
  $('dsOverlay').style.display = 'flex';
+ dsHideDrawer();
  note('dsNote', 'Loading…');
  try {
  const fabric = await loadFabric();
@@ -3961,7 +3962,16 @@ function dsOnSelectionChange() {
  const obj = dsCanvas && dsCanvas.getActiveObject();
  dsHideAllPropPanels();
  $('dsPropsEmpty').style.display = obj ? 'none' : 'block';
- if (!obj) return;
+ $('dsQuickActions').style.display = obj ? 'flex' : 'none';
+ if (!obj) {
+ // Only collapse the drawer if Style was what was showing — a manually
+ // opened Layers/Canvas/AI drawer shouldn't get yanked away just because
+ // the canvas selection cleared.
+ const stylePanel = $('dsPanelProps');
+ if (stylePanel.style.display === 'block') dsHideDrawer();
+ return;
+ }
+ dsSwitchDrawer('dsPanelProps', true);
  $('dsCommonProps').style.display = 'block';
  $('dsOpacity').value = Math.round((obj.opacity != null ? obj.opacity : 1) * 100);
  if (dsIsText(obj)) {
@@ -4033,15 +4043,15 @@ async function dsSetMode(mode) {
  dsCanvas.freeDrawingBrush = new fabric.PencilBrush(dsCanvas);
  dsCanvas.freeDrawingBrush.color = $('dsBrushColor').value;
  dsCanvas.freeDrawingBrush.width = Number($('dsBrushSize').value);
- dsHideAllPropPanels(); $('dsPropsEmpty').style.display = 'none'; $('dsDrawProps').style.display = 'block';
- dsSwitchRightTab('dsPanelProps');
+ dsHideAllPropPanels(); $('dsPropsEmpty').style.display = 'none'; $('dsQuickActions').style.display = 'none'; $('dsDrawProps').style.display = 'block';
+ dsSwitchDrawer('dsPanelProps', true);
  } else if (mode === 'pen') {
  dsCanvas.discardActiveObject();
  dsCanvas.selection = false;
  dsCanvas.forEachObject((o) => { o.selectable = false; });
  dsPenPoints = []; dsPenTempObjs = [];
- dsHideAllPropPanels(); $('dsPropsEmpty').style.display = 'none'; $('dsPenProps').style.display = 'block';
- dsSwitchRightTab('dsPanelProps');
+ dsHideAllPropPanels(); $('dsPropsEmpty').style.display = 'none'; $('dsQuickActions').style.display = 'none'; $('dsPenProps').style.display = 'block';
+ dsSwitchDrawer('dsPanelProps', true);
  } else {
  dsOnSelectionChange();
  }
@@ -4186,10 +4196,23 @@ async function dsAiGenerateSticker() {
  btn.disabled = false; btn.textContent = label;
 }
 
-function dsSwitchRightTab(panelId) {
- document.querySelectorAll('.ds-right-tab').forEach((b) => b.classList.toggle('active', b.dataset.panel === panelId));
- document.querySelectorAll('.ds-right-panel').forEach((p) => { p.style.display = p.id === panelId ? 'block' : 'none'; });
+// ---- Drawer system (PixelLab-style): one fixed bottom icon bar, one
+// drawer slides up above it showing whichever panel is active. Only the
+// 5 bottom-bar destinations get their icon highlighted; panels reached by
+// a second tap inside another drawer (Add -> Stickers) just show/hide
+// without touching bicon state.
+const DS_BICON_PANELS = ['dsPanelCanvas', 'dsPanelAdd', 'dsPanelProps', 'dsPanelLayers', 'dsPanelAI'];
+function dsSwitchDrawer(panelId, forceOpen) {
+ document.querySelectorAll('.ds-drawer-panel').forEach((p) => { p.style.display = p.id === panelId ? 'block' : 'none'; });
+ if (DS_BICON_PANELS.includes(panelId)) {
+ document.querySelectorAll('.ds-bicon').forEach((b) => b.classList.toggle('active', b.dataset.drawer === panelId));
+ }
+ if (forceOpen || panelId !== 'dsPanelProps') $('dsDrawer').style.display = 'block';
  if (panelId === 'dsPanelStickers') dsPopulateStickers();
+}
+function dsHideDrawer() {
+ $('dsDrawer').style.display = 'none';
+ document.querySelectorAll('.ds-bicon').forEach((b) => b.classList.remove('active'));
 }
 
 // ---- Layers panel ----
@@ -4294,7 +4317,8 @@ function initDesignStudio() {
  });
  $('dsOverlay').tabIndex = -1;
 
- document.querySelectorAll('.ds-right-tab').forEach((b) => b.onclick = () => dsSwitchRightTab(b.dataset.panel));
+ document.querySelectorAll('.ds-bicon').forEach((b) => b.onclick = () => dsSwitchDrawer(b.dataset.drawer, true));
+ $('dsOpenStickers').onclick = () => dsSwitchDrawer('dsPanelStickers', true);
 
  // Text properties
  $('dsTextValue').oninput = (e) => { const o = dsCanvas.getActiveObject(); if (o && dsIsText(o)) { o.set('text', e.target.value); dsCanvas.renderAll(); } };
