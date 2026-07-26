@@ -983,6 +983,8 @@ textarea{min-height:104px;resize:vertical}
 .ds-qa{width:38px;height:38px;flex:0 0 auto;border-radius:10px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}
 .ds-qa:hover{color:var(--ink);border-color:var(--gold)}
 .ds-qa svg{width:17px;height:17px}
+.ds-qa-done{margin-left:auto;background:var(--gold);border-color:var(--gold);color:#0a1a10;font-weight:900;font-size:16px}
+.ds-qa-done:hover{color:#0a1a10;filter:brightness(1.1)}
 
 .ds-add-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:2px}
 .ds-tool{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:12px 16px;cursor:pointer;color:var(--muted);transition:.15s}

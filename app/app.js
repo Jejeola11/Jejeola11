@@ -3843,7 +3843,7 @@ async function openDesignStudio() {
  if (preview) { showAuth('signup'); return; }
  if (!flyerProjectId) await restoreFlyerProject();
  if (!flyerProjectId) return note('flyerCompositeNote', 'Generate the hero visual first.', 'err');
- const { data: proj } = await sb.from('flyer_projects').select('id,hero_image_url,aspect,final_url').eq('id', flyerProjectId).maybeSingle();
+ const { data: proj } = await sb.from('flyer_projects').select('id,hero_image_url,aspect,final_url,design_state,design_state_hero_url').eq('id', flyerProjectId).maybeSingle();
  if (!proj || !proj.hero_image_url) return note('flyerCompositeNote', 'Generate the hero visual first.', 'err');
  dsProject = proj;
  $('dsOverlay').style.display = 'flex';
@@ -3851,9 +3851,17 @@ async function openDesignStudio() {
  note('dsNote', 'Loading…');
  try {
  const fabric = await loadFabric();
- await dsInitCanvas(fabric, proj.final_url || proj.hero_image_url, proj.aspect || '4:5');
+ // The hero image itself is always the background — but if a design was
+ // already saved ON TOP OF this exact same hero, reopen it as a live,
+ // still-editable canvas (every layer selectable again) instead of just
+ // showing the flat picture. If the hero was regenerated since that save
+ // (design_state_hero_url no longer matches), that old layout was built
+ // for a different image and almost certainly doesn't line up anymore —
+ // start clean on the new hero instead of silently reusing stale layers.
+ const reopenSaved = proj.design_state && proj.design_state_hero_url === proj.hero_image_url;
+ await dsInitCanvas(fabric, proj.hero_image_url, proj.aspect || '4:5', reopenSaved ? proj.design_state : null);
  dsPopulateFontPicker();
- note('dsNote', '');
+ note('dsNote', reopenSaved ? '↺ Picked up your saved design.' : '');
  } catch (e) { note('dsNote', e.message || 'Could not open the editor.', 'err'); }
 }
 
@@ -3864,7 +3872,7 @@ function closeDesignStudio() {
  dsMode = 'select'; dsPenPoints = []; dsPenTempObjs = [];
 }
 
-async function dsInitCanvas(fabric, bgUrl, aspect) {
+async function dsInitCanvas(fabric, bgUrl, aspect, savedState) {
  const [w, h] = DS_ASPECT_SIZE[aspect] || DS_ASPECT_SIZE['4:5'];
  const stage = $('dsCanvasStage');
  // Fit the real (often ~1000px+) canvas into the available screen space —
@@ -3880,6 +3888,12 @@ async function dsInitCanvas(fabric, bgUrl, aspect) {
  dsCanvas.setDimensions({ width: dispW, height: dispH }, { cssOnly: true });
  dsCanvas.setZoom(scale);
 
+ if (savedState) {
+ // Reopening a save: the JSON already carries every object AND the
+ // background image reference (Fabric's own toJSON/loadFromJSON
+ // round-trips backgroundImage automatically) — nothing to load manually.
+ try { await dsCanvas.loadFromJSON(savedState); dsCanvas.renderAll(); } catch (e) {}
+ } else {
  try {
  const img = await fabric.FabricImage.fromURL(bgUrl, { crossOrigin: 'anonymous' });
  img.set({ selectable: false, evented: false });
@@ -3888,6 +3902,7 @@ async function dsInitCanvas(fabric, bgUrl, aspect) {
  dsCanvas.backgroundImage = img;
  dsCanvas.renderAll();
  } catch (e) {}
+ }
 
  dsCanvas.on('selection:created', dsOnSelectionChange);
  dsCanvas.on('selection:updated', dsOnSelectionChange);
@@ -4029,9 +4044,32 @@ let dsMode = 'select';
 let dsPenPoints = [];
 let dsPenTempObjs = [];
 
+// Commits whatever's been placed so far into a real Polyline/Polygon
+// object — used both by the explicit "Finish shape" button AND by
+// dsSetMode whenever pen mode is exited any OTHER way (tapping a bottom-
+// bar icon, selecting a font, anything). That second path is the fix for
+// a real bug: switching drawers used to leave pen mode silently active in
+// the background, so a later stray tap on the canvas kept adding points
+// to an uncommitted shape, and the NEXT cancel/mode-switch wiped it —
+// which looked exactly like "I drew something and it disappeared." Now
+// leaving pen mode always either finishes what you drew (2+ points) or
+// simply has nothing to lose (fewer than 2).
+async function dsCommitPenShapeIfAny() {
+ if (dsPenPoints.length < 2) { dsClearPenTemp(); dsPenPoints = []; return null; }
+ const fabric = await loadFabric();
+ const points = dsPenPoints.slice();
+ dsClearPenTemp(); dsPenPoints = [];
+ const close = $('dsPenClose').checked;
+ const Ctor = close ? fabric.Polygon : fabric.Polyline;
+ const shape = new Ctor(points, { fill: close ? '#00e0c6' : '', stroke: '#ffffff', strokeWidth: 3, objectCaching: false });
+ dsCanvas.add(shape);
+ return shape;
+}
+
 async function dsSetMode(mode) {
  if (!dsCanvas) return;
- if (dsMode === 'pen' && mode !== 'pen') dsCancelPenShape();
+ let committed = null;
+ if (dsMode === 'pen' && mode !== 'pen') committed = await dsCommitPenShapeIfAny();
  dsCanvas.isDrawingMode = false;
  dsCanvas.selection = true;
  dsCanvas.forEachObject((o) => { o.selectable = true; o.evented = true; });
@@ -4053,6 +4091,7 @@ async function dsSetMode(mode) {
  dsHideAllPropPanels(); $('dsPropsEmpty').style.display = 'none'; $('dsQuickActions').style.display = 'none'; $('dsPenProps').style.display = 'block';
  dsSwitchDrawer('dsPanelProps', true);
  } else {
+ if (committed) dsCanvas.setActiveObject(committed);
  dsOnSelectionChange();
  }
  dsCanvas.renderAll();
@@ -4077,17 +4116,7 @@ function dsClearPenTemp() {
  dsPenTempObjs = [];
 }
 function dsCancelPenShape() { dsClearPenTemp(); dsPenPoints = []; }
-async function dsFinishPenShape() {
- if (dsMode !== 'pen' || dsPenPoints.length < 2) { dsCancelPenShape(); dsSetMode('select'); return; }
- const fabric = await loadFabric();
- const points = dsPenPoints.slice();
- dsClearPenTemp(); dsPenPoints = [];
- const close = $('dsPenClose').checked;
- const Ctor = close ? fabric.Polygon : fabric.Polyline;
- const shape = new Ctor(points, { fill: close ? '#00e0c6' : '', stroke: '#ffffff', strokeWidth: 3, objectCaching: false });
- await dsSetMode('select');
- dsCanvas.add(shape); dsCanvas.setActiveObject(shape); dsCanvas.renderAll();
-}
+async function dsFinishPenShape() { await dsSetMode('select'); }
 
 // ---- Stickers (emoji — zero assets to load, renders via the system font) ----
 const DS_STICKERS = ['⭐','✨','🔥','💯','🎉','🎊','✅','❌','➡️','⬅️','⬆️','⬇️','💬','❤️','💚','💛','👍','👏','🏆','🎯','📍','🔔','⚡','🌟','💎','🎁','📣','🚀','🥇','😀','😍','🤩','👀','💰','✔️'];
@@ -4267,24 +4296,42 @@ async function saveDesign() {
  const { error: upErr } = await sb.storage.from('avatars').upload(path, blob, { contentType: 'image/png', upsert: true });
  if (upErr) throw new Error(upErr.message);
  const url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+ // Save the full editable layout too (not just the flat PNG) so reopening
+ // this project's Design Studio picks the layers back up instead of just
+ // re-showing a picture. Tagged with which hero it was built on — see
+ // openDesignStudio's reopenSaved check.
+ const designState = dsCanvas.toJSON();
  const res = await fetch('/.netlify/functions/flyer-design-save', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
- body: JSON.stringify({ project_id: dsProject.id, url }),
+ body: JSON.stringify({ project_id: dsProject.id, url, design_state: designState, design_state_hero_url: dsProject.hero_image_url }),
  });
  const d = await res.json();
  if (!res.ok) throw new Error(d.error || 'Failed to save');
  $('flyerFinalResult').innerHTML = '<img src="' + url + '" style="width:100%;border-radius:12px" alt="">';
  $('flyerSpotFixOpen').style.display = 'block';
- note('dsNote', 'Saved ✓', 'ok');
- setTimeout(closeDesignStudio, 700);
+ note('dsNote', 'Saved ✓ — you can keep editing, or close and come back to it anytime.', 'ok');
  } catch (e) { note('dsNote', e.message || 'Failed to save', 'err'); }
  btn.disabled = false; btn.textContent = label;
+}
+
+// ---- Export: a direct download of exactly what's on the canvas right
+// now, straight to the user's device — separate from Save, which persists
+// to their Fuse account/project so they can reopen and keep editing.
+function exportDesign() {
+ if (!dsCanvas) return;
+ dsCanvas.discardActiveObject(); dsCanvas.renderAll();
+ const dataUrl = dsCanvas.toDataURL({ format: 'png', multiplier: 1 / dsCanvas.getZoom() });
+ const a = document.createElement('a');
+ a.href = dataUrl;
+ a.download = 'fuse-design-' + Date.now() + '.png';
+ document.body.appendChild(a); a.click(); a.remove();
 }
 
 function initDesignStudio() {
  $('openDesignStudio').onclick = openDesignStudio;
  $('dsClose').onclick = closeDesignStudio;
  $('dsSave').onclick = saveDesign;
+ $('dsExport').onclick = exportDesign;
  $('dsUndo').onclick = () => dsRestoreHistory(dsHistoryIndex - 1);
  $('dsRedo').onclick = () => dsRestoreHistory(dsHistoryIndex + 1);
  $('dsAddText').onclick = dsAddText;
@@ -4303,6 +4350,7 @@ function initDesignStudio() {
  $('dsBringFwd').onclick = () => { const o = dsCanvas.getActiveObject(); if (o) { dsCanvas.bringForward(o); dsCanvas.renderAll(); dsRefreshLayers(); } };
  $('dsSendBack').onclick = () => { const o = dsCanvas.getActiveObject(); if (o) { dsCanvas.sendBackwards(o); dsCanvas.renderAll(); dsRefreshLayers(); } };
  $('dsDelete').onclick = () => { const o = dsCanvas.getActiveObject(); if (o) { dsCanvas.remove(o); dsCanvas.discardActiveObject(); dsCanvas.renderAll(); } };
+ $('dsConfirmDone').onclick = () => { if (dsCanvas) { dsCanvas.discardActiveObject(); dsCanvas.renderAll(); dsOnSelectionChange(); } };
 
  // Phase 2 — draw + pen tools
  $('dsDrawTool').onclick = () => dsSetMode('draw');
@@ -4317,7 +4365,14 @@ function initDesignStudio() {
  });
  $('dsOverlay').tabIndex = -1;
 
- document.querySelectorAll('.ds-bicon').forEach((b) => b.onclick = () => dsSwitchDrawer(b.dataset.drawer, true));
+ document.querySelectorAll('.ds-bicon').forEach((b) => b.onclick = async () => {
+ // Leaving draw/pen mode via a drawer tap, not just the dedicated Done/
+ // Finish buttons, needs to actually exit that mode first — otherwise the
+ // canvas keeps capturing taps as new pen points or freehand strokes
+ // while a totally different drawer (Layers, Canvas...) is showing.
+ if (dsMode === 'draw' || dsMode === 'pen') await dsSetMode('select');
+ if (b.dataset.drawer !== 'dsPanelProps') dsSwitchDrawer(b.dataset.drawer, true);
+ });
  $('dsOpenStickers').onclick = () => dsSwitchDrawer('dsPanelStickers', true);
 
  // Text properties
@@ -4352,7 +4407,7 @@ function initDesignStudio() {
  $('dsAspect').onchange = async (e) => {
  if (!dsProject) return;
  dsProject.aspect = e.target.value;
- await dsInitCanvas(dsFabric, dsProject.final_url || dsProject.hero_image_url, e.target.value);
+ await dsInitCanvas(dsFabric, dsProject.hero_image_url, e.target.value);
  };
 }
 
