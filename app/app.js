@@ -3860,6 +3860,7 @@ function closeDesignStudio() {
  $('dsOverlay').style.display = 'none';
  if (dsCanvas) { dsCanvas.dispose(); dsCanvas = null; }
  dsHistory = []; dsHistoryIndex = -1;
+ dsMode = 'select'; dsPenPoints = []; dsPenTempObjs = [];
 }
 
 async function dsInitCanvas(fabric, bgUrl, aspect) {
@@ -3893,6 +3894,9 @@ async function dsInitCanvas(fabric, bgUrl, aspect) {
  dsCanvas.on('object:modified', dsPushHistory);
  dsCanvas.on('object:added', () => { dsPushHistory(); dsRefreshLayers(); });
  dsCanvas.on('object:removed', () => { dsPushHistory(); dsRefreshLayers(); });
+ dsCanvas.on('mouse:down', dsCanvasPenClick);
+ dsCanvas.on('mouse:dblclick', dsFinishPenShape);
+ dsMode = 'select';
  dsHistory = []; dsHistoryIndex = -1;
  dsPushHistory();
  dsRefreshLayers();
@@ -3915,6 +3919,7 @@ function dsPopulateFontPicker() {
 // ---- Add tools ----
 async function dsAddText() {
  if (!dsCanvas) return;
+ if (dsMode !== 'select') await dsSetMode('select');
  const fabric = await loadFabric();
  const family = $('dsTextFont').value || 'Poppins';
  await ensureBrowserFont(family);
@@ -3926,6 +3931,7 @@ async function dsAddText() {
 }
 async function dsAddShape(kind) {
  if (!dsCanvas) return;
+ if (dsMode !== 'select') await dsSetMode('select');
  const fabric = await loadFabric();
  const cx = dsCanvas.getWidth() / (2 * dsCanvas.getZoom()), cy = dsCanvas.getHeight() / (2 * dsCanvas.getZoom());
  let obj;
@@ -3936,6 +3942,7 @@ async function dsAddShape(kind) {
 }
 async function dsAddImageFromFile(file) {
  if (!dsCanvas || !file) return;
+ if (dsMode !== 'select') await dsSetMode('select');
  const fabric = await loadFabric();
  const dataUrl = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
  const img = await fabric.FabricImage.fromURL(dataUrl);
@@ -3946,31 +3953,243 @@ async function dsAddImageFromFile(file) {
 }
 
 // ---- Selection / properties panel ----
+const DS_PROP_BLOCKS = ['dsDrawProps', 'dsPenProps', 'dsTextProps', 'dsShapeProps', 'dsImageProps', 'dsCommonProps'];
+function dsHideAllPropPanels() { DS_PROP_BLOCKS.forEach((id) => { $(id).style.display = 'none'; }); }
+
 function dsOnSelectionChange() {
+ if (dsMode === 'draw' || dsMode === 'pen') return; // those modes own the props panel while active
  const obj = dsCanvas && dsCanvas.getActiveObject();
+ dsHideAllPropPanels();
  $('dsPropsEmpty').style.display = obj ? 'none' : 'block';
- $('dsTextProps').style.display = obj && dsIsText(obj) ? 'block' : 'none';
- $('dsShapeProps').style.display = obj && !dsIsText(obj) && obj.fill !== undefined ? 'block' : 'none';
- $('dsCommonProps').style.display = obj ? 'block' : 'none';
  if (!obj) return;
+ $('dsCommonProps').style.display = 'block';
+ $('dsOpacity').value = Math.round((obj.opacity != null ? obj.opacity : 1) * 100);
  if (dsIsText(obj)) {
+ $('dsTextProps').style.display = 'block';
  $('dsTextValue').value = obj.text || '';
  $('dsTextFont').value = obj.fontFamily || 'Poppins';
  $('dsTextSize').value = obj.fontSize || 48;
  $('dsTextColor').value = dsToHex(obj.fill) || '#ffffff';
  $('dsTextBold').checked = obj.fontWeight === 'bold' || obj.fontWeight === 700;
+ } else if (dsIsImage(obj)) {
+ $('dsImageProps').style.display = 'block';
+ } else if (obj.fill !== undefined) {
+ $('dsShapeProps').style.display = 'block';
+ const isGrad = obj.fill && typeof obj.fill === 'object';
+ $('dsFillGradient').checked = isGrad;
+ $('dsSolidFillWrap').style.display = isGrad ? 'none' : 'block';
+ $('dsGradientFillWrap').style.display = isGrad ? 'block' : 'none';
+ if (isGrad && obj.fill.colorStops && obj.fill.colorStops[0]) {
+ $('dsGradColor1').value = obj.fill.colorStops[0].color || '#00e0c6';
+ $('dsGradColor2').value = (obj.fill.colorStops[1] && obj.fill.colorStops[1].color) || '#A9FF67';
  } else {
  $('dsShapeFill').value = dsToHex(obj.fill) || '#00e0c6';
+ }
  $('dsShapeStroke').value = dsToHex(obj.stroke) || '#ffffff';
  $('dsShapeStrokeWidth').value = obj.strokeWidth || 0;
  }
- $('dsOpacity').value = Math.round((obj.opacity != null ? obj.opacity : 1) * 100);
 }
 function dsToHex(c) { return (typeof c === 'string' && /^#/.test(c)) ? c : null; }
+
+// ---- Gradient fill ----
+async function dsApplyFillFromPanel() {
+ const o = dsCanvas && dsCanvas.getActiveObject();
+ if (!o) return;
+ if ($('dsFillGradient').checked) {
+ const fabric = await loadFabric();
+ const angle = Number($('dsGradAngle').value);
+ const w = (o.width || 100), h = (o.height || 100);
+ const rad = angle * Math.PI / 180;
+ const cx = w / 2, cy = h / 2, len = Math.max(w, h) / 2;
+ const dx = Math.cos(rad) * len, dy = Math.sin(rad) * len;
+ const grad = new fabric.Gradient({
+ type: 'linear',
+ coords: { x1: cx - dx, y1: cy - dy, x2: cx + dx, y2: cy + dy },
+ colorStops: [{ offset: 0, color: $('dsGradColor1').value }, { offset: 1, color: $('dsGradColor2').value }],
+ });
+ o.set('fill', grad);
+ } else {
+ o.set('fill', $('dsShapeFill').value);
+ }
+ dsCanvas.renderAll();
+}
+
+// ---- Mode management: select / freehand draw / pen (click-to-place polyline) ----
+let dsMode = 'select';
+let dsPenPoints = [];
+let dsPenTempObjs = [];
+
+async function dsSetMode(mode) {
+ if (!dsCanvas) return;
+ if (dsMode === 'pen' && mode !== 'pen') dsCancelPenShape();
+ dsCanvas.isDrawingMode = false;
+ dsCanvas.selection = true;
+ dsCanvas.forEachObject((o) => { o.selectable = true; o.evented = true; });
+ dsMode = mode;
+ if (mode === 'draw') {
+ const fabric = await loadFabric();
+ dsCanvas.discardActiveObject();
+ dsCanvas.isDrawingMode = true;
+ dsCanvas.freeDrawingBrush = new fabric.PencilBrush(dsCanvas);
+ dsCanvas.freeDrawingBrush.color = $('dsBrushColor').value;
+ dsCanvas.freeDrawingBrush.width = Number($('dsBrushSize').value);
+ dsHideAllPropPanels(); $('dsPropsEmpty').style.display = 'none'; $('dsDrawProps').style.display = 'block';
+ dsSwitchRightTab('dsPanelProps');
+ } else if (mode === 'pen') {
+ dsCanvas.discardActiveObject();
+ dsCanvas.selection = false;
+ dsCanvas.forEachObject((o) => { o.selectable = false; });
+ dsPenPoints = []; dsPenTempObjs = [];
+ dsHideAllPropPanels(); $('dsPropsEmpty').style.display = 'none'; $('dsPenProps').style.display = 'block';
+ dsSwitchRightTab('dsPanelProps');
+ } else {
+ dsOnSelectionChange();
+ }
+ dsCanvas.renderAll();
+}
+
+async function dsCanvasPenClick(opt) {
+ if (dsMode !== 'pen' || !dsCanvas) return;
+ const fabric = await loadFabric();
+ const p = opt.scenePoint || dsCanvas.getScenePoint(opt.e);
+ dsPenPoints.push({ x: p.x, y: p.y });
+ const dot = new fabric.Circle({ left: p.x, top: p.y, radius: 4, originX: 'center', originY: 'center', fill: '#A9FF67', selectable: false, evented: false });
+ dsCanvas.add(dot); dsPenTempObjs.push(dot);
+ if (dsPenPoints.length > 1) {
+ const prev = dsPenPoints[dsPenPoints.length - 2];
+ const line = new fabric.Line([prev.x, prev.y, p.x, p.y], { stroke: '#A9FF67', strokeWidth: 2, selectable: false, evented: false });
+ dsCanvas.add(line); dsPenTempObjs.push(line);
+ }
+ dsCanvas.renderAll();
+}
+function dsClearPenTemp() {
+ if (dsCanvas) dsPenTempObjs.forEach((o) => dsCanvas.remove(o));
+ dsPenTempObjs = [];
+}
+function dsCancelPenShape() { dsClearPenTemp(); dsPenPoints = []; }
+async function dsFinishPenShape() {
+ if (dsMode !== 'pen' || dsPenPoints.length < 2) { dsCancelPenShape(); dsSetMode('select'); return; }
+ const fabric = await loadFabric();
+ const points = dsPenPoints.slice();
+ dsClearPenTemp(); dsPenPoints = [];
+ const close = $('dsPenClose').checked;
+ const Ctor = close ? fabric.Polygon : fabric.Polyline;
+ const shape = new Ctor(points, { fill: close ? '#00e0c6' : '', stroke: '#ffffff', strokeWidth: 3, objectCaching: false });
+ await dsSetMode('select');
+ dsCanvas.add(shape); dsCanvas.setActiveObject(shape); dsCanvas.renderAll();
+}
+
+// ---- Stickers (emoji — zero assets to load, renders via the system font) ----
+const DS_STICKERS = ['⭐','✨','🔥','💯','🎉','🎊','✅','❌','➡️','⬅️','⬆️','⬇️','💬','❤️','💚','💛','👍','👏','🏆','🎯','📍','🔔','⚡','🌟','💎','🎁','📣','🚀','🥇','😀','😍','🤩','👀','💰','✔️'];
+function dsPopulateStickers() {
+ const grid = $('dsStickerGrid');
+ if (grid.children.length) return;
+ grid.style.cssText = 'display:grid;grid-template-columns:repeat(5,1fr);gap:8px';
+ DS_STICKERS.forEach((emoji) => {
+ const btn = document.createElement('button');
+ btn.textContent = emoji;
+ btn.style.cssText = 'font-size:22px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:8px 0;cursor:pointer';
+ btn.onclick = () => dsAddSticker(emoji);
+ grid.appendChild(btn);
+ });
+}
+async function dsAddSticker(emoji) {
+ if (!dsCanvas) return;
+ const fabric = await loadFabric();
+ const t = new fabric.FabricText(emoji, {
+ left: dsCanvas.getWidth() / (2 * dsCanvas.getZoom()), top: dsCanvas.getHeight() / (2 * dsCanvas.getZoom()),
+ originX: 'center', originY: 'center', fontSize: 100,
+ });
+ dsCanvas.add(t); dsCanvas.setActiveObject(t); dsCanvas.renderAll();
+}
+
+// ---- AI: background removal + sticker generation (Phase 3) ----
+async function dsPollJobUrl(requestId, maxTries = 60) {
+ for (let i = 0; i < maxTries; i++) {
+ await new Promise((r) => setTimeout(r, 3000));
+ const res = await fetch('/.netlify/functions/job-status?id=' + encodeURIComponent(requestId), { headers: { ...(await authHeader()) } });
+ const d = await res.json();
+ if (d.status === 'completed') return d.url;
+ if (d.status === 'failed') throw new Error(d.error || 'Generation failed');
+ }
+ throw new Error('Timed out waiting for the result.');
+}
+async function dsUploadDataUrlIfNeeded(srcUrl) {
+ if (!srcUrl.startsWith('data:')) return srcUrl;
+ const blob = await (await fetch(srcUrl)).blob();
+ const uid = (await sb.auth.getUser()).data.user.id;
+ const path = uid + '/ds-img-' + Date.now() + '.png';
+ const { error: upErr } = await sb.storage.from('avatars').upload(path, blob, { contentType: 'image/png', upsert: true });
+ if (upErr) throw new Error(upErr.message);
+ return sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+}
+async function dsRemoveBackground() {
+ const o = dsCanvas && dsCanvas.getActiveObject();
+ if (!o || !dsIsImage(o)) return;
+ const btn = $('dsRemoveBg'); const label = btn.textContent;
+ btn.disabled = true; btn.textContent = 'Removing…';
+ note('dsNote', 'Removing background…');
+ try {
+ const srcUrl = await dsUploadDataUrlIfNeeded(o.getSrc());
+ const res = await fetch('/.netlify/functions/tool-generate', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ slug: 'ai-background-remover', image_url: srcUrl }),
+ });
+ const d = await res.json();
+ if (res.status === 402) { note('dsNote', 'Out of credits — top up.', 'err'); openBuy(); return; }
+ if (!res.ok) throw new Error(d.error || 'Failed');
+ const resultUrl = await dsPollJobUrl(d.request_id);
+ const fabric = await loadFabric();
+ const newImg = await fabric.FabricImage.fromURL(resultUrl, { crossOrigin: 'anonymous' });
+ newImg.set({ left: o.left, top: o.top, originX: o.originX, originY: o.originY, scaleX: o.scaleX, scaleY: o.scaleY, angle: o.angle });
+ dsCanvas.remove(o);
+ dsCanvas.add(newImg);
+ dsCanvas.setActiveObject(newImg); dsCanvas.renderAll(); dsRefreshLayers();
+ note('dsNote', 'Background removed ✓', 'ok');
+ } catch (e) { note('dsNote', e.message || 'Failed', 'err'); }
+ btn.disabled = false; btn.textContent = label;
+}
+async function dsAiGenerateSticker() {
+ const prompt = $('dsAiPrompt').value.trim();
+ if (!prompt || !dsCanvas) return;
+ const btn = $('dsAiGenerate'); const label = btn.textContent;
+ btn.disabled = true; btn.textContent = 'Generating…';
+ $('dsAiStatus').textContent = 'Generating your sticker…';
+ try {
+ const fullPrompt = prompt + ', isolated single object on a plain white background, studio product photo, no shadow, centered';
+ const res = await fetch('/.netlify/functions/generate', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ prompt: fullPrompt, aspect: '1:1', model: 'nano-banana' }),
+ });
+ const d = await res.json();
+ if (res.status === 402) { $('dsAiStatus').textContent = ''; note('dsNote', 'Out of credits — top up.', 'err'); openBuy(); return; }
+ if (!res.ok) throw new Error(d.error || 'Failed');
+ const rawUrl = await dsPollJobUrl(d.request_id);
+ $('dsAiStatus').textContent = 'Cutting it out…';
+ const cutRes = await fetch('/.netlify/functions/tool-generate', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ slug: 'ai-background-remover', image_url: rawUrl }),
+ });
+ const cutData = await cutRes.json();
+ if (cutRes.status === 402) { $('dsAiStatus').textContent = ''; note('dsNote', 'Out of credits — top up.', 'err'); openBuy(); return; }
+ if (!cutRes.ok) throw new Error(cutData.error || 'Failed to cut out the sticker');
+ const finalUrl = await dsPollJobUrl(cutData.request_id);
+ const fabric = await loadFabric();
+ const img = await fabric.FabricImage.fromURL(finalUrl, { crossOrigin: 'anonymous' });
+ const maxDim = Math.min(dsCanvas.getWidth(), dsCanvas.getHeight()) / (2 * dsCanvas.getZoom());
+ const s = Math.min(1, maxDim / Math.max(img.width, img.height));
+ img.set({ left: dsCanvas.getWidth() / (2 * dsCanvas.getZoom()), top: dsCanvas.getHeight() / (2 * dsCanvas.getZoom()), originX: 'center', originY: 'center', scaleX: s, scaleY: s });
+ dsCanvas.add(img); dsCanvas.setActiveObject(img); dsCanvas.renderAll(); dsRefreshLayers();
+ $('dsAiStatus').textContent = 'Done ✓';
+ $('dsAiPrompt').value = '';
+ } catch (e) { $('dsAiStatus').textContent = e.message || 'Failed'; }
+ btn.disabled = false; btn.textContent = label;
+}
 
 function dsSwitchRightTab(panelId) {
  document.querySelectorAll('.ds-right-tab').forEach((b) => b.classList.toggle('active', b.dataset.panel === panelId));
  document.querySelectorAll('.ds-right-panel').forEach((p) => { p.style.display = p.id === panelId ? 'block' : 'none'; });
+ if (panelId === 'dsPanelStickers') dsPopulateStickers();
 }
 
 // ---- Layers panel ----
@@ -4013,6 +4232,7 @@ function dsRefreshLayers() {
 // ---- Save ----
 async function saveDesign() {
  if (!dsCanvas || !dsProject) return;
+ if (dsMode !== 'select') await dsSetMode('select'); // clears any in-progress pen points so they never bake into the export
  const btn = $('dsSave'); const label = btn.textContent;
  btn.disabled = true; btn.textContent = 'Saving…';
  note('dsNote', '');
@@ -4061,6 +4281,19 @@ function initDesignStudio() {
  $('dsSendBack').onclick = () => { const o = dsCanvas.getActiveObject(); if (o) { dsCanvas.sendBackwards(o); dsCanvas.renderAll(); dsRefreshLayers(); } };
  $('dsDelete').onclick = () => { const o = dsCanvas.getActiveObject(); if (o) { dsCanvas.remove(o); dsCanvas.discardActiveObject(); dsCanvas.renderAll(); } };
 
+ // Phase 2 — draw + pen tools
+ $('dsDrawTool').onclick = () => dsSetMode('draw');
+ $('dsPenTool').onclick = () => dsSetMode('pen');
+ $('dsStopDraw').onclick = () => dsSetMode('select');
+ $('dsFinishPen').onclick = () => dsFinishPenShape();
+ $('dsCancelPen').onclick = () => { dsCancelPenShape(); dsSetMode('select'); };
+ $('dsBrushColor').oninput = (e) => { if (dsCanvas && dsCanvas.freeDrawingBrush) dsCanvas.freeDrawingBrush.color = e.target.value; };
+ $('dsBrushSize').oninput = (e) => { if (dsCanvas && dsCanvas.freeDrawingBrush) dsCanvas.freeDrawingBrush.width = Number(e.target.value); };
+ document.getElementById('dsOverlay').addEventListener('keydown', (e) => {
+ if (e.key === 'Escape' && (dsMode === 'draw' || dsMode === 'pen')) { dsCancelPenShape(); dsSetMode('select'); }
+ });
+ $('dsOverlay').tabIndex = -1;
+
  document.querySelectorAll('.ds-right-tab').forEach((b) => b.onclick = () => dsSwitchRightTab(b.dataset.panel));
 
  // Text properties
@@ -4070,12 +4303,24 @@ function initDesignStudio() {
  $('dsTextColor').oninput = (e) => { const o = dsCanvas.getActiveObject(); if (o && dsIsText(o)) { o.set('fill', e.target.value); dsCanvas.renderAll(); } };
  $('dsTextBold').onchange = (e) => { const o = dsCanvas.getActiveObject(); if (o && dsIsText(o)) { o.set('fontWeight', e.target.checked ? 'bold' : 'normal'); dsCanvas.renderAll(); dsPushHistory(); } };
 
- // Shape properties
- $('dsShapeFill').oninput = (e) => { const o = dsCanvas.getActiveObject(); if (o) { o.set('fill', e.target.value); dsCanvas.renderAll(); } };
+ // Shape properties (Phase 2 — gradient toggle added)
+ $('dsFillGradient').onchange = (e) => {
+ $('dsSolidFillWrap').style.display = e.target.checked ? 'none' : 'block';
+ $('dsGradientFillWrap').style.display = e.target.checked ? 'block' : 'none';
+ dsApplyFillFromPanel(); dsPushHistory();
+ };
+ $('dsShapeFill').oninput = () => dsApplyFillFromPanel();
+ $('dsGradColor1').oninput = () => dsApplyFillFromPanel();
+ $('dsGradColor2').oninput = () => dsApplyFillFromPanel();
+ $('dsGradAngle').oninput = () => dsApplyFillFromPanel();
  $('dsShapeStroke').oninput = (e) => { const o = dsCanvas.getActiveObject(); if (o) { o.set('stroke', e.target.value); dsCanvas.renderAll(); } };
  $('dsShapeStrokeWidth').oninput = (e) => { const o = dsCanvas.getActiveObject(); if (o) { o.set('strokeWidth', Number(e.target.value)); dsCanvas.renderAll(); } };
 
  $('dsOpacity').oninput = (e) => { const o = dsCanvas.getActiveObject(); if (o) { o.set('opacity', Number(e.target.value) / 100); dsCanvas.renderAll(); } };
+
+ // Phase 3 — AI tools
+ $('dsRemoveBg').onclick = dsRemoveBackground;
+ $('dsAiGenerate').onclick = dsAiGenerateSticker;
 
  // Canvas tab
  $('dsBgColor').oninput = (e) => { if (dsCanvas) { dsCanvas.backgroundColor = e.target.value; dsCanvas.renderAll(); } };

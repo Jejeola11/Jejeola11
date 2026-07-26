@@ -1333,6 +1333,15 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  </button>
  <input type="file" id="dsImageFile" accept="image/*" hidden>
  <div class="ds-tool-sep"></div>
+ <button class="ds-tool" id="dsDrawTool" title="Freehand draw">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-6L5 2 2 5l5 11.5L13 18l5-5z"/></svg>
+ <span>Draw</span>
+ </button>
+ <button class="ds-tool" id="dsPenTool" title="Pen — click to place points, double-click to finish">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="19" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="8" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/><path d="M5 19 12 8l7 4"/></svg>
+ <span>Pen</span>
+ </button>
+ <div class="ds-tool-sep"></div>
  <button class="ds-tool" id="dsDuplicate" title="Duplicate selection">
  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="1.5"/><path d="M4 16V5a1 1 0 0 1 1-1h11"/></svg>
  <span>Duplicate</span>
@@ -1360,9 +1369,27 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  <button class="ds-right-tab active" data-panel="dsPanelProps">Style</button>
  <button class="ds-right-tab" data-panel="dsPanelLayers">Layers</button>
  <button class="ds-right-tab" data-panel="dsPanelCanvas">Canvas</button>
+ <button class="ds-right-tab" data-panel="dsPanelStickers">Stickers</button>
+ <button class="ds-right-tab" data-panel="dsPanelAI">✨ AI</button>
  </div>
  <div class="ds-right-panel" id="dsPanelProps">
  <p class="muted ds-empty-hint" id="dsPropsEmpty">Select something on the canvas to style it.</p>
+ <div id="dsDrawProps" style="display:none">
+ <p class="muted" style="font-size:12px;margin-bottom:8px">Drawing mode is on — click and drag on the canvas. Pick "Select" (or press Esc) to stop.</p>
+ <label class="fld">Brush color</label>
+ <input type="color" id="dsBrushColor" value="#ffffff">
+ <label class="fld">Brush size</label>
+ <input type="range" id="dsBrushSize" min="1" max="60" value="6">
+ <button class="btn ghost sm" id="dsStopDraw" style="margin-top:10px">✓ Done drawing</button>
+ </div>
+ <div id="dsPenProps" style="display:none">
+ <p class="muted" style="font-size:12px;margin-bottom:8px">Click to place points. Double-click (or the button below) to finish the shape.</p>
+ <label style="display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px;cursor:pointer">
+ <input type="checkbox" id="dsPenClose" style="width:auto"> Close the shape (fill it in)
+ </label>
+ <button class="btn ghost sm" id="dsFinishPen" style="margin-top:6px">✓ Finish shape</button>
+ <button class="btn ghost sm" id="dsCancelPen" style="margin-top:6px">✕ Cancel</button>
+ </div>
  <div id="dsTextProps" style="display:none">
  <label class="fld">Text</label>
  <textarea id="dsTextValue" rows="2"></textarea>
@@ -1377,12 +1404,29 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  </label>
  </div>
  <div id="dsShapeProps" style="display:none">
+ <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;cursor:pointer">
+ <input type="checkbox" id="dsFillGradient" style="width:auto"> Gradient fill
+ </label>
+ <div id="dsSolidFillWrap">
  <label class="fld">Fill color</label>
  <input type="color" id="dsShapeFill" value="#00e0c6">
+ </div>
+ <div id="dsGradientFillWrap" style="display:none">
+ <label class="fld">Color 1</label>
+ <input type="color" id="dsGradColor1" value="#00e0c6">
+ <label class="fld">Color 2</label>
+ <input type="color" id="dsGradColor2" value="#A9FF67">
+ <label class="fld">Angle</label>
+ <input type="range" id="dsGradAngle" min="0" max="360" value="90">
+ </div>
  <label class="fld">Stroke color</label>
  <input type="color" id="dsShapeStroke" value="#ffffff">
  <label class="fld">Stroke width</label>
  <input type="range" id="dsShapeStrokeWidth" min="0" max="20" value="0">
+ </div>
+ <div id="dsImageProps" style="display:none">
+ <button class="btn ghost sm" id="dsRemoveBg" style="width:100%">🪄 Remove background (AI)</button>
+ <p class="muted" style="font-size:11.5px;margin-top:6px">Cuts the image out onto a transparent background. Costs the same as any AI tool generation.</p>
  </div>
  <div id="dsCommonProps" style="display:none;margin-top:10px">
  <label class="fld">Opacity</label>
@@ -1392,6 +1436,17 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  <div class="ds-right-panel" id="dsPanelLayers" style="display:none">
  <p class="muted ds-empty-hint" id="dsLayersEmpty">No layers yet — add text, a shape, or an image.</p>
  <div id="dsLayersList"></div>
+ </div>
+ <div class="ds-right-panel" id="dsPanelStickers" style="display:none">
+ <p class="muted" style="font-size:12px;margin-bottom:10px">Tap a sticker to drop it on the canvas.</p>
+ <div id="dsStickerGrid"></div>
+ </div>
+ <div class="ds-right-panel" id="dsPanelAI" style="display:none">
+ <label class="fld">Describe what you want</label>
+ <textarea id="dsAiPrompt" rows="3" placeholder="e.g. a small gold trophy icon, a coffee cup doodle, a lightning bolt"></textarea>
+ <button class="btn gold sm" id="dsAiGenerate" style="width:100%;margin-top:8px">✨ Generate sticker</button>
+ <p class="muted" style="font-size:11.5px;margin-top:8px">Generates an isolated object, then automatically cuts the background so it drops on as a clean sticker. Costs the same as a normal AI image generation.</p>
+ <div id="dsAiStatus" style="margin-top:10px;font-size:12.5px;color:var(--muted)"></div>
  </div>
  <div class="ds-right-panel" id="dsPanelCanvas" style="display:none">
  <label class="fld">Background</label>
