@@ -34,6 +34,7 @@ const ICONS = {
   atelier: '<path d="M11 4.2L2.5 8.5 11 12.8l8.5-4.3L11 4.2z"/><path d="M6.2 10.4v3.8c0 1.3 2.2 2.4 4.8 2.4s4.8-1.1 4.8-2.4v-3.8"/>',
   learn: '<path d="M4 5.5h6a2 2 0 012 2v9.5a1.6 1.6 0 00-1.6-1.6H4z"/><path d="M18 5.5h-6a2 2 0 00-2 2v9.5a1.6 1.6 0 011.6-1.6H18z"/>',
   explore: '<circle cx="11" cy="11" r="7.5"/><path d="M13.6 8.4l-1.2 3.8-3.8 1.2 1.2-3.8z"/>',
+  brush: '<path d="M12.5 15.5l6-11 3 3-11 6-3-3z"/><path d="M16.5 9l3.5 3M6.5 12.5l3.5 3"/><path d="M6.5 12.5c-2 0-2.4 1.6-2.2 3-1 .3-1.8 1.2-1.8 2.5 2.8 0 5-1 5.4-3-.2-1-.6-2.5-1.4-2.5z"/>',
 };
 function svgIcon(name, size) {
   const s = size || 22;
@@ -1436,6 +1437,7 @@ function routeFeature(go) {
  if (kind === 'studio') { openStudio(val); return; }
  if (kind === 'view') { showView(val); return; }
  }
+ if (go === 'design-studio') return openDesignStudioBlank();
  if (go === 'learn') return openCourse();
  if (go === 'week' || go === '500week') return openWeek();
  if (go === 'mini') return openMiniHub();
@@ -3839,6 +3841,33 @@ async function dsRestoreHistory(index) {
  dsRefreshLayers();
 }
 
+// Launched directly from Home (the Studios marquee / footer link) —
+// "just to design," no AI step, no existing flyer project. There's no
+// client-side insert policy on flyer_projects (every write goes through a
+// server function with the admin client), so a fresh blank one is created
+// server-side first via flyer-project-create.js, then the canvas opens
+// with nothing but its own solid background — same editor, same Save/
+// Export/reopen, just starting from an empty page instead of a hero visual.
+async function openDesignStudioBlank() {
+ if (preview) { showAuth('signup'); return; }
+ $('dsOverlay').style.display = 'flex';
+ dsHideDrawer();
+ note('dsNote', 'Setting up a new design…');
+ try {
+ const res = await fetch('/.netlify/functions/flyer-project-create', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ aspect: '4:5' }),
+ });
+ const d = await res.json();
+ if (!res.ok) throw new Error(d.error || 'Could not start a new design.');
+ dsProject = { id: d.project_id, hero_image_url: null, aspect: d.aspect || '4:5', final_url: null, design_state: null, design_state_hero_url: null };
+ const fabric = await loadFabric();
+ await dsInitCanvas(fabric, null, dsProject.aspect, null);
+ dsPopulateFontPicker();
+ note('dsNote', '');
+ } catch (e) { note('dsNote', e.message || 'Could not open the editor.', 'err'); }
+}
+
 async function openDesignStudio() {
  if (preview) { showAuth('signup'); return; }
  if (!flyerProjectId) await restoreFlyerProject();
@@ -3893,7 +3922,7 @@ async function dsInitCanvas(fabric, bgUrl, aspect, savedState) {
  // background image reference (Fabric's own toJSON/loadFromJSON
  // round-trips backgroundImage automatically) — nothing to load manually.
  try { await dsCanvas.loadFromJSON(savedState); dsCanvas.renderAll(); } catch (e) {}
- } else {
+ } else if (bgUrl) {
  try {
  const img = await fabric.FabricImage.fromURL(bgUrl, { crossOrigin: 'anonymous' });
  img.set({ selectable: false, evented: false });
@@ -3902,6 +3931,8 @@ async function dsInitCanvas(fabric, bgUrl, aspect, savedState) {
  dsCanvas.backgroundImage = img;
  dsCanvas.renderAll();
  } catch (e) {}
+ } else {
+ dsCanvas.renderAll(); // blank canvas — just the solid backgroundColor, nothing to load
  }
 
  dsCanvas.on('selection:created', dsOnSelectionChange);

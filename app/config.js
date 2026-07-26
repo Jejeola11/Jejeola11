@@ -72,6 +72,7 @@ window.FUSE = {
     { icon: 'sparkle', label: 'Generate', go: 'studio:generate' },
     { icon: 'avatar', label: 'Avatar', go: 'avatar' },
     { icon: 'target', label: 'Flyer', go: 'flyer' },
+    { icon: 'brush', label: 'Design Studio', go: 'design-studio' },
     { icon: 'audio', label: 'Audio', go: 'audio' },
     { icon: 'scissors', label: 'Edit', go: 'editstudio' },
     { icon: 'omni', label: 'Reactor', go: 'reactor' },
