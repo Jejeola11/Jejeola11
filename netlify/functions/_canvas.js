@@ -24,6 +24,7 @@
 // require()-ing the data module guarantees the bytes are bundled.
 const { createCanvas, GlobalFonts, loadImage } = require('@napi-rs/canvas');
 const FONT_DATA = require('./_flyer-fonts-data');
+const { FONT_LIBRARY, FONT_DATA: LIBRARY_FONT_DATA } = require('./_flyer-fonts-library');
 
 // role -> base64 key (from FONT_DATA) + the family name we register it under.
 const FONT_ROLES = {
@@ -42,6 +43,28 @@ function ensureFonts() {
     if (b64) GlobalFonts.register(Buffer.from(b64, 'base64'), role.family);
   }
   fontsRegistered = true;
+}
+
+// ---- Selectable font library (Font Picker mode) ----------------------------
+// 117 real Google Fonts a user can actually choose by name, instead of the
+// 5 fixed roles above. Registered lazily, one at a time, the first time each
+// is actually used — registering all 117 up front on every cold start would
+// be wasted work for the ~99% of requests that only ever touch one of them.
+// GlobalFonts is a process-wide registry that survives across warm Lambda
+// invocations, so a Set tracks what's already been registered THIS instance
+// to avoid re-registering (harmless but pointless) on every call.
+const LIBRARY_BY_ID = new Map(FONT_LIBRARY.map((f) => [f.id, f]));
+const registeredLibraryIds = new Set();
+function ensureLibraryFont(fontId) {
+  const meta = LIBRARY_BY_ID.get(fontId);
+  if (!meta) return null; // unknown id -- caller falls back to a FONT_ROLES default
+  if (!registeredLibraryIds.has(fontId)) {
+    const b64 = LIBRARY_FONT_DATA[fontId];
+    if (!b64) return null;
+    GlobalFonts.register(Buffer.from(b64, 'base64'), meta.family);
+    registeredLibraryIds.add(fontId);
+  }
+  return meta.family;
 }
 
 function hexToRgba(hex, alpha = 1) {
@@ -201,10 +224,12 @@ function roundRect(ctx, x, y, w, h, r) {
 // `gradientTo` (auto-derived — a darker shade of accentColor — when not
 // given), matching the gradient-headline look seen in real reference
 // flyers (e.g. a pink-to-maroon or orange-to-red headline fill).
-function drawHeadline(ctx, { text, x, y, maxWidth, fontSize, accentColor, accentWord, scriptAccent, align = 'left', style = 'shadow', underline = false, gradientTo, gradientWhole = false }) {
+function drawHeadline(ctx, { text, x, y, maxWidth, fontSize, accentColor, accentWord, scriptAccent, align = 'left', style = 'shadow', underline = false, gradientTo, gradientWhole = false, fontFamily, fontWeight }) {
   ensureFonts();
   ctx.textAlign = align; ctx.textBaseline = 'alphabetic';
-  ctx.font = `900 ${fontSize}px "${FONT_ROLES.display.family}"`;
+  const family = fontFamily || FONT_ROLES.display.family;
+  const weight = fontFamily ? (fontWeight || 400) : 900;
+  ctx.font = `${weight} ${fontSize}px "${family}"`;
   const lines = wrapText(ctx, text, maxWidth);
   const lineHeight = fontSize * 1.05;
   const target = (accentWord || '').toLowerCase();
@@ -254,7 +279,7 @@ function drawHeadline(ctx, { text, x, y, maxWidth, fontSize, accentColor, accent
         ctx.font = `${fontSize * 0.9}px "${FONT_ROLES.script.family}"`;
         ctx.fillStyle = gradientFill || accentColor;
         ctx.fillText(w, cursorX, ly + fontSize * 0.05);
-        ctx.font = `900 ${fontSize}px "${FONT_ROLES.display.family}"`;
+        ctx.font = `${weight} ${fontSize}px "${family}"`;
       } else if (accented) {
         ctx.fillStyle = gradientFill || accentColor;
         ctx.fillText(w, cursorX, ly);
@@ -273,9 +298,9 @@ function drawHeadline(ctx, { text, x, y, maxWidth, fontSize, accentColor, accent
   return lines.length * lineHeight;
 }
 
-function drawSubhead(ctx, { text, x, y, maxWidth, fontSize = 28, color = '#ffffff', align = 'left', style = 'shadow' }) {
+function drawSubhead(ctx, { text, x, y, maxWidth, fontSize = 28, color = '#ffffff', align = 'left', style = 'shadow', fontFamily }) {
   ensureFonts();
-  ctx.font = `${fontSize}px "${FONT_ROLES.body.family}"`;
+  ctx.font = `${fontSize}px "${fontFamily || FONT_ROLES.body.family}"`;
   ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = 'alphabetic';
   applyTextEffect(ctx, style === 'glow' ? 'shadow' : style, color); // a full glow on body copy reads noisy — falls back to a plain shadow
   const lines = wrapText(ctx, text, maxWidth);
@@ -288,14 +313,14 @@ function drawSubhead(ctx, { text, x, y, maxWidth, fontSize = 28, color = '#fffff
 // Info card: rounded panel with bulleted lines, one small accent-colored
 // marker per bullet — per anchor template layer 5. `style === 'glass'`
 // switches the panel to the translucent glassmorphic treatment.
-function drawInfoCard(ctx, { x, y, w, bullets, accentColor, style = 'flat', fontSize = 22 }) {
+function drawInfoCard(ctx, { x, y, w, bullets, accentColor, style = 'flat', fontSize = 22, fontFamily }) {
   ensureFonts();
   const glass = style === 'glass';
   const pad = 24, gap = fontSize * 1.5;
   const h = pad * 2 + bullets.length * gap;
   if (glass) drawGlassPanel(ctx, { x, y, w, h, radius: 18 });
   else { ctx.fillStyle = hexToRgba('#0a0a0a', 0.55); roundRect(ctx, x, y, w, h, 18); ctx.fill(); }
-  ctx.font = `${fontSize}px "${FONT_ROLES.body.family}"`;
+  ctx.font = `${fontSize}px "${fontFamily || FONT_ROLES.body.family}"`;
   ctx.textBaseline = 'middle';
   applyTextEffect(ctx, style === 'glass' ? 'flat' : style, accentColor);
   bullets.forEach((b, i) => {
@@ -373,4 +398,5 @@ module.exports = {
   createCanvas, loadImage, ensureFonts, FONT_ROLES,
   drawCover, wrapText, roundRect, drawHeadline, drawSubhead, drawInfoCard, drawBadge, drawFooterBar, drawCtaBanner, hexToRgba, cropToAspect,
   drawGlassPanel, drawUnderlineSwipe, applyTextEffect, resetTextEffect, pasteFeathered,
+  FONT_LIBRARY, ensureLibraryFont,
 };

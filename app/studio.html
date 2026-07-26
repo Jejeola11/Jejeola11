@@ -389,6 +389,16 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  <div class="panel" id="flyerTextPanel" style="margin-top:14px;display:none">
  <h3> Typography</h3>
  <button class="btn ghost sm" data-flyer-hero-upload style="margin-bottom:10px">⬆ Upload/replace hero image</button>
+ <label class="fld">How should the text be rendered?</label>
+ <select id="flyerRenderMode">
+ <option value="ai">AI-matched typeface (default — the model picks a style to fit the visual)</option>
+ <option value="font">Pick my own font (117 real fonts, exact and consistent every time)</option>
+ </select>
+ <div id="flyerFontPickerWrap" style="display:none;margin-top:8px">
+ <label class="fld" for="flyerFontPicker">Font</label>
+ <select id="flyerFontPicker"></select>
+ <p class="muted" style="font-size:11.5px;margin:4px 0 0">Renders instantly, no credits — it's a local render, not a new AI generation.</p>
+ </div>
  <label class="fld" for="flyerHeadline">Headline</label>
  <input id="flyerHeadline" placeholder="THE WEB3 SUMMIT">
  <label class="fld" for="flyerAccentWord">Word to accent (optional)</label>
@@ -443,6 +453,7 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  </div>
  <button class="btn gold block" id="flyerComposite" style="margin-top:10px"> Composite final flyer</button>
  <div class="note" id="flyerCompositeNote"></div>
+ <p class="muted" id="flyerCompositeCost" style="font-size:11.5px;margin:6px 0 0"></p>
  <div class="result" id="flyerFinalResult" style="margin-top:12px;min-height:220px"><div class="muted">Your finished flyer appears here.</div></div>
  <button class="btn ghost block" id="flyerSpotFixOpen" style="margin-top:10px;display:none">✏️ Fix a spot</button>
  </div>

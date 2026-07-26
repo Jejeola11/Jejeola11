@@ -3665,8 +3665,72 @@ async function flyerAddLayer() {
  } catch (e) { note('flyerLayerNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = 'Add layer'; }
 }
 
+// Flyer Studio font picker — metadata only (id/family/category); the actual
+// font BYTES live server-side in _flyer-fonts-library.js and are never sent
+// to the browser. This list is just enough to build the <select>.
+const FLYER_FONT_META = [{"id":"anton","family":"Anton","category":"display"},{"id":"archivo-black","family":"Archivo Black","category":"display"},{"id":"bebas-neue","family":"Bebas Neue","category":"display"},{"id":"oswald","family":"Oswald","category":"display"},{"id":"poppins","family":"Poppins","category":"display"},{"id":"montserrat","family":"Montserrat","category":"display"},{"id":"raleway","family":"Raleway","category":"display"},{"id":"barlow-condensed","family":"Barlow Condensed","category":"display"},{"id":"fjalla-one","family":"Fjalla One","category":"display"},{"id":"passion-one","family":"Passion One","category":"display"},{"id":"alfa-slab-one","family":"Alfa Slab One","category":"display"},{"id":"bungee","family":"Bungee","category":"display"},{"id":"bungee-inline","family":"Bungee Inline","category":"display"},{"id":"righteous","family":"Righteous","category":"display"},{"id":"titan-one","family":"Titan One","category":"display"},{"id":"luckiest-guy","family":"Luckiest Guy","category":"display"},{"id":"bangers","family":"Bangers","category":"display"},{"id":"rubik-mono-one","family":"Rubik Mono One","category":"display"},{"id":"staatliches","family":"Staatliches","category":"display"},{"id":"teko","family":"Teko","category":"display"},{"id":"big-shoulders-display","family":"Big Shoulders Display","category":"display"},{"id":"chivo","family":"Chivo","category":"display"},{"id":"saira-condensed","family":"Saira Condensed","category":"display"},{"id":"kanit","family":"Kanit","category":"display"},{"id":"exo-2","family":"Exo 2","category":"display"},{"id":"orbitron","family":"Orbitron","category":"display"},{"id":"audiowide","family":"Audiowide","category":"display"},{"id":"russo-one","family":"Russo One","category":"display"},{"id":"black-ops-one","family":"Black Ops One","category":"display"},{"id":"squada-one","family":"Squada One","category":"display"},{"id":"unbounded","family":"Unbounded","category":"display"},{"id":"space-grotesk","family":"Space Grotesk","category":"display"},{"id":"sora","family":"Sora","category":"display"},{"id":"manrope","family":"Manrope","category":"display"},{"id":"plus-jakarta-sans","family":"Plus Jakarta Sans","category":"display"},{"id":"dm-sans","family":"DM Sans","category":"display"},{"id":"lexend","family":"Lexend","category":"display"},{"id":"outfit","family":"Outfit","category":"display"},{"id":"syne","family":"Syne","category":"display"},{"id":"familjen-grotesk","family":"Familjen Grotesk","category":"display"},{"id":"hanken-grotesk","family":"Hanken Grotesk","category":"display"},{"id":"urbanist","family":"Urbanist","category":"display"},{"id":"epilogue","family":"Epilogue","category":"display"},{"id":"instrument-sans","family":"Instrument Sans","category":"display"},{"id":"bricolage-grotesque","family":"Bricolage Grotesque","category":"display"},{"id":"grandstander","family":"Grandstander","category":"display"},{"id":"anybody","family":"Anybody","category":"display"},{"id":"league-gothic","family":"League Gothic","category":"display"},{"id":"khand","family":"Khand","category":"display"},{"id":"yanone-kaffeesatz","family":"Yanone Kaffeesatz","category":"display"},{"id":"prosto-one","family":"Prosto One","category":"display"},{"id":"bowlby-one","family":"Bowlby One","category":"display"},{"id":"bowlby-one-sc","family":"Bowlby One SC","category":"display"},{"id":"baloo-2","family":"Baloo 2","category":"display"},{"id":"boogaloo","family":"Boogaloo","category":"display"},{"id":"fredoka","family":"Fredoka","category":"display"},{"id":"concert-one","family":"Concert One","category":"display"},{"id":"sniglet","family":"Sniglet","category":"display"},{"id":"chewy","family":"Chewy","category":"display"},{"id":"nunito-sans","family":"Nunito Sans","category":"display"},{"id":"jost","family":"Jost","category":"display"},{"id":"josefin-sans","family":"Josefin Sans","category":"display"},{"id":"redacted-script","family":"Redacted Script","category":"display"},{"id":"playfair-display","family":"Playfair Display","category":"serif"},{"id":"abril-fatface","family":"Abril Fatface","category":"serif"},{"id":"fraunces","family":"Fraunces","category":"serif"},{"id":"bodoni-moda","family":"Bodoni Moda","category":"serif"},{"id":"libre-caslon-display","family":"Libre Caslon Display","category":"serif"},{"id":"dm-serif-display","family":"DM Serif Display","category":"serif"},{"id":"bitter","family":"Bitter","category":"serif"},{"id":"cormorant","family":"Cormorant","category":"serif"},{"id":"cormorant-garamond","family":"Cormorant Garamond","category":"serif"},{"id":"prata","family":"Prata","category":"serif"},{"id":"marcellus","family":"Marcellus","category":"serif"},{"id":"cinzel","family":"Cinzel","category":"serif"},{"id":"cinzel-decorative","family":"Cinzel Decorative","category":"serif"},{"id":"italiana","family":"Italiana","category":"serif"},{"id":"petrona","family":"Petrona","category":"serif"},{"id":"spectral","family":"Spectral","category":"serif"},{"id":"domine","family":"Domine","category":"serif"},{"id":"crimson-pro","family":"Crimson Pro","category":"serif"},{"id":"vollkorn","family":"Vollkorn","category":"serif"},{"id":"rozha-one","family":"Rozha One","category":"serif"},{"id":"yeseva-one","family":"Yeseva One","category":"serif"},{"id":"alegreya","family":"Alegreya","category":"serif"},{"id":"alegreya-sc","family":"Alegreya SC","category":"serif"},{"id":"old-standard-tt","family":"Old Standard TT","category":"serif"},{"id":"pacifico","family":"Pacifico","category":"script"},{"id":"caveat","family":"Caveat","category":"script"},{"id":"dancing-script","family":"Dancing Script","category":"script"},{"id":"sacramento","family":"Sacramento","category":"script"},{"id":"great-vibes","family":"Great Vibes","category":"script"},{"id":"satisfy","family":"Satisfy","category":"script"},{"id":"kalam","family":"Kalam","category":"script"},{"id":"shadows-into-light","family":"Shadows Into Light","category":"script"},{"id":"amatic-sc","family":"Amatic SC","category":"script"},{"id":"permanent-marker","family":"Permanent Marker","category":"script"},{"id":"indie-flower","family":"Indie Flower","category":"script"},{"id":"gochi-hand","family":"Gochi Hand","category":"script"},{"id":"reenie-beanie","family":"Reenie Beanie","category":"script"},{"id":"alex-brush","family":"Alex Brush","category":"script"},{"id":"allura","family":"Allura","category":"script"},{"id":"parisienne","family":"Parisienne","category":"script"},{"id":"yellowtail","family":"Yellowtail","category":"script"},{"id":"lobster","family":"Lobster","category":"script"},{"id":"courgette","family":"Courgette","category":"script"},{"id":"space-mono","family":"Space Mono","category":"mono"},{"id":"ibm-plex-mono","family":"IBM Plex Mono","category":"mono"},{"id":"jetbrains-mono","family":"JetBrains Mono","category":"mono"},{"id":"roboto-mono","family":"Roboto Mono","category":"mono"},{"id":"inter","family":"Inter","category":"body"},{"id":"roboto","family":"Roboto","category":"body"},{"id":"open-sans","family":"Open Sans","category":"body"},{"id":"work-sans","family":"Work Sans","category":"body"},{"id":"nunito","family":"Nunito","category":"body"},{"id":"karla","family":"Karla","category":"body"},{"id":"mulish","family":"Mulish","category":"body"}];
+const FLYER_FONT_CATEGORY_LABEL = { display: 'Display / Headline', serif: 'Serif', script: 'Script / Handwritten', mono: 'Monospace', body: 'Clean Body' };
+
+function populateFlyerFontPicker() {
+ const sel = $('flyerFontPicker');
+ if (!sel || sel.options.length) return; // already populated
+ const byCat = {};
+ FLYER_FONT_META.forEach((f) => { (byCat[f.category] = byCat[f.category] || []).push(f); });
+ Object.keys(FLYER_FONT_CATEGORY_LABEL).forEach((cat) => {
+ if (!byCat[cat]) return;
+ const group = document.createElement('optgroup');
+ group.label = FLYER_FONT_CATEGORY_LABEL[cat];
+ byCat[cat].forEach((f) => {
+ const opt = document.createElement('option');
+ opt.value = f.id; opt.textContent = f.family;
+ group.appendChild(opt);
+ });
+ sel.appendChild(group);
+ });
+}
+
+async function flyerCompositeWithFont() {
+ const fontId = $('flyerFontPicker').value;
+ const headline = $('flyerHeadline').value.trim();
+ if (!headline) return note('flyerCompositeNote', 'Add a headline first.', 'err');
+ const bullets = $('flyerBullets').value.split('\n').map((b) => b.trim()).filter(Boolean);
+ const callouts = $('flyerCallouts').value.split('\n').map((c) => c.trim()).filter(Boolean);
+ const spec = {
+ headline, accent_word: $('flyerAccentWord').value.trim() || undefined,
+ subhead: $('flyerSubhead').value.trim() || undefined,
+ bullets: bullets.length ? bullets : undefined,
+ callouts: callouts.length ? callouts : undefined,
+ badge: $('flyerBadge').value.trim() || undefined,
+ footer: $('flyerFooter').value.trim() || undefined,
+ accent_color: $('flyerAccentColor').value,
+ style: $('flyerTextStyle').value,
+ underline_accent: $('flyerUnderlineAccent').checked,
+ gradient_whole: $('flyerGradientWhole').checked,
+ };
+ const btn = $('flyerComposite'); const label = ' Composite final flyer';
+ btn.disabled = true; btn.textContent = 'Rendering…';
+ $('flyerFinalResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Rendering with ' + (FLYER_FONT_META.find((f) => f.id === fontId) || {}).family + '…</div></div>';
+ note('flyerCompositeNote', '');
+ try {
+ const res = await fetch('/.netlify/functions/flyer-composite-fonts', {
+ method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+ body: JSON.stringify({ project_id: flyerProjectId, text_spec: spec, font_id: fontId }),
+ });
+ const d = await res.json();
+ if (!res.ok) throw new Error(d.error || 'Failed');
+ $('flyerFinalResult').innerHTML = '<img src="' + d.url + '" style="width:100%;border-radius:12px" alt="">';
+ note('flyerCompositeNote', 'Done — rendered in ' + d.font + '.', 'ok');
+ $('flyerSpotFixOpen').style.display = 'block';
+ } catch (e) {
+ $('flyerFinalResult').innerHTML = '<div> ' + (e.message || 'Failed') + '</div>';
+ note('flyerCompositeNote', e.message || 'Failed', 'err');
+ }
+ btn.disabled = false; btn.textContent = label;
+}
+
 async function flyerComposite() {
  if (preview) { showAuth('signup'); return; }
+ if ($('flyerRenderMode') && $('flyerRenderMode').value === 'font') return flyerCompositeWithFont();
  if (!flyerProjectId) await restoreFlyerProject();
  if (!flyerProjectId) return note('flyerCompositeNote', 'Generate the hero visual first.', 'err');
  const headline = $('flyerHeadline').value.trim();
@@ -4974,6 +5038,11 @@ window.addEventListener('DOMContentLoaded', () => {
  $('flyerSuggestLayers').onclick = flyerSuggestLayers;
  $('flyerAddLayer').onclick = flyerAddLayer;
  $('flyerComposite').onclick = flyerComposite;
+ populateFlyerFontPicker();
+ $('flyerRenderMode').onchange = () => {
+ const isFont = $('flyerRenderMode').value === 'font';
+ $('flyerFontPickerWrap').style.display = isFont ? 'block' : 'none';
+ };
  ['headline', 'features', 'cta'].forEach((kind) => {
  const ids = { headline: ['flyerHeadlineRefPick', 'flyerHeadlineRefFile'], features: ['flyerFeaturesRefPick', 'flyerFeaturesRefFile'], cta: ['flyerCtaRefPick', 'flyerCtaRefFile'] }[kind];
  $(ids[0]).onclick = () => $(ids[1]).click();
