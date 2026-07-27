@@ -77,6 +77,27 @@
   to = "/atelier-site/:splat"
   status = 200
 
+# Fuse Atelier landing-page A/B test, Variant B (single flat-price bundle
+# instead of the 3-tier menu) -- same folder, same 200-rewrite pattern as
+# /atelier above. Real content, real testimonials, real proof -- just a
+# different structure/offer to test against the original at /atelier.
+[[redirects]]
+  from = "/atelier-b"
+  to = "/atelier-site/index-b.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/atelier-b/"
+  to = "/atelier-site/index-b.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/atelier-b/*"
+  to = "/atelier-site/:splat"
+  status = 200
+
 # Insider promo page (limited-slot discount codes, e.g. $500 Dollar Week ->
 # Fuse Atelier cross-sell) -- served from the same atelier-site/ folder,
 # same 200-rewrite pattern as /atelier above.
