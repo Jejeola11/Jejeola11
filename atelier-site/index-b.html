@@ -467,6 +467,49 @@ body{padding-bottom:70px}
 .re-final p{color:#CFE0DC;font-size:16px;line-height:1.7;margin:0 0 18px}
 .re-final .re-btn{margin:14px auto 18px}
 .re-final-price{color:#fff;font-size:14.5px;font-weight:700;margin:0}
+
+/* ===== Register now / locked in ===== */
+.re-lockedin{background:var(--re-teal-d);padding:70px 0}
+.re-lockedin .wrap{max-width:480px;text-align:center}
+.re-lockedin-kicker{color:var(--re-yellow);font-weight:800;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase}
+.re-lockedin h2{color:#fff;font-family:"Bricolage Grotesque";font-weight:800;font-size:clamp(26px,6.5vw,36px);line-height:1.3;margin:14px 0 16px}
+.re-lockedin-sub{color:#CFE0DC;font-size:15px;line-height:1.65;margin:0 0 30px}
+.re-lockedin-box{background:rgba(169,255,103,.06);border:1px solid rgba(169,255,103,.35);border-radius:20px;padding:28px 22px;text-align:left}
+.re-lockedin-tag{color:var(--re-yellow);font-weight:800;font-size:12px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:12px}
+.re-lockedin-box h3{color:#fff;font-size:19px;line-height:1.35;margin:0 0 10px}
+.re-lockedin-box p{color:#CFE0DC;font-size:14.5px;line-height:1.6;margin:0 0 16px}
+.re-lockedin-note{display:inline-block;background:var(--re-green);color:#0c1a12;font-weight:800;font-size:11.5px;padding:6px 12px;border-radius:20px}
+
+/* ===== Done for you bonuses ===== */
+.re-dfy{background:var(--re-teal-l);padding:70px 0}
+.re-dfy .wrap{max-width:520px;text-align:center}
+.re-dfy-kicker{color:#0c1a12;font-weight:800;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.6}
+.re-dfy h2{color:#0c1a12;font-family:"Bricolage Grotesque";font-weight:800;font-size:clamp(26px,6.5vw,36px);line-height:1.3;margin:14px 0 16px}
+.re-dfy-sub{color:rgba(9,9,9,.6);font-size:15px;line-height:1.6;margin:0 0 30px}
+.re-dfy-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;text-align:left}
+@media(max-width:560px){.re-dfy-grid{grid-template-columns:1fr}}
+.re-dfy-card{background:rgba(9,9,9,.08);border-radius:16px;padding:20px}
+.re-dfy-ic{font-size:24px;display:block;margin-bottom:10px}
+.re-dfy-card h3{color:#0c1a12;font-size:15.5px;margin:0 0 6px}
+.re-dfy-card p{color:rgba(9,9,9,.65);font-size:13.5px;line-height:1.55;margin:0}
+
+/* ===== One decision, everything changes ===== */
+.re-onedecision{background:var(--re-teal-d);padding:70px 0}
+.re-onedecision .wrap{max-width:480px;text-align:center}
+.re-onedecision-kicker{color:var(--re-yellow);font-weight:800;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase}
+.re-onedecision h2{color:#fff;font-family:"Bricolage Grotesque";font-weight:800;font-size:clamp(26px,6.5vw,36px);line-height:1.3;margin:14px 0 16px}
+.re-onedecision-sub{color:#CFE0DC;font-size:15px;line-height:1.6;margin:0 0 26px}
+.re-slots{margin-bottom:26px}
+.re-slots span{color:var(--re-yellow);font-weight:800;font-size:13.5px}
+.re-slots-bar{height:8px;border-radius:6px;background:rgba(255,255,255,.1);margin-top:10px;overflow:hidden}
+.re-slots-fill{width:92%;height:100%;background:linear-gradient(90deg,var(--re-green),var(--re-yellow));border-radius:6px}
+.re-onedecision-box{background:rgba(37,69,74,.35);border:1px solid var(--line);border-radius:22px;padding:30px 24px;text-align:left}
+.re-onedecision-price{color:#fff;font-family:"Playfair Display",serif;font-weight:900;font-size:44px;text-align:center}
+.re-onedecision-total{color:#9fb8b4;font-size:13.5px;text-align:center;margin:6px 0 22px}
+.re-onedecision-checks{display:flex;flex-direction:column;gap:12px;margin-bottom:8px}
+.re-onedecision-checks div{color:#fff;font-size:14px;line-height:1.4}
+.re-onedecision-guarantee{color:#CFE0DC;font-size:12.5px;line-height:1.6;text-align:center;margin:16px 0 0}
+.re-onedecision-trust{color:#9fb8b4;font-size:11.5px;text-align:center;margin:10px 0 0}
 .re-studio-feat{display:flex;gap:14px;align-items:flex-start;padding:20px 0;border-bottom:1px solid rgba(255,255,255,.08)}
 .re-studio-feat:last-child{border-bottom:0}
 .re-studio-feat-ic{font-size:23px;flex:0 0 auto;line-height:1}
@@ -681,7 +724,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
 <!-- ===== Top bar ===== -->
 <div class="top"><div class="wrap in">
   <a class="brand" href="#hero"><img class="dot" src="assets/logo-fuse-real.png" alt="Fuse Atelier"> Fuse&nbsp;Atelier</a>
-  <a class="re-btn re-btn-nav" href="#pricing">Get instant access →</a>
+  <a class="re-btn re-btn-nav" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Get instant access →</a>
 </div></div>
 
 <!-- ===== HERO (rebrand pass — green/yellow/white gradient, light-teal-to-near-black bg) ===== -->
@@ -692,7 +735,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
     <h1 class="re-h1">How this AI income system helped me do <span class="re-grad-static">$4000+ this year</span> without a laptop, a good phone, or waiting months to start.</h1>
     <p class="sub"><em class="re-quote">Nana Aisha</em> closed her first brand deal in her very first week inside Fuse Atelier — no experience, no portfolio, just her phone. <em class="re-quote">Progress Godwill</em> landed his first paid Upwork job the same way.</p>
     <div class="cta-row">
-      <a class="re-btn re-btn-flat" href="#pricing">Show Me the System for ₦25,000 →</a>
+      <a class="re-btn re-btn-flat" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Show Me the System for ₦25,000 →</a>
     </div>
     <div class="re-price-line">
       <p class="re-price-tiers">₦25,000 one-time · everything included · instant access.</p>
@@ -964,7 +1007,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
     <h2 class="re-grad">The educator behind the system.</h2>
     <p class="re-founder-bio">I'm <span class="re-grad">Ria</span>, a seasoned educator &amp; AI Creative Director. I strive to help thousands of everyday people turn their phone into a consistent income stream. My approach comes from real experience — building Fuse Studio myself, landing real Upwork clients, and learning what actually works along the way.</p>
     <p class="re-founder-bio">This program is everything I wish I had when I started. No fluff, no 40 YouTube tabs — just a proven system that gets you paid.</p>
-    <a class="re-btn" href="#pricing">Start earning this week →</a>
+    <a class="re-btn" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Start earning this week →</a>
   </div>
 </section>
 
@@ -993,11 +1036,89 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
   </div>
 </section>
 
+<!-- ===== REGISTER NOW / LOCKED IN (Variant B — real cash bonus only) ===== -->
+<section class="re-lockedin">
+  <div class="wrap">
+    <div class="re-lockedin-kicker">Exclusive bonus</div>
+    <h2>Register Now and You're <span class="re-grad">Automatically Locked In to Win</span></h2>
+    <p class="re-lockedin-sub">The moment you register, you're eligible. Hit $500 in real, verifiable client income within 2 weeks using the system inside, and the cash goes straight to your account. No forms. No chasing us. Your sales tell the story.</p>
+    <div class="re-lockedin-box">
+      <div class="re-lockedin-tag">🏆 First-to-$500 cash prize</div>
+      <h3>₦100,000 Cash Bonus for the First Person to Hit $500</h3>
+      <p>Be the first student to earn $500 in real client income within 2 weeks of joining, and we send ₦100,000 straight to your account. No waiting, no hidden criteria — just execute fast, and it's yours.</p>
+      <div class="re-lockedin-note">💰 ₦100,000 CASH — FIRST 2 WEEKS ONLY</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DONE FOR YOU BONUSES (Variant B — real resources only, no fabricated valuation) ===== -->
+<section class="re-dfy">
+  <div class="wrap">
+    <div class="re-dfy-kicker">Included at no extra cost</div>
+    <h2>Everything Else You Get, <span class="re-grad">Included</span></h2>
+    <p class="re-dfy-sub">Real resources bundled into your ₦25,000 — nothing here is sold separately.</p>
+    <div class="re-dfy-grid">
+      <div class="re-dfy-card">
+        <span class="re-dfy-ic">📄</span>
+        <h3>500+ Prompts &amp; Pitch Templates</h3>
+        <p>Battle-tested DM scripts, cold-pitch templates, and AI prompts for every skill family — copy, tweak, send.</p>
+      </div>
+      <div class="re-dfy-card">
+        <span class="re-dfy-ic">🔤</span>
+        <h3>117-Font Design Library</h3>
+        <p>Real, selectable fonts inside Flyer Studio — no generic AI-drawn text, pick the exact typeface your brand needs.</p>
+      </div>
+      <div class="re-dfy-card">
+        <span class="re-dfy-ic">📅</span>
+        <h3>Weekly Live Coaching Sessions</h3>
+        <p>Direct access to Ria and the cohort, every week, for real feedback on real client work.</p>
+      </div>
+      <div class="re-dfy-card">
+        <span class="re-dfy-ic">🎯</span>
+        <h3>The Money Engine</h3>
+        <p>The full client-getting system — pricing, positioning, and the pitch scripts that actually get replies.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ONE DECISION. EVERYTHING CHANGES. (Variant B) ===== -->
+<section class="re-onedecision">
+  <div class="wrap">
+    <div class="re-onedecision-kicker">Get access now</div>
+    <h2>One Decision. <span class="re-grad">Everything Changes.</span></h2>
+    <p class="re-onedecision-sub">Join 300+ members who stopped watching their mates win and started winning themselves.</p>
+
+    <div class="re-slots">
+      <span>🔥 Only 5 slots left at this price</span>
+      <div class="re-slots-bar"><div class="re-slots-fill"></div></div>
+    </div>
+
+    <div class="re-onedecision-box">
+      <div class="re-onedecision-price">₦25,000</div>
+      <p class="re-onedecision-total">Total value if bought separately: <b>₦60,000+</b></p>
+      <div class="re-onedecision-checks">
+        <div>✓ 4 Skill Families — Design, Brand, Product, Video</div>
+        <div>✓ Money Engine + Upwork Masterclass</div>
+        <div>✓ 400 Studio Credits</div>
+        <div>✓ WhatsApp Cohort + Weekly Live Sessions</div>
+        <div>✓ 500+ Prompts, Pitch Templates &amp; the 117-Font Library</div>
+        <div>✓ ₦100,000 cash-bonus eligibility (first to hit $500 in 2 weeks)</div>
+      </div>
+      <div class="re-invest-cta-wrap">
+        <a class="re-btn re-invest-cta" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">I Want In. Get Instant Access →</a>
+      </div>
+      <p class="re-onedecision-guarantee">🛡️ 30-Day Guarantee: finish the plan and don't land a client in 30 days? We keep working with you 1-on-1, free, until you do.</p>
+      <p class="re-onedecision-trust">🔒 Secure Paystack · ⚡ Instant access · 📱 Phone is enough</p>
+    </div>
+  </div>
+</section>
+
 <!-- ===== FAQ (rebrand pass) ===== -->
 <section class="re-faq">
   <div class="wrap">
-    <div class="re-faq-kicker">Questions, Answered Straight</div>
-    <h2>Everything you're thinking, answered.</h2>
+    <div class="re-faq-kicker">Questions answered</div>
+    <h2>You Asked. <span class="re-grad">Here's the Truth.</span></h2>
 
     <div class="re-faq-item-outline">
       <details class="re-faq-item">
@@ -1035,27 +1156,58 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
         <p>Finish the 7-day plan and send your 30 pitches. If you haven't landed a paid deal in 30 days, we keep working with you 1-on-1, free, until you do. You won't fall through the cracks.</p>
       </details>
     </div>
+    <div class="re-faq-item-outline">
+      <details class="re-faq-item">
+        <summary>My Instagram/WhatsApp following is small. Can I still do this?</summary>
+        <p>Yes — this isn't an audience-building play, it's a client-getting one. Most students land their first paying client through direct pitches on Upwork and Instagram DMs, not from posting to followers. A tiny following has never been the blocker.</p>
+      </details>
+    </div>
+    <div class="re-faq-item-outline">
+      <details class="re-faq-item">
+        <summary>Do I need a laptop?</summary>
+        <p>No. Fuse Studio runs in your phone's browser — every skill family is taught and generated phone-first. No laptop, no separate camera or editing app needed.</p>
+      </details>
+    </div>
+    <div class="re-faq-item-outline">
+      <details class="re-faq-item">
+        <summary>Will I need to spend extra money after paying?</summary>
+        <p>Your 400 studio credits are included in the ₦25,000 — that's not a subscription, it's yours to spend as you create. If you burn through them building out a bigger portfolio, you can top up or upgrade any time, but nothing extra is required to get started or land your first client.</p>
+      </details>
+    </div>
+    <div class="re-faq-item-outline">
+      <details class="re-faq-item">
+        <summary>Must I show my face?</summary>
+        <p>No. Flyers, product photography, and brand design — the core of this bundle — never require you on camera. AI avatar/UGC-persona content (fully faceless, AI-generated) is part of Empire, available as an upgrade if you want that specific skill too.</p>
+      </details>
+    </div>
+    <div class="re-faq-item-outline">
+      <details class="re-faq-item">
+        <summary>I'm a student or a 9–5 worker. Will this fit my schedule?</summary>
+        <p>Yes. Everything is self-paced and phone-first — lessons are short, the live sessions are weekly (not daily), and generating a flyer or product shot takes minutes, not hours. Most students do this around their existing schedule, not instead of it.</p>
+      </details>
+    </div>
+    <div class="re-faq-item-outline">
+      <details class="re-faq-item">
+        <summary>I've bought courses that didn't work. Why is this different?</summary>
+        <p>Most courses stop at the lesson. This one comes with the actual AI studio to produce the work, the Money Engine to find and pitch real clients, a weekly-live WhatsApp cohort so you're never stuck alone, and the guarantee above in plain language — not just a video library you watch once and forget.</p>
+      </details>
+    </div>
+    <div class="re-faq-item-outline">
+      <details class="re-faq-item">
+        <summary>Is the market saturated?</summary>
+        <p>The data says the opposite: 1 in 10 job postings now require AI skills (PwC), AI freelancers earn 44% more per hour than average (Upwork), and AI video specifically is up 329% (Upwork). Demand for people who can actually deliver AI creative work is growing faster than the supply of people who can.</p>
+      </details>
+    </div>
   </div>
 </section>
 
-<!-- ===== A MONTH FROM NOW ===== -->
+<!-- ===== YOUR MATES ALREADY GOT IN (Variant B — final closer, matches reference) ===== -->
 <section class="re-final">
   <div class="wrap">
-    <h2 class="re-grad">A Month From Now, Two Things Will Be True</h2>
-    <p>You'll be a month older.</p>
-    <p>Or you'll be a month older with real AI creative skills, a portfolio taking shape, and a network of the top 1% in creative AI — with job opportunities posted inside every week.</p>
-    <p>Most people are still watching tutorials. The people in this room are getting paid.</p>
-    <a class="re-btn" href="#pricing">Get Fuse Atelier — ₦25,000 →</a>
-    <p class="re-final-price">₦25,000 one-time · everything included · instant access.</p>
-  </div>
-</section>
-
-<!-- ===== FINALE ===== -->
-<section class="finale">
-  <div class="wrap">
-    <h2 class="re-grad">Your first client is 7 days away.</h2>
-    <p>One skill. One week. A system that doesn't let you quit.</p>
-    <a class="re-btn" style="font-size:18px;padding:18px 38px" href="#pricing">Get Fuse Atelier — ₦25,000 →</a>
+    <h2 class="re-grad">Your Mates Already Got In. What Are You Waiting For?</h2>
+    <p>While you're reading this, real students are already inside building their first AI portfolio. The gap between you and your first paid client is one decision.</p>
+    <a class="re-btn" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">I'm Ready. Get Me In →</a>
+    <p class="re-final-price">🛡️ 30-day guarantee · 🔒 Secure Paystack · ⚡ Instant access</p>
   </div>
 </section>
 
