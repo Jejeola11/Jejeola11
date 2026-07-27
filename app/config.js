@@ -263,7 +263,6 @@ window.FUSE = {
     { label: 'UGC Creator', go: 'studio:ugc' },
     { label: 'Movie Studio', go: 'studio:movie' },
     { label: 'Naija Packs', go: 'naija' },
-    { label: 'Community', go: 'view:community' },
     { label: 'Daily Reward', go: 'streak' },
   ],
 

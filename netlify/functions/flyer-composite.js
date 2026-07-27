@@ -62,7 +62,10 @@ function buildCompositePrompt(spec, refRoles) {
     if (ctaRefNum) lines.push(`Image ${ctaRefNum} is a CTA/BADGE STRUCTURE reference — replicate its exact call-to-action or badge shape and placement (only that element; ignore everything else in that image).`);
   }
 
-  lines.push(`Headline text, in a bold heavy condensed display typeface: "${spec.headline}"${spec.accent_word ? `, with the word "${spec.accent_word}" visually accented in ${accent}` : ''}.` + (headlineRefNum ? '' : ' Choose whatever position and alignment (left, right, centered, top, bottom-anchored) best suits this specific image\'s composition — do not default to the same placement every time.'));
+  const hasBodyBelow = !!(spec.subhead || spec.footer || (Array.isArray(spec.bullets) && spec.bullets.length) || (Array.isArray(spec.callouts) && spec.callouts.length));
+  lines.push(`Headline text, in a bold heavy condensed display typeface: "${spec.headline}"${spec.accent_word ? `, with the word "${spec.accent_word}" visually accented in ${accent}` : ''}.` + (headlineRefNum ? '' : (hasBodyBelow
+    ? ' Choose whatever position and alignment (left, right, centered, top, bottom-anchored) best suits this specific image\'s composition — do not default to the same placement every time.'
+    : ' There is no subhead, bullets, or footer on this flyer, so the headline is the only text element — place it centered or in the upper/middle area of the composition where it reads clearly; do not push it down against the bottom edge just because that space is empty.')));
   if (spec.subhead) lines.push(`Subhead directly below the headline, smaller and lighter: "${spec.subhead}".`);
   if (Array.isArray(spec.callouts) && spec.callouts.length) {
     const items = spec.callouts.map((c) => `"${(typeof c === 'string' ? c : (c && c.text) || '').trim()}"`).filter((t) => t !== '""').join(', ');

@@ -323,7 +323,6 @@ function showView(name, opts = {}) {
  curView = name;
  if (name === 'library') loadLibrary();
  if (name === 'profile') loadProfile();
- if (name === 'community') { loadChallenges(); loadCommunity(); }
  if (name === 'reactor') buildReactor();
  if (name === 'models') { if (modelKind === 'reactor') modelKind = 'all'; buildModels(modelKind); }
  if (name === 'home') syncSubnav('explore');
@@ -354,7 +353,7 @@ function restoreRoute() {
  // instead of restoring the view. The Flyer Studio project itself was never
  // actually lost (it lives server-side), but landing on Home made it look
  // exactly like it had been.
- const safe = ['library', 'profile', 'community', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course', 'week', 'omni', 'mini', 'all-courses', 'flyer', 'audio', 'editstudio'];
+ const safe = ['library', 'profile', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course', 'week', 'omni', 'mini', 'all-courses', 'flyer', 'audio', 'editstudio'];
  if (!safe.includes(r.view)) return;
  try {
  if (r.view === 'studio') { openStudio(r.studio || 'generate'); if (r.video) setStudioMode(true); }
@@ -903,26 +902,6 @@ window.fusePresetCopy = (btn, id, key) => {
 };
 window.fusePresetGo = (go) => routeFeature(go);
 
-// ---------------- community showcase ----------------
-async function loadCommunity() {
- if (preview) { $('commGrid').innerHTML = ''; return; }
- const { data } = await sb.from('public_showcase').select('output_url, type').limit(30);
- const items = data || [];
- const strip = items.slice(0, 4);
- $('commStrip').innerHTML = strip.length
- ? strip.map((x) => x.type === 'video'
- ? `<video src="${x.output_url}" muted loop autoplay playsinline></video>`
- : `<img src="${x.output_url}">`).join('')
- : '<div class="cs-ph"></div><div class="cs-ph"></div><div class="cs-ph"></div><div class="cs-ph"></div>';
- const grid = items.slice(4);
- $('commGrid').innerHTML = grid.length
- ? grid.map((x) => {
- const m = x.type === 'video' ? `<video src="${x.output_url}" muted loop playsinline></video>` : `<img src="${x.output_url}">`;
- return `<div class="projitem" onclick="fuseLightbox('${x.output_url}','${x.type}')">${m}</div>`;
- }).join('')
- : '<div class="empty" style="grid-column:1/-1">Be the first to share your creation </div>';
-}
-
 // ---------------- Fuse Atelier course (Whop-style) ----------------
 const COURSE = (window.FUSE_COURSE && window.FUSE_COURSE.pillars) ? window.FUSE_COURSE.pillars : [];
 let courseVideos = {}; // lesson_key -> { hasVideo, duration_sec, url? (only once opened -- see openLesson()) }
@@ -1442,7 +1421,6 @@ function routeFeature(go) {
  if (go === 'week' || go === '500week') return openWeek();
  if (go === 'mini') return openMiniHub();
  if (go === 'reactor' || go === 'avatar' || go === 'promptgen' || go === 'market' || go === 'flyer' || go === 'audio' || go === 'editstudio') return openStudio(go);
- if (go === 'community') return showView('community');
  if (go === 'streak') return claimDaily();
  if (go === 'image-nano') { openImageModel('nano-banana'); return; }
  if (go === 'video-seedance') { showView('models'); buildModels('video'); openVideo('seedance-2-text-to-video'); return; }
@@ -2311,21 +2289,7 @@ async function adminGrantCourse() {
  btn.disabled = false; btn.textContent = 'Grant this tier for this email';
 }
 
-// ---------------- community ----------------
-async function loadChallenges() {
- const { data } = await sb.from('challenges').select('*').eq('active', true).order('created_at', { ascending: false });
- $('challengeList').innerHTML = (data && data.length) ? data.map((c) =>
- `<div class="chal"><h3>${c.title}</h3><p class="muted" style="margin:0 0 6px;font-size:14px">${c.brief || ''}</p>
- <div class="prize"> ${c.prize || ''}</div></div>`).join('')
- : '<div class="empty">No active challenges right now — check back soon.</div>';
-}
-async function submitContent() {
- if (preview) { showAuth('signup'); return; }
- const url = $('contentUrl').value.trim(); if (!url) return note('contentNote', 'Paste your post link.', 'err');
- const { error } = await sb.from('content_submissions').insert({ user_id: user.id, url });
- note('contentNote', error ? error.message : ' Submitted! We review and credit approved posts.', error ? 'err' : 'ok');
- if (!error) $('contentUrl').value = '';
-}
+// ---------------- affiliate payout ----------------
 async function requestPayout() {
  if (preview) { showAuth('signup'); return; }
  const { error } = await sb.from('payout_requests').insert({ user_id: user.id, amount_naira: 0, status: 'requested' });
@@ -5781,9 +5745,7 @@ window.addEventListener('DOMContentLoaded', () => {
  });
  $('menuProfile').onclick = () => { closeMenu(); showView('profile'); };
  $('menuProjects').onclick = () => { closeMenu(); showView('library'); };
- $('menuCommunity').onclick = () => { closeMenu(); showView('community'); };
  $('menuLogout').onclick = () => { closeMenu(); logout(); };
- $('shareGen').onclick = () => openStudio('market');
  $('mpPublish').onclick = publishPreset;
  $('learnClaim').onclick = claimLearn;
  $('learnCourse').onclick = () => { location.href = '/atelier'; };
@@ -5802,7 +5764,6 @@ window.addEventListener('DOMContentLoaded', () => {
  $('curToggle').onclick = () => { showUsd = !showUsd; renderPacks(); };
  $('promoClose').onclick = () => $('promoOverlay').style.display = 'none';
  $('promoCta').onclick = () => { $('promoOverlay').style.display = 'none'; openBuy(); };
- $('contentSubmit').onclick = submitContent;
  $('payoutBtn').onclick = requestPayout;
  $('copyRef').onclick = () => { navigator.clipboard.writeText($('refLink').value); $('copyRef').textContent = 'Copied!'; setTimeout(() => $('copyRef').textContent = 'Copy', 1500); };
  $('logoutBtn').onclick = logout;
