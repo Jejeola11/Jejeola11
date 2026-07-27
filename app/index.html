@@ -50,22 +50,15 @@ section{padding:70px 0;position:relative}
 .nav-links .btn{padding:9px 16px;font-size:13.5px}
 @media(max-width:640px){.nav-links a.plain{display:none}}
 
-/* ===== Scroll-video hero (fake-3D: scroll drives the timeline) ===== */
-.svh{height:320vh;position:relative}
-.svh-pin{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;place-items:center;background:var(--teal-0)}
-.svh-pin video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.72) saturate(1.1)}
+/* ===== Video hero (static — video autoplays behind fixed copy, no scroll-drive) ===== */
+.svh{position:relative;height:100svh;overflow:hidden;display:grid;place-items:center;background:var(--teal-0)}
+.svh video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.72) saturate(1.1)}
 .svh-veil{position:absolute;inset:0;background:
   radial-gradient(1100px 520px at 50% 115%, rgba(9,9,9,.9), transparent 60%),
   linear-gradient(180deg, rgba(9,9,9,.55), transparent 30%, transparent 62%, rgba(9,9,9,.88))}
-.svh-copy{position:absolute;inset:0;z-index:3;text-align:center}
-.svh-state{position:absolute;left:50%;top:50%;width:min(900px,92vw);transform:translate(-50%,-40%);opacity:0;transition:opacity .45s ease,transform .45s ease;padding:0 22px}
-.svh-state.on{opacity:1;transform:translate(-50%,-50%)}
-.svh-state h1{font-size:clamp(34px,6.6vw,68px);letter-spacing:-.5px;margin-bottom:16px;text-shadow:0 2px 30px rgba(0,0,0,.5)}
-.svh-state p{color:#D5E3DF;font-size:clamp(15.5px,2.3vw,19px);max-width:620px;margin:0 auto 24px;text-shadow:0 1px 14px rgba(0,0,0,.6)}
-.svh-prog{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.12);z-index:4}
-.svh-prog i{display:block;height:100%;width:0%;background:var(--brand-grad)}
-.svh-hint{position:absolute;bottom:18px;left:0;right:0;text-align:center;color:#C7D8D3;font-size:12.5px;z-index:4;animation:pulse 2.4s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.svh-copy{position:relative;z-index:3;text-align:center;width:min(900px,92vw);padding:0 22px}
+.svh-copy h1{font-size:clamp(34px,6.6vw,68px);letter-spacing:-.5px;margin-bottom:16px;text-shadow:0 2px 30px rgba(0,0,0,.5)}
+.svh-copy p{color:#D5E3DF;font-size:clamp(15.5px,2.3vw,19px);max-width:620px;margin:0 auto 24px;text-shadow:0 1px 14px rgba(0,0,0,.6)}
 .svh-badge{position:absolute;top:78px;left:0;right:0;display:flex;justify-content:center;z-index:4}
 .svh-badge span{background:rgba(9,9,9,.6);backdrop-filter:blur(8px);border:1px solid var(--line);color:var(--gold-2);border-radius:30px;padding:7px 16px;font-size:12.5px;font-weight:700}
 
@@ -129,8 +122,6 @@ footer a{color:var(--gold);text-decoration:none}
   .rv{opacity:1;transform:none;transition:none}
   .goldgrad{animation:none}
   .marq-track{animation:none}
-  .svh{height:auto}
-  .svh-pin{position:relative;height:92svh}
 }
 </style>
 </head>
@@ -148,32 +139,16 @@ footer a{color:var(--gold);text-decoration:none}
   </div>
 </div></div>
 
-<!-- ===== SCROLL-VIDEO HERO — scroll drives the film ===== -->
+<!-- ===== VIDEO HERO — background video autoplays, no scroll required ===== -->
 <div class="svh" id="svh">
-  <div class="svh-pin">
-    <video id="svhVid" src="/app/media/movie.mp4" muted playsinline preload="auto"></video>
-    <div class="svh-veil"></div>
-    <div class="svh-badge"><span>🎬 this film was generated inside Fuse Studio</span></div>
+  <video src="/app/media/hero-bg.mp4" muted loop autoplay playsinline preload="auto"></video>
+  <div class="svh-veil"></div>
+  <div class="svh-badge"><span>🎬 this film was generated inside Fuse Studio</span></div>
 
-    <div class="svh-copy">
-      <div class="svh-state on" data-s="0">
-        <h1>Create like a <span class="goldgrad">studio.</span></h1>
-        <p>Cinematic AI photos, videos and avatars — from your phone, in seconds.</p>
-        <a class="btn btn-gold" href="/studio">✨ Start free — 12 credits</a>
-      </div>
-      <div class="svh-state" data-s="1">
-        <h1>Every frame you're seeing?<br><span class="goldgrad">Made in here.</span></h1>
-        <p>Seedance · Kling · Veo · GPT Image · Nano Banana — the world's best engines, one app, naira pricing.</p>
-      </div>
-      <div class="svh-state" data-s="2">
-        <h1>Your imagination,<br><span class="goldgrad">rendered.</span></h1>
-        <p>No camera. No studio. No tech skills. Type it, tap it, download it.</p>
-        <a class="btn btn-gold" href="/studio">Open the studio →</a>
-      </div>
-    </div>
-
-    <div class="svh-hint" id="svhHint">scroll — you're directing the film ↓</div>
-    <div class="svh-prog"><i id="svhFill"></i></div>
+  <div class="svh-copy">
+    <h1>Create like a <span class="goldgrad">studio.</span></h1>
+    <p>Cinematic AI photos, videos and avatars — from your phone, in seconds.</p>
+    <a class="btn btn-gold" href="/studio">✨ Start free — 12 credits</a>
   </div>
 </div>
 
@@ -204,7 +179,7 @@ footer a{color:var(--gold);text-decoration:none}
     <h2 class="sec-h">The world's best models. <span class="goldgrad">One app.</span></h2>
     <p class="sec-sub">No five subscriptions, no VPN gymnastics, no dollar cards. Every top engine, priced in naira.</p>
     <div class="mwall">
-      <div class="mw-card rv"><span class="tag">VIDEO</span><h3>⚡ Seedance 2.0</h3><p>Cinematic video in seconds — the engine behind the film you just scrolled.</p><i class="glowline"></i></div>
+      <div class="mw-card rv"><span class="tag">VIDEO</span><h3>⚡ Seedance 2.0</h3><p>Cinematic video in seconds — the engine behind the film playing up top.</p><i class="glowline"></i></div>
       <div class="mw-card rv"><span class="tag">VIDEO</span><h3>🎬 Kling 3.0</h3><p>Smooth, physical motion — products, people, action.</p><i class="glowline"></i></div>
       <div class="mw-card rv"><span class="tag">VIDEO</span><h3>🌀 Veo 3</h3><p>Google's flagship — sound, speech and stunning realism.</p><i class="glowline"></i></div>
       <div class="mw-card rv"><span class="tag">IMAGE</span><h3>🍌 Nano Banana</h3><p>Gemini-class edits and reference-matching magic.</p><i class="glowline"></i></div>
@@ -304,45 +279,15 @@ footer a{color:var(--gold);text-decoration:none}
 <script>
 document.getElementById('yr').textContent = new Date().getFullYear();
 
-// ============ Scroll-controlled video hero ============
-// The section is 320vh tall; the viewport pins. Scroll progress through the
-// section drives video.currentTime directly (the "fake 3D" technique) and
-// swaps the three synced text states. Falls back to autoplay-loop under
-// prefers-reduced-motion (handled in CSS + here).
+// ============ Hero background video ============
+// Plain autoplay/loop background video, no scroll-drive. iOS/Safari can
+// silently block autoplay even when muted+playsinline are set, so kick it
+// explicitly once metadata is ready and again on first touch as a fallback.
 (function(){
-  var svh = document.getElementById('svh'), vid = document.getElementById('svhVid'),
-      fill = document.getElementById('svhFill'), hint = document.getElementById('svhHint');
-  var states = Array.prototype.slice.call(document.querySelectorAll('.svh-state'));
-  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduced) { vid.loop = true; vid.autoplay = true; vid.play().catch(function(){}); return; }
-
-  var duration = 0, raf = null, target = 0;
-  vid.addEventListener('loadedmetadata', function(){ duration = vid.duration || 0; vid.currentTime = 0.04; });
-  // iOS unlock: a muted play()+pause() enables programmatic seeking on touch devices.
-  var unlocked = false;
-  function unlock(){ if (unlocked) return; unlocked = true; vid.play().then(function(){ vid.pause(); }).catch(function(){}); }
-  window.addEventListener('touchstart', unlock, { once: true, passive: true });
-
-  function progress(){
-    var r = svh.getBoundingClientRect();
-    var total = r.height - window.innerHeight;
-    return Math.min(1, Math.max(0, -r.top / (total || 1)));
-  }
-  function apply(){
-    raf = null;
-    if (duration) {
-      var t = target * (duration - 0.08);
-      // seek only when meaningfully different — avoids seek-thrash jank
-      if (Math.abs(vid.currentTime - t) > 0.033) vid.currentTime = t;
-    }
-    fill.style.width = (target * 100) + '%';
-    var idx = target < 0.34 ? 0 : (target < 0.72 ? 1 : 2);
-    states.forEach(function(s, i){ s.classList.toggle('on', i === idx); });
-    hint.style.opacity = target > 0.05 ? 0 : '';
-  }
-  function onScroll(){ target = progress(); if (!raf) raf = requestAnimationFrame(apply); }
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+  var vid = document.querySelector('#svh video');
+  if (!vid) return;
+  vid.play().catch(function(){});
+  window.addEventListener('touchstart', function(){ vid.play().catch(function(){}); }, { once: true, passive: true });
 })();
 
 // ============ Marquee: duplicate track for seamless loop ============
