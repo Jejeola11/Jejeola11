@@ -54,10 +54,10 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
 .re-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--re-green);box-shadow:0 0 8px 2px rgba(169,255,103,.7)}
 .re-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(100deg,var(--re-green),var(--re-yellow) 60%,#fff 120%);color:var(--re-teal-d);font-weight:800;border:0;border-radius:30px;padding:16px 30px;font-size:16px;text-decoration:none;box-shadow:0 10px 34px rgba(169,255,103,.3);transition:transform .15s,box-shadow .15s}
 .re-btn:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(169,255,103,.45)}
-.re-btn-flat{background:var(--re-teal-l);color:#fff;box-shadow:none;border:1px solid rgba(169,255,103,.35)}
-.re-btn-flat:hover{transform:none;box-shadow:none;background:var(--re-teal-d)}
+.re-btn-flat{background:linear-gradient(100deg,var(--re-green),var(--re-yellow) 60%,#fff 120%);color:var(--re-teal-d);box-shadow:none}
+.re-btn-flat:hover{transform:none;box-shadow:none}
 .re-btn-ghost{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.35);color:#fff;background:rgba(255,255,255,.05);font-weight:700;font-size:13.5px;border-radius:30px;padding:9px 16px;text-decoration:none;white-space:nowrap}
-.re-btn-nav{padding:10px 18px;font-size:13.5px;white-space:nowrap}
+.re-btn-nav{padding:9px 14px;font-size:11.5px;white-space:nowrap}
 .re-grad-caps{text-transform:uppercase;font-size:.85em;white-space:nowrap;display:inline-block}
 /* Non-animated, 100%-sized variant for bold gradient text INSIDE wrapping
    paragraphs -- the shine animation's 200%-wide background looks broken up
@@ -92,15 +92,6 @@ section{padding:92px 0;position:relative}
 .cream .sec-sub{color:var(--cream-muted)}
 .cream .goldgrad{background:linear-gradient(100deg,#8A6A2C 10%,#B08D57 35%,#D4A017 60%,#8A6A2C 90%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite}
 
-/* ===== Sticky bottom price bar (Variant B only) ===== */
-body{padding-bottom:70px}
-.re-sticky-bar{position:fixed;left:0;right:0;bottom:0;z-index:70;background:rgba(3,26,22,.97);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:10px 0;transform:translateY(0);transition:transform .25s}
-.re-sticky-bar.hide{transform:translateY(100%)}
-.re-sticky-in{display:flex;align-items:center;justify-content:space-between;gap:14px}
-.re-sticky-price{color:#fff;font-weight:800;font-size:16px;white-space:nowrap}
-.re-sticky-was{color:var(--muted);font-weight:600;font-size:13px;text-decoration:line-through;margin-right:6px}
-.re-sticky-cta{padding:11px 20px;font-size:14px;white-space:nowrap}
-@media(max-width:380px){.re-sticky-price{font-size:14px}.re-sticky-cta{padding:10px 14px;font-size:12.5px}}
 
 /* ===== Slim urgency announcement bar (Variant B only) ===== */
 .re-announce{background:linear-gradient(100deg,var(--re-green),var(--re-yellow));color:#0c1a12;font-weight:800;font-size:12.5px;text-align:center;padding:8px 16px}
@@ -481,17 +472,17 @@ body{padding-bottom:70px}
 .re-lockedin-note{display:inline-block;background:var(--re-green);color:#0c1a12;font-weight:800;font-size:11.5px;padding:6px 12px;border-radius:20px}
 
 /* ===== Done for you bonuses ===== */
-.re-dfy{background:var(--re-teal-l);padding:70px 0}
+.re-dfy{background:linear-gradient(180deg,var(--re-green) 0%,var(--teal-3) 45%,var(--re-teal-d) 100%);padding:70px 0}
 .re-dfy .wrap{max-width:520px;text-align:center}
-.re-dfy-kicker{color:#0c1a12;font-weight:800;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.6}
-.re-dfy h2{color:#0c1a12;font-family:"Bricolage Grotesque";font-weight:800;font-size:clamp(26px,6.5vw,36px);line-height:1.3;margin:14px 0 16px}
-.re-dfy-sub{color:rgba(9,9,9,.6);font-size:15px;line-height:1.6;margin:0 0 30px}
+.re-dfy-kicker{color:#000;font-weight:800;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.7}
+.re-dfy h2{color:#000;font-family:"Bricolage Grotesque";font-weight:800;font-size:clamp(26px,6.5vw,36px);line-height:1.3;margin:14px 0 16px}
+.re-dfy-sub{color:#000;font-size:15px;line-height:1.6;margin:0 0 30px;opacity:.72}
 .re-dfy-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;text-align:left}
 @media(max-width:560px){.re-dfy-grid{grid-template-columns:1fr}}
-.re-dfy-card{background:rgba(9,9,9,.08);border-radius:16px;padding:20px}
+.re-dfy-card{background:rgba(255,255,255,.92);border-radius:16px;padding:20px}
 .re-dfy-ic{font-size:24px;display:block;margin-bottom:10px}
-.re-dfy-card h3{color:#0c1a12;font-size:15.5px;margin:0 0 6px}
-.re-dfy-card p{color:rgba(9,9,9,.65);font-size:13.5px;line-height:1.55;margin:0}
+.re-dfy-card h3{color:#000;font-size:15.5px;margin:0 0 6px}
+.re-dfy-card p{color:rgba(0,0,0,.65);font-size:13.5px;line-height:1.55;margin:0}
 
 /* ===== One decision, everything changes ===== */
 .re-onedecision{background:var(--re-teal-d);padding:70px 0}
@@ -676,17 +667,16 @@ footer a{color:var(--re-yellow)}
 .lead-modal-secured{font-size:11px;color:var(--muted);text-align:center;margin-top:14px}
 .lead-modal-bonus-note{background:rgba(169,255,103,.08);border:1px solid rgba(169,255,103,.3);border-radius:10px;padding:9px 12px;font-size:11.5px;color:#E8F5D8;text-align:center;line-height:1.5;margin-bottom:12px}
 .lead-modal-close{position:absolute;top:14px;right:16px;background:none;border:0;color:var(--muted);font-size:18px;cursor:pointer;line-height:1;padding:4px}
-.activity-toast{position:fixed;left:16px;bottom:16px;z-index:75;max-width:340px;border-radius:18px;padding:2.5px;box-shadow:0 16px 40px -8px rgba(0,0,0,.55),0 0 30px -6px rgba(169,255,103,.4);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .35s ease,transform .35s ease;background:linear-gradient(135deg,var(--re-green),var(--re-yellow),#fff)}
+.activity-toast{position:fixed;left:12px;bottom:12px;z-index:75;width:150px;border-radius:14px;padding:2px;box-shadow:0 10px 26px -8px rgba(0,0,0,.55);opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .35s ease,transform .35s ease;background:linear-gradient(135deg,var(--re-green),var(--re-yellow),#fff)}
 .activity-toast.show{opacity:1;transform:none;pointer-events:auto}
-.activity-toast-in{background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 80%);border-radius:15.5px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
-.activity-toast .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(140deg,var(--re-green),var(--re-yellow));color:var(--re-teal-d);display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0}
-.activity-toast .tx{font-size:13px;line-height:1.4;color:#fff}
+.activity-toast-in{position:relative;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 80%);border-radius:12px;padding:10px 9px;display:flex;flex-direction:column;gap:5px}
+.activity-toast .av{width:20px;height:20px;border-radius:50%;background:linear-gradient(140deg,var(--re-green),var(--re-yellow));color:var(--re-teal-d);display:grid;place-items:center;font-weight:800;font-size:10.5px;flex-shrink:0}
+.activity-toast .tx{font-size:10.5px;line-height:1.35;color:#fff}
 .activity-toast .tx b{color:#fff}
-.activity-toast .meta{display:flex;gap:6px;align-items:center;margin-top:3px;color:#CFE0DC;font-size:11.5px}
+.activity-toast .meta{display:flex;flex-wrap:wrap;gap:2px 4px;margin-top:3px;color:#CFE0DC;font-size:9px}
 .activity-toast .meta .ok{color:var(--re-green)}
-.activity-toast .x{margin-left:auto;background:none;border:0;color:#CFE0DC;cursor:pointer;font-size:16px;line-height:1;padding:2px 4px;flex-shrink:0}
+.activity-toast .x{position:absolute;top:3px;right:5px;background:none;border:0;color:#CFE0DC;cursor:pointer;font-size:12px;line-height:1;padding:2px}
 .activity-toast .x:hover{color:#fff}
-@media(max-width:480px){.activity-toast{left:10px;right:10px;max-width:none;bottom:10px}}
 
 /* ===== Chat bot ===== */
 .bot-fab{position:fixed;bottom:20px;right:20px;z-index:80;width:58px;height:58px;border-radius:50%;background:linear-gradient(140deg,var(--re-green),var(--re-yellow) 60%,#fff 120%);border:0;cursor:pointer;font-size:24px;box-shadow:0 6px 30px rgba(169,255,103,.45);animation:tierglow 3s ease-in-out infinite}
@@ -724,7 +714,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
 <!-- ===== Top bar ===== -->
 <div class="top"><div class="wrap in">
   <a class="brand" href="#hero"><img class="dot" src="assets/logo-fuse-real.png" alt="Fuse Atelier"> Fuse&nbsp;Atelier</a>
-  <a class="re-btn re-btn-nav" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Get instant access →</a>
+  <a class="re-btn re-btn-nav" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Buy Now ₦25,000</a>
 </div></div>
 
 <!-- ===== HERO (rebrand pass — green/yellow/white gradient, light-teal-to-near-black bg) ===== -->
@@ -841,7 +831,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
     <div class="re-polaroid">
       <span class="re-tape"></span>
       <div class="re-polaroid-photo">
-        <img src="proof/win-progress.jpg" alt="Progress Godwill's first paid Upwork job" loading="lazy" style="object-fit:contain" onerror="this.parentElement.innerHTML='&lt;div style=&quot;color:#fff;font-size:13px;padding:20px;text-align:center&quot;&gt;📸 Screenshot drops in here&lt;/div&gt;'">
+        <img src="proof/win-progress.jpg" alt="Progress Godwill's first paid Upwork job" loading="lazy" style="object-fit:contain" onerror="fuseImgRetry(this,'screenshot')">
       </div>
       <div class="re-polaroid-cap">
         <p class="re-polaroid-quote">His first paid Upwork job using what he learned inside Fuse Atelier.</p>
@@ -855,7 +845,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
     <div class="re-polaroid">
       <span class="re-tape"></span>
       <div class="re-polaroid-photo">
-        <img src="proof/nana-aisha-review.jpg" alt="Nana Aisha's real message" loading="lazy">
+        <img src="proof/nana-aisha-review.jpg" alt="Nana Aisha's real message" loading="lazy" onerror="fuseImgRetry(this,'screenshot')">
       </div>
       <div class="re-polaroid-cap">
         <p class="re-polaroid-quote">Closed her first deal in her very first week inside Fuse Atelier.</p>
@@ -924,7 +914,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
     <div class="re-polaroid">
       <span class="re-tape"></span>
       <div class="re-polaroid-photo">
-        <img src="proof/ria-portrait.jpg" alt="Ria" loading="lazy" onerror="this.parentElement.innerHTML='&lt;div style=&quot;color:#fff;font-size:13px;padding:20px;text-align:center&quot;&gt;📸 Photo drops in here&lt;/div&gt;'">
+        <img src="proof/ria-portrait.jpg" alt="Ria" loading="lazy" onerror="fuseImgRetry(this,'photo')">
       </div>
       <div class="re-polaroid-cap">
         <p class="re-polaroid-quote">Closed a $3,500/month Upwork deal creating AI content.</p>
@@ -937,12 +927,12 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
 
     <div class="re-more-kicker">more jobs landed by Ria and her students ↓</div>
     <div class="re-jobs-grid">
-      <div class="re-job-card"><img src="proof/upwork-1.jpg" alt="Real Upwork profile — 78% Job Success, $4K+ earned" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
-      <div class="re-job-card"><img src="proof/upwork-2.jpg" alt="Live client contract — $3,500 budget, AI Character Creator" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
-      <div class="re-job-card"><img src="proof/contract-1.jpg" alt="Completed project — $2,000 budget, 4.0 star rating" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
-      <div class="re-job-card"><img src="proof/contract-2.jpg" alt="Completed job — $420 budget, T-shirt design pack" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
-      <div class="re-job-card"><img src="proof/contract-3.jpg" alt="Active contract — $750 budget, AI video generation" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
-      <div class="re-job-card"><img src="proof/contract-4.jpg" alt="Active contract — $500 budget, AI ad design" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
+      <div class="re-job-card"><img src="proof/upwork-1.jpg" alt="Real Upwork profile — 78% Job Success, $4K+ earned" loading="lazy" onerror="fuseImgRetry(this,'hide')"></div>
+      <div class="re-job-card"><img src="proof/upwork-2.jpg" alt="Live client contract — $3,500 budget, AI Character Creator" loading="lazy" onerror="fuseImgRetry(this,'hide')"></div>
+      <div class="re-job-card"><img src="proof/contract-1.jpg" alt="Completed project — $2,000 budget, 4.0 star rating" loading="lazy" onerror="fuseImgRetry(this,'hide')"></div>
+      <div class="re-job-card"><img src="proof/contract-2.jpg" alt="Completed job — $420 budget, T-shirt design pack" loading="lazy" onerror="fuseImgRetry(this,'hide')"></div>
+      <div class="re-job-card"><img src="proof/contract-3.jpg" alt="Active contract — $750 budget, AI video generation" loading="lazy" onerror="fuseImgRetry(this,'hide')"></div>
+      <div class="re-job-card"><img src="proof/contract-4.jpg" alt="Active contract — $500 budget, AI ad design" loading="lazy" onerror="fuseImgRetry(this,'hide')"></div>
     </div>
   </div>
 </section>
@@ -993,7 +983,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
     <div class="re-polaroid">
       <span class="re-tape"></span>
       <div class="re-polaroid-photo">
-        <img src="proof/ria-founder.jpg" alt="Ria, founder of Fuse Atelier" loading="lazy">
+        <img src="proof/ria-founder.jpg" alt="Ria, founder of Fuse Atelier" loading="lazy" onerror="fuseImgRetry(this,'photo')">
       </div>
       <div class="re-polaroid-cap">
         <p class="re-polaroid-quote">"I built this to actually change people's lives."</p>
@@ -1007,7 +997,6 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
     <h2 class="re-grad">The educator behind the system.</h2>
     <p class="re-founder-bio">I'm <span class="re-grad">Ria</span>, a seasoned educator &amp; AI Creative Director. I strive to help thousands of everyday people turn their phone into a consistent income stream. My approach comes from real experience — building Fuse Studio myself, landing real Upwork clients, and learning what actually works along the way.</p>
     <p class="re-founder-bio">This program is everything I wish I had when I started. No fluff, no 40 YouTube tabs — just a proven system that gets you paid.</p>
-    <a class="re-btn" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Start earning this week →</a>
   </div>
 </section>
 
@@ -1055,7 +1044,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
 <section class="re-dfy">
   <div class="wrap">
     <div class="re-dfy-kicker">Included at no extra cost</div>
-    <h2>Everything Else You Get, <span class="re-grad">Included</span></h2>
+    <h2>Everything Else You Get, Included</h2>
     <p class="re-dfy-sub">Real resources bundled into your ₦25,000 — nothing here is sold separately.</p>
     <div class="re-dfy-grid">
       <div class="re-dfy-card">
@@ -1244,14 +1233,6 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
   </div>
 </div>
 
-<!-- ===== Sticky bottom price bar (Variant B) — always visible while scrolling ===== -->
-<div class="re-sticky-bar" id="reStickyBar">
-  <div class="wrap re-sticky-in">
-    <div class="re-sticky-price">₦25,000</div>
-    <a class="re-btn re-sticky-cta" href="#pricing" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Buy Now →</a>
-  </div>
-</div>
-
 <!-- ===== Chat bot ===== -->
 <button class="bot-fab" id="botFab" aria-label="Chat with us">💬</button>
 <div class="bot-panel" id="botPanel">
@@ -1304,6 +1285,30 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
 // first (name/email/WhatsApp), so even an abandoned checkout leaves a real
 // contact to follow up with, and the email typed here becomes the actual
 // Paystack email instead of the random guest placeholder.
+// ============ Proof-image retry ============
+// A real photo momentarily failing to load on a weak mobile connection
+// isn't the same as it being genuinely missing -- the old onerror
+// handlers gave up on the very first failed fetch (a photo placeholder,
+// or the whole job-card just vanishing), which reads as "the media is
+// broken" when it's usually just a dropped request. This retries the
+// same file (cache-busted) twice with a short backoff before actually
+// falling back.
+function fuseImgRetry(img, kind) {
+  var tries = parseInt(img.dataset.retries || '0', 10);
+  if (tries < 2) {
+    img.dataset.retries = String(tries + 1);
+    var base = img.dataset.src || (img.dataset.src = img.src.split('?')[0]);
+    setTimeout(function(){ img.src = base + '?r=' + Date.now(); }, 700 * (tries + 1));
+    return;
+  }
+  if (kind === 'hide') {
+    var card = img.closest('.re-job-card'); if (card) card.style.display = 'none';
+  } else {
+    var label = kind === 'photo' ? 'Photo drops in here' : 'Screenshot drops in here';
+    img.parentElement.innerHTML = '<div style="color:#fff;font-size:13px;padding:20px;text-align:center">📸 ' + label + '</div>';
+  }
+}
+
 var pendingCheckout = null;
 function fuseBuy(packKey, el, pixelData) {
   pendingCheckout = { packKey: packKey, pixelData: pixelData, fallbackHref: el.getAttribute('href') };
