@@ -54,6 +54,8 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
 .re-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--re-green);box-shadow:0 0 8px 2px rgba(169,255,103,.7)}
 .re-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(100deg,var(--re-green),var(--re-yellow) 60%,#fff 120%);color:var(--re-teal-d);font-weight:800;border:0;border-radius:30px;padding:16px 30px;font-size:16px;text-decoration:none;box-shadow:0 10px 34px rgba(169,255,103,.3);transition:transform .15s,box-shadow .15s}
 .re-btn:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(169,255,103,.45)}
+.re-btn-flat{background:var(--re-teal-l);color:#fff;box-shadow:none;border:1px solid rgba(169,255,103,.35)}
+.re-btn-flat:hover{transform:none;box-shadow:none;background:var(--re-teal-d)}
 .re-btn-ghost{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.35);color:#fff;background:rgba(255,255,255,.05);font-weight:700;font-size:13.5px;border-radius:30px;padding:9px 16px;text-decoration:none;white-space:nowrap}
 .re-btn-nav{padding:10px 18px;font-size:13.5px;white-space:nowrap}
 .re-grad-caps{text-transform:uppercase;font-size:.85em;white-space:nowrap;display:inline-block}
@@ -274,6 +276,8 @@ body{padding-bottom:70px}
 .re-wins .wrap{max-width:420px}
 .re-wins-kicker{display:flex;align-items:center;gap:8px;font-family:"Caveat",cursive;font-weight:700;font-size:26px}
 .re-wins-kicker .re-grad{font-family:"Caveat",cursive}
+.re-wins-kicker.plain{font-family:Archivo,sans-serif;font-weight:800;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase}
+.re-wins-kicker.plain .re-grad{font-family:Archivo,sans-serif}
 .re-wins h2{font-size:clamp(30px,8vw,42px);line-height:1.15;margin:12px 0 40px;color:#fff}
 .re-wins h2 em{font-style:italic}
 /* The animated 200%-wide shine gradient only shows a slice of its color
@@ -363,9 +367,21 @@ body{padding-bottom:70px}
 /* ===== The investment ===== */
 .re-invest{background:var(--re-teal-d);padding:70px 0}
 .re-invest .wrap{max-width:480px;text-align:center}
-.re-invest-kicker{font-family:"Caveat",cursive;font-weight:700;font-size:24px;color:var(--re-green)}
-.re-invest h2{font-family:"Playfair Display",serif;font-weight:900;font-size:clamp(28px,7vw,38px);line-height:1.25;margin:14px 0 14px}
-.re-invest-sub{color:#fff;font-size:15.5px;margin:0 0 40px}
+.re-invest-kicker{color:var(--re-yellow);font-weight:800;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase}
+.re-invest h2{font-family:"Bricolage Grotesque",Archivo,sans-serif;font-weight:800;font-size:clamp(26px,6vw,36px);line-height:1.25;margin:14px 0 14px;color:#fff}
+.re-invest-sub{color:#CFE0DC;font-size:15.5px;margin:0 0 36px;line-height:1.6}
+.re-module-card{text-align:left;background:linear-gradient(165deg,rgba(37,69,74,.4),rgba(9,9,9,.35));border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin-bottom:14px}
+.re-module-card.highlight{border-color:rgba(169,255,103,.45);background:linear-gradient(165deg,rgba(169,255,103,.1),rgba(9,9,9,.35))}
+.re-module-top{display:flex;align-items:baseline;flex-wrap:wrap;gap:10px 12px;margin-bottom:8px}
+.re-module-num{color:rgba(255,255,255,.35);font-weight:800;font-size:13px}
+.re-module-top h3{color:#fff;font-size:16.5px;font-weight:800;margin:0;flex:1 1 auto;min-width:150px}
+.re-module-value{background:rgba(245,197,24,.14);color:var(--re-yellow);font-size:11px;font-weight:800;letter-spacing:.03em;padding:4px 10px;border-radius:20px;white-space:nowrap}
+.re-module-card p{color:#CFE0DC;font-size:14px;line-height:1.6;margin:0}
+.re-modules-total{display:flex;justify-content:space-between;gap:12px;background:rgba(9,9,9,.3);border-radius:14px;padding:18px 20px;margin:20px 0 0}
+.re-modules-total-col{display:flex;flex-direction:column;gap:4px}
+.re-modules-total-col span{color:rgba(255,255,255,.5);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.re-modules-total-col b{font-size:20px;font-family:"Playfair Display",serif}
+.re-modules-strike{color:rgba(255,255,255,.55);text-decoration:line-through}
 .re-invest-card{border-radius:22px;padding:28px 24px;margin-bottom:24px;text-align:left}
 .re-invest-card.white{background:#fff}
 .re-invest-card.yellow{background:var(--re-yellow)}
@@ -382,10 +398,10 @@ body{padding-bottom:70px}
 .re-invest-total{display:flex;justify-content:space-between;gap:12px;padding-top:14px;margin:2px 0 20px;border-top:1px solid rgba(9,9,9,.2);color:#000;font-size:14.5px}
 .re-invest-total b{text-decoration:line-through;font-weight:700;color:rgba(9,9,9,.55)}
 .re-invest-save{color:var(--re-teal-d);font-family:"Caveat",cursive;font-weight:700;font-size:18px;text-align:center;margin:16px 0 0}
-.re-invest-upsell{color:rgba(9,9,9,.55);font-size:12.5px;text-align:center;margin-top:14px;line-height:1.5}
-.re-invest-upsell a{color:var(--re-teal-d);font-weight:800;text-decoration:underline}
-.re-invest-cta-wrap{border-radius:32px;padding:3px;margin-top:18px;background:linear-gradient(100deg,var(--re-teal-l),var(--re-teal-d));box-shadow:0 8px 0 -2px rgba(9,9,9,.45),0 16px 28px -10px rgba(9,9,9,.55)}
-.re-invest-bonus{background:rgba(9,9,9,.14);border:1px dashed rgba(9,9,9,.35);border-radius:14px;padding:14px 16px;margin-top:16px;font-size:13px;color:rgba(9,9,9,.75);line-height:1.7;text-align:center}
+.re-invest-upsell{color:rgba(255,255,255,.55);font-size:12.5px;text-align:center;margin-top:14px;line-height:1.5}
+.re-invest-upsell a{color:var(--re-yellow);font-weight:800;text-decoration:underline}
+.re-invest-cta-wrap{border-radius:32px;padding:3px;margin-top:18px;background:linear-gradient(100deg,var(--re-green),var(--re-yellow));box-shadow:none}
+.re-invest-bonus{background:rgba(169,255,103,.08);border:1px dashed rgba(169,255,103,.35);border-radius:14px;padding:14px 16px;margin-top:16px;font-size:13px;color:#E8F5D8;line-height:1.7;text-align:center}
 .re-invest-cta{display:flex;width:100%;justify-content:center;margin:0}
 
 /* ===== Break it down / the math / zero-risk ===== */
@@ -660,7 +676,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
 <body>
 
 <!-- ===== Slim urgency bar ===== -->
-<div class="re-announce"><div class="wrap">Only 20 spots left at this price. <b>₦100,000 cash bonus</b> for the first person to hit $500 in real income within 2 weeks of joining.</div></div>
+<div class="re-announce"><div class="wrap">An income system that actually works, with a coach passionate to see you get results everytime.</div></div>
 
 <!-- ===== Top bar ===== -->
 <div class="top"><div class="wrap in">
@@ -672,11 +688,11 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
 <header class="hero re-hero" id="hero">
   <div class="hero-front re-hero-bg" id="heroFront" aria-hidden="true"></div>
   <div class="hero-in">
-    <span class="re-pill"><span class="dot"></span>The AI Creative Income System</span>
-    <h1 class="re-h1">How Fuse Atelier Helped Ordinary People Make Their First Real Income With AI — <span class="re-grad-static">without a laptop, a portfolio, or waiting months to start</span></h1>
+    <span class="re-pill"><span class="dot"></span>The AI Creative System your mates won't tell you about</span>
+    <h1 class="re-h1">How this AI income system helped me do <span class="re-grad-static">$4000+ this year</span> without a laptop, a good phone, or waiting months to start.</h1>
     <p class="sub"><em class="re-quote">Nana Aisha</em> closed her first brand deal in her very first week inside Fuse Atelier — no experience, no portfolio, just her phone. <em class="re-quote">Progress Godwill</em> landed his first paid Upwork job the same way.</p>
     <div class="cta-row">
-      <a class="re-btn" href="#pricing">Get Fuse Atelier — ₦25,000 →</a>
+      <a class="re-btn re-btn-flat" href="#pricing">Show Me the System for ₦25,000 →</a>
     </div>
     <div class="re-price-line">
       <p class="re-price-tiers">₦25,000 one-time · everything included · instant access.</p>
@@ -710,50 +726,103 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
         </ul>
       </div>
     </div>
-    <p class="re-truth-outro"><b>That discomfort you feel right now? <span class="re-grad-static">That's the exact reason this guide exists.</span></b> And it's the last time you'll sit with it if you act today.</p>
-    <a class="re-btn" href="#pricing">Get Fuse Atelier — ₦25,000 →</a>
+    <p class="re-truth-outro"><b>That discomfort you feel right now? <span class="re-grad-static">That's the exact reason this AI Creative Income exists.</span></b> And it's the last time you'll sit with it if you act today.</p>
   </div>
 </section>
 
-<!-- ===== THE INVESTMENT (Variant B — single bundle, no tier choice) ===== -->
+<!-- ===== WHAT YOU'RE GETTING (Variant B — module breakdown, matching reference layout) ===== -->
 <section class="re-invest" id="pricing">
   <div class="wrap">
-    <div class="re-invest-kicker">the investment ↓</div>
-    <h2 class="re-grad">One price. Everything included.</h2>
-    <p class="re-invest-sub">Transparency upfront — no hidden fees, ever.</p>
+    <div class="re-invest-kicker">What you're getting</div>
+    <h2>The Complete <span class="re-grad">AI Creative Income System</span></h2>
+    <p class="re-invest-sub">Not just a course. A proven step-by-step system for generating real income starting within 7 days of getting access.</p>
 
-    <div class="re-invest-card yellow" id="tier-creator">
-      <div class="re-invest-name re-teal-grad">Fuse Atelier</div>
-      <div class="re-invest-cols"><span>Item</span><span>Value</span></div>
-      <div class="re-invest-list">
-        <div class="re-invest-row"><span>4 skill families — Design, Brand, Product, Video</span><b>₦25,000</b></div>
-        <div class="re-invest-row"><span>Money Engine + Upwork masterclass</span><b>₦10,000</b></div>
-        <div class="re-invest-row"><span>400 studio credits</span><b>₦15,000</b></div>
-        <div class="re-invest-row"><span>WhatsApp cohort + weekly live session</span><b>₦10,000</b></div>
+    <div class="re-module-card">
+      <div class="re-module-top">
+        <span class="re-module-num">01</span>
+        <h3>4 Skill Families — Design, Brand, Product, Video</h3>
+        <span class="re-module-value">₦25,000 Value</span>
       </div>
-      <div class="re-invest-total"><span>Total value if bought separately</span><b>₦60,000</b></div>
-      <div class="re-invest-box">
-        <div class="re-invest-box-label">Your Investment</div>
-        <div class="re-invest-box-price re-grad">₦25,000</div>
-      </div>
-      <p class="re-invest-save">You save ₦35,000 — everything bundled in one price, one-time payment.</p>
-      <div class="re-invest-bonus">
-        <b>🎟️ Only 20 spots left</b> at this price — after that, it goes up.<br>
-        <b>💰 ₦100,000 cash bonus</b> for the first person to hit $500 in real client income within 2 weeks of joining.
-      </div>
-      <div class="re-invest-cta-wrap">
-        <a class="re-btn re-invest-cta" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Get Fuse Atelier — ₦25,000 →</a>
-      </div>
-      <p class="re-invest-upsell">Want everything — all 6 skill families, 1,200 credits, direct access to Ria? <a href="/studio?buy=atelier_empire" onclick="return fuseBuy('atelier_empire', this, {value:70000,currency:'NGN',content_name:'atelier_empire'})">Empire is available too</a> — or upgrade later, paying only the difference.</p>
+      <p>Master all 4 real creative skill families using actual AI workflows — flyers, brand identity, product photography, and short-form video — not just theory.</p>
     </div>
+
+    <div class="re-module-card">
+      <div class="re-module-top">
+        <span class="re-module-num">02</span>
+        <h3>Money Engine + Upwork Masterclass</h3>
+        <span class="re-module-value">₦10,000 Value</span>
+      </div>
+      <p>The exact client-getting system and Upwork playbook that gets you your first paying client — pricing and pitching included.</p>
+    </div>
+
+    <div class="re-module-card highlight">
+      <div class="re-module-top">
+        <span class="re-module-num">03</span>
+        <h3>400 Studio Credits</h3>
+        <span class="re-module-value">₦15,000 Value</span>
+      </div>
+      <p>About 25 full flyers or UGC ads worth of real AI generations to build your first portfolio — no separate subscription needed.</p>
+    </div>
+
+    <div class="re-module-card">
+      <div class="re-module-top">
+        <span class="re-module-num">04</span>
+        <h3>WhatsApp Cohort + Weekly Live Sessions</h3>
+        <span class="re-module-value">₦10,000 Value</span>
+      </div>
+      <p>Direct access to the community and live coaching sessions with Ria, every single week.</p>
+    </div>
+
+    <div class="re-modules-total">
+      <div class="re-modules-total-col"><span>Total Course Value</span><b class="re-modules-strike">₦60,000+</b></div>
+      <div class="re-modules-total-col"><span>Your Price Today</span><b class="re-grad">₦25,000</b></div>
+    </div>
+
+    <div class="re-invest-bonus">
+      <b>🎟️ Only 20 spots left</b> at this price — after that, it goes up.<br>
+      <b>💰 ₦100,000 cash bonus</b> for the first person to hit $500 in real client income within 2 weeks of joining.
+    </div>
+    <div class="re-invest-cta-wrap">
+      <a class="re-btn re-invest-cta" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Show Me the System for ₦25,000 →</a>
+    </div>
+    <p class="re-invest-upsell">Want everything — all 6 skill families, 1,200 credits, direct access to Ria? <a href="/studio?buy=atelier_empire" onclick="return fuseBuy('atelier_empire', this, {value:70000,currency:'NGN',content_name:'atelier_empire'})">Empire is available too</a> — or upgrade later, paying only the difference.</p>
   </div>
 </section>
 
-<!-- ===== WHAT STUDENTS SAY ===== -->
-<section class="re-reviews">
+<!-- ===== REAL RESULTS (Variant B — matches reference "Real Students. Real Alerts. Real Names.") ===== -->
+<section class="re-wins">
   <div class="wrap">
-    <div class="re-reviews-kicker">What Students Say</div>
-    <h2 class="re-grad">Real words from the community.</h2>
+    <div class="re-wins-kicker plain"><span class="re-grad">Real results</span></div>
+    <h2>Real Students. <em class="re-grad">Real Alerts. Real Names.</em></h2>
+
+    <div class="re-polaroid">
+      <span class="re-tape"></span>
+      <div class="re-polaroid-photo">
+        <img src="proof/win-progress.jpg" alt="Progress Godwill's first paid Upwork job" loading="lazy" style="object-fit:contain" onerror="this.parentElement.innerHTML='&lt;div style=&quot;color:#fff;font-size:13px;padding:20px;text-align:center&quot;&gt;📸 Screenshot drops in here&lt;/div&gt;'">
+      </div>
+      <div class="re-polaroid-cap">
+        <p class="re-polaroid-quote">His first paid Upwork job using what he learned inside Fuse Atelier.</p>
+        <div class="re-polaroid-foot">
+          <span class="re-polaroid-name">Progress Godwill</span>
+          <span class="re-polaroid-tag">First $100</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="re-polaroid">
+      <span class="re-tape"></span>
+      <div class="re-polaroid-photo">
+        <img src="proof/nana-aisha-review.jpg" alt="Nana Aisha's real message" loading="lazy">
+      </div>
+      <div class="re-polaroid-cap">
+        <p class="re-polaroid-quote">Closed her first deal in her very first week inside Fuse Atelier.</p>
+        <div class="re-polaroid-foot">
+          <span class="re-polaroid-name">Nana Aisha</span>
+          <span class="re-polaroid-tag">First brand deal</span>
+        </div>
+      </div>
+    </div>
+
     <div class="re-review-card">
       <div class="re-review-stars re-grad">★★★★★</div>
       <p class="re-review-quote">"Fuse by Ria is an eye opener. I joined with a lot of wrong mindsets, but I was reshaped and refined. Now I've built a strong portfolio positioned to hunt jobs in the big leagues."</p>
@@ -803,39 +872,11 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
   </div>
 </section>
 
-<!-- ===== STUDENT WINS (polaroid wall) ===== -->
+<!-- ===== THE COACH'S OWN RESULTS (Variant B) ===== -->
 <section class="re-wins">
   <div class="wrap">
-    <div class="re-wins-kicker"><span class="re-grad">Fuse Atelier student wins</span> <span class="re-grad">✦</span></div>
-    <h2>Real receipts, <em class="re-grad">real people</em>.</h2>
-
-    <div class="re-polaroid">
-      <span class="re-tape"></span>
-      <div class="re-polaroid-photo">
-        <img src="proof/win-progress.jpg" alt="Progress Godwill's first paid Upwork job" loading="lazy" style="object-fit:contain" onerror="this.parentElement.innerHTML='&lt;div style=&quot;color:#fff;font-size:13px;padding:20px;text-align:center&quot;&gt;📸 Screenshot drops in here&lt;/div&gt;'">
-      </div>
-      <div class="re-polaroid-cap">
-        <p class="re-polaroid-quote">His first paid Upwork job using what he learned inside Fuse Atelier.</p>
-        <div class="re-polaroid-foot">
-          <span class="re-polaroid-name">Progress Godwill</span>
-          <span class="re-polaroid-tag">First $100</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="re-polaroid">
-      <span class="re-tape"></span>
-      <div class="re-polaroid-photo">
-        <img src="proof/nana-aisha-review.jpg" alt="Nana Aisha's real message" loading="lazy">
-      </div>
-      <div class="re-polaroid-cap">
-        <p class="re-polaroid-quote">Closed her first deal in her very first week inside Fuse Atelier.</p>
-        <div class="re-polaroid-foot">
-          <span class="re-polaroid-name">Nana Aisha</span>
-          <span class="re-polaroid-tag">First brand deal</span>
-        </div>
-      </div>
-    </div>
+    <div class="re-wins-kicker plain"><span class="re-grad">The coach's own results</span></div>
+    <h2>This Isn't Just What I Teach. <em class="re-grad">It's What I Live.</em></h2>
 
     <div class="re-polaroid">
       <span class="re-tape"></span>
@@ -903,216 +944,6 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
   </div>
 </section>
 
-<!-- ===== SHOWCASE (the kind of work you'll learn to make) ===== -->
-<section class="re-showcase">
-  <div class="wrap">
-    <div class="kicker">See what creative AI can do</div>
-    <h2 class="re-grad">The kind of work you'll learn to make</h2>
-    <p class="sub">Real flyers, product shots and AI ads our own students are getting paid for — the kind of content that stops the scroll, once you know the exact workflow behind it.</p>
-  </div>
-  <div class="re-marquee">
-    <div class="re-marquee-track" id="reShowcaseTrack"></div>
-  </div>
-</section>
-<script>
-(function(){
-  var track = document.getElementById('reShowcaseTrack');
-  if (!track) return;
-  var items = [
-    { label: 'Product ad flyers', img: 'assets/showcase/slamit-beatup.jpg' },
-    { label: 'Talking-head brand videos', video: 'assets/showcase/vid-fuse-office.mp4' },
-    { label: 'AI product photography', img: 'assets/showcase/lamer-underwater.jpg' },
-    { label: 'UGC-style talking ads', video: 'assets/showcase/vid-ugc-skincare.mp4' },
-    { label: 'Web3 & crypto design', img: 'assets/showcase/web3-voidkey.jpg' },
-    { label: 'Viral CGI product ads', video: 'assets/showcase/vid-cgi-explosion.mp4' },
-    { label: 'Sports & campaign flyers', img: 'assets/showcase/slamit-heat.jpg' },
-    { label: 'AI avatars & digital twins', video: 'assets/showcase/vid-ai-avatar-man.mp4' },
-    { label: 'Tech product ads', img: 'assets/showcase/airpods-feel.jpg' },
-    { label: 'Consistent AI portraits', img: 'assets/showcase/avatar-pink-boutique.jpg' },
-    { label: 'Pet & product photography', img: 'assets/showcase/bulldog-product.jpg' },
-    { label: 'Consistent AI portraits', img: 'assets/showcase/avatar-car-night.jpg' },
-    { label: 'Brand content flyers', img: 'assets/showcase/slamit-grandma.jpg' },
-    { label: 'Consistent AI portraits', img: 'assets/showcase/avatar-trench-beret.jpg' }
-  ];
-  var html = '';
-  items.concat(items).forEach(function(it){
-    var media = it.video
-      ? '<video src="' + it.video + '" muted loop autoplay playsinline preload="metadata"></video>'
-      : '<img src="' + it.img + '" alt="" loading="lazy">';
-    html += '<div class="re-mcard"><div class="re-mcard-in">' + media + '<div class="re-mcard-label">' + it.label + '</div></div></div>';
-  });
-  track.innerHTML = html;
-})();
-</script>
-
-<!-- ===== HOW DOES THIS ACTUALLY WORK (single-offer version) ===== -->
-<section class="re-tiers">
-  <div class="wrap">
-    <div class="re-tiers-kicker">what's included ↓</div>
-    <h2 class="re-grad">How does this actually work?</h2>
-    <p class="sub2">An AI Creative System that gets you paid</p>
-
-    <div class="re-tier-outline t2">
-      <div class="re-tier-card re-tier-yellow">
-        <div class="re-tier-top"><span class="re-tier-label">Fuse Atelier</span><span class="re-tier-num">✓</span></div>
-        <h3 class="re-tier-name re-teal-grad">4 skill families, one price</h3>
-        <p class="re-tier-sub">Design &amp; Flyers, Brand, Product, and Video — the whole creative business</p>
-        <div class="re-tier-block">
-          <div class="re-tier-block-label re-teal-grad">You'll make</div>
-          <p class="re-tier-block-copy">Scroll-stopping AI flyers, product photography, UGC-style ads, and short brand videos.</p>
-        </div>
-        <div class="re-tier-block">
-          <div class="re-tier-block-label re-teal-grad">You'll learn to</div>
-          <p class="re-tier-block-copy">Run AI creative as a real service — pricing, pitching, and delivering paid client work across 4 skill families.</p>
-        </div>
-      </div>
-    </div>
-    <p class="re-tiers-note">Want AI avatars, long-form ad video and direct access to Ria too? That's Empire — available as an upgrade any time, you only pay the difference.</p>
-  </div>
-</section>
-
-<!-- ===== WHAT YOU ACTUALLY WALK AWAY WITH ===== -->
-<section class="re-walk">
-  <div class="wrap">
-    <div class="re-walk-kicker">with 6 skills ↘</div>
-    <h2 class="re-grad">What you <em>actually</em><br>walk away with.</h2>
-    <p class="re-walk-lead">Not a course library that gathers dust. Actual education, a real brand deal, real revenue, and a workflow you could run any day of the week.</p>
-    <a class="re-btn" href="#pricing">Start earning this week →</a>
-
-    <div class="re-walk-cards">
-      <div class="re-walk-card">
-        <div class="re-walk-card-in">
-          <span class="re-walk-num">01</span>
-          <h3>Actual education</h3>
-          <p>Hands-on training inside Fuse Atelier, not another video course to abandon.</p>
-        </div>
-      </div>
-      <div class="re-walk-card">
-        <div class="re-walk-card-in">
-          <span class="re-walk-num">02</span>
-          <h3>A real client deal</h3>
-          <p>The pitch scripts and Money Engine that get you your first paying client.</p>
-        </div>
-      </div>
-      <div class="re-walk-card">
-        <div class="re-walk-card-in">
-          <span class="re-walk-num">03</span>
-          <h3>Real revenue</h3>
-          <p>Your first real income from AI creative work, tracked and verified.</p>
-        </div>
-      </div>
-      <div class="re-walk-card">
-        <div class="re-walk-card-in">
-          <span class="re-walk-num">04</span>
-          <h3>A repeatable workflow</h3>
-          <p>The exact prompts, pricing, and process to do it again, any day of the week.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== THE OPPORTUNITY IS REAL ===== -->
-<section class="re-opp">
-  <div class="wrap">
-    <div class="re-opp-kicker">The opportunity is real, and it's now</div>
-    <h2>Demand Is Exploding. The Talent To Meet It Isn't.</h2>
-    <div class="re-opp-cards">
-      <div class="re-opp-card">
-        <div class="re-opp-num re-grad">1 in 10</div>
-        <div class="re-opp-desc">job postings now require AI skills</div>
-        <div class="re-opp-src">PwC</div>
-      </div>
-      <div class="re-opp-card">
-        <div class="re-opp-num re-grad">+44%</div>
-        <div class="re-opp-desc">more per hour for AI freelancers</div>
-        <div class="re-opp-src">Upwork</div>
-      </div>
-      <div class="re-opp-card">
-        <div class="re-opp-num re-grad">+329%</div>
-        <div class="re-opp-desc">growth in AI video, the fastest-rising skill</div>
-        <div class="re-opp-src">Upwork</div>
-      </div>
-      <div class="re-opp-card">
-        <div class="re-opp-num re-grad">56%</div>
-        <div class="re-opp-desc">wage premium after ~1 month upskilling</div>
-        <div class="re-opp-src">PwC</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== A COURSE AND A CREATIVE STUDIO ===== -->
-<section class="re-studio">
-  <div class="wrap">
-    <div class="re-studio-kicker">A Course And A Creative Studio</div>
-    <h2>One Price, Every Tool You Need To Start</h2>
-    <p class="re-studio-note">Everything happens inside Fuse Studio — no extra subscriptions, no separate apps to pay for. You generate, edit, and deliver client work in one place.</p>
-    <div class="re-studio-card-outline">
-      <div class="re-studio-card">
-        <div class="re-studio-feat">
-          <span class="re-studio-feat-ic">🎨</span>
-          <div>
-            <div class="re-studio-feat-t">Flyer &amp; Design Studio</div>
-            <div class="re-studio-feat-d">AI flyers, product shots, and brand kits — client-ready in minutes.</div>
-          </div>
-        </div>
-        <div class="re-studio-feat">
-          <span class="re-studio-feat-ic">🎬</span>
-          <div>
-            <div class="re-studio-feat-t">Video Studio</div>
-            <div class="re-studio-feat-d">UGC-style ads and short brand video content.</div>
-          </div>
-        </div>
-        <div class="re-studio-feat">
-          <span class="re-studio-feat-ic">🎧</span>
-          <div>
-            <div class="re-studio-feat-t">Audio Studio</div>
-            <div class="re-studio-feat-d">Voice cloning and scripted audio for any project.</div>
-          </div>
-        </div>
-        <div class="re-studio-feat">
-          <span class="re-studio-feat-ic">📚</span>
-          <div>
-            <div class="re-studio-feat-t">Full course + WhatsApp community</div>
-            <div class="re-studio-feat-d">Templates, pitch scripts, and live feedback on your work.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="re-studio-credits">
-      <h3 class="re-grad">400 Studio Credits Included</h3>
-      <p style="color:#CFE0DC;font-size:14px;max-width:420px;margin:0 auto">About 25 full flyers or UGC ads to build your first real portfolio. Run out and top up, or upgrade to Empire's 1,200 credits any time.</p>
-    </div>
-    <a class="re-btn" href="#pricing">Get Fuse Atelier — ₦25,000 →</a>
-  </div>
-</section>
-
-<!-- ===== IS FUSE ATELIER RIGHT FOR YOU ===== -->
-<section class="re-fit">
-  <div class="wrap">
-    <h2>Is <span class="re-grad">Fuse Atelier</span> Right For You?</h2>
-    <div class="re-fit-box">
-      <h3>This Is For You If…</h3>
-      <ul class="re-fit-list">
-        <li><span class="re-fit-check">✓</span>You want a real path and proper training, not 40 YouTube tabs and a guess</li>
-        <li><span class="re-fit-check">✓</span>You want your AI creative work to become income, not just another hobby</li>
-        <li><span class="re-fit-check">✓</span>You want eyes on your work and people to ask the moment you're stuck</li>
-        <li><span class="re-fit-check">✓</span>You will actually make things, because that's the only place the skill comes from</li>
-      </ul>
-    </div>
-    <div class="re-fit-box">
-      <h3>This Is <span class="bad">Not</span> For You If…</h3>
-      <ul class="re-fit-list">
-        <li><span class="re-fit-x">✕</span>You want the money without doing the reps</li>
-        <li><span class="re-fit-x">✕</span>You are looking for a magic button instead of a skill</li>
-        <li><span class="re-fit-x">✕</span>You will collect lessons and never create anything</li>
-        <li><span class="re-fit-x">✕</span>You go quiet the moment someone gives you honest feedback</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
 <!-- ===== MEET THE FOUNDER ===== -->
 <section class="re-founder">
   <div class="wrap">
@@ -1129,7 +960,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
         </div>
       </div>
     </div>
-    <div class="re-founder-kicker">meet the founder ↘</div>
+    <div class="re-founder-kicker">your coach</div>
     <h2 class="re-grad">The educator behind the system.</h2>
     <p class="re-founder-bio">I'm <span class="re-grad">Ria</span>, a seasoned educator &amp; AI Creative Director. I strive to help thousands of everyday people turn their phone into a consistent income stream. My approach comes from real experience — building Fuse Studio myself, landing real Upwork clients, and learning what actually works along the way.</p>
     <p class="re-founder-bio">This program is everything I wish I had when I started. No fluff, no 40 YouTube tabs — just a proven system that gets you paid.</p>
@@ -1261,11 +1092,11 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
   </div>
 </div>
 
-<!-- ===== Sticky bottom price bar (Variant B) ===== -->
-<div class="re-sticky-bar hide" id="reStickyBar">
+<!-- ===== Sticky bottom price bar (Variant B) — always visible while scrolling ===== -->
+<div class="re-sticky-bar" id="reStickyBar">
   <div class="wrap re-sticky-in">
-    <div class="re-sticky-price"><span class="re-sticky-was">₦60,000</span> ₦25,000</div>
-    <a class="re-btn re-sticky-cta" href="#pricing" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Get Fuse Atelier →</a>
+    <div class="re-sticky-price">₦25,000</div>
+    <a class="re-btn re-sticky-cta" href="#pricing" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Buy Now →</a>
   </div>
 </div>
 
@@ -1367,18 +1198,6 @@ function fuseSubmitCheckout() {
   });
 }
 
-// ============ Skills section — trimmed to 3 by default, expands to all 6.
-// Kept out of the way until someone actually wants the extra depth,
-// instead of a wall of cards everyone has to scroll past. ============
-(function(){
-  var btn = document.getElementById('skillsExpandBtn');
-  if (!btn) return;
-  btn.onclick = function(){
-    document.querySelectorAll('#skillsGrid .skill-hidden').forEach(function(el){ el.classList.remove('skill-hidden'); });
-    btn.style.display = 'none';
-  };
-})();
-
 // ============ Recent-activity toast -- REAL enrollments only, never
 // fabricated. Pulled from recent-activity.js, which only returns actual
 // payments rows (Paystack-confirmed or Ria-confirmed bank transfer) from
@@ -1440,20 +1259,6 @@ function fuseSubmitCheckout() {
   fab.onclick = function(){ panel.classList.toggle('open'); if (panel.classList.contains('open') && !chips.children.length) renderChips(); };
 })();
 
-// ============ Sticky bottom price bar — hide once the real pricing
-// card or the footer is on screen, so it never fights with the thing
-// it's a shortcut to. ============
-(function(){
-  var bar = document.getElementById('reStickyBar');
-  var hero = document.getElementById('hero');
-  var pricing = document.getElementById('pricing');
-  if (!bar || !hero || !pricing) return;
-  if (!('IntersectionObserver' in window)) return;
-  var heroDone = false, pricingVisible = false;
-  function sync(){ bar.classList.toggle('hide', !heroDone || pricingVisible); }
-  new IntersectionObserver(function(es){ heroDone = !es[0].isIntersecting; sync(); }, { threshold: 0 }).observe(hero);
-  new IntersectionObserver(function(es){ pricingVisible = es[0].isIntersecting; sync(); }, { threshold: 0.15 }).observe(pricing);
-})();
 
 // ============ Studio URL (standalone deploy) ============
 // This page deploys as its OWN site. Set your Fuse Studio domain once here —
