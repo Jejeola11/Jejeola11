@@ -378,6 +378,7 @@ body{padding-bottom:70px}
 .re-invest-upsell{color:rgba(9,9,9,.55);font-size:12.5px;text-align:center;margin-top:14px;line-height:1.5}
 .re-invest-upsell a{color:var(--re-teal-d);font-weight:800;text-decoration:underline}
 .re-invest-cta-wrap{border-radius:32px;padding:3px;margin-top:18px;background:linear-gradient(100deg,var(--re-teal-l),var(--re-teal-d));box-shadow:0 8px 0 -2px rgba(9,9,9,.45),0 16px 28px -10px rgba(9,9,9,.55)}
+.re-invest-bonus{background:rgba(9,9,9,.14);border:1px dashed rgba(9,9,9,.35);border-radius:14px;padding:14px 16px;margin-top:16px;font-size:13px;color:rgba(9,9,9,.75);line-height:1.7;text-align:center}
 .re-invest-cta{display:flex;width:100%;justify-content:center;margin:0}
 
 /* ===== Break it down / the math / zero-risk ===== */
@@ -595,6 +596,20 @@ footer{background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 80%);
 footer a{color:var(--re-yellow)}
 
 /* ===== Recent-activity toast (real data only -- see recent-activity.js) ===== */
+/* Lead-capture modal, shown before every checkout */
+.lead-overlay{position:fixed;inset:0;background:rgba(2,16,14,.78);backdrop-filter:blur(6px);z-index:90;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.lead-overlay.show{display:flex}
+.lead-modal{position:relative;width:100%;max-width:400px;margin:auto;background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 85%);border:1px solid rgba(169,255,103,.3);border-radius:22px;padding:30px 24px 24px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.lead-modal h3{color:#fff;font-size:19px;margin:0 0 6px;font-family:"Bricolage Grotesque"}
+.lead-modal .sub{color:#CFE0DC;font-size:13.5px;margin:0 0 18px}
+.lead-modal input{width:100%;background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:12px;padding:13px 14px;color:#fff;font-size:14.5px;margin-bottom:10px;font-family:Archivo;-webkit-appearance:none}
+.lead-modal input::placeholder{color:var(--muted)}
+.lead-modal-price{text-align:center;color:#fff;font-weight:800;font-size:22px;font-family:"Playfair Display",serif;margin:10px 0 16px}
+.lead-modal-note{font-size:12.5px;text-align:center;min-height:16px;margin:8px 0 0}
+.lead-modal-note.err{color:#ff9a8a}
+.lead-modal-secured{font-size:11px;color:var(--muted);text-align:center;margin-top:14px}
+.lead-modal-bonus-note{background:rgba(169,255,103,.08);border:1px solid rgba(169,255,103,.3);border-radius:10px;padding:9px 12px;font-size:11.5px;color:#E8F5D8;text-align:center;line-height:1.5;margin-bottom:12px}
+.lead-modal-close{position:absolute;top:14px;right:16px;background:none;border:0;color:var(--muted);font-size:18px;cursor:pointer;line-height:1;padding:4px}
 .activity-toast{position:fixed;left:16px;bottom:16px;z-index:75;max-width:340px;border-radius:18px;padding:2.5px;box-shadow:0 16px 40px -8px rgba(0,0,0,.55),0 0 30px -6px rgba(169,255,103,.4);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .35s ease,transform .35s ease;background:linear-gradient(135deg,var(--re-green),var(--re-yellow),#fff)}
 .activity-toast.show{opacity:1;transform:none;pointer-events:auto}
 .activity-toast-in{background:linear-gradient(165deg,var(--re-teal-l),var(--re-teal-d) 80%);border-radius:15.5px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
@@ -638,7 +653,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
 <body>
 
 <!-- ===== Slim urgency bar ===== -->
-<div class="re-announce"><div class="wrap">300+ members already inside &mdash; price rises when we hit 500. <b>Real people, real results, no fluff.</b></div></div>
+<div class="re-announce"><div class="wrap">Only 20 spots left at this price. <b>₦100,000 cash bonus</b> for the first person to hit $500 in real income within 2 weeks of joining.</div></div>
 
 <!-- ===== Top bar ===== -->
 <div class="top"><div class="wrap in">
@@ -1134,6 +1149,10 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
         <div class="re-invest-box-price re-grad">₦25,000</div>
       </div>
       <p class="re-invest-save">You save ₦35,000 — everything bundled in one price, one-time payment.</p>
+      <div class="re-invest-bonus">
+        <b>🎟️ Only 20 spots left</b> at this price — after that, it goes up.<br>
+        <b>💰 ₦100,000 cash bonus</b> for the first person to hit $500 in real client income within 2 weeks of joining.
+      </div>
       <div class="re-invest-cta-wrap">
         <a class="re-btn re-invest-cta" href="/studio?buy=atelier_creator" onclick="return fuseBuy('atelier_creator', this, {value:25000,currency:'NGN',content_name:'atelier_creator'})">Get Fuse Atelier — ₦25,000 →</a>
       </div>
@@ -1291,6 +1310,23 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
   <div class="wrap">Fuse Atelier · a Fuse Studio product · Paystack-secured checkout · <a href="/studio">Already enrolled? Open the studio →</a></div>
 </footer>
 
+<!-- ===== Lead-capture modal (shown before every checkout) ===== -->
+<div class="lead-overlay" id="leadModalOverlay">
+  <div class="lead-modal">
+    <button class="lead-modal-close" id="leadModalClose" aria-label="Close" onclick="fuseCloseLeadModal()">✕</button>
+    <h3>Where should we send your access details?</h3>
+    <p class="sub">You'll be redirected to secure payment right after this.</p>
+    <input id="leadName" type="text" placeholder="Full name" autocomplete="name">
+    <input id="leadEmail" type="email" placeholder="Email address" autocomplete="email">
+    <input id="leadWhatsapp" type="tel" placeholder="WhatsApp number (e.g. 0803 123 4567)" autocomplete="tel">
+    <div class="lead-modal-bonus-note">🎟️ Only 20 spots left at this price · 💰 ₦100,000 cash bonus for the first to hit $500 in 2 weeks</div>
+    <div class="lead-modal-price"><span id="leadModalPriceNow"></span></div>
+    <button class="re-btn" id="leadModalSubmit" style="width:100%;justify-content:center" onclick="fuseSubmitCheckout()">Continue to secure payment →</button>
+    <p class="lead-modal-note" id="leadModalNote"></p>
+    <p class="lead-modal-secured">🔒 Secured by Paystack · Card, Bank Transfer &amp; USSD accepted</p>
+  </div>
+</div>
+
 <!-- ===== Recent-activity toast (real enrollments only) ===== -->
 <div class="activity-toast" id="activityToast" role="status" aria-live="polite">
   <div class="activity-toast-in">
@@ -1429,20 +1465,56 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
 // to Paystack with nothing in between. href stays as a safety-net fallback
 // (no-JS, or if this fetch ever fails) to the previous, still-working
 // /studio?buy= flow. ============
+// ============ Lead-capture modal before checkout ============
+// A tap on any tier button used to go straight to Paystack -- nothing was
+// captured if someone dropped off before paying. Now it opens this modal
+// first (name/email/WhatsApp), so even an abandoned checkout leaves a real
+// contact to follow up with, and the email typed here becomes the actual
+// Paystack email instead of the random guest placeholder.
+var pendingCheckout = null;
 function fuseBuy(packKey, el, pixelData) {
-  if (typeof fbq === 'function') fbq('track', 'InitiateCheckout', pixelData);
-  el.style.opacity = '.6'; el.style.pointerEvents = 'none'; el.textContent = 'Opening secure checkout…';
+  pendingCheckout = { packKey: packKey, pixelData: pixelData, fallbackHref: el.getAttribute('href') };
+  var priceNow = document.getElementById('leadModalPriceNow');
+  if (priceNow && pixelData && pixelData.value) priceNow.textContent = '₦' + Number(pixelData.value).toLocaleString('en-NG');
+  var note = document.getElementById('leadModalNote'); if (note) { note.textContent = ''; note.className = 'lead-modal-note'; }
+  var overlay = document.getElementById('leadModalOverlay');
+  if (overlay) overlay.classList.add('show');
+  return false;
+}
+function fuseCloseLeadModal() {
+  var overlay = document.getElementById('leadModalOverlay');
+  if (overlay) overlay.classList.remove('show');
+}
+(function(){
+  var overlay = document.getElementById('leadModalOverlay');
+  if (!overlay) return;
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) fuseCloseLeadModal(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') fuseCloseLeadModal(); });
+})();
+function fuseSubmitCheckout() {
+  if (!pendingCheckout) return;
+  var name = document.getElementById('leadName').value.trim();
+  var email = document.getElementById('leadEmail').value.trim();
+  var whatsapp = document.getElementById('leadWhatsapp').value.trim();
+  var note = document.getElementById('leadModalNote');
+  var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if (!name) { note.textContent = 'Add your full name.'; note.className = 'lead-modal-note err'; return; }
+  if (!emailOk) { note.textContent = 'Add a valid email address.'; note.className = 'lead-modal-note err'; return; }
+  if (!whatsapp) { note.textContent = 'Add your WhatsApp number.'; note.className = 'lead-modal-note err'; return; }
+  note.textContent = '';
+  var btn = document.getElementById('leadModalSubmit');
+  btn.disabled = true; btn.textContent = 'Opening secure checkout…';
+  if (typeof fbq === 'function') fbq('track', 'InitiateCheckout', pendingCheckout.pixelData);
   fetch('/.netlify/functions/paystack-init-guest', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ pack: packKey }),
+    body: JSON.stringify({ pack: pendingCheckout.packKey, name: name, email: email, whatsapp: whatsapp }),
   }).then(function(r){
     return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Could not start payment'); return d; });
   }).then(function(d){
     window.location.href = d.authorization_url;
   }).catch(function(){
-    window.location.href = el.getAttribute('href');
+    window.location.href = pendingCheckout.fallbackHref;
   });
-  return false;
 }
 
 // ============ Skills section — trimmed to 3 by default, expands to all 6.
