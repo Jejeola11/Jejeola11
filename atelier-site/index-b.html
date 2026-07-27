@@ -831,7 +831,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
     <div class="re-polaroid">
       <span class="re-tape"></span>
       <div class="re-polaroid-photo">
-        <img src="proof/win-progress.jpg" alt="Progress Godwill's first paid Upwork job" loading="lazy" style="object-fit:contain" onerror="fuseImgRetry(this,'screenshot')">
+        <img src="proof/win-progress.jpg" alt="Progress Godwill's first paid Upwork job" style="object-fit:contain" data-fuse-kind="screenshot">
       </div>
       <div class="re-polaroid-cap">
         <p class="re-polaroid-quote">His first paid Upwork job using what he learned inside Fuse Atelier.</p>
@@ -845,7 +845,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
     <div class="re-polaroid">
       <span class="re-tape"></span>
       <div class="re-polaroid-photo">
-        <img src="proof/nana-aisha-review.jpg" alt="Nana Aisha's real message" loading="lazy" onerror="fuseImgRetry(this,'screenshot')">
+        <img src="proof/nana-aisha-review.jpg" alt="Nana Aisha's real message" data-fuse-kind="screenshot">
       </div>
       <div class="re-polaroid-cap">
         <p class="re-polaroid-quote">Closed her first deal in her very first week inside Fuse Atelier.</p>
@@ -914,7 +914,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
     <div class="re-polaroid">
       <span class="re-tape"></span>
       <div class="re-polaroid-photo">
-        <img src="proof/ria-portrait.jpg" alt="Ria" loading="lazy" onerror="fuseImgRetry(this,'photo')">
+        <img src="proof/ria-portrait.jpg" alt="Ria" data-fuse-kind="photo">
       </div>
       <div class="re-polaroid-cap">
         <p class="re-polaroid-quote">Closed a $3,500/month Upwork deal creating AI content.</p>
@@ -927,12 +927,12 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
 
     <div class="re-more-kicker">more jobs landed by Ria and her students ↓</div>
     <div class="re-jobs-grid">
-      <div class="re-job-card"><img src="proof/upwork-1.jpg" alt="Real Upwork profile — 78% Job Success, $4K+ earned" loading="lazy" onerror="fuseImgRetry(this,'hide')"></div>
-      <div class="re-job-card"><img src="proof/upwork-2.jpg" alt="Live client contract — $3,500 budget, AI Character Creator" loading="lazy" onerror="fuseImgRetry(this,'hide')"></div>
-      <div class="re-job-card"><img src="proof/contract-1.jpg" alt="Completed project — $2,000 budget, 4.0 star rating" loading="lazy" onerror="fuseImgRetry(this,'hide')"></div>
-      <div class="re-job-card"><img src="proof/contract-2.jpg" alt="Completed job — $420 budget, T-shirt design pack" loading="lazy" onerror="fuseImgRetry(this,'hide')"></div>
-      <div class="re-job-card"><img src="proof/contract-3.jpg" alt="Active contract — $750 budget, AI video generation" loading="lazy" onerror="fuseImgRetry(this,'hide')"></div>
-      <div class="re-job-card"><img src="proof/contract-4.jpg" alt="Active contract — $500 budget, AI ad design" loading="lazy" onerror="fuseImgRetry(this,'hide')"></div>
+      <div class="re-job-card"><img src="proof/upwork-1.jpg" alt="Real Upwork profile — 78% Job Success, $4K+ earned" data-fuse-kind="hide"></div>
+      <div class="re-job-card"><img src="proof/upwork-2.jpg" alt="Live client contract — $3,500 budget, AI Character Creator" data-fuse-kind="hide"></div>
+      <div class="re-job-card"><img src="proof/contract-1.jpg" alt="Completed project — $2,000 budget, 4.0 star rating" data-fuse-kind="hide"></div>
+      <div class="re-job-card"><img src="proof/contract-2.jpg" alt="Completed job — $420 budget, T-shirt design pack" data-fuse-kind="hide"></div>
+      <div class="re-job-card"><img src="proof/contract-3.jpg" alt="Active contract — $750 budget, AI video generation" data-fuse-kind="hide"></div>
+      <div class="re-job-card"><img src="proof/contract-4.jpg" alt="Active contract — $500 budget, AI ad design" data-fuse-kind="hide"></div>
     </div>
   </div>
 </section>
@@ -983,7 +983,7 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
     <div class="re-polaroid">
       <span class="re-tape"></span>
       <div class="re-polaroid-photo">
-        <img src="proof/ria-founder.jpg" alt="Ria, founder of Fuse Atelier" loading="lazy" onerror="fuseImgRetry(this,'photo')">
+        <img src="proof/ria-founder.jpg" alt="Ria, founder of Fuse Atelier" data-fuse-kind="photo">
       </div>
       <div class="re-polaroid-cap">
         <p class="re-polaroid-quote">"I built this to actually change people's lives."</p>
@@ -1285,25 +1285,20 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
 // first (name/email/WhatsApp), so even an abandoned checkout leaves a real
 // contact to follow up with, and the email typed here becomes the actual
 // Paystack email instead of the random guest placeholder.
-// ============ Proof-image retry ============
-// A real photo momentarily failing to load on a weak mobile connection
-// isn't the same as it being genuinely missing -- the old onerror
-// handlers gave up on the very first failed fetch (a photo placeholder,
-// or the whole job-card just vanishing), which reads as "the media is
-// broken" when it's usually just a dropped request. This retries the
-// same file (cache-busted) twice with a short backoff before actually
-// falling back.
-function fuseImgRetry(img, kind) {
-  var tries = parseInt(img.dataset.retries || '0', 10);
-  if (tries < 4) {
-    img.dataset.retries = String(tries + 1);
-    var base = img.dataset.src || (img.dataset.src = img.src.split('?')[0]);
-    // Exponential backoff (1.2s, 2.4s, 4.8s, 9.6s) -- a weak/congested
-    // mobile connection needs real recovery time between attempts, not
-    // a quick re-tap of the same failing request.
-    setTimeout(function(){ img.src = base + '?r=' + Date.now(); }, 1200 * Math.pow(2, tries));
-    return;
-  }
+// ============ Proof-image retry + stall watchdog ============
+// A real photo failing on a weak mobile connection isn't the same as it
+// being genuinely missing. The first version of this only reacted to the
+// <img> 'error' event -- but a real report showed the browser's OWN
+// broken-image icon + alt text sitting there instead of this page's
+// fallback UI, which means 'error' never fired at all. That happens when
+// a request stalls (a carrier data-compression proxy or Chrome's Data
+// Saver/Lite mode silently hanging on the fetch) rather than cleanly
+// failing -- the browser just waits forever, so nothing here ever ran.
+// Every image below is now watched by a timer instead of only an error
+// listener: if it hasn't finished loading within 6s, that counts as a
+// failure too, cache-busted retry fires regardless of whether the
+// browser ever called 'error'.
+function fuseImgGiveUp(img, kind) {
   if (kind === 'hide') {
     var card = img.closest('.re-job-card'); if (card) card.style.display = 'none';
   } else {
@@ -1311,6 +1306,34 @@ function fuseImgRetry(img, kind) {
     img.parentElement.innerHTML = '<div style="color:#fff;font-size:13px;padding:20px;text-align:center">📸 ' + label + '</div>';
   }
 }
+function fuseImgAttempt(img, kind) {
+  if (img.complete && img.naturalWidth > 0) return; // already loaded fine
+  var tries = parseInt(img.dataset.retries || '0', 10);
+  var settled = false;
+  function fail() {
+    if (settled) return; settled = true;
+    if (tries < 5) {
+      img.dataset.retries = String(tries + 1);
+      var base = img.dataset.src || (img.dataset.src = img.src.split('?')[0]);
+      // Exponential backoff (1.5s, 3s, 6s, 12s, 24s) -- a weak/congested
+      // mobile connection needs real recovery time between attempts.
+      setTimeout(function(){
+        img.src = base + '?r=' + Date.now();
+        fuseImgAttempt(img, kind);
+      }, 1500 * Math.pow(2, tries));
+    } else {
+      fuseImgGiveUp(img, kind);
+    }
+  }
+  img.onerror = fail;
+  img.onload = function(){ settled = true; };
+  setTimeout(function(){ if (!(img.complete && img.naturalWidth > 0)) fail(); }, 6000);
+}
+(function(){
+  document.querySelectorAll('img[data-fuse-kind]').forEach(function(img){
+    fuseImgAttempt(img, img.getAttribute('data-fuse-kind'));
+  });
+})();
 
 var pendingCheckout = null;
 function fuseBuy(packKey, el, pixelData) {
