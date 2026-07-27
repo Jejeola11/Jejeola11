@@ -299,6 +299,13 @@ body{padding-bottom:70px}
 .re-walk h2{font-family:"Playfair Display",serif;font-weight:900;font-size:clamp(30px,8vw,44px);line-height:1.15;margin:10px 0 20px}
 .re-walk h2 em{font-style:italic}
 .re-walk-lead{color:#fff;font-size:16px;line-height:1.65;margin:0 0 28px;max-width:420px}
+.re-changes{background:var(--re-teal-d)}
+.re-changes-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:36px}
+@media(max-width:640px){.re-changes-grid{grid-template-columns:1fr}}
+.re-change-card{background:linear-gradient(165deg,rgba(37,69,74,.35),rgba(9,9,9,.3));border:1px solid var(--line);border-radius:16px;padding:22px}
+.re-change-ic{font-size:26px;display:block;margin-bottom:10px}
+.re-change-card h3{color:#fff;font-size:17px;margin:0 0 8px;line-height:1.35}
+.re-change-card p{color:#CFE0DC;font-size:14px;margin:0;line-height:1.5}
 .re-walk-cards{position:relative;margin-top:66px;padding-bottom:50px}
 .re-walk-card{position:relative;border-radius:20px;padding:2.5px;background:linear-gradient(150deg,var(--re-teal-l),var(--re-teal-d) 70%);margin-bottom:36px;box-shadow:0 35px 60px -18px rgba(9,9,9,.6),0 0 45px -10px rgba(37,69,74,.6)}
 .re-walk-card-in{border-radius:18px;background:linear-gradient(135deg,var(--re-green) 0%,var(--re-yellow) 55%,#fff 100%);padding:26px 22px}
@@ -391,6 +398,15 @@ body{padding-bottom:70px}
 .re-bd-card.re-bd-brand .re-bd-sub{color:rgba(9,9,9,.6)}
 .re-bd-zero-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .re-bd-lock{font-size:22px}
+.re-guarantee{background:linear-gradient(180deg,var(--re-teal-d) 0%,var(--re-teal-l) 100%)}
+.re-guarantee .sub{color:#CFE0DC;font-size:16px}
+.re-guarantee-box{margin-top:32px;background:rgba(9,9,9,.35);border:1px solid rgba(169,255,103,.3);border-radius:20px;padding:32px 26px;text-align:center}
+.re-guarantee-shield{font-size:40px;margin-bottom:12px}
+.re-guarantee-box h3{font-size:22px;margin:0 0 14px}
+.re-guarantee-box p{color:#CFE0DC;font-size:15px;line-height:1.65;max-width:560px;margin:0 auto}
+.re-guarantee-checks{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-top:24px;text-align:left}
+@media(max-width:560px){.re-guarantee-checks{grid-template-columns:1fr}}
+.re-guarantee-check{color:#fff;font-size:13.5px;font-weight:700}
 .re-bd-zero-head h3{color:#fff;font-size:19px;font-weight:800;margin:0}
 
 /* ===== What students say ===== */
@@ -890,6 +906,46 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
   </div>
 </section>
 
+<!-- ===== WHAT CHANGES WHEN YOU GET THIS RIGHT (Variant B) ===== -->
+<section class="re-changes">
+  <div class="wrap">
+    <div class="kicker">Your new reality</div>
+    <h2>What Changes <span class="re-grad">When You Get This Right</span></h2>
+    <div class="re-changes-grid">
+      <div class="re-change-card">
+        <span class="re-change-ic">💸</span>
+        <h3>You stop refreshing your bank app out of habit.</h3>
+        <p>Because now you're checking it for a reason — a client just paid, not just hoping.</p>
+      </div>
+      <div class="re-change-card">
+        <span class="re-change-ic">🧓🏽</span>
+        <h3>Your parents stop worrying.</h3>
+        <p>You're not showing up empty-handed anymore. You've got something real to show for your time.</p>
+      </div>
+      <div class="re-change-card">
+        <span class="re-change-ic">🧮</span>
+        <h3>You stop doing mental maths before every purchase.</h3>
+        <p>Airtime, data, transport — the constant small calculations start to ease.</p>
+      </div>
+      <div class="re-change-card">
+        <span class="re-change-ic">📱</span>
+        <h3>You've got a real skill on your phone, not just an app.</h3>
+        <p>One you can point to a client and say "I made this" — and get paid for it again next week.</p>
+      </div>
+      <div class="re-change-card">
+        <span class="re-change-ic">🗓️</span>
+        <h3>Month-end stops being something to dread.</h3>
+        <p>Because your income isn't tied to one salary date anymore.</p>
+      </div>
+      <div class="re-change-card">
+        <span class="re-change-ic">🤝</span>
+        <h3>You've got a room of people who get it.</h3>
+        <p>Not cheering from the outside — actually building alongside you, in the same WhatsApp cohort.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ===== WHAT YOU ACTUALLY WALK AWAY WITH ===== -->
 <section class="re-walk">
   <div class="wrap">
@@ -1086,18 +1142,27 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
   </div>
 </section>
 
-<!-- ===== THE MATH / ZERO-RISK ===== -->
-<section class="re-breakdown">
+<!-- ===== THE MATH / ZERO-RISK (Variant B — guarantee elevated) ===== -->
+<section class="re-guarantee">
   <div class="wrap">
-    <div class="re-bd-card re-bd-brand">
+    <div class="kicker">Zero risk</div>
+    <h2>We Keep Working With You <span class="re-grad">Until You Get Paid</span></h2>
+    <p class="sub" style="margin-bottom:0">This isn't a passive disclaimer — it's a real, written promise.</p>
+    <div class="re-guarantee-box">
+      <div class="re-guarantee-shield">🛡️</div>
+      <h3 class="re-grad">The 30-Day, No-One-Left-Behind Guarantee</h3>
+      <p>Finish the 7-day plan and send your 30 documented pitches, following the exact system inside. If you haven't landed a paid deal within 30 days, we keep working with you 1-on-1 — free — until you do. No drama, no disappearing, no starting over.</p>
+      <div class="re-guarantee-checks">
+        <div class="re-guarantee-check">✓ Free 1-on-1 support if 30 days pass with no client</div>
+        <div class="re-guarantee-check">✓ No complicated process — message us, it's done</div>
+        <div class="re-guarantee-check">✓ Instant access the moment payment is confirmed</div>
+        <div class="re-guarantee-check">✓ Same coach, same community, the whole way through</div>
+      </div>
+    </div>
+    <div class="re-bd-card re-bd-brand" style="margin-top:24px">
       <div class="re-bd-kicker">The Math</div>
       <p class="re-bd-text">Most students land their first brand deal within 3–4 weeks. Average first deal: $100–$1,000, with many achieving $2,000+ in month one.</p>
       <p class="re-bd-sub">That means the mentorship typically pays for itself in multiple folds with your first deal.</p>
-    </div>
-
-    <div class="re-bd-card">
-      <div class="re-bd-zero-head"><span class="re-bd-lock">🔒</span><h3>Zero-risk promise</h3></div>
-      <p class="re-bd-text">Finish the 7-day plan, send your 30 pitches, and if you haven't landed a paid deal in 30 days, we'll keep working with you at no extra cost until you do.</p>
     </div>
   </div>
 </section>

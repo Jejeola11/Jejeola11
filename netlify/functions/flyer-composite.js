@@ -63,9 +63,21 @@ function buildCompositePrompt(spec, refRoles) {
   }
 
   const hasBodyBelow = !!(spec.subhead || spec.footer || (Array.isArray(spec.bullets) && spec.bullets.length) || (Array.isArray(spec.callouts) && spec.callouts.length));
-  lines.push(`Headline text, in a bold heavy condensed display typeface: "${spec.headline}"${spec.accent_word ? `, with the word "${spec.accent_word}" visually accented in ${accent}` : ''}.` + (headlineRefNum ? '' : (hasBodyBelow
-    ? ' Choose whatever position and alignment (left, right, centered, top, bottom-anchored) best suits this specific image\'s composition — do not default to the same placement every time.'
-    : ' There is no subhead, bullets, or footer on this flyer, so the headline is the only text element — place it centered or in the upper/middle area of the composition where it reads clearly; do not push it down against the bottom edge just because that space is empty.')));
+  // Explicit position, chosen by the user in Flyer Studio's 9-spot position
+  // grid, takes priority over the model's own judgment -- added after a
+  // customer asked to control headline placement directly instead of the
+  // model (or an earlier auto-center fix) silently deciding for them.
+  const POSITION_PHRASES = {
+    'top-left': 'in the top-left area', 'top-center': 'centered horizontally, near the top', 'top-right': 'in the top-right area',
+    'center-left': 'vertically centered, aligned to the left', 'center': 'dead-centered, both horizontally and vertically', 'center-right': 'vertically centered, aligned to the right',
+    'bottom-left': 'in the bottom-left area', 'bottom-center': 'centered horizontally, near the bottom', 'bottom-right': 'in the bottom-right area',
+  };
+  const explicitPos = POSITION_PHRASES[spec.headline_position];
+  lines.push(`Headline text, in a bold heavy condensed display typeface: "${spec.headline}"${spec.accent_word ? `, with the word "${spec.accent_word}" visually accented in ${accent}` : ''}.` + (headlineRefNum ? '' : explicitPos
+    ? ` Place the headline ${explicitPos} of the composition.`
+    : (hasBodyBelow
+      ? ' Choose whatever position and alignment (left, right, centered, top, bottom-anchored) best suits this specific image\'s composition — do not default to the same placement every time.'
+      : ' There is no subhead, bullets, or footer on this flyer, so the headline is the only text element — place it centered or in the upper/middle area of the composition where it reads clearly; do not push it down against the bottom edge just because that space is empty.')));
   if (spec.subhead) lines.push(`Subhead directly below the headline, smaller and lighter: "${spec.subhead}".`);
   if (Array.isArray(spec.callouts) && spec.callouts.length) {
     const items = spec.callouts.map((c) => `"${(typeof c === 'string' ? c : (c && c.text) || '').trim()}"`).filter((t) => t !== '""').join(', ');

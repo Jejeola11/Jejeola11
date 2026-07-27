@@ -3672,6 +3672,7 @@ async function flyerCompositeWithFont() {
  style: $('flyerTextStyle').value,
  underline_accent: $('flyerUnderlineAccent').checked,
  gradient_whole: $('flyerGradientWhole').checked,
+ headline_position: ($('flyerHeadlinePosition') && $('flyerHeadlinePosition').value) || 'top-center',
  };
  const btn = $('flyerComposite'); const label = ' Composite final flyer';
  btn.disabled = true; btn.textContent = 'Rendering…';
@@ -3714,6 +3715,7 @@ async function flyerComposite() {
  style: $('flyerTextStyle').value,
  underline_accent: $('flyerUnderlineAccent').checked,
  gradient_whole: $('flyerGradientWhole').checked,
+ headline_position: ($('flyerHeadlinePosition') && $('flyerHeadlinePosition').value) || 'top-center',
  extra_instructions: $('flyerExtraInstructions').value.trim() || undefined,
  };
  const btn = $('flyerComposite'); const label = ' Composite final flyer';
@@ -5672,6 +5674,12 @@ window.addEventListener('DOMContentLoaded', () => {
  const isFont = $('flyerRenderMode').value === 'font';
  $('flyerFontPickerWrap').style.display = isFont ? 'block' : 'none';
  };
+ document.querySelectorAll('#flyerHeadlinePosGrid .hpos-btn').forEach((b) => {
+ b.onclick = () => {
+ document.querySelectorAll('#flyerHeadlinePosGrid .hpos-btn').forEach((x) => x.classList.toggle('active', x === b));
+ $('flyerHeadlinePosition').value = b.dataset.pos;
+ };
+ });
  initDesignStudio();
  ['headline', 'features', 'cta'].forEach((kind) => {
  const ids = { headline: ['flyerHeadlineRefPick', 'flyerHeadlineRefFile'], features: ['flyerFeaturesRefPick', 'flyerFeaturesRefFile'], cta: ['flyerCtaRefPick', 'flyerCtaRefFile'] }[kind];

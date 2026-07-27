@@ -237,7 +237,7 @@ function drawHeadline(ctx, { text, x, y, maxWidth, fontSize, accentColor, accent
   if (style === 'glass') {
     const widest = Math.max(...lines.map((l) => ctx.measureText(l).width));
     const pad = fontSize * 0.35;
-    const panelX = align === 'center' ? x - widest / 2 - pad : x - pad;
+    const panelX = align === 'center' ? x - widest / 2 - pad : align === 'right' ? x - widest - pad : x - pad;
     drawGlassPanel(ctx, { x: panelX, y: y - fontSize * 0.85 - pad, w: widest + pad * 2, h: lines.length * lineHeight + pad * 1.3, radius: fontSize * 0.3 });
   }
   applyTextEffect(ctx, style, accentColor);
@@ -268,10 +268,9 @@ function drawHeadline(ctx, { text, x, y, maxWidth, fontSize, accentColor, accent
     // every word) gets the accent/gradient treatment.
     let cursorX = x;
     const widths = words.map((w) => ctx.measureText(w + ' ').width);
-    if (align === 'center') {
-      const total = widths.reduce((a, b) => a + b, 0) - ctx.measureText(' ').width;
-      cursorX = x - total / 2;
-    }
+    const total = widths.reduce((a, b) => a + b, 0) - ctx.measureText(' ').width;
+    if (align === 'center') cursorX = x - total / 2;
+    else if (align === 'right') cursorX = x - total;
     const prevAlign = ctx.textAlign; ctx.textAlign = 'left';
     words.forEach((w, wi) => {
       const accented = wi === matchIdx || (gradientFill && gradientWhole);

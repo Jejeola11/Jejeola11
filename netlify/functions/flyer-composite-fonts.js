@@ -147,32 +147,52 @@ exports.handler = async (event) => {
       headlineBottomLimit = subY - subFontSize * 1.3 - subFontSize * 0.5;
     }
 
-    // Headline — the main event. When there's a subhead/bullets/callouts/
-    // footer anchored below it, it sits bottom-up against that (last
-    // line's baseline just above the next element) — see countWrappedLines
-    // above for the real (not guessed) wrapped-line count this positioning
-    // depends on. But `headlineBottomLimit` defaults to just above the
-    // canvas's bottom edge when NONE of those are present, which used to
-    // mean a bare headline-only flyer (the single most common case) got its
-    // headline glued to the bottom edge instead of placed sensibly — this
-    // is the bug reported by a real customer ("the headline is coming
-    // below, not in the middle again"). Fixed: with nothing anchored below,
-    // center the headline block vertically in the frame instead.
-    const hasBodyBelow = !!(spec.footer || (Array.isArray(spec.bullets) && spec.bullets.length) || (Array.isArray(spec.callouts) && spec.callouts.length) || spec.subhead);
+    // Headline — the main event, placed at whichever of the 9 anchor spots
+    // the user picked in the Flyer Studio position grid (default
+    // 'top-center'). This replaced an earlier version that always centered
+    // the headline vertically whenever nothing was anchored below it —
+    // that fixed a real bug (headlines landing glued to the bottom edge
+    // on headline-only flyers) but a real customer then asked for direct
+    // control over placement instead of another silent default, so the
+    // position is now explicit, not inferred.
+    //
+    // Vertical anchors:
+    //   'top'    — sits just below the top margin (and below the badge,
+    //              if one is reserved up there).
+    //   'bottom' — sits bottom-up against whatever's anchored below it
+    //              (subhead/callouts/bullets/footer), same math as before;
+    //              falls back to just above the bottom margin if nothing
+    //              is anchored there.
+    //   'center' — vertically centered in the open band between the top
+    //              margin and whatever's anchored below.
+    // Horizontal anchors ('left'|'center'|'right') set both the x anchor
+    // and drawHeadline's own text-align so wrapped lines/word-accent
+    // positioning follow suit (see the align==='right' fix in _canvas.js —
+    // previously only 'center' was handled in the word-by-word accent path).
+    const [vAnchor, hAnchorRaw] = (spec.headline_position || 'top-center').split('-');
+    const hAnchor = hAnchorRaw || 'center'; // 'center' alone (no second segment) means center-center
+    const marginY = Math.round(H * 0.06);
+    const topAvailable = marginY + (spec.badge ? Math.round(W * 0.028 * 2.4) : 0);
+    const bottomAvailable = headlineBottomLimit;
+
     const fontSize = Math.round(W * 0.09);
     const headlineLines = countWrappedLines(ctx, spec.headline, maxWidth, 400, fontSize, family);
     const lineHeight = fontSize * 1.05;
     let headlineY;
-    if (hasBodyBelow) {
-      headlineY = headlineBottomLimit - (headlineLines - 1) * lineHeight;
-    } else {
+    if (vAnchor === 'top') {
+      headlineY = topAvailable + fontSize * 0.85;
+    } else if (vAnchor === 'center') {
       const blockHeight = (headlineLines - 1) * lineHeight + fontSize;
-      const minY = Math.round(H * 0.12 + fontSize * 0.85);
-      headlineY = Math.max(minY, Math.round((H - blockHeight) / 2 + fontSize * 0.85));
+      headlineY = Math.round((topAvailable + bottomAvailable - blockHeight) / 2 + fontSize * 0.85);
+      headlineY = Math.max(topAvailable + fontSize * 0.85, Math.min(headlineY, bottomAvailable - (headlineLines - 1) * lineHeight));
+    } else {
+      headlineY = bottomAvailable - (headlineLines - 1) * lineHeight;
     }
+    const headlineAlign = hAnchor === 'left' ? 'left' : hAnchor === 'right' ? 'right' : 'center';
+    const headlineX = headlineAlign === 'left' ? marginX : headlineAlign === 'right' ? W - marginX : Math.round(W / 2);
     drawHeadline(ctx, {
-      text: spec.headline, x: marginX, y: headlineY, maxWidth, fontSize,
-      accentColor: accent, accentWord: spec.accent_word, align: 'left',
+      text: spec.headline, x: headlineX, y: headlineY, maxWidth, fontSize,
+      accentColor: accent, accentWord: spec.accent_word, align: headlineAlign,
       style, underline: !!spec.underline_accent, gradientWhole: !!spec.gradient_whole,
       fontFamily: family, fontWeight: 400,
     });
