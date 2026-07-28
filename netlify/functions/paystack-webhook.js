@@ -133,6 +133,16 @@ exports.handler = async (event) => {
       ? { 'atelier-starter': ['atelier-starter'],
           'atelier-creator': ['atelier-starter', 'atelier-creator'],
           'atelier-empire':  ['atelier-starter', 'atelier-creator', 'atelier-empire'],
+          // Standalone Money Engine purchase -- grants the 3 legacy
+          // per-module keys the course already gates on (see course.js's
+          // "money" family + app.js's moduleUnlocked()'s courseUnlocks.has(mKey)
+          // fallback), NOT a course-tier key. A tier key would make
+          // atelierTier() return 0 for this buyer (it only recognizes the 3
+          // real atelier-* keys) and unlock nothing; these 3 module keys are
+          // exactly what moduleUnlocked() checks per-lesson, so this grants
+          // only the Money Engine skills -- no flyers, no credits, no other
+          // families -- matching what was actually sold at money-engine.html.
+          'money-engine': ['money-m1', 'money-m2', 'money-m3'],
         }[pack.course] || [pack.course]
       : ['atelier-full'];
     for (const key of keys) {
