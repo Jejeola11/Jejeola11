@@ -45,9 +45,11 @@ section{padding:70px 0;position:relative}
 .brand{display:flex;align-items:center;gap:9px;font-family:"Bricolage Grotesque";font-weight:800;font-size:18px;color:var(--ink);text-decoration:none}
 .brand .dot{width:30px;height:30px;border-radius:9px;display:block;flex-shrink:0;object-fit:cover;box-shadow:0 6px 18px rgba(169,255,103,.30)}
 .nav-links{display:flex;gap:16px;align-items:center;font-size:14px}
-.nav-links a{color:var(--muted);text-decoration:none;font-weight:600}
-.nav-links a:hover{color:var(--gold-2)}
+.nav-links a.plain{color:var(--muted);text-decoration:none;font-weight:600}
+.nav-links a.plain:hover{color:var(--gold-2)}
 .nav-links .btn{padding:9px 16px;font-size:13.5px}
+.nav-links .btn-ghost{color:#fff}
+.nav-links .btn-gold{color:#0D3A33}
 @media(max-width:640px){.nav-links a.plain{display:none}}
 
 /* ===== Video hero (static — video autoplays behind fixed copy, no scroll-drive) ===== */

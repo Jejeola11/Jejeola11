@@ -98,6 +98,26 @@
   to = "/atelier-site/:splat"
   status = 200
 
+# Fuse Atelier Starter-only landing page (single-tier squeeze page for the
+# ₦10,000 tier, same structure/pattern as /atelier-b above but scoped to
+# just the Starter bundle) -- same folder, same 200-rewrite pattern.
+[[redirects]]
+  from = "/atelier-starter"
+  to = "/atelier-site/index-starter.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/atelier-starter/"
+  to = "/atelier-site/index-starter.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/atelier-starter/*"
+  to = "/atelier-site/:splat"
+  status = 200
+
 # Insider promo page (limited-slot discount codes, e.g. $500 Dollar Week ->
 # Fuse Atelier cross-sell) -- served from the same atelier-site/ folder,
 # same 200-rewrite pattern as /atelier above.
