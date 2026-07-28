@@ -94,6 +94,15 @@ async function resizeImageFile(file, maxDim = 1600, quality = 0.85) {
  return new File([blob], (file.name || 'photo').replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' });
  } catch (e) { return file; } // decode failed (unsupported format) — upload the original rather than block
 }
+// Escape a value for safe interpolation into an HTML attribute or text node
+// in the many template-literal renderers below. Covers the quote characters
+// that would otherwise break out of an attribute, plus < & so a name
+// containing markup can't inject elements.
+function escAttr(s) {
+ return String(s == null ? '' : s)
+ .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+ .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 async function uploadWithRetry(bucket, path, file, tries = 3) {
  let lastErr;
  for (let i = 0; i < tries; i++) {
@@ -2537,8 +2546,18 @@ async function loadAvatars() {
  ({ data, error } = await sb.from('avatars').select('id,name,image_url,model_sheet_url,status,voice_sample_url,source_video_url,trained_frame_url').order('created_at', { ascending: false }));
  }
  avatarMap = {}; (data || []).forEach((a) => { avatarMap[a.id] = a; });
+ // An avatar whose thumbnail won't load is still fully usable -- its
+ // training photos and model sheet are unaffected, only this one preview
+ // image is broken. It used to render as an empty outlined box with no
+ // hint anything was wrong (a student reported exactly this), so a failed
+ // image now reveals an initial-tile underneath instead of nothing.
+ // Selection is bound to the WRAPPER, not the <img>, so hiding a broken
+ // image can't take the click target with it.
  $('avatarList').innerHTML = (data && data.length)
- ? data.map((a) => `<div style="text-align:center;position:relative"><img src="${a.image_url}" data-id="${a.id}" data-name="${a.name}" class="avThumb" style="aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer">${a.model_sheet_url ? '<span class="av-sheet-badge"></span>' : ''}<span class="av-th-x" style="top:4px;left:4px;right:auto" title="Delete avatar" onclick="event.stopPropagation();window.fuseDeleteAvatar('${a.id}')"></span><div style="font-size:11px;margin-top:4px" class="muted">${a.name}</div></div>`).join('')
+ ? data.map((a) => {
+ const initial = ((String(a.name || '?').trim()[0]) || '?').toUpperCase();
+ return `<div style="text-align:center;position:relative"><div class="avThumb" data-id="${a.id}" data-name="${escAttr(a.name)}" style="position:relative;aspect-ratio:1;border-radius:12px;border:1px solid var(--line);cursor:pointer;overflow:hidden;display:grid;place-items:center;background:linear-gradient(140deg,rgba(169,255,103,.16),rgba(20,40,44,.5))"><span style="color:var(--gold);font-weight:800;font-size:22px">${escAttr(initial)}</span>${a.image_url ? `<img src="${escAttr(a.image_url)}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';this.closest('.avThumb').title='Preview image unavailable — still usable, or re-upload your photos'">` : ''}</div>${a.model_sheet_url ? '<span class="av-sheet-badge"></span>' : ''}<span class="av-th-x" style="top:4px;left:4px;right:auto" title="Delete avatar" onclick="event.stopPropagation();window.fuseDeleteAvatar('${a.id}')"></span><div style="font-size:11px;margin-top:4px" class="muted">${escAttr(a.name)}</div></div>`;
+ }).join('')
  : '<div class="empty" style="grid-column:1/-1">No avatars yet — create one below </div>';
  $('avatarList').querySelectorAll('.avThumb').forEach((el) => el.onclick = () => selectAvatar(el.dataset.id, el.dataset.name));
 }
