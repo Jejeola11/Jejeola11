@@ -47,6 +47,27 @@ async function fixFlyerAspect(db, userId, url, aspectKey) {
   } catch (e) { return url; }
 }
 
+// A model sheet gets reused for every future generation on that avatar --
+// potentially months after it was made -- so it can't keep living at the
+// raw provider URL WaveSpeed/MuAPI returned. Those are hosted on the
+// provider's own CDN for a limited window and silently expire, which is
+// exactly what was showing up as a broken-image sliver in Create for
+// older avatars (the <img> has no intrinsic size once its src 404s). Same
+// download-then-reupload as fixFlyerAspect above, minus the crop step.
+// Falls back to the original url on any failure so a rehost hiccup never
+// blocks the job from completing.
+async function rehostToStorage(db, userId, url, prefix) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return url;
+    const buf = Buffer.from(await res.arrayBuffer());
+    const storagePath = `${userId}/${prefix}-${Date.now()}.png`;
+    const { error } = await db.storage.from('avatars').upload(storagePath, buf, { contentType: 'image/png', upsert: true });
+    if (error) return url;
+    return db.storage.from('avatars').getPublicUrl(storagePath).data.publicUrl;
+  } catch (e) { return url; }
+}
+
 function extractText(p) {
   if (!p) return '';
   if (typeof p.output === 'string') return p.output;
@@ -184,6 +205,7 @@ exports.handler = async (event) => {
     let url = r.url;
     if (!url) return json(200, { status: 'processing' });
     if ((job.kind === 'flyer-hero' || job.kind === 'flyer-composite') && job.aspect) url = await fixFlyerAspect(db, user.id, url, job.aspect);
+    if (job.kind === 'modelsheet') url = await rehostToStorage(db, user.id, url, 'modelsheet');
     await db.from('jobs').update({ status: 'completed', output_url: url }).eq('request_id', id);
     // A model sheet isn't a normal gallery item — save it onto the avatar so all
     // future generations use it as the consistent reference. The avatar id is

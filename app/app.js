@@ -2601,7 +2601,14 @@ function renderSheet() {
  const btn = $('avSheetBtn'), view = $('avSheetView');
  note('avSheetNote', '');
  if (a.model_sheet_url) {
- view.innerHTML = `<img src="${a.model_sheet_url}" style="width:100%;border-radius:12px;border:1px solid var(--gold-deep);margin-bottom:8px"><div class="muted" style="font-size:12px"> Active — every generation now uses this sheet for consistency.</div>`;
+ // A model sheet's image can outlive the provider CDN link it was
+ // generated from (older ones especially -- see job-status.js's
+ // rehostToStorage). Without an explicit height the <img> collapses to
+ // the browser's tiny broken-image glyph on a 404, which just looks
+ // like a rendering bug rather than what it is: a dead link that needs
+ // regenerating. min-height + object-fit keeps the box visible either
+ // way, and onerror swaps in a real message instead of silence.
+ view.innerHTML = `<img src="${a.model_sheet_url}" style="width:100%;min-height:160px;object-fit:cover;border-radius:12px;border:1px solid var(--gold-deep);margin-bottom:8px;background:rgba(255,255,255,.04)" onerror="this.onerror=null;this.replaceWith(Object.assign(document.createElement('div'),{className:'muted',style:'padding:24px;text-align:center;border:1px dashed var(--gold-deep);border-radius:12px;margin-bottom:8px;font-size:12.5px',textContent:' This model sheet image expired — tap Regenerate below to make a fresh one.'}))"><div class="muted" style="font-size:12px"> Active — every generation now uses this sheet for consistency.</div>`;
  btn.textContent = ' Regenerate model sheet';
  } else {
  view.innerHTML = '';
