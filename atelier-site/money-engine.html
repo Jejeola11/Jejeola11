@@ -1094,19 +1094,20 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
 
 
 <!-- ===== Lead-capture modal (shown before every checkout) ===== -->
-<div class="lead-overlay" id="leadModalOverlay">
+<!-- ===== Exit-intent popup — real offer, no fake timer/inflated bonus ===== -->
+<div class="lead-overlay" id="exitModalOverlay">
   <div class="lead-modal">
-    <button class="lead-modal-close" id="leadModalClose" aria-label="Close" onclick="fuseCloseLeadModal()">✕</button>
-    <h3>Where should we send your access details?</h3>
-    <p class="sub">You'll be redirected to secure payment right after this.</p>
-    <input id="leadName" type="text" placeholder="Full name" autocomplete="name">
-    <input id="leadEmail" type="email" placeholder="Email address" autocomplete="email">
-    <input id="leadWhatsapp" type="tel" placeholder="WhatsApp number (e.g. 0803 123 4567)" autocomplete="tel">
-    <div class="lead-modal-bonus-note">🛡️ 30-day guarantee · 🎁 DM me after buying for a personal profile look-over</div>
-    <div class="lead-modal-price"><span id="leadModalPriceNow"></span></div>
-    <button class="re-btn" id="leadModalSubmit" style="width:100%;justify-content:center" onclick="fuseSubmitCheckout()">Continue to secure payment →</button>
-    <p class="lead-modal-note" id="leadModalNote"></p>
-    <p class="lead-modal-secured">🔒 Secured by Paystack · Card, Bank Transfer &amp; USSD accepted</p>
+    <button class="lead-modal-close" id="exitModalClose" aria-label="Close" onclick="fuseCloseExitModal()">✕</button>
+    <h3>Wait — before you go</h3>
+    <p class="sub">The exact system behind my $4,000+ this year is one tap away.</p>
+    <div class="lead-modal-bonus-note">
+      ✓ 50+ lessons — First-Client System, Client Playbooks, Upwork (12 real wins)<br>
+      ✓ Real proposal &amp; pitch templates, not theory<br>
+      ✓ Private WhatsApp community
+    </div>
+    <div class="lead-modal-price"><s style="color:var(--muted);font-size:16px;margin-right:8px">₦20,000</s>₦6,000</div>
+    <a class="re-btn" style="width:100%;justify-content:center" href="/studio?buy=money_engine" onclick="fuseCloseExitModal(); return fuseBuy('money_engine', this, {value:6000,currency:'NGN',content_name:'money_engine'})">Get Instant Access →</a>
+    <p class="lead-modal-secured">🛡️ 30-day guarantee · 🔒 Secured by Paystack</p>
   </div>
 </div>
 
@@ -1224,51 +1225,57 @@ function fuseImgAttempt(img, kind) {
   });
 })();
 
-var pendingCheckout = null;
+// Straight to Paystack -- no lead-capture step first. The account created
+// on confirmed payment (see paystack-webhook.js) is keyed to a guest
+// placeholder email either way, and the claim-account screen sets a real
+// email/password afterward -- same pattern already proven on insider.html's
+// fuseInsiderBuy(), so there was nothing this extra step actually gated.
 function fuseBuy(packKey, el, pixelData) {
-  pendingCheckout = { packKey: packKey, pixelData: pixelData, fallbackHref: el.getAttribute('href') };
-  var priceNow = document.getElementById('leadModalPriceNow');
-  if (priceNow && pixelData && pixelData.value) priceNow.textContent = '₦' + Number(pixelData.value).toLocaleString('en-NG');
-  var note = document.getElementById('leadModalNote'); if (note) { note.textContent = ''; note.className = 'lead-modal-note'; }
-  var overlay = document.getElementById('leadModalOverlay');
-  if (overlay) overlay.classList.add('show');
-  return false;
-}
-function fuseCloseLeadModal() {
-  var overlay = document.getElementById('leadModalOverlay');
-  if (overlay) overlay.classList.remove('show');
-}
-(function(){
-  var overlay = document.getElementById('leadModalOverlay');
-  if (!overlay) return;
-  overlay.addEventListener('click', function(e){ if (e.target === overlay) fuseCloseLeadModal(); });
-  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') fuseCloseLeadModal(); });
-})();
-function fuseSubmitCheckout() {
-  if (!pendingCheckout) return;
-  var name = document.getElementById('leadName').value.trim();
-  var email = document.getElementById('leadEmail').value.trim();
-  var whatsapp = document.getElementById('leadWhatsapp').value.trim();
-  var note = document.getElementById('leadModalNote');
-  var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  if (!name) { note.textContent = 'Add your full name.'; note.className = 'lead-modal-note err'; return; }
-  if (!emailOk) { note.textContent = 'Add a valid email address.'; note.className = 'lead-modal-note err'; return; }
-  if (!whatsapp) { note.textContent = 'Add your WhatsApp number.'; note.className = 'lead-modal-note err'; return; }
-  note.textContent = '';
-  var btn = document.getElementById('leadModalSubmit');
-  btn.disabled = true; btn.textContent = 'Opening secure checkout…';
-  if (typeof fbq === 'function') fbq('track', 'InitiateCheckout', pendingCheckout.pixelData);
+  if (typeof fbq === 'function') fbq('track', 'InitiateCheckout', pixelData);
+  var fallbackHref = el.getAttribute('href');
+  var orig = el.textContent;
+  el.style.pointerEvents = 'none'; el.textContent = 'Opening secure checkout…';
   fetch('/.netlify/functions/paystack-init-guest', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ pack: pendingCheckout.packKey, name: name, email: email, whatsapp: whatsapp }),
+    body: JSON.stringify({ pack: packKey }),
   }).then(function(r){
     return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Could not start payment'); return d; });
   }).then(function(d){
     window.location.href = d.authorization_url;
   }).catch(function(){
-    window.location.href = pendingCheckout.fallbackHref;
+    el.style.pointerEvents = ''; el.textContent = orig;
+    window.location.href = fallbackHref;
   });
+  return false;
 }
+
+// ============ Exit-intent popup -- real offer, no fake countdown/inflated
+// bonus. Desktop: fires once when the mouse leaves toward the browser chrome
+// (classic exit-intent). Mobile has no mouseleave equivalent, so it also
+// fires once after 20s on page if the visitor hasn't reached checkout --
+// a gentle nudge, not a trick. sessionStorage-gated so it only ever shows
+// once per visit either way. ============
+function fuseCloseExitModal() {
+  var overlay = document.getElementById('exitModalOverlay');
+  if (overlay) overlay.classList.remove('show');
+}
+(function(){
+  var overlay = document.getElementById('exitModalOverlay');
+  if (!overlay) return;
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) fuseCloseExitModal(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') fuseCloseExitModal(); });
+
+  var shown = sessionStorage.getItem('fuseExitShown');
+  function show(){
+    if (shown) return;
+    shown = true; sessionStorage.setItem('fuseExitShown', '1');
+    overlay.classList.add('show');
+  }
+  document.addEventListener('mouseout', function(e){
+    if (!e.relatedTarget && e.clientY <= 0) show();
+  });
+  setTimeout(show, 20000);
+})();
 
 // ============ Recent-activity toast -- REAL enrollments only, never
 // fabricated. Pulled from recent-activity.js, which only returns actual

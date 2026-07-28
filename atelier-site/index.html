@@ -1437,21 +1437,6 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
 </footer>
 
 <!-- ===== Lead-capture modal (shown before every checkout) ===== -->
-<div class="lead-overlay" id="leadModalOverlay">
-  <div class="lead-modal">
-    <button class="lead-modal-close" id="leadModalClose" aria-label="Close" onclick="fuseCloseLeadModal()">✕</button>
-    <h3>Where should we send your access details?</h3>
-    <p class="sub">You'll be redirected to secure payment right after this.</p>
-    <input id="leadName" type="text" placeholder="Full name" autocomplete="name">
-    <input id="leadEmail" type="email" placeholder="Email address" autocomplete="email">
-    <input id="leadWhatsapp" type="tel" placeholder="WhatsApp number (e.g. 0803 123 4567)" autocomplete="tel">
-    <div class="lead-modal-price"><span id="leadModalPriceNow"></span></div>
-    <button class="re-btn" id="leadModalSubmit" style="width:100%;justify-content:center" onclick="fuseSubmitCheckout()">Continue to secure payment →</button>
-    <p class="lead-modal-note" id="leadModalNote"></p>
-    <p class="lead-modal-secured">🔒 Secured by Paystack · Card, Bank Transfer &amp; USSD accepted</p>
-  </div>
-</div>
-
 <!-- ===== Recent-activity toast (real enrollments only) ===== -->
 <div class="activity-toast" id="activityToast" role="status" aria-live="polite">
   <div class="activity-toast-in">
@@ -1588,50 +1573,28 @@ window.addEventListener('load', function(){ window.scrollTo(0, 0); });
 // first (name/email/WhatsApp), so even an abandoned checkout leaves a real
 // contact to follow up with, and the email typed here becomes the actual
 // Paystack email instead of the random guest placeholder.
-var pendingCheckout = null;
+// Straight to Paystack -- no lead-capture step first. The account created
+// on confirmed payment (see paystack-webhook.js) is keyed to a guest
+// placeholder email either way, and the claim-account screen sets a real
+// email/password afterward -- same pattern already proven on insider.html's
+// fuseInsiderBuy(), so there was nothing this extra step actually gated.
 function fuseBuy(packKey, el, pixelData) {
-  pendingCheckout = { packKey: packKey, pixelData: pixelData, fallbackHref: el.getAttribute('href') };
-  var priceNow = document.getElementById('leadModalPriceNow');
-  if (priceNow && pixelData && pixelData.value) priceNow.textContent = '₦' + Number(pixelData.value).toLocaleString('en-NG');
-  var note = document.getElementById('leadModalNote'); if (note) { note.textContent = ''; note.className = 'lead-modal-note'; }
-  var overlay = document.getElementById('leadModalOverlay');
-  if (overlay) overlay.classList.add('show');
-  return false;
-}
-function fuseCloseLeadModal() {
-  var overlay = document.getElementById('leadModalOverlay');
-  if (overlay) overlay.classList.remove('show');
-}
-(function(){
-  var overlay = document.getElementById('leadModalOverlay');
-  if (!overlay) return;
-  overlay.addEventListener('click', function(e){ if (e.target === overlay) fuseCloseLeadModal(); });
-  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') fuseCloseLeadModal(); });
-})();
-function fuseSubmitCheckout() {
-  if (!pendingCheckout) return;
-  var name = document.getElementById('leadName').value.trim();
-  var email = document.getElementById('leadEmail').value.trim();
-  var whatsapp = document.getElementById('leadWhatsapp').value.trim();
-  var note = document.getElementById('leadModalNote');
-  var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  if (!name) { note.textContent = 'Add your full name.'; note.className = 'lead-modal-note err'; return; }
-  if (!emailOk) { note.textContent = 'Add a valid email address.'; note.className = 'lead-modal-note err'; return; }
-  if (!whatsapp) { note.textContent = 'Add your WhatsApp number.'; note.className = 'lead-modal-note err'; return; }
-  note.textContent = '';
-  var btn = document.getElementById('leadModalSubmit');
-  btn.disabled = true; btn.textContent = 'Opening secure checkout…';
-  if (typeof fbq === 'function') fbq('track', 'InitiateCheckout', pendingCheckout.pixelData);
+  if (typeof fbq === 'function') fbq('track', 'InitiateCheckout', pixelData);
+  var fallbackHref = el.getAttribute('href');
+  var orig = el.textContent;
+  el.style.pointerEvents = 'none'; el.textContent = 'Opening secure checkout…';
   fetch('/.netlify/functions/paystack-init-guest', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ pack: pendingCheckout.packKey, name: name, email: email, whatsapp: whatsapp }),
+    body: JSON.stringify({ pack: packKey }),
   }).then(function(r){
     return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Could not start payment'); return d; });
   }).then(function(d){
     window.location.href = d.authorization_url;
   }).catch(function(){
-    window.location.href = pendingCheckout.fallbackHref;
+    el.style.pointerEvents = ''; el.textContent = orig;
+    window.location.href = fallbackHref;
   });
+  return false;
 }
 
 // ============ Skills section — trimmed to 3 by default, expands to all 6.
