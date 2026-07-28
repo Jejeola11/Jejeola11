@@ -20,6 +20,7 @@ const ATELIER_PACKS = {
   atelier_empire: 'Fuse Atelier — Empire',
   'atelier-full': 'Fuse Atelier',
   course: 'Fuse Atelier',
+  money_engine: 'The Money Engine',
 };
 const MAX_AGE_DAYS = 30;
 const LIMIT = 10;

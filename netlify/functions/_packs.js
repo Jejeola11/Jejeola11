@@ -34,6 +34,14 @@ const PACKS = {
   // price + bonus already documented there: ₦5,000, 100 bonus credits.
   wk_course: { label: 'The $500 Week', amount_naira: 5000, credits: 100, kind: 'course', course: 'wk-course' },
 
+  // The Money Engine — standalone client-getting system (niche, profile,
+  // proposals, positioning), unbundled from the Fuse Atelier course and
+  // sold on its own at money-engine.html. Priced below atelier_starter
+  // (₦10,000) on purpose since it's a narrower slice of that bundle, not a
+  // replacement for it — see the page's own upsell copy pointing back to
+  // Starter for people who want the full AI skill set too.
+  money_engine: { label: 'The Money Engine', amount_naira: 6000, credits: 0, kind: 'course', course: 'money-engine' },
+
   // ---- Credit top-up bundles (one-time; buy anytime, even mid-plan) ----
   bundle_120: { label: '100 credits', amount_naira: 3000,  credits: 100, kind: 'pack' },
   bundle_320: { label: '300 credits', amount_naira: 7000,  credits: 300, kind: 'pack' },
