@@ -274,19 +274,31 @@ function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video'
 }
 
 // Poll several image jobs at once, filling a grid as each completes.
-function pollGrid(ids, resultEl, noteId, btn, label, watermark) {
+// queueLabel is optional -- same handoff pattern as pollJob (see its
+// comment above). Without it, a slot that outlasts 360s used to be marked
+// 'failed' PURELY CLIENT-SIDE with no server check at all -- a slow-but-
+// fine generation got reported as failed, and the actual result (credits
+// already spent) was never seen again. Passing queueLabel registers that
+// slot's id in the shared queue instead, so it hands off to the resilient
+// poller and gets a toast + a Projects entry whenever it actually resolves.
+function pollGrid(ids, resultEl, noteId, btn, label, watermark, queueLabel) {
  const done = new Array(ids.length).fill(null);
+ const handedOff = new Array(ids.length).fill(false);
  let finished = 0;
  resultEl.innerHTML = `<div><div class="${ids.length > 1 ? 'libgrid' : ''}" style="${ids.length > 1 ? 'gap:8px' : ''}">${ids.map((_, i) => `<div class="gen-slot" id="slot${i}"><span class="spin"></span></div>`).join('')}</div><div id="gridFooter" class="muted" style="margin-top:10px">Creating… ⏳</div></div>`;
  const finish = () => {
  finished++;
  if (finished < ids.length) return;
  clearPending();
- const urls = done.filter((u) => u && u !== 'failed');
+ const urls = done.filter((u) => u && u !== 'failed' && u !== 'handoff');
+ const anyHandedOff = handedOff.some(Boolean);
  const footer = document.getElementById('gridFooter');
  if (urls.length) {
  if (footer) footer.outerHTML = `<div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${urls[0]}')">⬇ Download</button></div>${watermark ? '<div class="muted" style="font-size:11px;margin-top:6px">Watermark removed on paid plans</div>' : ''}`;
  note(noteId, `Done ${urls.length > 1 ? ` · ${urls.length} variations` : ''}`, 'ok');
+ } else if (anyHandedOff) {
+ if (footer) footer.textContent = '';
+ note(noteId, 'Still rendering — taking longer than usual. You can leave this page; it\'ll appear in Projects when it\'s done.', 'ok');
  } else {
  if (footer) footer.textContent = '';
  note(noteId, 'Generation failed — credits refunded.', 'err');
@@ -305,16 +317,30 @@ function pollGrid(ids, resultEl, noteId, btn, label, watermark) {
  const d = await r.json();
  if (d.status === 'completed') {
  clearInterval(t); done[i] = d.url; lastOutput = d.url;
+ if (handedOff[i]) dequeueJob(id);
  const slot = document.getElementById('slot' + i);
  if (slot) slot.innerHTML = `${watermark ? '<div class="fuse-wm">Fuse Studio</div>' : ''}<img src="${d.url}" onclick="fuseLightbox('${d.url}','image')" style="cursor:pointer">`;
  finish();
  } else if (d.status === 'failed') {
  clearInterval(t); done[i] = 'failed';
+ if (handedOff[i]) dequeueJob(id);
  const slot = document.getElementById('slot' + i); if (slot) slot.innerHTML = '<div class="muted" style="font-size:12px"> failed</div>';
  finish();
  }
  } catch (e) {}
- if (s >= 360 && done[i] === null) { clearInterval(t); done[i] = 'failed'; finish(); }
+ if (s >= 360 && done[i] === null) {
+ clearInterval(t);
+ if (queueLabel) {
+ done[i] = 'handoff'; handedOff[i] = true;
+ queueJob({ request_id: id, endpoint: 'job-status', mediaType: 'image', label: String(queueLabel).slice(0, 60), model: 'image' });
+ startGlobalPoller();
+ const slot = document.getElementById('slot' + i);
+ if (slot) slot.innerHTML = '<div class="muted" style="font-size:12px"> still rendering…</div>';
+ } else {
+ done[i] = 'failed';
+ }
+ finish();
+ }
  }, 8000);
  });
 }
@@ -1847,7 +1873,7 @@ async function reactorSend() {
  if (!res.ok) throw new Error(data.error || 'Generation failed');
  const ids = data.request_ids && data.request_ids.length ? data.request_ids : [data.request_id];
  $('creditCount').textContent = data.credits;
- pollGrid(ids, $('rcOut'), 'rcNote', btn, 'Send', data.watermark);
+ pollGrid(ids, $('rcOut'), 'rcNote', btn, 'Send', data.watermark, 'Fuse Reactor image');
  } catch (e) { $('rcOut').innerHTML = ''; note('rcNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = 'Send'; }
  return;
  }
@@ -1934,7 +1960,7 @@ async function omniEditGenerate() {
  if (res.status === 402) { note('omniEditNote', 'Out of credits.', 'err'); openBuy(); }
  else if (res.status === 403) { note('omniEditNote', data.error || 'Upgrade to unlock this model.', 'err'); openBuy(); }
  else if (!res.ok) throw new Error(data.error || 'Could not start the edit');
- else { $('creditCount').textContent = data.credits; pollGrid([data.request_id], $('omniEditResult'), 'omniEditNote', btn, ' Edit videos'); return; }
+ else { $('creditCount').textContent = data.credits; pollGrid([data.request_id], $('omniEditResult'), 'omniEditNote', btn, ' Edit videos', false, 'Omni video edit'); return; }
  } catch (e) { note('omniEditNote', e.message || 'Failed', 'err'); }
  btn.disabled = false; btn.textContent = ' Edit videos';
 }
@@ -1975,7 +2001,7 @@ async function omniRefGenerate() {
  if (res.status === 402) { note('omniRefNote', 'Out of credits.', 'err'); openBuy(); }
  else if (res.status === 403) { note('omniRefNote', data.error || 'Upgrade to unlock this model.', 'err'); openBuy(); }
  else if (!res.ok) throw new Error(data.error || 'Could not start the generation');
- else { $('creditCount').textContent = data.credits; pollGrid([data.request_id], $('omniRefResult'), 'omniRefNote', btn, ' Generate'); return; }
+ else { $('creditCount').textContent = data.credits; pollGrid([data.request_id], $('omniRefResult'), 'omniRefNote', btn, ' Generate', false, 'Omni reference edit'); return; }
  } catch (e) { note('omniRefNote', e.message || 'Failed', 'err'); }
  btn.disabled = false; btn.textContent = ' Generate';
 }
@@ -2006,7 +2032,7 @@ async function omniAvatarGenerate() {
  if (res.status === 402) { note('omniAvatarNote', 'Out of credits.', 'err'); openBuy(); }
  else if (res.status === 403) { note('omniAvatarNote', data.error || 'Upgrade to unlock this model.', 'err'); openBuy(); }
  else if (!res.ok) throw new Error(data.error || 'Could not start the video');
- else { $('creditCount').textContent = data.credits; pollGrid([data.request_id], $('omniAvatarResult'), 'omniAvatarNote', btn, ' Generate talking video'); return; }
+ else { $('creditCount').textContent = data.credits; pollGrid([data.request_id], $('omniAvatarResult'), 'omniAvatarNote', btn, ' Generate talking video', false, 'Omni avatar video'); return; }
  } catch (e) { note('omniAvatarNote', e.message || 'Failed', 'err'); }
  btn.disabled = false; btn.textContent = ' Generate talking video';
 }
@@ -2058,7 +2084,7 @@ async function dlgGenerate() {
  const data = await res.json();
  if (res.status === 402) { note('dlgNote', 'Out of credits.', 'err'); openBuy(); }
  else if (!res.ok) throw new Error(data.error || 'Could not start the dialogue pass');
- else { $('creditCount').textContent = data.credits; pollGrid([data.request_id], $('dlgResult'), 'dlgNote', btn, ' Add dialogue'); return; }
+ else { $('creditCount').textContent = data.credits; pollGrid([data.request_id], $('dlgResult'), 'dlgNote', btn, ' Add dialogue', false, 'Dialogue video'); return; }
  } catch (e) { note('dlgNote', e.message || 'Failed', 'err'); }
  btn.disabled = false; btn.textContent = ' Add dialogue';
 }
