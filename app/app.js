@@ -199,7 +199,11 @@ window.fuseLightbox = (url, type) => {
 };
 
 // Poll an async render job until it completes. mediaType 'image' or 'video'.
-function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video', maxSeconds = 360, onComplete) {
+// onFail is optional (most callers don't pass it) -- lets a specific caller
+// react to a failure (e.g. flyerGenHero escalating to a fallback model on
+// the next attempt) without every other pollJob() call site needing to
+// know or care that the parameter exists.
+function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video', maxSeconds = 360, onComplete, onFail) {
  let s = 0;
  const timer = setInterval(async () => {
  s += 8;
@@ -231,6 +235,7 @@ function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video'
  note(noteId, (d.error || 'Failed') + ' — credits refunded.', 'err');
  if (user) loadProfile();
  if (btn) { btn.disabled = false; btn.textContent = btnLabel; }
+ if (onFail) onFail(d.error);
  } else {
  const dd = resultEl.querySelector('div div'); if (dd) dd.textContent = `Rendering… (${s}s)`;
  }
@@ -3192,7 +3197,7 @@ async function restoreFlyerProject() {
 // anyone into always continuing the same flyer — clears everything back
 // to a blank slate for a genuinely new one.
 function flyerNewProject() {
- flyerProjectId = null; flyerHistory = []; flyerLayers = []; flyerRefUrls = [];
+ flyerProjectId = null; flyerHistory = []; flyerLayers = []; flyerRefUrls = []; flyerHeroForceFallback = false;
  flyerCompositeRefs = { headline: null, features: null, cta: null }; ['headline', 'features', 'cta'].forEach(renderFlyerCompositeRef);
  localStorage.removeItem(FLYER_PROJECT_KEY);
  $('flyerLog').innerHTML = ''; $('flyerImgPrompt').value = '';
@@ -3209,6 +3214,7 @@ function flyerLoadProject(p) {
  if (!p) return;
  flyerProjectId = p.id;
  localStorage.setItem(FLYER_PROJECT_KEY, p.id);
+ flyerHeroForceFallback = false;
  flyerHistory = [];
  flyerCompositeRefs = { headline: null, features: null, cta: null }; ['headline', 'features', 'cta'].forEach(renderFlyerCompositeRef);
  flyerLayers = (Array.isArray(p.layers) ? p.layers : []).map((l) => l.instruction);
@@ -3389,6 +3395,17 @@ function flyerPollBrief(reqId, btn) {
  }, 4000);
 }
 
+// Set once a flyer-hero generation for the current project comes back
+// 'failed' (see the onFail callback below), and read on the NEXT call —
+// WaveSpeed accepting a submission and rejecting it later, async, isn't
+// caught by flyer-hero.js's own synchronous submit-failure fallback, so an
+// identical retry was just failing the exact same way every time ("keeps
+// getting stuck"). Sticky per project rather than cleared on every
+// keystroke: once this project's request has been rejected once, it's
+// more useful to skip straight to a genuinely different model on every
+// later attempt than to re-guess whether THIS edit will be the one that
+// gets through.
+let flyerHeroForceFallback = false;
 async function flyerGenHero(auto) {
  if (preview) { showAuth('signup'); return; }
  const prompt = $('flyerImgPrompt').value.trim();
@@ -3408,6 +3425,7 @@ async function flyerGenHero(auto) {
  project_id: flyerProjectId || undefined, prompt, aspect: $('flyerAspect').value,
  reference_image_urls: flyerRefUrls.filter((r) => r.on).map((r) => r.url),
  reference_roles: Object.keys(referenceRoles).length ? referenceRoles : undefined,
+ force_fallback: flyerHeroForceFallback || undefined,
  }),
  });
  const d = await res.json();
@@ -3428,7 +3446,9 @@ async function flyerGenHero(auto) {
  // suspenders against Add Layer/Composite ever saying "generate the hero
  // first" for a hero that's plainly sitting on screen: no more needing
  // to download-then-re-upload the very image that was just generated.
- pollJob(d.request_id, $('flyerHeroResult'), 'flyerHeroNote', btn, label, 'image', 100, (url) => { flyerConfirmHero(url); flyerSuggestLayers(); flyerAutoDetectAccent(url); });
+ pollJob(d.request_id, $('flyerHeroResult'), 'flyerHeroNote', btn, label, 'image', 100,
+ (url) => { flyerHeroForceFallback = false; flyerConfirmHero(url); flyerSuggestLayers(); flyerAutoDetectAccent(url); },
+ () => { flyerHeroForceFallback = true; });
  $('flyerLayerPanel').style.display = 'block';
  $('flyerTextPanel').style.display = 'block';
  } catch (e) { $('flyerHeroResult').innerHTML = '<div> ' + (e.message || 'Failed') + '</div>'; note('flyerHeroNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }

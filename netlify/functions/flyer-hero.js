@@ -88,6 +88,16 @@ exports.handler = async (event) => {
     const referenceImageUrls = (Array.isArray(body.reference_image_urls) ? body.reference_image_urls : []).filter(Boolean).slice(0, 20);
     const referenceRoles = (body.reference_roles && typeof body.reference_roles === 'object') ? body.reference_roles : null;
     if (!prompt) return json(400, { error: 'Missing image prompt.' });
+    // Set by the frontend after a WaveSpeed generation for this project came
+    // back "failed" (see app.js's flyerGenHero) -- WaveSpeed accepting the
+    // submission and rejecting it later, async, isn't caught by the
+    // existing synchronous submit-failure fallback below (that only fires
+    // if submitFlyerImage itself throws), so a retry with the exact same
+    // model+references just fails the exact same way every time. Skipping
+    // straight to the nano-banana fallback -- a different underlying model,
+    // not just a different vendor proxy of the same one -- actually gives
+    // the retry a real chance instead of repeating the identical request.
+    const forceFallback = body.force_fallback === true;
 
     db = admin();
     // What actually grounds THIS generation is exactly what the client sent
@@ -123,7 +133,7 @@ exports.handler = async (event) => {
       const { data: newProj } = await db.from('flyer_projects').insert({ user_id: user.id, brief: prompt, reference_image_urls: referenceImageUrls, aspect }).select().single();
       projectId = newProj && newProj.id;
     }
-    const wantsWS = hasWaveSpeed();
+    const wantsWS = hasWaveSpeed() && !forceFallback;
     const model = wantsWS ? (refs.length ? MODEL_I2I : MODEL_T2I) : (refs.length ? FALLBACK_I2I : FALLBACK_T2I);
 
     let plan = 'pro', isAdmin = false;
