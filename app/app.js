@@ -2740,6 +2740,8 @@ async function generateModelSheet() {
  } catch (e) { note('avSheetNote', e.message || 'Failed', 'err'); renderSheet(); }
 }
 function pollSheet(reqId) {
+ queueJob({ request_id: reqId, endpoint: 'job-status', mediaType: 'image', label: 'Avatar model sheet', model: 'modelsheet' });
+ startGlobalPoller();
  let s = 0;
  const timer = setInterval(async () => {
  s += 8;
@@ -2748,13 +2750,20 @@ function pollSheet(reqId) {
  const d = await r.json();
  if (d.status === 'completed') {
  clearInterval(timer);
+ dequeueJob(reqId);
  if (avatarMap[selectedAvatar]) avatarMap[selectedAvatar].model_sheet_url = d.url;
  renderSheet(); note('avSheetNote', ' Model sheet ready!', 'ok'); loadAvatars();
  } else if (d.status === 'failed') {
- clearInterval(timer); note('avSheetNote', (d.error || 'Failed') + ' — credits refunded.', 'err'); renderSheet(); if (user) loadProfile();
+ clearInterval(timer); dequeueJob(reqId); note('avSheetNote', (d.error || 'Failed') + ' — credits refunded.', 'err'); renderSheet(); if (user) loadProfile();
  }
  } catch (e) {}
- if (s >= 240) { clearInterval(timer); note('avSheetNote', 'Still working — check back shortly.', 'err'); renderSheet(); }
+ // Handoff, not abandonment -- same reasoning as pollJob/pollGrid/
+ // pollEditTranscribe above: the queued entry keeps polling in the
+ // background and updates the avatar's model_sheet_url server-side
+ // (job-status.js) regardless of whether this specific timer is still
+ // running, so a slow render was never actually lost -- it just wasn't
+ // reflected back to the user, who saw a false "still working" error.
+ if (s >= 240) { clearInterval(timer); note('avSheetNote', 'Still working — you can leave this page; it\'ll be ready next time you open Avatar Studio.', 'ok'); renderSheet(); }
  }, 8000);
 }
 // ---------------- AI Avatar Creator (long-form talking video) ----------------
@@ -4894,32 +4903,15 @@ async function editOmniSend() {
  if (!res.ok) throw new Error(d.error || 'Failed');
  if (d.credits != null) $('creditCount').textContent = d.credits;
  note('editOmniNote', 'Working… ⏳', 'ok');
- let s = 0;
- const timer = setInterval(async () => {
- s += 8;
- try {
- const r = await fetch(`/.netlify/functions/job-status?id=${d.request_id}`, { headers: { ...(await authHeader()) } });
- const jd = await r.json();
- if (jd.status === 'completed') {
- clearInterval(timer);
- $('editResult').innerHTML = `<div><video src="${jd.url}" controls autoplay loop muted playsinline style="width:100%;border-radius:12px"></video><div style="margin-top:12px"><button class="btn gold sm" onclick="fuseDownload('${jd.url}')">⬇ Download</button></div></div>`;
- note('editOmniNote', ' Done.', 'ok');
+ pollJob(d.request_id, $('editResult'), 'editOmniNote', btn, label, 'video', 600, () => {
  $('editElementPanel').style.display = 'block';
  $('editCtaPanel').style.display = 'block';
- if (user) loadProfile();
- btn.disabled = false; btn.textContent = label;
- } else if (jd.status === 'failed') {
- clearInterval(timer);
- note('editOmniNote', (jd.error || 'Failed') + ' — credits refunded.', 'err');
- if (user) loadProfile();
- btn.disabled = false; btn.textContent = label;
- }
- } catch (e) {}
- if (s >= 600) { clearInterval(timer); note('editOmniNote', 'Still working — check back shortly.', 'err'); btn.disabled = false; btn.textContent = label; }
- }, 8000);
+ }, null, 'AI Auto-Edit video');
  } catch (e) { note('editOmniNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 function pollEditTranscribe(reqId) {
+ queueJob({ request_id: reqId, endpoint: 'job-status', mediaType: 'video', label: 'Video transcription', model: 'transcribe' });
+ startGlobalPoller();
  let s = 0;
  const timer = setInterval(async () => {
  s += 5;
@@ -4928,14 +4920,22 @@ function pollEditTranscribe(reqId) {
  const d = await r.json();
  if (d.status === 'completed') {
  clearInterval(timer);
+ dequeueJob(reqId);
  note('editVideoNote', ' Transcribed — describe the edit below.', 'ok');
  $('editBriefPanel').style.display = 'block';
  } else if (d.status === 'failed') {
  clearInterval(timer);
+ dequeueJob(reqId);
  note('editVideoNote', (d.error || 'Failed') + ' — credits refunded.', 'err');
  }
  } catch (e) {}
- if (s >= 300) { clearInterval(timer); note('editVideoNote', 'Still working — check back shortly.', 'err'); }
+ // Handed off at 300s, not abandoned -- the shared poller (already queued
+ // above) keeps going and will flip editBriefPanel open whenever it
+ // actually resolves, even after a reload. This mirrors pollJob/pollGrid's
+ // handoff behavior (see their comments) for the same reason: a slow
+ // transcription isn't a failure, and treating it as one was exactly what
+ // stranded jobs and lost credits for other studios.
+ if (s >= 300) { clearInterval(timer); note('editVideoNote', 'Still working — you can leave this page; it\'ll continue in the background.', 'ok'); }
  }, 5000);
 }
 function editAppendLog(role, text) {
