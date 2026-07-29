@@ -94,7 +94,10 @@ exports.handler = async (event) => {
   if (job.status === 'completed') {
     return isTextKind ? json(200, { status: 'completed', text: job.output_text }) : json(200, { status: 'completed', url: job.output_url });
   }
-  if (job.status === 'failed') return json(200, isTextKind && job.output_text ? { status: 'failed', error: job.output_text } : { status: 'failed' });
+  if (job.status === 'failed') {
+    const msg = (isTextKind && job.output_text) || job.error_message || null;
+    return json(200, msg ? { status: 'failed', error: msg } : { status: 'failed' });
+  }
 
   // Resemble voice jobs never got a real external request_id at submit time
   // (audio-generate.js only inserted a pending row) — the actual synth +
@@ -153,8 +156,9 @@ exports.handler = async (event) => {
       const ageMs = Date.now() - new Date(job.created_at).getTime();
       if (ageMs > 90000) {
         await db.rpc('add_credits', { uid: user.id, amount: job.credits, why: 'refund' });
-        await db.from('jobs').update({ status: 'failed' }).eq('request_id', id);
-        return json(200, { status: 'failed', error: (e && e.message) || 'Resemble synthesis failed.' });
+        const errMsg = (e && e.message) || 'Resemble synthesis failed.';
+        await db.from('jobs').update({ status: 'failed', error_message: errMsg }).eq('request_id', id);
+        return json(200, { status: 'failed', error: errMsg });
       }
       // Hand the claim back so the NEXT poll can retry — leaving it stuck
       // at 'generating' would mean nothing ever matches the claim's
@@ -324,13 +328,20 @@ exports.handler = async (event) => {
   }
   if (r.status === 'failed') {
     await db.rpc('add_credits', { uid: user.id, amount: job.credits, why: 'refund' });
-    await db.from('jobs').update({ status: 'failed' }).eq('request_id', id);
     // Surface the engine's own reason when it gave one — a bare "Generation
     // failed" is undiagnosable when it happens again; the provider's raw
     // prediction usually carries the real reason under one of these keys.
     const raw = r.raw || {};
     const reason = raw.error || raw.detail || raw.logs || raw.message || null;
-    return json(200, { status: 'failed', error: reason ? `Generation failed: ${String(reason).slice(0, 200)}` : 'Generation failed' });
+    const errMsg = reason ? `Generation failed: ${String(reason).slice(0, 200)}` : 'Generation failed';
+    // This was computed and shown to the user above but never actually
+    // saved anywhere -- every failed job's real reason was thrown away the
+    // moment the response was sent, so a repeat failure was undiagnosable
+    // from here without asking the student to reproduce it. error_message
+    // already exists on this table (other branches below use it); this
+    // generic branch just never wrote to it.
+    await db.from('jobs').update({ status: 'failed', error_message: errMsg }).eq('request_id', id);
+    return json(200, { status: 'failed', error: errMsg });
   }
   return json(200, { status: 'processing' });
 };
@@ -395,8 +406,9 @@ async function handleTranscribeJob(db, user, job, id) {
       const ageMs = Date.now() - new Date(job.created_at).getTime();
       if (ageMs > 90000) {
         await db.rpc('add_credits', { uid: user.id, amount: job.credits, why: 'refund' });
-        await db.from('jobs').update({ status: 'failed' }).eq('request_id', id);
-        return json(200, { status: 'failed', error: (e && e.message) || 'Transcription failed' });
+        const errMsg = (e && e.message) || 'Transcription failed';
+        await db.from('jobs').update({ status: 'failed', error_message: errMsg }).eq('request_id', id);
+        return json(200, { status: 'failed', error: errMsg });
       }
       await db.from('jobs').update({ status: 'processing' }).eq('request_id', id);
       return json(200, { status: 'processing' });
@@ -418,7 +430,7 @@ async function handleTranscribeJob(db, user, job, id) {
   }
   if (p.status === 'failed' || p.status === 'cancelled') {
     await db.rpc('add_credits', { uid: user.id, amount: job.credits, why: 'refund' });
-    await db.from('jobs').update({ status: 'failed' }).eq('request_id', id);
+    await db.from('jobs').update({ status: 'failed', error_message: 'Transcription ' + p.status }).eq('request_id', id);
     return json(200, { status: 'failed', error: 'Transcription ' + p.status });
   }
   return json(200, { status: 'processing' });
