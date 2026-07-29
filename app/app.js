@@ -203,7 +203,23 @@ window.fuseLightbox = (url, type) => {
 // react to a failure (e.g. flyerGenHero escalating to a fallback model on
 // the next attempt) without every other pollJob() call site needing to
 // know or care that the parameter exists.
-function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video', maxSeconds = 360, onComplete, onFail) {
+//
+// queueLabel is also optional, and matters a lot: passing it registers the
+// job in the SHARED pending-jobs queue (the same one Image/Video/Audio
+// Studio use via queueJob), which polls every 6s indefinitely and survives
+// a reload or navigating away. Without it, this function is the job's only
+// watcher and hitting maxSeconds abandons it outright -- the user's credits
+// are already spent, the provider may well finish seconds later, and the
+// result is simply lost with a "this render is stuck" message. That is
+// exactly what was happening to every Flyer Studio and Avatar generation
+// (they were the only studios never wired into the shared queue), and it
+// left dozens of jobs stranded mid-flight. Timing out now hands the job
+// over to that poller instead of dropping it.
+function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video', maxSeconds = 360, onComplete, onFail, queueLabel) {
+ if (queueLabel) {
+ queueJob({ request_id: requestId, endpoint: 'job-status', mediaType, label: String(queueLabel).slice(0, 60), model: mediaType });
+ startGlobalPoller();
+ }
  let s = 0;
  const timer = setInterval(async () => {
  s += 8;
@@ -212,6 +228,7 @@ function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video'
  const d = await r.json();
  if (d.status === 'completed') {
  clearInterval(timer);
+ if (queueLabel) dequeueJob(requestId);
  lastOutput = d.url;
  const media = mediaType === 'image'
  ? `<img src="${d.url}" onclick="fuseLightbox('${d.url}','image')" style="cursor:pointer">`
@@ -231,6 +248,7 @@ function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video'
  if (onComplete) onComplete(d.url);
  } else if (d.status === 'failed') {
  clearInterval(timer);
+ if (queueLabel) dequeueJob(requestId);
  resultEl.innerHTML = '<div> ' + (d.error || 'Failed') + '</div>';
  note(noteId, (d.error || 'Failed') + ' — credits refunded.', 'err');
  if (user) loadProfile();
@@ -240,7 +258,18 @@ function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video'
  const dd = resultEl.querySelector('div div'); if (dd) dd.textContent = `Rendering… (${s}s)`;
  }
  } catch (e) {}
- if (s >= maxSeconds) { clearInterval(timer); note(noteId, 'Still rendering after ' + maxSeconds + 's — this render is stuck. Try again with fewer reference images.', 'err'); if (btn) { btn.disabled = false; btn.textContent = btnLabel; } }
+ if (s >= maxSeconds) {
+ clearInterval(timer);
+ if (btn) { btn.disabled = false; btn.textContent = btnLabel; }
+ if (queueLabel) {
+ // Handed off, not abandoned -- the shared poller keeps going and will
+ // toast + drop it into Projects whenever it lands, even after a
+ // reload. Deliberately NOT an error: nothing has gone wrong yet.
+ note(noteId, 'Still rendering — taking longer than usual. You can leave this page; it\'ll appear in Projects when it\'s done.', 'ok');
+ } else {
+ note(noteId, 'Still rendering after ' + maxSeconds + 's — this render is stuck. Try again with fewer reference images.', 'err');
+ }
+ }
  }, 8000);
 }
 
@@ -401,8 +430,24 @@ function clearPending() { try { localStorage.removeItem('fuse_pendingVideo'); } 
 const PENDING_JOBS_KEY = 'fuse_pending_jobs';
 const MAX_CONCURRENT_JOBS = 10;
 let pendingJobs = [];
+// A queued job is only ever removed when a poll sees it reach a terminal
+// state. If one never does (the provider dropped it, the tab died mid-
+// generation, a bug left it hanging), it used to sit in this list forever
+// -- and since jobCapReached() blocks new submissions at
+// MAX_CONCURRENT_JOBS, ten of those permanently locked the user out of
+// generating anything at all, with nothing on screen explaining why.
+// Anything older than this is treated as abandoned and swept. Well past
+// the slowest real generation (long avatar videos run several minutes), so
+// this can only ever catch genuinely dead entries.
+const PENDING_JOB_MAX_AGE_MS = 30 * 60 * 1000; // 30 min
+function prunePendingJobs(list) {
+ const now = Date.now();
+ return (list || []).filter((j) => j && (now - (j.started_at || 0)) < PENDING_JOB_MAX_AGE_MS);
+}
 function loadPendingJobs() {
  try { pendingJobs = JSON.parse(localStorage.getItem(PENDING_JOBS_KEY) || '[]'); } catch (e) { pendingJobs = []; }
+ const pruned = prunePendingJobs(pendingJobs);
+ if (pruned.length !== pendingJobs.length) { pendingJobs = pruned; savePendingJobs(); }
 }
 function readSharedPendingJobs() {
  try { return JSON.parse(localStorage.getItem(PENDING_JOBS_KEY) || '[]'); } catch (e) { return []; }
@@ -448,6 +493,15 @@ function startGlobalPoller() {
  pollAllPendingJobs();
 }
 async function pollAllPendingJobs() {
+ // Sweep abandoned entries here too, not just at boot -- a session left
+ // open for hours would otherwise never clear them and would hit the
+ // concurrency cap without ever reloading.
+ const swept = prunePendingJobs(pendingJobs);
+ if (swept.length !== pendingJobs.length) {
+ pendingJobs = swept;
+ localStorage.setItem(PENDING_JOBS_KEY, JSON.stringify(prunePendingJobs(readSharedPendingJobs())));
+ renderLibraryPending();
+ }
  if (!pendingJobs.length) return;
  const snapshot = [...pendingJobs];
  for (const job of snapshot) {
@@ -3087,7 +3141,7 @@ async function avatarGenerate() {
  $('avResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Generating…</div></div>';
  pollJob(data.request_id, $('avResult'), 'avGenNote', btn, label, 'image', 100, (url) => {
  $('avResult').insertAdjacentHTML('beforeend', `<button class="btn ghost sm" style="margin-top:8px" onclick="fuseUseAvatarAsVideoStart('${url}')">🎬 Use as video starting frame →</button>`);
- });
+ }, null, 'Avatar image');
  }
  } catch (e) { note('avGenNote', e.message || 'Failed — credits not charged.', 'err'); btn.disabled = false; btn.textContent = label; }
 }
@@ -3448,7 +3502,8 @@ async function flyerGenHero(auto) {
  // to download-then-re-upload the very image that was just generated.
  pollJob(d.request_id, $('flyerHeroResult'), 'flyerHeroNote', btn, label, 'image', 100,
  (url) => { flyerHeroForceFallback = false; flyerConfirmHero(url); flyerSuggestLayers(); flyerAutoDetectAccent(url); },
- () => { flyerHeroForceFallback = true; });
+ () => { flyerHeroForceFallback = true; },
+ 'Flyer hero visual');
  $('flyerLayerPanel').style.display = 'block';
  $('flyerTextPanel').style.display = 'block';
  } catch (e) { $('flyerHeroResult').innerHTML = '<div> ' + (e.message || 'Failed') + '</div>'; note('flyerHeroNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
@@ -3787,7 +3842,7 @@ async function flyerComposite() {
  // to 4 total: hero + headline + features + cta), and GPT Image 2's real
  // inference time grows with image count (confirmed live: ~94s with one
  // extra reference vs ~48s with none) — 180s covers even all three attached.
- pollJob(d.request_id, $('flyerFinalResult'), 'flyerCompositeNote', btn, label, 'image', 180, () => { $('flyerSpotFixOpen').style.display = 'block'; });
+ pollJob(d.request_id, $('flyerFinalResult'), 'flyerCompositeNote', btn, label, 'image', 180, () => { $('flyerSpotFixOpen').style.display = 'block'; }, null, 'Finished flyer');
  } catch (e) { $('flyerFinalResult').innerHTML = '<div> ' + (e.message || 'Failed') + '</div>'; note('flyerCompositeNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = label; }
 }
 
@@ -4557,7 +4612,7 @@ async function flyerSubmitSpotFix() {
  $('flyerSpotFixOverlay').style.display = 'none';
  $('flyerFinalResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Fixing that spot…</div></div>';
  note('flyerCompositeNote', 'Fixing that spot… ⏳', 'ok');
- pollJob(d.request_id, $('flyerFinalResult'), 'flyerCompositeNote', null, '', 'image', 180, () => { $('flyerSpotFixOpen').style.display = 'block'; });
+ pollJob(d.request_id, $('flyerFinalResult'), 'flyerCompositeNote', null, '', 'image', 180, () => { $('flyerSpotFixOpen').style.display = 'block'; }, null, 'Flyer spot fix');
  btn.disabled = false; btn.textContent = 'Fix this spot →';
  } catch (e) { note('flyerSpotFixNote', e.message || 'Failed', 'err'); btn.disabled = false; btn.textContent = 'Fix this spot →'; }
 }
