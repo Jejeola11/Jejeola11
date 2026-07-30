@@ -65,7 +65,7 @@ exports.handler = async (event) => {
     }
   }
 
-  const appUrl = process.env.APP_URL || '';
+  const appUrl = (process.env.APP_URL || '').replace(/\/+$/, '');
   const res = await fetch('https://api.paystack.co/transaction/initialize', {
     method: 'POST',
     headers: {

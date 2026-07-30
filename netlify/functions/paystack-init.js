@@ -20,7 +20,7 @@ exports.handler = async (event) => {
   const pack = PACKS[body.pack];
   if (!pack) return json(400, { error: 'Unknown pack.' });
 
-  const appUrl = process.env.APP_URL || '';
+  const appUrl = (process.env.APP_URL || '').replace(/\/+$/, '');
   const res = await fetch('https://api.paystack.co/transaction/initialize', {
     method: 'POST',
     headers: {

@@ -36,7 +36,7 @@ exports.handler = async (event) => {
     if (!clientName) return json(400, { error: 'Enter the client\'s name.' });
     if (!amountNaira || amountNaira <= 0) return json(400, { error: 'Enter a valid amount.' });
 
-    const appUrl = process.env.APP_URL || '';
+    const appUrl = (process.env.APP_URL || '').replace(/\/+$/, '');
     const reference = `freelance-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
     const res = await fetch('https://api.paystack.co/transaction/initialize', {
