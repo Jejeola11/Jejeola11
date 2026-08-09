@@ -9,6 +9,19 @@ const cfg = window.FUSE;
 const sb = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
 const $ = (id) => document.getElementById(id);
 
+// Fires when someone lands back on the studio via the link from a "Forgot
+// password?" email — Supabase parses the recovery token out of the URL and
+// signs them into a temporary session, then tells us via this event so we
+// can prompt for a new password instead of dropping them straight into the
+// app on an account they were just locked out of.
+sb.auth.onAuthStateChange((event) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    const authOv = document.getElementById('authOverlay');
+    if (authOv) authOv.style.display = 'none';
+    document.getElementById('recoverOverlay').style.display = 'flex';
+  }
+});
+
 let user = null;
 let preview = false;
 let showUsd = false;
@@ -5596,7 +5609,32 @@ function setAuthMode(m) {
  }
  $('authSwitchText').textContent = m === 'signup' ? 'Already have an account?' : 'New here?';
  $('authSwitchLink').textContent = m === 'signup' ? 'Log in' : 'Create one';
+ $('forgotRow').style.display = m === 'signup' ? 'none' : 'block';
  note('authNote', '');
+}
+async function doForgotPassword() {
+ const email = $('authEmail').value.trim();
+ if (!email) return note('authNote', 'Enter your email above first, then tap "Forgot password?".', 'err');
+ $('forgotLink').style.pointerEvents = 'none';
+ try {
+ const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+ if (error) throw error;
+ note('authNote', ` Reset link sent to ${email} — check your inbox (and spam folder).`, 'ok');
+ } catch (e) { note('authNote', e.message || 'Could not send reset link.', 'err'); }
+ $('forgotLink').style.pointerEvents = '';
+}
+async function doSetNewPassword() {
+ const pass = $('recoverPass').value;
+ if (!pass || pass.length < 6) return note('recoverNote', 'Password must be at least 6 characters.', 'err');
+ $('recoverBtn').disabled = true;
+ try {
+ const { error } = await sb.auth.updateUser({ password: pass });
+ if (error) throw error;
+ $('recoverOverlay').style.display = 'none';
+ note('authNote', ' Password updated — you’re logged in.', 'ok');
+ await boot();
+ } catch (e) { note('recoverNote', e.message || 'Could not update password.', 'err'); }
+ $('recoverBtn').disabled = false;
 }
 async function doAuth() {
  const email = $('authEmail').value.trim(), pass = $('authPass').value;
@@ -5915,6 +5953,9 @@ window.addEventListener('DOMContentLoaded', () => {
  $('authSwitchLink').onclick = () => setAuthMode(authMode === 'signup' ? 'login' : 'signup');
  $('authPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doAuth(); });
  $('previewLink').onclick = enterPreview;
+ $('forgotLink').onclick = doForgotPassword;
+ $('recoverBtn').onclick = doSetNewPassword;
+ $('recoverPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doSetNewPassword(); });
 
  if (new URLSearchParams(location.search).get('paid')) {
  const paidQS = new URLSearchParams(location.search);

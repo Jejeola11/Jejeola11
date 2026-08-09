@@ -1224,8 +1224,24 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  <input id="authPass" type="password" placeholder="••••••••" autocomplete="current-password">
  <button class="btn gold block" id="authBtn" style="margin-top:16px">Start free →</button>
  <div class="note" id="authNote"></div>
+ <div class="switch" id="forgotRow" style="display:none;margin-top:6px"><a id="forgotLink">Forgot password?</a></div>
  <div class="switch"><span id="authSwitchText">Already have an account?</span> <a id="authSwitchLink">Log in</a></div>
  <div class="switch" style="margin-top:8px"><a id="previewLink"> Just looking? Preview the studio</a></div>
+ </div>
+</div>
+
+<!-- ===== Password recovery overlay — shown automatically when someone lands
+     back on the studio via the link from a "Forgot password?" email
+     (Supabase fires a PASSWORD_RECOVERY auth event we listen for) ===== -->
+<div class="overlay" id="recoverOverlay" style="display:none">
+ <div class="modal">
+ <div class="brand" style="justify-content:center;margin-bottom:8px"><span class="dot">F</span> Fuse&nbsp;Studio</div>
+ <h2 style="text-align:center">Set a new password</h2>
+ <p class="muted" style="text-align:center;margin:0 0 14px">Choose a new password for your account.</p>
+ <label class="fld" for="recoverPass">New password</label>
+ <input id="recoverPass" type="password" placeholder="••••••••" autocomplete="new-password">
+ <button class="btn gold block" id="recoverBtn" style="margin-top:16px">Set new password →</button>
+ <div class="note" id="recoverNote"></div>
  </div>
 </div>
 
