@@ -1506,7 +1506,7 @@ async function openAllCourses() {
  }
  const rows = [];
  rows.push({
- title: ' Fuse Atelier', sub: 'The AI Creative Income System — 70 lessons, 4 pillars.',
+ title: ' Fuse Atelier', sub: 'The AI Creative Income System — 72 lessons, 20 skills.',
  owned: courseHasFull(), price: '₦60,000', go: () => routeFeature('learn'),
  });
  rows.push({
