@@ -24,10 +24,14 @@
 // "coming soon" placeholder shows and the text lesson still works.
 // ============================================================
 window.FUSE_5WEEK = {
-  price: 5000,                  // ₦ course price -- must match _packs.js's 'wk_course' entry
+  // 10 Aug 2026: was 5000 -- this was showing ₦5,000 to buyers while
+  // _packs.js's wk_course (the pack checkout actually charges against) was
+  // already ₦10,000, confirmed as the real price WhatsApp buyers pay. Fixed
+  // to match -- a buyer was seeing one price and being charged another.
+  price: 10000,                 // ₦ course price -- must match _packs.js's 'wk_course' entry
   whatsapp: 'https://chat.whatsapp.com/JMVhLvgCs40JXtNv7Yf1zI?s=cl&p=a&mlu=1&amv=2', // course discussion group (community, not payment)
   accessCode: 'UGC500',         // code you can hand out manually if you ever want a self-serve unlock
-  creditsCost: 250,             // in-app credit price to unlock (optional path, ~ same value as ₦5,000)
+  creditsCost: 65,               // in-app credit price to unlock (optional path, ~ same ₦10,000 value at the new ₦154/credit baseline)
   charLabBuyUrl: 'https://fusecharacterlabpage.netlify.app/', // purchase / sales page (Day 2 banner + promo card)
   charLabLoginUrl: 'https://fuse-character-lab.netlify.app/', // the actual tool — only unlocks for buyers' emails
   pitchPilotUrl: 'https://pitch-pilot2.netlify.app/', // Day 5 + Day 6 banner — sign up free, 3 free pitches
@@ -497,7 +501,7 @@ Best,
           <li><b>THE GOLD</b> — international clients, Upwork retainers, the exact dollar-earning system. <span class="muted">$1,000–$3,500/month</span></li>
           <li><b>THE STAGE</b> — your personal brand, content funnels, ManyChat automation. <span class="muted">Compounding growth</span></li>
         </ul>
-        <p>Plus 12 bonus vault resources (prompt vaults, proposal swipe files, a 90-day roadmap) and <b>500 Fuse Studio credits</b> included on day one.</p>
+        <p>Plus 12 bonus vault resources (prompt vaults, proposal swipe files, a 90-day roadmap) and <b>83 Fuse Studio credits</b> included on day one.</p>
         <div class="wk-call">🔥 Founding price: <b>₦60,000</b> lifetime access (first 50 students) — then ₦90,000. You already proved you can do this in 7 days. Now scale it.</div>
         <a class="btn gold block" href="https://fuse-atelier.netlify.app" target="_blank" rel="noopener" style="margin-top:6px">🎬 See Fuse Atelier — join at the founding price →</a>
 

@@ -686,11 +686,27 @@ async function generateStudioVideo(prompt) {
 
 // ---------------- video studio ----------------
 let vModel = null, vRefUrl = '', vMoreRefs = [];
+// Live credit estimate — mirrors video-generate.js's own durMult exactly
+// (10s = 2x the 5s price, server-enforced already; this just shows it
+// BEFORE generating instead of only after, and keeps updating if the user
+// changes duration). Called on open and on every #vDuration change.
+function vCreditsForCurrentDuration() {
+ if (!vModel) return 0;
+ const dur = $('vDuration') ? $('vDuration').value : '5s';
+ const mult = String(dur).startsWith('10') ? 2 : 1;
+ return vModel.credits * mult;
+}
+function vUpdateCostEstimate() {
+ if (!vModel) return;
+ const credits = vCreditsForCurrentDuration();
+ const mult = credits / vModel.credits;
+ $('vModelName').textContent = vModel.name + ' · ' + credits + ' cr' + (mult > 1 ? ` (${vModel.credits} × ${mult} for 10s)` : '');
+ $('vGen').textContent = ` Generate video (${credits} credits)`;
+}
 function openVideo(slug) {
  vModel = cfg.VIDEO_MODELS.find((m) => m.slug === slug) || cfg.VIDEO_MODELS[0];
- $('vModelName').textContent = vModel.name + ' · ' + vModel.credits + ' cr';
  $('vResult').innerHTML = '<div class="muted">Your video appears here. Video takes a little longer ⏳</div>';
- $('vGen').textContent = ` Generate video (${vModel.credits} credits)`;
+ vUpdateCostEstimate();
  vRefUrl = ''; $('vRefPreview').style.display = 'none'; $('vRefBtn').style.display = 'flex';
  vMoreRefs = []; renderVideoRefs();
  note('vNote', '');
@@ -739,7 +755,7 @@ async function videoGenerate() {
  const prompt = $('vPrompt').value.trim();
  if (!prompt && !vRefUrl) return note('vNote', 'Add a prompt or a starting image.', 'err');
  if (jobCapReached('vNote')) return;
- const btn = $('vGen'); const label = ` Generate video (${vModel.credits} credits)`; btn.disabled = true; btn.textContent = 'Submitting…';
+ const btn = $('vGen'); const label = ` Generate video (${vCreditsForCurrentDuration()} credits)`; btn.disabled = true; btn.textContent = 'Submitting…';
  note('vNote', '');
  try {
  const res = await fetch('/.netlify/functions/video-generate', {
@@ -1118,13 +1134,16 @@ async function openCourse() {
  // Tier-aware banner: show what they own and the next tier up (money-only upgrade).
  const tier = atelierTier();
  const TIER_LABEL = ['', 'Starter', 'Creator', 'Empire'];
- const NEXT = { 0: ['atelier_starter', 'Start with Starter — ₦10,000'], 1: ['atelier_creator', 'Upgrade to Creator — ₦25,000'], 2: ['atelier_empire', 'Upgrade to Empire — ₦70,000'] };
+ // 10 Aug 2026: Atelier Starter/Creator/Empire are paused server-side
+ // (netlify/functions/_packs.js) -- these buy/upgrade buttons used to hit
+ // that checkout directly (buy('atelier_starter'|...)) and would now fail.
+ // Existing owners (tier > 0, via module_unlocks) keep full access to what
+ // they already own; only the buy/upgrade CTA is swapped for a paused note.
  $('courseLockMsg').innerHTML = tier >= 3
  ? '<div class="course-badge ok"> Empire — full access unlocked</div>'
  : (tier > 0
- ? `<div class="course-badge ok"> ${TIER_LABEL[tier]} tier active <button class="btn gold sm" id="courseBuy" style="margin-left:8px">${NEXT[tier][1]}</button></div>`
- : `<div class="course-badge"> Enroll to unlock your skills <button class="btn gold sm" id="courseBuy" style="margin-left:8px">${NEXT[0][1]}</button></div>`);
- const cb = $('courseBuy'); if (cb) cb.onclick = () => buy(NEXT[Math.min(tier, 2)][0]);
+ ? `<div class="course-badge ok"> ${TIER_LABEL[tier]} tier active</div>`
+ : '<div class="course-badge"> New enrollment is paused for now — check back soon</div>');
  // pillar tabs
  $('pillarTabs').innerHTML = COURSE.map((p) => `<button class="ptab${p.key === coursePillar ? ' active' : ''}" data-p="${p.key}">${p.name}</button>`).join('');
  $('pillarTabs').querySelectorAll('.ptab').forEach((b) => b.onclick = () => { coursePillar = b.dataset.p; openCourse(); });
@@ -2197,7 +2216,9 @@ async function loadResyncBox(outputUrl) {
  <div class="muted" style="font-size:11px;margin-top:4px">This is the lipsync-resynced version — the original above is untouched.</div>`;
  return;
  }
- const estCredits = av.total_duration_sec ? Math.max(1, Math.ceil(av.total_duration_sec * 0.08 / 0.016 * 1.6)) : null;
+ // 10 Aug 2026: was / 0.016 * 1.6 (stale) -- must track RESYNC_PER_SEC_USD's
+ // CREDIT_USD/RESYNC_MARGIN in netlify/functions/_packs.js.
+ const estCredits = av.total_duration_sec ? Math.max(1, Math.ceil(av.total_duration_sec * 0.08 / 0.11 * 2.0)) : null;
  // Motion-mode videos never had word-accurate lip-sync in the first place —
  // Seedance has no audio input at all, it just animates a scene from a
  // camera-motion prompt. This pass is the ONLY way to get the mouth to
@@ -2371,7 +2392,10 @@ async function adminRevoke() {
 // manually-granted buyer (paid by transfer, whatsapp, etc.) gets the exact
 // same credits as someone who checked out normally for that tier — not a
 // flat guessed number.
-const ADMIN_COURSE_CREDITS = { 'atelier-starter': 100, 'atelier-creator': 400, 'atelier-empire': 1200, 'wk-course': 100, 'atelier-full': 500 };
+// 10 Aug 2026 reprice -- must track _packs.js's course bonus credits exactly
+// (admin-grant.js still honors manual course grants even while the Atelier
+// PACKS entries themselves are paused, so this stays live/updated).
+const ADMIN_COURSE_CREDITS = { 'atelier-starter': 17, 'atelier-creator': 67, 'atelier-empire': 200, 'wk-course': 17, 'atelier-full': 83 };
 function adminCourseBonusForSelection() { return ADMIN_COURSE_CREDITS[$('adminCourse').value] || 0; }
 function updateAdminCourseBonusLabel() {
  const n = adminCourseBonusForSelection();
@@ -2995,8 +3019,11 @@ function avvToggleMode() {
 const AVV_PER_MIN_TALKING = 3.6;
 const AVV_PER_MIN_MOTION = { '480p': 7.2, '720p': 14.4 };
 const AVV_VOICE_PER_MIN = 0.05;
-const AVV_MARGIN = 1.6;
-const AVV_CREDIT_USD = 0.016;
+// 10 Aug 2026 margin/reprice sweep -- was 1.6/0.016, must track
+// AVATAR_VIDEO_MARGIN/CREDIT_USD in netlify/functions/_packs.js exactly or
+// this estimate silently disagrees with the real charge.
+const AVV_MARGIN = 2.0;
+const AVV_CREDIT_USD = 0.11;
 function avvUpdateCostEstimate() {
  const el = $('avvCostEstimate'); if (!el) return;
  const words = ($('avvScript').value || '').trim().split(/\s+/).filter(Boolean).length;
@@ -5892,6 +5919,7 @@ window.addEventListener('DOMContentLoaded', () => {
  $('modelSearch').oninput = () => buildModels(modelKind);
  $('videoBack').onclick = () => showView('models');
  $('vGen').onclick = videoGenerate;
+ if ($('vDuration')) $('vDuration').onchange = vUpdateCostEstimate;
  $('vRefBtn').onclick = () => $('vRefFile').click();
  $('vRefFile').onchange = (e) => pickVideoRef(e.target.files[0]);
  $('vRefRemove').onclick = () => { vRefUrl = ''; $('vRefPreview').style.display = 'none'; $('vRefBtn').style.display = 'flex'; $('vRefFile').value = ''; };

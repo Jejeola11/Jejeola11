@@ -41,16 +41,20 @@ window.FUSE = {
   // images or 6 videos" beats "All studios". "Studio ___" naming on the plain
   // subscriptions keeps them unmistakable from the "Fuse Atelier — ___" course
   // tiers below, since Creator/Pro/Empire otherwise echo each other.
+  // Repriced 10 Aug 2026 — must mirror netlify/functions/_packs.js exactly,
+  // since that's the only thing actually enforced server-side; this array is
+  // display-only. Atelier Starter/Creator/Empire are commented out because
+  // _packs.js paused them — a live button here would hit a checkout error.
   PACKS: [
-    { key: 'creator_mo', name: 'Studio Creator', naira: 9000,  credits: 350,  note: '~50 images or 6 cinematic videos', kind: 'sub' },
-    { key: 'pro_mo',     name: 'Studio Pro',     naira: 20000, credits: 800,  note: '~115 images or 14 videos + premium AI', kind: 'sub', featured: true },
-    { key: 'agency_mo',  name: 'Studio Agency',  naira: 75000, credits: 3500, note: '~500 images or 60 videos · white-label', kind: 'sub' },
-    { key: 'atelier_starter', name: 'Fuse Atelier — Starter', naira: 10000, credits: 100,  note: 'Design skills + Money Engine', kind: 'course' },
-    { key: 'atelier_creator', name: 'Fuse Atelier — Creator', naira: 25000, credits: 400,  note: '16 skills + community + Character Lab', kind: 'course', featured: true },
-    { key: 'atelier_empire',  name: 'Fuse Atelier — Empire',  naira: 70000, credits: 1200, note: 'Everything + direct access to Ria', kind: 'course' },
-    { key: 'bundle_120', name: '100 credits',   naira: 3000,  credits: 100,  note: 'Top-up · never expires', kind: 'pack' },
-    { key: 'bundle_320', name: '300 credits',   naira: 7000,  credits: 300,  note: 'Top-up · best value',    kind: 'pack' },
-    { key: 'bundle_750', name: '700 credits',   naira: 15000, credits: 700,  note: 'Top-up · bulk',          kind: 'pack' },
+    { key: 'creator_mo', name: 'Studio Creator', naira: 29000, credits: 260, note: '~130 images or 11 videos', kind: 'sub' },
+    { key: 'pro_mo',     name: 'Studio Pro',     naira: 9000,  credits: 60,  note: '~30 images or 2-3 videos', kind: 'sub', featured: true },
+    { key: 'agency_mo',  name: 'Agency',         naira: 59000, credits: 650, note: '~325 images or 29 videos · white-label', kind: 'sub' },
+    // { key: 'atelier_starter', name: 'Fuse Atelier — Starter', naira: 10000, credits: 17,  note: 'Design skills + Money Engine', kind: 'course' },
+    // { key: 'atelier_creator', name: 'Fuse Atelier — Creator', naira: 25000, credits: 67,  note: '16 skills + community + Character Lab', kind: 'course', featured: true },
+    // { key: 'atelier_empire',  name: 'Fuse Atelier — Empire',  naira: 70000, credits: 200, note: 'Everything + direct access to Ria', kind: 'course' },
+    { key: 'bundle_120', name: '20 credits',   naira: 3000,  credits: 20,  note: 'Top-up · never expires', kind: 'pack' },
+    { key: 'bundle_320', name: '40 credits',   naira: 7000,  credits: 40,  note: 'Top-up · best value',    kind: 'pack' },
+    { key: 'bundle_750', name: '100 credits',  naira: 15000, credits: 100, note: 'Top-up · bulk',          kind: 'pack' },
   ],
 
   // Launch promo — mirrors netlify/functions/_packs.js exactly (dates + multipliers
@@ -120,33 +124,38 @@ window.FUSE = {
   // ===== Model catalog (Higgsfield-style gallery) =====
   // slug must match netlify/functions/_packs.js. `sample` is a placeholder you
   // can later swap for a real sample image/video URL.
+  // Credit numbers below must mirror netlify/functions/_packs.js's
+  // IMAGE_MODELS/VIDEO_MODELS/TOOL_MODELS exactly (repriced 10 Aug 2026) —
+  // this array is what actually renders every "X credits" the user sees
+  // before generating; the server enforces the real charge independently,
+  // so drift here doesn't cost money, it just shows the wrong number.
   IMAGE_MODELS: [
-    { slug: 'gpt-image-2-text-to-image', name: 'GPT Image 2',   badge: 'Most realistic', credits: 7, sample: '/app/media/samples/s4.jpg' },
+    { slug: 'gpt-image-2-text-to-image', name: 'GPT Image 2',   badge: 'Most realistic', credits: 2, sample: '/app/media/samples/s4.jpg' },
     { slug: 'flux-schnell-image',    name: 'Flux Schnell',   badge: 'Fast',      credits: 2,  sample: '/app/media/samples/s1.jpg' },
-    { slug: 'flux-dev-image',        name: 'Flux Dev',       badge: 'Quality',   credits: 4,  sample: '/app/media/samples/s4.jpg' },
-    { slug: 'nano-banana',           name: 'Nano Banana',    badge: 'Google',    credits: 7,  sample: '/app/media/samples/s3.jpg' },
-    { slug: 'nano-banana-2',         name: 'Nano Banana 2',  badge: 'Google',    credits: 7,  sample: '/app/media/samples/s2.jpg' },
-    { slug: 'qwen-image',            name: 'Qwen Image',     badge: 'Alibaba',   credits: 4,  sample: '/app/media/samples/s5.jpg' },
-    { slug: 'flux-2-pro',            name: 'Flux 2 Pro',     badge: 'Best',      credits: 8,  sample: '/app/media/samples/s6.jpg' },
-    { slug: 'seedream-5.0',          name: 'Seedream 5.0',   badge: 'ByteDance', credits: 5,  sample: '/app/media/samples/s3.jpg' },
-    { slug: 'hunyuan-image-3.0',     name: 'Hunyuan 3.0',    badge: 'Tencent',   credits: 5,  sample: '/app/media/samples/s2.jpg' },
-    { slug: 'hunyuan-image-2.1',     name: 'Hunyuan 2.1',    badge: 'Tencent',   credits: 4,  sample: '/app/media/samples/s5.jpg' },
-    { slug: 'google-imagen4-ultra',  name: 'Imagen 4 Ultra', badge: 'Google',    credits: 10, sample: '/app/media/samples/s1.jpg' },
-    { slug: 'hidream_i1_full_image', name: 'HiDream',        badge: 'HiDream',   credits: 5,  sample: '/app/media/samples/s6.jpg' },
+    { slug: 'flux-dev-image',        name: 'Flux Dev',       badge: 'Quality',   credits: 2,  sample: '/app/media/samples/s4.jpg' },
+    { slug: 'nano-banana',           name: 'Nano Banana',    badge: 'Google',    credits: 2,  sample: '/app/media/samples/s3.jpg' },
+    { slug: 'nano-banana-2',         name: 'Nano Banana 2',  badge: 'Google',    credits: 2,  sample: '/app/media/samples/s2.jpg' },
+    { slug: 'qwen-image',            name: 'Qwen Image',     badge: 'Alibaba',   credits: 2,  sample: '/app/media/samples/s5.jpg' },
+    { slug: 'flux-2-pro',            name: 'Flux 2 Pro',     badge: 'Best',      credits: 2,  sample: '/app/media/samples/s6.jpg' },
+    { slug: 'seedream-5.0',          name: 'Seedream 5.0',   badge: 'ByteDance', credits: 2,  sample: '/app/media/samples/s3.jpg' },
+    { slug: 'hunyuan-image-3.0',     name: 'Hunyuan 3.0',    badge: 'Tencent',   credits: 3,  sample: '/app/media/samples/s2.jpg' },
+    { slug: 'hunyuan-image-2.1',     name: 'Hunyuan 2.1',    badge: 'Tencent',   credits: 2,  sample: '/app/media/samples/s5.jpg' },
+    { slug: 'google-imagen4-ultra',  name: 'Imagen 4 Ultra', badge: 'Google',    credits: 2, sample: '/app/media/samples/s1.jpg' },
+    { slug: 'hidream_i1_full_image', name: 'HiDream',        badge: 'HiDream',   credits: 2,  sample: '/app/media/samples/s6.jpg' },
   ],
   VIDEO_MODELS: [
-    { slug: 'grok-imagine-text-to-video',           name: 'Grok Imagine',    badge: 'Cheapest',  credits: 15, sample: '/app/media/samples/vid2.mp4' },
-    { slug: 'seedance-2-mini-text-to-video',        name: 'Seedance 2 Mini', badge: 'Fast',      credits: 38, sample: '/app/media/samples/vid1.mp4' },
-    { slug: 'kling-v3-turbo-standard-text-to-video', name: 'Kling Turbo',    badge: 'Kuaishou',  credits: 53, sample: '/app/media/samples/vid4.mp4' },
-    { slug: 'seedance-2-text-to-video',             name: 'Seedance 2',      badge: 'ByteDance', credits: 57, sample: '/app/media/samples/vid3.mp4' },
-    { slug: 'kling-v3-turbo-pro-text-to-video',     name: 'Kling Turbo Pro', badge: 'Kuaishou',  credits: 66, sample: '/app/media/samples/vid5.mp4' },
-    { slug: 'veo3-text-to-video',                   name: 'Veo 3',           badge: 'Google',    credits: 113, sample: '/app/media/samples/vid2.mp4' },
-    { slug: 'seedance-2-vip-text-to-video',         name: 'Seedance 2.0 · 4K',  badge: '4K · premium', credits: 141, sample: '/app/media/samples/vid3.mp4' },
+    { slug: 'grok-imagine-text-to-video',           name: 'Grok Imagine',    badge: 'Cheapest',  credits: 1, sample: '/app/media/samples/vid2.mp4' },
+    { slug: 'seedance-2-mini-text-to-video',        name: 'Seedance 2 Mini', badge: 'Fast',      credits: 17, sample: '/app/media/samples/vid1.mp4' },
+    { slug: 'kling-v3-turbo-standard-text-to-video', name: 'Kling Turbo',    badge: 'Kuaishou',  credits: 9, sample: '/app/media/samples/vid4.mp4' },
+    { slug: 'seedance-2-text-to-video',             name: 'Seedance 2',      badge: 'ByteDance', credits: 11, sample: '/app/media/samples/vid3.mp4' },
+    { slug: 'kling-v3-turbo-pro-text-to-video',     name: 'Kling Turbo Pro', badge: 'Kuaishou',  credits: 11, sample: '/app/media/samples/vid5.mp4' },
+    { slug: 'veo3-text-to-video',                   name: 'Veo 3',           badge: 'Google',    credits: 22, sample: '/app/media/samples/vid2.mp4' },
+    { slug: 'seedance-2-vip-text-to-video',         name: 'Seedance 2.0 · 4K',  badge: '4K · premium', credits: 28, sample: '/app/media/samples/vid3.mp4' },
   ],
   TOOL_MODELS: [
-    { slug: 'ai-image-upscale',      name: 'Image Upscale',     badge: 'Enhance', credits: 4,  sample: '/app/media/samples/s2.jpg' },
-    { slug: 'ai-background-remover',  name: 'Remove Background', badge: 'Cutout',  credits: 2,  sample: '/app/media/samples/s6.jpg' },
-    { slug: 'ai-object-eraser',      name: 'Object Eraser',     badge: 'Clean',   credits: 4,  sample: '/app/media/samples/s4.jpg' },
+    { slug: 'ai-image-upscale',      name: 'Image Upscale',     badge: 'Enhance', credits: 1,  sample: '/app/media/samples/s2.jpg' },
+    { slug: 'ai-background-remover',  name: 'Remove Background', badge: 'Cutout',  credits: 1,  sample: '/app/media/samples/s6.jpg' },
+    { slug: 'ai-object-eraser',      name: 'Object Eraser',     badge: 'Clean',   credits: 1,  sample: '/app/media/samples/s4.jpg' },
   ],
 
   // Multi-tool studios (Omni Studio, Editing Studio, Avatar Studio, Flyer
@@ -187,9 +196,9 @@ window.FUSE = {
     { id: 'gemini-2-5-pro',    name: 'Gemini 2.5 Pro', badge: 'Google',   credits: 2, live: true, kind: 'text', vision: true },
     { id: 'gemini-2-5-flash',  name: 'Gemini Flash',  badge: 'Google',    credits: 1, live: true, kind: 'text', vision: true },
     // --- Image AIs: generate or edit pictures in the Reactor (charged like Image Studio) ---
-    { id: 'nano-banana',          name: 'Gemini Image (Nano Banana)', badge: 'Google · image', credits: 7,  live: true, kind: 'image', slug: 'nano-banana' },
-    { id: 'gpt-image-2',          name: 'GPT Image 2',                badge: 'OpenAI · image', credits: 7,  live: true, kind: 'image', slug: 'gpt-image-2-text-to-image' },
-    { id: 'google-imagen4-ultra', name: 'Imagen 4 Ultra',            badge: 'Google · image', credits: 10, live: true, kind: 'image', slug: 'google-imagen4-ultra' },
+    { id: 'nano-banana',          name: 'Gemini Image (Nano Banana)', badge: 'Google · image', credits: 2,  live: true, kind: 'image', slug: 'nano-banana' },
+    { id: 'gpt-image-2',          name: 'GPT Image 2',                badge: 'OpenAI · image', credits: 2,  live: true, kind: 'image', slug: 'gpt-image-2-text-to-image' },
+    { id: 'google-imagen4-ultra', name: 'Imagen 4 Ultra',            badge: 'Google · image', credits: 2, live: true, kind: 'image', slug: 'google-imagen4-ultra' },
   ],
 
   // Viral presets — full creative recipes (each opens a "build it yourself" view).
