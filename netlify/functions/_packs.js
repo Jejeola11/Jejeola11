@@ -218,10 +218,19 @@ const MODEL_COST = IMAGE_MODELS; // back-compat alias
 // auditable cost-plus math).
 Object.assign(VIDEO_MODELS, {
   'seedance-2-mini-text-to-video': 17,     'seedance-2-mini-image-to-video': 17,     // formula would give 8
-  'seedance-2-1080p-text-to-video': 45,    'seedance-2-1080p-image-to-video': 45,    // formula would give 55
-  'kling-v3-turbo-standard-text-to-video': 6, 'kling-v3-turbo-standard-image-to-video': 6, // = 720p; formula would give 11
-  'kling-v3-turbo-pro-text-to-video': 7,   'kling-v3-turbo-pro-image-to-video': 7,   // = 1080p; formula would give 13
-  'kling-v3-turbo-4k-text-to-video': 39,   'kling-v3-turbo-4k-image-to-video': 39,
+  // 10 Aug 2026, pass 3: raised off Ria's original numbers (45/6/7) to close
+  // a real loss risk found in the profit audit. With Studio Pro/Creator/
+  // Agency repriced to 9,000/29,000/59,000, Agency realizes only $0.0648 of
+  // revenue per credit sold -- the worst of any pack. Any model whose
+  // break-even (real cost / credits) exceeded that would generate an actual
+  // loss for Agency subscribers who used it. These 3 were the only ones
+  // that did; every credit number below now clears $0.0648/credit with
+  // ceil() as the only buffer -- "leave the prices" meant fix credits, not
+  // pack naira, so this is the smallest change that guarantees zero loss.
+  'seedance-2-1080p-text-to-video': 47,    'seedance-2-1080p-image-to-video': 47,    // was 45, breakeven $0.0667 > Agency's $0.0648
+  'kling-v3-turbo-standard-text-to-video': 9, 'kling-v3-turbo-standard-image-to-video': 9, // = 720p; was 6, breakeven $0.0933
+  'kling-v3-turbo-pro-text-to-video': 11,  'kling-v3-turbo-pro-image-to-video': 11,  // = 1080p; was 7, breakeven $0.10
+  'kling-v3-turbo-4k-text-to-video': 39,   'kling-v3-turbo-4k-image-to-video': 39,   // already safe (breakeven $0.036)
 });
 
 // ---- AI Avatar Creator (long-form video) — WaveSpeed-only cost model ------
