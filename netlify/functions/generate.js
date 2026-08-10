@@ -7,7 +7,7 @@
 //   4. record the generation, return the image URL + new balance
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
-const { IMAGE_MODELS, canUseFree } = require('./_packs');
+const { IMAGE_MODELS, canUseFree, canUseTrial } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
 const { submitImageGoogle, hasGoogle, submitImageWS, hasWaveSpeed } = require('./_providers');
 
@@ -138,10 +138,16 @@ exports.handler = async (event) => {
   if (!base) return json(400, { error: 'Unknown model.' });
 
   // Plan gating — free users only get basic models. Default to 'pro' on any DB error so generation is never blocked by a plan-check crash.
-  let plan = 'pro', isAdmin = false;
-  try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
+  let plan = 'pro', isAdmin = false, hasPurchased = true;
+  try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; hasPurchased = p.hasPurchased; } catch (e) {}
   if (plan === 'free' && !isAdmin && !canUseFree(model)) {
     return json(403, { error: 'This model requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
+  }
+  // Trial-tier cap — a free user who has never actually paid Fuse Studio
+  // anything can only spend their signup/streak giveaway credits on the
+  // cheapest model per category, not a $1.20+ render (see the cost audit).
+  if (plan === 'free' && !isAdmin && !hasPurchased && !canUseTrial(model)) {
+    return json(403, { error: 'Free trial credits only cover our starter models (like Flux Schnell). Buy a credit pack to unlock every model.', code: 'TRIAL_TIER_ONLY' });
   }
 
   // Reference-image editing (nano-banana-edit) is slow — always a single image, run async.

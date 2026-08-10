@@ -30,9 +30,10 @@ const PACKS = {
   course: { label: 'Fuse Atelier Course', amount_naira: 60000, credits: 500, kind: 'course', plan: 'pro' },
 
   // The $500 Week — standalone course, paid straight through Paystack (no
-  // more "message me on WhatsApp to pay" — see fiveweek.js). Matches the
-  // price + bonus already documented there: ₦5,000, 100 bonus credits.
-  wk_course: { label: 'The $500 Week', amount_naira: 5000, credits: 100, kind: 'course', course: 'wk-course' },
+  // more "message me on WhatsApp to pay" — see fiveweek.js). Was priced here
+  // at ₦5,000, but the real price actually charged to WhatsApp-manual buyers
+  // is ₦10,000 (confirmed 10 Aug 2026) — updated to match reality.
+  wk_course: { label: 'The $500 Week', amount_naira: 10000, credits: 100, kind: 'course', course: 'wk-course' },
 
   // The Money Engine — standalone client-getting system (niche, profile,
   // proposals, positioning), unbundled from the Fuse Atelier course and
@@ -267,4 +268,17 @@ function canUseFree(model) {
   return (model in IMAGE_MODELS) || (model in VIDEO_MODELS) || FREE_REACTOR.includes(model);
 }
 
-module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree, PROMO, promoActive, creditsForPack, avatarVideoCredits, estimateScriptMinutes, audioCredits, resyncCredits, lipsyncDialogueCredits };
+// ---- Trial tier — what a never-purchased free user can spend giveaway
+// credits on (signup trial, daily streak). Capped to the cheapest model per
+// category so acquisition cost stays predictable instead of scaling with
+// whichever model a new signup happens to try first (e.g. a $1.20 Veo3
+// render or a $14.40/min avatar motion clip on credits nobody paid for —
+// see the cost audit). Once a user has an actual purchase on record
+// (getPlan's hasPurchased), this cap no longer applies.
+const TRIAL_IMAGE = ['flux-schnell-image'];
+const TRIAL_VIDEO = ['grok-imagine-text-to-video', 'grok-imagine-image-to-video'];
+function canUseTrial(model) {
+  return TRIAL_IMAGE.includes(model) || TRIAL_VIDEO.includes(model);
+}
+
+module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree, TRIAL_IMAGE, TRIAL_VIDEO, canUseTrial, PROMO, promoActive, creditsForPack, avatarVideoCredits, estimateScriptMinutes, audioCredits, resyncCredits, lipsyncDialogueCredits };

@@ -19,7 +19,7 @@
 // modelsheet.js, 2026-07-17).
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
-const { VIDEO_MODELS, canUseFree } = require('./_packs');
+const { VIDEO_MODELS, canUseFree, canUseTrial } = require('./_packs');
 const { muapiHostFile } = require('./_muapi');
 const { submitAvatar } = require('./_providers');
 
@@ -38,10 +38,13 @@ exports.handler = async (event) => {
     if (!image_url) return json(400, { error: 'Add a portrait image.' });
     if (!audio_url) return json(400, { error: 'Add an audio clip.' });
 
-    let plan = 'pro', isAdmin = false;
-    try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
+    let plan = 'pro', isAdmin = false, hasPurchased = true;
+    try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; hasPurchased = p.hasPurchased; } catch (e) {}
     if (plan === 'free' && !isAdmin && !canUseFree(model)) {
       return json(403, { error: 'AI Talking Avatar requires a subscription. Upgrade to unlock it.', code: 'PLAN_REQUIRED' });
+    }
+    if (plan === 'free' && !isAdmin && !hasPurchased && !canUseTrial(model)) {
+      return json(403, { error: 'Free trial credits only cover our starter models. Buy a credit pack to unlock every model.', code: 'TRIAL_TIER_ONLY' });
     }
 
     const cost = VIDEO_MODELS[model];

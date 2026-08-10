@@ -5,7 +5,7 @@
 // polls /job-status until it's done.
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
-const { VIDEO_MODELS, canUseFree } = require('./_packs');
+const { VIDEO_MODELS, canUseFree, canUseTrial } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
 const { submitVideo } = require('./_providers');
 
@@ -30,10 +30,13 @@ exports.handler = async (event) => {
   if (!VIDEO_MODELS[model]) return json(400, { error: 'Unknown video model.' });
   if (!prompt && !image_url) return json(400, { error: 'Add a prompt or a starting image.' });
 
-  let plan = 'pro', isAdmin = false;
-  try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
+  let plan = 'pro', isAdmin = false, hasPurchased = true;
+  try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; hasPurchased = p.hasPurchased; } catch (e) {}
   if (plan === 'free' && !isAdmin && !canUseFree(model)) {
     return json(403, { error: 'Video requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
+  }
+  if (plan === 'free' && !isAdmin && !hasPurchased && !canUseTrial(model)) {
+    return json(403, { error: 'Free trial credits only cover our starter models (like Grok Imagine). Buy a credit pack to unlock every model.', code: 'TRIAL_TIER_ONLY' });
   }
 
   const durMult = String(duration).startsWith('10') ? 2 : 1;

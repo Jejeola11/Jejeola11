@@ -31,7 +31,7 @@
 // flyer-hero job regardless of model, so no extra wiring was needed here.
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
-const { IMAGE_MODELS, canUseFree } = require('./_packs');
+const { IMAGE_MODELS, canUseFree, canUseTrial } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
 const { submitFlyerImage, hasWaveSpeed } = require('./_providers');
 
@@ -136,10 +136,13 @@ exports.handler = async (event) => {
     const wantsWS = hasWaveSpeed() && !forceFallback;
     const model = wantsWS ? (refs.length ? MODEL_I2I : MODEL_T2I) : (refs.length ? FALLBACK_I2I : FALLBACK_T2I);
 
-    let plan = 'pro', isAdmin = false;
-    try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
+    let plan = 'pro', isAdmin = false, hasPurchased = true;
+    try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; hasPurchased = p.hasPurchased; } catch (e) {}
     if (plan === 'free' && !isAdmin && !canUseFree(model)) {
       return json(403, { error: 'This requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
+    }
+    if (plan === 'free' && !isAdmin && !hasPurchased && !canUseTrial(model)) {
+      return json(403, { error: 'Free trial credits only cover our starter models. Buy a credit pack to unlock every model.', code: 'TRIAL_TIER_ONLY' });
     }
 
     const base = IMAGE_MODELS[model];

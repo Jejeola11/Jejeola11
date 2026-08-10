@@ -25,7 +25,7 @@
 // one part of this feature not verified to carry over.
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
-const { VIDEO_MODELS, canUseFree } = require('./_packs');
+const { VIDEO_MODELS, canUseFree, canUseTrial } = require('./_packs');
 const { muapiHostFile } = require('./_muapi');
 const { submitOmniReference, hasWaveSpeed } = require('./_providers');
 
@@ -54,10 +54,13 @@ exports.handler = async (event) => {
     const aspect = body.aspect || '9:16';
     if (!prompt) return json(400, { error: 'Describe the video you want.' });
 
-    let plan = 'pro', isAdmin = false;
-    try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
+    let plan = 'pro', isAdmin = false, hasPurchased = true;
+    try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; hasPurchased = p.hasPurchased; } catch (e) {}
     if (plan === 'free' && !isAdmin && !canUseFree(MODEL)) {
       return json(403, { error: 'Seedance 2 Omni requires a subscription. Upgrade to unlock it.', code: 'PLAN_REQUIRED' });
+    }
+    if (plan === 'free' && !isAdmin && !hasPurchased && !canUseTrial(MODEL)) {
+      return json(403, { error: 'Free trial credits only cover our starter models. Buy a credit pack to unlock every model.', code: 'TRIAL_TIER_ONLY' });
     }
 
     const cost = VIDEO_MODELS[MODEL];

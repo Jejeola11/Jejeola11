@@ -39,6 +39,13 @@ exports.handler = async (event) => {
     // courses (e.g. Fuse Atelier), the caller decides the bonus via bonus_credits —
     // "not all of em gets the 500 credits" — it's an option per grant, not automatic.
     const bonusCredits = parseInt(body.bonus_credits, 10) || 0;
+    // Real ₦ the buyer paid (WhatsApp/bank transfer, confirmed manually before
+    // this grant is made). This used to be hardcoded to 0 for every course
+    // grant, which is why "$500 Week" showed ₦0 revenue in the payments table
+    // even though buyers paid ₦10,000 each — defaults to the known real price
+    // per course when not passed explicitly, but the caller can always send
+    // the exact amount actually received.
+    const amountNaira = parseInt(body.amount_naira, 10) || (course === 'wk-course' ? 10000 : 0);
     if (course && !pack && custom <= 0) {
       const { data: existing } = await db.from('module_unlocks').select('module_key').eq('user_id', target.id).eq('module_key', course).maybeSingle();
       let bonus = 0;
@@ -52,18 +59,22 @@ exports.handler = async (event) => {
         }
       }
       try {
-        await db.from('payments').insert({ user_id: target.id, reference: 'course-' + Date.now() + '-' + email, amount_naira: 0, pack: course, credits_added: bonus, status: 'manual' });
+        await db.from('payments').insert({ user_id: target.id, reference: 'course-' + Date.now() + '-' + email, amount_naira: amountNaira, pack: course, credits_added: bonus, status: 'manual' });
       } catch (e) {}
       return json(200, { ok: true, email: target.email, course, credits: bonus, granted: 'course' });
     }
 
-    // Credits: exact custom amount, OR the pack's normal credits — multiplied
-    // during the launch promo for subscription packs, or overridden to a flat
-    // bonus for the course pack (see creditsForPack in _packs.js).
-    const credits = custom > 0 ? custom : creditsForPack(body.pack, pack.credits);
-    const promoApplied = custom <= 0 && credits !== pack.credits;
+    // Credits: when a pack is selected, its credit count is ALWAYS authoritative
+    // (via creditsForPack, which also applies any active launch-promo
+    // multiplier) — `custom` is only honored when no pack is selected, as a
+    // pure top-up/correction. This used to let `custom` silently override a
+    // selected pack's credits (e.g. a creator_mo grant giving 500 credits
+    // instead of the plan's defined 350, because the admin form pre-fills the
+    // custom field and it was never cleared) — closed 10 Aug 2026.
+    const credits = pack ? creditsForPack(body.pack, pack.credits) : custom;
+    const promoApplied = !!pack && credits !== pack.credits;
 
-    await db.rpc('add_credits', { uid: target.id, amount: credits, why: custom > 0 ? 'manual_topup' : 'manual_grant' });
+    await db.rpc('add_credits', { uid: target.id, amount: credits, why: pack ? 'manual_grant' : 'manual_topup' });
 
     // Apply plan only when a subscription/course pack was chosen.
     if (pack && (pack.kind === 'sub' || pack.kind === 'course')) {

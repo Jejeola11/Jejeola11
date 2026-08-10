@@ -21,7 +21,7 @@
 // needed to route between them.
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
-const { avatarVideoCredits, estimateScriptMinutes, IMAGE_MODELS, canUseFree } = require('./_packs');
+const { avatarVideoCredits, estimateScriptMinutes, IMAGE_MODELS, canUseFree, canUseTrial } = require('./_packs');
 const { advance } = require('./_avatar-video');
 const {
   ensureWorkDir, cleanupTmp, downloadToFile, extractFrameAt, uploadToStorage,
@@ -355,10 +355,13 @@ async function handleFlyerSpotFix(user, body) {
     const wantsWS = hasWaveSpeed();
     const model = wantsWS ? FLYER_SPOTFIX_MODEL : FLYER_SPOTFIX_FALLBACK;
 
-    let plan = 'pro', isAdmin = false;
-    try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
+    let plan = 'pro', isAdmin = false, hasPurchased = true;
+    try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; hasPurchased = p.hasPurchased; } catch (e) {}
     if (plan === 'free' && !isAdmin && !canUseFree(model)) {
       return json(403, { error: 'This requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
+    }
+    if (plan === 'free' && !isAdmin && !hasPurchased && !canUseTrial(model)) {
+      return json(403, { error: 'Free trial credits only cover our starter models. Buy a credit pack to unlock every model.', code: 'TRIAL_TIER_ONLY' });
     }
 
     cost = IMAGE_MODELS[model];

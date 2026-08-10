@@ -26,7 +26,7 @@
 // hero_image_url and appends to its layers history on completion.
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
-const { IMAGE_MODELS, canUseFree } = require('./_packs');
+const { IMAGE_MODELS, canUseFree, canUseTrial } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
 const { submitFlyerImage, hasWaveSpeed } = require('./_providers');
 
@@ -66,10 +66,13 @@ exports.handler = async (event) => {
     const wantsWS = hasWaveSpeed();
     const model = wantsWS ? MODEL : FALLBACK_MODEL;
 
-    let plan = 'pro', isAdmin = false;
-    try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
+    let plan = 'pro', isAdmin = false, hasPurchased = true;
+    try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; hasPurchased = p.hasPurchased; } catch (e) {}
     if (plan === 'free' && !isAdmin && !canUseFree(model)) {
       return json(403, { error: 'This requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
+    }
+    if (plan === 'free' && !isAdmin && !hasPurchased && !canUseTrial(model)) {
+      return json(403, { error: 'Free trial credits only cover our starter models. Buy a credit pack to unlock every model.', code: 'TRIAL_TIER_ONLY' });
     }
 
     const cost0 = IMAGE_MODELS[model];

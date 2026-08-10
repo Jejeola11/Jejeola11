@@ -11,7 +11,7 @@
 // saves the result onto video_edit_projects.final_video_url.
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
-const { VIDEO_MODELS, canUseFree } = require('./_packs');
+const { VIDEO_MODELS, canUseFree, canUseTrial } = require('./_packs');
 const { submitVideoEdit, hasWaveSpeed } = require('./_providers');
 
 const MODEL = 'gemini-omni-flash-video-edit';
@@ -36,10 +36,13 @@ exports.handler = async (event) => {
     if (!project || project.user_id !== user.id) return json(404, { error: 'Project not found.' });
     const videoUrl = project.final_video_url || project.source_video_url;
 
-    let plan = 'pro', isAdmin = false;
-    try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
+    let plan = 'pro', isAdmin = false, hasPurchased = true;
+    try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; hasPurchased = p.hasPurchased; } catch (e) {}
     if (plan === 'free' && !isAdmin && !canUseFree(MODEL)) {
       return json(403, { error: 'AI Auto-Edit requires a subscription. Upgrade to unlock it.', code: 'PLAN_REQUIRED' });
+    }
+    if (plan === 'free' && !isAdmin && !hasPurchased && !canUseTrial(MODEL)) {
+      return json(403, { error: 'Free trial credits only cover our starter models. Buy a credit pack to unlock every model.', code: 'TRIAL_TIER_ONLY' });
     }
 
     cost = VIDEO_MODELS[MODEL];

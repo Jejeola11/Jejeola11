@@ -17,7 +17,7 @@
 // upgraded. Everything else (credits, UI, polling) is fully wired and ready.
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
-const { VIDEO_MODELS, canUseFree } = require('./_packs');
+const { VIDEO_MODELS, canUseFree, canUseTrial } = require('./_packs');
 const { muapiHostFile } = require('./_muapi');
 
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
@@ -45,10 +45,13 @@ exports.handler = async (event) => {
     if (!prompt) return json(400, { error: 'Describe the edit you want.' });
     if (!clips.length) return json(400, { error: 'Add at least one video clip.' });
 
-    let plan = 'pro', isAdmin = false;
-    try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
+    let plan = 'pro', isAdmin = false, hasPurchased = true;
+    try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; hasPurchased = p.hasPurchased; } catch (e) {}
     if (plan === 'free' && !isAdmin && !canUseFree(MODEL)) {
       return json(403, { error: 'Gemini Omni Edit requires a subscription. Upgrade to unlock it.', code: 'PLAN_REQUIRED' });
+    }
+    if (plan === 'free' && !isAdmin && !hasPurchased && !canUseTrial(MODEL)) {
+      return json(403, { error: 'Free trial credits only cover our starter models. Buy a credit pack to unlock every model.', code: 'TRIAL_TIER_ONLY' });
     }
 
     const cost = VIDEO_MODELS[MODEL];

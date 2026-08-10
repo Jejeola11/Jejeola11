@@ -29,10 +29,22 @@ const json = (statusCode, body) => ({
   body: JSON.stringify(body),
 });
 
-// Return the caller's plan + is_admin flag (for plan-gating features).
+// Return the caller's plan + is_admin flag (for plan-gating features), plus
+// whether they've ever actually paid Fuse Studio anything (for the trial-tier
+// model cap — see canUseTrial in _packs.js). A non-free plan already implies
+// a real payment; only free-plan, non-admin users need the extra lookup, so
+// this stays a single cheap query for everyone else.
 async function getPlan(userId) {
   const { data } = await admin().from('profiles').select('plan, is_admin').eq('id', userId).maybeSingle();
-  return { plan: (data && data.plan) || 'free', isAdmin: !!(data && data.is_admin) };
+  const plan = (data && data.plan) || 'free';
+  const isAdmin = !!(data && data.is_admin);
+  let hasPurchased = plan !== 'free';
+  if (!hasPurchased && !isAdmin) {
+    const { data: paid } = await admin().from('payments').select('id')
+      .eq('user_id', userId).in('status', ['success', 'manual']).limit(1);
+    hasPurchased = !!(paid && paid.length);
+  }
+  return { plan, isAdmin, hasPurchased };
 }
 
 module.exports = { admin, getUser, json, getPlan };
