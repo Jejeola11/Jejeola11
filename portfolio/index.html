@@ -72,6 +72,9 @@ nav.links a:hover { opacity:1; }
 .hero h1 { font-size:clamp(2.6rem,6vw,5rem); line-height:1.03; font-weight:450; margin-bottom:22px; }
 .hero p.sub { font-size:1.1rem; line-height:1.7; color:#dcece6; max-width:58ch; margin-bottom:34px; }
 .hero-ctas { display:flex; gap:16px; flex-wrap:wrap; }
+.hero-stats { display:flex; gap:28px 40px; flex-wrap:wrap; margin-bottom:32px; padding:18px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.hero-stats .hs-item { display:flex; flex-direction:column; gap:2px; font-size:.76rem; letter-spacing:.03em; color:#a9c9c2; }
+.hero-stats .hs-num { font-family:'Fraunces',serif; font-size:1.7rem; color:var(--gold); line-height:1.15; }
 
 .trustbar { background:var(--teal); border-top:1px solid var(--line); border-bottom:1px solid var(--line);
   padding:20px 5vw; display:flex; flex-wrap:wrap; gap:14px 44px; align-items:center; justify-content:center; }
@@ -89,6 +92,7 @@ nav.links a:hover { opacity:1; }
 .field-row-head { padding:0 5vw; display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:18px; }
 .field-row-head h3 { font-size:1.5rem; font-weight:450; }
 .field-row-head .count { font-size:.74rem; color:#8fb3ac; letter-spacing:.05em; text-transform:uppercase; }
+.field-proof { padding:0 5vw; margin:-8px 0 18px 0; font-size:.9rem; color:#a9c9c2; max-width:62ch; line-height:1.5; }
 
 .marquee-viewport { overflow:hidden; width:100%; -webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent); mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent); }
 .marquee-track { display:flex; gap:16px; width:max-content; padding:4px 0 16px 0; animation:marquee var(--dur,32s) linear infinite; }
@@ -186,7 +190,12 @@ footer { padding:70px 5vw 30px 5vw; background:var(--teal-dark); border-top:1px 
   <div class="hero-content">
     <div class="eyebrow">FUSE · AI Creative Ecosystem</div>
     <h1>AI Creative Work That <span class="grad-text">Actually Delivers</span></h1>
-    <p class="sub">Product video, brand identity, packaging, flyers, UGC content, avatars and more — real client work, not stock samples.</p>
+    <p class="sub">Product video, brand identity, packaging, flyers, UGC content, avatars and more — engineered to hold up as real photography and real footage, not "obviously AI." Every sample on this page is real client work.</p>
+    <div class="hero-stats reveal">
+      <div class="hs-item"><span class="hs-num">5.0★</span>Average client rating</div>
+      <div class="hs-item"><span class="hs-num">12+</span>AI creative fields, one studio</div>
+      <div class="hs-item"><span class="hs-num">$950+</span>In verified fixed-price delivery below</div>
+    </div>
     <div class="hero-ctas">
       <a href="mailto:maryamjejeola002@gmail.com" class="btn-join">✉ Email Me</a>
       <a href="https://wa.me/2349044558101" target="_blank" rel="noopener" class="btn-outline">💬 Chat on WhatsApp</a>
@@ -208,6 +217,7 @@ footer { padding:70px 5vw 30px 5vw; background:var(--teal-dark); border-top:1px 
   </div>
   <div class="field-row reveal">
       <div class="field-row-head"><h3>Talking Head Videos</h3><div class="count">Real & AI-assisted</div></div>
+      <p class="field-proof">The same presence as a hired on-camera talent — without booking a studio day.</p>
       <div class="marquee-viewport"><div class="marquee-track" style="--dur:20s"><div class="card"><span class="vtag">Video</span>
               <video src="videos/ria-studio.mp4" poster="images/ria-studio-poster.webp" autoplay muted loop playsinline preload="metadata"></video>
               <div class="cap">Founder intro — FUSE studio</div></div><div class="card"><span class="vtag">Video</span>
@@ -215,6 +225,7 @@ footer { padding:70px 5vw 30px 5vw; background:var(--teal-dark); border-top:1px 
               <div class="cap">Founder intro — FUSE studio</div></div></div></div>
     </div><div class="field-row reveal">
       <div class="field-row-head"><h3>AI Product Video</h3><div class="count">5-10s product samples</div></div>
+      <p class="field-proof">Scroll-stopping product motion, shipped in days — no camera crew, no product shipping to a studio.</p>
       <div class="marquee-viewport"><div class="marquee-track" style="--dur:22s"><div class="card"><span class="vtag">Video</span>
               <video src="videos/willis-candle.mp4" poster="images/willis-candle-poster.webp" autoplay muted loop playsinline preload="metadata"></video>
               <div class="cap">Willis Candle Shop — Sunrise Coffee</div></div><div class="card"><span class="vtag">Video</span>
@@ -226,9 +237,11 @@ footer { padding:70px 5vw 30px 5vw; background:var(--teal-dark); border-top:1px 
               <div class="cap">Kitchen appliance — product demo</div></div></div></div>
     </div><div class="field-row reveal">
       <div class="field-row-head"><h3>AI UGC Content</h3><div class="count">Lifestyle & selfie-style</div></div>
+      <p class="field-proof">Built to read as real customer content in the feed, not studio output — the exact reason UGC outperforms polished ads.</p>
       <div class="marquee-viewport"><div class="marquee-track" style="--dur:30s"><div class="card"><img src="images/ugc-01.webp" loading="lazy"/><div class="cap">Coffee shop selfie</div></div><div class="card"><img src="images/ugc-02.webp" loading="lazy"/><div class="cap">Street croissant</div></div><div class="card"><img src="images/ugc-03.webp" loading="lazy"/><div class="cap">Park smoothie bowl</div></div><div class="card"><img src="images/ugc-04.webp" loading="lazy"/><div class="cap">Car smoothie</div></div><div class="card"><img src="images/ugc-05.webp" loading="lazy"/><div class="cap">Cafe workspace</div></div><div class="card"><img src="images/ugc-01.webp" loading="lazy"/><div class="cap">Coffee shop selfie</div></div><div class="card"><img src="images/ugc-02.webp" loading="lazy"/><div class="cap">Street croissant</div></div><div class="card"><img src="images/ugc-03.webp" loading="lazy"/><div class="cap">Park smoothie bowl</div></div><div class="card"><img src="images/ugc-04.webp" loading="lazy"/><div class="cap">Car smoothie</div></div><div class="card"><img src="images/ugc-05.webp" loading="lazy"/><div class="cap">Cafe workspace</div></div></div></div>
     </div><div class="field-row reveal">
       <div class="field-row-head"><h3>AI Avatar Creation</h3><div class="count">Same persona, real contexts</div></div>
+      <p class="field-proof">One trained face, infinite scenes — consistent brand presence without a repeat photoshoot every time you need new content.</p>
       <div class="marquee-viewport"><div class="marquee-track rev" style="--dur:34s"><div class="card"><img src="images/avatar-01.webp" loading="lazy"/><div class="cap">Beach editorial</div></div><div class="card"><img src="images/avatar-02.webp" loading="lazy"/><div class="cap">Car mirror selfie</div></div><div class="card"><img src="images/avatar-03.webp" loading="lazy"/><div class="cap">Business elevator</div></div><div class="card"><img src="images/avatar-04.webp" loading="lazy"/><div class="cap">Luxury car</div></div><div class="card"><img src="images/avatar-05.webp" loading="lazy"/><div class="cap">Hotel lobby</div></div><div class="card"><span class="vtag">Video</span>
               <video src="videos/tennis-avatar.mp4" poster="images/tennis-avatar-poster.webp" autoplay muted loop playsinline preload="metadata"></video>
               <div class="cap">On the court — avatar in motion</div></div><div class="card"><img src="images/avatar-01.webp" loading="lazy"/><div class="cap">Beach editorial</div></div><div class="card"><img src="images/avatar-02.webp" loading="lazy"/><div class="cap">Car mirror selfie</div></div><div class="card"><img src="images/avatar-03.webp" loading="lazy"/><div class="cap">Business elevator</div></div><div class="card"><img src="images/avatar-04.webp" loading="lazy"/><div class="cap">Luxury car</div></div><div class="card"><img src="images/avatar-05.webp" loading="lazy"/><div class="cap">Hotel lobby</div></div><div class="card"><span class="vtag">Video</span>
@@ -236,15 +249,19 @@ footer { padding:70px 5vw 30px 5vw; background:var(--teal-dark); border-top:1px 
               <div class="cap">On the court — avatar in motion</div></div></div></div>
     </div><div class="field-row reveal">
       <div class="field-row-head"><h3>Brand Identity</h3><div class="count">Logo & identity systems</div></div>
+      <p class="field-proof">Full identity concepts — logo, palette, visual language — delivered in days, not a 4-6 week agency retainer.</p>
       <div class="marquee-viewport"><div class="marquee-track" style="--dur:32s"><div class="card"><img src="images/brand-mia.webp" loading="lazy"/><div class="cap">Mia Labs — identity concept</div></div><div class="card"><img src="images/brand-noda.webp" loading="lazy"/><div class="cap">NODA AI — identity concept</div></div><div class="card"><img src="images/brand-controltheory.webp" loading="lazy"/><div class="cap">ControlTheory — identity concept</div></div><div class="card"><img src="images/brand-vulcan.webp" loading="lazy"/><div class="cap">Vulcan Technologies — identity concept</div></div><div class="card"><img src="images/brand-phoenix.webp" loading="lazy"/><div class="cap">Phoenix Semiconductor — identity concept</div></div><div class="card"><img src="images/brand-lumiere.webp" loading="lazy"/><div class="cap">Lumière — logo system</div></div><div class="card"><img src="images/brand-mia.webp" loading="lazy"/><div class="cap">Mia Labs — identity concept</div></div><div class="card"><img src="images/brand-noda.webp" loading="lazy"/><div class="cap">NODA AI — identity concept</div></div><div class="card"><img src="images/brand-controltheory.webp" loading="lazy"/><div class="cap">ControlTheory — identity concept</div></div><div class="card"><img src="images/brand-vulcan.webp" loading="lazy"/><div class="cap">Vulcan Technologies — identity concept</div></div><div class="card"><img src="images/brand-phoenix.webp" loading="lazy"/><div class="cap">Phoenix Semiconductor — identity concept</div></div><div class="card"><img src="images/brand-lumiere.webp" loading="lazy"/><div class="cap">Lumière — logo system</div></div></div></div>
     </div><div class="field-row reveal">
       <div class="field-row-head"><h3>Product Packaging</h3><div class="count">Before / after redesigns</div></div>
+      <p class="field-proof">Shelf-ready redesigns that read as a full rebrand — the before/afters make the jump obvious at a glance.</p>
       <div class="marquee-viewport"><div class="marquee-track rev" style="--dur:34s"><div class="card"><img src="images/pkg-peacecheese.webp" loading="lazy"/><div class="cap">Peace Cheese</div></div><div class="card"><img src="images/pkg-dogbff.webp" loading="lazy"/><div class="cap">TheDogBFF Barkerie</div></div><div class="card"><img src="images/pkg-madman.webp" loading="lazy"/><div class="cap">Mad Man Sauces</div></div><div class="card"><img src="images/pkg-atxjerky.webp" loading="lazy"/><div class="cap">ATX Jerky</div></div><div class="card"><img src="images/pkg-blackbutterfly.webp" loading="lazy"/><div class="cap">Black Butterfly Bath & Body</div></div><div class="card"><img src="images/pkg-kinetix.webp" loading="lazy"/><div class="cap">Kinetix — packaging system</div></div><div class="card"><img src="images/pkg-lumiere.webp" loading="lazy"/><div class="cap">Lumière — packaging</div></div><div class="card"><img src="images/pkg-peacecheese.webp" loading="lazy"/><div class="cap">Peace Cheese</div></div><div class="card"><img src="images/pkg-dogbff.webp" loading="lazy"/><div class="cap">TheDogBFF Barkerie</div></div><div class="card"><img src="images/pkg-madman.webp" loading="lazy"/><div class="cap">Mad Man Sauces</div></div><div class="card"><img src="images/pkg-atxjerky.webp" loading="lazy"/><div class="cap">ATX Jerky</div></div><div class="card"><img src="images/pkg-blackbutterfly.webp" loading="lazy"/><div class="cap">Black Butterfly Bath & Body</div></div><div class="card"><img src="images/pkg-kinetix.webp" loading="lazy"/><div class="cap">Kinetix — packaging system</div></div><div class="card"><img src="images/pkg-lumiere.webp" loading="lazy"/><div class="cap">Lumière — packaging</div></div></div></div>
     </div><div class="field-row reveal">
       <div class="field-row-head"><h3>AI Product Photography</h3><div class="count">Before / after & studio shots</div></div>
+      <p class="field-proof">Studio-grade product photography — correct scale, contact shadows, natural light logic — without the studio, the rig, or the reshoot.</p>
       <div class="marquee-viewport"><div class="marquee-track" style="--dur:36s"><div class="card"><img src="images/photo-rhodeshinman.webp" loading="lazy"/><div class="cap">Rhodes Hinman Craft + Design</div></div><div class="card"><img src="images/photo-austinjoinery.webp" loading="lazy"/><div class="cap">Austin Joinery</div></div><div class="card"><img src="images/photo-woodenroad.webp" loading="lazy"/><div class="cap">The Wooden Road Home</div></div><div class="card"><img src="images/photo-moruxo.webp" loading="lazy"/><div class="cap">Moruxo Live Edge</div></div><div class="card"><img src="images/photo-edwood.webp" loading="lazy"/><div class="cap">Edwood Studio</div></div><div class="card"><img src="images/photo-lamer1.webp" loading="lazy"/><div class="cap">La Mer — editorial</div></div><div class="card"><img src="images/photo-lamer2.webp" loading="lazy"/><div class="cap">La Mer — studio</div></div><div class="card"><img src="images/photo-lamer3.webp" loading="lazy"/><div class="cap">La Mer — underwater concept</div></div><div class="card"><img src="images/photo-rhodeshinman.webp" loading="lazy"/><div class="cap">Rhodes Hinman Craft + Design</div></div><div class="card"><img src="images/photo-austinjoinery.webp" loading="lazy"/><div class="cap">Austin Joinery</div></div><div class="card"><img src="images/photo-woodenroad.webp" loading="lazy"/><div class="cap">The Wooden Road Home</div></div><div class="card"><img src="images/photo-moruxo.webp" loading="lazy"/><div class="cap">Moruxo Live Edge</div></div><div class="card"><img src="images/photo-edwood.webp" loading="lazy"/><div class="cap">Edwood Studio</div></div><div class="card"><img src="images/photo-lamer1.webp" loading="lazy"/><div class="cap">La Mer — editorial</div></div><div class="card"><img src="images/photo-lamer2.webp" loading="lazy"/><div class="cap">La Mer — studio</div></div><div class="card"><img src="images/photo-lamer3.webp" loading="lazy"/><div class="cap">La Mer — underwater concept</div></div></div></div>
     </div><div class="field-row reveal">
       <div class="field-row-head"><h3>Flyer & Poster Design</h3><div class="count">Ad campaign range</div></div>
+      <p class="field-proof">Multiple campaign-ready concepts in a single round — so you're choosing a favorite, not waiting on revisions.</p>
       <div class="marquee-viewport"><div class="marquee-track rev" style="--dur:32s"><div class="card"><img src="images/flyer-airpods1.webp" loading="lazy"/><div class="cap">AirPods Max — concept 1</div></div><div class="card"><img src="images/flyer-airpods2.webp" loading="lazy"/><div class="cap">AirPods Max — concept 2</div></div><div class="card"><img src="images/flyer-airpods3.webp" loading="lazy"/><div class="cap">AirPods Max — concept 3</div></div><div class="card"><img src="images/flyer-airpods4.webp" loading="lazy"/><div class="cap">AirPods Max — concept 4</div></div><div class="card"><img src="images/flyer-airpods5.webp" loading="lazy"/><div class="cap">AirPods Max — concept 5</div></div><div class="card"><img src="images/flyer-lumiere.webp" loading="lazy"/><div class="cap">Lumière — Alchemy campaign</div></div><div class="card"><img src="images/flyer-airpods1.webp" loading="lazy"/><div class="cap">AirPods Max — concept 1</div></div><div class="card"><img src="images/flyer-airpods2.webp" loading="lazy"/><div class="cap">AirPods Max — concept 2</div></div><div class="card"><img src="images/flyer-airpods3.webp" loading="lazy"/><div class="cap">AirPods Max — concept 3</div></div><div class="card"><img src="images/flyer-airpods4.webp" loading="lazy"/><div class="cap">AirPods Max — concept 4</div></div><div class="card"><img src="images/flyer-airpods5.webp" loading="lazy"/><div class="cap">AirPods Max — concept 5</div></div><div class="card"><img src="images/flyer-lumiere.webp" loading="lazy"/><div class="cap">Lumière — Alchemy campaign</div></div></div></div>
     </div><div class="field-row reveal">
   <div class="field-row-head"><h3>More Fields</h3><div class="count">Added as delivered</div></div>
@@ -255,12 +272,12 @@ footer { padding:70px 5vw 30px 5vw; background:var(--teal-dark); border-top:1px 
 <section class="process" id="process">
   <div class="wrap">
     <div class="eyebrow">How I Work</div>
-    <h2>Simple, direct, no wasted time</h2>
+    <h2>No agency overhead. No lost-in-translation briefs.</h2>
     <div class="steps">
-      <div class="step reveal"><div class="num">01</div><h4>Tell Me the Brief</h4><p>Email or WhatsApp me what you need — the product, the brand, the deadline.</p></div>
-      <div class="step reveal"><div class="num">02</div><h4>Scope & Quote</h4><p>You get a clear price and timeline before anything starts — no surprises mid-project.</p></div>
-      <div class="step reveal"><div class="num">03</div><h4>I Deliver</h4><p>Focused, fast turnaround using the AI tools and process behind everything on this page.</p></div>
-      <div class="step reveal"><div class="num">04</div><h4>Revise & Finalize</h4><p>You review, I refine, you get final files — clean and ready to use.</p></div>
+      <div class="step reveal"><div class="num">01</div><h4>Tell Me the Brief</h4><p>Email or WhatsApp me what you need — the product, the brand, the deadline. Here's how I'd approach it, before you commit to anything.</p></div>
+      <div class="step reveal"><div class="num">02</div><h4>Scope & Quote</h4><p>A clear price and timeline before anything starts — no surprises mid-project, no vague "it depends."</p></div>
+      <div class="step reveal"><div class="num">03</div><h4>I Deliver</h4><p>Fast, focused turnaround — often within 24 hours for a single asset — using the exact process behind every sample on this page.</p></div>
+      <div class="step reveal"><div class="num">04</div><h4>Revise & Finalize</h4><p>Revisions are part of the process until it's right, not a paid add-on. You get final files ready to use.</p></div>
     </div>
   </div>
 </section>
@@ -269,6 +286,7 @@ footer { padding:70px 5vw 30px 5vw; background:var(--teal-dark); border-top:1px 
   <div class="stats-grid">
     <div class="stat reveal"><div class="num">5.0</div><div class="lbl">Average Client Rating</div></div>
     <div class="stat reveal"><div class="num">12+</div><div class="lbl">AI Creative Fields</div></div>
+    <div class="stat reveal"><div class="num">$950+</div><div class="lbl">Verified Fixed-Price Delivery</div></div>
     <div class="stat reveal"><div class="num">100%</div><div class="lbl">Original, Real Client Work</div></div>
   </div>
 </section>
@@ -277,6 +295,7 @@ footer { padding:70px 5vw 30px 5vw; background:var(--teal-dark); border-top:1px 
   <div class="head reveal">
     <div class="eyebrow" style="color:var(--gold)">Client Words</div>
     <h2>What clients say after delivery</h2>
+    <p style="color:#bcd9d2;max-width:56ch;margin:14px auto 0;font-size:.95rem;line-height:1.6">Every quote below is from a real, paid engagement — not a testimonial template. Ratings and fixed prices shown as delivered.</p>
   </div>
   <div class="testi-grid">
     <div class="t-card reveal">
@@ -309,8 +328,8 @@ footer { padding:70px 5vw 30px 5vw; background:var(--teal-dark); border-top:1px 
 
 <section class="contact">
   <div class="eyebrow">Let's Work Together</div>
-  <h2 class="reveal">Have a project in mind?</h2>
-  <p class="sub reveal">Send me the brief — product video, brand identity, packaging, flyers, or anything else on this page — and I'll get back to you with a scope and quote.</p>
+  <h2 class="reveal">Tell me the brief. I'll tell you exactly how I'd approach it.</h2>
+  <p class="sub reveal">Product video, brand identity, packaging, flyers, or anything else on this page — send the brief and you'll hear back with a real plan and quote, not a form response.</p>
   <div class="contact-ctas reveal">
     <a href="mailto:maryamjejeola002@gmail.com" class="btn-join">✉ Email Me</a>
     <a href="https://wa.me/2349044558101" target="_blank" rel="noopener" class="btn-outline">💬 Chat on WhatsApp</a>
