@@ -21,16 +21,25 @@ const PACKS = {
   pro:     { label: 'Pro Pack', amount_naira: 12000, credits: 70, kind: 'pack' }, // was 420
 
   // ---- Monthly plans (renew by paying again; we remind before expiry) ----
-  creator_mo: { label: 'Studio Creator (monthly)',  amount_naira: 9000,  credits: 58, kind: 'sub', plan: 'creator' }, // was 350
-  pro_mo:     { label: 'Studio Pro (monthly)', amount_naira: 20000, credits: 129, kind: 'sub', plan: 'pro' }, // was 800
-  agency_mo:  { label: 'Studio Agency (monthly)',   amount_naira: 75000, credits: 480, kind: 'sub', plan: 'agency' }, // was 3500
+  // Repriced 10 Aug 2026 (Ria's second pricing pass) — naira AND credits both
+  // changed this time, not just credits. See the profit confirmation given
+  // alongside this change for the realized $/credit on each.
+  creator_mo: { label: 'Studio Creator',  amount_naira: 29000,  credits: 260, kind: 'sub', plan: 'creator' }, // was 9000/58
+  pro_mo:     { label: 'Studio Pro', amount_naira: 9000, credits: 60, kind: 'sub', plan: 'pro' }, // was 20000/129
+  agency_mo:  { label: 'Agency',   amount_naira: 59000, credits: 650, kind: 'sub', plan: 'agency' }, // was 75000/480
 
   // ---- Fuse Atelier 2.0 — the merged 3-tier course (one-time, money only) ----
-  // Each tier unlocks its course content via a module_unlocks row (see webhook)
-  // and includes creation credits so the studio works out of the box.
-  atelier_starter: { label: 'Fuse Atelier — Starter', amount_naira: 10000, credits: 17,  kind: 'course', course: 'atelier-starter' }, // was 100
-  atelier_creator: { label: 'Fuse Atelier — Creator', amount_naira: 25000, credits: 67,  kind: 'course', course: 'atelier-creator', plan: 'creator' }, // was 400
-  atelier_empire:  { label: 'Fuse Atelier — Empire',  amount_naira: 70000, credits: 200, kind: 'course', course: 'atelier-empire',  plan: 'pro' }, // was 1200
+  // PAUSED 10 Aug 2026 at Ria's request ("for now") — commented out, not
+  // deleted, so re-enabling is a one-line uncomment. Checkout (paystack-init)
+  // and admin-grant both reject an unknown pack key cleanly, so this alone
+  // stops new sales; it does NOT touch existing buyers' module_unlocks.
+  // NOTE: atelier-site's landing pages (index.html, index-starter.html,
+  // index-b.html, insider.html) still have live "Get Starter/Creator/Empire"
+  // buttons pointing at these three packs — those will now fail at checkout
+  // until either this is re-enabled or those buttons are pulled down too.
+  // atelier_starter: { label: 'Fuse Atelier — Starter', amount_naira: 10000, credits: 17,  kind: 'course', course: 'atelier-starter' },
+  // atelier_creator: { label: 'Fuse Atelier — Creator', amount_naira: 25000, credits: 67,  kind: 'course', course: 'atelier-creator', plan: 'creator' },
+  // atelier_empire:  { label: 'Fuse Atelier — Empire',  amount_naira: 70000, credits: 200, kind: 'course', course: 'atelier-empire',  plan: 'pro' },
   // Checkout order bump: prompt & template vault (research: 30-40% take rate).
   vault_bump: { label: 'Prompt & Template Vault', amount_naira: 4500, credits: 0, kind: 'course', course: 'atelier-vault' },
   // Legacy single-price course (kept so old links/grants don't break).
@@ -51,9 +60,10 @@ const PACKS = {
   money_engine: { label: 'The Money Engine', amount_naira: 6000, credits: 0, kind: 'course', course: 'money-engine' },
 
   // ---- Credit top-up bundles (one-time; buy anytime, even mid-plan) ----
-  bundle_120: { label: '17 credits', amount_naira: 3000,  credits: 17, kind: 'pack' }, // was 100
-  bundle_320: { label: '45 credits', amount_naira: 7000,  credits: 45, kind: 'pack' }, // was 300
-  bundle_750: { label: '97 credits', amount_naira: 15000, credits: 97, kind: 'pack' }, // was 700
+  // Repriced again 10 Aug 2026 (Ria's second pass, exact numbers given).
+  bundle_120: { label: '20 credits', amount_naira: 3000,  credits: 20, kind: 'pack' }, // was 17
+  bundle_320: { label: '40 credits', amount_naira: 7000,  credits: 40, kind: 'pack' }, // was 45
+  bundle_750: { label: '100 credits', amount_naira: 15000, credits: 100, kind: 'pack' }, // was 97
 };
 
 // ============================================================
