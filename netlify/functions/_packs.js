@@ -7,33 +7,40 @@
 // what they receive. `kind: 'sub'` packs also extend plan access 30 days.
 // MuAPI bills us per image (~a few cents); keep credits priced with margin.
 // ============================================================
+// Credit REPRICE, 10 Aug 2026 — a credit is now worth far more (CREDIT_USD
+// 0.016 -> 0.11, ~6.9x), because generation credit-costs were compressed way
+// down (e.g. nano-banana 6cr -> 2cr) for simpler, friendlier numbers. Every
+// pack below was rescaled so its realized ₦/credit still sits at or above
+// the new CREDIT_USD floor (same "never sell a credit under cost" principle
+// as before) — naira prices are UNCHANGED, only the credit counts dropped.
+// Old credit counts are kept in trailing comments for reference.
 const PACKS = {
   // ---- One-time credit packs (paid by transfer, instant, no recurring) ----
-  starter: { label: 'Starter',  amount_naira: 2500,  credits: 60,  kind: 'pack' },
-  creator: { label: 'Creator',  amount_naira: 6000,  credits: 180, kind: 'pack' }, // best value
-  pro:     { label: 'Pro Pack', amount_naira: 12000, credits: 420, kind: 'pack' },
+  starter: { label: 'Starter',  amount_naira: 2500,  credits: 10,  kind: 'pack' }, // was 60
+  creator: { label: 'Creator',  amount_naira: 6000,  credits: 30, kind: 'pack' }, // best value // was 180
+  pro:     { label: 'Pro Pack', amount_naira: 12000, credits: 70, kind: 'pack' }, // was 420
 
   // ---- Monthly plans (renew by paying again; we remind before expiry) ----
-  creator_mo: { label: 'Studio Creator (monthly)',  amount_naira: 9000,  credits: 350, kind: 'sub', plan: 'creator' },
-  pro_mo:     { label: 'Studio Pro (monthly)', amount_naira: 20000, credits: 800, kind: 'sub', plan: 'pro' },
-  agency_mo:  { label: 'Studio Agency (monthly)',   amount_naira: 75000, credits: 3500, kind: 'sub', plan: 'agency' },
+  creator_mo: { label: 'Studio Creator (monthly)',  amount_naira: 9000,  credits: 58, kind: 'sub', plan: 'creator' }, // was 350
+  pro_mo:     { label: 'Studio Pro (monthly)', amount_naira: 20000, credits: 129, kind: 'sub', plan: 'pro' }, // was 800
+  agency_mo:  { label: 'Studio Agency (monthly)',   amount_naira: 75000, credits: 480, kind: 'sub', plan: 'agency' }, // was 3500
 
   // ---- Fuse Atelier 2.0 — the merged 3-tier course (one-time, money only) ----
   // Each tier unlocks its course content via a module_unlocks row (see webhook)
   // and includes creation credits so the studio works out of the box.
-  atelier_starter: { label: 'Fuse Atelier — Starter', amount_naira: 10000, credits: 100,  kind: 'course', course: 'atelier-starter' },
-  atelier_creator: { label: 'Fuse Atelier — Creator', amount_naira: 25000, credits: 400,  kind: 'course', course: 'atelier-creator', plan: 'creator' },
-  atelier_empire:  { label: 'Fuse Atelier — Empire',  amount_naira: 70000, credits: 1200, kind: 'course', course: 'atelier-empire',  plan: 'pro' },
+  atelier_starter: { label: 'Fuse Atelier — Starter', amount_naira: 10000, credits: 17,  kind: 'course', course: 'atelier-starter' }, // was 100
+  atelier_creator: { label: 'Fuse Atelier — Creator', amount_naira: 25000, credits: 67,  kind: 'course', course: 'atelier-creator', plan: 'creator' }, // was 400
+  atelier_empire:  { label: 'Fuse Atelier — Empire',  amount_naira: 70000, credits: 200, kind: 'course', course: 'atelier-empire',  plan: 'pro' }, // was 1200
   // Checkout order bump: prompt & template vault (research: 30-40% take rate).
   vault_bump: { label: 'Prompt & Template Vault', amount_naira: 4500, credits: 0, kind: 'course', course: 'atelier-vault' },
   // Legacy single-price course (kept so old links/grants don't break).
-  course: { label: 'Fuse Atelier Course', amount_naira: 60000, credits: 500, kind: 'course', plan: 'pro' },
+  course: { label: 'Fuse Atelier Course', amount_naira: 60000, credits: 83, kind: 'course', plan: 'pro' }, // was 500
 
   // The $500 Week — standalone course, paid straight through Paystack (no
   // more "message me on WhatsApp to pay" — see fiveweek.js). Was priced here
   // at ₦5,000, but the real price actually charged to WhatsApp-manual buyers
   // is ₦10,000 (confirmed 10 Aug 2026) — updated to match reality.
-  wk_course: { label: 'The $500 Week', amount_naira: 10000, credits: 100, kind: 'course', course: 'wk-course' },
+  wk_course: { label: 'The $500 Week', amount_naira: 10000, credits: 17, kind: 'course', course: 'wk-course' }, // was 100
 
   // The Money Engine — standalone client-getting system (niche, profile,
   // proposals, positioning), unbundled from the Fuse Atelier course and
@@ -44,9 +51,9 @@ const PACKS = {
   money_engine: { label: 'The Money Engine', amount_naira: 6000, credits: 0, kind: 'course', course: 'money-engine' },
 
   // ---- Credit top-up bundles (one-time; buy anytime, even mid-plan) ----
-  bundle_120: { label: '100 credits', amount_naira: 3000,  credits: 100, kind: 'pack' },
-  bundle_320: { label: '300 credits', amount_naira: 7000,  credits: 300, kind: 'pack' },
-  bundle_750: { label: '700 credits', amount_naira: 15000, credits: 700, kind: 'pack' },
+  bundle_120: { label: '17 credits', amount_naira: 3000,  credits: 17, kind: 'pack' }, // was 100
+  bundle_320: { label: '45 credits', amount_naira: 7000,  credits: 45, kind: 'pack' }, // was 300
+  bundle_750: { label: '97 credits', amount_naira: 15000, credits: 97, kind: 'pack' }, // was 700
 };
 
 // ============================================================
@@ -76,8 +83,8 @@ function creditsForPack(packKey, baseCredits) {
   return mult ? baseCredits * mult : baseCredits;
 }
 
-// Referral rewards (credits).
-const REFERRAL = { reward: 30, bonus: 15 };
+// Referral rewards (credits) — rescaled with the 10 Aug 2026 reprice (was 30/15).
+const REFERRAL = { reward: 5, bonus: 3 };
 
 // Naira per US dollar — used only for displaying $ prices to foreigners.
 // Update to taste; pricing should be value-based, not a strict FX conversion.
@@ -87,15 +94,23 @@ const USD_RATE = 1400;
 
 // ============================================================
 // COST-PLUS PRICING — guarantees profit on every generation.
-//   cost_usd = what MuAPI charges us per generation.
-//   We sell credits at ~$0.016 each (derived from the plans).
-//   Credit price = ceil(cost / 0.016 * MARGIN). Change MARGIN once to reprice all.
-// Update the cost_usd numbers below with MuAPI's exact prices anytime.
+//   cost_usd = what MuAPI/WaveSpeed charges us per generation.
+//   We sell credits at ~$0.11 each (rescaled 10 Aug 2026, was $0.016 — see
+//   the PACKS block above for why: credit-costs were compressed into small,
+//   friendly numbers, so each credit had to become worth ~6.9x more $).
+//   Credit price = ceil(cost / 0.11 * MARGIN). Change MARGIN once to reprice all.
+// Update the cost_usd numbers below with MuAPI's/WaveSpeed's exact prices anytime.
 // ============================================================
-const CREDIT_USD = 0.016;   // revenue we get per credit sold
-const IMAGE_MARGIN = 2.5;   // profit multiple on images & tools (lowered from 4 — friendlier pricing, still ~2.5x profit)
-const VIDEO_MARGIN = 1.5;   // lowered from 2 — video is the headline feature; keep it cheap to drive adoption
+const CREDIT_USD = 0.11;    // revenue we get per credit sold (was 0.016)
+const IMAGE_MARGIN = 2.5;   // profit multiple on images & tools (unchanged)
+const VIDEO_MARGIN = 2.0;   // raised from 1.5 (10 Aug 2026 — was kept thin to drive adoption; margin sweep raised every 1.5x/1.6x tier to 2x)
 const creditsFor = (cost_usd, margin) => Math.max(1, Math.ceil((cost_usd / CREDIT_USD) * margin));
+// Image credits are additionally clamped to a tight, easy-to-understand
+// 2-6 range regardless of the exact formula output (10 Aug 2026 pricing
+// call) — cheap models would otherwise round to 1 credit, expensive ones
+// could exceed 6; every image model should feel roughly "a handful of
+// credits," not a number the customer has to think about.
+const creditsForImage = (cost_usd, margin) => Math.min(6, Math.max(2, creditsFor(cost_usd, margin)));
 
 // IMPORTANT: the keys below are MuAPI endpoint slugs — exactly what we POST to
 // /api/v1/{slug}. MuAPI slugs are versioned and change over time. If a model
@@ -136,10 +151,27 @@ const IMAGE_COST = {
 };
 const VIDEO_COST = {        // real $ cost, WaveSpeed-first (see _providers.js) then MuAPI fallback
   'seedance-2-mini-text-to-video': 0.40,       'seedance-2-mini-image-to-video': 0.40,
-  'seedance-2-text-to-video': 0.60,            'seedance-2-image-to-video': 0.60,
+  'seedance-2-text-to-video': 0.60,            'seedance-2-image-to-video': 0.60,        // 480p default tier
+  // Explicit resolution tiers added 10 Aug 2026 (pricing call) — real $ from
+  // Seedance 2.0's own documented formula: base $0.60/5s @480p, resolution
+  // multiplier 720p=2x, 1080p=5x, 4k=10x (see AVATAR_MOTION_PER_MIN_USD's
+  // comment below, same underlying model). NOTE: _providers.js's
+  // VIDEO_ROUTES doesn't yet branch on resolution for the general Video
+  // Studio — these prices are ready, but wiring an actual resolution
+  // selector through to WaveSpeed is a separate follow-up.
+  'seedance-2-720p-text-to-video': 1.20,       'seedance-2-720p-image-to-video': 1.20,
+  'seedance-2-1080p-text-to-video': 3.00,      'seedance-2-1080p-image-to-video': 3.00,
+  'seedance-2-4k-text-to-video': 6.00,         'seedance-2-4k-image-to-video': 6.00,
   'seedance-2-vip-text-to-video': 1.50,        'seedance-2-vip-image-to-video': 1.50,
-  'kling-v3-turbo-standard-text-to-video': 0.56, 'kling-v3-turbo-standard-image-to-video': 0.56,
-  'kling-v3-turbo-pro-text-to-video': 0.70,    'kling-v3-turbo-pro-image-to-video': 0.70,
+  // "standard"/"pro" map to Kling's 720p/1080p tiers respectively (that's
+  // what those quality tiers actually render at). 4k is a new tier, 10 Aug
+  // 2026 — cost is ESTIMATED (not yet verified live against WaveSpeed's
+  // catalog the way every other price in this file is) by extrapolating
+  // Seedance's own resolution-multiplier curve; replace with the real
+  // number once confirmed against WaveSpeed's /api/v3/models.
+  'kling-v3-turbo-standard-text-to-video': 0.56, 'kling-v3-turbo-standard-image-to-video': 0.56, // = 720p
+  'kling-v3-turbo-pro-text-to-video': 0.70,    'kling-v3-turbo-pro-image-to-video': 0.70,        // = 1080p
+  'kling-v3-turbo-4k-text-to-video': 1.40,     'kling-v3-turbo-4k-image-to-video': 1.40,          // ESTIMATED
   // Was kept on MuAPI at 0.15 on the (correct at the time) logic that xAI's
   // OWN direct API costs more — but that was never actually compared
   // against WaveSpeed. Confirmed live 2026-07-16 via WaveSpeed's own
@@ -163,11 +195,24 @@ const TOOL_COST = {         // utility tools (take an input image -> output), Wa
   'ai-object-eraser': 0.025,       // was 0.02 on MuAPI — wavespeed-ai/image-eraser verified live at 0.025
 };
 
-// slug -> credits charged (auto-computed for guaranteed margin)
-const IMAGE_MODELS = Object.fromEntries(Object.entries(IMAGE_COST).map(([k, v]) => [k, creditsFor(v, IMAGE_MARGIN)]));
+// slug -> credits charged (auto-computed for guaranteed margin; images clamp to 2-6)
+const IMAGE_MODELS = Object.fromEntries(Object.entries(IMAGE_COST).map(([k, v]) => [k, creditsForImage(v, IMAGE_MARGIN)]));
 const VIDEO_MODELS = Object.fromEntries(Object.entries(VIDEO_COST).map(([k, v]) => [k, creditsFor(v, VIDEO_MARGIN)]));
 const TOOL_MODELS = Object.fromEntries(Object.entries(TOOL_COST).map(([k, v]) => [k, creditsFor(v, IMAGE_MARGIN)]));
 const MODEL_COST = IMAGE_MODELS; // back-compat alias
+
+// Explicit credit overrides, 10 Aug 2026 pricing call — these deliberately
+// don't match the cost-plus formula above (Ria dictated exact numbers for
+// these specific tiers rather than letting the formula derive them; applied
+// after the auto-computation so every other model still gets clean,
+// auditable cost-plus math).
+Object.assign(VIDEO_MODELS, {
+  'seedance-2-mini-text-to-video': 17,     'seedance-2-mini-image-to-video': 17,     // formula would give 8
+  'seedance-2-1080p-text-to-video': 45,    'seedance-2-1080p-image-to-video': 45,    // formula would give 55
+  'kling-v3-turbo-standard-text-to-video': 6, 'kling-v3-turbo-standard-image-to-video': 6, // = 720p; formula would give 11
+  'kling-v3-turbo-pro-text-to-video': 7,   'kling-v3-turbo-pro-image-to-video': 7,   // = 1080p; formula would give 13
+  'kling-v3-turbo-4k-text-to-video': 39,   'kling-v3-turbo-4k-image-to-video': 39,
+});
 
 // ---- AI Avatar Creator (long-form video) — WaveSpeed-only cost model ------
 // Two completely different engines depending on mode, so two completely
@@ -188,7 +233,7 @@ const AVATAR_VIDEO_PER_MIN_USD = 3.6;   // InfiniteTalk (talking mode), verified
 // talking-head animation -- this is real, not a rounding artifact.
 const AVATAR_MOTION_PER_MIN_USD = { '480p': 7.2, '720p': 14.4 };
 const AVATAR_VOICE_PER_MIN_USD = 0.05;  // Omnivoice narration
-const AVATAR_VIDEO_MARGIN = 1.6;        // this is a premium, compute-heavy feature — thinner margin, still profitable
+const AVATAR_VIDEO_MARGIN = 2.0;        // raised from 1.6 (10 Aug 2026 margin sweep — every 1.5x/1.6x tier moved to 2x)
 // `includeVoice` is false when the user supplies their own pre-made
 // narration (skips Omnivoice cloning entirely) — no voice-generation cost
 // applies in that case, just the video-generation cost. `mode`/`resolution`
@@ -214,7 +259,7 @@ function estimateScriptMinutes(script) {
 // meaningful add-on cost, not a rounding difference, so it's kept as an
 // explicit opt-in second pass rather than baked into every video by default.
 const RESYNC_PER_SEC_USD = 0.08;
-const RESYNC_MARGIN = 1.6; // same premium/compute-heavy tier as avatar video itself
+const RESYNC_MARGIN = 2.0; // raised from 1.6 (10 Aug 2026 margin sweep)
 function resyncCredits(durationSec) {
   const secs = Math.max(1, Math.ceil(durationSec || 0));
   return creditsFor(secs * RESYNC_PER_SEC_USD, RESYNC_MARGIN);
@@ -226,7 +271,7 @@ function resyncCredits(durationSec) {
 // is $0.03/sec of the audio track, $0.15 minimum (5s floor).
 const LIPSYNC_TEXT_FLAT_USD = 0.14;
 const LIPSYNC_AUDIO_PER_SEC_USD = 0.03;
-const LIPSYNC_MARGIN = 1.6; // same premium/compute-heavy tier as the resync pass
+const LIPSYNC_MARGIN = 2.0; // raised from 1.6 (10 Aug 2026 margin sweep)
 function lipsyncDialogueCredits(mode, durationSec) {
   if (mode === 'audio') {
     const secs = Math.max(5, Math.ceil(durationSec || 5));
