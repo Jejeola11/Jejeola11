@@ -107,7 +107,7 @@ module.exports = {
   "tier": 2,
   "module": "video-m1"
  },
- "spark-5_4": {
+ "video-1_2": {
   "tier": 2,
   "module": "video-m1"
  },
@@ -115,49 +115,9 @@ module.exports = {
   "tier": 2,
   "module": "video-m1"
  },
- "spark-3_4": {
+ "video-1_4": {
   "tier": 2,
-  "module": "video-m2"
- },
- "video-2_2": {
-  "tier": 2,
-  "module": "video-m2"
- },
- "video-2_3": {
-  "tier": 2,
-  "module": "video-m2"
- },
- "video-3_1": {
-  "tier": 2,
-  "module": "video-m3"
- },
- "video-3_2": {
-  "tier": 2,
-  "module": "video-m3"
- },
- "video-4_1": {
-  "tier": 2,
-  "module": "video-m4"
- },
- "video-4_2": {
-  "tier": 2,
-  "module": "video-m4"
- },
- "video-5_1": {
-  "tier": 2,
-  "module": "video-m5"
- },
- "video-5_2": {
-  "tier": 2,
-  "module": "video-m5"
- },
- "video-5_3": {
-  "tier": 2,
-  "module": "video-m5"
- },
- "video-5_4": {
-  "tier": 2,
-  "module": "video-m5"
+  "module": "video-m1"
  },
  "brand-1_1": {
   "tier": 2,
@@ -255,40 +215,8 @@ module.exports = {
   "tier": 1,
   "module": "money-m1"
  },
- "money-2_1": {
+ "money-1_3": {
   "tier": 1,
-  "module": "money-m2"
- },
- "money-2_2": {
-  "tier": 1,
-  "module": "money-m2"
- },
- "money-2_3": {
-  "tier": 1,
-  "module": "money-m2"
- },
- "money-3_1": {
-  "tier": 1,
-  "module": "money-m3"
- },
- "gold-3_5": {
-  "tier": 1,
-  "module": "money-m3"
- },
- "money-3_3": {
-  "tier": 1,
-  "module": "money-m3"
- },
- "money-4_1": {
-  "tier": 1,
-  "module": "money-m4"
- },
- "money-4_2": {
-  "tier": 1,
-  "module": "money-m4"
- },
- "money-4_3": {
-  "tier": 1,
-  "module": "money-m4"
+  "module": "money-m1"
  }
 };
