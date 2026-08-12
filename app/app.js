@@ -1180,7 +1180,7 @@ function buildCourseBody() {
  return `<div class="lrow${doneCls}" data-l="${l.key}" data-locked="${unlocked ? '' : '1'}">
  <span class="lr-ic">${courseProgress.has(l.key) ? '' : (unlocked ? '▶' : '')}</span>
  <span class="lr-t">${l.n} ${l.title}</span>
- <span class="lr-d">${hasVid ? '' : '<i>soon</i> '}${lessonDurLabel(vid, l)}</span>
+ <span class="lr-d">${(hasVid || l.noVideo) ? '' : '<i>soon</i> '}${lessonDurLabel(vid, l)}</span>
  </div>`;
  }).join('');
  // Open/closed state persists in expandedModules (keyed by the module's
