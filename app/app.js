@@ -1255,11 +1255,19 @@ async function openLesson(key) {
  if (!moduleUnlocked(modOf.key, pillarOf.key)) { toast(' Unlock this module first'); return; }
  curLesson = found;
  showView('lesson');
- // Everything that doesn't need the real video URL renders immediately --
- // only the player itself waits on the network round-trip below.
+ // Read-only lessons (found.noVideo) never had a video and never will --
+ // skip the player, the admin "add a video" box, and the lesson-video
+ // network round-trip entirely instead of showing an empty placeholder.
+ if (found.noVideo) {
+ $('lessonPlayer').style.display = 'none';
+ $('lessonPlayer').innerHTML = '';
+ $('lessonAdmin').innerHTML = '';
+ } else {
+ $('lessonPlayer').style.display = '';
  $('lessonPlayer').innerHTML = '<div class="lp-empty"> Loading…</div>';
  $('lessonPlayer').style.position = 'relative';
  $('lessonPlayer').classList.toggle('wide', found.aspect === '16:9');
+ }
  $('lessonTitle').textContent = found.n + ' · ' + found.title;
  const durLbl = lessonDurLabel(courseVideos[key], found);
  $('lessonMeta').innerHTML = `<span class="muted">${modOf.title}${durLbl ? ' · ' + durLbl : ''}</span>`;
@@ -1278,6 +1286,7 @@ async function openLesson(key) {
  if (courseProgress.has(key)) return;
  try { await sb.from('course_progress').insert({ user_id: user.id, lesson_key: key }); courseProgress.add(key); dn.textContent = ' Completed'; } catch (e) {}
  };
+ if (found.noVideo) return; // read-only lesson -- no player, no admin box, no lesson-video fetch
  const renderPlayer = (vidUrl) => {
  if (curLesson !== found) return; // navigated away while we were fetching
  // Shields over the two spots YouTube always keeps tappable regardless of
