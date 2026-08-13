@@ -379,6 +379,18 @@ function pollChat(id, outEl, noteId, btn, label) {
  }, 4000);
 }
 
+// Bridge for app/flyer-studio.js, which is a plain script and cannot import
+// from this module. Without these two the rebuilt Flyer Studio sends
+// unauthenticated requests (401 on every call) and falls back to base64 data
+// URLs for uploads, which the backend cannot re-host.
+window.fuseAuthHeader = () => authHeader();
+window.fuseUploadImage = async (file) => {
+  const resized = await resizeImageFile(file);
+  const ext = (resized.name || 'x.jpg').split('.').pop().toLowerCase();
+  const path = `${user.id}/flyerref-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
+  await uploadWithRetry('avatars', path, resized);
+  return sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+};
 async function authHeader() {
  const { data } = await sb.auth.getSession();
  const t = data.session && data.session.access_token;
@@ -435,7 +447,7 @@ function restoreRoute() {
  // instead of restoring the view. The Flyer Studio project itself was never
  // actually lost (it lives server-side), but landing on Home made it look
  // exactly like it had been.
- const safe = ['library', 'profile', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course', 'week', 'omni', 'mini', 'all-courses', 'flyer', 'audio', 'editstudio'];
+ const safe = ['library', 'profile', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course', 'week', 'omni', 'mini', 'all-courses', 'flyer', 'flyer-classic', 'audio', 'editstudio'];
  if (!safe.includes(r.view)) return;
  try {
  if (r.view === 'studio') { openStudio(r.studio || 'generate'); if (r.video) setStudioMode(true); }
@@ -445,7 +457,7 @@ function restoreRoute() {
  else if (r.view === 'week') { openWeek(); }
  else if (r.view === 'mini') { openMiniHub(); }
  else if (r.view === 'all-courses') { openAllCourses(); }
- else if (['market', 'learn', 'avatar', 'promptgen', 'reactor', 'flyer', 'audio', 'editstudio'].includes(r.view)) { openStudio(r.view); }
+ else if (['market', 'learn', 'avatar', 'promptgen', 'reactor', 'flyer', 'flyer-classic', 'audio', 'editstudio'].includes(r.view)) { openStudio(r.view); }
  else showView(r.view);
  } catch (e) {}
 }
@@ -779,7 +791,11 @@ function openStudio(key) {
  if (key === 'market') { showView('market'); loadMarket(); return; }
  if (key === 'learn') { showView('learn'); buildLessons(); return; }
  if (key === 'avatar') { showView('avatar'); loadAvatars(); return; }
- if (key === 'flyer') { showView('flyer'); loadFlyerHistory(); restoreFlyerProject(); return; }
+ if (key === 'flyer') { showView('flyer2'); if (window.FuseFlyer) window.FuseFlyer.init(); return; }
+ // The previous Flyer Studio is still reachable at /studio?view=flyer-classic
+ // while the rebuilt one beds in — old projects and their saved
+ // design_state live there and are not migrated.
+ if (key === 'flyer-classic') { showView('flyer'); loadFlyerHistory(); restoreFlyerProject(); return; }
  if (key === 'audio') { showView('audio'); loadAudioVoices(); return; }
  if (key === 'editstudio') { showView('editstudio'); return; }
  if (key === 'promptgen') { pgInit(); showView('promptgen'); return; }
