@@ -103,49 +103,29 @@ module.exports = {
   "tier": 1,
   "module": "flyer-m6"
  },
- "video-1_1": {
+ "aiv-1_1": {
   "tier": 2,
-  "module": "video-m1"
+  "module": "aiv-m1"
  },
- "video-1_2": {
+ "aiv-1_2": {
   "tier": 2,
-  "module": "video-m1"
+  "module": "aiv-m1"
  },
- "video-1_3": {
+ "aiv-1_3": {
   "tier": 2,
-  "module": "video-m1"
+  "module": "aiv-m1"
  },
- "video-1_4": {
+ "aiv-2_1": {
   "tier": 2,
-  "module": "video-m1"
+  "module": "aiv-m2"
  },
- "brand-1_1": {
+ "aiv-3_1": {
   "tier": 2,
-  "module": "brand-m1"
+  "module": "aiv-m3"
  },
- "brand-1_2": {
+ "aiv-4_1": {
   "tier": 2,
-  "module": "brand-m1"
- },
- "brand-1_3": {
-  "tier": 2,
-  "module": "brand-m1"
- },
- "brand-2_1": {
-  "tier": 2,
-  "module": "brand-m2"
- },
- "brand-2_2": {
-  "tier": 2,
-  "module": "brand-m2"
- },
- "brand-3_1": {
-  "tier": 2,
-  "module": "brand-m3"
- },
- "brand-3_2": {
-  "tier": 2,
-  "module": "brand-m3"
+  "module": "aiv-m4"
  },
  "spark-2_1": {
   "tier": 2,
@@ -190,14 +170,6 @@ module.exports = {
  "web-1_2": {
   "tier": 3,
   "module": "web-m1"
- },
- "web-2_1": {
-  "tier": 3,
-  "module": "web-m2"
- },
- "web-2_2": {
-  "tier": 3,
-  "module": "web-m2"
  },
  "web-3_1": {
   "tier": 3,
