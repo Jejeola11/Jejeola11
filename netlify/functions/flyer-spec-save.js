@@ -50,7 +50,49 @@ function extractJson(raw) {
       if (depth === 0) { try { return JSON.parse(text.slice(start, i + 1)); } catch (e) { return null; } }
     }
   }
-  return null;
+  // Never closed — the response was cut off mid-object, which is what a
+  // token limit looks like. A spec is a long document and this is the most
+  // likely way it fails, so rather than throwing the whole thing away we
+  // salvage it: drop the half-written trailing element and close what's open.
+  // A spec missing its last layer is recoverable; a spec that refuses to load
+  // is not.
+  return repairTruncated(text.slice(start));
+}
+
+function repairTruncated(src) {
+  // Walk to the last position where the document was structurally sound, i.e.
+  // just after a completed element at any depth, then close every open bracket.
+  let inStr = false, esc = false, lastGood = -1;
+  const stack = [];
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === '\\') esc = true;
+      else if (c === '"') inStr = false;
+      continue;
+    }
+    if (c === '"') inStr = true;
+    else if (c === '{' || c === '[') stack.push(c === '{' ? '}' : ']');
+    else if (c === '}' || c === ']') { stack.pop(); lastGood = i; }
+    else if (c === ',') lastGood = i - 1;      // a comma means what came before it was whole
+  }
+  if (lastGood < 0 || !stack.length) return null;
+
+  // Re-derive what is still open at the cut point, then close it.
+  let head = src.slice(0, lastGood + 1);
+  const open = [];
+  inStr = false; esc = false;
+  for (let i = 0; i < head.length; i++) {
+    const c = head[i];
+    if (inStr) { if (esc) esc = false; else if (c === '\\') esc = true; else if (c === '"') inStr = false; continue; }
+    if (c === '"') inStr = true;
+    else if (c === '{') open.push('}');
+    else if (c === '[') open.push(']');
+    else if (c === '}' || c === ']') open.pop();
+  }
+  const candidate = head + open.reverse().join('');
+  try { return JSON.parse(candidate); } catch (e) { return null; }
 }
 
 exports.handler = async (event) => {
@@ -64,7 +106,14 @@ exports.handler = async (event) => {
   if (!projectId) return json(400, { error: 'Missing project_id' });
 
   const parsed = body.spec && typeof body.spec === 'object' ? body.spec : extractJson(body.raw);
-  if (!parsed) return json(422, { error: 'The design spec came back unreadable. Try generating it again.', code: 'SPEC_UNPARSEABLE' });
+  if (!parsed) {
+    const raw = String(body.raw || '');
+    return json(422, {
+      error: `The design spec came back unreadable (${raw.length} chars). Try again.`,
+      code: 'SPEC_UNPARSEABLE',
+      preview: raw.slice(0, 300),
+    });
+  }
 
   const db = admin();
   const { data: project } = await db.from('flyer_projects').select('id,user_id,design_spec_rev').eq('id', projectId).maybeSingle();
@@ -79,7 +128,14 @@ exports.handler = async (event) => {
   const { error } = await db.from('flyer_projects')
     .update({ design_spec: spec, design_spec_rev: rev, aspect: spec.aspect })
     .eq('id', projectId);
-  if (error) return json(500, { error: 'Could not save the design spec.' });
+  if (error) {
+    // Surface the real reason. The likeliest one by far is that
+    // schema-phase36.sql has not been applied, in which case Postgres says
+    // the column does not exist — and "Could not save the design spec" would
+    // send someone hunting through the model output instead of the migration.
+    const detail = (error.message || '').slice(0, 200);
+    return json(500, { error: `Could not save the design spec: ${detail || 'unknown database error'}` });
+  }
 
   return json(200, { ok: true, spec, rev, problems });
 };
