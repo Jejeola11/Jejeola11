@@ -247,6 +247,32 @@ exports.handler = async (event) => {
       } catch (e) {}
       return json(200, { status: 'completed', url, kind: job.kind, project_id: job.project_id });
     }
+    // One image layer of a design spec (the locked-spec rebuild). The URL is
+    // filed under its layer id in layer_images rather than replacing a single
+    // hero, which is what makes "regenerate just this element" leave every
+    // other layer of the poster untouched.
+    if (job.kind === 'flyer-layer-image') {
+      const layerId = job.meta && job.meta.layer_id;
+      if (job.project_id && layerId) {
+        try {
+          const { data: proj } = await db.from('flyer_projects').select('layer_images, credits').eq('id', job.project_id).maybeSingle();
+          const images = Object.assign({}, (proj && proj.layer_images) || {});
+          images[layerId] = url;
+          await db.from('flyer_projects').update({
+            layer_images: images,
+            updated_at: new Date().toISOString(),
+            credits: ((proj && proj.credits) || 0) + job.credits,
+          }).eq('id', job.project_id);
+        } catch (e) {}
+      }
+      try {
+        await db.from('generations').insert({
+          user_id: user.id, type: 'image', model: job.model, prompt: job.prompt, aspect: job.aspect,
+          output_url: url, credits_spent: job.credits, cost_usd: r.cost_usd,
+        });
+      } catch (e) {}
+      return json(200, { status: 'completed', url, kind: job.kind, project_id: job.project_id, layer_id: layerId });
+    }
     // Final composited flyer — GPT Image 2 rendering the typography itself
     // now (switched 2026-07-16), so this is a real paid async job like
     // hero/layer, not a synchronous free render anymore.
