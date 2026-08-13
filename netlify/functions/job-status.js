@@ -90,7 +90,7 @@ exports.handler = async (event) => {
 
   if (job.kind === 'video-transcribe') return handleTranscribeJob(db, user, job, id);
 
-  const isTextKind = job.kind === 'chat' || job.kind === 'flyer-brief' || job.kind === 'video-edit-brief' || job.kind === 'flyer-suggest-layers';
+  const isTextKind = job.kind === 'chat' || job.kind === 'flyer-brief' || job.kind === 'video-edit-brief' || job.kind === 'flyer-suggest-layers' || job.kind === 'flyer-spec';
   if (job.status === 'completed') {
     return isTextKind ? json(200, { status: 'completed', text: job.output_text }) : json(200, { status: 'completed', url: job.output_url });
   }

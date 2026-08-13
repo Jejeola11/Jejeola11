@@ -234,6 +234,18 @@ function validateSpec(raw) {
     if (layer.type === 'image') {
       layer.cutout = layer.cutout !== false;
       if (!layer.prompt) problems.push(`layer ${layer.id}: image layer has no prompt`);
+      // refIndex is 1-based in the prompt (it's how the user sees their
+      // attachments) and stays 1-based here; the generation call resolves it
+      // against the project's reference list. Anything non-numeric is dropped
+      // rather than guessed — attaching the WRONG reference to a layer is a
+      // worse failure than attaching none.
+      if (layer.refIndex != null) {
+        const idx = Math.round(num(layer.refIndex, 0));
+        if (idx >= 1) layer.refIndex = idx;
+        else { delete layer.refIndex; problems.push(`layer ${layer.id}: bad refIndex`); }
+      }
+    } else {
+      delete layer.refIndex;
     }
     if (layer.hex && !HEX.test(layer.hex)) { problems.push(`layer ${layer.id}: bad hex ${layer.hex}`); delete layer.hex; }
     // A colour that isn't in the palette is the most common drift and the one
