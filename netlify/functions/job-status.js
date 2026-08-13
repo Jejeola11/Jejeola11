@@ -195,6 +195,20 @@ exports.handler = async (event) => {
       // makes this idempotent -- re-triggering a job someone else already
       // claimed just no-ops.
       const ageMs = Date.now() - new Date(job.created_at).getTime();
+      // ...but only for a while. The worker's own LLM call times out at 120s,
+      // and a prompt that reliably exceeds it would otherwise be re-triggered
+      // on every poll forever: the user sees "processing" indefinitely, no
+      // error, no refund, and no signal that anything is wrong. Past this
+      // ceiling the job is failed honestly and the credits are returned.
+      const STALL_MS = 4 * 60 * 1000;
+      if (ageMs > STALL_MS) {
+        const msg = 'That took too long and was stopped. Your credits have been returned — try again, and shorten the brief if it keeps happening.';
+        try {
+          await db.from('jobs').update({ status: 'failed', error_message: msg, output_text: msg }).eq('request_id', id);
+          if (job.credits) await db.rpc('add_credits', { uid: user.id, amount: job.credits, why: 'refund' });
+        } catch (e) {}
+        return json(200, { status: 'failed', error: msg });
+      }
       if (ageMs > 6000) triggerTextWorker(id);
     }
     return json(200, { status: 'processing' });

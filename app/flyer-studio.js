@@ -64,15 +64,25 @@
   }
 
   /** Poll a job until it finishes. Text jobs return .text, image jobs .url. */
+  // 4.5 minutes of polling — just past the server's own 4-minute stall
+  // ceiling, so the server always gets to fail the job with a real reason
+  // before the client gives up with a generic one.
   async function pollJob(requestId, onTick) {
-    for (let i = 0; i < 150; i++) {
+    for (let i = 0; i < 70; i++) {
       await new Promise((r) => setTimeout(r, i < 5 ? 1500 : 4000));
-      const headers = { 'Content-Type': 'application/json' };
+      // job-status is a GET that reads ?id= — posting a body to it returns
+      // 400 "Missing id", which has no .status, which this loop would happily
+      // treat as "still processing" and spin on until it timed out. That is
+      // exactly what made a spec that had already finished look like it hung.
+      const headers = {};
       if (window.fuseAuthHeader) Object.assign(headers, await window.fuseAuthHeader());
-      const res = await fetch('/.netlify/functions/job-status', { method: 'POST', headers, body: JSON.stringify({ request_id: requestId }) });
+      const res = await fetch('/.netlify/functions/job-status?id=' + encodeURIComponent(requestId), { headers });
       const d = await res.json().catch(() => ({}));
       if (d.status === 'completed') return d;
       if (d.status === 'failed') throw new Error(d.error || 'That generation failed.');
+      // Anything without a recognised status is an error, not progress —
+      // never silently keep polling on a response we do not understand.
+      if (!d.status) throw new Error(d.error || 'Lost contact with that job. Try again.');
       if (onTick) onTick(i);
     }
     throw new Error('That took too long. Try again.');
@@ -188,7 +198,11 @@
           : '',
       });
       state.projectId = sub.project_id;
-      const done = await pollJob(sub.request_id, () => setStatus('Writing the design spec…'));
+      const t0 = Date.now();
+      const done = await pollJob(sub.request_id, () => {
+        const secs = Math.round((Date.now() - t0) / 1000);
+        setStatus(`Writing the design spec… ${secs}s (usually 30-90s)`);
+      });
 
       setStatus('Checking the spec…');
       const saved = await api('flyer-spec-save', { project_id: state.projectId, raw: done.text });
