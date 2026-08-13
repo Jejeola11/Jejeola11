@@ -68,6 +68,7 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"/></
   --green:#A9FF67; --yellow:#F4DB5E;
   --bg:#070908; --bg-2:#0C1310; --bg-3:#111A16;
   --ink:#F1F7F3; --ink-2:#A9BDB4; --ink-3:#72887E;
+  --teal-l:#25454A; --teal-d:#090909;
   --line:rgba(169,255,103,.14); --line-2:rgba(255,255,255,.08);
   --warn:#FF8F6B;
   --radius:16px; --wrap:1100px;
@@ -173,11 +174,24 @@ nav{position:sticky;top:0;z-index:50;background:rgba(7,9,8,.88);backdrop-filter:
 .skill p{font-size:14.5px;color:var(--ink-2);margin-bottom:9px}
 .skill .r{font-size:13px;font-weight:700;color:var(--yellow);font-variant-numeric:tabular-nums}
 
-/* ---------- what you'll learn to make ---------- */
-.make{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px}
-.make figure{margin:0;border:1px solid var(--line-2);border-radius:13px;overflow:hidden;background:var(--bg-3);position:relative}
-.make img,.make video{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}
-.make figcaption{position:absolute;left:0;right:0;bottom:0;padding:20px 11px 10px;background:linear-gradient(transparent,rgba(4,8,6,.93));font-size:11.5px;font-weight:700;color:#DCEFC9;line-height:1.3}
+/* ---------- what you'll learn to make — continuous marquee ----------
+   Ported verbatim from the previous /atelier build so the motion is
+   identical: one 32s linear loop translating the track to -50%, which
+   reads as seamless because the item list is rendered TWICE (see the
+   items.concat(items) in the script). Changing one without the other
+   breaks the loop. Hover pauses; reduced-motion stops it entirely. */
+.showcase{background:linear-gradient(180deg,var(--teal-d) 0%,var(--teal-l) 100%);overflow:hidden}
+.marquee{width:100%;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.marquee-track{display:flex;gap:18px;width:max-content;animation:marquee 32s linear infinite}
+.marquee:hover .marquee-track{animation-play-state:paused}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.mcard{position:relative;flex:0 0 auto;width:210px;aspect-ratio:4/5;border-radius:18px;padding:2.5px;background:linear-gradient(135deg,var(--green),var(--yellow),#fff)}
+.mcard-in{width:100%;height:100%;border-radius:16px;background:linear-gradient(160deg,#0f2a2c,var(--teal-d));display:flex;align-items:flex-end;padding:14px;position:relative;overflow:hidden;box-shadow:0 18px 40px -10px rgba(169,255,103,.35),0 10px 26px -6px rgba(244,219,94,.28)}
+.mcard-in::before{content:'';position:absolute;inset:0;background:radial-gradient(260px 160px at 30% 15%,rgba(169,255,103,.18),transparent 60%);z-index:1}
+.mcard-in img,.mcard-in video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.mcard-label{position:relative;z-index:2;color:#fff;font-size:13px;font-weight:700;line-height:1.3;text-shadow:0 2px 10px rgba(0,0,0,.7)}
+@media(prefers-reduced-motion:reduce){.marquee-track{animation:none}}
+@media(max-width:480px){.mcard{width:135px}.mcard-label{font-size:11.5px}}
 
 /* ---------- steps ---------- */
 .step{display:grid;grid-template-columns:52px 1fr;gap:16px;padding:20px 0;border-bottom:1px solid var(--line-2)}
@@ -401,27 +415,15 @@ footer a{color:var(--ink-2)}
   </div>
 </section>
 
-<!-- ============ WHAT YOU'LL LEARN TO MAKE ============ -->
-<section id="make" style="background:var(--bg-2);border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2)">
-  <div class="wrap">
-    <div class="center narrow" style="margin-bottom:26px">
-      <div class="eyebrow">See it before you buy it</div>
-      <h2>The kind of work you'll learn to make</h2>
-      <p style="color:var(--ink-2)">All of it made with AI, on the tools you'll be taught. No camera, no studio, no design degree.</p>
-    </div>
-    <div class="make">
-      <figure><img src="/atelier-site/assets/showcase/slamit-heat.jpg" alt="Sports drink promo flyer" loading="lazy"><figcaption>Promo flyer</figcaption></figure>
-      <figure><img src="/atelier-site/assets/showcase/slamit-grandma.jpg" alt="Electrolyte brand ad creative" loading="lazy"><figcaption>Ad creative</figcaption></figure>
-      <figure><img src="/atelier-site/assets/showcase/airpods-feel.jpg" alt="Headphones product launch graphic" loading="lazy"><figcaption>Product launch post</figcaption></figure>
-      <figure><img src="/atelier-site/assets/showcase/lamer-underwater.jpg" alt="Skincare product photography" loading="lazy"><figcaption>Product photography</figcaption></figure>
-      <figure><img src="/atelier-site/assets/showcase/bulldog-product.jpg" alt="Pet product photography" loading="lazy"><figcaption>Product photography</figcaption></figure>
-      <figure><img src="/atelier-site/assets/showcase/avatar-pink-boutique.jpg" alt="AI avatar boutique content" loading="lazy"><figcaption>AI avatar content</figcaption></figure>
-      <figure><img src="/atelier-site/assets/showcase/avatar-car-night.jpg" alt="AI avatar lifestyle content" loading="lazy"><figcaption>AI avatar content</figcaption></figure>
-      <figure><img src="/atelier-site/assets/showcase/web3-voidkey.jpg" alt="Landing page hero design" loading="lazy"><figcaption>Landing page</figcaption></figure>
-      <figure><video src="/atelier-site/assets/showcase/vid-ugc-skincare.mp4" muted loop playsinline preload="none" poster="/atelier-site/assets/showcase/lamer-underwater.jpg"></video><figcaption>UGC ad video</figcaption></figure>
-      <figure><video src="/atelier-site/assets/showcase/vid-ai-avatar-man.mp4" muted loop playsinline preload="none" poster="/atelier-site/assets/showcase/avatar-trench-beret.jpg"></video><figcaption>AI spokesperson video</figcaption></figure>
-    </div>
-    <p class="center" style="color:var(--ink-3);font-size:14px;margin-top:16px">Students are already producing this standard in their first week — Sammy's and Oluwakemi's pitch videos are in the screenshots above.</p>
+<!-- ============ WHAT YOU'LL LEARN TO MAKE (marquee) ============ -->
+<section id="make" class="showcase">
+  <div class="wrap narrow center" style="margin-bottom:38px">
+    <div class="eyebrow">See what creative AI can do</div>
+    <h2 class="grad">The kind of work you'll learn to make</h2>
+    <p style="color:#CFE0DC;max-width:560px;margin:0 auto">Real flyers, product shots and AI ads our own students are getting paid for — the kind of content that stops the scroll, once you know the exact workflow behind it.</p>
+  </div>
+  <div class="marquee">
+    <div class="marquee-track" id="showcaseTrack"></div>
   </div>
 </section>
 
@@ -643,17 +645,42 @@ footer a{color:var(--ink-2)}
     }, { threshold: 0 }).observe(orderCard);
   }
 
-  /* Showcase videos: only load and play once scrolled to, so the page stays
-     light on mobile data. preload="none" keeps them off the initial load. */
-  var vids = [].slice.call(document.querySelectorAll('.make video'));
-  if (vids.length && 'IntersectionObserver' in window) {
-    var vio = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) { e.target.play().catch(function(){}); }
-        else { e.target.pause(); }
-      });
-    }, { threshold: .25 });
-    vids.forEach(function (v) { vio.observe(v); });
+  /* Showcase marquee. The list is rendered twice and the CSS animates the
+     track to -50%, so the second copy is exactly where the first started
+     when the loop restarts — that's what makes it look continuous. Add or
+     remove items freely; the doubling keeps the seam invisible either way. */
+  var track = document.getElementById('showcaseTrack');
+  if (track) {
+    var items = [
+      { label: 'Product ad flyers',          img:   '/atelier-site/assets/showcase/slamit-beatup.jpg' },
+      { label: 'Talking-head brand videos',  video: '/atelier-site/assets/showcase/vid-fuse-office.mp4' },
+      { label: 'AI product photography',     img:   '/atelier-site/assets/showcase/lamer-underwater.jpg' },
+      { label: 'UGC-style talking ads',      video: '/atelier-site/assets/showcase/vid-ugc-skincare.mp4' },
+      { label: 'Landing page design',        img:   '/atelier-site/assets/showcase/web3-voidkey.jpg' },
+      { label: 'Viral CGI product ads',      video: '/atelier-site/assets/showcase/vid-cgi-explosion.mp4' },
+      { label: 'Sports & campaign flyers',   img:   '/atelier-site/assets/showcase/slamit-heat.jpg' },
+      { label: 'AI avatars & digital twins', video: '/atelier-site/assets/showcase/vid-ai-avatar-man.mp4' },
+      { label: 'Tech product ads',           img:   '/atelier-site/assets/showcase/airpods-feel.jpg' },
+      { label: 'Consistent AI portraits',    img:   '/atelier-site/assets/showcase/avatar-pink-boutique.jpg' },
+      { label: 'Pet & product photography',  img:   '/atelier-site/assets/showcase/bulldog-product.jpg' },
+      { label: 'Consistent AI portraits',    img:   '/atelier-site/assets/showcase/avatar-car-night.jpg' },
+      { label: 'Brand content flyers',       img:   '/atelier-site/assets/showcase/slamit-grandma.jpg' },
+      { label: 'Consistent AI portraits',    img:   '/atelier-site/assets/showcase/avatar-trench-beret.jpg' }
+    ];
+    var html = '';
+    items.concat(items).forEach(function (it) {
+      // poster = the video's own first frame (generated alongside each .mp4 as
+      // <name>-poster.jpg). It paints immediately and, if the video ever fails
+      // to decode — data-saver, an odd Android browser, a codec gap — the card
+      // still shows real work instead of going blank.
+      var media = it.video
+        ? '<video src="' + it.video + '" poster="' + it.video.replace('.mp4', '-poster.jpg') +
+          '" muted loop autoplay playsinline preload="metadata"></video>'
+        : '<img src="' + it.img + '" alt="' + it.label + '" loading="lazy">';
+      html += '<div class="mcard"><div class="mcard-in">' + media +
+              '<div class="mcard-label">' + it.label + '</div></div></div>';
+    });
+    track.innerHTML = html;
   }
 })();
 </script>
