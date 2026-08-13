@@ -384,6 +384,7 @@ function pollChat(id, outEl, noteId, btn, label) {
 // unauthenticated requests (401 on every call) and falls back to base64 data
 // URLs for uploads, which the backend cannot re-host.
 window.fuseAuthHeader = () => authHeader();
+window.toast = (m) => toast(m);
 window.fuseUploadImage = async (file) => {
   const resized = await resizeImageFile(file);
   const ext = (resized.name || 'x.jpg').split('.').pop().toLowerCase();

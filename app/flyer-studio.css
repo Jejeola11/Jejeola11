@@ -52,3 +52,5 @@
 .fs-bar{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(8,10,9,.94);backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,.1);z-index:60}
 .fs-prompt{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);color:inherit;border-radius:26px;padding:12px 16px;font:inherit;font-size:14.5px}
 .fs-send{width:46px;border:0;border-radius:50%;background:linear-gradient(100deg,#A9FF67,#F4DB5E);color:#08120C;font-size:18px;font-weight:800;cursor:pointer}
+/* Errors share the status bar but must not read as progress. */
+.fs-status.is-error{background:rgba(255,143,107,.12);border-color:rgba(255,143,107,.45);color:#FFC9B8}

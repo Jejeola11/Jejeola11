@@ -20,7 +20,7 @@
 const { admin, getUser, json, getPlan } = require('./_supabase');
 const { REACTOR_COST, canUseFree } = require('./_packs');
 const { buildSpecBrainPrompt, buildSpecSchemaPrompt } = require('./_flyer-spec');
-const { hasWaveSpeed, encodeModelImage, triggerTextWorker } = require('./_providers');
+const { hasWaveSpeed, triggerTextWorker } = require('./_providers');
 
 const MODEL = 'claude-sonnet-4-5';
 
@@ -89,7 +89,12 @@ Return ONLY the JSON object. No commentary before or after it, no markdown fence
 
     await db.from('jobs').insert({
       request_id: id, user_id: user.id, kind: 'flyer-spec',
-      model: encodeModelImage(MODEL, refs[0]), prompt: fullPrompt, credits: cost,
+      // Deliberately NO image attached. Passing one makes this a vision call,
+      // which is far slower and repeatedly blew past the worker's 120s LLM
+      // timeout — and it buys nothing here: the spec references attachments by
+      // POSITION (refIndex), so it never needs to see them. The per-layer
+      // generation call is where the actual reference image gets used.
+      model: MODEL, prompt: fullPrompt, credits: cost,
       status: 'processing', project_id: projectId,
     });
     triggerTextWorker(id);

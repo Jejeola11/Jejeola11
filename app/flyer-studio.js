@@ -88,7 +88,17 @@
     throw new Error('That took too long. Try again.');
   }
 
-  function toast(msg) { if (window.toast) window.toast(msg); else console.log(msg); }
+  // app.js's toast() lives in module scope and is not on window, so relying on
+  // it meant every error in this studio fell through to console.log and the
+  // user just saw the screen quietly reset. Errors now go into the status bar
+  // where they stay put until the next action.
+  function toast(msg) { if (typeof window.toast === 'function') window.toast(msg); setStatus(msg, true); }
+
+  function showError(e) {
+    const msg = (e && e.message) || String(e || 'Something went wrong.');
+    console.error('[flyer]', e);
+    setStatus(msg, true);
+  }
 
   // ---------------------------------------------------------------
   // STEP FLOW — one question at a time, each skippable except the first.
@@ -220,9 +230,8 @@
         imageLayers.forEach((l) => generateLayer(l.id));
       }
     } catch (e) {
-      setStatus('');
-      toast(e.message || 'Could not build the design.');
-    } finally { state.busy = false; }
+      showError(e);
+    } finally { state.busy = false; renderSteps(); }
   }
 
   async function generateLayer(layerId, tweak) {
@@ -234,17 +243,18 @@
       const done = await pollJob(sub.request_id);
       state.layerImages[layerId] = done.url;
     } catch (e) {
-      toast(`${layer.name}: ${e.message}`);
+      showError(new Error(`${layer.name}: ${(e && e.message) || 'generation failed'}`));
     } finally {
       layer._busy = false; renderStage(); renderLayers();
     }
   }
 
-  function setStatus(text) {
+  function setStatus(text, isError) {
     const s = $('fs-status');
     if (!s) return;
     s.textContent = text || '';
     s.style.display = text ? '' : 'none';
+    s.classList.toggle('is-error', !!isError);
   }
 
   // ---------------------------------------------------------------
