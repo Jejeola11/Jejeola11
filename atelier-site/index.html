@@ -419,8 +419,8 @@ footer a{color:var(--ink-2)}
 <section id="make" class="showcase">
   <div class="wrap narrow center" style="margin-bottom:38px">
     <div class="eyebrow">See what creative AI can do</div>
-    <h2 class="grad">The kind of work you'll learn to make</h2>
-    <p style="color:#CFE0DC;max-width:560px;margin:0 auto">Real flyers, product shots and AI ads our own students are getting paid for — the kind of content that stops the scroll, once you know the exact workflow behind it.</p>
+    <h2 class="grad">The kind of work I and my students are creating</h2>
+    <p style="color:#CFE0DC;max-width:560px;margin:0 auto">Real ads, product films and brand flyers — mine and my students' — all made with AI, no camera and no studio. Some of these are the exact pieces in the screenshots above.</p>
   </div>
   <div class="marquee">
     <div class="marquee-track" id="showcaseTrack"></div>
@@ -651,36 +651,101 @@ footer a{color:var(--ink-2)}
      remove items freely; the doubling keeps the seam invisible either way. */
   var track = document.getElementById('showcaseTrack');
   if (track) {
+    // Ria's + students' real work. assets/work/* came from the shared Drive
+    // folder — originals were 166MB of phone-shot mp4s, re-encoded to 4:5
+    // 6-second silent loops (~150-500KB each) with a matching -poster.jpg.
+    // Labels describe only what is actually on screen in each piece.
+    var W = '/atelier-site/assets/work/';
+    var S = '/atelier-site/assets/showcase/';
     var items = [
-      { label: 'Product ad flyers',          img:   '/atelier-site/assets/showcase/slamit-beatup.jpg' },
-      { label: 'Talking-head brand videos',  video: '/atelier-site/assets/showcase/vid-fuse-office.mp4' },
-      { label: 'AI product photography',     img:   '/atelier-site/assets/showcase/lamer-underwater.jpg' },
-      { label: 'UGC-style talking ads',      video: '/atelier-site/assets/showcase/vid-ugc-skincare.mp4' },
-      { label: 'Landing page design',        img:   '/atelier-site/assets/showcase/web3-voidkey.jpg' },
-      { label: 'Viral CGI product ads',      video: '/atelier-site/assets/showcase/vid-cgi-explosion.mp4' },
-      { label: 'Sports & campaign flyers',   img:   '/atelier-site/assets/showcase/slamit-heat.jpg' },
-      { label: 'AI avatars & digital twins', video: '/atelier-site/assets/showcase/vid-ai-avatar-man.mp4' },
-      { label: 'Tech product ads',           img:   '/atelier-site/assets/showcase/airpods-feel.jpg' },
-      { label: 'Consistent AI portraits',    img:   '/atelier-site/assets/showcase/avatar-pink-boutique.jpg' },
-      { label: 'Pet & product photography',  img:   '/atelier-site/assets/showcase/bulldog-product.jpg' },
-      { label: 'Consistent AI portraits',    img:   '/atelier-site/assets/showcase/avatar-car-night.jpg' },
-      { label: 'Brand content flyers',       img:   '/atelier-site/assets/showcase/slamit-grandma.jpg' },
-      { label: 'Consistent AI portraits',    img:   '/atelier-site/assets/showcase/avatar-trench-beret.jpg' }
+      { label: 'UGC skincare ad',          video: W + 'work-02.mp4' },
+      { label: 'Luxury product film',      video: W + 'work-11.mp4' },
+      { label: 'Food UGC ad',              video: W + 'work-04.mp4' },
+      { label: 'Snack brand flyer',        img:   W + 'still-01.jpg' },
+      { label: 'Tech product ad',          video: W + 'work-09.mp4' },
+      { label: 'Fashion brand launch',     video: W + 'work-21.mp4' },
+      { label: 'Beauty product film',      video: W + 'work-12.mp4' },
+      { label: 'CGI food ad',              video: W + 'work-16.mp4' },
+      { label: 'Skincare product ad',      video: W + 'work-19.mp4' },
+      { label: 'Fashion lookbook',         video: W + 'work-06.mp4' },
+      { label: 'Fragrance ad',             video: W + 'work-22.mp4' },
+      { label: 'Snack brand flyer',        img:   W + 'still-03.jpg' },
+      { label: 'Watch product film',       video: W + 'work-14.mp4' },
+      { label: 'AI spokesperson',          video: W + 'work-01.mp4' },
+      { label: 'Jewellery CGI ad',         video: W + 'work-24.mp4' },
+      { label: 'Appliance product ad',     video: W + 'work-20.mp4' },
+      { label: 'Editorial portrait',       video: W + 'work-07.mp4' },
+      { label: 'Luxury packaging film',    video: W + 'work-10.mp4' },
+      { label: 'Food CGI ad',              video: W + 'work-23.mp4' },
+      { label: 'Skincare UGC ad',          video: W + 'work-26.mp4' },
+      { label: 'Snack brand flyer',        img:   W + 'still-02.jpg' },
+      { label: 'Beauty brand ad',          video: W + 'work-05.mp4' },
+      { label: 'Product macro film',       video: W + 'work-18.mp4' },
+      { label: 'Supplement UGC ad',        video: W + 'work-25.mp4' },
+      { label: 'Fashion lookbook',         video: W + 'work-08.mp4' },
+      { label: 'CGI product ad',           video: W + 'work-13.mp4' },
+      { label: 'Food brand ad',            video: W + 'work-15.mp4' },
+      { label: 'Tech packaging ad',        video: W + 'work-17.mp4' },
+      { label: 'Product demo film',        video: W + 'work-03.mp4' },
+      // Fuse Studio showcase pieces
+      { label: 'Product ad flyers',          img:   S + 'slamit-beatup.jpg' },
+      { label: 'Talking-head brand videos',  video: S + 'vid-fuse-office.mp4' },
+      { label: 'AI product photography',     img:   S + 'lamer-underwater.jpg' },
+      { label: 'UGC-style talking ads',      video: S + 'vid-ugc-skincare.mp4' },
+      { label: 'Landing page design',        img:   S + 'web3-voidkey.jpg' },
+      { label: 'Viral CGI product ads',      video: S + 'vid-cgi-explosion.mp4' },
+      { label: 'Sports & campaign flyers',   img:   S + 'slamit-heat.jpg' },
+      { label: 'AI avatars & digital twins', video: S + 'vid-ai-avatar-man.mp4' },
+      { label: 'Tech product ads',           img:   S + 'airpods-feel.jpg' },
+      { label: 'Consistent AI portraits',    img:   S + 'avatar-pink-boutique.jpg' },
+      { label: 'Pet & product photography',  img:   S + 'bulldog-product.jpg' },
+      { label: 'Consistent AI portraits',    img:   S + 'avatar-car-night.jpg' },
+      { label: 'Brand content flyers',       img:   S + 'slamit-grandma.jpg' },
+      { label: 'Consistent AI portraits',    img:   S + 'avatar-trench-beret.jpg' }
     ];
+    // Keep the scroll SPEED constant as the list grows — the CSS duration was
+    // tuned for 14 cards, so scale it or 43 cards would fly past 3x too fast.
+    track.style.animationDuration = Math.round(items.length * (32 / 14)) + 's';
     var html = '';
     items.concat(items).forEach(function (it) {
       // poster = the video's own first frame (generated alongside each .mp4 as
       // <name>-poster.jpg). It paints immediately and, if the video ever fails
       // to decode — data-saver, an odd Android browser, a codec gap — the card
       // still shows real work instead of going blank.
+      // No autoplay/preload here on purpose: with ~30 clips in the track that
+      // would pull every file on load. data-src + the observer below fetch and
+      // play only the handful of cards actually on screen.
       var media = it.video
-        ? '<video src="' + it.video + '" poster="' + it.video.replace('.mp4', '-poster.jpg') +
-          '" muted loop autoplay playsinline preload="metadata"></video>'
+        ? '<video data-src="' + it.video + '" poster="' + it.video.replace('.mp4', '-poster.jpg') +
+          '" muted loop playsinline preload="none"></video>'
         : '<img src="' + it.img + '" alt="' + it.label + '" loading="lazy">';
       html += '<div class="mcard"><div class="mcard-in">' + media +
               '<div class="mcard-label">' + it.label + '</div></div></div>';
     });
     track.innerHTML = html;
+
+    // Attach the source and start playing only while a card is on screen, and
+    // release it again once it scrolls off. Keeps the page to a few hundred KB
+    // of poster images on load instead of pulling ~30 clips at once.
+    var vids = [].slice.call(track.querySelectorAll('video'));
+    if (vids.length && 'IntersectionObserver' in window) {
+      var vio = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          var v = e.target;
+          if (e.isIntersecting) {
+            if (!v.src && v.dataset.src) v.src = v.dataset.src;
+            var p = v.play();
+            if (p && p.catch) p.catch(function () {}); // autoplay refused: poster stays
+          } else if (!v.paused) {
+            v.pause();
+          }
+        });
+      }, { rootMargin: '150px 0px' });
+      vids.forEach(function (v) { vio.observe(v); });
+    } else {
+      // No IntersectionObserver: fall back to loading them normally.
+      vids.forEach(function (v) { if (v.dataset.src) { v.src = v.dataset.src; v.autoplay = true; } });
+    }
   }
 })();
 </script>
