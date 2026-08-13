@@ -29,17 +29,25 @@ const PACKS = {
   agency_mo:  { label: 'Agency',   amount_naira: 59000, credits: 650, kind: 'sub', plan: 'agency' }, // was 75000/480
 
   // ---- Fuse Atelier 2.0 — the merged 3-tier course (one-time, money only) ----
-  // PAUSED 10 Aug 2026 at Ria's request ("for now") — commented out, not
-  // deleted, so re-enabling is a one-line uncomment. Checkout (paystack-init)
-  // and admin-grant both reject an unknown pack key cleanly, so this alone
-  // stops new sales; it does NOT touch existing buyers' module_unlocks.
-  // NOTE: atelier-site's landing pages (index.html, index-starter.html,
-  // index-b.html, insider.html) still have live "Get Starter/Creator/Empire"
-  // buttons pointing at these three packs — those will now fail at checkout
-  // until either this is re-enabled or those buttons are pulled down too.
-  // atelier_starter: { label: 'Fuse Atelier — Starter', amount_naira: 10000, credits: 17,  kind: 'course', course: 'atelier-starter' },
-  // atelier_creator: { label: 'Fuse Atelier — Creator', amount_naira: 25000, credits: 67,  kind: 'course', course: 'atelier-creator', plan: 'creator' },
-  // atelier_empire:  { label: 'Fuse Atelier — Empire',  amount_naira: 70000, credits: 200, kind: 'course', course: 'atelier-empire',  plan: 'pro' },
+  // Paused 10 Aug 2026, RE-ENABLED 13 Aug 2026. While paused, atelier-site's
+  // landing pages (index.html, index-starter.html, index-b.html, insider.html)
+  // kept ~18 live "Get Starter/Creator/Empire" buttons pointing here, so every
+  // one of them was hitting a failed checkout — that's what re-enabling fixes.
+  //
+  // CREDIT COUNTS: 17 / 67 / 200 are the real grants and are what the landing
+  // pages now advertise (corrected 13 Aug 2026 — they were still showing the
+  // pre-reprice 100 / 400 / 1,200). Those old numbers came from the 10 Aug
+  // credit reprice, which divided every pack's credits by ~6.9 mechanically;
+  // nobody chose 17/67/200 as an offer, they fell out of the arithmetic.
+  // There is headroom to raise them: at CREDIT_USD 0.11 and USD_RATE 1400 a
+  // credit costs ₦154, so the absolute ceilings before a pack sells credits
+  // below cost are 64 / 162 / 454 (i.e. if the course itself were free).
+  // Raising these is a pricing decision, not a bug fix — if you change them,
+  // change the landing-page copy in the same pass or this drifts straight
+  // back out of sync.
+  atelier_starter: { label: 'Fuse Atelier — Starter', amount_naira: 10000, credits: 17,  kind: 'course', course: 'atelier-starter' },
+  atelier_creator: { label: 'Fuse Atelier — Creator', amount_naira: 25000, credits: 67,  kind: 'course', course: 'atelier-creator', plan: 'creator' },
+  atelier_empire:  { label: 'Fuse Atelier — Empire',  amount_naira: 70000, credits: 200, kind: 'course', course: 'atelier-empire',  plan: 'pro' },
   // Checkout order bump: prompt & template vault (research: 30-40% take rate).
   vault_bump: { label: 'Prompt & Template Vault', amount_naira: 4500, credits: 0, kind: 'course', course: 'atelier-vault' },
   // Legacy single-price course (kept so old links/grants don't break).
