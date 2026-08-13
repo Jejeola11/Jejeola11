@@ -28,6 +28,7 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/app/styles.css?v=20260720d">
+<link rel="stylesheet" href="/app/flyer-studio.css?v=20260813a">
 <script src="/app/config.js?v=20260720d"></script>
 <script src="/app/course.js?v=20260720d"></script>
 <script src="/app/fiveweek.js?v=20260720d"></script>
@@ -493,7 +494,41 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
 </div>
 
  <!-- ===== AUDIO STUDIO (standalone voiceover/narration) ===== -->
- <section class="view" id="view-audio">
+ 
+<!-- ===== FLYER STUDIO (locked-spec rebuild) — owned entirely by app/flyer-studio.js ===== -->
+<section class="view" id="view-flyer2">
+  <div class="fs-wrap">
+    <div class="fs-head">
+      <h2>Flyer Studio</h2>
+      <div class="fs-head-actions">
+        <button class="fs-btn ghost small" id="fs-new">New</button>
+        <button class="fs-btn small" id="fs-export">Export PNG</button>
+      </div>
+    </div>
+    <div class="fs-status" id="fs-status" style="display:none"></div>
+
+    <!-- one question at a time -->
+    <div class="fs-flow" id="fs-flow"></div>
+
+    <!-- the editor: stage + layers, exactly the split from the reference -->
+    <div class="fs-editor" id="fs-editor" style="display:none">
+      <div class="fs-stage-wrap"><div class="fs-stage" id="fs-stage"></div></div>
+      <aside class="fs-side">
+        <div class="fs-side-h">Layers</div>
+        <div class="fs-layers" id="fs-layers"></div>
+        <div class="fs-side-h">Selected</div>
+        <div class="fs-inspector" id="fs-inspector"></div>
+      </aside>
+    </div>
+
+    <div class="fs-bar">
+      <input class="fs-prompt" id="fs-prompt" placeholder="Select a layer, then describe the change…">
+      <button class="fs-send" id="fs-send">↑</button>
+    </div>
+  </div>
+</section>
+
+<section class="view" id="view-audio">
  <div class="backlink" id="audioBack">← Studios</div>
  <div class="studio-head"><div class="ic"><svg viewBox="0 0 22 22" fill="none" stroke-width="1.6" stroke-linecap="round"><path d="M4 12v-1M7.5 15v-7M11 17V5M14.5 15V9M18 12v-1"/></svg></div><div><h2>Audio Studio</h2><p>Any script, your voice — instant voiceover</p></div></div>
 
@@ -1500,6 +1535,7 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
  <div class="note" id="dsNote" style="padding:6px 16px"></div>
 </div>
 
+<script src="/app/flyer-studio.js?v=20260813a"></script>
 <script type="module" src="/app/app.js?v=20260726a"></script>
 </body>
 </html>

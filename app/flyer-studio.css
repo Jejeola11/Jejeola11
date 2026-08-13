@@ -1,0 +1,54 @@
+/* ===== Flyer Studio — locked-spec rebuild. Paired with app/flyer-studio.js;
+   the module owns #view-flyer2 and nothing else on the page uses .fs-*. ===== */
+.fs-wrap{max-width:1180px;margin:0 auto;padding:16px 14px 96px}
+.fs-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.fs-head h2{margin:0;font-size:22px}
+.fs-head-actions{display:flex;gap:8px}
+.fs-status{background:rgba(169,255,103,.1);border:1px solid rgba(169,255,103,.3);color:#dcefc9;border-radius:10px;padding:10px 14px;font-size:14px;margin-bottom:14px}
+.fs-q{font-size:clamp(19px,3vw,26px);font-weight:800;margin-bottom:6px}
+.fs-hint{font-size:14px;opacity:.7;margin:0 0 14px;line-height:1.5}
+.fs-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.16);color:inherit;border-radius:12px;padding:12px 14px;font:inherit;font-size:15px;margin-bottom:14px;box-sizing:border-box}
+.fs-input.small{font-size:13.5px;padding:8px 10px;margin-bottom:0}
+.fs-btn{background:linear-gradient(100deg,#A9FF67,#F4DB5E 60%,#fff 130%);color:#08120C;font-weight:800;border:0;border-radius:30px;padding:13px 26px;font-size:15px;cursor:pointer}
+.fs-btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.28);color:inherit}
+.fs-btn.small{padding:8px 16px;font-size:13.5px}
+.fs-btn:disabled{opacity:.5;cursor:default}
+.fs-row{display:flex;gap:10px;margin-top:6px}
+.fs-up{margin-bottom:14px}
+.fs-thumbs{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+.fs-thumb{width:78px;height:98px;border-radius:10px;background-size:cover;background-position:center;border:1px solid rgba(255,255,255,.18);position:relative}
+.fs-thumb-x{position:absolute;top:-7px;right:-7px;width:22px;height:22px;border-radius:50%;border:0;background:#222;color:#fff;cursor:pointer;line-height:1}
+.fs-drop{display:inline-flex;align-items:center;justify-content:center;padding:14px 18px;border:1.5px dashed rgba(255,255,255,.28);border-radius:12px;cursor:pointer;font-size:14px;opacity:.85}
+.fs-editor{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start}
+@media(max-width:860px){.fs-editor{grid-template-columns:1fr}}
+.fs-stage-wrap{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px;display:flex;justify-content:center}
+/* position:relative is load-bearing — every layer is absolutely positioned
+   and would otherwise lay itself out against the page instead of the poster. */
+.fs-stage{position:relative;overflow:hidden;border-radius:8px}
+.fs-layer{position:absolute;box-sizing:border-box;cursor:grab;white-space:pre-wrap;transform-origin:left top}
+.fs-layer.is-selected{outline:2px solid #A9FF67;outline-offset:1px}
+.fs-layer-empty{display:grid;place-items:center;border:1.5px dashed rgba(255,255,255,.35);color:rgba(255,255,255,.75);font-size:12px;text-align:center}
+.fs-side{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px;position:sticky;top:12px}
+.fs-side-h{font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.6;margin:6px 0 8px;font-weight:700}
+.fs-layers{max-height:330px;overflow:auto;margin-bottom:8px}
+.fs-lrow{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:9px;cursor:pointer;font-size:13.5px}
+.fs-lrow:hover{background:rgba(255,255,255,.06)}
+.fs-lrow.is-selected{background:rgba(169,255,103,.14);outline:1px solid rgba(169,255,103,.4)}
+.fs-lic{width:22px;height:22px;border-radius:5px;display:grid;place-items:center;background:rgba(255,255,255,.12);font-size:11px;font-weight:800;flex:none;color:#fff}
+.fs-lname{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fs-lbusy{opacity:.7;font-size:12px}
+.fs-leye{background:none;border:0;color:inherit;opacity:.75;cursor:pointer;font-size:13px;padding:2px 4px}
+.fs-leye.off{opacity:.35}
+.fs-inspector{border-top:1px solid rgba(255,255,255,.1);padding-top:10px}
+.fs-iname{font-weight:800;margin-bottom:10px}
+.fs-field{margin-bottom:10px}
+.fs-field label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-bottom:5px;font-weight:700}
+.fs-range{width:100%}
+.fs-swatches{display:flex;flex-wrap:wrap;gap:7px}
+.fs-sw{width:26px;height:26px;border-radius:7px;border:1.5px solid rgba(255,255,255,.25);cursor:pointer}
+.fs-sw.is-on{outline:2px solid #A9FF67;outline-offset:1px}
+/* Sits above the app's own bottom tab bar, which is why the wrap has 96px of
+   bottom padding — without it the last inspector control is unreachable. */
+.fs-bar{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(8,10,9,.94);backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,.1);z-index:60}
+.fs-prompt{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);color:inherit;border-radius:26px;padding:12px 16px;font:inherit;font-size:14.5px}
+.fs-send{width:46px;border:0;border-radius:50%;background:linear-gradient(100deg,#A9FF67,#F4DB5E);color:#08120C;font-size:18px;font-weight:800;cursor:pointer}
