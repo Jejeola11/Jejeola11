@@ -1061,13 +1061,16 @@ function lessonDurLabel(vid, lesson) {
 // Courses are purchase-only now — a Pro/Agency image-credits plan does NOT
 // grant course access on its own. Only admin (for testing) or an explicit
 // module_unlocks row (real payment) unlocks a course.
-function courseHasFull() { return userIsAdmin || courseUnlocks.has('atelier-full') || courseUnlocks.has('atelier-empire'); }
+function courseHasFull() { return userIsAdmin || hasAtelier(); }
+// Lane A opens everything. Every legacy key is treated the same way so no
+// existing buyer loses access when the tier ladder was removed.
+const ATELIER_KEYS = ['atelier-lane-a', 'atelier-empire', 'atelier-creator', 'atelier-starter', 'atelier-full'];
+function hasAtelier() { return ATELIER_KEYS.some((k) => courseUnlocks.has(k)); }
 // Tier rank owned by this user: 0 none · 1 Starter · 2 Creator · 3 Empire.
 // Legacy 'atelier-full' buyers (old ₦60k course) count as Empire.
 function atelierTier() {
- if (userIsAdmin || courseUnlocks.has('atelier-empire') || courseUnlocks.has('atelier-full')) return 3;
- if (courseUnlocks.has('atelier-creator')) return 2;
- if (courseUnlocks.has('atelier-starter')) return 1;
+ // One lane now: if you own the course at all, you own all of it.
+ if (userIsAdmin || hasAtelier()) return 3;
  return 0;
 }
 const TIER_RANK = { starter: 1, creator: 2, empire: 3 };
@@ -2356,7 +2359,7 @@ async function adminLookup() {
  });
  const d = await res.json();
  if (!res.ok) throw new Error(d.error || 'Failed');
- const courseNames = { 'wk-course': 'The $500 Week', 'atelier-full': 'Fuse Atelier (legacy full)', 'atelier-starter': 'Fuse Atelier — Starter', 'atelier-creator': 'Fuse Atelier — Creator', 'atelier-empire': 'Fuse Atelier — Empire' };
+ const courseNames = { 'atelier-lane-a': 'Fuse Atelier — The First Client', 'wk-course': 'The $500 Week', 'atelier-full': 'Fuse Atelier (legacy full)', 'atelier-starter': 'Fuse Atelier — Starter (legacy)', 'atelier-creator': 'Fuse Atelier — Creator (legacy)', 'atelier-empire': 'Fuse Atelier — Empire (legacy)' };
  const unlockList = (d.unlocks || []).map((k) => courseNames[k] || k);
  const lines = [
  `Plan: <b>${d.plan}</b>${d.is_admin ? ' (admin)' : ''}`,
@@ -2421,7 +2424,7 @@ async function adminRevoke() {
 // 10 Aug 2026 reprice -- must track _packs.js's course bonus credits exactly
 // (admin-grant.js still honors manual course grants even while the Atelier
 // PACKS entries themselves are paused, so this stays live/updated).
-const ADMIN_COURSE_CREDITS = { 'atelier-starter': 17, 'atelier-creator': 67, 'atelier-empire': 200, 'wk-course': 17, 'atelier-full': 83 };
+const ADMIN_COURSE_CREDITS = { 'atelier-lane-a': 10, 'atelier-starter': 17, 'atelier-creator': 67, 'atelier-empire': 200, 'wk-course': 17, 'atelier-full': 83 };
 function adminCourseBonusForSelection() { return ADMIN_COURSE_CREDITS[$('adminCourse').value] || 0; }
 function updateAdminCourseBonusLabel() {
  const n = adminCourseBonusForSelection();

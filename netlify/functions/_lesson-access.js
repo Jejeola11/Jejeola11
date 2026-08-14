@@ -104,79 +104,79 @@ module.exports = {
   "module": "flyer-m6"
  },
  "aiv-1_1": {
-  "tier": 2,
+  "tier": 1,
   "module": "aiv-m1"
  },
  "aiv-1_2": {
-  "tier": 2,
+  "tier": 1,
   "module": "aiv-m1"
  },
  "aiv-1_3": {
-  "tier": 2,
+  "tier": 1,
   "module": "aiv-m1"
  },
  "aiv-2_1": {
-  "tier": 2,
+  "tier": 1,
   "module": "aiv-m2"
  },
  "aiv-3_1": {
-  "tier": 2,
+  "tier": 1,
   "module": "aiv-m3"
  },
  "aiv-4_1": {
-  "tier": 2,
+  "tier": 1,
   "module": "aiv-m4"
  },
  "spark-2_1": {
-  "tier": 2,
+  "tier": 1,
   "module": "product-m1"
  },
  "spark-2_2": {
-  "tier": 2,
+  "tier": 1,
   "module": "product-m1"
  },
  "spark-2_3": {
-  "tier": 2,
+  "tier": 1,
   "module": "product-m1"
  },
  "product-2_1": {
-  "tier": 2,
+  "tier": 1,
   "module": "product-m2"
  },
  "product-2_2": {
-  "tier": 2,
+  "tier": 1,
   "module": "product-m2"
  },
  "product-3_1": {
-  "tier": 2,
+  "tier": 1,
   "module": "product-m3"
  },
  "product-3_2": {
-  "tier": 2,
+  "tier": 1,
   "module": "product-m3"
  },
  "product-4_1": {
-  "tier": 2,
+  "tier": 1,
   "module": "product-m4"
  },
  "product-4_2": {
-  "tier": 2,
+  "tier": 1,
   "module": "product-m4"
  },
  "web-1_1": {
-  "tier": 3,
+  "tier": 1,
   "module": "web-m1"
  },
  "web-1_2": {
-  "tier": 3,
+  "tier": 1,
   "module": "web-m1"
  },
  "web-3_1": {
-  "tier": 3,
+  "tier": 1,
   "module": "web-m3"
  },
  "web-3_2": {
-  "tier": 3,
+  "tier": 1,
   "module": "web-m3"
  },
  "money-1_1": {

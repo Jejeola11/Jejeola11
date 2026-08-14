@@ -45,7 +45,11 @@ exports.handler = async (event) => {
     // even though buyers paid ₦10,000 each — defaults to the known real price
     // per course when not passed explicitly, but the caller can always send
     // the exact amount actually received.
-    const amountNaira = parseInt(body.amount_naira, 10) || (course === 'wk-course' ? 10000 : 0);
+    // Per-course real price, used when the caller doesn't pass the exact
+    // amount. Lane A is ₦5,000; a manual grant at a discount should still be
+    // recorded at what was ACTUALLY received, so pass amount_naira for those.
+    const COURSE_PRICE = { 'wk-course': 10000, 'atelier-lane-a': 5000 };
+    const amountNaira = parseInt(body.amount_naira, 10) || COURSE_PRICE[course] || 0;
     if (course && !pack && custom <= 0) {
       const { data: existing } = await db.from('module_unlocks').select('module_key').eq('user_id', target.id).eq('module_key', course).maybeSingle();
       let bonus = 0;
@@ -53,7 +57,7 @@ exports.handler = async (event) => {
         await db.from('module_unlocks').insert({ user_id: target.id, module_key: course });
         bonus = bonusCredits > 0
           ? (course === 'atelier-full' && promoActive() ? PROMO.courseCredits : bonusCredits)
-          : (course === 'wk-course' ? 100 : 0);
+          : (course === 'wk-course' ? 100 : (course === 'atelier-lane-a' ? 10 : 0));
         if (bonus > 0) {
           try { await db.rpc('add_credits', { uid: target.id, amount: bonus, why: course + '-bonus' }); } catch (e) { bonus = 0; }
         }

@@ -28,26 +28,18 @@ const PACKS = {
   pro_mo:     { label: 'Studio Pro', amount_naira: 9000, credits: 60, kind: 'sub', plan: 'pro' }, // was 20000/129
   agency_mo:  { label: 'Agency',   amount_naira: 59000, credits: 650, kind: 'sub', plan: 'agency' }, // was 75000/480
 
-  // ---- Fuse Atelier 2.0 — the merged 3-tier course (one-time, money only) ----
-  // Paused 10 Aug 2026, RE-ENABLED 13 Aug 2026. While paused, atelier-site's
-  // landing pages (index.html, index-starter.html, index-b.html, insider.html)
-  // kept ~18 live "Get Starter/Creator/Empire" buttons pointing here, so every
-  // one of them was hitting a failed checkout — that's what re-enabling fixes.
+  // ---- Fuse Atelier — LANE A (the only course tier, from 14 Aug 2026) ----
+  // The three-tier ladder (Starter/Creator/Empire) is retired. There is now
+  // ONE course — "The First Client" — and it opens every skill. Tiering was
+  // the thing making people choose instead of start, and the whole offer is
+  // built on starting the same day.
   //
-  // CREDIT COUNTS: 17 / 67 / 200 are the real grants and are what the landing
-  // pages now advertise (corrected 13 Aug 2026 — they were still showing the
-  // pre-reprice 100 / 400 / 1,200). Those old numbers came from the 10 Aug
-  // credit reprice, which divided every pack's credits by ~6.9 mechanically;
-  // nobody chose 17/67/200 as an offer, they fell out of the arithmetic.
-  // There is headroom to raise them: at CREDIT_USD 0.11 and USD_RATE 1400 a
-  // credit costs ₦154, so the absolute ceilings before a pack sells credits
-  // below cost are 64 / 162 / 454 (i.e. if the course itself were free).
-  // Raising these is a pricing decision, not a bug fix — if you change them,
-  // change the landing-page copy in the same pass or this drifts straight
-  // back out of sync.
-  atelier_starter: { label: 'Fuse Atelier — Starter', amount_naira: 10000, credits: 17,  kind: 'course', course: 'atelier-starter' },
-  atelier_creator: { label: 'Fuse Atelier — Creator', amount_naira: 25000, credits: 67,  kind: 'course', course: 'atelier-creator', plan: 'creator' },
-  atelier_empire:  { label: 'Fuse Atelier — Empire',  amount_naira: 70000, credits: 200, kind: 'course', course: 'atelier-empire',  plan: 'pro' },
+  // The old keys are deliberately NOT deleted: existing buyers still carry
+  // atelier-starter / atelier-creator / atelier-empire / atelier-full rows in
+  // module_unlocks, and atelierTier() still honours them so nobody loses
+  // access. They are simply no longer purchasable.
+  atelier_lane_a: { label: 'Fuse Atelier — The First Client', amount_naira: 5000, credits: 10, kind: 'course', course: 'atelier-lane-a' },
+
   // Checkout order bump: prompt & template vault (research: 30-40% take rate).
   vault_bump: { label: 'Prompt & Template Vault', amount_naira: 4500, credits: 0, kind: 'course', course: 'atelier-vault' },
   // Legacy single-price course (kept so old links/grants don't break).

@@ -224,7 +224,7 @@ window.FUSE_COURSE = {
    "key": "video",
    "name": "AI VIDEOS & UGC",
    "sub": "The dollar skill — ads and product films, no camera",
-   "tier": "creator",
+   "tier": "starter",
    "modules": [
     {
      "key": "aiv-m1",
@@ -317,7 +317,7 @@ window.FUSE_COURSE = {
    "key": "product",
    "name": "AI PHOTOGRAPHY",
    "sub": "Studio-grade product shots without a studio",
-   "tier": "creator",
+   "tier": "starter",
    "modules": [
     {
      "key": "product-m1",
@@ -412,7 +412,7 @@ window.FUSE_COURSE = {
    "key": "landing",
    "name": "LANDING PAGE DESIGN",
    "sub": "Pages that sell — the one-day build",
-   "tier": "empire",
+   "tier": "starter",
    "modules": [
     {
      "key": "web-m1",
@@ -440,7 +440,7 @@ window.FUSE_COURSE = {
    "key": "website",
    "name": "WEBSITE DESIGN",
    "sub": "Full sites — the biggest single cheque",
-   "tier": "empire",
+   "tier": "starter",
    "modules": [
     {
      "key": "web-m3",
