@@ -385,6 +385,22 @@ function pollChat(id, outEl, noteId, btn, label) {
 // URLs for uploads, which the backend cannot re-host.
 window.fuseAuthHeader = () => authHeader();
 window.toast = (m) => toast(m);
+// --- Fuse Academy bridge (app/academy.js is a plain script) ---
+window.fuseCourseUnlocks = () => courseUnlocks;
+window.fuseIsAdmin = () => userIsAdmin;
+window.fuseUserName = () => (user && (user.user_metadata?.full_name || user.user_metadata?.name || (user.email || '').split('@')[0])) || '';
+// Real playable URL for one lesson. course_videos.url is not publicly
+// readable (phase 25), so this has to go through the tier-gated function —
+// the academy reader cannot query the table directly.
+window.fuseLessonVideo = async (key) => {
+  const res = await fetch('/.netlify/functions/lesson-video', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
+    body: JSON.stringify({ lesson_key: key }),
+  });
+  if (!res.ok) return null;
+  const d = await res.json().catch(() => ({}));
+  return d.url || null;
+};
 window.fuseUploadImage = async (file) => {
   const resized = await resizeImageFile(file);
   const ext = (resized.name || 'x.jpg').split('.').pop().toLowerCase();
@@ -416,6 +432,13 @@ function showView(name, opts = {}) {
  if (el) el.classList.add('active');
  document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.view === name));
  curView = name;
+ const shell = document.getElementById('appMain');
+ if (shell) shell.classList.toggle('app-shell--full', name === 'academy');
+ if (name === 'academy') {
+ // Unlocks drive which cards are owned, so they must be loaded before the
+ // dashboard paints or every product renders as locked for a paying user.
+ loadCourseUnlocks().then(() => { if (window.FuseAcademy) window.FuseAcademy.render(); });
+ }
  if (name === 'library') loadLibrary();
  if (name === 'profile') loadProfile();
  if (name === 'reactor') buildReactor();
@@ -448,7 +471,7 @@ function restoreRoute() {
  // instead of restoring the view. The Flyer Studio project itself was never
  // actually lost (it lives server-side), but landing on Home made it look
  // exactly like it had been.
- const safe = ['library', 'profile', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course', 'week', 'omni', 'mini', 'all-courses', 'flyer', 'flyer-classic', 'audio', 'editstudio'];
+ const safe = ['library', 'profile', 'models', 'studio', 'video', 'market', 'learn', 'avatar', 'promptgen', 'reactor', 'preset', 'course', 'week', 'omni', 'mini', 'all-courses', 'flyer', 'flyer-classic', 'audio', 'editstudio', 'academy'];
  if (!safe.includes(r.view)) return;
  try {
  if (r.view === 'studio') { openStudio(r.studio || 'generate'); if (r.video) setStudioMode(true); }
@@ -458,6 +481,7 @@ function restoreRoute() {
  else if (r.view === 'week') { openWeek(); }
  else if (r.view === 'mini') { openMiniHub(); }
  else if (r.view === 'all-courses') { openAllCourses(); }
+ else if (r.view === 'academy') { showView('academy'); }
  else if (['market', 'learn', 'avatar', 'promptgen', 'reactor', 'flyer', 'flyer-classic', 'audio', 'editstudio'].includes(r.view)) { openStudio(r.view); }
  else showView(r.view);
  } catch (e) {}
@@ -1136,6 +1160,13 @@ function captureLessonDuration(key, url) {
  }
 }
 
+async function loadCourseUnlocks() {
+ if (!user || preview) return;
+ try {
+ const { data: u } = await sb.from('module_unlocks').select('module_key').eq('user_id', user.id);
+ courseUnlocks = new Set((u || []).map((r) => r.module_key));
+ } catch (e) {}
+}
 async function openCourse() {
  showView('course');
  // Load the public list (which lessons have a video + how long), plus

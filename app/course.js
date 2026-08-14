@@ -15,7 +15,7 @@ window.FUSE_COURSE = {
        "n": "0.1",
        "title": "Welcome — What You Just Unlocked",
        "dur": "2 min",
-       "notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Fuse Atelier is three things in one: the course (6 skill families), the studio (where you create), and the Money Engine (how you get paid). Your tier unlocks your families — and every tier includes the Money Engine.</p><div class='vault-action'><b>Action step:</b> Open the Create tab and look around for 2 minutes. Next: the one rule that makes this course work.</div>"
+       "notes": "<span class='vault-tag'>🎙 Welcome</span><h4>The Idea</h4><p>Fuse Atelier is three things in one: the course (every skill family), the studio (where you create), and the Money Engine (how you get paid). You have all of it — there are no tiers to unlock.</p><div class='vault-action'><b>Action step:</b> Open the Create tab and look around for 2 minutes. Next: the one rule that makes this course work.</div>"
       },
       {
        "key": "orient-0_2",
@@ -36,7 +36,7 @@ window.FUSE_COURSE = {
        "n": "0.4",
        "title": "Meet Your Studio (Make Your First Image Now)",
        "dur": "4 min",
-       "notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>A 3-minute tour of Fuse Studio — Image, Video, Avatar, Reactor — ending with YOU generating your first image. The tool is included in your tier; your credits are already loaded.</p><div class='vault-action'><b>Action step:</b> Generate one image of anything. Post it in the community. You're officially a creator. Next: pick your first money skill.</div>"
+       "notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>A 3-minute tour of Fuse Studio — Image, Video, Avatar, Reactor — ending with YOU generating your first image. The tool is included with the course; your credits are already loaded.</p><div class='vault-action'><b>Action step:</b> Generate one image of anything. Post it in the community. You're officially a creator. Next: pick your first money skill.</div>"
       },
       {
        "key": "orient-0_5",
@@ -342,7 +342,7 @@ window.FUSE_COURSE = {
        "n": "7.3",
        "title": "Sell It: Beauty & Luxury Renders + Client Delivery",
        "dur": "21 min",
-       "notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>The premium tier: beauty/luxury lighting, water splashes, floating products — plus how to deliver: upscaled, in a named folder, with a one-line usage guide. Charge ₦2k–5k per finished shot, ₦10k–40k per campaign set.</p><div class='vault-action'><b>Action step:</b> Produce a 5-shot set for one product and package it like a delivery. That's your Product-family portfolio piece.</div>"
+       "notes": "<span class='vault-tag'>🖥 Screen</span><h4>The Idea</h4><p>The premium look: beauty/luxury lighting, water splashes, floating products — plus how to deliver: upscaled, in a named folder, with a one-line usage guide. Charge ₦2k–5k per finished shot, ₦10k–40k per campaign set.</p><div class='vault-action'><b>Action step:</b> Produce a 5-shot set for one product and package it like a delivery. That's your Product-family portfolio piece.</div>"
       }
      ]
     },
