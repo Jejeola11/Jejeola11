@@ -38,7 +38,11 @@ const PACKS = {
   // atelier-starter / atelier-creator / atelier-empire / atelier-full rows in
   // module_unlocks, and atelierTier() still honours them so nobody loses
   // access. They are simply no longer purchasable.
-  atelier_lane_a: { label: 'Fuse Atelier — The First Client', amount_naira: 5000, credits: 10, kind: 'course', course: 'atelier-lane-a' },
+  // NO credits with this course, deliberately. Students are taught to work
+  // with free tools; Fuse Studio is a separate upgrade if they want it. A
+  // credit grant here would also contradict the sales page, which sells the
+  // Free Tool Stack rather than a credit allowance.
+  atelier_lane_a: { label: 'Fuse Atelier — The First Client', amount_naira: 5000, credits: 0, kind: 'course', course: 'atelier-lane-a' },
 
   // Checkout order bump: prompt & template vault (research: 30-40% take rate).
   vault_bump: { label: 'Prompt & Template Vault', amount_naira: 4500, credits: 0, kind: 'course', course: 'atelier-vault' },

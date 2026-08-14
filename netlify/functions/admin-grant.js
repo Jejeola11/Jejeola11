@@ -57,7 +57,7 @@ exports.handler = async (event) => {
         await db.from('module_unlocks').insert({ user_id: target.id, module_key: course });
         bonus = bonusCredits > 0
           ? (course === 'atelier-full' && promoActive() ? PROMO.courseCredits : bonusCredits)
-          : (course === 'wk-course' ? 100 : (course === 'atelier-lane-a' ? 10 : 0));
+          : (course === 'wk-course' ? 100 : 0);
         if (bonus > 0) {
           try { await db.rpc('add_credits', { uid: target.id, amount: bonus, why: course + '-bonus' }); } catch (e) { bonus = 0; }
         }

@@ -2456,7 +2456,7 @@ async function adminRevoke() {
 // 10 Aug 2026 reprice -- must track _packs.js's course bonus credits exactly
 // (admin-grant.js still honors manual course grants even while the Atelier
 // PACKS entries themselves are paused, so this stays live/updated).
-const ADMIN_COURSE_CREDITS = { 'atelier-lane-a': 10, 'atelier-starter': 17, 'atelier-creator': 67, 'atelier-empire': 200, 'wk-course': 17, 'atelier-full': 83 };
+const ADMIN_COURSE_CREDITS = { 'atelier-lane-a': 0, 'atelier-starter': 17, 'atelier-creator': 67, 'atelier-empire': 200, 'wk-course': 17, 'atelier-full': 83 };
 function adminCourseBonusForSelection() { return ADMIN_COURSE_CREDITS[$('adminCourse').value] || 0; }
 function updateAdminCourseBonusLabel() {
  const n = adminCourseBonusForSelection();
