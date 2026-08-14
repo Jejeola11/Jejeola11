@@ -386,6 +386,7 @@ function pollChat(id, outEl, noteId, btn, label) {
 window.fuseAuthHeader = () => authHeader();
 window.toast = (m) => toast(m);
 // --- Fuse Academy bridge (app/academy.js is a plain script) ---
+window.fuseOpenStudio = (k) => { if (k === 'academy') return showView('academy'); openStudio(k); };
 window.fuseCourseUnlocks = () => courseUnlocks;
 window.fuseIsAdmin = () => userIsAdmin;
 window.fuseUserName = () => (user && (user.user_metadata?.full_name || user.user_metadata?.name || (user.email || '').split('@')[0])) || '';
