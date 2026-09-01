@@ -1,43 +1,25 @@
-# Fuse Studio — Netlify configuration
+# Fuse Atelier — Netlify configuration
 [build]
   publish = "."
   functions = "netlify/functions"
-  # Build isolation: skip the Fuse Studio build entirely when a push only
-  # touched pitchpilot/ (PitchPilot deploys as its own site with its own base
-  # dir and auto-skips when pitchpilot/ is untouched). Every skipped build =
-  # build-minute credits saved on the free plan.
+  # Build isolation: skip this build when a push only touched pitchpilot/.
   ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ':(exclude)pitchpilot'"
 
 [build.environment]
-  # The Supabase anon key + URL are PUBLIC by design (front-end safe; the
-  # database is protected by Row Level Security). Tell Netlify's secret
-  # scanner not to flag them, so deploys don't fail on a false positive.
+  # These two Supabase values are public frontend configuration by design.
   SECRETS_SCAN_OMIT_KEYS = "SUPABASE_ANON_KEY,SUPABASE_URL"
 
 [functions]
   node_bundler = "esbuild"
-  # @ffmpeg-installer/ffmpeg ships a compiled binary that's read from disk at
-  # runtime (path.join(__dirname, ...)), not require()'d — so esbuild's
-  # dependency-graph bundling has no way to know it needs to ship that file,
-  # and it silently gets left out of the deploy even though everything works
-  # in local/CI tests where node_modules is fully present. external_node_modules
-  # is Netlify's documented mechanism for exactly this case (native binaries /
-  # dynamic-path packages): it skips bundling these and ships their real,
-  # unmodified package directories (binary included) alongside the function.
-  # @napi-rs/canvas is the same story — a native .node binary for its
-  # platform package (@napi-rs/canvas-linux-x64-gnu), loaded dynamically.
-  #
-  # NOTE: this list is applied to EVERY function's bundle (global [functions]
-  # scope), so each package here adds its full size to all ~66 function
-  # bundles the build stages on disk. @ffprobe-installer (~76MB) was removed
-  # entirely once no code needed it — probeDuration/probeDimensions now parse
-  # ffmpeg's own "-i" banner (see _ffmpeg.js) — which cut ~76MB off every
-  # single bundle and is what got the build back under Netlify's disk ceiling
-  # after adding a new function first tipped it over.
-  external_node_modules = ["@ffmpeg-installer/ffmpeg", "@ffmpeg-installer/linux-x64", "@napi-rs/canvas", "@napi-rs/canvas-linux-x64-gnu"]
+  # IMPORTANT: do NOT set native packages in global external_node_modules here.
+  # The previous configuration force-copied ffmpeg + canvas native packages into
+  # every one of the app's many function bundles. On a fresh Netlify build this
+  # multiplied the native binaries dozens of times and exhausted the build disk
+  # (ENOSPC). Normal esbuild dependency tracing is used for this recovery deploy.
+  # Media functions that genuinely need a native binary can be scoped separately
+  # after the core app is online and tested.
 
 # ---- Clean routes for the hosted app ----
-# The new Fuse Studio landing is the front door.
 [[redirects]]
   from = "/"
   to = "/app/index.html"
@@ -49,17 +31,6 @@
   to = "/app/studio.html"
   status = 200
 
-# Fuse Atelier sales page — served on THIS same domain/site at /atelier
-# (no second Netlify site needed). publish = "." already exposes
-# atelier-site/ as real files; these three rules just rewrite the clean
-# /atelier URL to it while keeping its own relative asset paths
-# (assets/*, proof/*) working, since the browser resolves those against
-# whatever URL is in the address bar. All three are 200 rewrites (proxy,
-# not redirect) -- a 301 here previously bounced /atelier -> /atelier/
-# and back, since Netlify's redirect matching didn't treat the trailing
-# slash as a different path, so the browser looped forever
-# (ERR_TOO_MANY_REDIRECTS). A 200 never changes the URL the browser
-# sees, so that loop can't happen.
 [[redirects]]
   from = "/atelier"
   to = "/atelier-site/index.html"
@@ -77,10 +48,6 @@
   to = "/atelier-site/:splat"
   status = 200
 
-# Fuse Atelier landing-page A/B test, Variant B (single flat-price bundle
-# instead of the 3-tier menu) -- same folder, same 200-rewrite pattern as
-# /atelier above. Real content, real testimonials, real proof -- just a
-# different structure/offer to test against the original at /atelier.
 [[redirects]]
   from = "/atelier-b"
   to = "/atelier-site/index-b.html"
@@ -98,9 +65,6 @@
   to = "/atelier-site/:splat"
   status = 200
 
-# Fuse Atelier Starter-only landing page (single-tier squeeze page for the
-# ₦10,000 tier, same structure/pattern as /atelier-b above but scoped to
-# just the Starter bundle) -- same folder, same 200-rewrite pattern.
 [[redirects]]
   from = "/atelier-starter"
   to = "/atelier-site/index-starter.html"
@@ -118,9 +82,6 @@
   to = "/atelier-site/:splat"
   status = 200
 
-# The Money Engine -- standalone client-getting system, sold on its own
-# (NOT part of the Fuse Atelier course funnel) -- same folder, same
-# 200-rewrite pattern as /atelier above.
 [[redirects]]
   from = "/money-engine"
   to = "/atelier-site/money-engine.html"
@@ -138,9 +99,6 @@
   to = "/atelier-site/:splat"
   status = 200
 
-# Insider promo page (limited-slot discount codes, e.g. $500 Dollar Week ->
-# Fuse Atelier cross-sell) -- served from the same atelier-site/ folder,
-# same 200-rewrite pattern as /atelier above.
 [[redirects]]
   from = "/insider"
   to = "/atelier-site/insider.html"
@@ -157,4 +115,3 @@
   from = "/app"
   to = "/app/index.html"
   status = 200
-
