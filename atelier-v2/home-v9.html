@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#02110f">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Fuse Atelier — Premium Mobile Home V9</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f;color:#f8fff9;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+#stage{position:fixed;inset:0;width:100%;height:100%;border:0;background:#02110f;opacity:0;transition:opacity .18s ease}
+.loader{position:fixed;inset:0;display:grid;place-items:center;background:#02110f;z-index:2}
+.loader-inner{text-align:center}
+.mark{width:46px;height:46px;border-radius:15px;margin:0 auto 11px;background:linear-gradient(135deg,#ffe568,#baff63 70%,#fff);display:grid;place-items:center;color:#07120f;font-size:23px;font-weight:950;box-shadow:0 16px 44px rgba(186,255,99,.14)}
+.loader b{font-size:13px}.loader p{margin:5px 0 0;color:#789087;font-size:10px}
+.ready #stage{opacity:1}.ready .loader{display:none}
+</style>
+</head>
+<body>
+<div class="loader"><div class="loader-inner"><div class="mark">✦</div><b>Loading Fuse Atelier</b><p>Preparing high-quality motion.</p></div></div>
+<iframe id="stage" src="./home-v6.html?v=20260902-0058" title="Fuse Atelier"></iframe>
+<script>
+(()=>{
+  const stage=document.getElementById('stage');
+  const media={
+    left:{
+      primary:'https://drive.google.com/uc?export=download&id=1x9pyHD1UY_WR08Cid5FbMyKN01jWvmJ6',
+      retry:'https://drive.usercontent.google.com/download?id=1x9pyHD1UY_WR08Cid5FbMyKN01jWvmJ6&export=download&confirm=t'
+    },
+    right:{
+      primary:'https://drive.google.com/uc?export=download&id=1mYB-50Jdd7NLeJyG_STnQHTla9jbCTkY',
+      retry:'https://drive.usercontent.google.com/download?id=1mYB-50Jdd7NLeJyG_STnQHTla9jbCTkY&export=download&confirm=t'
+    }
+  };
+  let tries=0,patched=false;
+
+  function innerDoc(){
+    try{
+      const outer=stage.contentDocument;
+      const app=outer&&outer.getElementById('app');
+      return app&&app.contentDocument;
+    }catch(e){return null}
+  }
+
+  function configure(v){
+    v.muted=true;
+    v.defaultMuted=true;
+    v.autoplay=true;
+    v.loop=true;
+    v.playsInline=true;
+    v.controls=false;
+    v.preload='auto';
+    v.setAttribute('muted','');
+    v.setAttribute('autoplay','');
+    v.setAttribute('loop','');
+    v.setAttribute('playsinline','');
+    v.setAttribute('webkit-playsinline','');
+    v.setAttribute('disablepictureinpicture','');
+    v.removeAttribute('poster');
+    v.style.width='100%';
+    v.style.height='100%';
+    v.style.objectFit='cover';
+    v.style.objectPosition='center center';
+    v.style.filter='none';
+    v.style.transform='none';
+    v.style.imageRendering='auto';
+  }
+
+  function replaceExact(old,item){
+    if(!old)return null;
+    const v=old.cloneNode(false);
+    configure(v);
+    v.dataset.sourceQuality='user-original-compressed';
+    v.dataset.delivery='primary';
+    old.replaceWith(v);
+
+    let retried=false;
+    const play=()=>{
+      const p=v.play();
+      if(p&&p.catch)p.catch(()=>{});
+    };
+    v.addEventListener('loadeddata',play);
+    v.addEventListener('canplay',play);
+    v.addEventListener('error',()=>{
+      if(retried)return;
+      retried=true;
+      v.dataset.delivery='retry';
+      v.src=item.retry;
+      v.load();
+      setTimeout(play,180);
+    });
+    v.src=item.primary;
+    v.load();
+    setTimeout(play,120);
+    setTimeout(play,520);
+    setTimeout(play,1200);
+    return v;
+  }
+
+  function patch(){
+    if(patched)return;
+    tries++;
+    const d=innerDoc();
+    const vids=d&&[...d.querySelectorAll('.hero-card video')];
+    if(!d||!vids||vids.length<3){
+      if(tries<160)return setTimeout(patch,100);
+      document.body.classList.add('ready');
+      return;
+    }
+
+    replaceExact(vids[0],media.left);
+    replaceExact(vids[2],media.right);
+
+    const labels=[['Creator UGC','Skincare ad'],['Product Story','Campaign film'],['Fuse Twin','Avatar content']];
+    d.querySelectorAll('.hero-label').forEach((el,i)=>{
+      if(labels[i])el.innerHTML=labels[i][0]+'<small>'+labels[i][1]+'</small>';
+    });
+
+    const css=d.createElement('style');
+    css.textContent=`
+      .hero-card video{filter:none!important;transform:none!important;image-rendering:auto!important;backface-visibility:hidden!important}
+      .hero-card{background:#061914!important;isolation:isolate}
+      .hero-card:after{pointer-events:none}
+      @media(max-width:620px){
+        .hero-art{height:166px!important;gap:7px!important;padding:7px!important}
+        .hero-card{height:152px!important;border-radius:14px!important}
+        .hero-card video{object-fit:cover!important;object-position:center center!important}
+      }
+      @media(max-width:390px){
+        .hero-art{height:156px!important}
+        .hero-card{height:142px!important}
+      }
+    `;
+    d.head.appendChild(css);
+    d.documentElement.dataset.heroQuality='original-user-compressed';
+    patched=true;
+    document.body.classList.add('ready');
+  }
+
+  stage.addEventListener('load',()=>{
+    setTimeout(patch,120);
+    setTimeout(patch,450);
+    setTimeout(patch,950);
+  });
+  setTimeout(patch,500);
+  setTimeout(()=>document.body.classList.add('ready'),2600);
+})();
+</script>
+</body>
+</html>
