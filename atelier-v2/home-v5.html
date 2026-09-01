@@ -1,1 +1,369 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#02110f"><title>Fuse Atelier — Motion Home</title><style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f}iframe{border:0;width:100%;height:100%;display:block;background:#02110f}</style></head><body><iframe id="app" src="./home-v4.html" title="Fuse Atelier"></iframe><script>(()=>{const frame=document.getElementById('app');const pad=n=>String(n).padStart(2,'0');const pool=[];for(let n=1;n<=26;n++)pool.push({src:'/atelier-site/assets/work/work-'+pad(n)+'.mp4',poster:'/atelier-site/assets/work/work-'+pad(n)+'-poster.jpg'});pool.push({src:'/app/media/samples/vid1.mp4',poster:'/app/media/samples/s1.jpg'},{src:'/app/media/samples/vid2.mp4',poster:'/app/media/samples/s2.jpg'},{src:'/app/media/samples/vid3.mp4',poster:'/app/media/samples/s3.jpg'},{src:'/app/media/samples/vid4.mp4',poster:'/app/media/samples/s4.jpg'},{src:'/app/media/samples/vid5.mp4',poster:'/app/media/samples/s5.jpg'},{src:'/app/media/showcase/vid-ugc-skincare.mp4',poster:'/atelier-site/assets/showcase/vid-ugc-skincare-poster.jpg'},{src:'/app/media/showcase/vid-cgi-explosion.mp4',poster:'/atelier-site/assets/showcase/vid-cgi-explosion-poster.jpg'},{src:'/app/media/showcase/vid-ai-avatar-man.mp4',poster:'/atelier-site/assets/showcase/vid-ai-avatar-man-poster.jpg'},{src:'/app/media/showcase/vid-fuse-office.mp4',poster:'/atelier-site/assets/showcase/vid-fuse-office-poster.jpg'});let cursor=0;const next=()=>pool[cursor++%pool.length];function patch(){let d,w;try{d=frame.contentDocument;w=frame.contentWindow}catch(e){return}if(!d||!d.querySelector('.hero-card'))return setTimeout(patch,120);if(d.documentElement.dataset.motionV5)return;d.documentElement.dataset.motionV5='1';const css=d.createElement('style');css.textContent='.hero-card video,.lesson-thumb video,.thumb video,.workflow-card video,.reel-media video,.earn-media video,.work-visual video,.first20-grid video{width:100%;height:100%;object-fit:cover;object-position:center center;display:block;background:#061713}.hero-card video,.workflow-card video,.thumb video,.reel-media video,.earn-media video,.work-visual video,.lesson-thumb video{position:absolute;inset:0}.hero-card,.workflow-card,.thumb,.reel-media,.earn-media,.work-visual,.lesson-thumb{position:relative;overflow:hidden}.hero-card video{transform:scale(1.01)}.live-pill{pointer-events:none}.first20-grid video{border-radius:11px;min-width:0}video::-webkit-media-controls{display:none!important}@media(max-width:620px){.hero-card video{object-position:center 38%}}';d.head.appendChild(css);const make=(item,priority=false)=>{const v=d.createElement('video');v.src=item.src;if(item.poster)v.poster=item.poster;v.muted=true;v.defaultMuted=true;v.autoplay=true;v.loop=true;v.playsInline=true;v.preload=priority?'auto':'metadata';v.setAttribute('muted','');v.setAttribute('autoplay','');v.setAttribute('loop','');v.setAttribute('playsinline','');v.setAttribute('disablepictureinpicture','');if(priority)v.dataset.priority='1';return v};const replace=(img,priority=false)=>{if(!img)return;const v=make(next(),priority);if(img.className)v.className=img.className;img.replaceWith(v)};[...d.querySelectorAll('.hero-card img')].forEach(img=>replace(img,true));[...d.querySelectorAll('.lesson-thumb img')].forEach(img=>replace(img));[...d.querySelectorAll('.tools img')].forEach(img=>replace(img));[...d.querySelectorAll('.workflow-card img')].forEach(img=>replace(img));[...d.querySelectorAll('.reel-media img')].forEach(img=>replace(img));[...d.querySelectorAll('.earn-media img')].forEach(img=>replace(img));[...d.querySelectorAll('.work-visual img')].forEach(img=>replace(img));[...d.querySelectorAll('.first20-grid img')].forEach(img=>replace(img));const h=[...d.querySelectorAll('.section .head h2')].find(x=>/first 20 ai videos/i.test(x.textContent));if(h)h.textContent='Your AI work in motion';const vault=d.querySelector('.first20-copy p');if(vault)vault.textContent='A growing library of real AI video work across UGC, beauty, fashion, product and campaign concepts — shown in motion, with more variety and far less repetition.';const videos=[...d.querySelectorAll('video')];const play=v=>{v.muted=true;v.defaultMuted=true;v.playsInline=true;const p=v.play();if(p&&p.catch)p.catch(()=>{})};const tune=()=>{const H=w.innerHeight||800;videos.forEach(v=>{const r=v.getBoundingClientRect();const near=r.bottom>-220&&r.top<H+220;if(near){v.dataset.inview='1';play(v)}else{v.dataset.inview='0';if(!v.dataset.priority)v.pause()}})};let ticking=false;w.addEventListener('scroll',()=>{if(ticking)return;ticking=true;w.requestAnimationFrame(()=>{tune();ticking=false})},{passive:true});w.addEventListener('resize',tune,{passive:true});d.addEventListener('visibilitychange',()=>{if(d.hidden)videos.forEach(v=>v.pause());else tune()});videos.filter(v=>v.dataset.priority==='1').forEach(play);setTimeout(tune,80);setTimeout(tune,700)}frame.addEventListener('load',()=>setTimeout(patch,100));setTimeout(patch,450);setTimeout(patch,1200)})()</script></body></html>
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#02110f">
+<title>Fuse Atelier — Home V5 Motion</title>
+<style>
+html,body{margin:0;min-height:100%;background:#02110f;color:#f8fff9;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+.loading{min-height:100vh;display:grid;place-items:center;text-align:center}
+.mark{width:58px;height:58px;border-radius:18px;margin:0 auto 14px;background:linear-gradient(135deg,#ffe568,#baff63 70%,#fff);display:grid;place-items:center;color:#07120f;font-size:28px;font-weight:950;box-shadow:0 20px 60px rgba(186,255,99,.15)}
+.loading b{font-size:20px}.loading p{color:#8ca39b;margin:6px 0 0;font-size:13px}
+</style>
+</head>
+<body>
+<div class="loading"><div><div class="mark">✦</div><b>Loading Fuse Atelier</b><p>Bringing your creative work to life.</p></div></div>
+<script>
+(async()=>{
+  const r=await fetch('./home-v3.html',{cache:'no-store'});
+  const t=await r.text();
+  const parser=new DOMParser();
+  const d=parser.parseFromString(t,'text/html');
+
+  const pad=n=>String(n).padStart(2,'0');
+  const pool=[];
+  for(let n=1;n<=26;n++){
+    pool.push({
+      src:'/atelier-site/assets/work/work-'+pad(n)+'.mp4',
+      poster:'/atelier-site/assets/work/work-'+pad(n)+'-poster.jpg'
+    });
+  }
+  pool.push(
+    {src:'/app/media/samples/vid1.mp4',poster:'/app/media/samples/s1.jpg'},
+    {src:'/app/media/samples/vid2.mp4',poster:'/app/media/samples/s2.jpg'},
+    {src:'/app/media/samples/vid3.mp4',poster:'/app/media/samples/s3.jpg'},
+    {src:'/app/media/samples/vid4.mp4',poster:'/app/media/samples/s4.jpg'},
+    {src:'/app/media/samples/vid5.mp4',poster:'/app/media/samples/s5.jpg'},
+    {src:'/app/media/showcase/vid-ugc-skincare.mp4',poster:'/atelier-site/assets/showcase/vid-ugc-skincare-poster.jpg'},
+    {src:'/app/media/showcase/vid-cgi-explosion.mp4',poster:'/atelier-site/assets/showcase/vid-cgi-explosion-poster.jpg'},
+    {src:'/app/media/showcase/vid-ai-avatar-man.mp4',poster:'/atelier-site/assets/showcase/vid-ai-avatar-man-poster.jpg'},
+    {src:'/app/media/showcase/vid-fuse-office.mp4',poster:'/atelier-site/assets/showcase/vid-fuse-office-poster.jpg'}
+  );
+  let cursor=0;
+  const nextVideo=()=>pool[cursor++ % pool.length];
+
+  function makeVideo(item,priority=false){
+    const v=d.createElement('video');
+    v.src=item.src;
+    if(item.poster)v.poster=item.poster;
+    v.muted=true;
+    v.defaultMuted=true;
+    v.autoplay=true;
+    v.loop=true;
+    v.playsInline=true;
+    v.controls=false;
+    v.preload=priority?'auto':'metadata';
+    v.setAttribute('muted','');
+    v.setAttribute('autoplay','');
+    v.setAttribute('loop','');
+    v.setAttribute('playsinline','');
+    v.setAttribute('webkit-playsinline','');
+    v.setAttribute('disablepictureinpicture','');
+    if(priority)v.dataset.priority='1';
+    return v;
+  }
+
+  function replaceImg(img,item,priority=false){
+    if(!img)return null;
+    const v=makeVideo(item,priority);
+    if(img.className)v.className=img.className;
+    img.replaceWith(v);
+    return v;
+  }
+
+  d.querySelectorAll('a').forEach(a=>{
+    if((a.getAttribute('href')||'').includes('drive.google.com')){
+      a.removeAttribute('href');
+      a.removeAttribute('target');
+    }
+  });
+
+  const search=d.querySelector('.search');
+  if(search){
+    const shortcuts=d.createElement('div');
+    shortcuts.className='outcome-shortcuts';
+    shortcuts.innerHTML='<button data-q="Create a beauty campaign">Beauty campaign</button><button data-q="Make a creator UGC ad">UGC ad</button><button data-q="Create a luxury product visual">Product visual</button><button data-q="Make a fashion campaign">Fashion</button>';
+    search.insertAdjacentElement('afterend',shortcuts);
+  }
+
+  const h1=d.querySelector('.hero h1');
+  if(h1)h1.innerHTML='Create work <em>people will pay for.</em>';
+  const hp=d.querySelector('.hero p');
+  if(hp)hp.textContent='Learn a skill, build client-ready work, package the service and move straight into client acquisition.';
+
+  const heroArt=d.querySelector('.hero-art');
+  if(heroArt){
+    const heroCopy=[
+      ['AI campaign','Client-ready motion'],
+      ['Product story','Built to sell the idea'],
+      ['Creator visual','Made in Fuse']
+    ];
+    heroArt.innerHTML='';
+    heroCopy.forEach((copy,n)=>{
+      const card=d.createElement('article');
+      card.className='hero-card motion-card';
+      card.style.cursor='pointer';
+      card.appendChild(makeVideo(nextVideo(),true));
+      const label=d.createElement('span');
+      label.className='hero-label';
+      label.innerHTML=copy[0]+'<small>'+copy[1]+'</small>';
+      card.appendChild(label);
+      if(n===0){
+        const pill=d.createElement('span');
+        pill.className='live-pill';
+        pill.textContent='PLAYING';
+        card.appendChild(pill);
+      }
+      heroArt.appendChild(card);
+    });
+  }
+
+  const lessonImg=d.querySelector('.lesson-thumb img');
+  if(lessonImg)replaceImg(lessonImg,nextVideo());
+
+  const createImgs=[...d.querySelectorAll('.tools img')];
+  createImgs.forEach(img=>replaceImg(img,nextVideo()));
+
+  const tools=d.querySelector('.tools');
+  if(tools){
+    const workflow=d.createElement('section');
+    workflow.className='section workflow-section';
+    workflow.id='popular-workflows';
+    const workflowData=[
+      ['UGC','Creator Ad Sprint','Build a native-looking social ad and package it as a starter service.'],
+      ['FASHION','Luxury Product Story','Create a premium visual set for fashion and ecommerce brands.'],
+      ['BEAUTY','Beauty Campaign Kit','Turn one concept into client-ready key visuals and short-form creative.'],
+      ['PRODUCT','Surreal Product Concept','Pitch memorable product advertising without a physical shoot.']
+    ];
+    workflow.innerHTML='<div class="head"><div><div class="eyebrow">Popular workflows</div><h2>Start with something sellable</h2></div><span class="more">Built for client work</span></div><div class="workflow-grid"></div>';
+    const grid=workflow.querySelector('.workflow-grid');
+    workflowData.forEach(row=>{
+      const card=d.createElement('article');
+      card.className='workflow-card motion-card';
+      card.appendChild(makeVideo(nextVideo()));
+      const overlay=d.createElement('div');
+      overlay.className='workflow-overlay';
+      overlay.innerHTML='<span>'+row[0]+'</span><h3>'+row[1]+'</h3><p>'+row[2]+'</p><b>Learn → Create → Sell</b>';
+      card.appendChild(overlay);
+      grid.appendChild(card);
+    });
+    tools.closest('.section')?.insertAdjacentElement('afterend',workflow);
+  }
+
+  const sectionHeads=[...d.querySelectorAll('.section .head h2')];
+  const archiveHead=sectionHeads.find(x=>/creative archive|your ai work/i.test(x.textContent));
+  if(archiveHead){
+    archiveHead.textContent='Your AI work in motion';
+    const section=archiveHead.closest('.section');
+    section.id='creator-vault';
+    const reels=section?.querySelector('.reels');
+    if(reels){
+      const cards=[
+        ['Campaign Motion','AI creative'],
+        ['Creator UGC','Social ad'],
+        ['Product Story','Brand visual'],
+        ['Fashion Cut','Editorial motion'],
+        ['Commercial Concept','Client-ready idea']
+      ];
+      reels.innerHTML='';
+      cards.forEach((copy,n)=>{
+        const card=d.createElement('article');
+        card.className='reel motion-card';
+        card.dataset.vault=String(n);
+        const media=d.createElement('div');
+        media.className='reel-media';
+        media.appendChild(makeVideo(nextVideo()));
+        const text=d.createElement('div');
+        text.className='reel-copy';
+        text.innerHTML='<b>'+copy[0]+'</b><span>'+copy[1]+'</span>';
+        card.append(media,text);
+        reels.appendChild(card);
+      });
+    }
+  }
+
+  const earn=d.querySelector('.earn-copy');
+  if(earn){
+    const h=earn.querySelector('h2');
+    if(h)h.textContent='AI Product Campaigns';
+    const q=earn.querySelector('p');
+    if(q)q.textContent='Fashion, beauty and ecommerce brands buy launch visuals, short-form ads and product concepts like these.';
+    const em=d.querySelector('.earn-media');
+    if(em){
+      const old=em.querySelector('img');
+      if(old)replaceImg(old,nextVideo());
+    }
+  }
+
+  const cats=['beauty','fashion','ugc','product','beauty','fashion','ugc','product'];
+  const workNames=['Campaign Motion','Luxury Product Film','Creator UGC Cut','Product Concept','Beauty Story','Fashion Editorial','Social Ad Concept','Premium Commercial'];
+  const workSell=['Beauty campaign','Fashion launch','Creator ad','Product story','Key visual','Editorial sample','Social ad','Premium commercial'];
+  d.querySelectorAll('.work').forEach((w,n)=>{
+    w.removeAttribute('href');
+    w.removeAttribute('target');
+    w.dataset.cat=cats[n%cats.length];
+    const img=w.querySelector('.work-visual img');
+    if(img)replaceImg(img,nextVideo());
+    const b=w.querySelector('.work-copy b');
+    if(b)b.textContent=workNames[n%workNames.length];
+    const s=w.querySelector('.sell-tag');
+    if(s)s.textContent='Sell as: '+workSell[n%workSell.length];
+  });
+
+  const filters=d.querySelectorAll('.filter');
+  const filterKeys=['all','beauty','ugc','product','fashion','all'];
+  filters.forEach((f,n)=>f.dataset.key=filterKeys[n]||'all');
+
+  const made=[...d.querySelectorAll('.section')].find(s=>s.querySelector('.head h2')?.textContent.trim()==='Made in Fuse');
+  if(made){
+    made.id='made-in-fuse';
+    const block=d.createElement('section');
+    block.className='creator-motion-vault';
+    const grid=d.createElement('div');
+    grid.className='creator-motion-grid';
+    for(let i=0;i<4;i++)grid.appendChild(makeVideo(nextVideo()));
+    const copy=d.createElement('div');
+    copy.className='creator-motion-copy';
+    copy.innerHTML='<span class="creator-motion-chip">CREATOR VAULT</span><h2>Your AI work should sell the possibilities.</h2><p>A growing library of real AI video work across UGC, beauty, fashion, product and campaign concepts — now shown as motion instead of repeated stills.</p><div class="creator-motion-tags"><span>UGC</span><span>BEAUTY</span><span>FASHION</span><span>PRODUCT</span></div>';
+    block.append(grid,copy);
+    made.parentNode.insertBefore(block,made);
+  }
+
+  d.querySelectorAll('img[src*="drive.google.com"]').forEach(img=>replaceImg(img,nextVideo()));
+
+  const style=d.createElement('style');
+  style.textContent=`
+    .outcome-shortcuts{display:flex;gap:7px;overflow:auto;margin:9px 0 0;scrollbar-width:none}
+    .outcome-shortcuts::-webkit-scrollbar{display:none}
+    .outcome-shortcuts button{white-space:nowrap;border:1px solid #1f463c;background:#061b17;color:#91aaa0;border-radius:999px;padding:8px 11px;font-size:10px;font-weight:800}
+    .outcome-shortcuts button:hover{border-color:#4c776b;color:#eaffdc}
+    .hero-art{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important;overflow:hidden}
+    .hero-stack{display:contents!important}
+    .hero-card{min-height:370px!important}
+    .hero-label small{display:block;color:#c5d8d0;font-weight:600;margin-top:2px}
+    .hero-card video,.lesson-thumb video,.thumb video,.reel-media video,.earn-media video,.work-visual video,.workflow-card video,.creator-motion-grid video{
+      width:100%;height:100%;object-fit:cover;object-position:center center;display:block;background:#061713
+    }
+    .hero-card video{position:absolute;inset:0;object-position:center 38%}
+    .thumb video,.lesson-thumb video,.reel-media video,.earn-media video,.work-visual video{position:absolute;inset:0}
+    .lesson-thumb,.thumb,.reel-media,.earn-media,.work-visual{position:relative;overflow:hidden}
+    .motion-card video{transform:scale(1.001)}
+    .workflow-section{scroll-margin-top:125px}
+    .workflow-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .workflow-card{min-height:310px;position:relative;border-radius:21px;overflow:hidden;border:1px solid #244d42;background:#071c18;cursor:pointer;transition:.2s ease}
+    .workflow-card video{position:absolute;inset:0}
+    .workflow-card:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,17,15,.01) 16%,rgba(2,17,15,.94) 84%);z-index:1}
+    .workflow-overlay{position:absolute;z-index:2;left:0;right:0;bottom:0;padding:17px}
+    .workflow-overlay span{font-size:9px;color:#baff63;font-weight:950;letter-spacing:.12em}
+    .workflow-overlay h3{margin:5px 0 5px;font-size:18px}
+    .workflow-overlay p{margin:0 0 10px;color:#a2b7af;font-size:11px;line-height:1.45}
+    .workflow-overlay b{font-size:10px;color:#f3ffed}
+    .workflow-card:hover{transform:translateY(-3px);border-color:#4f7a6d}
+    .creator-motion-vault{margin-top:34px;border:1px solid #2c5d50;border-radius:24px;overflow:hidden;background:linear-gradient(130deg,#071c18,#0b2d26);display:grid;grid-template-columns:.95fr 1.05fr}
+    .creator-motion-grid{min-height:310px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:5px;padding:6px}
+    .creator-motion-grid video{min-width:0;border-radius:11px}
+    .creator-motion-copy{padding:28px;display:flex;flex-direction:column;justify-content:center}
+    .creator-motion-copy h2{margin:9px 0 0;font-size:30px}
+    .creator-motion-copy p{color:#8ca39b;line-height:1.5}
+    .creator-motion-chip{display:inline-flex;align-self:flex-start;padding:7px 10px;border:1px solid #3a6b5d;border-radius:999px;color:#baff63;font-size:10px;font-weight:900;letter-spacing:.08em}
+    .creator-motion-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+    .creator-motion-tags span{padding:7px 9px;border-radius:999px;background:#0c3028;border:1px solid #315d52;font-size:9px;font-weight:900}
+    .work.hidden-by-filter{display:none!important}
+    video::-webkit-media-controls{display:none!important}
+    @media(max-width:880px){
+      .workflow-grid{grid-template-columns:repeat(2,1fr)}
+      .hero-art{min-height:340px!important}
+      .hero-card{min-height:340px!important}
+    }
+    @media(max-width:700px){
+      .creator-motion-vault{grid-template-columns:1fr}
+      .creator-motion-grid{min-height:260px}
+      .creator-motion-copy{padding:20px}
+      .workflow-grid{display:flex;overflow:auto;scrollbar-width:none}
+      .workflow-grid::-webkit-scrollbar{display:none}
+      .workflow-card{min-width:225px;min-height:300px}
+      .hero-art{display:flex!important;overflow-x:auto!important;scroll-snap-type:x mandatory;padding:10px!important;min-height:315px!important}
+      .hero-art::-webkit-scrollbar{display:none}
+      .hero-card{min-width:72%;min-height:295px!important;scroll-snap-align:start}
+    }
+  `;
+  d.head.appendChild(style);
+
+  const behavior=d.createElement('script');
+  behavior.textContent=`
+    setTimeout(()=>{
+      const tryPlay=v=>{
+        v.muted=true;
+        v.defaultMuted=true;
+        v.playsInline=true;
+        v.setAttribute('muted','');
+        v.setAttribute('playsinline','');
+        v.setAttribute('webkit-playsinline','');
+        const promise=v.play();
+        if(promise&&promise.catch)promise.catch(()=>{});
+      };
+      const videos=[...document.querySelectorAll('video')];
+      videos.forEach(v=>{
+        v.muted=true;
+        v.defaultMuted=true;
+        v.loop=true;
+        v.playsInline=true;
+        v.setAttribute('muted','');
+        v.setAttribute('playsinline','');
+        v.setAttribute('webkit-playsinline','');
+        v.addEventListener('loadedmetadata',()=>{if(v.currentTime===0){try{v.currentTime=.05}catch(e){}}},{once:true});
+      });
+      document.querySelectorAll('video[data-priority="1"]').forEach(tryPlay);
+      if('IntersectionObserver' in window){
+        const io=new IntersectionObserver(entries=>{
+          entries.forEach(entry=>{
+            const v=entry.target;
+            v.dataset.inview=entry.isIntersecting?'1':'0';
+            if(entry.isIntersecting)tryPlay(v); else if(!v.dataset.priority)v.pause();
+          });
+        },{rootMargin:'220px 0px',threshold:.04});
+        videos.forEach(v=>io.observe(v));
+      }else{
+        videos.forEach(tryPlay);
+      }
+      const retryVisible=()=>videos.forEach(v=>{if(v.dataset.inview==='1'||v.dataset.priority==='1')tryPlay(v)});
+      document.addEventListener('pointerdown',retryVisible,{once:true,passive:true});
+      document.addEventListener('touchstart',retryVisible,{once:true,passive:true});
+      document.addEventListener('visibilitychange',()=>{
+        videos.forEach(v=>{
+          if(document.hidden)v.pause();
+          else if(v.dataset.inview==='1'||v.dataset.priority==='1')tryPlay(v);
+        });
+      });
+      const q=document.querySelector('.search input');
+      document.querySelectorAll('.outcome-shortcuts button').forEach(b=>b.addEventListener('click',()=>{if(q){q.value=b.dataset.q;q.focus()}}));
+      const tabs=[...document.querySelectorAll('.tabs button')];
+      const targets=['.hero','#popular-workflows','.path','.creator-motion-vault'];
+      tabs.forEach((b,n)=>b.addEventListener('click',()=>{
+        tabs.forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');
+        const target=document.querySelector(targets[n]);
+        if(target&&n>0)target.scrollIntoView({behavior:'smooth',block:'start'});
+      }));
+      document.querySelectorAll('.filter').forEach(f=>f.addEventListener('click',()=>{
+        const key=f.dataset.key||'all';
+        document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));
+        f.classList.add('active');
+        document.querySelectorAll('.work').forEach(w=>w.classList.toggle('hidden-by-filter',key!=='all'&&w.dataset.cat!==key));
+      }));
+      const sheet=document.querySelector('.sheet');
+      document.querySelectorAll('.tool,.workflow-card,.hero-card').forEach(el=>el.addEventListener('click',()=>sheet?.classList.add('open')));
+    },80);
+  `;
+  d.body.appendChild(behavior);
+
+  document.open();
+  document.write('<!doctype html>'+d.documentElement.outerHTML);
+  document.close();
+})().catch(e=>{
+  document.body.innerHTML='<div class="loading"><div><div class="mark">!</div><b>Fuse preview could not load</b><p>'+e.message+'</p></div></div>';
+});
+</script>
+</body>
+</html>
