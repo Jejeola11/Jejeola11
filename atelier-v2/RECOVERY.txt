@@ -1,0 +1,1 @@
+Fuse Atelier V2 recovery marker. The preview is being moved away from runtime cross-origin loading to a fully static deployment.
