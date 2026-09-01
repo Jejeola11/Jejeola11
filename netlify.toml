@@ -19,6 +19,14 @@
   # Media functions that genuinely need a native binary can be scoped separately
   # after the core app is online and tested.
 
+# Keep the live V2 review uncached while the UI is changing rapidly.
+[[headers]]
+  for = "/atelier-v2/*"
+  [headers.values]
+    Cache-Control = "no-store, no-cache, must-revalidate, max-age=0"
+    Pragma = "no-cache"
+    Expires = "0"
+
 # ---- Clean routes for the hosted app ----
 [[redirects]]
   from = "/"
