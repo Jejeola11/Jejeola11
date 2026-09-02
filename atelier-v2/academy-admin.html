@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#03110e">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<title>Fuse Academy Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#03110e;--bg2:#061b16;--panel:#08251e;--panel2:#0b3027;--line:rgba(129,205,180,.22);--line2:rgba(186,255,99,.2);--text:#f5fff9;--muted:#88a39a;--lime:#BAFF63;--yellow:#FFE568;--danger:#ff8d8d;--grad:linear-gradient(105deg,#FFE568 0%,#dfff61 48%,#BAFF63 78%,#fff 145%);--shadow:0 24px 80px rgba(0,0,0,.32)}
+*{box-sizing:border-box}html{background:var(--bg);scroll-behavior:smooth}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -18%,rgba(186,255,99,.09),transparent 34%),radial-gradient(circle at 100% 20%,rgba(255,229,104,.035),transparent 28%),var(--bg);color:var(--text);font-family:Archivo,system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:52px}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.55}a{color:inherit;text-decoration:none}.hidden{display:none!important}
+.shell{width:min(1180px,calc(100% - 24px));margin:auto}.top{position:sticky;top:0;z-index:60;background:rgba(3,17,14,.94);backdrop-filter:blur(18px);border-bottom:1px solid rgba(186,255,99,.09)}.top-in{height:72px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-family:"Bricolage Grotesque",sans-serif;font-size:20px;font-weight:800;letter-spacing:-.045em}.brand span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}.top-actions{display:flex;align-items:center;gap:8px}.account{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:10px}.icon-btn,.ghost,.primary,.danger-btn,.mini-btn{border-radius:12px;font-weight:800}.icon-btn,.ghost{border:1px solid var(--line);background:#09231d;color:#eaf6f1}.icon-btn{padding:10px 12px}.primary{border:0;background:var(--grad);color:#07130f;padding:12px 15px;box-shadow:0 10px 30px rgba(186,255,99,.1)}.ghost{padding:11px 14px}.danger-btn{border:1px solid rgba(255,141,141,.22);background:rgba(255,141,141,.09);color:#ffc7c7;padding:11px 14px}.mini-btn{border:1px solid var(--line);background:#0a2a22;color:#eef8f4;padding:8px 10px;font-size:10px}.mini-btn.primary-mini{background:var(--grad);border-color:transparent;color:#07130f}.mini-btn.danger-mini{border-color:rgba(255,141,141,.2);background:rgba(255,141,141,.07);color:#ffc7c7}
+main{padding:26px 0 50px}.eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--lime);font-weight:800}.hero{border:1px solid rgba(100,161,142,.42);border-radius:28px;background:linear-gradient(135deg,#071e19,#0a3027);padding:28px;box-shadow:var(--shadow);overflow:hidden;position:relative}.hero:after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-100px;top:-145px;background:radial-gradient(circle,rgba(186,255,99,.2),transparent 67%);pointer-events:none}.hero h1{font-family:"Bricolage Grotesque",sans-serif;font-size:clamp(34px,6vw,62px);line-height:.94;letter-spacing:-.055em;margin:8px 0 10px;max-width:760px}.hero h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{max-width:680px;margin:0;color:var(--muted);font-size:13px;line-height:1.6}.hero-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.stat{border:1px solid var(--line);border-radius:18px;background:rgba(8,37,30,.85);padding:15px;min-height:92px}.stat b{font-family:"Bricolage Grotesque",sans-serif;font-size:30px;display:block;letter-spacing:-.04em}.stat span{display:block;color:var(--muted);font-size:9px;margin-top:4px;text-transform:uppercase;letter-spacing:.08em}
+.section{margin-top:26px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:12px}.section-head h2{font-family:"Bricolage Grotesque",sans-serif;font-size:27px;letter-spacing:-.04em;margin:4px 0 0}.section-head p{margin:0;color:var(--muted);font-size:10px}.course-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.course-card{border:1px solid var(--line);border-radius:23px;background:linear-gradient(145deg,#08251e,#061d18);padding:18px;box-shadow:0 18px 50px rgba(0,0,0,.16)}.course-card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.course-index{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:#0c342a;border:1px solid rgba(186,255,99,.16);color:var(--lime);font-family:"Bricolage Grotesque",sans-serif;font-weight:800}.course-card h3{font-family:"Bricolage Grotesque",sans-serif;font-size:20px;margin:14px 0 5px;letter-spacing:-.035em}.course-card p{margin:0;color:var(--muted);font-size:10px;line-height:1.45}.course-metrics{display:flex;justify-content:space-between;gap:10px;margin-top:14px;color:#c6d8d1;font-size:9px}.progress{height:7px;border-radius:999px;background:#143a31;overflow:hidden;margin:8px 0 14px}.progress i{display:block;height:100%;background:var(--grad);border-radius:inherit}.course-card .primary{width:100%}.legacy-note{border:1px solid rgba(255,229,104,.13);background:rgba(255,229,104,.035);border-radius:16px;padding:12px 14px;color:#c5d3ce;font-size:10px;line-height:1.5;margin-top:12px}
+.view-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}.view-head-left{display:flex;align-items:center;gap:10px}.back{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:#09231d;color:white;font-size:18px}.view-title h1{font-family:"Bricolage Grotesque",sans-serif;font-size:28px;letter-spacing:-.045em;margin:0}.view-title p{margin:3px 0 0;color:var(--muted);font-size:9px}.course-summary{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;border:1px solid var(--line);border-radius:20px;background:#08251e;padding:16px}.summary-copy b{font-size:13px}.summary-copy p{margin:5px 0 0;color:var(--muted);font-size:9px}.summary-numbers{display:flex;gap:7px}.summary-numbers span{padding:8px 10px;border-radius:11px;background:#0c342a;border:1px solid rgba(186,255,99,.1);font-size:9px;color:#d6e5df}
+.tools{display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:10px;margin:14px 0}.search{height:46px;border:1px solid var(--line);border-radius:14px;background:#061b16;display:flex;align-items:center;padding:0 12px;gap:8px}.search input{border:0;background:transparent;color:white;outline:0;width:100%;font-size:12px}.filters{display:flex;gap:6px;align-items:center}.filter{border:1px solid var(--line);border-radius:999px;background:#08251e;color:var(--muted);padding:9px 11px;font-size:9px;font-weight:800}.filter.active{background:var(--grad);color:#07130f;border-color:transparent}.lesson-list{display:grid;gap:9px}.lesson-row{border:1px solid var(--line);border-radius:18px;background:#071f1a;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}.lesson-kicker{font-size:8px;color:var(--lime);font-weight:800;letter-spacing:.07em;text-transform:uppercase}.lesson-title{font-family:"Bricolage Grotesque",sans-serif;font-size:16px;letter-spacing:-.025em;margin-top:4px}.lesson-key{font-size:9px;color:#6f8d83;margin-top:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.lesson-meta-line{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:8px;margin-top:7px}.lesson-right{min-width:240px;text-align:right}.status-pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 9px;font-size:8px;font-weight:800}.status-pill.connected{background:rgba(186,255,99,.1);color:#dfffaa;border:1px solid rgba(186,255,99,.14)}.status-pill.missing{background:rgba(255,255,255,.035);color:#9bb0a8;border:1px solid rgba(255,255,255,.07)}.status-dot{width:7px;height:7px;border-radius:50%;background:currentColor}.row-actions{display:flex;justify-content:flex-end;gap:5px;flex-wrap:wrap;margin-top:9px}.empty{border:1px dashed var(--line);border-radius:18px;padding:28px;text-align:center;color:var(--muted);font-size:11px}
+.editor-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,400px);gap:16px}.panel{border:1px solid var(--line);border-radius:22px;background:#08251e;padding:18px;box-shadow:0 18px 50px rgba(0,0,0,.12)}.panel h2{font-family:"Bricolage Grotesque",sans-serif;font-size:21px;letter-spacing:-.035em;margin:0 0 4px}.panel-sub{margin:0 0 17px;color:var(--muted);font-size:9px;line-height:1.5}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}.info{border:1px solid rgba(255,255,255,.055);background:#061b16;border-radius:13px;padding:10px}.info span{display:block;color:var(--muted);font-size:8px;text-transform:uppercase;letter-spacing:.07em}.info b{display:block;margin-top:4px;font-size:10px;line-height:1.4}.field{margin-top:13px}.field label{display:block;font-size:9px;font-weight:800;margin-bottom:7px;color:#d9e7e1}.field input,.field select{width:100%;height:46px;border:1px solid rgba(122,180,161,.3);border-radius:13px;background:#061b16;color:white;padding:0 12px;outline:0}.field input:focus,.field select:focus{border-color:rgba(186,255,99,.55);box-shadow:0 0 0 3px rgba(186,255,99,.07)}.hint{font-size:8px;line-height:1.45;color:var(--muted);margin-top:6px}.editor-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}.preview-box{width:min(100%,330px);aspect-ratio:9/16;margin:13px auto 0;border-radius:20px;overflow:hidden;background:#020705;border:1px solid rgba(255,255,255,.09);display:grid;place-items:center;color:var(--muted);font-size:10px;box-shadow:0 26px 70px rgba(0,0,0,.36)}.preview-box iframe{width:100%;height:100%;border:0}.preview-copy{text-align:center;padding:18px;line-height:1.5}.preview-copy b{display:block;color:#d8e7e1;margin-bottom:5px}
+.bulk-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;margin-bottom:13px}.bulk-course{width:100%;max-width:420px;height:46px;border:1px solid var(--line);border-radius:13px;background:#061b16;color:white;padding:0 12px}.bulk-list{display:grid;gap:8px}.bulk-row{display:grid;grid-template-columns:minmax(180px,1fr) minmax(260px,1.3fr) 120px;gap:8px;align-items:center;border:1px solid var(--line);border-radius:16px;background:#071f1a;padding:11px}.bulk-row.invalid{border-color:rgba(255,141,141,.55);box-shadow:0 0 0 2px rgba(255,141,141,.06)}.bulk-name b{display:block;font-size:11px}.bulk-name span{display:block;color:#6f8d83;font-size:8px;margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.bulk-row input{height:42px;border:1px solid rgba(122,180,161,.25);border-radius:11px;background:#061b16;color:white;padding:0 10px;outline:0;font-size:10px}.bulk-row input:focus{border-color:rgba(186,255,99,.5)}.bulk-footer{position:sticky;bottom:8px;margin-top:13px;border:1px solid rgba(186,255,99,.15);border-radius:17px;background:rgba(5,25,20,.95);backdrop-filter:blur(15px);padding:11px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 16px 50px rgba(0,0,0,.25)}.bulk-footer span{color:var(--muted);font-size:9px}
+.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:24px}.auth-card{width:min(480px,100%);border:1px solid rgba(100,161,142,.44);border-radius:26px;background:linear-gradient(145deg,#08251e,#061b16);padding:22px;box-shadow:var(--shadow)}.auth-brand{font-family:"Bricolage Grotesque";font-weight:800;font-size:20px}.auth-brand span{background:var(--grad);-webkit-background-clip:text;color:transparent}.auth-card h1{font-family:"Bricolage Grotesque";font-size:31px;line-height:1;letter-spacing:-.045em;margin:22px 0 8px}.auth-card p{color:var(--muted);font-size:10px;line-height:1.55;margin:0}.auth-card .field{margin-top:14px}.auth-card .primary{width:100%;margin-top:15px}.auth-message{margin-top:12px;padding:10px 12px;border-radius:12px;background:rgba(255,141,141,.08);border:1px solid rgba(255,141,141,.14);color:#ffc7c7;font-size:9px;line-height:1.45}.auth-loading{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:10px;margin-top:16px}.spinner{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.13);border-top-color:var(--lime);animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;z-index:120;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:.2s ease;background:#0b3027;border:1px solid rgba(186,255,99,.2);border-radius:14px;padding:11px 14px;box-shadow:0 20px 60px rgba(0,0,0,.35);font-size:10px;max-width:min(520px,calc(100vw - 24px));text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}.toast.bad{border-color:rgba(255,141,141,.24);color:#ffd0d0}
+dialog{border:1px solid var(--line);border-radius:22px;background:#071f1a;color:white;padding:0;box-shadow:0 30px 100px rgba(0,0,0,.6);width:min(400px,calc(100vw - 24px))}dialog::backdrop{background:rgba(0,0,0,.7);backdrop-filter:blur(5px)}.dialog-head{display:flex;justify-content:space-between;align-items:center;padding:14px 15px;border-bottom:1px solid var(--line)}.dialog-head b{font-size:12px}.dialog-close{border:0;background:transparent;color:white;font-size:20px}.dialog-body{padding:14px}.dialog-player{aspect-ratio:9/16;width:min(100%,310px);margin:auto;border-radius:18px;overflow:hidden;background:#000}.dialog-player iframe{width:100%;height:100%;border:0}
+@media(max-width:800px){.shell{width:min(100% - 16px,1180px)}.top-in{height:64px}.account{display:none}main{padding-top:16px}.hero{padding:20px;border-radius:22px}.hero h1{font-size:37px}.stats{grid-template-columns:1fr 1fr}.course-grid{grid-template-columns:1fr}.section-head h2{font-size:23px}.editor-grid{grid-template-columns:1fr}.preview-box{width:min(76vw,310px)}.lesson-row{grid-template-columns:1fr}.lesson-right{min-width:0;text-align:left}.row-actions{justify-content:flex-start}.tools{grid-template-columns:1fr}.filters{overflow:auto;padding-bottom:2px}.course-summary{grid-template-columns:1fr}.summary-numbers{flex-wrap:wrap}.bulk-head{grid-template-columns:1fr}.bulk-row{grid-template-columns:1fr}.bulk-footer{bottom:6px}.view-title h1{font-size:23px}.top-actions .ghost{padding:9px 10px;font-size:9px}}
+@media(max-width:430px){.hero h1{font-size:34px}.stats{gap:7px}.stat{min-height:82px;padding:12px}.stat b{font-size:25px}.course-card{padding:15px}.lesson-row{padding:12px}.mini-btn{font-size:9px;padding:8px}.preview-box{width:78vw}.info-grid{grid-template-columns:1fr}.editor-actions>*{flex:1}.bulk-footer{align-items:stretch;flex-direction:column}.bulk-footer .primary{width:100%}}
+</style>
+</head>
+<body>
+<div id="authGate" class="auth-wrap">
+  <section class="auth-card">
+    <div class="auth-brand">FUSE <span>ACADEMY ADMIN</span></div>
+    <div id="authLoading" class="auth-loading"><span class="spinner"></span><span>Checking your Fuse account…</span></div>
+    <div id="loginForm" class="hidden">
+      <h1>Private course admin.</h1>
+      <p>Sign in with your Fuse Atelier account. Being signed in is not enough—the backend also verifies your admin role before it allows any course-video access.</p>
+      <div class="field"><label>EMAIL</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
+      <div class="field"><label>PASSWORD</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your Fuse password"></div>
+      <button id="loginBtn" class="primary" type="button">Sign in to Academy Admin</button>
+      <div id="loginMessage" class="auth-message hidden"></div>
+    </div>
+    <div id="deniedView" class="hidden">
+      <h1>Admin access required.</h1>
+      <p>This account is a valid Fuse account, but it is not marked as an Academy administrator.</p>
+      <div class="editor-actions"><button id="deniedSignOut" class="ghost" type="button">Sign out</button></div>
+    </div>
+  </section>
+</div>
+
+<div id="app" class="hidden">
+  <header class="top"><div class="shell top-in">
+    <div class="brand">FUSE <span>ACADEMY ADMIN</span></div>
+    <div class="top-actions"><span id="accountEmail" class="account"></span><a class="ghost" href="/atelier-v2/academy-v2.html" target="_blank" rel="noopener">Open Academy</a><button id="signOutBtn" class="icon-btn" type="button">Sign out</button></div>
+  </div></header>
+
+  <main class="shell">
+    <section id="dashboardView">
+      <section class="hero">
+        <div class="eyebrow">Fuse Academy Admin</div>
+        <h1>Manage your courses, lessons and <em>video library.</em></h1>
+        <p>Choose a course, choose a lesson, paste the unlisted YouTube link, preview it in 9:16, and save. Existing course-video records are loaded automatically.</p>
+        <div class="hero-actions"><button id="dashboardBulkBtn" class="primary" type="button">Bulk add videos</button><button id="refreshBtn" class="ghost" type="button">Refresh video library</button></div>
+      </section>
+      <div id="summaryStats" class="stats"></div>
+      <section class="section">
+        <div class="section-head"><div><div class="eyebrow">Current Academy</div><h2>Choose a course</h2></div><p>Only the four learner-facing paths are shown.</p></div>
+        <div id="courseGrid" class="course-grid"></div>
+        <div id="legacyNote" class="legacy-note hidden"></div>
+      </section>
+    </section>
+
+    <section id="courseView" class="hidden">
+      <div class="view-head">
+        <div class="view-head-left"><button id="courseBack" class="back" type="button">←</button><div class="view-title"><h1 id="courseTitle">Course</h1><p id="courseSubtitle"></p></div></div>
+        <button id="courseBulkBtn" class="primary" type="button">Bulk Add</button>
+      </div>
+      <div id="courseSummary" class="course-summary"></div>
+      <div class="tools"><div class="search"><span>⌕</span><input id="lessonSearch" placeholder="Search lesson title or key…"></div><div class="filters"><button class="filter active" data-filter="all">All</button><button class="filter" data-filter="connected">Connected</button><button class="filter" data-filter="missing">Missing</button></div></div>
+      <div id="lessonList" class="lesson-list"></div>
+    </section>
+
+    <section id="editorView" class="hidden">
+      <div class="view-head"><div class="view-head-left"><button id="editorBack" class="back" type="button">←</button><div class="view-title"><h1 id="editorHeading">Lesson video</h1><p>Paste, preview, save.</p></div></div></div>
+      <div class="editor-grid">
+        <section class="panel">
+          <h2>Lesson video</h2><p class="panel-sub">The lesson identity comes directly from the current Academy curriculum.</p>
+          <div class="info-grid"><div class="info"><span>Course</span><b id="editorCourse"></b></div><div class="info"><span>Module</span><b id="editorModule"></b></div><div class="info"><span>Lesson</span><b id="editorLesson"></b></div><div class="info"><span>Lesson key</span><b id="editorKey"></b></div></div>
+          <div class="field"><label>VIDEO URL</label><input id="videoUrl" type="url" inputmode="url" placeholder="https://youtu.be/..."><div class="hint">Supports youtube.com/watch, youtu.be, YouTube Shorts, live and embed URLs. Fuse normalizes the URL before saving.</div></div>
+          <div class="field"><label>DURATION</label><input id="videoDuration" inputmode="numeric" placeholder="09:32"><div class="hint">Optional. Enter MM:SS, HH:MM:SS, or total seconds.</div></div>
+          <div id="currentStatus" class="legacy-note"></div>
+          <div class="editor-actions"><button id="saveVideoBtn" class="primary" type="button">Save Lesson Video</button><button id="removeVideoBtn" class="danger-btn" type="button">Remove video</button><button id="openAcademyBtn" class="ghost" type="button">Open in Academy</button></div>
+        </section>
+        <aside class="panel"><h2>9:16 preview</h2><p class="panel-sub">This uses a real YouTube embed—the same URL saved into the course-video library.</p><div id="editorPreview" class="preview-box"><div class="preview-copy"><b>Paste a YouTube link</b>Your vertical lesson preview appears here.</div></div></aside>
+      </div>
+    </section>
+
+    <section id="bulkView" class="hidden">
+      <div class="view-head"><div class="view-head-left"><button id="bulkBack" class="back" type="button">←</button><div class="view-title"><h1>Bulk Add Videos</h1><p>Only changed or newly entered links will be saved.</p></div></div></div>
+      <section class="panel">
+        <div class="bulk-head"><div><div class="eyebrow">Course</div><select id="bulkCourse" class="bulk-course"></select></div><div><button id="bulkRefresh" class="ghost" type="button">Reset fields</button></div></div>
+        <div id="bulkList" class="bulk-list"></div>
+        <div class="bulk-footer"><span id="bulkStatus">Paste links into any lessons you want to update. Leave the rest unchanged.</span><button id="bulkSaveBtn" class="primary" type="button">Save all videos</button></div>
+      </section>
+    </section>
+  </main>
+</div>
+
+<div id="toast" class="toast"></div>
+<dialog id="previewDialog"><div class="dialog-head"><b id="dialogTitle">Video preview</b><button id="dialogClose" class="dialog-close" type="button">×</button></div><div class="dialog-body"><div id="dialogPlayer" class="dialog-player"></div></div></dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/app/course.js?v=20260903-academy-admin"></script>
+<script src="/atelier-v2/academy-admin.js?v=20260903-admin1"></script>
+</body>
+</html>
