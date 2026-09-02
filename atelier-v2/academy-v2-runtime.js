@@ -1,0 +1,46 @@
+(()=>{
+ const stage=document.getElementById('stage');
+ if(!stage)return;
+ const fallbacks=['./media/beauty-snake.svg','./media/burger-ugc.svg','./media/luxury-bag.svg','./media/watch-chameleon.svg'];
+ let patched=false,tries=0;
+ function doc(){try{return stage.contentDocument}catch(e){return null}}
+ function safePlay(v){if(!v)return;v.muted=true;v.defaultMuted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute('muted','');v.setAttribute('autoplay','');v.setAttribute('loop','');v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');const p=v.play();if(p&&p.catch)p.catch(()=>{})}
+ function fixImages(d){[...d.querySelectorAll('img')].forEach((img,i)=>{if(img.classList.contains('continue-fallback'))return;const apply=()=>{if(img.dataset.fuseFallbackDone)return;img.dataset.fuseFallbackDone='1';img.src=fallbacks[i%fallbacks.length];img.style.objectFit='cover';img.style.objectPosition='center'};img.addEventListener('error',apply,{once:true});setTimeout(()=>{if(img.complete&&!img.naturalWidth)apply()},500)})}
+ function polishContinuePreview(d){const media=d.querySelector('.continue-media');if(!media)return;media.dataset.videoReady='1';const v=media.querySelector('video');if(v){safePlay(v);v.addEventListener('canplay',()=>safePlay(v));v.addEventListener('loadeddata',()=>safePlay(v))}}
+ function addStyles(d){if(d.getElementById('academyV2InjectedStyles'))return;const s=d.createElement('style');s.id='academyV2InjectedStyles';s.textContent=`
+ :root{--premium-line:rgba(186,255,99,.16)}
+ body{padding-bottom:78px!important;background:radial-gradient(circle at 50% -5%,rgba(186,255,99,.055),transparent 28%),#02110f!important}
+ .wrap{padding-top:10px!important}.hero{overflow:hidden!important}
+ .card,.path-card,.course-hero,.module,.quick,.lesson-card,.prompt-box{box-shadow:0 20px 60px rgba(0,0,0,.19)!important}
+ .path-card,.card,.module{border-color:rgba(83,133,117,.42)!important}
+ .continue-media,.path-media,.course-media{background:linear-gradient(135deg,#0b2e26,#061814)!important}
+ .continue-media video{filter:saturate(.98) contrast(1.02)}
+ .continue-media video,.continue-media img,.continue-media:after,.continue-badge{pointer-events:none!important}
+ .continue-media:after{background:linear-gradient(180deg,rgba(0,0,0,.04) 18%,rgba(2,17,15,.9) 100%)!important;z-index:1}.continue-badge{z-index:3!important}
+ .continue-copy,.cta-row{position:relative!important;z-index:20!important;pointer-events:auto!important}.continue{overflow:hidden!important}.continue .primary{box-shadow:0 10px 30px rgba(186,255,99,.1)!important}
+ .continue .primary,.continue .secondary{position:relative!important;z-index:21!important;pointer-events:auto!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important}
+ .bottom{height:68px!important;background:rgba(2,19,16,.97)!important;border-top-color:rgba(186,255,99,.12)!important}.bottom .nav{font-size:8px!important}
+ .lesson-view.active{padding-top:0!important}.lesson-shell{max-width:560px!important;margin:auto!important}.player-grid{display:block!important}
+ .lesson-view.active .vertical-player{width:min(76vw,310px)!important;max-height:none!important;aspect-ratio:9/16!important;margin:0 auto!important;border-radius:24px!important;border:1px solid rgba(255,255,255,.11)!important;box-shadow:0 30px 88px rgba(0,0,0,.58)!important;background:#000!important}
+ .lesson-view.active .vertical-player video{object-fit:contain!important;background:#000!important}.lesson-view.active .vertical-player img{object-fit:cover!important}
+ .lesson-view.active .lesson-meta{padding:12px 1px 0!important}.lesson-view.active .lesson-meta>.eyebrow{font-size:7px!important;letter-spacing:.13em!important}.lesson-view.active .lesson-meta h1{font-size:21px!important;line-height:1.03!important;margin:6px 0 5px!important;letter-spacing:-.04em!important}.lesson-view.active .lesson-meta>p{font-size:8.5px!important;line-height:1.45!important;margin:0!important}
+ .lesson-progress{margin:0 0 9px!important;position:sticky!important;top:91px!important;z-index:58!important;padding:7px 0!important;background:rgba(2,17,15,.96)!important;backdrop-filter:blur(15px)!important}.lesson-progress button{width:32px!important;height:32px!important}.lesson-progress-copy b{font-size:8.5px!important}
+ .lesson-tabs{position:sticky!important;top:135px!important;z-index:55!important;background:rgba(2,17,15,.95)!important;backdrop-filter:blur(16px)!important;padding:7px 0!important;margin-top:9px!important}.lesson-tabs button{padding:8px 8px!important;font-size:7.5px!important}
+ .play-state{background:rgba(2,17,15,.72)!important;backdrop-filter:blur(10px)!important}.video-status{bottom:12px!important}
+ .lesson-mini-status{display:flex;align-items:center;gap:6px;margin:8px 0 0;color:#9db2aa;font-size:7px}.lesson-mini-status i{display:block;width:6px;height:6px;border-radius:50%;background:#baff63;box-shadow:0 0 12px rgba(186,255,99,.8)}
+ .lesson-row{cursor:pointer!important}.lesson-row:hover{background:rgba(186,255,99,.025)!important}.lesson-row em{color:#dfffaa!important;font-weight:800!important}
+ @media(max-width:620px){
+  .promo{padding:7px 10px!important;font-size:9.5px!important}.top{height:56px!important;top:29px!important;padding:0 11px!important}.brand{font-size:16px!important}.credit{padding:7px 9px!important}.avatar{width:32px!important;height:32px!important}
+  .wrap{width:calc(100% - 16px)!important;padding-top:10px!important}.hero{padding:15px 13px!important;border-radius:19px!important}.hero h1{font-size:30px!important;line-height:.96!important;margin-top:6px!important}.hero p{font-size:9.5px!important}.search{height:46px!important}.section{margin-top:19px!important}.head h2{font-size:19px!important}
+  .continue-media{height:178px!important}.continue-copy h3{font-size:17px!important}.path-card{min-width:164px!important;width:164px!important}.path-media{height:156px!important}.course-media{height:190px!important}.course-copy h1{font-size:24px!important}.lesson-row{padding:10px!important}
+  .lesson-view.active .vertical-player{width:min(75vw,294px)!important}.lesson-progress{top:85px!important}.lesson-tabs{top:130px!important}.bottom{height:66px!important}
+ }
+ @media(max-width:390px){.lesson-view.active .vertical-player{width:72vw!important}.lesson-view.active .lesson-meta h1{font-size:19px!important}}
+ `;d.head.appendChild(s)}
+ function polishLesson(d){const p=d.querySelector('.lesson-view.active .vertical-player');if(!p)return;const video=p.querySelector('video');if(video){video.playsInline=true;video.setAttribute('playsinline','');video.setAttribute('webkit-playsinline','');video.preload='auto'}const meta=d.querySelector('.lesson-view.active .lesson-meta');if(meta&&!meta.querySelector('.lesson-mini-status')){const x=d.createElement('div');x.className='lesson-mini-status';x.innerHTML='<i></i><span>9:16 lesson · optimized for mobile</span>';const q=meta.querySelector('.lesson-quick');if(q)q.before(x);else meta.appendChild(x)}}
+ function forceLessonAutoplay(d){const view=d.querySelector('.lesson-view.active');if(!view)return;const play=view.querySelector('#playLesson');const video=view.querySelector('#lessonVideo');if(play&&!play.dataset.autoAttempted){play.dataset.autoAttempted='1';setTimeout(()=>{try{play.click()}catch(e){}},120)}if(video){video.addEventListener('loadeddata',()=>safePlay(video),{once:true});video.addEventListener('canplay',()=>safePlay(video),{once:true})}}
+ function injectRecovery(d){if(d.getElementById('academyRecoveryRuntime'))return;const s=d.createElement('script');s.id='academyRecoveryRuntime';s.src='/atelier-v2/academy/runtime-recovery.js?v=8fd10cf1';s.defer=true;d.head.appendChild(s)}
+ function observe(d){const mo=new MutationObserver(()=>{fixImages(d);polishContinuePreview(d);polishLesson(d);forceLessonAutoplay(d)});mo.observe(d.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']})}
+ function patch(){if(patched)return;tries++;const d=doc();if(!d||!d.body){if(tries<140)return setTimeout(patch,100);document.body.classList.add('ready');return}addStyles(d);fixImages(d);polishContinuePreview(d);injectRecovery(d);polishLesson(d);forceLessonAutoplay(d);observe(d);patched=true;document.body.classList.add('ready')}
+ stage.addEventListener('load',()=>setTimeout(patch,120));setTimeout(patch,500);setTimeout(()=>document.body.classList.add('ready'),2500);
+})();
