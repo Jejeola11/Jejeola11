@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#02110f">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<title>Fuse Atelier — Home V12</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f;color:#f8fff9;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+#stage{position:fixed;inset:0;width:100%;height:100%;border:0;background:#02110f;opacity:0;transition:opacity .2s ease}.ready #stage{opacity:1}.loader{position:fixed;inset:0;display:grid;place-items:center;background:#02110f;z-index:4}.ready .loader{display:none}.loader>div{text-align:center}.mark{width:48px;height:48px;border-radius:15px;margin:0 auto 11px;background:linear-gradient(135deg,#ffe568,#baff63 70%,#fff);display:grid;place-items:center;color:#07120f;font-weight:950;font-size:24px}.loader b{font-size:13px}.loader p{font-size:10px;color:#789087;margin:5px 0 0}
+</style>
+</head>
+<body>
+<div class="loader"><div><div class="mark">✦</div><b>Refining Fuse Atelier</b><p>Preparing the premium mobile workspace.</p></div></div>
+<iframe id="stage" src="./home-v11.html?v=20260902-v12" title="Fuse Atelier"></iframe>
+<script>
+(()=>{
+ const stage=document.getElementById('stage');let patched=false,tries=0;
+ function deepestDoc(){
+  try{
+   let d=stage.contentDocument;
+   for(let i=0;i<7&&d;i++){
+    const next=d.getElementById('stage')||d.getElementById('app');
+    if(!next||!next.contentDocument)break;
+    d=next.contentDocument;
+   }
+   return d;
+  }catch(e){return null}
+ }
+ function patch(){
+  if(patched)return;tries++;
+  const d=deepestDoc();
+  if(!d||!d.querySelector('.profile-menu')||!d.querySelector('.bottom')||!d.querySelector('.tabs')){
+   if(tries<220)return setTimeout(patch,100);document.body.classList.add('ready');return;
+  }
+  if(d.documentElement.dataset.homeV12){patched=true;document.body.classList.add('ready');return}
+  d.documentElement.dataset.homeV12='1';
+
+  const profile=d.getElementById('profileMenu')||d.querySelector('.profile-menu');
+  if(profile){
+   profile.innerHTML=`
+    <div class="profile-top profile-top-v12">
+      <div class="profile-orb"></div>
+      <div class="profile-id"><b>Ria</b><span>Creator plan</span></div>
+      <button class="profile-close" aria-label="Close profile">×</button>
+    </div>
+    <div class="profile-plan-card">
+      <div class="plan-line"><span>Credits</span><b>120</b></div>
+      <div class="credit-meter"><i style="width:42%"></i></div>
+      <div class="plan-bottom"><span>Creator plan</span><button>Manage plan</button></div>
+    </div>
+    <button class="menu-row menu-button"><span class="menu-ico">◌</span><span>View profile</span><b>›</b></button>
+    <button class="menu-row menu-button"><span class="menu-ico">⚙</span><span>Account settings</span><b>›</b></button>
+    <button class="menu-row menu-button"><span class="menu-ico">↗</span><span>Affiliate program</span><em>NEW</em></button>
+    <button class="menu-row menu-button"><span class="menu-ico">◎</span><span>Community</span><b>›</b></button>
+    <div class="menu-divider"></div>
+    <button class="menu-row menu-button signout"><span class="menu-ico">↪</span><span>Sign out</span></button>`;
+  }
+
+  let backdrop=d.querySelector('.profile-backdrop-v12');
+  if(!backdrop){backdrop=d.createElement('div');backdrop.className='profile-backdrop-v12';d.body.appendChild(backdrop)}
+  const sync=()=>{if(profile?.classList.contains('open'))backdrop.classList.add('open');else backdrop.classList.remove('open')};
+  if(profile){new MutationObserver(sync).observe(profile,{attributes:true,attributeFilter:['class']});sync()}
+  backdrop.addEventListener('click',()=>{profile?.classList.remove('open');sync()});
+  profile?.querySelector('.profile-close')?.addEventListener('click',()=>{profile.classList.remove('open');sync()});
+  const avatar=d.getElementById('avatarBtn');if(avatar)avatar.addEventListener('click',()=>setTimeout(sync,0));
+  const profileNav=[...d.querySelectorAll('.nav')].find(n=>/profile/i.test(n.textContent));
+  if(profileNav)profileNav.addEventListener('click',e=>{e.preventDefault();profile?.classList.toggle('open');sync()});
+
+  const next=d.querySelector('.next-move');
+  if(next){
+   const b=next.querySelector('.next-move-copy b');if(b)b.textContent='Finish one skill. Make one sample. Pitch one client.';
+   const small=next.querySelector('.next-move-copy small');if(small)small.textContent='A simple path from learning to proof of work to paid outreach.';
+   const btn=next.querySelector('.next-move-btn');if(btn)btn.innerHTML='Continue path <span>→</span>';
+  }
+
+  const tabs=d.querySelector('.tabs');
+  if(tabs){tabs.setAttribute('aria-label','Home sections');}
+
+  const toolSection=d.querySelector('.tools')?.closest('.section');
+  if(toolSection){const more=toolSection.querySelector('.more');if(more)more.textContent='Choose a format';}
+
+  const made=[...d.querySelectorAll('.section')].find(s=>s.querySelector('.head h2')?.textContent.trim()==='Made in Fuse');
+  if(made){const more=made.querySelector('.more');if(more)more.textContent='Explore all work →';}
+
+  const style=d.createElement('style');
+  style.textContent=`
+   :root{--premium-line:rgba(186,255,99,.16);--premium-panel:#071b17}
+   body{background:radial-gradient(circle at 50% -10%,rgba(186,255,99,.025),transparent 34%),#02110f!important}
+   .promo{font-size:11px!important;letter-spacing:.01em!important;padding:9px 14px!important}
+   .top{border-bottom-color:rgba(186,255,99,.1)!important;box-shadow:0 8px 24px rgba(0,0,0,.1)}
+   .search{border-color:rgba(100,156,139,.42)!important;background:rgba(6,27,23,.92)!important;box-shadow:inset 0 1px rgba(255,255,255,.018)}
+   .hero{box-shadow:0 22px 70px rgba(0,0,0,.3)!important;border-color:rgba(99,156,139,.46)!important}
+   .tabs{padding-bottom:2px!important}.tabs button{font-weight:800!important;border-color:rgba(79,122,109,.5)!important;background:#061914!important}.tabs .active{background:linear-gradient(105deg,#ffe568,#baff63 75%,#fff)!important;color:#07120f!important}
+   .section{margin-top:28px!important}.head{margin-bottom:11px!important}.head h2{letter-spacing:-.04em!important}.more{font-size:11px!important}
+   .card,.tool,.step,.work,.workflow-card{box-shadow:0 10px 26px rgba(0,0,0,.08)}
+   .tool:hover,.work:hover,.workflow-card:hover{transform:none!important}
+   .creative-lanes,.still-showcase,.creator-motion-vault{scroll-margin-top:110px}
+   .filter-row{gap:7px!important}.filter{font-weight:800!important}
+   .sell-tag{border-radius:10px!important;padding:5px 7px!important;max-width:calc(100% - 22px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(3,20,16,.9)!important;border-color:rgba(186,255,99,.22)!important;color:#dfffaa!important}
+   .profile-backdrop-v12{position:fixed;inset:0;background:rgba(0,0,0,.34);backdrop-filter:blur(2px);z-index:79;opacity:0;pointer-events:none;transition:.16s ease}.profile-backdrop-v12.open{opacity:1;pointer-events:auto}
+   .profile-menu{right:16px!important;top:112px!important;width:330px!important;max-width:calc(100vw - 32px)!important;background:rgba(20,25,24,.985)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:22px!important;padding:10px!important;box-shadow:0 28px 80px rgba(0,0,0,.48)!important;backdrop-filter:blur(22px)!important;z-index:90!important;max-height:calc(100dvh - 145px);overflow:auto;transform-origin:top right}
+   .profile-menu.open{animation:profilePop .15s ease-out}
+   @keyframes profilePop{from{opacity:0;transform:translateY(-5px) scale(.985)}to{opacity:1;transform:none}}
+   .profile-top-v12{padding:6px 6px 9px!important;gap:11px!important}.profile-id{min-width:0;flex:1}.profile-id b{display:block;font-size:15px}.profile-id span{display:block;color:#8d9996;font-size:11px;margin-top:2px}.profile-orb{width:43px!important;height:43px!important;flex:none;border:2px solid rgba(255,255,255,.1)}
+   .profile-close{width:31px;height:31px;border-radius:10px;border:1px solid rgba(255,255,255,.06);background:#242a28;color:#d8dfdc;font-size:19px;line-height:1}
+   .profile-plan-card{background:#242927;border:1px solid rgba(255,255,255,.055);border-radius:17px;padding:13px;margin:2px 2px 9px}.plan-line,.plan-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px}.plan-line span{font-size:12px;font-weight:850}.plan-line b{font-size:12px;color:#9da6a2}.credit-meter{height:6px;background:#343a37;border-radius:999px;overflow:hidden;margin:10px 0 11px}.credit-meter i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#ffe568,#baff63)}.plan-bottom span{font-size:10px;color:#8f9b97}.plan-bottom button{border:0;border-radius:999px;background:linear-gradient(105deg,#ffe568,#baff63);color:#07120f;padding:7px 10px;font-size:9px;font-weight:950}
+   .menu-button{width:100%;display:grid;grid-template-columns:24px 1fr auto;align-items:center;gap:8px;border:0;background:transparent;color:#f7faf8;text-align:left;font-size:12px}.menu-button .menu-ico{color:#98a29e;font-size:15px}.menu-button>b{color:#737d79;font-size:17px;font-weight:500}.menu-button em{font-style:normal;background:#2c3b12;color:#cfff16;border-radius:999px;padding:4px 6px;font-size:7px;font-weight:950}.menu-row{padding:10px 9px!important}.menu-divider{background:rgba(255,255,255,.07)!important;margin:5px 4px!important}.signout{color:#f2f5f3!important}
+   .bottom{box-shadow:0 -12px 35px rgba(0,0,0,.18)}
+   @media(max-width:620px){
+    .promo{padding:8px 10px!important;font-size:10.5px!important}.top{top:32px!important;height:60px!important}.wrap{padding-top:11px!important}.search{height:51px!important;border-radius:15px!important}.search input{font-size:14px!important}
+    .hero-wrap{margin-top:13px!important}.hero-copy{padding:18px 15px 14px!important}.hero h1{font-size:35px!important;line-height:.96!important;margin:7px 0 9px!important}.hero p{font-size:11.5px!important;line-height:1.42!important}.hero-actions{grid-template-columns:1fr 1fr!important;gap:7px!important;margin-top:14px!important}.primary,.secondary{padding:10px 8px!important;border-radius:11px!important;font-size:10px!important}
+    .tabs{margin-top:13px!important;gap:6px!important}.tabs button{padding:8px 10px!important;font-size:9px!important}
+    .section{margin-top:22px!important}.head h2{font-size:21px!important}.eyebrow{font-size:8px!important}.more{font-size:9px!important}
+    .next-move{margin-top:9px!important}.creative-lanes{margin-top:14px!important}.still-showcase{margin-top:17px!important}.creator-motion-vault{margin-top:22px!important}
+    .profile-menu{right:10px!important;top:98px!important;width:min(330px,calc(100vw - 28px))!important;max-width:none!important;border-radius:20px!important;max-height:calc(100dvh - 118px)!important;padding:9px!important}.profile-top-v12{padding-top:4px!important}.profile-plan-card{padding:12px!important}.menu-row{padding:10px 8px!important}
+    .work-copy b{font-size:12px!important}.work-copy span{font-size:9px!important}.sell-tag{font-size:7.5px!important;bottom:52px!important}
+    .bottom{height:72px!important;padding:6px 5px calc(6px + env(safe-area-inset-bottom))!important}.nav{font-size:9px!important}.nav span{font-size:18px!important}.fab{border-radius:17px!important}
+   }
+  `;
+  d.head.appendChild(style);
+  patched=true;document.body.classList.add('ready');
+ }
+ stage.addEventListener('load',()=>{setTimeout(patch,350);setTimeout(patch,900);setTimeout(patch,1700)});
+ setTimeout(patch,800);setTimeout(()=>document.body.classList.add('ready'),3400);
+})();
+</script>
+</body>
+</html>
