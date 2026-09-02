@@ -5,86 +5,60 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#02110f">
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
-<title>Fuse Academy — Mobile V2</title>
+<title>Fuse Academy — Mobile V3</title>
 <style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f}#stage{position:fixed;inset:0;width:100%;height:100%;border:0;background:#02110f;opacity:0;transition:opacity .18s ease}.loader{position:fixed;inset:0;display:grid;place-items:center;background:#02110f;color:#f7fff9;font-family:Inter,system-ui,sans-serif;z-index:2}.loader-inner{text-align:center}.mark{width:48px;height:48px;border-radius:16px;margin:0 auto 10px;background:linear-gradient(135deg,#ffe568,#baff63 72%,#fff);display:grid;place-items:center;color:#07120f;font-size:23px;font-weight:950;box-shadow:0 18px 46px rgba(186,255,99,.14)}.loader b{font-size:13px}.loader p{margin:5px 0 0;color:#7f978e;font-size:10px}.ready #stage{opacity:1}.ready .loader{display:none}
 </style>
 </head>
 <body>
 <div class="loader"><div class="loader-inner"><div class="mark">✦</div><b>Opening Fuse Academy</b><p>Preparing your learning studio.</p></div></div>
-<iframe id="stage" src="./academy/?v=20260902-0347&base=1" title="Fuse Academy"></iframe>
+<iframe id="stage" src="./academy/?v=20260902-0416&base=1" title="Fuse Academy"></iframe>
 <script>
 (()=>{
  const stage=document.getElementById('stage');
  const fallbacks=['./media/beauty-snake.svg','./media/burger-ugc.svg','./media/luxury-bag.svg','./media/watch-chameleon.svg'];
  let patched=false,tries=0;
- function d(){try{return stage.contentDocument}catch(e){return null}}
- function fixImages(doc){
-   const imgs=[...doc.querySelectorAll('img')];
-   imgs.forEach((img,i)=>{
-     const apply=()=>{
-       if(img.dataset.fuseFallbackDone)return;
-       img.dataset.fuseFallbackDone='1';
-       img.src=fallbacks[i%fallbacks.length];
-       img.style.objectFit='cover';
-       img.style.objectPosition='center';
-     };
-     img.addEventListener('error',apply,{once:true});
-     setTimeout(()=>{if(img.complete && !img.naturalWidth)apply()},550);
-   });
+ function doc(){try{return stage.contentDocument}catch(e){return null}}
+ function win(){try{return stage.contentWindow}catch(e){return null}}
+ function safePlay(v){if(!v)return;v.muted=true;v.defaultMuted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute('muted','');v.setAttribute('autoplay','');v.setAttribute('loop','');v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');const p=v.play();if(p&&p.catch)p.catch(()=>{})}
+ function fixImages(d){[...d.querySelectorAll('img')].forEach((img,i)=>{const apply=()=>{if(img.dataset.fuseFallbackDone)return;img.dataset.fuseFallbackDone='1';img.src=fallbacks[i%fallbacks.length];img.style.objectFit='cover';img.style.objectPosition='center'};img.addEventListener('error',apply,{once:true});setTimeout(()=>{if(img.complete&&!img.naturalWidth)apply()},500)})}
+ function makeContinuePreview(d){const media=d.querySelector('.continue-media');if(!media||media.dataset.videoReady)return;media.dataset.videoReady='1';const old=media.querySelector('img');if(old)old.remove();const v=d.createElement('video');v.src='/atelier-site/assets/work/work-01.mp4';v.poster='./media/burger-ugc.svg';v.preload='auto';v.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0';media.prepend(v);safePlay(v);v.addEventListener('canplay',()=>safePlay(v));document.addEventListener?.('visibilitychange',()=>{if(!document.hidden)safePlay(v)})}
+ function addStyles(d){const s=d.createElement('style');s.textContent=`
+ :root{--premium-line:rgba(186,255,99,.16)}
+ body{padding-bottom:78px!important;background:radial-gradient(circle at 50% -5%,rgba(186,255,99,.055),transparent 28%),#02110f!important}
+ .wrap{padding-top:10px!important}.hero{overflow:hidden!important}
+ .card,.path-card,.course-hero,.module,.quick,.lesson-card,.prompt-box{box-shadow:0 20px 60px rgba(0,0,0,.19)!important}
+ .path-card,.card,.module{border-color:rgba(83,133,117,.42)!important}
+ .continue-media,.path-media,.course-media{background:linear-gradient(135deg,#0b2e26,#061814)!important}
+ .continue-media video{filter:saturate(.98) contrast(1.02)}
+ .continue-media:after{background:linear-gradient(180deg,rgba(0,0,0,.04) 18%,rgba(2,17,15,.9) 100%)!important;z-index:1}.continue-badge{z-index:3!important}
+ .continue-copy{position:relative;z-index:3}.continue{overflow:hidden!important}.continue .primary{box-shadow:0 10px 30px rgba(186,255,99,.1)!important}
+ .bottom{height:68px!important;background:rgba(2,19,16,.97)!important;border-top-color:rgba(186,255,99,.12)!important}.bottom .nav{font-size:8px!important}
+ .lesson-view.active{padding-top:0!important}.lesson-shell{max-width:560px!important;margin:auto!important}.player-grid{display:block!important}
+ .lesson-view.active .vertical-player{width:min(76vw,310px)!important;max-height:none!important;aspect-ratio:9/16!important;margin:0 auto!important;border-radius:24px!important;border:1px solid rgba(255,255,255,.11)!important;box-shadow:0 30px 88px rgba(0,0,0,.58)!important;background:#000!important}
+ .lesson-view.active .vertical-player video{object-fit:contain!important;background:#000!important}.lesson-view.active .vertical-player img{object-fit:cover!important}
+ .lesson-view.active .lesson-meta{padding:12px 1px 0!important}.lesson-view.active .lesson-meta>.eyebrow{font-size:7px!important;letter-spacing:.13em!important}.lesson-view.active .lesson-meta h1{font-size:21px!important;line-height:1.03!important;margin:6px 0 5px!important;letter-spacing:-.04em!important}.lesson-view.active .lesson-meta>p{font-size:8.5px!important;line-height:1.45!important;margin:0!important}
+ .lesson-progress{margin:0 0 9px!important;position:sticky!important;top:91px!important;z-index:58!important;padding:7px 0!important;background:rgba(2,17,15,.96)!important;backdrop-filter:blur(15px)!important}.lesson-progress button{width:32px!important;height:32px!important}.lesson-progress-copy b{font-size:8.5px!important}
+ .lesson-tabs{position:sticky!important;top:135px!important;z-index:55!important;background:rgba(2,17,15,.95)!important;backdrop-filter:blur(16px)!important;padding:7px 0!important;margin-top:9px!important}.lesson-tabs button{padding:8px 8px!important;font-size:7.5px!important}
+ .play-state{background:rgba(2,17,15,.72)!important;backdrop-filter:blur(10px)!important}.video-status{bottom:12px!important}
+ .lesson-mini-status{display:flex;align-items:center;gap:6px;margin:8px 0 0;color:#9db2aa;font-size:7px}.lesson-mini-status i{display:block;width:6px;height:6px;border-radius:50%;background:#baff63;box-shadow:0 0 12px rgba(186,255,99,.8)}
+ .lesson-row{cursor:pointer!important}.lesson-row:hover{background:rgba(186,255,99,.025)!important}.lesson-row em{color:#dfffaa!important;font-weight:800!important}
+ @media(max-width:620px){
+  .promo{padding:7px 10px!important;font-size:9.5px!important}.top{height:56px!important;top:29px!important;padding:0 11px!important}.brand{font-size:16px!important}.credit{padding:7px 9px!important}.avatar{width:32px!important;height:32px!important}
+  .wrap{width:calc(100% - 16px)!important;padding-top:10px!important}.hero{padding:15px 13px!important;border-radius:19px!important}.hero h1{font-size:30px!important;line-height:.96!important;margin-top:6px!important}.hero p{font-size:9.5px!important}.search{height:46px!important}.section{margin-top:19px!important}.head h2{font-size:19px!important}
+  .continue-media{height:178px!important}.continue-copy h3{font-size:17px!important}.path-card{min-width:164px!important;width:164px!important}.path-media{height:156px!important}.course-media{height:190px!important}.course-copy h1{font-size:24px!important}.lesson-row{padding:10px!important}
+  .lesson-view.active .vertical-player{width:min(75vw,294px)!important}.lesson-progress{top:85px!important}.lesson-tabs{top:130px!important}.bottom{height:66px!important}
  }
- function addStyles(doc){
-   const s=doc.createElement('style');
-   s.textContent=`
-   :root{--premium-line:rgba(186,255,99,.16)}
-   body{padding-bottom:78px!important;background:radial-gradient(circle at 50% -5%,rgba(186,255,99,.055),transparent 28%),#02110f!important}
-   .card,.path-card,.course-hero,.module-group,.quick,.prompt-card,.task-card{box-shadow:0 18px 52px rgba(0,0,0,.16)!important}
-   .path-card,.card,.module-group{border-color:rgba(83,133,117,.42)!important}
-   .path-media,.course-media,.continue-media{background:linear-gradient(135deg,#0b2e26,#061814)!important}
-   .path-media img,.course-media img,.continue-media img{filter:none!important;transform:none!important}
-   .bottom{height:68px!important;background:rgba(2,19,16,.965)!important;border-top-color:rgba(186,255,99,.12)!important}
-   .bottom .nav{font-size:8px!important}
-   .lesson-view.active{padding-top:0!important}
-   .lesson-view.active .player-layout{display:block!important}
-   .lesson-view.active .vertical-player{width:min(78vw,310px)!important;max-height:none!important;aspect-ratio:9/16!important;margin:2px auto 0!important;border-radius:22px!important;border:1px solid rgba(255,255,255,.10)!important;box-shadow:0 26px 76px rgba(0,0,0,.5)!important;background:#000!important}
-   .lesson-view.active .vertical-player video{object-fit:contain!important;background:#000!important}
-   .lesson-view.active .player-overlay{background:linear-gradient(180deg,rgba(0,0,0,.16),transparent 24%,transparent 72%,rgba(0,0,0,.48))!important}
-   .lesson-view.active .lesson-side{margin-top:12px!important}
-   .lesson-view.active .lesson-side>.eyebrow{font-size:7px!important;letter-spacing:.13em!important}
-   .lesson-view.active .lesson-side h1{font-size:20px!important;line-height:1.04!important;margin:6px 0 5px!important;letter-spacing:-.035em!important}
-   .lesson-view.active .lesson-side>p{font-size:8.5px!important;line-height:1.45!important;margin:0!important}
-   .lesson-view.active .lesson-tabs{position:sticky!important;top:94px!important;z-index:45!important;background:rgba(2,17,15,.94)!important;backdrop-filter:blur(16px)!important;padding:8px 0!important;margin:8px 0 0!important}
-   .lesson-view.active .lesson-tabs button{padding:8px 11px!important;font-size:8px!important}
-   .lesson-view.active .lesson-panel{margin-top:6px!important}
-   .lesson-view.active .prompt-card,.lesson-view.active .task-card{border-radius:16px!important}
-   .lesson-view.active .prompt-card p{font-size:9px!important}
-   .player-progress-shell{position:absolute;left:12px;right:12px;bottom:12px;height:4px;border-radius:999px;background:rgba(255,255,255,.18);z-index:4;overflow:hidden}.player-progress-shell i{display:block;width:34%;height:100%;background:linear-gradient(90deg,#ffe568,#baff63)}
-   .lesson-mini-meta{display:flex;gap:6px;overflow:auto;scrollbar-width:none;margin:8px 0 0}.lesson-mini-meta::-webkit-scrollbar{display:none}.lesson-mini-meta span{white-space:nowrap;border:1px solid rgba(186,255,99,.16);border-radius:999px;padding:6px 8px;font-size:7px;color:#c8ddd5;background:rgba(186,255,99,.04)}
-   @media(max-width:620px){
-     .promo{padding:7px 10px!important;font-size:9.5px!important}.top{height:56px!important;top:29px!important;padding:0 11px!important}.brand{font-size:16px!important}.credit{padding:7px 9px!important}.avatar{width:32px!important;height:32px!important}.wrap{width:calc(100% - 16px)!important;padding-top:10px!important}.hero{padding:15px 13px!important;border-radius:19px!important}.hero h1{font-size:31px!important}.hero p{font-size:10px!important}.search{height:46px!important}.section{margin-top:19px!important}.head h2{font-size:19px!important}.continue-media{height:150px!important}.path-card{min-width:164px!important;width:164px!important}.path-media{height:156px!important}.course-media{height:190px!important}.course-copy h1{font-size:24px!important}.module-title{padding:10px 11px!important}.lesson-row{padding:9px 10px!important}.lesson-view.active .vertical-player{width:min(76vw,300px)!important}.lesson-view.active .lesson-tabs{top:85px!important}.bottom{height:66px!important}
-   }
-   @media(max-width:390px){.lesson-view.active .vertical-player{width:72vw!important}.lesson-view.active .lesson-side h1{font-size:19px!important}}
-   `;
-   doc.head.appendChild(s);
+ @media(max-width:390px){.lesson-view.active .vertical-player{width:72vw!important}.lesson-view.active .lesson-meta h1{font-size:19px!important}}
+ `;d.head.appendChild(s)}
+ function polishLesson(d){const p=d.querySelector('.lesson-view.active .vertical-player');if(!p)return;const video=p.querySelector('video');if(video){video.playsInline=true;video.setAttribute('playsinline','');video.setAttribute('webkit-playsinline','');video.preload='auto'}const meta=d.querySelector('.lesson-view.active .lesson-meta');if(meta&&!meta.querySelector('.lesson-mini-status')){const x=d.createElement('div');x.className='lesson-mini-status';x.innerHTML='<i></i><span>9:16 lesson · optimized for mobile</span>';const q=meta.querySelector('.lesson-quick');if(q)q.before(x);else meta.appendChild(x)}}
+ function forceLessonAutoplay(d){const view=d.querySelector('.lesson-view.active');if(!view)return;const play=view.querySelector('#playLesson');const video=view.querySelector('#lessonVideo');if(play&&!play.dataset.autoAttempted){play.dataset.autoAttempted='1';setTimeout(()=>{try{play.click()}catch(e){}},120)}if(video){video.addEventListener('loadeddata',()=>safePlay(video),{once:true});video.addEventListener('canplay',()=>safePlay(video),{once:true})}}
+ function installNavigation(d,w){if(d.documentElement.dataset.fuseNavV3)return;d.documentElement.dataset.fuseNavV3='1';
+   d.addEventListener('click',e=>{const btn=e.target.closest('.continue .primary[data-open="video"]');if(btn){e.preventDefault();e.stopImmediatePropagation();if(typeof w.openLesson==='function'){w.openLesson('video',0,0);setTimeout(()=>{polishLesson(d);forceLessonAutoplay(d)},80)}}},true);
+   const original=w.openLesson;if(typeof original==='function'&&!w.__fuseLessonWrapped){w.__fuseLessonWrapped=true;w.openLesson=function(){const out=original.apply(this,arguments);setTimeout(()=>{polishLesson(d);forceLessonAutoplay(d)},80);return out}}
  }
- function improvePlayer(doc){
-   const p=doc.querySelector('.vertical-player');
-   if(!p || p.dataset.polished)return;
-   p.dataset.polished='1';
-   const bar=doc.createElement('div');bar.className='player-progress-shell';bar.innerHTML='<i></i>';p.appendChild(bar);
-   const v=p.querySelector('video');if(v){v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.preload='metadata';v.controls=true;v.style.background='#000';}
-   const side=doc.querySelector('.lesson-side');
-   if(side && !side.querySelector('.lesson-mini-meta')){
-     const meta=doc.createElement('div');meta.className='lesson-mini-meta';meta.innerHTML='<span>9:16 vertical lesson</span><span>Mobile-first</span><span>Learn → Build → Sell</span>';const ptxt=side.querySelector('p');if(ptxt)ptxt.after(meta);else side.prepend(meta);
-   }
- }
- function observe(doc){
-   const mo=new MutationObserver(()=>{fixImages(doc);improvePlayer(doc)});mo.observe(doc.body,{subtree:true,childList:true});
- }
- function patch(){
-   if(patched)return;tries++;const doc=d();if(!doc||!doc.body){if(tries<120)return setTimeout(patch,100);document.body.classList.add('ready');return}
-   addStyles(doc);fixImages(doc);improvePlayer(doc);observe(doc);patched=true;document.body.classList.add('ready');
- }
+ function observe(d){const mo=new MutationObserver(()=>{fixImages(d);makeContinuePreview(d);polishLesson(d);forceLessonAutoplay(d)});mo.observe(d.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']})}
+ function patch(){if(patched)return;tries++;const d=doc(),w=win();if(!d||!d.body||!w){if(tries<140)return setTimeout(patch,100);document.body.classList.add('ready');return}addStyles(d);fixImages(d);makeContinuePreview(d);installNavigation(d,w);polishLesson(d);forceLessonAutoplay(d);observe(d);patched=true;document.body.classList.add('ready')}
  stage.addEventListener('load',()=>setTimeout(patch,120));setTimeout(patch,500);setTimeout(()=>document.body.classList.add('ready'),2500);
 })();
 </script>
