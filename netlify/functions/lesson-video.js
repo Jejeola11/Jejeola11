@@ -1,27 +1,11 @@
 // ============================================================
 // POST /.netlify/functions/lesson-video   (Fuse Atelier course player)
 // Body: { lesson_key }
-// The only path that returns a real, playable lesson video URL. Before
-// phase 25, course_videos.url was publicly SELECT-able (RLS `using(true)`),
-// so the app's tier gate (moduleUnlocked() in app.js) was UI-level hiding
-// only -- anyone with the public anon key could read every lesson's URL
-// straight from the table regardless of payment. That column is now
-// revoked from anon/authenticated (see supabase/schema-phase25.sql); this
-// function, using the service-role key, is the sole remaining source.
-//
-// Re-derives the exact same access decision app.js's atelierTier() /
-// moduleUnlocked() make client-side, using _lesson-access.js -- a static
-// map generated from app/course.js (see scripts/gen-lesson-access.js).
-// Regenerate that map any time course.js's pillars/tiers/lessons change,
-// or a lesson added there will 404 here even though the UI shows it.
+// Protected source of playable lesson-video URLs.
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
 const LESSON_ACCESS = require('./_lesson-access');
 
-// Academy V2 keeps the Money Engine path locally in academy/index.html
-// rather than inside app/course.js, so those current lesson keys are not
-// generated into _lesson-access.js. Keep this list in sync with that local
-// learner-facing MONEY object. It uses the same tier/access checks below.
 const MONEY_ACCESS = {
   'money-start': { tier: 1, module: 'money' },
   'money-m1': { tier: 1, module: 'money' },
@@ -32,6 +16,35 @@ const MONEY_ACCESS = {
   'money-m6': { tier: 1, module: 'money' },
 };
 
+// Current Academy V2 curriculum additions. app/course.js still contains
+// legacy/older course definitions, while Academy V2 applies the launch
+// curriculum from atelier-v2/academy/course-current.js. Keep the protected
+// video endpoint aware of every current learner-facing lesson key.
+const CURRENT_ACADEMY_ACCESS = {
+  'aiv-5_1': { tier: 1, module: 'aiv-m5' },
+  'aiv-6_1': { tier: 1, module: 'aiv-m6' },
+  'aiv-7_1': { tier: 1, module: 'aiv-m7' },
+  'aiv-8_1': { tier: 1, module: 'aiv-m8' },
+  'aiv-8_2': { tier: 1, module: 'aiv-m8' },
+  'aiv-9_1': { tier: 1, module: 'aiv-m9' },
+  'aiv-10_1': { tier: 1, module: 'aiv-m10' },
+  'aiv-11_1': { tier: 1, module: 'aiv-m11' },
+  'aiv-12_1': { tier: 1, module: 'aiv-m12' },
+  'aiv-13_1': { tier: 1, module: 'aiv-m13' },
+  'aiv-14_1': { tier: 1, module: 'aiv-m14' },
+  'aiv-15_1': { tier: 1, module: 'aiv-m15' },
+  'aiv-16_1': { tier: 1, module: 'aiv-m16' },
+  'web-2_1': { tier: 1, module: 'web-m2' },
+  'web-3_1-current': { tier: 1, module: 'web-m3-current' },
+  'web-4_1': { tier: 1, module: 'web-m4' },
+  'web-5_1': { tier: 1, module: 'web-m5' },
+  'web-6_1': { tier: 1, module: 'web-m6' },
+  'web-7_1': { tier: 1, module: 'web-m7' },
+  'web-8_1': { tier: 1, module: 'web-m8' },
+  'web-9_1': { tier: 1, module: 'web-m9' },
+  'web-10_1': { tier: 1, module: 'web-m10' },
+};
+
 exports.handler = async (event) => {
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
@@ -39,26 +52,27 @@ exports.handler = async (event) => {
     const user = await getUser(event);
     if (!user) return json(401, { error: 'Please sign in again.' });
 
-    let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
+    let body;
+    try { body = JSON.parse(event.body || '{}'); }
+    catch (e) { return json(400, { error: 'Bad request' }); }
+
     const lessonKey = (body.lesson_key || '').trim();
     if (!lessonKey) return json(400, { error: 'Missing lesson_key' });
 
-    const access = LESSON_ACCESS[lessonKey] || MONEY_ACCESS[lessonKey];
+    const access = CURRENT_ACADEMY_ACCESS[lessonKey] || LESSON_ACCESS[lessonKey] || MONEY_ACCESS[lessonKey];
     if (!access) return json(404, { error: 'Unknown lesson.' });
 
     const db = admin();
-
     if (access.tier > 0) {
       const { data: profile } = await db.from('profiles').select('is_admin').eq('id', user.id).maybeSingle();
       const isAdmin = !!(profile && profile.is_admin);
       if (!isAdmin) {
         const { data: unlocks } = await db.from('module_unlocks').select('module_key').eq('user_id', user.id);
         const owned = new Set((unlocks || []).map((r) => r.module_key));
-        // Mirrors atelierTier(): legacy 'atelier-full' buyers count as Empire.
         const tier = (owned.has('atelier-empire') || owned.has('atelier-full')) ? 3
           : owned.has('atelier-creator') ? 2
           : owned.has('atelier-starter') ? 1 : 0;
-        const allowed = tier >= access.tier || owned.has(access.module); // legacy per-module unlock fallback
+        const allowed = tier >= access.tier || owned.has(access.module);
         if (!allowed) return json(403, { error: 'Unlock this module first.', code: 'MODULE_LOCKED' });
       }
     }
