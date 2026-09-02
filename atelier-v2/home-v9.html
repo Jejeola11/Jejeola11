@@ -19,20 +19,14 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f;col
 </style>
 </head>
 <body>
-<div class="loader"><div class="loader-inner"><div class="mark">✦</div><b>Loading Fuse Atelier</b><p>Preparing high-quality motion.</p></div></div>
-<iframe id="stage" src="./home-v6.html?v=20260902-0058" title="Fuse Atelier"></iframe>
+<div class="loader"><div class="loader-inner"><div class="mark">✦</div><b>Loading Fuse Atelier</b><p>Preparing motion previews.</p></div></div>
+<iframe id="stage" src="./home-v6.html?v=20260902-0136" title="Fuse Atelier"></iframe>
 <script>
 (()=>{
   const stage=document.getElementById('stage');
   const media={
-    left:{
-      primary:'https://drive.google.com/uc?export=download&id=1x9pyHD1UY_WR08Cid5FbMyKN01jWvmJ6',
-      retry:'https://drive.usercontent.google.com/download?id=1x9pyHD1UY_WR08Cid5FbMyKN01jWvmJ6&export=download&confirm=t'
-    },
-    right:{
-      primary:'https://drive.google.com/uc?export=download&id=1mYB-50Jdd7NLeJyG_STnQHTla9jbCTkY',
-      retry:'https://drive.usercontent.google.com/download?id=1mYB-50Jdd7NLeJyG_STnQHTla9jbCTkY&export=download&confirm=t'
-    }
+    left:'/hero-video?slot=left&v=20260902-0136',
+    right:'/hero-video?slot=right&v=20260902-0136'
   };
   let tries=0,patched=false;
 
@@ -68,34 +62,35 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f;col
     v.style.imageRendering='auto';
   }
 
-  function replaceExact(old,item){
+  function replaceExact(old,src){
     if(!old)return null;
-    const v=old.cloneNode(false);
+    const v=document.createElement('video');
     configure(v);
-    v.dataset.sourceQuality='user-original-compressed';
-    v.dataset.delivery='primary';
+    v.dataset.sourceQuality='user-original';
+    v.dataset.delivery='same-domain-netlify';
     old.replaceWith(v);
 
-    let retried=false;
+    let retryCount=0;
     const play=()=>{
       const p=v.play();
       if(p&&p.catch)p.catch(()=>{});
     };
+    const load=(retry=false)=>{
+      v.src=src+(retry?'&retry='+Date.now():'');
+      v.load();
+      setTimeout(play,80);
+      setTimeout(play,360);
+      setTimeout(play,900);
+    };
+
+    v.addEventListener('loadedmetadata',play);
     v.addEventListener('loadeddata',play);
     v.addEventListener('canplay',play);
+    v.addEventListener('pause',()=>{ if(!document.hidden) play(); });
     v.addEventListener('error',()=>{
-      if(retried)return;
-      retried=true;
-      v.dataset.delivery='retry';
-      v.src=item.retry;
-      v.load();
-      setTimeout(play,180);
+      if(retryCount++<2) setTimeout(()=>load(true),350*retryCount);
     });
-    v.src=item.primary;
-    v.load();
-    setTimeout(play,120);
-    setTimeout(play,520);
-    setTimeout(play,1200);
+    load(false);
     return v;
   }
 
@@ -134,7 +129,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f;col
       }
     `;
     d.head.appendChild(css);
-    d.documentElement.dataset.heroQuality='original-user-compressed';
+    d.documentElement.dataset.heroDelivery='same-domain-netlify';
     patched=true;
     document.body.classList.add('ready');
   }
@@ -143,6 +138,11 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f;col
     setTimeout(patch,120);
     setTimeout(patch,450);
     setTimeout(patch,950);
+  });
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden)return;
+    const d=innerDoc();
+    d&&d.querySelectorAll('.hero-card video').forEach(v=>{v.muted=true;const p=v.play();if(p&&p.catch)p.catch(()=>{});});
   });
   setTimeout(patch,500);
   setTimeout(()=>document.body.classList.add('ready'),2600);
