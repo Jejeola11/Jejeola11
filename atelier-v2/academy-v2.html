@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#02110f">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<title>Fuse Academy — Mobile V2</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f}#stage{position:fixed;inset:0;width:100%;height:100%;border:0;background:#02110f;opacity:0;transition:opacity .18s ease}.loader{position:fixed;inset:0;display:grid;place-items:center;background:#02110f;color:#f7fff9;font-family:Inter,system-ui,sans-serif;z-index:2}.loader-inner{text-align:center}.mark{width:48px;height:48px;border-radius:16px;margin:0 auto 10px;background:linear-gradient(135deg,#ffe568,#baff63 72%,#fff);display:grid;place-items:center;color:#07120f;font-size:23px;font-weight:950;box-shadow:0 18px 46px rgba(186,255,99,.14)}.loader b{font-size:13px}.loader p{margin:5px 0 0;color:#7f978e;font-size:10px}.ready #stage{opacity:1}.ready .loader{display:none}
+</style>
+</head>
+<body>
+<div class="loader"><div class="loader-inner"><div class="mark">✦</div><b>Opening Fuse Academy</b><p>Preparing your learning studio.</p></div></div>
+<iframe id="stage" src="./academy/?v=20260902-0347&base=1" title="Fuse Academy"></iframe>
+<script>
+(()=>{
+ const stage=document.getElementById('stage');
+ const fallbacks=['./media/beauty-snake.svg','./media/burger-ugc.svg','./media/luxury-bag.svg','./media/watch-chameleon.svg'];
+ let patched=false,tries=0;
+ function d(){try{return stage.contentDocument}catch(e){return null}}
+ function fixImages(doc){
+   const imgs=[...doc.querySelectorAll('img')];
+   imgs.forEach((img,i)=>{
+     const apply=()=>{
+       if(img.dataset.fuseFallbackDone)return;
+       img.dataset.fuseFallbackDone='1';
+       img.src=fallbacks[i%fallbacks.length];
+       img.style.objectFit='cover';
+       img.style.objectPosition='center';
+     };
+     img.addEventListener('error',apply,{once:true});
+     setTimeout(()=>{if(img.complete && !img.naturalWidth)apply()},550);
+   });
+ }
+ function addStyles(doc){
+   const s=doc.createElement('style');
+   s.textContent=`
+   :root{--premium-line:rgba(186,255,99,.16)}
+   body{padding-bottom:78px!important;background:radial-gradient(circle at 50% -5%,rgba(186,255,99,.055),transparent 28%),#02110f!important}
+   .card,.path-card,.course-hero,.module-group,.quick,.prompt-card,.task-card{box-shadow:0 18px 52px rgba(0,0,0,.16)!important}
+   .path-card,.card,.module-group{border-color:rgba(83,133,117,.42)!important}
+   .path-media,.course-media,.continue-media{background:linear-gradient(135deg,#0b2e26,#061814)!important}
+   .path-media img,.course-media img,.continue-media img{filter:none!important;transform:none!important}
+   .bottom{height:68px!important;background:rgba(2,19,16,.965)!important;border-top-color:rgba(186,255,99,.12)!important}
+   .bottom .nav{font-size:8px!important}
+   .lesson-view.active{padding-top:0!important}
+   .lesson-view.active .player-layout{display:block!important}
+   .lesson-view.active .vertical-player{width:min(78vw,310px)!important;max-height:none!important;aspect-ratio:9/16!important;margin:2px auto 0!important;border-radius:22px!important;border:1px solid rgba(255,255,255,.10)!important;box-shadow:0 26px 76px rgba(0,0,0,.5)!important;background:#000!important}
+   .lesson-view.active .vertical-player video{object-fit:contain!important;background:#000!important}
+   .lesson-view.active .player-overlay{background:linear-gradient(180deg,rgba(0,0,0,.16),transparent 24%,transparent 72%,rgba(0,0,0,.48))!important}
+   .lesson-view.active .lesson-side{margin-top:12px!important}
+   .lesson-view.active .lesson-side>.eyebrow{font-size:7px!important;letter-spacing:.13em!important}
+   .lesson-view.active .lesson-side h1{font-size:20px!important;line-height:1.04!important;margin:6px 0 5px!important;letter-spacing:-.035em!important}
+   .lesson-view.active .lesson-side>p{font-size:8.5px!important;line-height:1.45!important;margin:0!important}
+   .lesson-view.active .lesson-tabs{position:sticky!important;top:94px!important;z-index:45!important;background:rgba(2,17,15,.94)!important;backdrop-filter:blur(16px)!important;padding:8px 0!important;margin:8px 0 0!important}
+   .lesson-view.active .lesson-tabs button{padding:8px 11px!important;font-size:8px!important}
+   .lesson-view.active .lesson-panel{margin-top:6px!important}
+   .lesson-view.active .prompt-card,.lesson-view.active .task-card{border-radius:16px!important}
+   .lesson-view.active .prompt-card p{font-size:9px!important}
+   .player-progress-shell{position:absolute;left:12px;right:12px;bottom:12px;height:4px;border-radius:999px;background:rgba(255,255,255,.18);z-index:4;overflow:hidden}.player-progress-shell i{display:block;width:34%;height:100%;background:linear-gradient(90deg,#ffe568,#baff63)}
+   .lesson-mini-meta{display:flex;gap:6px;overflow:auto;scrollbar-width:none;margin:8px 0 0}.lesson-mini-meta::-webkit-scrollbar{display:none}.lesson-mini-meta span{white-space:nowrap;border:1px solid rgba(186,255,99,.16);border-radius:999px;padding:6px 8px;font-size:7px;color:#c8ddd5;background:rgba(186,255,99,.04)}
+   @media(max-width:620px){
+     .promo{padding:7px 10px!important;font-size:9.5px!important}.top{height:56px!important;top:29px!important;padding:0 11px!important}.brand{font-size:16px!important}.credit{padding:7px 9px!important}.avatar{width:32px!important;height:32px!important}.wrap{width:calc(100% - 16px)!important;padding-top:10px!important}.hero{padding:15px 13px!important;border-radius:19px!important}.hero h1{font-size:31px!important}.hero p{font-size:10px!important}.search{height:46px!important}.section{margin-top:19px!important}.head h2{font-size:19px!important}.continue-media{height:150px!important}.path-card{min-width:164px!important;width:164px!important}.path-media{height:156px!important}.course-media{height:190px!important}.course-copy h1{font-size:24px!important}.module-title{padding:10px 11px!important}.lesson-row{padding:9px 10px!important}.lesson-view.active .vertical-player{width:min(76vw,300px)!important}.lesson-view.active .lesson-tabs{top:85px!important}.bottom{height:66px!important}
+   }
+   @media(max-width:390px){.lesson-view.active .vertical-player{width:72vw!important}.lesson-view.active .lesson-side h1{font-size:19px!important}}
+   `;
+   doc.head.appendChild(s);
+ }
+ function improvePlayer(doc){
+   const p=doc.querySelector('.vertical-player');
+   if(!p || p.dataset.polished)return;
+   p.dataset.polished='1';
+   const bar=doc.createElement('div');bar.className='player-progress-shell';bar.innerHTML='<i></i>';p.appendChild(bar);
+   const v=p.querySelector('video');if(v){v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.preload='metadata';v.controls=true;v.style.background='#000';}
+   const side=doc.querySelector('.lesson-side');
+   if(side && !side.querySelector('.lesson-mini-meta')){
+     const meta=doc.createElement('div');meta.className='lesson-mini-meta';meta.innerHTML='<span>9:16 vertical lesson</span><span>Mobile-first</span><span>Learn → Build → Sell</span>';const ptxt=side.querySelector('p');if(ptxt)ptxt.after(meta);else side.prepend(meta);
+   }
+ }
+ function observe(doc){
+   const mo=new MutationObserver(()=>{fixImages(doc);improvePlayer(doc)});mo.observe(doc.body,{subtree:true,childList:true});
+ }
+ function patch(){
+   if(patched)return;tries++;const doc=d();if(!doc||!doc.body){if(tries<120)return setTimeout(patch,100);document.body.classList.add('ready');return}
+   addStyles(doc);fixImages(doc);improvePlayer(doc);observe(doc);patched=true;document.body.classList.add('ready');
+ }
+ stage.addEventListener('load',()=>setTimeout(patch,120));setTimeout(patch,500);setTimeout(()=>document.body.classList.add('ready'),2500);
+})();
+</script>
+</body>
+</html>
