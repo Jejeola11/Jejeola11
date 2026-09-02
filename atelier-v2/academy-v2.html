@@ -7,12 +7,12 @@
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
 <title>Fuse Academy — Mobile V3</title>
 <style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f}#stage{position:fixed;inset:0;width:100%;height:100%;border:0;background:#02110f;opacity:0;transition:opacity .18s ease}.loader{position:fixed;inset:0;display:grid;place-items:center;background:#02110f;color:#f7fff9;font-family:Inter,system-ui,sans-serif;z-index:2}.loader-inner{text-align:center}.mark{width:48px;height:48px;border-radius:16px;margin:0 auto 10px;background:linear-gradient(135deg,#ffe568,#baff63 72%,#fff);display:grid;place-items:center;color:#07120f;font-size:23px;font-weight:950;box-shadow:0 18px 46px rgba(186,255,99,.14)}.loader b{font-size:13px}.loader p{margin:5px 0 0;color:#7f978e;font-size:10px}.ready #stage{opacity:1}.ready .loader{display:none}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f}#stage{position:fixed;inset:0;width:100%;height:100%;border:0;background:#02110f;opacity:0;transition:opacity .18s ease;pointer-events:auto}.loader{position:fixed;inset:0;display:grid;place-items:center;background:#02110f;color:#f7fff9;font-family:Inter,system-ui,sans-serif;z-index:2}.loader-inner{text-align:center}.mark{width:48px;height:48px;border-radius:16px;margin:0 auto 10px;background:linear-gradient(135deg,#ffe568,#baff63 72%,#fff);display:grid;place-items:center;color:#07120f;font-size:23px;font-weight:950;box-shadow:0 18px 46px rgba(186,255,99,.14)}.loader b{font-size:13px}.loader p{margin:5px 0 0;color:#7f978e;font-size:10px}.ready #stage{opacity:1}.ready .loader{display:none;pointer-events:none}
 </style>
 </head>
 <body>
 <div class="loader"><div class="loader-inner"><div class="mark">✦</div><b>Opening Fuse Academy</b><p>Preparing your learning studio.</p></div></div>
-<iframe id="stage" src="./academy/?v=20260902-continue-fix&base=1" title="Fuse Academy"></iframe>
+<iframe id="stage" src="./academy/?v=326e8ebe&base=1" title="Fuse Academy"></iframe>
 <script>
 (()=>{
  const stage=document.getElementById('stage');
@@ -30,8 +30,10 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f}#st
  .path-card,.card,.module{border-color:rgba(83,133,117,.42)!important}
  .continue-media,.path-media,.course-media{background:linear-gradient(135deg,#0b2e26,#061814)!important}
  .continue-media video{filter:saturate(.98) contrast(1.02)}
+ .continue-media video,.continue-media img,.continue-media:after,.continue-badge{pointer-events:none!important}
  .continue-media:after{background:linear-gradient(180deg,rgba(0,0,0,.04) 18%,rgba(2,17,15,.9) 100%)!important;z-index:1}.continue-badge{z-index:3!important}
- .continue-copy{position:relative;z-index:3}.continue{overflow:hidden!important}.continue .primary{box-shadow:0 10px 30px rgba(186,255,99,.1)!important}
+ .continue-copy,.cta-row{position:relative!important;z-index:20!important;pointer-events:auto!important}.continue{overflow:hidden!important}.continue .primary{box-shadow:0 10px 30px rgba(186,255,99,.1)!important}
+ .continue .primary,.continue .secondary{position:relative!important;z-index:21!important;pointer-events:auto!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important}
  .bottom{height:68px!important;background:rgba(2,19,16,.97)!important;border-top-color:rgba(186,255,99,.12)!important}.bottom .nav{font-size:8px!important}
  .lesson-view.active{padding-top:0!important}.lesson-shell{max-width:560px!important;margin:auto!important}.player-grid{display:block!important}
  .lesson-view.active .vertical-player{width:min(76vw,310px)!important;max-height:none!important;aspect-ratio:9/16!important;margin:0 auto!important;border-radius:24px!important;border:1px solid rgba(255,255,255,.11)!important;box-shadow:0 30px 88px rgba(0,0,0,.58)!important;background:#000!important}
