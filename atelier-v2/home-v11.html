@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#02110f">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<title>Fuse Atelier — Home V11</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f;color:#f8fff9;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+#stage{position:fixed;inset:0;width:100%;height:100%;border:0;background:#02110f;opacity:0;transition:opacity .2s ease}.ready #stage{opacity:1}.loader{position:fixed;inset:0;display:grid;place-items:center;background:#02110f;z-index:4}.ready .loader{display:none}.loader>div{text-align:center}.mark{width:48px;height:48px;border-radius:15px;margin:0 auto 11px;background:linear-gradient(135deg,#ffe568,#baff63 70%,#fff);display:grid;place-items:center;color:#07120f;font-weight:950;font-size:24px}.loader b{font-size:13px}.loader p{font-size:10px;color:#789087;margin:5px 0 0}
+</style>
+</head>
+<body>
+<div class="loader"><div><div class="mark">✦</div><b>Opening Fuse Atelier</b><p>Loading photography, design and motion.</p></div></div>
+<iframe id="stage" src="./home-v10.html?v=20260902-v11" title="Fuse Atelier"></iframe>
+<script>
+(()=>{
+ const stage=document.getElementById('stage');let patched=false,tries=0;
+ const assets={
+  fashion1:'https://drive.google.com/uc?export=view&id=1jA2W_s88PGGKR9D5t-HwHnhCyoicqoeo',
+  fashion2:'https://drive.google.com/uc?export=view&id=1veCwbHd844kfiOR4OGg2CNpvwsNjAKeK',
+  hijab1:'https://drive.google.com/uc?export=view&id=116pgJMaiCU34FYaf8gM1pYd-YDOcayCd',
+  hijab2:'https://drive.google.com/uc?export=view&id=1PdsdGaKzkCXKBkHTo9BSOfZX5bc84zM-',
+  hijab3:'https://drive.google.com/uc?export=view&id=1y6kK0DFBaHF8wRLH8vmjZTtfKQKgwZU8',
+  product1:'https://drive.google.com/uc?export=view&id=1IPk21XgL0imwg4rHSrdxYft-Jvmier4V',
+  product2:'https://drive.google.com/uc?export=view&id=1NTsSSURj8fylW-mBaKD6pUF0RYzneinV',
+  product3:'https://drive.google.com/uc?export=view&id=1b7N6yUY3D6fqDTlpR5tFWzNexsAIA1Va',
+  ad1:'https://drive.google.com/uc?export=view&id=15wj1jZ6KfNxVBQDIq5Tx30_eWjAnNMTc',
+  ad2:'https://drive.google.com/uc?export=view&id=1sXKDsyqwFPMVMakvj2u9prFg5wknOpy6',
+  ad3:'https://drive.google.com/uc?export=view&id=1uzgP5lzpu_JGF7j1CGSxW-GtMgHXWv03'
+ };
+ function uiDoc(){try{const v10=stage.contentDocument;const v9=v10&&v10.getElementById('stage')?.contentDocument;const v6=v9&&v9.getElementById('stage')?.contentDocument;const v5=v6&&v6.getElementById('app')?.contentDocument;return v5||null}catch(e){return null}}
+ function image(d,src,alt){const i=d.createElement('img');i.src=src;i.alt=alt;i.loading='lazy';i.decoding='async';i.referrerPolicy='no-referrer';i.addEventListener('error',()=>{if(!i.dataset.retry){i.dataset.retry='1';const id=(src.match(/id=([^&]+)/)||[])[1];if(id)i.src='https://drive.google.com/thumbnail?id='+id+'&sz=w1600'}});return i}
+ function patch(){if(patched)return;tries++;const d=uiDoc();if(!d||!d.querySelector('.tabs')||!d.querySelector('.tools')){if(tries<200)return setTimeout(patch,100);document.body.classList.add('ready');return}if(d.documentElement.dataset.homeV11){patched=true;document.body.classList.add('ready');return}d.documentElement.dataset.homeV11='1';
+
+  const next=d.querySelector('.next-move');
+  if(next){
+   const section=d.createElement('section');section.className='creative-lanes';section.innerHTML=`
+    <div class="lane-head"><div><span>EXPLORE BY WHAT YOU WANT TO MAKE</span><h2>One studio. More ways to get paid.</h2></div><small>Photography · Product · Design · Motion</small></div>
+    <div class="lane-grid"></div>`;
+   const grid=section.querySelector('.lane-grid');
+   const data=[
+    ['FUSE SHOT','AI Photography','Editorial portraits, creator imagery and campaign photography.','Starter $80–$250',assets.fashion1],
+    ['PRODUCT','Product Photography','Premium ecommerce and campaign product visuals without a physical shoot.','Starter $150–$600',assets.product3],
+    ['FUSE ADS','AI Flyers','Social ads, campaign posters and promotional design for real brands.','Starter $80–$300',assets.ad1],
+    ['CREATOR','Personal Brand Visuals','Build a polished visual identity for creators, experts and founders.','Starter $100–$350',assets.hijab2]
+   ];
+   data.forEach(r=>{const c=d.createElement('article');c.className='lane-card';c.appendChild(image(d,r[4],r[1]));const o=d.createElement('div');o.className='lane-overlay';o.innerHTML='<span>'+r[0]+'</span><h3>'+r[1]+'</h3><p>'+r[2]+'</p><b>'+r[3]+'</b>';c.appendChild(o);grid.appendChild(c)});
+   next.insertAdjacentElement('afterend',section);
+  }
+
+  const toolsSection=d.querySelector('.tools')?.closest('.section');
+  if(toolsSection){
+   const showcase=d.createElement('section');showcase.className='still-showcase';showcase.innerHTML=`<div class="still-copy"><span>FUSE SHOT + FUSE ADS</span><h2>From camera-ready portraits to campaign-ready ads.</h2><p>Use AI to create the still assets brands already pay photographers, designers and creative teams for.</p><div class="still-tags"><i>Fashion</i><i>Portraits</i><i>Product</i><i>Flyers</i></div></div><div class="still-grid"></div>`;
+   const g=showcase.querySelector('.still-grid');[assets.fashion2,assets.hijab1,assets.product2,assets.ad3].forEach((src,i)=>{const w=d.createElement('figure');w.className='still-'+(i+1);w.appendChild(image(d,src,'Fuse Atelier AI work'));g.appendChild(w)});
+   toolsSection.insertAdjacentElement('afterend',showcase);
+  }
+
+  const made=[...d.querySelectorAll('.section')].find(s=>s.querySelector('.head h2')?.textContent.trim()==='Made in Fuse');
+  if(made){
+   const works=[...made.querySelectorAll('.work')];
+   const replacements=[
+    [assets.fashion1,'AI Editorial Portrait','Photography','$120+','photography'],
+    [assets.product1,'Kinetix Product Story','Product photography','$250+','product'],
+    [assets.ad2,'Performance Ad Creative','AI flyer design','$150+','flyers'],
+    [assets.hijab3,'Personal Brand Portrait','AI photography','$100+','photography'],
+    [assets.product3,'Premium Product Visual','Campaign image','$200+','product'],
+    [assets.ad3,'Beauty Launch Flyer','Campaign design','$120+','flyers']
+   ];
+   replacements.forEach((r,i)=>{const w=works[i];if(!w)return;const visual=w.querySelector('.work-visual');if(visual){visual.innerHTML='';visual.appendChild(image(d,r[0],r[1]))}w.dataset.cat=r[4];const b=w.querySelector('.work-copy b');if(b)b.textContent=r[1];const spans=w.querySelectorAll('.work-copy span');if(spans[0])spans[0].textContent=r[2]+' · from '+r[3];const chip=w.querySelector('.service-chip,.sell-tag');if(chip)chip.textContent=r[4]==='flyers'?'AI AD DESIGN':r[4]==='product'?'PRODUCT CAMPAIGN':'AI PHOTOGRAPHY';});
+   const filterRow=made.querySelector('.filter-row');
+   if(filterRow){
+    const labels=['Photography','Flyers'];const keys=['photography','flyers'];
+    labels.forEach((lab,i)=>{if(![...filterRow.children].some(x=>x.textContent.trim()===lab)){const b=d.createElement('button');b.className='filter';b.dataset.key=keys[i];b.textContent=lab;filterRow.appendChild(b)}});
+   }
+  }
+
+  const style=d.createElement('style');style.textContent=`
+   .creative-lanes{margin-top:18px}.lane-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:12px}.lane-head span,.still-copy>span{font-size:8px;letter-spacing:.14em;font-weight:950;color:#baff63}.lane-head h2,.still-copy h2{margin:5px 0 0;font-size:27px;letter-spacing:-.04em}.lane-head small{color:#81978f;font-size:10px}.lane-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.lane-card{position:relative;min-height:280px;border-radius:19px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:#061914;box-shadow:0 16px 42px rgba(0,0,0,.2)}.lane-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.lane-card:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 28%,rgba(2,17,15,.2) 54%,rgba(2,17,15,.96) 100%)}.lane-overlay{position:absolute;z-index:2;left:0;right:0;bottom:0;padding:15px}.lane-overlay span{font-size:7px;letter-spacing:.13em;font-weight:950;color:#baff63}.lane-overlay h3{font-size:16px;margin:4px 0}.lane-overlay p{font-size:9px;line-height:1.4;color:#a1b4ad;margin:0 0 8px}.lane-overlay b{display:inline-flex;border:1px solid rgba(186,255,99,.22);border-radius:999px;padding:5px 7px;background:rgba(186,255,99,.08);font-size:7px;color:#dfffaa}.still-showcase{margin-top:25px;display:grid;grid-template-columns:.82fr 1.18fr;border:1px solid rgba(186,255,99,.17);border-radius:22px;overflow:hidden;background:linear-gradient(135deg,#071c18,#0a2b23);box-shadow:0 18px 52px rgba(0,0,0,.18)}.still-copy{padding:24px;display:flex;flex-direction:column;justify-content:center}.still-copy p{color:#8ea39b;font-size:11px;line-height:1.55}.still-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.still-tags i{font-style:normal;border:1px solid rgba(186,255,99,.16);background:rgba(186,255,99,.05);border-radius:999px;padding:6px 8px;font-size:8px;color:#c7ddd5}.still-grid{min-height:330px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:5px;padding:6px}.still-grid figure{margin:0;overflow:hidden;border-radius:11px;background:#061914}.still-grid img{width:100%;height:100%;object-fit:cover;display:block}.work-visual img{width:100%;height:100%;object-fit:cover;display:block}
+   @media(max-width:880px){.lane-grid{grid-template-columns:repeat(2,1fr)}.still-showcase{grid-template-columns:1fr}.still-grid{min-height:420px}}
+   @media(max-width:620px){.creative-lanes{margin-top:16px}.lane-head{margin-bottom:9px}.lane-head h2{font-size:21px;line-height:1.02}.lane-head small{display:none}.lane-grid{display:flex;overflow-x:auto;gap:7px;scrollbar-width:none;padding-bottom:2px}.lane-grid::-webkit-scrollbar{display:none}.lane-card{min-width:154px;width:154px;min-height:215px;border-radius:15px}.lane-overlay{padding:11px}.lane-overlay h3{font-size:13px}.lane-overlay p{display:none}.lane-overlay b{font-size:6px}.still-showcase{margin-top:20px;border-radius:18px}.still-copy{padding:17px}.still-copy h2{font-size:22px;line-height:1.02}.still-copy p{font-size:9px;line-height:1.45;margin-bottom:5px}.still-grid{min-height:300px;padding:5px;gap:4px}.still-grid figure{border-radius:9px}.work-visual img{object-position:center center}}
+  `;d.head.appendChild(style);
+  patched=true;document.body.classList.add('ready');
+ }
+ stage.addEventListener('load',()=>{setTimeout(patch,350);setTimeout(patch,900);setTimeout(patch,1700)});setTimeout(patch,800);setTimeout(()=>document.body.classList.add('ready'),3400);
+})();
+</script>
+</body>
+</html>
