@@ -1,11 +1,11 @@
 const SOURCES = {
   left: {
-    primary: 'https://drive.google.com/uc?export=download&id=1x9pyHD1UY_WR08Cid5FbMyKN01jWvmJ6',
-    fallback: 'https://drive.usercontent.google.com/download?id=1x9pyHD1UY_WR08Cid5FbMyKN01jWvmJ6&export=download&confirm=t'
+    primary: 'https://drive.google.com/uc?export=download&id=1nEH-w91Jq61qollTccKVpxDOOrrJjs95',
+    fallback: 'https://drive.usercontent.google.com/download?id=1nEH-w91Jq61qollTccKVpxDOOrrJjs95&export=download&confirm=t'
   },
   right: {
-    primary: 'https://drive.google.com/uc?export=download&id=1mYB-50Jdd7NLeJyG_STnQHTla9jbCTkY',
-    fallback: 'https://drive.usercontent.google.com/download?id=1mYB-50Jdd7NLeJyG_STnQHTla9jbCTkY&export=download&confirm=t'
+    primary: 'https://drive.google.com/uc?export=download&id=1lICwIGYAgEmwCwDiVi8kq4Qx3BfAH9UU',
+    fallback: 'https://drive.usercontent.google.com/download?id=1lICwIGYAgEmwCwDiVi8kq4Qx3BfAH9UU&export=download&confirm=t'
   }
 };
 
