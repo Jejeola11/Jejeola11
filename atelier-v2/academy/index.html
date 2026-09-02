@@ -7,6 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
 <title>Fuse Academy — Learn. Create. Sell.</title>
 <script src="/app/course.js"></script>
+<script src="/atelier-v2/academy/course-current.js?v=20260903-drive-titles"></script>
 <style>
 :root{--bg:#02110f;--panel:#071c18;--panel2:#0b2922;--line:#1f493e;--line2:rgba(186,255,99,.16);--text:#f7fff9;--muted:#839990;--lime:#baff63;--yellow:#ffe568;--grad:linear-gradient(105deg,#ffe568 0%,#dcff61 44%,#baff63 78%,#fff 150%);--shadow:0 22px 70px rgba(0,0,0,.32)}
 *{box-sizing:border-box}html{background:var(--bg);scroll-behavior:smooth}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -10%,rgba(186,255,99,.045),transparent 34%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:88px}button,input{font:inherit}button{cursor:pointer}img,video{display:block;width:100%;height:100%}a{color:inherit;text-decoration:none}.hide{display:none!important}
@@ -54,7 +55,7 @@ const META={
 };
 const MONEY={key:'money',name:'The Money Engine System',sub:'Turn your skill into clients',resources:[{title:'Money Engine Resources',desc:'Lead tracker, pitch assets and supporting resources.'}],modules:[{key:'money-start',title:'Start Here',lessons:[{key:'money-start',n:'0',title:'Start Here — Understand The System'}]},{key:'money-main',title:'The Money Engine System',lessons:[{key:'money-m1',n:'1',title:'How It Works'},{key:'money-m2',n:'2',title:'The 50 — Lead Hunt'},{key:'money-m3',n:'3',title:'Find The Problem'},{key:'money-m4',n:'4',title:'The Sample Engine'},{key:'money-m5',n:'5',title:'Pitch & Follow Up'},{key:'money-m6',n:'6',title:'Close The Deal'}]}]};
 const PROGRESS_KEY='fuse-academy-progress-v1';
-function realCourse(key){if(key==='money')return MONEY;const pillars=(window.FUSE_COURSE&&window.FUSE_COURSE.pillars)||[];return pillars.find(p=>p.key===key)||null}
+function realCourse(key){if(key==='money')return window.FUSE_ACADEMY_MONEY||MONEY;const pillars=(window.FUSE_COURSE&&window.FUSE_COURSE.pillars)||[];return pillars.find(p=>p.key===key)||null}
 function lessonCount(course){return (course.modules||[]).reduce((n,m)=>n+(m.lessons||[]).length,0)}
 function flatLessons(course){const flat=[];(course&&course.modules||[]).forEach((m,mi)=>(m.lessons||[]).forEach((lesson,li)=>flat.push({lesson,mi,li,module:m})));return flat}
 function readProgress(){try{return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'{}')||{}}catch(e){return {}}}
