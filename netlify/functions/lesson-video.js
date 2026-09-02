@@ -18,6 +18,20 @@
 const { admin, getUser, json } = require('./_supabase');
 const LESSON_ACCESS = require('./_lesson-access');
 
+// Academy V2 keeps the Money Engine path locally in academy/index.html
+// rather than inside app/course.js, so those current lesson keys are not
+// generated into _lesson-access.js. Keep this list in sync with that local
+// learner-facing MONEY object. It uses the same tier/access checks below.
+const MONEY_ACCESS = {
+  'money-start': { tier: 1, module: 'money' },
+  'money-m1': { tier: 1, module: 'money' },
+  'money-m2': { tier: 1, module: 'money' },
+  'money-m3': { tier: 1, module: 'money' },
+  'money-m4': { tier: 1, module: 'money' },
+  'money-m5': { tier: 1, module: 'money' },
+  'money-m6': { tier: 1, module: 'money' },
+};
+
 exports.handler = async (event) => {
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
@@ -29,7 +43,7 @@ exports.handler = async (event) => {
     const lessonKey = (body.lesson_key || '').trim();
     if (!lessonKey) return json(400, { error: 'Missing lesson_key' });
 
-    const access = LESSON_ACCESS[lessonKey];
+    const access = LESSON_ACCESS[lessonKey] || MONEY_ACCESS[lessonKey];
     if (!access) return json(404, { error: 'Unknown lesson.' });
 
     const db = admin();
