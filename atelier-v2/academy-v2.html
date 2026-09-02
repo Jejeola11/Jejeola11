@@ -12,7 +12,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f}#st
 </head>
 <body>
 <div class="loader"><div class="loader-inner"><div class="mark">✦</div><b>Opening Fuse Academy</b><p>Preparing your learning studio.</p></div></div>
-<iframe id="stage" src="./academy/?v=20260902-0416&base=1" title="Fuse Academy"></iframe>
+<iframe id="stage" src="./academy/?v=20260902-1710&base=1" title="Fuse Academy"></iframe>
 <script>
 (()=>{
  const stage=document.getElementById('stage');
@@ -21,8 +21,8 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f}#st
  function doc(){try{return stage.contentDocument}catch(e){return null}}
  function win(){try{return stage.contentWindow}catch(e){return null}}
  function safePlay(v){if(!v)return;v.muted=true;v.defaultMuted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute('muted','');v.setAttribute('autoplay','');v.setAttribute('loop','');v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');const p=v.play();if(p&&p.catch)p.catch(()=>{})}
- function fixImages(d){[...d.querySelectorAll('img')].forEach((img,i)=>{const apply=()=>{if(img.dataset.fuseFallbackDone)return;img.dataset.fuseFallbackDone='1';img.src=fallbacks[i%fallbacks.length];img.style.objectFit='cover';img.style.objectPosition='center'};img.addEventListener('error',apply,{once:true});setTimeout(()=>{if(img.complete&&!img.naturalWidth)apply()},500)})}
- function makeContinuePreview(d){const media=d.querySelector('.continue-media');if(!media||media.dataset.videoReady)return;media.dataset.videoReady='1';const old=media.querySelector('img');if(old)old.remove();const v=d.createElement('video');v.src='/atelier-site/assets/work/work-01.mp4';v.poster='./media/burger-ugc.svg';v.preload='auto';v.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0';media.prepend(v);safePlay(v);v.addEventListener('canplay',()=>safePlay(v));document.addEventListener?.('visibilitychange',()=>{if(!document.hidden)safePlay(v)})}
+ function fixImages(d){[...d.querySelectorAll('img')].forEach((img,i)=>{if(img.classList.contains('continue-fallback'))return;const apply=()=>{if(img.dataset.fuseFallbackDone)return;img.dataset.fuseFallbackDone='1';img.src=fallbacks[i%fallbacks.length];img.style.objectFit='cover';img.style.objectPosition='center'};img.addEventListener('error',apply,{once:true});setTimeout(()=>{if(img.complete&&!img.naturalWidth)apply()},500)})}
+ function polishContinuePreview(d){const media=d.querySelector('.continue-media');if(!media)return;media.dataset.videoReady='1';const v=media.querySelector('video');if(v){safePlay(v);v.addEventListener('canplay',()=>safePlay(v));v.addEventListener('loadeddata',()=>safePlay(v))}}
  function addStyles(d){const s=d.createElement('style');s.textContent=`
  :root{--premium-line:rgba(186,255,99,.16)}
  body{padding-bottom:78px!important;background:radial-gradient(circle at 50% -5%,rgba(186,255,99,.055),transparent 28%),#02110f!important}
@@ -53,12 +53,9 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f}#st
  `;d.head.appendChild(s)}
  function polishLesson(d){const p=d.querySelector('.lesson-view.active .vertical-player');if(!p)return;const video=p.querySelector('video');if(video){video.playsInline=true;video.setAttribute('playsinline','');video.setAttribute('webkit-playsinline','');video.preload='auto'}const meta=d.querySelector('.lesson-view.active .lesson-meta');if(meta&&!meta.querySelector('.lesson-mini-status')){const x=d.createElement('div');x.className='lesson-mini-status';x.innerHTML='<i></i><span>9:16 lesson · optimized for mobile</span>';const q=meta.querySelector('.lesson-quick');if(q)q.before(x);else meta.appendChild(x)}}
  function forceLessonAutoplay(d){const view=d.querySelector('.lesson-view.active');if(!view)return;const play=view.querySelector('#playLesson');const video=view.querySelector('#lessonVideo');if(play&&!play.dataset.autoAttempted){play.dataset.autoAttempted='1';setTimeout(()=>{try{play.click()}catch(e){}},120)}if(video){video.addEventListener('loadeddata',()=>safePlay(video),{once:true});video.addEventListener('canplay',()=>safePlay(video),{once:true})}}
- function installNavigation(d,w){if(d.documentElement.dataset.fuseNavV3)return;d.documentElement.dataset.fuseNavV3='1';
-   d.addEventListener('click',e=>{const btn=e.target.closest('.continue .primary[data-open="video"]');if(btn){e.preventDefault();e.stopImmediatePropagation();if(typeof w.openLesson==='function'){w.openLesson('video',0,0);setTimeout(()=>{polishLesson(d);forceLessonAutoplay(d)},80)}}},true);
-   const original=w.openLesson;if(typeof original==='function'&&!w.__fuseLessonWrapped){w.__fuseLessonWrapped=true;w.openLesson=function(){const out=original.apply(this,arguments);setTimeout(()=>{polishLesson(d);forceLessonAutoplay(d)},80);return out}}
- }
- function observe(d){const mo=new MutationObserver(()=>{fixImages(d);makeContinuePreview(d);polishLesson(d);forceLessonAutoplay(d)});mo.observe(d.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']})}
- function patch(){if(patched)return;tries++;const d=doc(),w=win();if(!d||!d.body||!w){if(tries<140)return setTimeout(patch,100);document.body.classList.add('ready');return}addStyles(d);fixImages(d);makeContinuePreview(d);installNavigation(d,w);polishLesson(d);forceLessonAutoplay(d);observe(d);patched=true;document.body.classList.add('ready')}
+ function wrapLessonOpen(d,w){const original=w.openLesson;if(typeof original==='function'&&!w.__fuseLessonPolishWrapped){w.__fuseLessonPolishWrapped=true;w.openLesson=function(){const out=original.apply(this,arguments);setTimeout(()=>{polishLesson(d);forceLessonAutoplay(d)},80);return out}}}
+ function observe(d){const mo=new MutationObserver(()=>{fixImages(d);polishContinuePreview(d);polishLesson(d);forceLessonAutoplay(d)});mo.observe(d.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']})}
+ function patch(){if(patched)return;tries++;const d=doc(),w=win();if(!d||!d.body||!w){if(tries<140)return setTimeout(patch,100);document.body.classList.add('ready');return}addStyles(d);fixImages(d);polishContinuePreview(d);wrapLessonOpen(d,w);polishLesson(d);forceLessonAutoplay(d);observe(d);patched=true;document.body.classList.add('ready')}
  stage.addEventListener('load',()=>setTimeout(patch,120));setTimeout(patch,500);setTimeout(()=>document.body.classList.add('ready'),2500);
 })();
 </script>
