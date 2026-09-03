@@ -12,7 +12,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f}#st
 </head>
 <body>
 <div class="loader"><div class="loader-inner"><div class="mark">✦</div><b>Opening Fuse Academy</b><p>Preparing your learning studio.</p></div></div>
-<iframe id="stage" src="./academy/?v=20260903-admin-deeplink&base=1" title="Fuse Academy"></iframe>
+<iframe id="stage" src="./academy/index.html?v=20260903-vercel-route-fix&base=1" title="Fuse Academy"></iframe>
 <script src="./academy-v2-runtime.js?v=e8448519-drive-titles" defer></script>
 <script src="./academy-sell-bridge.js?v=ad8a346a" defer></script>
 <script>
@@ -63,7 +63,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f}#st
    const create=navs.find(n=>n.classList.contains('create'))||navs[2];
    if(clients&&!clients.dataset.fuseClientsBound){clients.dataset.fuseClientsBound='1';clients.onclick=e=>{e.preventDefault();window.top.location.href='/atelier-v2/clients.html'};clients.style.cursor='pointer'}
    if(create&&!create.dataset.fuseCreateBound){create.dataset.fuseCreateBound='1';create.onclick=e=>{e.preventDefault();window.top.location.href='/app/studio.html'};create.style.cursor='pointer'}
-   if(profile&&!profile.dataset.fuseProfileBound){profile.dataset.fuseProfileBound='1';profile.onclick=e=>{e.preventDefault();window.top.location.href='/atelier-v2/?profile=1'};profile.style.cursor='pointer'}
+   if(profile&&!profile.dataset.fuseProfileBound){profile.dataset.fuseProfileBound='1';profile.onclick=e=>{e.preventDefault();window.top.location.href='/atelier-v2/index.html?profile=1'};profile.style.cursor='pointer'}
    bindFlowActions(d,w);
    routeRequest(w);
    if(!d.__fuseAcademyFlowObserver){d.__fuseAcademyFlowObserver=true;new MutationObserver(()=>{bindFlowActions(d,w);routeRequest(w)}).observe(d.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']})}
