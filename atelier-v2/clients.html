@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#02110f">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<title>Fuse Clients</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#02110f;--surface:#061b16;--surface2:#08251e;--surface3:#0b3027;--line:rgba(108,174,153,.23);--lime:#BAFF63;--yellow:#FFE568;--text:#f6fff9;--muted:#87a097;--danger:#ff9292;--grad:linear-gradient(105deg,#FFE568 0%,#ddff62 45%,#BAFF63 78%,#fff 145%);--shadow:0 20px 65px rgba(0,0,0,.28)}
+*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -12%,rgba(186,255,99,.08),transparent 30%),var(--bg);color:var(--text);font-family:Archivo,system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:92px}button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.hidden{display:none!important}.shell{width:min(1120px,calc(100% - 24px));margin:auto}
+.top{position:sticky;top:0;z-index:50;background:rgba(2,17,15,.91);backdrop-filter:blur(18px);border-bottom:1px solid rgba(186,255,99,.08)}.top-in{height:64px;display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font-family:"Bricolage Grotesque";font-weight:800;font-size:19px;letter-spacing:-.04em}.brand span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}.account{font-size:9px;color:var(--muted);max-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.top-actions{display:flex;align-items:center;gap:7px}.icon{width:37px;height:37px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:white;font-weight:800}.primary{border:0;border-radius:13px;background:var(--grad);color:#07120f;font-weight:900;padding:11px 14px}.ghost{border:1px solid var(--line);border-radius:13px;background:var(--surface);color:#eaf5f1;font-weight:800;padding:10px 13px}.danger{border:1px solid rgba(255,146,146,.24);border-radius:13px;background:rgba(255,146,146,.07);color:#ffcaca;font-weight:800;padding:10px 13px}
+main{padding:20px 0 48px}.hero{position:relative;overflow:hidden;border:1px solid rgba(103,165,146,.4);border-radius:26px;background:linear-gradient(135deg,#071d18,#0a3027);padding:24px;box-shadow:var(--shadow)}.hero:after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-120px;top:-150px;background:radial-gradient(circle,rgba(186,255,99,.22),transparent 68%);pointer-events:none}.eyebrow{font-size:9px;letter-spacing:.17em;color:var(--lime);font-weight:900;text-transform:uppercase}.hero h1{font-family:"Bricolage Grotesque";font-size:clamp(34px,7vw,62px);line-height:.93;letter-spacing:-.055em;margin:8px 0 10px;max-width:700px}.hero h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{max-width:690px;color:#9db2aa;font-size:12px;line-height:1.55;margin:0}.hero-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}.sprint{margin-top:14px;display:flex;align-items:center;gap:9px;border-top:1px solid rgba(255,255,255,.06);padding-top:13px;color:#c8dbd4;font-size:9px}.sprint b{color:var(--lime)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.stat{min-height:88px;border:1px solid var(--line);border-radius:18px;background:rgba(8,37,30,.86);padding:14px}.stat b{font-family:"Bricolage Grotesque";display:block;font-size:28px;letter-spacing:-.045em}.stat span{display:block;color:var(--muted);font-size:8px;text-transform:uppercase;letter-spacing:.07em;margin-top:4px}.section{margin-top:24px}.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:10px}.section-head h2{font-family:"Bricolage Grotesque";font-size:24px;letter-spacing:-.045em;margin:3px 0 0}.section-head p{margin:0;color:var(--muted);font-size:9px}.pipeline{display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));gap:7px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none}.pipeline::-webkit-scrollbar{display:none}.stage{min-width:120px;border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:12px;cursor:pointer}.stage.active{border-color:rgba(186,255,99,.48);background:#0a2c24}.stage b{display:block;font-size:21px;font-family:"Bricolage Grotesque"}.stage span{display:block;font-size:8px;color:var(--muted);margin-top:4px}.stage i{display:block;width:7px;height:7px;border-radius:50%;background:var(--lime);margin-bottom:8px}.stage[data-status="lost"] i{background:#9a7777}.stage[data-status="won"] i{background:var(--yellow)}
+.today{border:1px solid rgba(255,229,104,.16);border-radius:20px;background:linear-gradient(135deg,rgba(255,229,104,.055),rgba(186,255,99,.025));padding:15px}.today-top{display:flex;justify-content:space-between;gap:10px;align-items:center}.today-top b{font-family:"Bricolage Grotesque";font-size:16px}.today-top span{font-size:8px;color:var(--yellow);font-weight:900}.today-list{display:grid;gap:7px;margin-top:10px}.today-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;border-top:1px solid rgba(255,255,255,.055);padding-top:9px}.today-row:first-child{border-top:0;padding-top:0}.today-row b{font-size:11px}.today-row small{display:block;color:var(--muted);font-size:8px;margin-top:3px}.today-empty{color:var(--muted);font-size:9px;margin-top:9px}
+.toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:13px 0}.search{height:45px;border:1px solid var(--line);border-radius:14px;background:var(--surface);display:flex;align-items:center;padding:0 12px;gap:8px}.search input{width:100%;border:0;background:transparent;color:white;outline:0;font-size:11px}.filters{display:flex;gap:6px;overflow:auto;scrollbar-width:none}.filters::-webkit-scrollbar{display:none}.filter{white-space:nowrap;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);padding:9px 11px;font-size:8px;font-weight:900}.filter.active{background:var(--grad);color:#07120f;border-color:transparent}.prospects{display:grid;gap:9px}.prospect{border:1px solid var(--line);border-radius:19px;background:linear-gradient(145deg,#071f19,#061914);padding:14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}.prospect h3{font-family:"Bricolage Grotesque";font-size:17px;letter-spacing:-.035em;margin:0}.prospect-sub{color:var(--muted);font-size:8px;margin-top:4px}.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}.chip{border:1px solid rgba(255,255,255,.07);background:#0b2b23;border-radius:999px;padding:5px 7px;font-size:7px;color:#b9cec6}.chip.status{color:#e5ffb8;border-color:rgba(186,255,99,.14)}.chip.due{color:#ffe99a;border-color:rgba(255,229,104,.15)}.problem{font-size:9px;line-height:1.45;color:#bdd0c9;margin-top:8px;max-width:680px}.prospect-right{text-align:right;min-width:185px}.money{font-family:"Bricolage Grotesque";font-size:14px;color:var(--lime);font-weight:800}.quick{display:flex;justify-content:flex-end;gap:5px;flex-wrap:wrap;margin-top:8px}.mini{border:1px solid var(--line);border-radius:10px;background:#09251e;color:#eaf6f1;padding:7px 9px;font-size:8px;font-weight:800}.mini.hot{border-color:transparent;background:var(--grad);color:#07120f}.empty{border:1px dashed var(--line);border-radius:19px;padding:34px 18px;text-align:center;color:var(--muted);font-size:10px}.empty b{display:block;color:#e8f4ef;font-size:14px;margin-bottom:5px}
+.overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.62);backdrop-filter:blur(5px);display:none;align-items:flex-end;justify-content:center}.overlay.open{display:flex}.sheet{width:min(720px,100%);max-height:92dvh;overflow:auto;background:#061b16;border:1px solid rgba(186,255,99,.17);border-radius:25px 25px 0 0;box-shadow:0 -25px 80px rgba(0,0,0,.46);padding:18px 16px calc(24px + env(safe-area-inset-bottom))}.sheet-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;position:sticky;top:-18px;background:#061b16;padding:18px 0 12px;z-index:2}.sheet-head h2{font-family:"Bricolage Grotesque";font-size:23px;letter-spacing:-.04em;margin:0}.sheet-head p{color:var(--muted);font-size:8px;margin:4px 0 0}.close{width:37px;height:37px;border-radius:12px;border:1px solid var(--line);background:#0b2b23;color:white;font-size:18px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field{margin-top:10px}.field label{display:block;font-size:8px;font-weight:900;color:#d5e5df;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;border:1px solid rgba(108,174,153,.3);border-radius:12px;background:#041612;color:white;outline:0;padding:10px;font-size:10px}.field input,.field select{height:43px}.field textarea{min-height:78px;resize:vertical;line-height:1.45}.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(186,255,99,.52);box-shadow:0 0 0 3px rgba(186,255,99,.05)}.field .hint{font-size:7px;color:var(--muted);margin-top:5px}.sheet-actions{display:flex;justify-content:space-between;gap:7px;flex-wrap:wrap;margin-top:16px;padding-top:13px;border-top:1px solid rgba(255,255,255,.06)}.sheet-actions .right{display:flex;gap:6px;margin-left:auto}.contact-actions{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px}.contact-actions a{border:1px solid var(--line);border-radius:11px;background:#09251e;padding:8px 10px;font-size:8px;font-weight:800}.contact-actions a.primary-link{background:var(--grad);color:#07120f;border:0}
+.auth{min-height:100vh;display:grid;place-items:center;padding:22px}.auth-card{width:min(450px,100%);border:1px solid rgba(103,165,146,.4);border-radius:25px;background:linear-gradient(145deg,#08251e,#061b16);padding:21px;box-shadow:var(--shadow)}.auth-card h1{font-family:"Bricolage Grotesque";font-size:31px;letter-spacing:-.05em;line-height:.98;margin:18px 0 7px}.auth-card p{font-size:9px;color:var(--muted);line-height:1.5}.auth-card .primary{width:100%;margin-top:14px}.auth-message{font-size:9px;color:#ffb7b7;margin-top:9px}
+.bottom{position:fixed;left:0;right:0;bottom:0;z-index:70;height:76px;padding:7px 8px calc(7px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 1fr 1.15fr 1fr 1fr;align-items:center;background:rgba(3,23,19,.96);backdrop-filter:blur(20px);border-top:1px solid rgba(186,255,99,.11)}.nav{border:0;background:transparent;color:#7e978e;font-size:8px;font-weight:800;text-align:center}.nav span{display:block;font-size:18px;line-height:1.2;margin-bottom:3px}.nav.active{color:#eaffd0}.create-nav{width:62px;height:62px;margin:-24px auto 0;border-radius:19px;background:var(--grad);color:#07120f;box-shadow:0 12px 34px rgba(186,255,99,.16);font-size:22px}.toast{position:fixed;left:50%;bottom:94px;transform:translate(-50%,15px);z-index:130;opacity:0;pointer-events:none;background:#112d26;border:1px solid rgba(186,255,99,.2);border-radius:13px;padding:10px 13px;color:white;font-size:9px;transition:.18s ease;box-shadow:0 14px 40px rgba(0,0,0,.32)}.toast.show{opacity:1;transform:translate(-50%,0)}.toast.bad{border-color:rgba(255,146,146,.25);color:#ffd0d0}
+@media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}.stat{min-height:78px}.hero{padding:20px 17px;border-radius:22px}.hero h1{font-size:42px}.toolbar{grid-template-columns:1fr}.prospect{grid-template-columns:1fr}.prospect-right{text-align:left;min-width:0}.quick{justify-content:flex-start}.grid2{grid-template-columns:1fr}.section{margin-top:20px}.section-head h2{font-size:21px}.pipeline{margin-right:-12px;padding-right:12px}.account{display:none}}
+@media(min-width:721px){.overlay{align-items:center;padding:24px}.sheet{border-radius:25px;max-height:90vh}}
+</style>
+</head>
+<body>
+<div id="authView" class="auth hidden">
+  <div class="auth-card">
+    <div class="brand">Fuse <span>Atelier</span></div>
+    <h1>Your client pipeline lives here.</h1>
+    <p>Sign in with the same Fuse account you use for Academy. Your prospects are private to your account.</p>
+    <div class="field"><label>Email</label><input id="loginEmail" type="email" autocomplete="email"></div>
+    <div class="field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password"></div>
+    <button id="loginBtn" class="primary" type="button">Sign in</button>
+    <div id="loginMessage" class="auth-message"></div>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+<header class="top"><div class="shell top-in"><div class="brand">Fuse <span>Clients</span></div><div class="top-actions"><span id="accountEmail" class="account"></span><button id="refreshBtn" class="icon" title="Refresh">↻</button><button id="addTopBtn" class="primary" type="button">+ Prospect</button></div></div></header>
+<main class="shell">
+  <section class="hero">
+    <div class="eyebrow">THE SELL SIDE OF FUSE</div>
+    <h1>Turn your skill into <em>paid conversations.</em></h1>
+    <p>Build your prospect list, attach proof, pitch, follow up and keep every opportunity moving until it becomes a client.</p>
+    <div class="hero-actions"><button id="addHeroBtn" class="primary" type="button">Add a prospect →</button><a class="ghost" href="/atelier-v2/academy-v2.html">Open Money Engine</a></div>
+    <div class="sprint"><b>50-PROSPECT SPRINT</b><span id="sprintText">Add your first prospect to begin.</span></div>
+  </section>
+
+  <section id="stats" class="stats"></section>
+
+  <section class="section">
+    <div class="section-head"><div><div class="eyebrow">PIPELINE</div><h2>Move people toward paid.</h2></div><p>Tap a stage to filter.</p></div>
+    <div id="pipeline" class="pipeline"></div>
+  </section>
+
+  <section class="section">
+    <div id="todayBox" class="today"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><div><div class="eyebrow">PROSPECTS</div><h2>Your client list</h2></div><p id="resultCount"></p></div>
+    <div class="toolbar"><div class="search">⌕ <input id="searchInput" placeholder="Search brand, niche, contact, problem…"></div><div id="filters" class="filters"></div></div>
+    <div id="prospects" class="prospects"></div>
+  </section>
+</main>
+
+<nav class="bottom" aria-label="Fuse navigation">
+  <button class="nav" data-href="/atelier-v2/"><span>⌂</span>Home</button>
+  <button class="nav" data-href="/atelier-v2/academy-v2.html"><span>◇</span>Academy</button>
+  <button class="nav create-nav" data-href="/atelier-v2/"><span>＋</span></button>
+  <button class="nav active"><span>◎</span>Clients</button>
+  <button class="nav" data-href="/atelier-v2/?profile=1"><span>○</span>Profile</button>
+</nav>
+</div>
+
+<div id="editorOverlay" class="overlay" aria-hidden="true">
+  <div class="sheet">
+    <div class="sheet-head"><div><div class="eyebrow">PROSPECT</div><h2 id="editorTitle">Add prospect</h2><p id="editorSub">Capture enough context to pitch intelligently.</p></div><button id="closeEditor" class="close" type="button">×</button></div>
+    <div id="contactActions" class="contact-actions hidden"></div>
+    <div class="grid2">
+      <div class="field"><label>Brand / business *</label><input id="fBrand" placeholder="e.g. Lumive Aesthetics"></div>
+      <div class="field"><label>Status</label><select id="fStatus"><option value="new">New</option><option value="qualified">Qualified</option><option value="sample_ready">Sample Ready</option><option value="pitched">Pitched</option><option value="follow_up">Follow-up</option><option value="won">Won</option><option value="lost">Lost</option></select></div>
+      <div class="field"><label>Niche</label><input id="fNiche" placeholder="Skincare, clinic, restaurant…"></div>
+      <div class="field"><label>Location</label><input id="fLocation" placeholder="Lagos, London…"></div>
+      <div class="field"><label>Decision-maker / contact</label><input id="fContact" placeholder="Founder or manager"></div>
+      <div class="field"><label>Source</label><select id="fSource"><option value="">Select source</option><option>Google Maps</option><option>Instagram</option><option>LinkedIn</option><option>Upwork</option><option>Referral</option><option>Other</option></select></div>
+      <div class="field"><label>Email</label><input id="fEmail" type="email" placeholder="hello@brand.com"></div>
+      <div class="field"><label>WhatsApp / phone</label><input id="fWhatsapp" placeholder="+234…"></div>
+      <div class="field"><label>Instagram</label><input id="fInstagram" placeholder="@brand or profile URL"></div>
+      <div class="field"><label>Website</label><input id="fWebsite" placeholder="https://brand.com"></div>
+      <div class="field"><label>Skill / service to pitch</label><select id="fService"><option value="">Choose service</option><option>Design & Flyers</option><option>AI UGC & Influencer</option><option>Landing Page Design</option><option>AI Product Photography</option><option>AI Video / Ads</option><option>Brand Creative</option><option>Other</option></select></div>
+      <div class="field"><label>Offer price</label><div style="display:grid;grid-template-columns:82px 1fr;gap:6px"><select id="fCurrency"><option>NGN</option><option>USD</option><option>GBP</option><option>EUR</option></select><input id="fPrice" type="number" min="0" step="0.01" placeholder="50000"></div></div>
+    </div>
+    <div class="field"><label>Visible problem</label><textarea id="fProblem" placeholder="What is visibly costing this brand money? No website, weak ads, inconsistent visuals…"></textarea><div class="hint">Write the problem you can prove from what you found—not a generic assumption.</div></div>
+    <div class="field"><label>Sample / proof link</label><input id="fSample" placeholder="Google Drive, portfolio, live sample…"></div>
+    <div class="field"><label>Next follow-up</label><input id="fFollowup" type="datetime-local"></div>
+    <div class="field"><label>Notes</label><textarea id="fNotes" placeholder="Decision-maker context, pitch angle, objections, what happened on the last contact…"></textarea></div>
+    <div class="sheet-actions"><button id="deleteBtn" class="danger hidden" type="button">Delete</button><div class="right"><button id="cancelBtn" class="ghost" type="button">Cancel</button><button id="saveBtn" class="primary" type="button">Save prospect</button></div></div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+<script src="/atelier-v2/clients.js?v=20260903-v1"></script>
+</body>
+</html>
