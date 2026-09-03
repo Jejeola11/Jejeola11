@@ -16,6 +16,9 @@ const STATUS=[
 ];
 const PIPE=STATUS.slice(1);
 const state={session:null,rows:[],filter:'all',search:'',editing:null};
+const SERVICE_BY_SKILL={design:'Design & Flyers',video:'AI UGC & Influencer',landing:'Landing Page Design',money:''};
+const ENTRY=(()=>{const p=new URLSearchParams(location.search);return{from:p.get('from')||'',skill:p.get('skill')||'',sprint:p.get('sprint')||''}})();
+let entryApplied=false;
 let toastTimer;
 function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function toast(msg,bad=false){const e=$('toast');e.textContent=msg;e.className='toast show'+(bad?' bad':'');clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.className='toast',2800)}
@@ -31,8 +34,8 @@ function instagramUrl(v){const s=String(v||'').trim();if(!s)return'';if(/^https?
 async function getSession(){const{data,error}=await sb.auth.getSession();if(error)throw error;return data.session||null}
 function showAuth(msg=''){$('authView').classList.remove('hidden');$('app').classList.add('hidden');$('loginMessage').textContent=msg}
 function showApp(){$('authView').classList.add('hidden');$('app').classList.remove('hidden')}
-async function signIn(){const email=$('loginEmail').value.trim(),password=$('loginPassword').value;if(!email||!password)return showAuth('Enter your email and password.');$('loginBtn').disabled=true;$('loginBtn').textContent='Signing in…';try{const{data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;state.session=data.session;showApp();await load()}catch(e){showAuth(e.message||'Could not sign in.')}finally{$('loginBtn').disabled=false;$('loginBtn').textContent='Sign in'}}
-async function boot(){try{state.session=await getSession();if(!state.session)return showAuth();$('accountEmail').textContent=state.session.user.email||'Fuse user';showApp();await load()}catch(e){showAuth(e.message||'Could not start Fuse Clients.')}}
+async function signIn(){const email=$('loginEmail').value.trim(),password=$('loginPassword').value;if(!email||!password)return showAuth('Enter your email and password.');$('loginBtn').disabled=true;$('loginBtn').textContent='Signing in…';try{const{data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;state.session=data.session;showApp();await load();applyEntryContext()}catch(e){showAuth(e.message||'Could not sign in.')}finally{$('loginBtn').disabled=false;$('loginBtn').textContent='Sign in'}}
+async function boot(){try{state.session=await getSession();if(!state.session)return showAuth();$('accountEmail').textContent=state.session.user.email||'Fuse user';showApp();await load();applyEntryContext()}catch(e){showAuth(e.message||'Could not start Fuse Clients.')}}
 
 async function load(){const{data,error}=await sb.from('client_prospects').select('*').order('updated_at',{ascending:false});if(error){if(/JWT|auth|session/i.test(error.message||''))return showAuth('Your session expired. Sign in again.');toast(error.message||'Could not load prospects.',true);return}state.rows=data||[];render()}
 function counts(){const out={all:state.rows.length};PIPE.forEach(s=>out[s.key]=state.rows.filter(r=>r.status===s.key).length);return out}
@@ -48,6 +51,24 @@ function render(){renderStats();renderPipeline();renderFilters();renderToday();r
 
 function clearForm(){state.editing=null;$('editorTitle').textContent='Add prospect';$('editorSub').textContent='Capture enough context to pitch intelligently.';$('deleteBtn').classList.add('hidden');$('contactActions').classList.add('hidden');$('contactActions').innerHTML='';['fBrand','fNiche','fLocation','fContact','fEmail','fWhatsapp','fInstagram','fWebsite','fPrice','fProblem','fSample','fFollowup','fNotes'].forEach(id=>$(id).value='');$('fStatus').value='new';$('fSource').value='';$('fService').value='';$('fCurrency').value='NGN'}
 function openNew(){clearForm();openOverlay()}
+function applyEntryContext(){
+ if(entryApplied||ENTRY.from!=='academy')return;
+ entryApplied=true;
+ openNew();
+ if(ENTRY.skill==='money'||ENTRY.sprint==='50'){
+   $('editorTitle').textContent='Add prospect · 50-lead sprint';
+   $('editorSub').textContent='Start the Money Engine with one qualified prospect. Keep going until you reach 50.';
+   $('fSource').value='Google Maps';
+   toast('Money Engine sprint started. Add prospect 1 of 50.');
+ }else{
+   const service=SERVICE_BY_SKILL[ENTRY.skill]||'';
+   if(service&&[...$('fService').options].some(o=>o.value===service||o.textContent===service))$('fService').value=service;
+   $('editorTitle').textContent=service?`Find clients for ${service}`:'Add prospect';
+   $('editorSub').textContent=service?'This prospect is starting from the skill you came from in Academy.':'Capture enough context to pitch intelligently.';
+   if(service)toast(`${service} selected. Add the first brand you want to pitch.`);
+ }
+ try{history.replaceState({},'',location.pathname)}catch(_){}
+}
 function openEditor(id){const r=state.rows.find(x=>x.id===id);if(!r)return;state.editing=r.id;$('editorTitle').textContent=r.brand_name;$('editorSub').textContent=`${labelStatus(r.status)} · updated ${fmtDate(r.updated_at,true)}`;$('deleteBtn').classList.remove('hidden');$('fBrand').value=r.brand_name||'';$('fStatus').value=r.status||'new';$('fNiche').value=r.niche||'';$('fLocation').value=r.location||'';$('fContact').value=r.contact_name||'';$('fSource').value=r.source||'';$('fEmail').value=r.email||'';$('fWhatsapp').value=r.whatsapp||'';$('fInstagram').value=r.instagram||'';$('fWebsite').value=r.website||'';$('fService').value=r.service||'';$('fCurrency').value=r.offer_currency||'NGN';$('fPrice').value=r.offer_price??'';$('fProblem').value=r.visible_problem||'';$('fSample').value=r.sample_url||'';$('fFollowup').value=localValue(r.next_follow_up);$('fNotes').value=r.notes||'';renderContactActions(r);openOverlay()}
 function renderContactActions(r){const actions=[],wa=whatsappUrl(r.whatsapp),site=normalizeUrl(r.website),ig=instagramUrl(r.instagram),sample=normalizeUrl(r.sample_url);if(wa)actions.push(`<a class="primary-link" href="${esc(wa)}" target="_blank" rel="noopener">WhatsApp</a>`);if(r.email)actions.push(`<a href="mailto:${esc(r.email)}">Email</a>`);if(ig)actions.push(`<a href="${esc(ig)}" target="_blank" rel="noopener">Instagram</a>`);if(site)actions.push(`<a href="${esc(site)}" target="_blank" rel="noopener">Website</a>`);if(sample)actions.push(`<a href="${esc(sample)}" target="_blank" rel="noopener">Open sample</a>`);$('contactActions').innerHTML=actions.join('');$('contactActions').classList.toggle('hidden',!actions.length)}
 function openOverlay(){$('editorOverlay').classList.add('open');$('editorOverlay').setAttribute('aria-hidden','false');document.body.style.overflow='hidden';setTimeout(()=>$('fBrand').focus(),80)}
