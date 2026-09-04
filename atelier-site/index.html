@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#03110f">
-<title>Fuse Atelier — Learn it. Create it. Sell it.</title>
+<title>Fuse Atelier — Learn one skill. Build proof. Pitch real clients.</title>
 <meta name="description" content="Fuse Atelier helps you learn a sellable AI skill, create proof of that skill, and find clients to sell it to. Founding access is ₦15,000.">
 <link rel="icon" href="https://raw.githubusercontent.com/Jejeola11/Jejeola11/007abc792547af596b84c0d9896b06e1ae8e9741/atelier-site/assets/icon-192.png">
 <meta property="og:type" content="website">
@@ -49,6 +49,11 @@ footer{border-top:1px solid var(--line2);padding:34px 0 90px;color:#70867d;font-
 @media(max-width:980px){.hero-grid{grid-template-columns:1fr;gap:38px}.hero-copy{max-width:650px}.product-stage{width:min(100%,620px);margin:auto}.steps{grid-template-columns:1fr}.step{min-height:310px}.skill-grid{grid-template-columns:1fr 1fr}.compare{grid-template-columns:1fr}.offer{grid-template-columns:1fr}.offer-card{max-width:560px}.demo-grid{grid-template-columns:280px 1fr}}
 @media(max-width:680px){.announce{font-size:10px}.nav-in{height:58px}.nav-actions .link{display:none}.btn.sm{padding:9px 13px;font-size:10px}.hero{padding-top:42px}.hero-grid{gap:24px}h1{font-size:clamp(45px,14vw,66px);max-width:none}.hero-tagline{font-size:21px}.hero-actions{display:grid;grid-template-columns:1fr}.hero-actions .btn{width:100%}.product-stage{min-height:430px}.app-card{width:82%}.app-card.a{top:8px}.app-card.b{top:90px}.app-card.c{bottom:6px}.skill-grid{grid-template-columns:1fr 1fr}.skill-visual{height:170px}.demo-grid{grid-template-columns:1fr}.demo-phone{width:250px}.footer-in{flex-direction:column;align-items:flex-start}.sticky-cta{display:grid}.section{padding:70px 0}.section-head{margin-bottom:24px}}
 @media(max-width:460px){.wrap{width:min(calc(100% - 22px),var(--wrap))}.product-stage{min-height:395px}.app-card{width:86%}.create-body{grid-template-columns:92px 1fr}.course-row{grid-template-columns:54px 1fr auto}.skill-grid{grid-template-columns:1fr}.skill-visual{height:auto;aspect-ratio:4/5}.skill-visual img{width:100%;height:100%;object-fit:cover}.skill-visual img.landing-card-img,.skill-visual img.money-card-img{object-fit:contain;background:#f4f4ef}.offer-card{padding:18px}.price{font-size:48px}.micro{font-size:9px}.section-head p{font-size:14px}}
+
+.proof-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:-18px;border:1px solid var(--line2);border-radius:18px;overflow:hidden;background:var(--line2);position:relative;z-index:4}
+.proof-strip>div{background:#051713;padding:14px 16px}.proof-strip b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:18px;line-height:1;color:#efffda}.proof-strip span{display:block;margin-top:5px;color:#7f968d;font-size:9px}
+@media(max-width:680px){.hero{padding:34px 0 38px}.hero-grid{gap:18px}h1{font-size:clamp(38px,11.3vw,48px);line-height:.94;max-width:11ch;margin-top:14px}h2{font-size:clamp(27px,8.5vw,36px);line-height:1}.hero-tagline{font-size:17px;margin:15px 0 7px}.hero-copy{font-size:13px;line-height:1.55;margin-bottom:18px}.kicker{font-size:8px;padding:7px 9px}.btn{font-size:12px;padding:13px 16px}.product-stage{min-height:360px}.section{padding:52px 0}.section-head{margin-bottom:19px}.section-head p{font-size:13px;line-height:1.55;margin-top:10px}.step{min-height:285px}.step h3{font-size:22px}.step p{font-size:12px}.offer-copy p{font-size:13px;line-height:1.55}.proof-strip{grid-template-columns:1fr 1fr;margin-top:-10px}.proof-strip>div{padding:11px 12px}.proof-strip b{font-size:15px}.proof-strip span{font-size:8px}}
+@media(max-width:460px){.announce{font-size:8.5px;padding:7px 8px}.nav-in{height:54px}.logo{font-size:15px}.logo img{width:27px;height:27px}.btn.sm{padding:8px 11px;font-size:9px}.hero{padding-top:28px}h1{font-size:clamp(36px,10.7vw,44px);max-width:10.5ch}h2{font-size:clamp(26px,8.2vw,33px)}.hero-tagline{font-size:16px}.hero-copy{font-size:12.5px}.product-stage{min-height:335px}.app-card{width:84%}.app-card.b{top:80px}.section{padding:46px 0}.skill-grid{grid-template-columns:1fr 1fr;gap:8px}.skill-card{border-radius:16px}.skill-visual{height:145px;aspect-ratio:auto}.skill-copy{padding:11px}.skill-copy span{font-size:6.5px}.skill-copy h3{font-size:15px;margin:5px 0}.skill-copy p{font-size:9px;line-height:1.4}.demo-phone{width:220px}.offer-card{padding:16px}.price{font-size:43px}.include{font-size:10.5px}summary{font-size:12px}details p{font-size:10.5px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
 </style>
 </head>
@@ -57,19 +62,19 @@ footer{border-top:1px solid var(--line2);padding:34px 0 90px;color:#70867d;font-
 <nav>
   <div class="wrap nav-in">
     <a class="logo" href="/atelier"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/007abc792547af596b84c0d9896b06e1ae8e9741/atelier-site/assets/logo-fs.png" alt="Fuse Atelier"><span>Fuse Atelier</span></a>
-    <div class="nav-actions"><a class="link" href="/app/index.html">Already a member? Sign in</a><a class="btn sm checkout-link" href="#offer">Get founding access</a></div>
+    <div class="nav-actions"><a class="link" href="/app/studio.html">Already a member? Sign in</a><a class="btn sm checkout-link" href="#offer">Get founding access</a></div>
   </div>
 </nav>
 
 <header class="hero">
   <div class="wrap hero-grid">
     <div>
-      <span class="kicker"><i></i> AI skills → client work</span>
+      <span class="kicker"><i></i> Learn → Create → Sell</span>
       <h1>Turn AI skills into <span class="grad">paid client work.</span></h1>
       <div class="hero-tagline">Learn it. Create it. Sell it.</div>
-      <p class="hero-copy">Fuse Atelier gives you the skills, AI creation tools and client system to go from <b>“I want to learn AI”</b> to something you can actually offer people.</p>
-      <div class="hero-actions"><a class="btn checkout-link" href="#offer">Get Founding Access — ₦15,000 →</a><a class="btn ghost" href="#system">See how Fuse works ↓</a></div>
-      <div class="micro"><span><b>✓</b> Beginner friendly</span><span><b>✓</b> Works on mobile</span><span><b>✓</b> Starter AI credits included</span></div>
+      <p class="hero-copy">Pick one sellable AI skill, learn the workflow, create a client-ready sample with Fuse, then use the Money Engine to find and pitch prospects — <b>all inside one mobile-first system.</b></p>
+      <div class="hero-actions"><a class="btn checkout-link" href="#offer">Join Fuse — ₦15,000 →</a><a class="btn ghost" href="#system">See what’s inside ↓</a></div>
+      <div class="micro"><span><b>✓</b> 4 sellable learning paths</span><span><b>✓</b> Starter AI credits</span><span><b>✓</b> Client pipeline included</span></div>
     </div>
 
     <div class="product-stage" aria-label="Fuse Atelier product preview">
@@ -89,6 +94,12 @@ footer{border-top:1px solid var(--line2);padding:34px 0 90px;color:#70867d;font-
     </div>
   </div>
 </header>
+<div class="wrap proof-strip">
+  <div><b>$4K+</b><span>Upwork earnings</span></div>
+  <div><b>12</b><span>Upwork jobs</span></div>
+  <div><b>Mobile-first</b><span>Learn + create anywhere</span></div>
+  <div><b>One system</b><span>Learn → Create → Sell</span></div>
+</div>
 
 <section class="section" id="system">
   <div class="wrap">
@@ -139,7 +150,7 @@ footer{border-top:1px solid var(--line2);padding:34px 0 90px;color:#70867d;font-
   </div>
 </section>
 
-<footer><div class="wrap footer-in"><div><b style="color:#b5c8c0">Fuse Atelier</b><br>Where AI skills become income opportunities.</div><div class="footer-links"><a href="/app/index.html">Sign in</a><a href="https://wa.me/2349044558101?text=Hi%20Ria%2C%20I%20have%20a%20question%20about%20Fuse%20Atelier" target="_blank" rel="noopener">Ask a question</a></div></div></footer>
+<footer><div class="wrap footer-in"><div><b style="color:#b5c8c0">Fuse Atelier</b><br>Where AI skills become income opportunities.</div><div class="footer-links"><a href="/app/studio.html">Sign in</a><a href="https://wa.me/2349044558101?text=Hi%20Ria%2C%20I%20have%20a%20question%20about%20Fuse%20Atelier" target="_blank" rel="noopener">Ask a question</a></div></div></footer>
 
 <div class="sticky-cta"><div><b>Founding Access · ₦15,000</b><span>Academy + Create + Clients</span></div><a class="btn checkout-link" href="#">Get access →</a></div>
 <script>
