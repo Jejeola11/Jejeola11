@@ -5,7 +5,7 @@ const go=u=>window.top.location.href=u;function once(k){const n=Date.now();if(k=
 function bind(d){if(!d||d.__FUSE_HOME_TAP_REPAIR__)return;d.__FUSE_HOME_TAP_REPAIR__=true;const h=e=>{const t=e.target.closest('button,.tool,.workflow-card,.hero-card,.lane-card');if(!t)return;const x=(t.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();let k='',u='';
 if(t.matches('.next-move-btn')||t.matches('.resume-row button')||((t.closest('.learning-card')||t.closest('.quick .card:first-child'))&&x.includes('resume'))){k='resume';u='/atelier-v2/academy-v2.html?resume=video'}
 else if(x.includes('explore academy')){k='academy-hero';u='/atelier-v2/academy-v2.html'}
-else if(t.closest('.bottom')){if(x.includes('academy')){k='academy-nav';u='/atelier-v2/academy-v2.html'}else if(x.includes('clients')){k='clients-nav';u='/atelier-v2/clients.html'}else if(t.classList.contains('fab')||t.classList.contains('create')||x==='✦'){k='create-nav';u='/atelier-v2/create.html'}else return}
+else if(t.closest('.bottom')){if(x.includes('home')){k='home-nav';u='/atelier-v2/'}else if(x.includes('academy')){k='academy-nav';u='/atelier-v2/academy-v2.html'}else if(x.includes('clients')){k='clients-nav';u='/atelier-v2/clients.html'}else if(x.includes('profile')){k='profile-nav';u='/app/studio.html?view=profile'}else if(t.classList.contains('fab')||t.classList.contains('create')||x==='✦'){k='create-nav';u='/atelier-v2/create.html'}else return}
 else if(t.matches('.openCreate,.tool,.workflow-card,.hero-card,.lane-card')||t.closest('.sheet-grid')){k='create';u='/atelier-v2/create.html'}
 else if(x.includes('start creating')){k='create-start';u='/atelier-v2/create.html'}
 else if(x.includes('find prospects')||t.matches('.offer-btn')){k='prospects';u='/atelier-v2/clients.html'}
