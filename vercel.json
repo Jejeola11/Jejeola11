@@ -9,6 +9,10 @@
       }
     },
     {
+      "src": "/atelier/?",
+      "dest": "/atelier-site/index.html"
+    },
+    {
       "handle": "filesystem"
     },
     {
