@@ -76,5 +76,5 @@ document.addEventListener('click',e=>{const o=e.target.closest('[data-open]');if
 document.getElementById('searchInput').addEventListener('input',e=>{const q=e.target.value.toLowerCase().trim();document.querySelectorAll('.path-card').forEach(c=>c.style.display=!q||c.innerText.toLowerCase().includes(q)?'':'none')});
 bindContinueLearningButton();renderPaths();updateContinueCard();initContinuePreview();document.querySelectorAll('img').forEach(i=>safeImg(i));
 </script>
-</body>
+<script src="/atelier-v2/academy-interactions.js?v=20260904-buttons"></script></body>
 </html>

@@ -12,7 +12,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f}#st
 </head>
 <body>
 <div class="loader"><div class="loader-inner"><div class="mark">✦</div><b>Opening Fuse Academy</b><p>Preparing your learning studio.</p></div></div>
-<iframe id="stage" src="./academy/index.html?v=20260903-vercel-route-fix&base=1" title="Fuse Academy"></iframe>
+<iframe id="stage" src="./academy/index.html?v=20260904-buttons&base=1" title="Fuse Academy"></iframe>
 <script src="./academy-v2-runtime.js?v=e8448519-drive-titles" defer></script>
 <script src="./academy-sell-bridge.js?v=ad8a346a" defer></script>
 <script>
@@ -20,14 +20,14 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f}#st
  const stage=document.getElementById('stage');
  const qs=new URLSearchParams(location.search);
  const requestedLesson=(qs.get('lesson')||'').trim();
- const requestedCourse=(qs.get('course')||'').trim();
+ const requestedCourse=(qs.get('course')||'').trim();\n const requestedResume=(qs.get('resume')||'').trim();
  let tries=0,routeDone=false;
  function inside(){try{return{d:stage.contentDocument,w:stage.contentWindow}}catch(e){return{d:null,w:null}}}
  function routeRequest(w){
   if(routeDone)return true;
-  if(!requestedLesson&&!requestedCourse){routeDone=true;return true}
+  if(!requestedLesson&&!requestedCourse&&!requestedResume){routeDone=true;return true}
   if(!w||typeof w.realCourse!=='function')return false;
-  if(requestedLesson){
+  if(requestedResume&&typeof w.resumeCourse==='function'&&w.realCourse(requestedResume)){w.resumeCourse(requestedResume);routeDone=true;return true}\n  if(requestedLesson){
    if(typeof w.openLesson!=='function')return false;
    for(const key of ['design','video','landing','money']){
     const c=w.realCourse(key);if(!c)continue;
@@ -48,7 +48,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f}#st
   if(lesson){
    [...lesson.querySelectorAll('button')].forEach(b=>{
     const t=(b.textContent||'').toLowerCase();
-    if((t.includes('open fuse create')||t.includes('open in create'))&&!b.dataset.fuseCreateLessonBound){b.dataset.fuseCreateLessonBound='1';b.onclick=e=>{e.preventDefault();w.top.location.href='/app/studio.html?from=academy'}}
+    if((t.includes('open fuse create')||t.includes('open in create'))&&!b.dataset.fuseCreateLessonBound){b.dataset.fuseCreateLessonBound='1';b.onclick=e=>{e.preventDefault();w.top.location.href='/atelier-v2/create.html?source=academy'}}
    });
   }
  }
@@ -62,12 +62,12 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f}#st
    const profile=navs.find(n=>/profile/i.test(n.textContent));
    const create=navs.find(n=>n.classList.contains('create'))||navs[2];
    if(clients&&!clients.dataset.fuseClientsBound){clients.dataset.fuseClientsBound='1';clients.onclick=e=>{e.preventDefault();window.top.location.href='/atelier-v2/clients.html'};clients.style.cursor='pointer'}
-   if(create&&!create.dataset.fuseCreateBound){create.dataset.fuseCreateBound='1';create.onclick=e=>{e.preventDefault();window.top.location.href='/app/studio.html'};create.style.cursor='pointer'}
-   if(profile&&!profile.dataset.fuseProfileBound){profile.dataset.fuseProfileBound='1';profile.onclick=e=>{e.preventDefault();window.top.location.href='/atelier-v2/index.html?profile=1'};profile.style.cursor='pointer'}
+   if(create&&!create.dataset.fuseCreateBound){create.dataset.fuseCreateBound='1';create.onclick=e=>{e.preventDefault();window.top.location.href='/atelier-v2/create.html'};create.style.cursor='pointer'}
+   if(profile&&!profile.dataset.fuseProfileBound){profile.dataset.fuseProfileBound='1';profile.onclick=e=>{e.preventDefault();window.top.location.href='/app/studio.html?view=profile'};profile.style.cursor='pointer'}
    bindFlowActions(d,w);
    routeRequest(w);
    if(!d.__fuseAcademyFlowObserver){d.__fuseAcademyFlowObserver=true;new MutationObserver(()=>{bindFlowActions(d,w);routeRequest(w)}).observe(d.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']})}
-   if((clients&&create&&profile)&&(routeDone||(!requestedLesson&&!requestedCourse)))return;
+   if((clients&&create&&profile)&&(routeDone||(!requestedLesson&&!requestedCourse&&!requestedResume)))return;
   }catch(e){}
   if(tries<180)setTimeout(bind,100);
  }
