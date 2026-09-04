@@ -5809,10 +5809,20 @@ async function boot() {
  maybePromo();
  // Came from an external link (e.g. Selar's post-purchase redirect) with ?view=week —
  // open straight to that view. wkcode (if present) is picked up inside openWeek().
- const qView = new URLSearchParams(location.search).get('view');
+ const routeParams = new URLSearchParams(location.search);
+ const qView = routeParams.get('view');
+ const qGo = routeParams.get('go');
  if (qView === 'week') setTimeout(() => routeFeature('week'), 400);
  // Same pattern for the ₦1,000 Mini Masterclasses: .../?view=mini&mkey=avatar&code=AVATAR1K
- if (qView === 'mini') setTimeout(() => { openMiniHub(); maybeAutoRedeemMini(); }, 400);
+ else if (qView === 'mini') setTimeout(() => { openMiniHub(); maybeAutoRedeemMini(); }, 400);
+ else if (qView) setTimeout(() => {
+  const direct = ['home','library','profile','models','academy'];
+  const studios = ['market','learn','avatar','promptgen','reactor','flyer','flyer-classic','audio','editstudio'];
+  if (direct.includes(qView)) showView(qView);
+  else if (studios.includes(qView)) routeFeature(qView);
+ }, 400);
+ // Fuse Create deep-links use ?go=<routeFeature value> so a lane opens the exact workspace.
+ if (qGo) setTimeout(() => routeFeature(qGo), 460);
 }
 
 // ---------------- wire up ----------------
