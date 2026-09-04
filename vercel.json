@@ -1,0 +1,19 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "routes": [
+    {
+      "src": "/",
+      "status": 307,
+      "headers": {
+        "Location": "/app/studio.html"
+      }
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "https://fuse-atelier-studio.netlify.app/$1"
+    }
+  ]
+}
