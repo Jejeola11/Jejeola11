@@ -1,6 +1,31 @@
 <!doctype html>
 <html lang="en">
 <head>
+<script>
+(function(){
+  try{ if('scrollRestoration' in history) history.scrollRestoration='manual'; }catch(e){}
+  function forceTop(){
+    try{
+      if(location.hash){
+        history.replaceState(null,'',location.pathname+location.search);
+      }
+    }catch(e){}
+    window.scrollTo(0,0);
+    document.documentElement.scrollTop=0;
+    if(document.body) document.body.scrollTop=0;
+  }
+  forceTop();
+  document.addEventListener('DOMContentLoaded',forceTop,{once:true});
+  window.addEventListener('load',function(){
+    forceTop();
+    requestAnimationFrame(forceTop);
+    setTimeout(forceTop,120);
+  },{once:true});
+  window.addEventListener('pageshow',function(e){
+    if(e.persisted){ forceTop(); requestAnimationFrame(forceTop); }
+  });
+})();
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#03110f">
