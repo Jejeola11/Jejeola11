@@ -1925,6 +1925,188 @@ img,video,svg,canvas,iframe{max-width:100%}
   .mary-portrait,.mary-video{min-height:0}
   .mary-portrait img,.mary-video video{display:block;width:100%;height:100%;object-fit:cover}
 }
+
+/* ===== Marycamella media redesign — full-frame, mobile-first ===== */
+.mary-story-hero{
+  grid-template-columns:minmax(300px,.82fr) minmax(0,1.18fr);
+  align-items:start;
+}
+.mary-story-media.mary-story-video-only{
+  display:flex!important;
+  flex-direction:column;
+  gap:0!important;
+  width:100%;
+  max-width:440px;
+  justify-self:center;
+  padding:10px!important;
+  border-radius:30px;
+  overflow:hidden;
+  background:linear-gradient(180deg,rgba(9,35,28,.96),rgba(3,17,15,.98));
+  border:1px solid rgba(186,255,99,.24);
+  box-shadow:0 28px 90px rgba(0,0,0,.30);
+}
+.mary-video-kicker{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 10px 14px;
+}
+.mary-video-kicker span{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:var(--lime);
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.14em;
+  white-space:nowrap;
+}
+.mary-video-kicker span i{
+  width:7px;height:7px;border-radius:999px;background:var(--lime);
+  box-shadow:0 0 15px rgba(186,255,99,.55);
+}
+.mary-video-kicker b{
+  max-width:21ch;
+  color:#dbe8e3;
+  font-size:9.5px;
+  line-height:1.35;
+  text-align:right;
+}
+.mary-video.mary-video-full{
+  width:100%!important;
+  aspect-ratio:9/16!important;
+  min-height:0!important;
+  border-radius:22px!important;
+  overflow:hidden;
+  background:#000!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
+}
+.mary-video.mary-video-full:after{display:none!important}
+.mary-video.mary-video-full video{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  background:#000!important;
+}
+.mary-video-foot{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:13px 10px 8px;
+  color:#8da39b;
+  font-size:9px;
+  line-height:1.35;
+}
+.mary-video-live{
+  display:flex;align-items:center;gap:5px;
+  color:#c9d9d3;font-weight:850;white-space:nowrap;
+}
+.mary-video-live i{
+  width:6px;height:6px;border-radius:50%;background:#ff5c6a;
+  box-shadow:0 0 12px rgba(255,92,106,.65);
+  animation:maryPulse 1.4s ease-in-out infinite;
+}
+@keyframes maryPulse{50%{opacity:.35;transform:scale(.78)}}
+.mary-story-copy h3{
+  max-width:15ch;
+  overflow-wrap:normal;
+  word-break:normal;
+  text-wrap:balance;
+}
+@media(max-width:760px){
+  .mary-story{padding:62px 0 112px!important}
+  .mary-story-head{margin-bottom:26px!important;padding:0 2px}
+  .mary-story-head h2{
+    font-size:clamp(34px,9.6vw,43px)!important;
+    line-height:.96!important;
+    max-width:12ch!important;
+  }
+  .mary-story-head p{
+    font-size:13px!important;
+    line-height:1.65!important;
+    max-width:31em!important;
+  }
+  .mary-story-hero{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:14px!important;
+    width:100%;
+  }
+  .mary-story-media.mary-story-video-only{
+    order:1;
+    width:100%!important;
+    max-width:420px!important;
+    margin:0 auto!important;
+    padding:8px!important;
+    border-radius:24px!important;
+  }
+  .mary-video-kicker{
+    display:block!important;
+    padding:9px 8px 12px!important;
+  }
+  .mary-video-kicker span{font-size:8px!important}
+  .mary-video-kicker b{
+    display:block;
+    max-width:none!important;
+    margin-top:7px;
+    text-align:left!important;
+    font-size:10px!important;
+    line-height:1.4!important;
+  }
+  .mary-video.mary-video-full{
+    border-radius:18px!important;
+    width:100%!important;
+    aspect-ratio:9/16!important;
+  }
+  .mary-video.mary-video-full video{
+    width:100%!important;
+    height:100%!important;
+    object-fit:contain!important;
+  }
+  .mary-video-foot{
+    padding:11px 8px 7px!important;
+    font-size:8.5px!important;
+  }
+  .mary-story-copy{
+    order:2;
+    width:100%!important;
+    padding:24px 20px 28px!important;
+    border-radius:24px!important;
+  }
+  .mary-story-copy h3{
+    width:100%!important;
+    max-width:100%!important;
+    font-size:clamp(29px,8.1vw,35px)!important;
+    line-height:.98!important;
+    letter-spacing:-.045em!important;
+    margin-top:14px!important;
+    text-wrap:balance;
+  }
+  .mary-story-copy p{
+    font-size:13px!important;
+    line-height:1.66!important;
+  }
+  .sticky-cta{
+    padding:7px 8px!important;
+    min-height:0!important;
+    border-radius:16px!important;
+  }
+  .sticky-cta b{font-size:11px!important}
+  .sticky-cta span{font-size:7px!important}
+  .sticky-cta .btn{padding:10px 13px!important;font-size:10.5px!important}
+}
+@media(max-width:390px){
+  .mary-story-head h2{font-size:33px!important}
+  .mary-story-copy h3{font-size:29px!important}
+  .mary-video-kicker b{font-size:9.5px!important}
+  .mary-video-foot>span:first-child{max-width:21ch}
+}
 </style>
 </head>
 <body id="top">
@@ -2124,17 +2306,21 @@ img,video,svg,canvas,iframe{max-width:100%}
     </div>
 
     <div class="mary-story-hero">
-      <div class="mary-story-media">
-        <div class="mary-portrait">
-          <img src="/media/marycamella-ai-twin.webp" data-fallback="https://cdn.jsdelivr.net/gh/Jejeola11/Jejeola11@f5e3f4dde76f10dde26d3565f2bea55b643ff3e8/atelier-site/assets/founding/marycamella-ai-twin.webp" onerror="if(this.dataset.fallback&&this.src!==this.dataset.fallback){this.src=this.dataset.fallback}" alt="Marycamella's AI twin portrait" loading="eager" decoding="async">
-          <div class="mary-media-label"><span>HER AI TWIN</span><b>Built after starting from zero</b></div>
+      <div class="mary-story-media mary-story-video-only">
+        <div class="mary-video-kicker">
+          <span><i></i> MARYCAMELLA'S AI TWIN</span>
+          <b>From zero AI experience → creating content with her own digital twin</b>
         </div>
-        <div class="mary-video">
-          <video muted loop playsinline autoplay preload="auto" poster="/media/marycamella-ai-twin.webp" aria-label="Marycamella's AI twin content video">
-            <source src="/media/marycamella-ai-twin-live-preview.mp4" type="video/mp4">
-            <source src="https://cdn.jsdelivr.net/gh/Jejeola11/Jejeola11@f5e3f4dde76f10dde26d3565f2bea55b643ff3e8/atelier-site/assets/founding/marycamella-ai-twin-live-preview.mp4" type="video/mp4">
+        <div class="mary-video mary-video-full">
+          <video id="maryTwinVideo" muted defaultmuted loop playsinline webkit-playsinline autoplay preload="auto"
+            aria-label="Marycamella's AI twin content video">
+            <source src="/media/marycamella-ai-twin-story.mp4" type="video/mp4">
+            <source src="https://cdn.jsdelivr.net/gh/Jejeola11/Jejeola11@deploy/fuse-atelier-netlify/atelier-site/assets/founding/marycamella-ai-twin-story.mp4" type="video/mp4">
           </video>
-          <div class="mary-video-note">A live preview from the AI-twin video Marycamella created.</div>
+        </div>
+        <div class="mary-video-foot">
+          <span>AI-twin content created after joining Fuse Atelier</span>
+          <span class="mary-video-live"><i></i> AUTOPLAYING</span>
         </div>
       </div>
 
@@ -3222,5 +3408,24 @@ img,video,svg,canvas,iframe{max-width:100%}
 })();
 </script>
 
+
+<script>
+(function(){
+  const v=document.getElementById('maryTwinVideo');
+  if(!v) return;
+  v.muted=true;
+  v.defaultMuted=true;
+  v.playsInline=true;
+  v.setAttribute('muted','');
+  v.setAttribute('playsinline','');
+  v.setAttribute('webkit-playsinline','');
+  const play=()=>{ const p=v.play(); if(p&&p.catch) p.catch(()=>{}); };
+  if(v.readyState>=2) play();
+  v.addEventListener('loadeddata',play,{once:true});
+  v.addEventListener('canplay',play,{once:true});
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) play(); });
+  window.addEventListener('pageshow',play);
+})();
+</script>
 </body>
 </html>
