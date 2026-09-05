@@ -1621,6 +1621,43 @@ nav .btn.sm{box-shadow:none}
   .student-gallery-hint{font-size:9px;margin-top:18px;padding:9px 13px}
 }
 
+
+/* Instructor ID — compact so the outfit remains visible */
+.instructor-id{
+  left:14px;
+  right:auto;
+  bottom:14px;
+  width:min(64%,220px);
+  gap:9px;
+  padding:10px 12px;
+  border-radius:16px;
+  background:rgba(3,15,12,.74);
+  backdrop-filter:blur(12px);
+}
+.instructor-dot{width:8px;height:8px;flex:0 0 8px}
+.instructor-id b{
+  font-size:10px;
+  line-height:1.35;
+  letter-spacing:.11em;
+}
+.instructor-id span{
+  font-size:9px;
+  line-height:1.35;
+  margin-top:2px;
+}
+@media(max-width:440px){
+  .instructor-id{
+    left:12px;
+    bottom:12px;
+    width:min(62%,190px);
+    padding:9px 10px;
+    gap:8px;
+    border-radius:15px;
+  }
+  .instructor-id b{font-size:9.5px}
+  .instructor-id span{font-size:8.5px}
+}
+
 </style>
 </head>
 <body id="top">
