@@ -76,7 +76,7 @@ const REACTOR_MODEL_MAP = {
   'gemini-2-5-flash': 'google/gemini-2.5-flash',
 };
 
-// A chat/brief call can genuinely take longer than Netlify's own function
+// A chat/brief call can genuinely take longer than Vercel's own function
 // timeout for a rich response (a full flyer brief, a long edit plan) —
 // confirmed live 2026-07-17 (the exact same failure mode Resemble's long
 // scripts hit): the platform kills the request and returns its own HTML
@@ -136,7 +136,7 @@ async function chatCompletion({ prompt, imageUrl, model, timeoutMs = 9000 }) {
 
 // Fires text-job-worker-background.js for a just-inserted text-kind job
 // (chat/flyer-brief/video-edit-brief/flyer-suggest-layers) — fire-and-
-// forget: Netlify Background Functions return 202 near-instantly on
+// forget: Vercel Background Functions return 202 near-instantly on
 // invocation while the real work (the actual chatCompletion call, which
 // can genuinely take 30s+ with an image attached) continues server-side.
 // Never throws — job-status.js's own retry-trigger safety net covers a
@@ -145,7 +145,7 @@ async function chatCompletion({ prompt, imageUrl, model, timeoutMs = 9000 }) {
 async function triggerTextWorker(requestId) {
   if (!process.env.APP_URL) return;
   try {
-    await fetch(`${process.env.APP_URL}/.netlify/functions/text-job-worker-background`, {
+    await fetch(`${process.env.APP_URL}/api/text-job-worker-background`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ request_id: requestId }),
     });
@@ -477,7 +477,7 @@ async function submitSpeech({ audio, text, speed, referenceText }) {
 // request_id — confirmed live 2026-07-17 (a real call against
 // f.cluster.resemble.ai/synthesize with a trained voice_uuid returned base64
 // WAV audio directly, ~1-2s regardless of clip length so far tested).
-// Needs RESEMBLE_API_KEY (Netlify env var, never hardcoded here).
+// Needs RESEMBLE_API_KEY (Vercel env var, never hardcoded here).
 const RESEMBLE_SYNC_BASE = 'https://f.cluster.resemble.ai';
 const RESEMBLE_API_BASE = 'https://app.resemble.ai/api/v2';
 
