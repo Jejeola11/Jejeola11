@@ -1307,6 +1307,221 @@ nav .btn.sm{box-shadow:none}
   }
 }
 
+
+/* ===== Fuse 3D Experience — Final Polish =====
+   Purposeful depth only: proof feels tangible, sections feel connected,
+   and the original conversion order/layout remains untouched.
+*/
+:root{
+  --depth-shadow:0 28px 80px rgba(0,0,0,.34);
+  --depth-glow:0 0 45px rgba(186,255,99,.07);
+}
+
+/* Global interaction: buttons feel physical without moving layout. */
+.btn{
+  position:relative;overflow:hidden;
+  transform:translateZ(0);
+  transition:transform .22s cubic-bezier(.2,.75,.2,1),box-shadow .22s ease,filter .22s ease!important;
+}
+.btn:after{
+  content:"";position:absolute;inset:-2px;
+  background:linear-gradient(115deg,transparent 22%,rgba(255,255,255,.28) 46%,transparent 68%);
+  transform:translateX(-135%);transition:transform .5s ease;pointer-events:none
+}
+@media(hover:hover) and (pointer:fine){
+  .btn:hover{transform:translateY(-3px) translateZ(14px);box-shadow:0 18px 40px rgba(0,0,0,.28);filter:saturate(1.05)}
+  .btn:hover:after{transform:translateX(135%)}
+}
+
+/* HERO — proof first, then the mechanism underneath it. */
+.hero{perspective:1600px}
+.hero-in{transform-style:preserve-3d}
+.hero .kicker,
+.hero h1,
+.hero-proof-line,
+.hero-copy,
+.hero-actions,
+.hero-access-note,
+.hero-trust{
+  transform:translate3d(0,var(--hero-y,0px),var(--hero-z,0px));
+  transition:transform .18s ease-out;
+}
+.hero .kicker{--hero-z:34px}
+.hero h1{--hero-z:28px}
+.hero-proof-line{--hero-z:22px}
+.hero-actions{--hero-z:26px}
+.hero-trust{--hero-z:20px}
+.hero-stat{
+  position:relative;overflow:hidden;
+  box-shadow:0 10px 30px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.06);
+  transform:perspective(700px) rotateX(var(--stat-rx,0deg)) rotateY(var(--stat-ry,0deg)) translateZ(0);
+  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;
+}
+.hero-stat:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at var(--stat-x,50%) var(--stat-y,50%),rgba(186,255,99,.16),transparent 42%);
+  opacity:.65
+}
+@media(hover:hover) and (pointer:fine){
+  .hero-stat:hover{box-shadow:0 20px 48px rgba(0,0,0,.30),0 0 30px rgba(186,255,99,.08);border-color:rgba(186,255,99,.55)}
+}
+
+/* Upwork screenshot becomes a premium evidence object, not a flat image. */
+.upwork-proof{
+  position:relative;perspective:1400px;transform-style:preserve-3d;
+  transform:translateY(var(--upwork-y,0px));
+}
+.upwork-proof:before{
+  content:"";position:absolute;left:8%;right:8%;bottom:30px;height:58%;
+  background:radial-gradient(ellipse,rgba(186,255,99,.12),transparent 68%);
+  filter:blur(24px);transform:translateZ(-28px);pointer-events:none
+}
+.upwork-proof img{
+  position:relative;z-index:2;
+  transform:perspective(1200px) rotateX(var(--up-rx,1.6deg)) rotateY(var(--up-ry,-1.8deg)) translateZ(12px);
+  transform-origin:center center;
+  transition:transform .18s ease-out,box-shadow .3s ease;
+  box-shadow:0 32px 95px rgba(0,0,0,.40),0 0 0 1px rgba(186,255,99,.05) inset!important
+}
+.upwork-caption{position:relative;z-index:3;transform:translateZ(18px)}
+
+/* Problem section — the "stuck loop" is the object we want visitors to feel. */
+.problem{perspective:1500px}
+.problem-inner{position:relative;transform-style:preserve-3d}
+.problem-kicker,.problem h2,.problem-copy,.problem-insight,.problem-close,.problem-subclose,.problem-action{
+  position:relative;z-index:2
+}
+.problem-insight{
+  transform:translate3d(0,var(--problem-insight-y,0px),24px);
+  text-shadow:0 18px 45px rgba(0,0,0,.30)
+}
+.problem-loop{
+  position:relative;isolation:isolate;transform-style:preserve-3d;
+  transform:perspective(1100px) rotateX(var(--loop-rx,2deg)) rotateY(var(--loop-ry,0deg)) translateY(var(--loop-y,0px));
+  box-shadow:0 28px 80px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.05);
+  transition:transform .22s ease-out,box-shadow .3s ease,border-color .3s ease
+}
+.problem-loop:before{
+  content:"";position:absolute;inset:9px;border-radius:16px;z-index:-1;
+  background:linear-gradient(135deg,rgba(255,229,104,.045),rgba(186,255,99,.035));
+  transform:translateZ(-18px)
+}
+.problem-loop span{
+  transform:translateZ(14px);
+  text-shadow:0 8px 22px rgba(0,0,0,.28)
+}
+.problem-loop b{display:inline-block;transform:translateZ(8px);color:var(--lime)}
+.problem-close{transform:translateZ(16px)}
+.problem-subclose{transform:translateZ(12px)}
+
+/* Stable Learn → Create → Sell section.
+   We deliberately do NOT rotate/stack these cards after the earlier mobile issue.
+   Depth is added inside the cards only, so copy and media can never collide. */
+.system-section{perspective:1500px}
+.system-belief{
+  transform:translateZ(0);
+  box-shadow:0 34px 100px rgba(0,0,0,.38),0 0 48px rgba(255,229,104,.035)!important
+}
+.system-card{
+  transition:box-shadow .35s ease,border-color .35s ease,filter .35s ease!important;
+}
+.system-card-copy{transform:translateZ(0)}
+.system-card-media{
+  transition:box-shadow .35s ease,border-color .35s ease,filter .35s ease!important;
+}
+@media(hover:hover) and (pointer:fine){
+  .system-card:hover{
+    border-color:rgba(186,255,99,.22);
+    box-shadow:0 34px 96px rgba(0,0,0,.40),0 0 40px rgba(186,255,99,.05)
+  }
+  .system-card:hover .system-card-media{
+    border-color:rgba(186,255,99,.24);
+    box-shadow:0 28px 70px rgba(0,0,0,.42),0 0 28px rgba(186,255,99,.045)
+  }
+}
+
+/* Headings across the journey subtly come toward the visitor as sections enter. */
+.courses-intro,.student-work-head,.reviews-head,.why-join-head,.instructor-head,.faq-head{
+  transform:perspective(1200px) translateY(var(--head-y,14px)) translateZ(var(--head-z,0px));
+  opacity:var(--head-opacity,.86);
+  transition:transform .65s cubic-bezier(.2,.75,.2,1),opacity .55s ease
+}
+.depth-head-active{
+  --head-y:0px;--head-z:12px;--head-opacity:1
+}
+
+/* Student gallery already moves horizontally; center work gets depth, side work recedes. */
+.student-work-section{perspective:1400px}
+.student-card.media-card{
+  transform-origin:center center;
+  backface-visibility:hidden;
+}
+.student-card.media-card.gallery-focus{
+  z-index:5;
+  box-shadow:0 34px 86px rgba(0,0,0,.42),0 0 34px rgba(186,255,99,.10)!important
+}
+
+/* Reviews read like a stack of real testimonial cards. */
+.student-reviews{perspective:1400px}
+.reviews-window{
+  position:relative;
+  filter:drop-shadow(0 20px 28px rgba(0,0,0,.18))
+}
+.reviews-window:before,.reviews-window:after{
+  content:"";position:absolute;left:7%;right:7%;height:24px;border-radius:999px;
+  background:linear-gradient(90deg,transparent,rgba(186,255,99,.10),transparent);
+  filter:blur(15px);pointer-events:none
+}
+.reviews-window:before{top:7px}.reviews-window:after{bottom:7px}
+
+/* Why Fuse cards: premium object feel. Existing gradient remains the hero. */
+.why-card.phase3-card{
+  box-shadow:0 26px 82px rgba(0,0,0,.28),0 1px 0 rgba(255,255,255,.75) inset!important
+}
+.why-card.phase3-card.phase3-active{
+  box-shadow:0 36px 100px rgba(0,0,0,.30),0 0 44px rgba(186,255,99,.07),0 1px 0 rgba(255,255,255,.82) inset!important
+}
+
+/* Instructor: authority card gets its own physical stage. */
+.instructor-shell{position:relative}
+.instructor-shell:before{
+  content:"";position:absolute;inset:8% 4% 4%;
+  background:radial-gradient(circle at 25% 40%,rgba(255,229,104,.10),transparent 36%),radial-gradient(circle at 78% 28%,rgba(186,255,99,.10),transparent 34%);
+  filter:blur(30px);transform:translateZ(-40px);pointer-events:none
+}
+
+/* Offer is the final object of the journey; give the CTA real presence. */
+.final-offer-video{transform:perspective(1200px) translateZ(8px);transition:transform .35s ease,box-shadow .35s ease}
+.final-pricing-card.offer-active .final-checkout .btn{
+  box-shadow:0 18px 45px rgba(7,18,15,.24),0 0 32px rgba(186,255,99,.14)
+}
+@media(hover:hover) and (pointer:fine){
+  .final-offer-video:hover{transform:perspective(1200px) translateZ(22px) scale(1.01);box-shadow:0 42px 120px rgba(0,0,0,.58),0 0 44px rgba(186,255,99,.08)}
+}
+
+/* FAQ: each opened answer comes forward, but no sideways tilt on mobile. */
+.faq-item[open]{border-color:rgba(186,255,99,.36)!important}
+.faq-item[open] summary{color:#f7fff9}
+.faq-item[open] .faq-answer{transform:translateZ(12px)}
+
+/* Mobile: preserve the premium depth but keep it calm and fast. */
+@media(max-width:680px){
+  .hero .kicker{--hero-z:10px}.hero h1{--hero-z:8px}.hero-proof-line{--hero-z:6px}.hero-actions{--hero-z:8px}.hero-trust{--hero-z:5px}
+  .upwork-proof img{--up-rx:.5deg;--up-ry:-.5deg}
+  .problem-loop{--loop-rx:.6deg;--loop-ry:0deg}
+  .problem-insight{transform:translate3d(0,var(--problem-insight-y,0px),6px)}
+  .courses-intro,.student-work-head,.reviews-head,.why-join-head,.instructor-head,.faq-head{
+    --head-z:0px
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .hero .kicker,.hero h1,.hero-proof-line,.hero-copy,.hero-actions,.hero-access-note,.hero-trust,
+  .upwork-proof,.upwork-proof img,.problem-insight,.problem-loop,
+  .courses-intro,.student-work-head,.reviews-head,.why-join-head,.instructor-head,.faq-head{
+    transform:none!important;transition:none!important
+  }
+}
+
 </style>
 </head>
 <body id="top">
@@ -2310,6 +2525,124 @@ nav .btn.sm{box-shadow:none}
   window.addEventListener('scroll',requestScrollUpdate,{passive:true});
   window.addEventListener('resize',requestScrollUpdate,{passive:true});
   onScroll3D();
+})();
+</script>
+
+
+<script>
+/* Fuse 3D Experience — Final Polish
+   Lightweight CSS-3D only. No WebGL, no layout stacking, no trapped scroll.
+*/
+(function(){
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+
+  /* Section-heading depth reveal */
+  const heads=[...document.querySelectorAll('.courses-intro,.student-work-head,.reviews-head,.why-join-head,.instructor-head,.faq-head')];
+  if('IntersectionObserver' in window){
+    const headIO=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){e.target.classList.toggle('depth-head-active',e.isIntersecting);});
+    },{rootMargin:'-8% 0px -22% 0px',threshold:.08});
+    heads.forEach(function(h){headIO.observe(h);});
+  }else heads.forEach(function(h){h.classList.add('depth-head-active');});
+
+  /* Pointer depth for proof objects */
+  if(fine&&!reduced){
+    document.querySelectorAll('.hero-stat').forEach(function(el){
+      el.addEventListener('pointermove',function(e){
+        const r=el.getBoundingClientRect();
+        const x=(e.clientX-r.left)/r.width-.5;
+        const y=(e.clientY-r.top)/r.height-.5;
+        el.style.setProperty('--stat-ry',(x*7).toFixed(2)+'deg');
+        el.style.setProperty('--stat-rx',(-y*6).toFixed(2)+'deg');
+        el.style.setProperty('--stat-x',((x+.5)*100).toFixed(0)+'%');
+        el.style.setProperty('--stat-y',((y+.5)*100).toFixed(0)+'%');
+      },{passive:true});
+      el.addEventListener('pointerleave',function(){
+        el.style.setProperty('--stat-ry','0deg');
+        el.style.setProperty('--stat-rx','0deg');
+        el.style.setProperty('--stat-x','50%');
+        el.style.setProperty('--stat-y','50%');
+      },{passive:true});
+    });
+
+    const up=document.querySelector('.upwork-proof');
+    const upImg=up&&up.querySelector('img');
+    if(up&&upImg){
+      up.addEventListener('pointermove',function(e){
+        const r=up.getBoundingClientRect();
+        const x=(e.clientX-r.left)/r.width-.5;
+        const y=(e.clientY-r.top)/r.height-.5;
+        upImg.style.setProperty('--up-ry',(x*4.5).toFixed(2)+'deg');
+        upImg.style.setProperty('--up-rx',(-y*3.5).toFixed(2)+'deg');
+      },{passive:true});
+      up.addEventListener('pointerleave',function(){
+        upImg.style.setProperty('--up-ry','-1.8deg');
+        upImg.style.setProperty('--up-rx','1.6deg');
+      },{passive:true});
+    }
+
+    const loop=document.querySelector('.problem-loop');
+    if(loop){
+      loop.addEventListener('pointermove',function(e){
+        const r=loop.getBoundingClientRect();
+        const x=(e.clientX-r.left)/r.width-.5;
+        const y=(e.clientY-r.top)/r.height-.5;
+        loop.style.setProperty('--loop-ry',(x*4).toFixed(2)+'deg');
+        loop.style.setProperty('--loop-rx',(2-y*3).toFixed(2)+'deg');
+      },{passive:true});
+      loop.addEventListener('pointerleave',function(){
+        loop.style.setProperty('--loop-ry','0deg');
+        loop.style.setProperty('--loop-rx','2deg');
+      },{passive:true});
+    }
+  }
+
+  /* Scroll parallax stays intentionally tiny so it never harms reading or CTA flow. */
+  if(reduced)return;
+  const hero=document.querySelector('.hero');
+  const up=document.querySelector('.upwork-proof');
+  const problem=document.querySelector('.problem');
+  const loop=document.querySelector('.problem-loop');
+  const insight=document.querySelector('.problem-insight');
+  let ticking=false;
+
+  function update(){
+    ticking=false;
+    const vh=window.innerHeight||1;
+
+    if(hero){
+      const r=hero.getBoundingClientRect();
+      if(r.bottom>0&&r.top<vh){
+        const p=Math.max(-1,Math.min(1,(r.top+r.height*.38-vh*.42)/vh));
+        hero.querySelectorAll('.kicker,h1,.hero-proof-line,.hero-actions,.hero-trust').forEach(function(el,i){
+          const mult=[-3,-7,-5,-3,-2][i]||-3;
+          el.style.setProperty('--hero-y',(p*mult).toFixed(1)+'px');
+        });
+      }
+    }
+
+    if(up){
+      const r=up.getBoundingClientRect();
+      if(r.bottom>0&&r.top<vh){
+        const p=Math.max(-1,Math.min(1,(r.top+r.height*.5-vh*.5)/vh));
+        up.style.setProperty('--upwork-y',(p*-7).toFixed(1)+'px');
+      }
+    }
+
+    if(problem){
+      const r=problem.getBoundingClientRect();
+      if(r.bottom>0&&r.top<vh){
+        const p=Math.max(-1,Math.min(1,(r.top+r.height*.48-vh*.5)/vh));
+        if(loop)loop.style.setProperty('--loop-y',(p*-5).toFixed(1)+'px');
+        if(insight)insight.style.setProperty('--problem-insight-y',(p*6).toFixed(1)+'px');
+      }
+    }
+  }
+  function requestUpdate(){if(!ticking){ticking=true;requestAnimationFrame(update);}}
+  window.addEventListener('scroll',requestUpdate,{passive:true});
+  window.addEventListener('resize',requestUpdate,{passive:true});
+  update();
 })();
 </script>
 
