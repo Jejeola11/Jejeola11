@@ -1572,6 +1572,55 @@ nav .btn.sm{box-shadow:none}
   .system-card.sell .system-card-media{margin-top:26px;height:292px}
 }
 
+
+/* ===== Student proof gallery: reliable media + real swipe/drag =====
+   The old transform marquee could bring lazy media visually onscreen while
+   the browser still considered it offscreen. This uses actual horizontal
+   scrolling so media loading and touch interaction stay in sync.
+*/
+.student-strip{
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+  scrollbar-width:none;
+  touch-action:pan-x pan-y;
+  cursor:grab;
+}
+.student-strip::-webkit-scrollbar{display:none}
+.student-strip.is-dragging{cursor:grabbing}
+.student-track{
+  animation:none!important;
+  transform:none!important;
+  width:max-content;
+}
+.student-card{
+  scroll-snap-align:center;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.student-card img,.student-card video{
+  display:block;
+}
+.student-gallery-hint{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:20px;
+  padding:10px 16px;
+  border:1px solid rgba(186,255,99,.22);
+  border-radius:999px;
+  background:rgba(186,255,99,.045);
+  color:#9fb1aa;
+  font-size:10px;
+  font-weight:800;
+  line-height:1.2;
+}
+@media(max-width:680px){
+  .student-strip{scroll-snap-type:x proximity}
+  .student-gallery-hint{font-size:9px;margin-top:18px;padding:9px 13px}
+}
+
 </style>
 </head>
 <body id="top">
@@ -1904,12 +1953,12 @@ nav .btn.sm{box-shadow:none}
       <div class="eyebrow">PROOF &gt; THEORY</div>
       <h2>This is what “learning” looks like when it turns into <span class="grad">proof.</span></h2>
       <p>Real student work across flyers, product ads, AI UGC and short-form video. The gallery deliberately alternates video → flyer → video → flyer so you can see the range.</p>
-      <div class="student-gallery-hint">Drag to explore · tap a video to pause/play</div>
+      <div class="student-gallery-hint">Swipe or drag to explore · tap a video to pause/play</div>
     </div>
   </div>
   <div class="student-strip" aria-label="Student work gallery">
     <div class="student-track">
-      <div class="student-group"><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-02.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-02-poster.jpg" muted loop playsinline preload="none" aria-label="UGC Skincare Ad student work"></video><span>UGC Skincare Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/still-01.jpg" loading="lazy" decoding="async" alt="Snack Brand Flyer student work"><span>Snack Brand Flyer</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-04.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-04-poster.jpg" muted loop playsinline preload="none" aria-label="Food UGC Ad student work"></video><span>Food UGC Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/slamit-beatup.jpg" loading="lazy" decoding="async" alt="Product Campaign Flyer student work"><span>Product Campaign Flyer</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-21.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-21-poster.jpg" muted loop playsinline preload="none" aria-label="Fashion Brand Launch student work"></video><span>Fashion Brand Launch</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/slamit-heat.jpg" loading="lazy" decoding="async" alt="Sports Campaign Flyer student work"><span>Sports Campaign Flyer</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-09.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-09-poster.jpg" muted loop playsinline preload="none" aria-label="Tech Product Ad student work"></video><span>Tech Product Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/web3-voidkey.jpg" loading="lazy" decoding="async" alt="Landing Page Design student work"><span>Landing Page Design</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-11.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-11-poster.jpg" muted loop playsinline preload="none" aria-label="Luxury Product Film student work"></video><span>Luxury Product Film</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/airpods-feel.jpg" loading="lazy" decoding="async" alt="Tech Product Flyer student work"><span>Tech Product Flyer</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-12.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-12-poster.jpg" muted loop playsinline preload="none" aria-label="Beauty Product Film student work"></video><span>Beauty Product Film</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/slamit-grandma.jpg" loading="lazy" decoding="async" alt="Brand Content Flyer student work"><span>Brand Content Flyer</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-16.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-16-poster.jpg" muted loop playsinline preload="none" aria-label="CGI Food Ad student work"></video><span>CGI Food Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/still-02.jpg" loading="lazy" decoding="async" alt="Snack Brand Flyer student work"><span>Snack Brand Flyer</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-19.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-19-poster.jpg" muted loop playsinline preload="none" aria-label="Skincare Product Ad student work"></video><span>Skincare Product Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/founding/create-flyer.jpg" loading="lazy" decoding="async" alt="AI Campaign Flyer student work"><span>AI Campaign Flyer</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-06.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-06-poster.jpg" muted loop playsinline preload="none" aria-label="Fashion Lookbook student work"></video><span>Fashion Lookbook</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/avatar-pink-boutique.jpg" loading="lazy" decoding="async" alt="Fashion AI Portrait student work"><span>Fashion AI Portrait</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-22.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-22-poster.jpg" muted loop playsinline preload="none" aria-label="Fragrance Ad student work"></video><span>Fragrance Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/lamer-underwater.jpg" loading="lazy" decoding="async" alt="AI Product Photography student work"><span>AI Product Photography</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-14.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-14-poster.jpg" muted loop playsinline preload="none" aria-label="Watch Product Film student work"></video><span>Watch Product Film</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/still-03.jpg" loading="lazy" decoding="async" alt="Snack Brand Flyer student work"><span>Snack Brand Flyer</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-24.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-24-poster.jpg" muted loop playsinline preload="none" aria-label="Jewellery CGI Ad student work"></video><span>Jewellery CGI Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/bulldog-product.jpg" loading="lazy" decoding="async" alt="Pet Product Photography student work"><span>Pet Product Photography</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-20.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-20-poster.jpg" muted loop playsinline preload="none" aria-label="Appliance Product Ad student work"></video><span>Appliance Product Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/avatar-car-night.jpg" loading="lazy" decoding="async" alt="Editorial AI Portrait student work"><span>Editorial AI Portrait</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-26.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-26-poster.jpg" muted loop playsinline preload="none" aria-label="Skincare UGC Ad student work"></video><span>Skincare UGC Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/avatar-trench-beret.jpg" loading="lazy" decoding="async" alt="Fashion AI Portrait student work"><span>Fashion AI Portrait</span></article></div>
+      <div class="student-group"><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-02.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-02-poster.jpg" muted loop playsinline preload="none" aria-label="UGC Skincare Ad student work"></video><span>UGC Skincare Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/still-01.jpg" loading="lazy" decoding="async" alt="Snack Brand Flyer student work"><span>Snack Brand Flyer</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-04.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-04-poster.jpg" muted loop playsinline preload="none" aria-label="Food UGC Ad student work"></video><span>Food UGC Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/slamit-beatup.jpg" loading="lazy" decoding="async" alt="Product Campaign Flyer student work"><span>Product Campaign Flyer</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-21.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-21-poster.jpg" muted loop playsinline preload="none" aria-label="Fashion Brand Launch student work"></video><span>Fashion Brand Launch</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/slamit-heat.jpg" loading="lazy" decoding="async" alt="Sports Campaign Flyer student work"><span>Sports Campaign Flyer</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-09.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-09-poster.jpg" muted loop playsinline preload="none" aria-label="Tech Product Ad student work"></video><span>Tech Product Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/founding/landing-page-hq.jpg" loading="lazy" decoding="async" alt="Landing Page Design student work"><span>Landing Page Design</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-11.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-11-poster.jpg" muted loop playsinline preload="none" aria-label="Luxury Product Film student work"></video><span>Luxury Product Film</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/airpods-feel.jpg" loading="lazy" decoding="async" alt="Tech Product Flyer student work"><span>Tech Product Flyer</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-12.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-12-poster.jpg" muted loop playsinline preload="none" aria-label="Beauty Product Film student work"></video><span>Beauty Product Film</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/slamit-grandma.jpg" loading="lazy" decoding="async" alt="Brand Content Flyer student work"><span>Brand Content Flyer</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-16.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-16-poster.jpg" muted loop playsinline preload="none" aria-label="CGI Food Ad student work"></video><span>CGI Food Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/still-02.jpg" loading="lazy" decoding="async" alt="Snack Brand Flyer student work"><span>Snack Brand Flyer</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-19.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-19-poster.jpg" muted loop playsinline preload="none" aria-label="Skincare Product Ad student work"></video><span>Skincare Product Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/founding/create-flyer.jpg" loading="lazy" decoding="async" alt="AI Campaign Flyer student work"><span>AI Campaign Flyer</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-06.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-06-poster.jpg" muted loop playsinline preload="none" aria-label="Fashion Lookbook student work"></video><span>Fashion Lookbook</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/avatar-pink-boutique.jpg" loading="lazy" decoding="async" alt="Fashion AI Portrait student work"><span>Fashion AI Portrait</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-22.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-22-poster.jpg" muted loop playsinline preload="none" aria-label="Fragrance Ad student work"></video><span>Fragrance Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/lamer-underwater.jpg" loading="lazy" decoding="async" alt="AI Product Photography student work"><span>AI Product Photography</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-14.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-14-poster.jpg" muted loop playsinline preload="none" aria-label="Watch Product Film student work"></video><span>Watch Product Film</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/still-03.jpg" loading="lazy" decoding="async" alt="Snack Brand Flyer student work"><span>Snack Brand Flyer</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-24.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-24-poster.jpg" muted loop playsinline preload="none" aria-label="Jewellery CGI Ad student work"></video><span>Jewellery CGI Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/bulldog-product.jpg" loading="lazy" decoding="async" alt="Pet Product Photography student work"><span>Pet Product Photography</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-20.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-20-poster.jpg" muted loop playsinline preload="none" aria-label="Appliance Product Ad student work"></video><span>Appliance Product Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/avatar-car-night.jpg" loading="lazy" decoding="async" alt="Editorial AI Portrait student work"><span>Editorial AI Portrait</span></article><article class="student-card media-card ai"><video class="student-reel-video" data-src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-26.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/work/work-26-poster.jpg" muted loop playsinline preload="none" aria-label="Skincare UGC Ad student work"></video><span>Skincare UGC Ad</span></article><article class="student-card media-card"><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/avatar-trench-beret.jpg" loading="lazy" decoding="async" alt="Fashion AI Portrait student work"><span>Fashion AI Portrait</span></article></div>
     </div>
   </div>
   <div class="wrap student-work-cta">
@@ -2319,8 +2368,10 @@ nav .btn.sm{box-shadow:none}
     }else{var p=v.play();if(p&&p.catch)p.catch(function(){});}
   });
 
+  var studentStrip=document.querySelector('.student-strip');
   var studentTrack=document.querySelector('.student-track');
   var studentGroup=studentTrack&&studentTrack.querySelector('.student-group');
+
   if(studentTrack&&studentGroup&&studentTrack.querySelectorAll('.student-group').length===1){
     var clone=studentGroup.cloneNode(true);
     clone.setAttribute('aria-hidden','true');
@@ -2335,9 +2386,20 @@ nav .btn.sm{box-shadow:none}
     studentTrack.appendChild(clone);
   }
 
+  // Static proof images are small enough to load eagerly; this avoids blank cards
+  // while the rail is moving and keeps the gallery visually complete.
+  if(studentGroup){
+    studentGroup.querySelectorAll('img').forEach(function(img){
+      img.loading='eager';
+      img.decoding='async';
+      try{img.fetchPriority='low';}catch(e){}
+    });
+  }
+
   var studentVideos=[].slice.call(document.querySelectorAll('.student-group:not([aria-hidden="true"]) .student-reel-video'));
   function ensureVideo(v){
     if(!v.src&&v.dataset.src){
+      v.preload='metadata';
       v.src=v.dataset.src;
       v.load();
     }
@@ -2350,7 +2412,8 @@ nav .btn.sm{box-shadow:none}
       if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){});}else v.pause();
     });
   });
-  if('IntersectionObserver' in window){
+
+  if('IntersectionObserver' in window && studentStrip){
     var svObserver=new IntersectionObserver(function(entries){
       entries.forEach(function(entry){
         var v=entry.target;
@@ -2359,11 +2422,77 @@ nav .btn.sm{box-shadow:none}
           var p=v.play();if(p&&p.catch)p.catch(function(){});
         }else{
           v.pause();
-          if(entry.boundingClientRect.top>window.innerHeight*2){try{v.currentTime=0;}catch(e){}}
         }
       });
-    },{rootMargin:'220px 0px',threshold:.15});
+    },{root:studentStrip,rootMargin:'0px 360px',threshold:.01});
     studentVideos.forEach(function(v){svObserver.observe(v);});
+  }else{
+    studentVideos.forEach(function(v){ensureVideo(v);});
+  }
+
+  // Real horizontal auto-scroll. Because scrollLeft changes, the browser knows
+  // which images/videos are approaching the viewport and loads them correctly.
+  if(studentStrip&&studentTrack&&studentGroup){
+    var galleryPausedUntil=0;
+    var galleryDragging=false;
+    var galleryLast=0;
+    var galleryRAF=0;
+    var galleryPointerId=null;
+    var galleryStartX=0;
+    var galleryStartScroll=0;
+
+    function pauseGallery(ms){
+      galleryPausedUntil=Date.now()+(ms||1800);
+    }
+    function loopWidth(){
+      return studentGroup.scrollWidth+12;
+    }
+    function galleryTick(t){
+      if(!galleryLast)galleryLast=t;
+      var dt=Math.min(50,t-galleryLast);
+      galleryLast=t;
+      if(!galleryDragging&&Date.now()>galleryPausedUntil&&document.visibilityState==='visible'){
+        studentStrip.scrollLeft+=dt*0.032;
+        var w=loopWidth();
+        if(w>0&&studentStrip.scrollLeft>=w)studentStrip.scrollLeft-=w;
+      }
+      galleryRAF=requestAnimationFrame(galleryTick);
+    }
+
+    // Mobile/tablet: native swipe stays enabled. Pause auto motion while touching.
+    studentStrip.addEventListener('touchstart',function(){pauseGallery(2600);},{passive:true});
+    studentStrip.addEventListener('touchend',function(){pauseGallery(1600);},{passive:true});
+    studentStrip.addEventListener('wheel',function(){pauseGallery(2200);},{passive:true});
+
+    // Desktop: click-and-drag behaves like a premium carousel.
+    studentStrip.addEventListener('pointerdown',function(e){
+      pauseGallery(2600);
+      if(e.pointerType!=='mouse')return;
+      galleryDragging=true;
+      galleryPointerId=e.pointerId;
+      galleryStartX=e.clientX;
+      galleryStartScroll=studentStrip.scrollLeft;
+      studentStrip.classList.add('is-dragging');
+      try{studentStrip.setPointerCapture(e.pointerId);}catch(err){}
+    });
+    studentStrip.addEventListener('pointermove',function(e){
+      if(!galleryDragging||e.pointerId!==galleryPointerId)return;
+      e.preventDefault();
+      studentStrip.scrollLeft=galleryStartScroll-(e.clientX-galleryStartX);
+    });
+    function endGalleryDrag(e){
+      if(!galleryDragging)return;
+      galleryDragging=false;
+      galleryPointerId=null;
+      studentStrip.classList.remove('is-dragging');
+      pauseGallery(1800);
+      try{studentStrip.releasePointerCapture(e.pointerId);}catch(err){}
+    }
+    studentStrip.addEventListener('pointerup',endGalleryDrag);
+    studentStrip.addEventListener('pointercancel',endGalleryDrag);
+    studentStrip.addEventListener('mouseleave',function(e){if(galleryDragging)endGalleryDrag(e);});
+
+    galleryRAF=requestAnimationFrame(galleryTick);
   }
 
   var reviewsWindow=document.querySelector('.reviews-window');
