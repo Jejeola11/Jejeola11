@@ -31,10 +31,6 @@
       "dest": "/atelier-site/index.html"
     },
     {
-      "src": "/\\.netlify/functions/(.*)",
-      "dest": "/api/$1"
-    },
-    {
       "handle": "filesystem"
     }
   ]
