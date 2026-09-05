@@ -237,7 +237,7 @@ function pollJob(requestId, resultEl, noteId, btn, btnLabel, mediaType = 'video'
  const timer = setInterval(async () => {
  s += 8;
  try {
- const r = await fetch(`/.netlify/functions/job-status?id=${requestId}`, { headers: { ...(await authHeader()) } });
+ const r = await fetch(`/api/job-status?id=${requestId}`, { headers: { ...(await authHeader()) } });
  const d = await r.json();
  if (d.status === 'completed') {
  clearInterval(timer);
@@ -326,7 +326,7 @@ function pollGrid(ids, resultEl, noteId, btn, label, watermark, queueLabel) {
  const t = setInterval(async () => {
  s += 8;
  try {
- const r = await fetch(`/.netlify/functions/job-status?id=${id}`, { headers: { ...(await authHeader()) } });
+ const r = await fetch(`/api/job-status?id=${id}`, { headers: { ...(await authHeader()) } });
  const d = await r.json();
  if (d.status === 'completed') {
  clearInterval(t); done[i] = d.url; lastOutput = d.url;
@@ -363,7 +363,7 @@ function pollChat(id, outEl, noteId, btn, label) {
  const t = setInterval(async () => {
  s += 4;
  try {
- const r = await fetch(`/.netlify/functions/job-status?id=${id}`, { headers: { ...(await authHeader()) } });
+ const r = await fetch(`/api/job-status?id=${id}`, { headers: { ...(await authHeader()) } });
  const d = await r.json();
  if (d.status === 'completed') {
  clearInterval(t); outEl.textContent = d.text || ''; note(noteId, '');
@@ -394,7 +394,7 @@ window.fuseUserName = () => (user && (user.user_metadata?.full_name || user.user
 // readable (phase 25), so this has to go through the tier-gated function —
 // the academy reader cannot query the table directly.
 window.fuseLessonVideo = async (key) => {
-  const res = await fetch('/.netlify/functions/lesson-video', {
+  const res = await fetch('/api/lesson-video', {
     method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
     body: JSON.stringify({ lesson_key: key }),
   });
@@ -584,7 +584,7 @@ async function pollAllPendingJobs() {
  for (const job of snapshot) {
  try {
  const path = job.endpoint === 'avatar-video-status' ? `media-pipeline?id=${job.request_id}` : `job-status?id=${job.request_id}`;
- const r = await fetch(`/.netlify/functions/${path}`, { headers: { ...(await authHeader()) } });
+ const r = await fetch(`/api/${path}`, { headers: { ...(await authHeader()) } });
  const d = await r.json();
  const done = job.endpoint === 'avatar-video-status' ? d.stage === 'complete' : d.status === 'completed';
  const failed = job.endpoint === 'avatar-video-status' ? d.stage === 'failed' : d.status === 'failed';
@@ -706,7 +706,7 @@ async function generateStudioVideo(prompt) {
  const btn = $('genBtn'); const label = ' Generate video'; btn.disabled = true; btn.textContent = 'Submitting…';
  note('genNote', '');
  try {
- const res = await fetch('/.netlify/functions/video-generate', {
+ const res = await fetch('/api/video-generate', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ model, prompt: fullPrompt, aspect, duration: $('studioDuration').value, image_url: refUrls[0] || undefined }),
  });
@@ -796,7 +796,7 @@ async function videoGenerate() {
  const btn = $('vGen'); const label = ` Generate video (${vCreditsForCurrentDuration()} credits)`; btn.disabled = true; btn.textContent = 'Submitting…';
  note('vNote', '');
  try {
- const res = await fetch('/.netlify/functions/video-generate', {
+ const res = await fetch('/api/video-generate', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ model: vModel.slug, prompt, aspect: $('vAspect').value, duration: $('vDuration').value, resolution: $('vRes').value, image_url: vRefUrl || undefined, reference_image_urls: vMoreRefs.length ? vMoreRefs : undefined }),
  });
@@ -1134,7 +1134,7 @@ async function saveLessonDuration(key, sec) {
  courseVideos[key] = { ...(courseVideos[key] || {}), duration_sec: Math.round(sec) };
  buildCourseBody();
  try {
- const res = await fetch('/.netlify/functions/course-set-video', {
+ const res = await fetch('/api/course-set-video', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ lesson_key: key, duration_sec: Math.round(sec) }),
  });
@@ -1268,7 +1268,7 @@ async function unlockModule(mKey) {
  if (preview) { showAuth('signup'); return; }
  if (!courseHasFull() && !confirm('Unlock this module for 100 credits?')) return;
  try {
- const res = await fetch('/.netlify/functions/unlock-module', {
+ const res = await fetch('/api/unlock-module', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ module_key: mKey }),
  });
@@ -1289,7 +1289,7 @@ let curLesson = null;
 // access moduleUnlocked() already checked here for the UI.
 async function fetchLessonUrl(key) {
  try {
- const res = await fetch('/.netlify/functions/lesson-video', {
+ const res = await fetch('/api/lesson-video', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ lesson_key: key }),
  });
@@ -1366,7 +1366,7 @@ async function openLesson(key) {
  const url = $('lvUrl').value.trim();
  $('lvSave').disabled = true; $('lvSave').textContent = 'Saving…';
  try {
- const res = await fetch('/.netlify/functions/course-set-video', {
+ const res = await fetch('/api/course-set-video', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ lesson_key: key, url }),
  });
@@ -1483,7 +1483,7 @@ function openMiniCourse(key) {
  <div class="mini-upsell">
  <div class="mini-upsell-t"> Want the full system, not just one video?</div>
  <p>Fuse Atelier is the complete AI Creative Income System — every skill like this one, all in one place, plus 500 Fuse Studio credits.</p>
- <a class="btn gold block" href="https://fuse-atelier.netlify.app" target="_blank" rel="noopener">See Fuse Atelier — join at the founding price →</a>
+ <a class="btn gold block" href="https://fuse-atelier.vercel.app" target="_blank" rel="noopener">See Fuse Atelier — join at the founding price →</a>
  </div>
  ${userIsAdmin ? adminMiniVideoBox(mkey) : ''}`;
  wireMiniAdminSave(mkey);
@@ -1516,7 +1516,7 @@ function wireMiniAdminSave(mkey) {
  const url = $('mvUrl').value.trim();
  btn.disabled = true; btn.textContent = 'Saving…';
  try {
- const res = await fetch('/.netlify/functions/course-set-video', {
+ const res = await fetch('/api/course-set-video', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ lesson_key: mkey, url }),
  });
@@ -1531,7 +1531,7 @@ async function redeemMini(mkey, code) {
  const btn = $('miniRedeem') || $('miniCredits');
  if (btn) { btn.disabled = true; btn.textContent = 'Checking…'; }
  try {
- const res = await fetch('/.netlify/functions/unlock-module', {
+ const res = await fetch('/api/unlock-module', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ module_key: mkey, code }),
  });
@@ -1644,7 +1644,7 @@ async function generate() {
  note('genNote', '');
 
  try {
- const res = await fetch('/.netlify/functions/generate', {
+ const res = await fetch('/api/generate', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ prompt, model, aspect, count: +$('imgCount').value, res: +$('imgRes').value, reference_image_urls: refUrls.length ? refUrls : undefined }),
  });
@@ -1792,7 +1792,7 @@ async function weekUnlockDay(key) {
  const cost = WK.dayCredits || 50;
  if (!confirm(`Unlock Day ${d.day} — "${d.title}" — for ${cost} credits?\n\n(Tip: the full course is ${WK.creditsCost} credits for all 7 days + 100 bonus credits.)`)) return;
  try {
- const res = await fetch('/.netlify/functions/unlock-module', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ module_key: key }) });
+ const res = await fetch('/api/unlock-module', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ module_key: key }) });
  const data = await res.json();
  if (res.status === 402) { note('wkPayNote', `Not enough credits (need ${cost}) — top up, or pay for the full course directly.`, 'err'); openBuy(); return; }
  if (!res.ok) throw new Error(data.error || 'Failed');
@@ -1854,7 +1854,7 @@ function openWeekLesson(key) {
  $('wkvSave').onclick = async () => {
  const url = $('wkvUrl').value.trim(); $('wkvSave').disabled = true; $('wkvSave').textContent = 'Saving…';
  try {
- const res = await fetch('/.netlify/functions/course-set-video', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ lesson_key: key, url }) });
+ const res = await fetch('/api/course-set-video', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ lesson_key: key, url }) });
  if (!res.ok) throw new Error('Save failed');
  weekVideos[key] = url; note('wkvNote', 'Saved ', 'ok');
  } catch (e) { note('wkvNote', e.message, 'err'); }
@@ -1869,7 +1869,7 @@ function openWeekLesson(key) {
 async function redeemWeekCode(code) {
  if (!code) return false;
  try {
- const res = await fetch('/.netlify/functions/unlock-module', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ module_key: 'wk-course', code }) });
+ const res = await fetch('/api/unlock-module', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ module_key: 'wk-course', code }) });
  if (!res.ok) return false;
  weekUnlocked = true;
  return true;
@@ -1889,7 +1889,7 @@ async function weekUnlockCredits() {
  if (!confirm(`Unlock The $500 Week for ${WK.creditsCost} credits?`)) return;
  $('wkCredits').disabled = true;
  try {
- const res = await fetch('/.netlify/functions/unlock-module', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ module_key: 'wk-course' }) });
+ const res = await fetch('/api/unlock-module', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ module_key: 'wk-course' }) });
  const d = await res.json();
  if (res.status === 402) { note('wkPayNote', 'Not enough credits — top up, or pay for the full course directly.', 'err'); openBuy(); $('wkCredits').disabled = false; return; }
  if (!res.ok) throw new Error(d.error || 'Failed');
@@ -1956,7 +1956,7 @@ async function reactorSend() {
  btn.disabled = true; btn.textContent = 'Creating…'; note('rcNote', 'Sending to the engine…', 'ok');
  $('rcOut').innerHTML = '<div><span class="spin"></span></div>';
  try {
- const res = await fetch('/.netlify/functions/generate', {
+ const res = await fetch('/api/generate', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ prompt, model: rcModel.slug, aspect: $('rcAspect').value || '9:16', count: 1, res: 1, reference_image_urls: rcRefs.length ? rcRefs : undefined }),
  });
@@ -1978,7 +1978,7 @@ async function reactorSend() {
  btn.disabled = true; btn.textContent = 'Thinking…'; note('rcNote', '');
  $('rcOut').innerHTML = '<span class="spin"></span>';
  try {
- const res = await fetch('/.netlify/functions/ai-chat', {
+ const res = await fetch('/api/ai-chat', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ model: rcModel.id, prompt, images: rcRefs.length ? rcRefs : undefined }),
  });
@@ -2045,7 +2045,7 @@ async function omniEditGenerate() {
  if (!omniEditClips.length) return note('omniEditNote', 'Add at least one clip.', 'err');
  const btn = $('omniEditGen'); btn.disabled = true; btn.textContent = 'Starting…'; note('omniEditNote', '');
  try {
- const res = await fetch('/.netlify/functions/omni-video-edit', {
+ const res = await fetch('/api/omni-video-edit', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ instructions, video_urls: omniEditClips, audio_url: omniEditAudio || undefined }),
  });
@@ -2086,7 +2086,7 @@ async function omniRefGenerate() {
  if (!prompt) return note('omniRefNote', 'Describe the video you want.', 'err');
  const btn = $('omniRefGen'); btn.disabled = true; btn.textContent = 'Starting…'; note('omniRefNote', '');
  try {
- const res = await fetch('/.netlify/functions/omni-reference', {
+ const res = await fetch('/api/omni-reference', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ prompt, image_urls: omniRefImages, audio_urls: omniRefAudios, aspect: $('omniRefAspect').value }),
  });
@@ -2117,7 +2117,7 @@ async function omniAvatarGenerate() {
  if (!omniAvatarAudio) return note('omniAvatarNote', 'Add an audio clip.', 'err');
  const btn = $('omniAvatarGen'); btn.disabled = true; btn.textContent = 'Starting…'; note('omniAvatarNote', '');
  try {
- const res = await fetch('/.netlify/functions/talking-avatar', {
+ const res = await fetch('/api/talking-avatar', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ model: $('omniAvatarModel').value, image_url: omniAvatarImg, audio_url: omniAvatarAudio }),
  });
@@ -2170,7 +2170,7 @@ async function dlgGenerate() {
  const body = { video_url: dlgVideoUrl, mode: dlgAudioMode ? 'audio' : 'text' };
  if (dlgAudioMode) { body.audio_url = dlgAudioUrl; body.duration_sec = $('dlgVideoPreview').duration || undefined; }
  else { body.text = $('dlgScript').value.trim(); body.voice_language = $('dlgLang').value; body.voice_speed = parseFloat($('dlgSpeed').value); }
- const res = await fetch('/.netlify/functions/lipsync-dialogue', {
+ const res = await fetch('/api/lipsync-dialogue', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify(body),
  });
@@ -2293,7 +2293,7 @@ async function loadResyncBox(outputUrl) {
  $('resyncBtn').onclick = async () => {
  const btn = $('resyncBtn'); btn.disabled = true; btn.textContent = 'Starting…';
  try {
- const res = await fetch('/.netlify/functions/avatar-video-resync', {
+ const res = await fetch('/api/avatar-video-resync', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ avatar_video_id: av.id }),
  });
@@ -2318,7 +2318,7 @@ window.fuseDeleteProject = async (i) => {
  const x = libItems[i]; if (!x) return;
  if (!confirm('Delete this project? This can\'t be undone.')) return;
  try {
- const res = await fetch('/.netlify/functions/delete-generation', {
+ const res = await fetch('/api/delete-generation', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ id: x.id }),
  });
@@ -2368,7 +2368,7 @@ async function adminCreateInvoice() {
  if (amount_naira <= 0) return note('invNote', 'Enter a valid amount.', 'err');
  const btn = $('invCreate'); btn.disabled = true; btn.textContent = 'Creating…';
  try {
- const res = await fetch('/.netlify/functions/freelance-invoice', {
+ const res = await fetch('/api/freelance-invoice', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ client_name, amount_naira, description }),
  });
@@ -2385,7 +2385,7 @@ async function adminLookup() {
  if (!email) return note('lookupNote', 'Enter an email.', 'err');
  const btn = $('lookupBtn'); btn.disabled = true; btn.textContent = 'Checking…';
  try {
- const res = await fetch('/.netlify/functions/admin-lookup', {
+ const res = await fetch('/api/admin-lookup', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ email }),
  });
@@ -2418,7 +2418,7 @@ async function adminGrant(custom) {
  }
  btn.disabled = true; btn.textContent = 'Granting…';
  try {
- const res = await fetch('/.netlify/functions/admin-grant', {
+ const res = await fetch('/api/admin-grant', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify(payload),
  });
@@ -2437,7 +2437,7 @@ async function adminRevoke() {
  if (credits <= 0 && !revoke_plan) return note('revokeNote', 'Enter a credit amount, or check "drop to Free plan".', 'err');
  const btn = $('revokeBtn'); btn.disabled = true; btn.textContent = 'Revoking…';
  try {
- const res = await fetch('/.netlify/functions/admin-revoke', {
+ const res = await fetch('/api/admin-revoke', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ email, credits, revoke_plan }),
  });
@@ -2469,7 +2469,7 @@ async function adminGrantCourse() {
  const bonus_credits = $('adminCourseBonus').checked ? adminCourseBonusForSelection() : 0;
  const btn = $('adminGrantCourse'); btn.disabled = true; btn.textContent = 'Unlocking…';
  try {
- const res = await fetch('/.netlify/functions/admin-grant', {
+ const res = await fetch('/api/admin-grant', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ email, course, bonus_credits }),
  });
@@ -2548,7 +2548,7 @@ async function buy(pack, el) {
  if (pay.mode === 'manual') return showManualPay(pack);
  note('buyNote', 'Opening secure checkout…', 'ok'); if (el) el.style.opacity = '.5';
  try {
- const res = await fetch('/.netlify/functions/paystack-init', {
+ const res = await fetch('/api/paystack-init', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ pack }),
  });
@@ -2565,7 +2565,7 @@ async function buyWeekCourse() {
  const btn = $('wkBuy'); if (btn) { btn.disabled = true; btn.textContent = 'Opening secure checkout…'; }
  note('wkPayNote', '');
  try {
- const res = await fetch('/.netlify/functions/paystack-init', {
+ const res = await fetch('/api/paystack-init', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ pack: 'wk_course' }),
  });
@@ -2615,7 +2615,7 @@ function showManualPay(packKey) {
 // after they've actually paid (see startClaimAccount() below).
 async function startGuestCheckout(packKey) {
  try {
- const res = await fetch('/.netlify/functions/paystack-init-guest', {
+ const res = await fetch('/api/paystack-init-guest', {
  method: 'POST', headers: { 'Content-Type': 'application/json' },
  body: JSON.stringify({ pack: packKey }),
  });
@@ -2648,7 +2648,7 @@ function startClaimAccount(reference, pack) {
  // this exact race.
  for (let attempt = 0; attempt < 5; attempt++) {
  try {
- const res = await fetch('/.netlify/functions/claim-guest-account', {
+ const res = await fetch('/api/claim-guest-account', {
  method: 'POST', headers: { 'Content-Type': 'application/json' },
  body: JSON.stringify({ email, password, reference }),
  });
@@ -2694,7 +2694,7 @@ async function claimDaily() {
  if (preview) { showAuth('signup'); return; }
  $('streakBtn').disabled = true;
  try {
- const res = await fetch('/.netlify/functions/daily-claim', { method: 'POST', headers: { ...(await authHeader()) } });
+ const res = await fetch('/api/daily-claim', { method: 'POST', headers: { ...(await authHeader()) } });
  const d = await res.json();
  if (d.claimed) {
  $('creditCount').textContent = d.credits;
@@ -2748,7 +2748,7 @@ window.fuseDeleteAvatar = async (id) => {
  const a = avatarMap[id];
  if (!confirm(`Delete "${(a && a.name) || 'this avatar'}"? This also removes any avatar videos made with it. This can't be undone.`)) return;
  try {
- const res = await fetch('/.netlify/functions/avatar-delete', {
+ const res = await fetch('/api/avatar-delete', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ avatar_id: id }),
  });
@@ -2787,7 +2787,7 @@ window.fuseDeleteAvatarPhoto = async (url) => {
  if (count <= 1) return note('avManageNote', 'An avatar needs at least one training photo.', 'err');
  if (!confirm('Remove this training photo?')) return;
  try {
- const res = await fetch('/.netlify/functions/media-pipeline', {
+ const res = await fetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ action: 'train', avatar_id: selectedAvatar, remove_photo_url: url }),
  });
@@ -2825,7 +2825,7 @@ async function generateModelSheet() {
  $('avSheetView').innerHTML = '<div style="padding:14px;text-align:center"><span class="spin"></span><div style="margin-top:8px" class="muted">Building your model sheet… up to a minute</div></div>';
  note('avSheetNote', '', '');
  try {
- const res = await fetch('/.netlify/functions/avatar-modelsheet', {
+ const res = await fetch('/api/avatar-modelsheet', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ avatar_id: selectedAvatar }),
  });
@@ -2844,7 +2844,7 @@ function pollSheet(reqId) {
  const timer = setInterval(async () => {
  s += 8;
  try {
- const r = await fetch(`/.netlify/functions/job-status?id=${reqId}`, { headers: { ...(await authHeader()) } });
+ const r = await fetch(`/api/job-status?id=${reqId}`, { headers: { ...(await authHeader()) } });
  const d = await r.json();
  if (d.status === 'completed') {
  clearInterval(timer);
@@ -2887,7 +2887,7 @@ async function avvRewriteScript() {
  const btn = $('avvRewrite'); btn.disabled = true; btn.textContent = 'Rewriting…';
  note('avvRewriteNote', '');
  try {
- const res = await fetch('/.netlify/functions/audio-rewrite', {
+ const res = await fetch('/api/audio-rewrite', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ text }),
  });
@@ -2902,7 +2902,7 @@ async function loadAvatarResembleVoices(selectedUuid) {
  const rsel = $('avResemblePicker');
  if (!rsel) return;
  try {
- const res = await fetch('/.netlify/functions/resemble-voices', { headers: { ...(await authHeader()) } });
+ const res = await fetch('/api/resemble-voices', { headers: { ...(await authHeader()) } });
  const d = await res.json();
  const voices = (d && d.voices) || [];
  rsel.innerHTML = voices.length
@@ -2921,7 +2921,7 @@ async function avSaveEngine() {
  body.resemble_voice_uuid = uuid;
  }
  try {
- const res = await fetch('/.netlify/functions/media-pipeline', {
+ const res = await fetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify(body),
  });
@@ -2941,7 +2941,7 @@ async function uploadAvatarVoice(file) {
  if (upErr) throw upErr;
  const url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
  const refText = ($('avVoiceRefText') && $('avVoiceRefText').value.trim()) || '';
- const res = await fetch('/.netlify/functions/media-pipeline', {
+ const res = await fetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ action: 'train', avatar_id: selectedAvatar, voice_sample_url: url, voice_reference_text: refText }),
  });
@@ -2962,7 +2962,7 @@ async function uploadAvatarTrainingVideo(file) {
  if (upErr) throw upErr;
  const url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
  note('avFaceVideoNote', 'Training… this can take a moment ⏳', 'ok');
- const res = await fetch('/.netlify/functions/media-pipeline', {
+ const res = await fetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ action: 'train', avatar_id: selectedAvatar, source_video_url: url }),
  });
@@ -3010,7 +3010,7 @@ let avvStills = [];
 async function loadAvvStills(avatarId) {
  if (!avatarId) { avvStills = []; renderAvvStills(); return; }
  try {
- const res = await fetch(`/.netlify/functions/avatar-stills?avatar_id=${avatarId}`, { headers: await authHeader() });
+ const res = await fetch(`/api/avatar-stills?avatar_id=${avatarId}`, { headers: await authHeader() });
  const d = await res.json();
  avvStills = (res.ok && d.stills) || [];
  } catch (e) { avvStills = []; }
@@ -3032,7 +3032,7 @@ window.fuseAvvPickStill = (url) => {
 };
 window.fuseAvvDeleteStill = async (id) => {
  try {
- await fetch('/.netlify/functions/avatar-stills', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ action: 'delete', id }) });
+ await fetch('/api/avatar-stills', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ action: 'delete', id }) });
  avvStills = avvStills.filter((s) => s.id !== id);
  renderAvvStills();
  } catch (e) {}
@@ -3041,7 +3041,7 @@ async function avvSaveStillToLibrary() {
  if (!selectedAvatar) return;
  if (!avvStartFrameUrl) return note('avvStartFrameNote', 'Upload or pick a start frame first, then save it.', 'err');
  try {
- const res = await fetch('/.netlify/functions/avatar-stills', {
+ const res = await fetch('/api/avatar-stills', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ action: 'save', avatar_id: selectedAvatar, image_url: avvStartFrameUrl, source: 'uploaded' }),
  });
@@ -3114,7 +3114,7 @@ async function avvGenerate() {
  $('avvCtaWrap').style.display = 'none';
  note('avvNote', '');
  try {
- const res = await fetch('/.netlify/functions/media-pipeline', {
+ const res = await fetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({
  action: 'create', avatar_id: selectedAvatar, script, mode, camera_motion: mode === 'motion' ? cameraMotion : undefined,
@@ -3146,7 +3146,7 @@ function pollAvatarVideo(id, btn, label) {
  const timer = setInterval(async () => {
  s += 10;
  try {
- const r = await fetch(`/.netlify/functions/media-pipeline?id=${id}`, { headers: { ...(await authHeader()) } });
+ const r = await fetch(`/api/media-pipeline?id=${id}`, { headers: { ...(await authHeader()) } });
  const d = await r.json();
  if (d.stage === 'complete') {
  clearInterval(timer);
@@ -3177,7 +3177,7 @@ async function avvAddCta() {
  const btn = $('avvAddCta'); btn.disabled = true; btn.textContent = 'Adding…';
  note('avvCtaNote', '');
  try {
- const res = await fetch('/.netlify/functions/media-pipeline', {
+ const res = await fetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ type: 'cta', video_url: avvLastUrl, cta_text: ctaText }),
  });
@@ -3263,7 +3263,7 @@ async function avatarGenerate() {
  const btn = $('avGen'); const label = ' Generate (10 credits)'; btn.disabled = true; btn.textContent = 'Submitting…';
  note('avGenNote', '');
  try {
- const res = await fetch('/.netlify/functions/avatar-generate', {
+ const res = await fetch('/api/avatar-generate', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ avatar_id: selectedAvatar, prompt, aspect, extra_refs: avExtraRefs.length ? avExtraRefs : undefined }),
  });
@@ -3506,7 +3506,7 @@ async function flyerSend() {
  const btn = $('flyerSend'); btn.disabled = true; btn.textContent = 'Thinking…';
  note('flyerNote', '');
  try {
- const res = await fetch('/.netlify/functions/flyer-brief', {
+ const res = await fetch('/api/flyer-brief', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ message: msg, history: flyerHistory, project_id: flyerProjectId, reference_image_urls: flyerRefUrls.map((r) => r.url) }),
  });
@@ -3531,7 +3531,7 @@ function flyerPollBrief(reqId, btn) {
  const timer = setInterval(async () => {
  s += 4;
  try {
- const r = await fetch(`/.netlify/functions/job-status?id=${reqId}`, { headers: { ...(await authHeader()) } });
+ const r = await fetch(`/api/job-status?id=${reqId}`, { headers: { ...(await authHeader()) } });
  const d = await r.json();
  if (handled) return;
  if (d.status === 'completed') {
@@ -3609,7 +3609,7 @@ async function flyerGenHero(auto) {
  // between renders — only the (usually few) actually-tagged ones are sent.
  const referenceRoles = {};
  flyerRefUrls.filter((r) => r.on && r.role).forEach((r) => { referenceRoles[r.url] = r.role; });
- const res = await fetch('/.netlify/functions/flyer-hero', {
+ const res = await fetch('/api/flyer-hero', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({
  project_id: flyerProjectId || undefined, prompt, aspect: $('flyerAspect').value,
@@ -3652,7 +3652,7 @@ async function flyerGenHero(auto) {
 async function flyerConfirmHero(url) {
  if (!url || !flyerProjectId) return;
  try {
- await fetch('/.netlify/functions/flyer-set-hero', {
+ await fetch('/api/flyer-set-hero', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ project_id: flyerProjectId, image_url: url, aspect: $('flyerAspect').value }),
  });
@@ -3731,7 +3731,7 @@ async function flyerUploadHero(file) {
  const path = `${user.id}/flyerhero-${Date.now()}.${ext}`;
  await uploadWithRetry('avatars', path, resized);
  const imageUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
- const res = await fetch('/.netlify/functions/flyer-set-hero', {
+ const res = await fetch('/api/flyer-set-hero', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ project_id: flyerProjectId || undefined, image_url: imageUrl, aspect: $('flyerAspect').value }),
  });
@@ -3788,7 +3788,7 @@ async function flyerSuggestLayers() {
  const btn = $('flyerSuggestLayers'); btn.disabled = true; btn.textContent = 'Looking at your hero image…';
  $('flyerLayerSuggestions').innerHTML = '';
  try {
- const res = await fetch('/.netlify/functions/flyer-suggest-layers', {
+ const res = await fetch('/api/flyer-suggest-layers', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ project_id: flyerProjectId }),
  });
@@ -3800,7 +3800,7 @@ async function flyerSuggestLayers() {
  const timer = setInterval(async () => {
  s += 3;
  try {
- const r = await fetch(`/.netlify/functions/job-status?id=${d.request_id}`, { headers: { ...(await authHeader()) } });
+ const r = await fetch(`/api/job-status?id=${d.request_id}`, { headers: { ...(await authHeader()) } });
  const jd = await r.json();
  if (jd.status === 'completed') {
  clearInterval(timer);
@@ -3832,7 +3832,7 @@ async function flyerAddLayer() {
  const btn = $('flyerAddLayer'); btn.disabled = true; btn.textContent = 'Adding…';
  note('flyerLayerNote', '');
  try {
- const res = await fetch('/.netlify/functions/flyer-layer', {
+ const res = await fetch('/api/flyer-layer', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ project_id: flyerProjectId, instruction, layer_images: flyerLayerImgs }),
  });
@@ -3849,7 +3849,7 @@ async function flyerAddLayer() {
  const timer = setInterval(async () => {
  s += 5;
  try {
- const r = await fetch(`/.netlify/functions/job-status?id=${d.request_id}`, { headers: { ...(await authHeader()) } });
+ const r = await fetch(`/api/job-status?id=${d.request_id}`, { headers: { ...(await authHeader()) } });
  const jd = await r.json();
  if (jd.status === 'completed') {
  clearInterval(timer);
@@ -3916,7 +3916,7 @@ async function flyerCompositeWithFont() {
  $('flyerFinalResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Rendering with ' + (FLYER_FONT_META.find((f) => f.id === fontId) || {}).family + '…</div></div>';
  note('flyerCompositeNote', '');
  try {
- const res = await fetch('/.netlify/functions/flyer-composite-fonts', {
+ const res = await fetch('/api/flyer-composite-fonts', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ project_id: flyerProjectId, text_spec: spec, font_id: fontId }),
  });
@@ -3960,7 +3960,7 @@ async function flyerComposite() {
  $('flyerFinalResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Rendering the typography…</div></div>';
  note('flyerCompositeNote', '');
  try {
- const res = await fetch('/.netlify/functions/flyer-composite', {
+ const res = await fetch('/api/flyer-composite', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({
  project_id: flyerProjectId, text_spec: spec,
@@ -4057,7 +4057,7 @@ async function openDesignStudioBlank() {
  dsHideDrawer();
  note('dsNote', 'Setting up a new design…');
  try {
- const res = await fetch('/.netlify/functions/flyer-project-create', {
+ const res = await fetch('/api/flyer-project-create', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ aspect: '4:5' }),
  });
@@ -4380,7 +4380,7 @@ async function dsAddSticker(emoji) {
 async function dsPollJobUrl(requestId, maxTries = 60) {
  for (let i = 0; i < maxTries; i++) {
  await new Promise((r) => setTimeout(r, 3000));
- const res = await fetch('/.netlify/functions/job-status?id=' + encodeURIComponent(requestId), { headers: { ...(await authHeader()) } });
+ const res = await fetch('/api/job-status?id=' + encodeURIComponent(requestId), { headers: { ...(await authHeader()) } });
  const d = await res.json();
  if (d.status === 'completed') return d.url;
  if (d.status === 'failed') throw new Error(d.error || 'Generation failed');
@@ -4404,7 +4404,7 @@ async function dsRemoveBackground() {
  note('dsNote', 'Removing background…');
  try {
  const srcUrl = await dsUploadDataUrlIfNeeded(o.getSrc());
- const res = await fetch('/.netlify/functions/tool-generate', {
+ const res = await fetch('/api/tool-generate', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ slug: 'ai-background-remover', image_url: srcUrl }),
  });
@@ -4430,7 +4430,7 @@ async function dsAiGenerateSticker() {
  $('dsAiStatus').textContent = 'Generating your sticker…';
  try {
  const fullPrompt = prompt + ', isolated single object on a plain white background, studio product photo, no shadow, centered';
- const res = await fetch('/.netlify/functions/generate', {
+ const res = await fetch('/api/generate', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ prompt: fullPrompt, aspect: '1:1', model: 'nano-banana' }),
  });
@@ -4439,7 +4439,7 @@ async function dsAiGenerateSticker() {
  if (!res.ok) throw new Error(d.error || 'Failed');
  const rawUrl = await dsPollJobUrl(d.request_id);
  $('dsAiStatus').textContent = 'Cutting it out…';
- const cutRes = await fetch('/.netlify/functions/tool-generate', {
+ const cutRes = await fetch('/api/tool-generate', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ slug: 'ai-background-remover', image_url: rawUrl }),
  });
@@ -4535,7 +4535,7 @@ async function saveDesign() {
  // re-showing a picture. Tagged with which hero it was built on — see
  // openDesignStudio's reopenSaved check.
  const designState = dsCanvas.toJSON();
- const res = await fetch('/.netlify/functions/flyer-design-save', {
+ const res = await fetch('/api/flyer-design-save', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ project_id: dsProject.id, url, design_state: designState, design_state_hero_url: dsProject.hero_image_url }),
  });
@@ -4737,7 +4737,7 @@ async function flyerSubmitSpotFix() {
  const btn = $('flyerSpotFixGo'); btn.disabled = true; btn.textContent = 'Submitting…';
  note('flyerSpotFixNote', '');
  try {
- const res = await fetch('/.netlify/functions/media-pipeline', {
+ const res = await fetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ op: 'flyer-spot-fix', project_id: flyerProjectId, region, instruction }),
  });
@@ -4821,7 +4821,7 @@ async function loadResembleVoices() {
  if (preview) return;
  const rsel = $('adResemblePicker');
  try {
- const res = await fetch('/.netlify/functions/resemble-voices', { headers: { ...(await authHeader()) } });
+ const res = await fetch('/api/resemble-voices', { headers: { ...(await authHeader()) } });
  const d = await res.json();
  const voices = (d && d.voices) || [];
  rsel.innerHTML = voices.length
@@ -4841,7 +4841,7 @@ async function adRewriteScript() {
  const btn = $('adRewrite'); btn.disabled = true; btn.textContent = 'Rewriting…';
  note('adRewriteNote', '');
  try {
- const res = await fetch('/.netlify/functions/audio-rewrite', {
+ const res = await fetch('/api/audio-rewrite', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ text }),
  });
@@ -4859,7 +4859,7 @@ async function saveTrainedVoice() {
  if (!adUploadedVoiceUrl) return note('adVoiceNote', 'Upload a voice sample first.', 'err');
  const btn = $('adSaveVoice'); btn.disabled = true; btn.textContent = 'Saving…';
  try {
- const res = await fetch('/.netlify/functions/voice-train', {
+ const res = await fetch('/api/voice-train', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ name, sample_url: adUploadedVoiceUrl, reference_text: $('adVoiceRefText').value.trim() }),
  });
@@ -4901,7 +4901,7 @@ async function adGenerate() {
  const payload = isResemble
  ? { text, engine: 'resemble', resemble_voice_uuid: resembleVoiceUuid }
  : { text, voice_sample_url: voiceUrl, speed: parseFloat($('adSpeed').value), reference_text: $('adVoiceRefText').value.trim() };
- const res = await fetch('/.netlify/functions/audio-generate', {
+ const res = await fetch('/api/audio-generate', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify(payload),
  });
@@ -4923,7 +4923,7 @@ function pollAudioJob(reqId, btn, label) {
  const timer = setInterval(async () => {
  s += 5;
  try {
- const r = await fetch(`/.netlify/functions/job-status?id=${reqId}`, { headers: { ...(await authHeader()) } });
+ const r = await fetch(`/api/job-status?id=${reqId}`, { headers: { ...(await authHeader()) } });
  const d = await r.json();
  if (d.status === 'completed') {
  clearInterval(timer);
@@ -4962,7 +4962,7 @@ async function uploadEditVideo(file) {
  const url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
  $('editVideoPreview').src = url; $('editVideoPreview').style.display = 'block';
  note('editVideoNote', 'Transcribing… this can take a moment ⏳', 'ok');
- const res = await fetch('/.netlify/functions/video-transcribe', {
+ const res = await fetch('/api/video-transcribe', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ video_url: url }),
  });
@@ -4994,7 +4994,7 @@ async function editOmniSend() {
  $('editResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Applying the AI edit… this can take a while ⏳</div></div>';
  note('editOmniNote', '');
  try {
- const res = await fetch('/.netlify/functions/video-omni-edit', {
+ const res = await fetch('/api/video-omni-edit', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ project_id: editProjectId, instructions }),
  });
@@ -5017,7 +5017,7 @@ function pollEditTranscribe(reqId) {
  const timer = setInterval(async () => {
  s += 5;
  try {
- const r = await fetch(`/.netlify/functions/job-status?id=${reqId}`, { headers: { ...(await authHeader()) } });
+ const r = await fetch(`/api/job-status?id=${reqId}`, { headers: { ...(await authHeader()) } });
  const d = await r.json();
  if (d.status === 'completed') {
  clearInterval(timer);
@@ -5059,7 +5059,7 @@ async function editSend() {
  const btn = $('editSend'); btn.disabled = true; btn.textContent = 'Thinking…';
  note('editNote', '');
  try {
- const res = await fetch('/.netlify/functions/video-edit-brief', {
+ const res = await fetch('/api/video-edit-brief', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ message: msg, history: editHistory, project_id: editProjectId }),
  });
@@ -5072,7 +5072,7 @@ async function editSend() {
  const timer = setInterval(async () => {
  s += 4;
  try {
- const r = await fetch(`/.netlify/functions/job-status?id=${d.request_id}`, { headers: { ...(await authHeader()) } });
+ const r = await fetch(`/api/job-status?id=${d.request_id}`, { headers: { ...(await authHeader()) } });
  const jd = await r.json();
  if (jd.status === 'completed') {
  clearInterval(timer);
@@ -5102,7 +5102,7 @@ async function editApplyCaptions() {
  $('editResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Applying captions…</div></div>';
  note('editCaptionNote', '');
  try {
- const res = await fetch('/.netlify/functions/media-pipeline', {
+ const res = await fetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({
   type: 'caption',
@@ -5132,7 +5132,7 @@ async function editAddElement() {
  if (error) throw error;
  const imgUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
  note('editElementNote', 'Compositing…', 'ok');
- const res = await fetch('/.netlify/functions/media-pipeline', {
+ const res = await fetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ type: 'element', project_id: editProjectId, image_url: imgUrl, start_sec: parseFloat($('editElStart').value), duration_sec: parseFloat($('editElDur').value), position: $('editElPos').value }),
  });
@@ -5150,7 +5150,7 @@ async function editApplyCta() {
  const btn = $('editApplyCta'); btn.disabled = true; btn.textContent = 'Finishing…';
  note('editCtaNote', '');
  try {
- const res = await fetch('/.netlify/functions/media-pipeline', {
+ const res = await fetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ type: 'cta', project_id: editProjectId, cta_text: ctaText, accent_color: $('editAccentColor').value }),
  });
@@ -5474,7 +5474,7 @@ async function buyPreset(id, btn) {
  if (preview) { showAuth('signup'); return; }
  if (btn) { btn.disabled = true; btn.textContent = 'Buying…'; }
  try {
- const res = await fetch('/.netlify/functions/buy-preset', {
+ const res = await fetch('/api/buy-preset', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ id }),
  });
  const d = await res.json();
@@ -5503,7 +5503,7 @@ async function claimLearn() {
  if (preview) { showAuth('signup'); return; }
  $('learnClaim').disabled = true;
  try {
- const res = await fetch('/.netlify/functions/claim-learn-bonus', { method: 'POST', headers: { ...(await authHeader()) } });
+ const res = await fetch('/api/claim-learn-bonus', { method: 'POST', headers: { ...(await authHeader()) } });
  const d = await res.json();
  if (d.claimed) { $('creditCount').textContent = d.credits; note('learnNote', ` +${cfg.LEARN_BONUS} credits! You're ready to earn.`, 'ok'); }
  else note('learnNote', 'You already claimed your learning bonus ', 'ok');
@@ -5516,7 +5516,7 @@ async function linkWhatsapp() {
  if (preview) { showAuth('signup'); return; }
  const phone = $('waPhone').value.trim();
  try {
- const res = await fetch('/.netlify/functions/link-whatsapp', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ phone }) });
+ const res = await fetch('/api/link-whatsapp', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ phone }) });
  const d = await res.json();
  note('waNote', res.ok ? ' Linked! Text our WhatsApp bot a prompt to generate.' : d.error, res.ok ? 'ok' : 'err');
  } catch (e) { note('waNote', 'Could not link.', 'err'); }
@@ -5578,7 +5578,7 @@ async function buildAvatarPrompt() {
  if (preview) { showAuth('signup'); return; }
  const btn = $('bBuild'); btn.disabled = true; btn.textContent = 'Writing…';
  try {
- const res = await fetch('/.netlify/functions/prompt-gen', {
+ const res = await fetch('/api/prompt-gen', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ subject: ($('avSelName').textContent || 'my avatar'), fields: { setting: $('bSetting').value, outfit: $('bOutfit').value, lighting: $('bLight').value, shot: $('bShot').value } }),
  });
@@ -5648,7 +5648,7 @@ async function runTool() {
  if (jobCapReached('toolNote')) return;
  const btn = $('toolRun'); const label = 'Run tool'; btn.disabled = true; btn.textContent = 'Submitting…';
  try {
- const res = await fetch('/.netlify/functions/tool-generate', {
+ const res = await fetch('/api/tool-generate', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ slug: toolSlug, image_url: toolImg, prompt: $('toolPrompt').value.trim() || undefined }),
  });
@@ -5747,7 +5747,7 @@ async function doAuth() {
 }
 async function claimReferral() {
  const code = localStorage.getItem('fuse_ref'); if (!code) return;
- try { await fetch('/.netlify/functions/claim-referral', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ code }) }); localStorage.removeItem('fuse_ref'); } catch (e) {}
+ try { await fetch('/api/claim-referral', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify({ code }) }); localStorage.removeItem('fuse_ref'); } catch (e) {}
 }
 async function logout() { await sb.auth.signOut(); location.reload(); }
 
@@ -6091,7 +6091,7 @@ window.addEventListener('DOMContentLoaded', () => {
  if (packDef && paidReference && typeof fbq === 'function') {
  for (let attempt = 0; attempt < 4; attempt++) {
  try {
- const res = await fetch('/.netlify/functions/verify-payment', {
+ const res = await fetch('/api/verify-payment', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ reference: paidReference }),
  });

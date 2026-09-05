@@ -1,5 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/[fn].js": {
+      "includeFiles": "server/functions/**",
+      "maxDuration": 60
+    }
+  },
   "routes": [
     {
       "src": "/",
@@ -9,15 +15,27 @@
       }
     },
     {
+      "src": "/studio/?",
+      "dest": "/app/studio.html"
+    },
+    {
+      "src": "/app/?",
+      "dest": "/app/index.html"
+    },
+    {
+      "src": "/app/studio/?",
+      "dest": "/app/studio.html"
+    },
+    {
       "src": "/atelier/?",
       "dest": "/atelier-site/index.html"
     },
     {
-      "handle": "filesystem"
+      "src": "/\\.netlify/functions/(.*)",
+      "dest": "/api/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "https://fuse-atelier-studio.netlify.app/$1"
+      "handle": "filesystem"
     }
   ]
 }

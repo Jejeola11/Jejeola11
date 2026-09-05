@@ -503,7 +503,7 @@ Best,
         </ul>
         <p>Plus 12 bonus vault resources (prompt vaults, proposal swipe files, a 90-day roadmap) and <b>83 Fuse Studio credits</b> included on day one.</p>
         <div class="wk-call">🔥 Founding price: <b>₦60,000</b> lifetime access (first 50 students) — then ₦90,000. You already proved you can do this in 7 days. Now scale it.</div>
-        <a class="btn gold block" href="https://fuse-atelier.netlify.app" target="_blank" rel="noopener" style="margin-top:6px">🎬 See Fuse Atelier — join at the founding price →</a>
+        <a class="btn gold block" href="https://fuse-atelier.vercel.app" target="_blank" rel="noopener" style="margin-top:6px">🎬 See Fuse Atelier — join at the founding price →</a>
 
         <p><b>Today's action:</b> pitch the retainer to your first client, set your 30-day income target, and take a look at Fuse Atelier while the founding price is still open.</p>`,
     },
