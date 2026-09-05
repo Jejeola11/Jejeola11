@@ -57,7 +57,7 @@
   async function api(path, body) {
     const headers = { 'Content-Type': 'application/json' };
     if (window.fuseAuthHeader) Object.assign(headers, await window.fuseAuthHeader());
-    const res = await fetch('/.netlify/functions/' + path, { method: 'POST', headers, body: JSON.stringify(body) });
+    const res = await fetch('/api/' + path, { method: 'POST', headers, body: JSON.stringify(body) });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || 'Request failed');
     return data;
@@ -76,7 +76,7 @@
       // exactly what made a spec that had already finished look like it hung.
       const headers = {};
       if (window.fuseAuthHeader) Object.assign(headers, await window.fuseAuthHeader());
-      const res = await fetch('/.netlify/functions/job-status?id=' + encodeURIComponent(requestId), { headers });
+      const res = await fetch('/api/job-status?id=' + encodeURIComponent(requestId), { headers });
       const d = await res.json().catch(() => ({}));
       if (d.status === 'completed') return d;
       if (d.status === 'failed') throw new Error(d.error || 'That generation failed.');
