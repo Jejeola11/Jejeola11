@@ -304,6 +304,130 @@ footer{border-top:1px solid var(--line2);padding:34px 0 90px;color:#70867d;font-
   .instructor-stat:last-child{grid-column:auto}
 }
 
+
+/* Final conversion section */
+.final-offer-section{
+  position:relative;padding:clamp(72px,9vw,118px) 0 86px;
+  background:
+    radial-gradient(circle at 50% 8%,rgba(186,255,99,.09),transparent 28%),
+    linear-gradient(180deg,#020d0b 0%,#03110f 100%);
+  border-top:1px solid rgba(186,255,99,.08);
+}
+.final-offer-wrap{max-width:820px}
+.final-offer-video{
+  width:min(100%,320px);margin:0 auto clamp(42px,6vw,66px);padding:8px;
+  border-radius:34px;background:#020908;border:1px solid rgba(255,255,255,.13);
+  box-shadow:0 30px 100px rgba(0,0,0,.5),0 0 0 1px rgba(186,255,99,.05) inset;
+}
+.final-offer-video video{
+  width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:27px;background:#071a16;
+}
+.final-pricing-card{
+  overflow:hidden;border-radius:34px;border:1px solid rgba(186,255,99,.34);
+  background:#f8f7e9;color:#07120f;
+  box-shadow:0 36px 120px rgba(0,0,0,.5),0 0 70px rgba(186,255,99,.06);
+}
+.final-pricing-ribbon{
+  min-height:62px;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;
+  background:linear-gradient(105deg,#ffe568 0%,#dfff65 46%,#baff63 76%,#fff 130%);
+  border-bottom:1px solid rgba(7,18,15,.12);
+}
+.final-pricing-ribbon span{
+  font-size:11px;font-weight:950;letter-spacing:.18em;
+}
+.final-pricing-ribbon b{
+  display:inline-flex;align-items:center;justify-content:center;padding:8px 11px;border-radius:999px;
+  background:#07120f;color:#f8ffe9;font-size:9px;letter-spacing:.08em;
+}
+.final-pricing-body{padding:clamp(28px,5vw,52px)}
+.final-offer-eyebrow{
+  color:#416523;font-size:10px;font-weight:950;letter-spacing:.17em;text-transform:uppercase;margin-bottom:13px;
+}
+.final-pricing-card h2{
+  color:#07120f;font-size:clamp(42px,7vw,70px);line-height:.94;max-width:10ch;
+}
+.final-pricing-card h2 .grad{filter:saturate(1.08)}
+.final-offer-lead{
+  max-width:620px;margin:18px 0 0;color:#49544f;font-size:clamp(14px,2vw,17px);line-height:1.65;
+}
+.final-price-block{
+  margin:30px 0 22px;padding:24px 24px 22px;border-radius:25px;
+  background:
+    radial-gradient(circle at 88% 18%,rgba(186,255,99,.5),transparent 34%),
+    linear-gradient(135deg,#fff7c6 0%,#f6f5e4 58%,#efffd9 100%);
+  border:1px solid rgba(7,18,15,.12);
+}
+.final-price-label{
+  font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#56605b;
+}
+.final-price{
+  display:flex;align-items:flex-start;gap:4px;margin-top:3px;
+  font-family:"Bricolage Grotesque",Inter,sans-serif;font-weight:850;
+  font-size:clamp(58px,10vw,92px);line-height:.93;letter-spacing:-.065em;color:#07120f;
+}
+.final-price span{font-size:.42em;line-height:1.35;letter-spacing:-.03em}
+.final-price-note{margin-top:8px;color:#59645e;font-size:11px;font-weight:700}
+.final-offer-pills{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:24px}
+.final-offer-pills span{
+  padding:8px 11px;border-radius:999px;background:#07120f;color:#f4ffe7;
+  font-size:9px;font-weight:900;letter-spacing:.04em;
+}
+.final-includes{
+  overflow:hidden;border:1px solid rgba(7,18,15,.12);border-radius:25px;background:rgba(255,255,255,.52);
+}
+.final-include{
+  display:grid;grid-template-columns:34px 1fr;gap:13px;padding:17px 18px;
+  border-top:1px solid rgba(7,18,15,.095);
+}
+.final-include:first-child{border-top:0}
+.final-include i{
+  width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-style:normal;
+  background:linear-gradient(135deg,#ffe568,#baff63);color:#07120f;font-weight:950;
+}
+.final-include b{display:block;font-size:13px;line-height:1.35;color:#07120f}
+.final-include span{display:block;margin-top:4px;color:#66716b;font-size:11px;line-height:1.5}
+.final-bonus{
+  display:grid;grid-template-columns:42px 1fr;gap:13px;align-items:start;
+  margin:18px 0;padding:17px;border-radius:20px;
+  background:#07120f;color:#efffe5;border:1px solid rgba(186,255,99,.18);
+}
+.final-bonus-icon{
+  width:42px;height:42px;border-radius:13px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#ffe568,#baff63);color:#07120f;font-size:18px;font-weight:900;
+}
+.final-bonus b{display:block;font-size:13px;line-height:1.35}
+.final-bonus span{display:block;color:#a0b0a9;font-size:10.5px;line-height:1.5;margin-top:4px}
+.final-checkout{
+  width:100%;min-height:62px;border-radius:18px;font-size:15px;
+  box-shadow:0 18px 44px rgba(126,189,56,.22);
+}
+.final-trust{
+  display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:15px auto 0;color:#4e5c55;font-size:9.5px;font-weight:800;
+}
+.final-credit-note{
+  max-width:620px;margin:13px auto 0;text-align:center;color:#7a847f;font-size:9px;line-height:1.55;
+}
+@media(max-width:680px){
+  .final-offer-section{padding:58px 0 78px}
+  .final-offer-video{width:250px;margin-bottom:38px;border-radius:29px;padding:7px}
+  .final-offer-video video{border-radius:23px}
+  .final-pricing-card{border-radius:28px}
+  .final-pricing-ribbon{min-height:56px;padding:14px 17px}
+  .final-pricing-ribbon span{font-size:9px}
+  .final-pricing-ribbon b{font-size:8px}
+  .final-pricing-body{padding:24px 18px 22px}
+  .final-pricing-card h2{font-size:42px;max-width:9ch}
+  .final-offer-lead{font-size:13px;line-height:1.6}
+  .final-price-block{padding:19px 17px;margin:24px 0 18px;border-radius:20px}
+  .final-price{font-size:64px}
+  .final-include{grid-template-columns:31px 1fr;padding:15px 14px;gap:11px}
+  .final-include i{width:31px;height:31px;border-radius:10px}
+  .final-include b{font-size:12px}
+  .final-include span{font-size:10px}
+  .final-checkout{min-height:58px;font-size:13px}
+  .final-trust{gap:8px;font-size:8.5px}
+}
+
 </style>
 </head>
 <body>
@@ -676,17 +800,71 @@ footer{border-top:1px solid var(--line2);padding:34px 0 90px;color:#70867d;font-
   </div>
 </section>
 
-<section class="section">
-  <div class="wrap demo-grid">
-    <div class="demo-phone"><video src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/007abc792547af596b84c0d9896b06e1ae8e9741/atelier-site/assets/founding/client-proof-loop-v2.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/007abc792547af596b84c0d9896b06e1ae8e9741/atelier-site/assets/founding/ai-ugc-hq.jpg" muted loop autoplay playsinline preload="metadata" aria-label="Fuse AI UGC example"></video></div>
-    <div><div class="eyebrow">See the loop</div><h2>From lesson to <span class="grad">client-ready proof.</span></h2><div class="demo-steps"><div class="demo-step"><i>01</i><div><b>Open Academy</b><span>Choose AI UGC, Design or Landing Pages and learn the workflow.</span></div></div><div class="demo-step"><i>02</i><div><b>Move into Create</b><span>Build the sample while the lesson is still fresh.</span></div></div><div class="demo-step"><i>03</i><div><b>Add the prospect</b><span>Attach the sample inside Clients and move the opportunity to Sample Ready.</span></div></div><div class="demo-step"><i>04</i><div><b>Pitch + follow up</b><span>Run the Money Engine until the deal is Won or Lost.</span></div></div></div><span class="demo-tag">One ecosystem. One path from prompt to payment.</span></div>
-  </div>
-</section>
+<section class="final-offer-section" id="offer">
+  <div class="wrap final-offer-wrap">
+    <div class="final-offer-video" aria-label="Fuse Atelier AI UGC example">
+      <video src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/007abc792547af596b84c0d9896b06e1ae8e9741/atelier-site/assets/founding/client-proof-loop-v2.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/007abc792547af596b84c0d9896b06e1ae8e9741/atelier-site/assets/founding/ai-ugc-hq.jpg" muted loop autoplay playsinline preload="metadata"></video>
+    </div>
 
-<section class="section" id="offer">
-  <div class="wrap offer">
-    <div class="offer-copy"><div class="eyebrow">Founding access</div><h2>Get inside Fuse Atelier <span class="grad">today.</span></h2><p>Start with the complete Learn → Create → Sell system. Founding access includes the Academy, the creation workspace, the Clients pipeline and the Money Engine — plus starter AI credits so you can begin making proof immediately.</p><div class="faq"><details open><summary>Can I start as a complete beginner?</summary><p>Yes. The learning paths are designed to take you from the skill itself to a practical sample. You do not need an existing portfolio.</p></details><details><summary>Can I use Fuse on my phone?</summary><p>Yes. Fuse is being built mobile-first, and the Academy lessons themselves are vertical 9:16.</p></details><details><summary>What happens when my AI credits finish?</summary><p>Founding access includes starter credits. AI generation uses credits, so additional generation can later be topped up instead of pretending one ₦15,000 payment can fund unlimited AI forever.</p></details><details><summary>Does Fuse guarantee I will get clients?</summary><p>No. Fuse gives you the training, creation workflow, prospecting system and pipeline. Your results still depend on the quality of your work, the prospects you choose, how much outreach you do and your follow-up.</p></details></div></div>
-    <aside class="offer-card"><div class="offer-top"><span>Fuse Atelier · Founding Access</span><span>Open</span></div><div class="price grad">₦15,000</div><div class="subprice">One founding-access payment. AI generation continues through credits.</div><div class="includes"><div class="include"><b>✓</b><span>Fuse Academy — Design, AI UGC, Landing Pages + Money Engine</span></div><div class="include"><b>✓</b><span>Fuse Create access + starter AI credits</span></div><div class="include"><b>✓</b><span>Fuse Clients — prospects, pipeline, samples and follow-ups</span></div><div class="include"><b>✓</b><span>Course resources and future founding-member improvements</span></div></div><a class="btn full checkout-link" href="#">Get Founding Access →</a><div class="founding-note">Founding price while we launch Fuse with its earliest members. No fake countdown. No income guarantee. Checkout currently completes by WhatsApp + bank transfer while the new Vercel payment backend is being finished.</div></aside>
+    <article class="final-pricing-card">
+      <div class="final-pricing-ribbon">
+        <span>FOUNDING ACCESS</span>
+        <b>OPEN NOW</b>
+      </div>
+
+      <div class="final-pricing-body">
+        <div class="final-offer-eyebrow">THE COMPLETE FUSE ATELIER SYSTEM</div>
+        <h2>Learn it. Create it. <span class="grad">Sell it.</span></h2>
+        <p class="final-offer-lead">Everything you need to go from learning a sellable AI skill to creating proof and putting that proof in front of real businesses — in one ecosystem.</p>
+
+        <div class="final-price-block">
+          <div class="final-price-label">Founding member price</div>
+          <div class="final-price"><span>₦</span>15,000</div>
+          <div class="final-price-note">One founding-access payment</div>
+        </div>
+
+        <div class="final-offer-pills" aria-label="Fuse Atelier access areas">
+          <span>Academy</span><span>Create</span><span>Clients</span><span>Community</span>
+        </div>
+
+        <div class="final-includes">
+          <div class="final-include">
+            <i>✓</i>
+            <div><b>Fuse Academy — 4 complete learning paths</b><span>Design & Flyers, AI UGC & Influencer, Landing Pages and The Money Engine.</span></div>
+          </div>
+          <div class="final-include">
+            <i>✓</i>
+            <div><b>Fuse Create + starter AI credits</b><span>Move from lesson to real samples, product visuals and client-ready creative work without leaving the ecosystem.</span></div>
+          </div>
+          <div class="final-include">
+            <i>✓</i>
+            <div><b>Fuse Clients — your prospecting + sales workspace</b><span>Organize prospects, attach samples, track pitches, follow up and move opportunities through your pipeline.</span></div>
+          </div>
+          <div class="final-include">
+            <i>✓</i>
+            <div><b>Private community + practical feedback</b><span>Learn alongside other builders, ask questions, get direction and keep implementing instead of getting stuck alone.</span></div>
+          </div>
+          <div class="final-include">
+            <i>✓</i>
+            <div><b>Prompts, templates, resources + founding updates</b><span>Use the curated assets inside the system and benefit from improvements released as Fuse Atelier grows.</span></div>
+          </div>
+        </div>
+
+        <div class="final-bonus">
+          <div class="final-bonus-icon">✦</div>
+          <div><b>Built for action, not another certificate.</b><span>You learn the skill, create the proof, find the prospect and run the outreach loop until opportunities start moving.</span></div>
+        </div>
+
+        <a class="btn final-checkout checkout-link" href="#">Get Founding Access — ₦15,000 →</a>
+
+        <div class="final-trust">
+          <span>✓ Mobile-first</span>
+          <span>✓ Start immediately</span>
+          <span>✓ One founding-access payment</span>
+        </div>
+        <p class="final-credit-note">AI generation uses credits. Founding access includes starter credits; extra generation can be topped up when needed. Results depend on your work, prospect selection, outreach and follow-up.</p>
+      </div>
+    </article>
   </div>
 </section>
 
