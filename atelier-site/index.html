@@ -1916,6 +1916,15 @@ img,video,svg,canvas,iframe{max-width:100%}
   .mary-proof-card blockquote{font-size:19px}
   .mary-story-close h3{font-size:32px}
 }
+
+/* Marycamella media delivery hardening */
+.mary-portrait img,.mary-video video{display:block}
+.mary-video video{background:#081713}
+.mary-story-media{isolation:isolate}
+@media(max-width:760px){
+  .mary-portrait,.mary-video{min-height:0}
+  .mary-portrait img,.mary-video video{display:block;width:100%;height:100%;object-fit:cover}
+}
 </style>
 </head>
 <body id="top">
@@ -2117,12 +2126,15 @@ img,video,svg,canvas,iframe{max-width:100%}
     <div class="mary-story-hero">
       <div class="mary-story-media">
         <div class="mary-portrait">
-          <img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/a62431845215b7200d0c63f4b3b80cef2d005402/atelier-site/assets/founding/marycamella-ai-twin.webp" alt="Marycamella's AI twin portrait" loading="lazy" decoding="async">
+          <img src="https://cdn.jsdelivr.net/gh/Jejeola11/Jejeola11@f5e3f4dde76f10dde26d3565f2bea55b643ff3e8/atelier-site/assets/founding/marycamella-ai-twin.webp" data-fallback="https://raw.githubusercontent.com/Jejeola11/Jejeola11/f5e3f4dde76f10dde26d3565f2bea55b643ff3e8/atelier-site/assets/founding/marycamella-ai-twin.webp" onerror="if(this.dataset.fallback&&this.src!==this.dataset.fallback){this.src=this.dataset.fallback}" alt="Marycamella's AI twin portrait" loading="eager" decoding="async">
           <div class="mary-media-label"><span>HER AI TWIN</span><b>Built after starting from zero</b></div>
         </div>
         <div class="mary-video">
-          <video src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/a62431845215b7200d0c63f4b3b80cef2d005402/atelier-site/assets/founding/marycamella-ai-twin-story.mp4" muted loop playsinline autoplay preload="metadata" aria-label="Examples of content created with Marycamella's AI twin"></video>
-          <div class="mary-video-note">A few of the content looks she now creates with her AI twin.</div>
+          <video muted loop playsinline autoplay preload="auto" poster="https://cdn.jsdelivr.net/gh/Jejeola11/Jejeola11@f5e3f4dde76f10dde26d3565f2bea55b643ff3e8/atelier-site/assets/founding/marycamella-ai-twin.webp" aria-label="Marycamella's AI twin content video">
+            <source src="https://cdn.jsdelivr.net/gh/Jejeola11/Jejeola11@f5e3f4dde76f10dde26d3565f2bea55b643ff3e8/atelier-site/assets/founding/marycamella-ai-twin-live-preview.mp4" type="video/mp4">
+            <source src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/f5e3f4dde76f10dde26d3565f2bea55b643ff3e8/atelier-site/assets/founding/marycamella-ai-twin-live-preview.mp4" type="video/mp4">
+          </video>
+          <div class="mary-video-note">A live preview from the AI-twin video Marycamella created.</div>
         </div>
       </div>
 
