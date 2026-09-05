@@ -2338,9 +2338,10 @@ img,video,svg,canvas,iframe{max-width:100%}
         </div>
         <div class="mary-video mary-video-full">
           <video id="maryTwinVideo" muted defaultmuted loop playsinline webkit-playsinline autoplay preload="auto"
+            poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_0/v1788628678/marycamella-ai-twin-story-full.jpg"
             aria-label="Marycamella's AI twin content video">
+            <source src="https://res.cloudinary.com/bzw55wh2/video/upload/v1788628678/marycamella-ai-twin-story-full.mp4" type="video/mp4">
             <source src="/media/marycamella-ai-twin-story.mp4" type="video/mp4">
-            <source src="https://cdn.jsdelivr.net/gh/Jejeola11/Jejeola11@deploy/fuse-atelier-netlify/atelier-site/assets/founding/marycamella-ai-twin-story.mp4" type="video/mp4">
           </video>
         </div>
         <div class="mary-video-foot">
@@ -3444,12 +3445,22 @@ img,video,svg,canvas,iframe{max-width:100%}
   v.setAttribute('muted','');
   v.setAttribute('playsinline','');
   v.setAttribute('webkit-playsinline','');
-  const play=()=>{ const p=v.play(); if(p&&p.catch) p.catch(()=>{}); };
+  const play=()=>{
+    v.muted=true;
+    v.defaultMuted=true;
+    const p=v.play();
+    if(p&&p.catch) p.catch(()=>{});
+  };
   if(v.readyState>=2) play();
+  v.addEventListener('loadedmetadata',play,{once:true});
   v.addEventListener('loadeddata',play,{once:true});
   v.addEventListener('canplay',play,{once:true});
+  v.addEventListener('pause',function(){
+    if(!document.hidden && !v.ended) setTimeout(play,120);
+  });
   document.addEventListener('visibilitychange',()=>{ if(!document.hidden) play(); });
   window.addEventListener('pageshow',play);
+  window.addEventListener('focus',play);
 })();
 </script>
 </body>
