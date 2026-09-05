@@ -32,10 +32,10 @@ window.FUSE_5WEEK = {
   whatsapp: 'https://chat.whatsapp.com/JMVhLvgCs40JXtNv7Yf1zI?s=cl&p=a&mlu=1&amv=2', // course discussion group (community, not payment)
   accessCode: 'UGC500',         // code you can hand out manually if you ever want a self-serve unlock
   creditsCost: 65,               // in-app credit price to unlock (optional path, ~ same ₦10,000 value at the new ₦154/credit baseline)
-  charLabBuyUrl: 'https://fusecharacterlabpage.netlify.app/', // purchase / sales page (Day 2 banner + promo card)
-  charLabLoginUrl: 'https://fuse-character-lab.netlify.app/', // the actual tool — only unlocks for buyers' emails
-  pitchPilotUrl: 'https://pitch-pilot2.netlify.app/', // Day 5 + Day 6 banner — sign up free, 3 free pitches
-  landingUrl: 'https://500-dollar-week.netlify.app', // sales page shown to locked users
+  charLabBuyUrl: 'https://fusecharacterlabpage.vercel.app/', // purchase / sales page (Day 2 banner + promo card)
+  charLabLoginUrl: 'https://fuse-character-lab.vercel.app/', // the actual tool — only unlocks for buyers' emails
+  pitchPilotUrl: 'https://pitch-pilot2.vercel.app/', // Day 5 + Day 6 banner — sign up free, 3 free pitches
+  landingUrl: 'https://500-dollar-week.vercel.app', // sales page shown to locked users
   dayCredits: 50, // credits to unlock a single day (must match KEY_COST in unlock-module.js)
   // Default lesson videos (overridable per-day in Admin via course_videos).
   dayVideos: {
