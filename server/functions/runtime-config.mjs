@@ -10,8 +10,8 @@ export default async () => {
   }
 
   let source = await response.text();
-  const supabaseUrl = Netlify.env.get('SUPABASE_URL');
-  const supabaseAnonKey = Netlify.env.get('SUPABASE_ANON_KEY');
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
     return new Response('// Fuse Atelier Supabase environment variables are missing.', {
