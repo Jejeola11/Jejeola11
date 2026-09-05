@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#f7c9d3" />
+  <meta name="description" content="Pink Atelier — curated statement bags in signature colours, delivered across Nigeria." />
+  <title>Pink Atelier — Statement Bags</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#fff7f8;--soft:#fdebed;--soft2:#f9d9df;--pink:#f2aaba;--rose:#c93259;--rose2:#a81f45;
+      --ink:#141112;--muted:#706568;--card:#fff;--line:#eadcdf;--gold:#c69c5b;--shadow:0 18px 48px rgba(81,34,46,.09);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:"DM Sans",system-ui,-apple-system,sans-serif;overflow-x:hidden}
+    body.lock{overflow:hidden}
+    img{display:block;max-width:100%}
+    .bagshot{background-size:cover;background-position:center;background-repeat:no-repeat;background-color:#f6ecee}
+    .bag-pink{background-image:url('https://media.karousell.com/media/photos/products/2024/11/16/lv_capucines_mini_in_pink_past_1731767005_61ed5140.jpg')}
+    .bag-ivory{background-image:url('https://tw.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-capucines-mini--M12938_PM1_Side%20view.png?hei=1600&wid=1600');background-size:contain;background-color:#fff}
+    .bag-noir{background-image:url('https://eu.louisvuitton.com/images/is/image/lv/1/PP_VP_L/louis-vuitton-capucines-bb--M12936_PM2_Front%20view.png?hei=1180&wid=1180');background-size:contain;background-color:#fff}
+    .bag-sky{background-image:url('https://media.karousell.com/media/photos/products/2024/11/16/lv_capucines_mini_in_pink_past_1731767005_61ed5140.jpg');filter:hue-rotate(105deg) saturate(.9) brightness(1.05)}
+    .bag-blush{background-image:url('https://media.karousell.com/media/photos/products/2024/11/16/lv_capucines_mini_in_pink_past_1731767005_61ed5140.jpg');filter:saturate(.55) brightness(1.06)}
+    .bag-burgundy{background-image:url('https://media.karousell.com/media/photos/products/2024/11/16/lv_capucines_mini_in_pink_past_1731767005_61ed5140.jpg');filter:hue-rotate(320deg) saturate(1.25) brightness(.72)}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    a{color:inherit;text-decoration:none}
+    .container{width:min(1280px,calc(100% - 32px));margin:auto}
+    .serif{font-family:"Playfair Display",Georgia,serif}
+    .announcement{background:linear-gradient(90deg,#eeafbd,#f7c8d2,#edabb9);height:34px;display:flex;align-items:center;overflow:hidden;font-size:12px;font-weight:600}
+    .ticker{display:flex;gap:56px;white-space:nowrap;min-width:max-content;animation:ticker 20s linear infinite}
+    .ticker span{display:flex;align-items:center;gap:7px}
+    @keyframes ticker{to{transform:translateX(-50%)}}
+    header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-bottom:1px solid rgba(20,17,18,.07)}
+    .nav{height:82px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px}
+    .nav-left,.nav-right{display:flex;align-items:center;gap:9px}.nav-right{justify-content:flex-end}
+    .icon-btn{width:42px;height:42px;border:0;background:transparent;border-radius:50%;display:grid;place-items:center;position:relative;color:#151214}
+    .icon-btn:hover{background:var(--soft)}
+    .icon-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+    .badge{position:absolute;top:3px;right:1px;min-width:18px;height:18px;padding:0 5px;border-radius:20px;background:var(--rose);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;opacity:0;transform:scale(.7);transition:.2s}.badge.show{opacity:1;transform:scale(1)}
+    .brand{text-align:center;line-height:1}.brand-main{font-family:"Playfair Display",serif;font-size:30px;font-weight:600;letter-spacing:-.04em}.brand-sub{font-size:8px;text-transform:uppercase;letter-spacing:.34em;margin-top:4px;color:#5f5558}
+    .desktop-menu{display:none}
+    .delivery-strip{border-bottom:1px solid var(--line);background:#fff7f8;overflow:hidden;height:42px;display:flex;align-items:center;font-size:13px;color:#5a4f52}.delivery-strip .inner{display:flex;gap:42px;white-space:nowrap;min-width:max-content;animation:ticker2 30s linear infinite}@keyframes ticker2{to{transform:translateX(-50%)}}
+
+    .hero{padding:18px 0 0}.hero-grid{border-radius:26px;overflow:hidden;background:linear-gradient(135deg,#fff 0%,#fae3e7 49%,#efb8c4 100%);box-shadow:var(--shadow);position:relative;min-height:610px}
+    .hero-copy{position:relative;z-index:3;padding:34px 26px 0;max-width:620px}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.26em;color:#9e2344;font-weight:800}.hero h1{font-family:"Playfair Display",serif;font-size:54px;line-height:.94;letter-spacing:-.04em;margin:14px 0 16px;font-weight:600}.hero p{font-size:15px;line-height:1.65;color:#54494c;margin:0 0 22px;max-width:480px}
+    .btn{border:0;border-radius:999px;min-height:50px;padding:0 23px;background:var(--ink);color:#fff;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;transition:.2s}.btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(20,17,18,.15)}.btn.rose{background:linear-gradient(90deg,var(--rose),#df5273)}.btn.ghost{background:rgba(255,255,255,.7);color:var(--ink);border:1px solid rgba(20,17,18,.18)}
+    .hero-actions{display:flex;gap:9px;flex-wrap:wrap}.hero-image-wrap{position:absolute;left:0;right:0;bottom:0;height:340px;overflow:hidden}.hero-image-wrap:before{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(255,255,255,.04));z-index:1;pointer-events:none}.hero-image{width:100%;height:100%;background-position:0% 0%}
+    .hero-chip{position:absolute;z-index:4;right:18px;bottom:18px;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.7);padding:10px 13px;border-radius:999px;font-size:11px;font-weight:800;box-shadow:0 10px 28px rgba(0,0,0,.08)}
+
+    section{padding:60px 0}.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}.section-head h2{font-family:"Playfair Display",serif;font-size:38px;line-height:.98;letter-spacing:-.03em;margin:0}.section-head p{color:var(--muted);font-size:13px;margin:8px 0 0}.text-link{border:0;background:transparent;color:var(--rose2);font-weight:800;white-space:nowrap;padding:8px 0}
+    .scroller{display:grid;grid-auto-flow:column;grid-auto-columns:79%;gap:15px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 1px 12px;scrollbar-width:none}.scroller::-webkit-scrollbar{display:none}.scroller>*{scroll-snap-align:start}
+
+    .category-card{background:#fff;border-radius:18px;overflow:hidden;border:1px solid rgba(20,17,18,.05);position:relative;min-height:320px;box-shadow:0 10px 26px rgba(84,42,53,.05);transition:.2s}.category-card:hover{transform:translateY(-3px)}.category-card .cat-img{height:255px;width:100%}.category-meta{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 18px}.category-meta strong{font-size:19px}.category-meta small{display:block;color:#8b7d81;margin-top:3px}.round-arrow{width:44px;height:44px;border:0;border-radius:13px;background:#f9d6de;font-size:22px}
+
+    .product-card{position:relative;min-width:0}.product-media{position:relative;background:#fff;border-radius:16px;overflow:hidden;border:1px solid rgba(20,17,18,.05);height:390px}.product-media .product-shot{width:100%;height:100%;transition:.35s}.product-card:hover .product-media .product-shot{transform:scale(1.025)}.pill{position:absolute;top:14px;left:14px;border-radius:999px;padding:7px 12px;background:#365ae8;color:#fff;font-size:12px;font-weight:800;z-index:2}.pill.sale{background:#dc4a43}.wish{position:absolute;right:12px;top:12px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.9);border:0;display:grid;place-items:center;z-index:2;font-size:18px}.wish.active{background:#171315;color:white}.quick{position:absolute;left:12px;right:12px;bottom:12px;min-height:42px;border:0;background:rgba(17,14,15,.86);backdrop-filter:blur(7px);color:#fff;border-radius:999px;font-size:13px;font-weight:800;opacity:0;transform:translateY(8px);transition:.2s}.product-card:hover .quick{opacity:1;transform:none}.product-info{padding:13px 1px 0}.product-info h3{font-size:17px;line-height:1.3;margin:0 0 7px;font-weight:600}.rating{font-size:12px;color:#9a6d19;margin-bottom:7px}.price-row{display:flex;align-items:baseline;gap:8px}.price{font-weight:800;font-size:17px}.price.sale-price{color:#d7433d}.old{color:#8a8082;text-decoration:line-through;font-size:13px}.swatches{display:flex;gap:7px;margin:10px 0}.swatch{width:17px;height:17px;border-radius:50%;border:1px solid rgba(0,0,0,.25);box-shadow:0 0 0 2px #fff}.swatch.active{outline:2px solid #111;outline-offset:2px}.add{width:100%;height:48px;border:1.5px solid #151214;background:transparent;border-radius:9px;font-weight:800;transition:.18s}.add:hover{background:#151214;color:#fff}.add.added{background:#151214;color:#fff}
+
+    .colour-band{background:linear-gradient(110deg,#171314,#2d1d21);color:#fff;border-radius:26px;overflow:hidden;display:grid;gap:0}.colour-copy{padding:34px 26px}.colour-copy h3{font-family:"Playfair Display",serif;font-size:42px;line-height:1.02;margin:10px 0 12px}.colour-copy p{color:#e0d6d9;line-height:1.65;font-size:14px}.colour-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px}.colour-tile{border:0;border-radius:15px;overflow:hidden;min-height:150px;position:relative;background:#fff}.colour-tile .colour-shot{width:100%;height:100%}.colour-tile span{position:absolute;left:8px;bottom:8px;background:rgba(255,255,255,.9);color:#111;padding:6px 8px;border-radius:999px;font-size:10px;font-weight:800}
+
+    .story{display:grid;border-radius:26px;overflow:hidden;background:#f7d7df}.story-visual{min-height:430px;position:relative;background:linear-gradient(135deg,#f5c7d2,#fcecef)}.story-visual .story-shot{width:100%;height:100%;position:absolute;inset:0}.story-copy{padding:34px 26px;background:#171314;color:#fff}.story-copy h3{font-family:"Playfair Display",serif;font-size:43px;line-height:1.02;margin:0 0 14px}.story-copy p{color:#ddd3d5;line-height:1.65}.checks{display:grid;gap:13px;margin:22px 0}.checks div{display:flex;align-items:center;gap:10px}.checks div:before{content:"✓";width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#f5c5d0;color:#111;font-size:12px;font-weight:900}
+
+    .benefits{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:44px}.benefit{background:#fff;padding:20px 16px;display:flex;gap:10px;align-items:flex-start}.benefit b{display:block;font-size:13px}.benefit span{font-size:11px;color:#7a6e71}.benefit-icon{width:32px;height:32px;border-radius:10px;background:var(--soft);display:grid;place-items:center;flex:0 0 auto}
+
+    .newsletter{background:linear-gradient(90deg,#eda7b7,#fac9d2);padding:24px 0}.newsletter-inner{display:grid;gap:14px;align-items:center}.newsletter h3{font-family:"Playfair Display",serif;font-size:28px;margin:0}.newsletter p{font-size:13px;margin:3px 0 0}.newsletter form{display:flex;gap:8px}.newsletter input{flex:1;min-width:0;border:0;background:white;border-radius:10px;padding:0 14px;height:48px;outline:none}.newsletter button{border:0;background:#b72249;color:white;border-radius:10px;padding:0 20px;font-weight:800}
+
+    footer{background:#fff;padding:48px 0 26px}.footer-grid{display:grid;gap:28px}.footer-brand p{color:#6e6265;line-height:1.7;max-width:350px}.footer-title{font-family:"Playfair Display",serif;font-size:19px;margin-bottom:12px}.footer-links{display:grid;gap:9px;color:#675b5e;font-size:14px}.footer-links a:hover{text-decoration:underline}.socials{display:flex;gap:9px;margin-top:18px}.socials a{width:40px;height:40px;border:1px solid #ddd;border-radius:9px;display:grid;place-items:center;font-weight:800}.foot-accordion{border-top:1px solid #eee}.foot-accordion button{width:100%;height:58px;border:0;background:transparent;display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:17px}.foot-accordion .panel{display:none;padding:0 0 15px}.foot-accordion.open .panel{display:grid}.footer-bottom{border-top:1px solid #eee;margin-top:32px;padding-top:20px;display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;color:#7b7073;font-size:12px}.payments{display:flex;gap:8px;flex-wrap:wrap}.pay{padding:5px 9px;border:1px solid #e7e2e3;border-radius:7px;background:#fff;font-weight:800;color:#4e4648}
+
+    .floating-wa{position:fixed;right:18px;bottom:18px;width:62px;height:62px;border-radius:50%;background:#25d366;color:#fff;display:grid;place-items:center;z-index:70;box-shadow:0 14px 36px rgba(0,0,0,.18);border:5px solid white}.floating-wa svg{width:31px;height:31px;fill:white}.wa-dot{position:absolute;right:-3px;top:-4px;background:#e20e0e;color:white;width:21px;height:21px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:900}
+    .overlay{position:fixed;inset:0;background:rgba(20,17,18,.45);z-index:80;opacity:0;pointer-events:none;transition:.2s}.overlay.show{opacity:1;pointer-events:auto}
+    .drawer{position:fixed;z-index:90;background:#fff;box-shadow:0 20px 70px rgba(0,0,0,.2);transition:.28s cubic-bezier(.2,.8,.2,1)}
+    .side-drawer{top:0;bottom:0;left:0;width:min(90vw,390px);transform:translateX(-102%);padding:24px}.side-drawer.show{transform:none}.cart-drawer{top:0;bottom:0;right:0;width:min(94vw,430px);transform:translateX(102%);display:flex;flex-direction:column}.cart-drawer.show{transform:none}
+    .drawer-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:18px;border-bottom:1px solid #eee}.drawer-head h3{margin:0;font-family:"Playfair Display",serif;font-size:28px}.close{width:42px;height:42px;border:0;background:#f6f2f3;border-radius:50%;font-size:22px}.mobile-links{display:grid;gap:6px;padding-top:20px}.mobile-links button,.mobile-links a{border:0;background:transparent;text-align:left;padding:15px 4px;font-size:20px;font-weight:700;border-bottom:1px solid #eee}.menu-contact{margin-top:24px;padding:18px;background:var(--soft);border-radius:16px;line-height:1.6}
+    .cart-items{padding:18px;overflow:auto;flex:1}.empty{padding:50px 16px;text-align:center;color:#766b6e}.cart-item{display:grid;grid-template-columns:88px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid #eee}.cart-item .cart-shot{width:88px;height:110px;border-radius:10px}.cart-item h4{margin:2px 0 4px;font-size:15px}.cart-item small{color:#766b6e}.qty{display:flex;align-items:center;gap:9px;margin-top:10px}.qty button{width:28px;height:28px;border:1px solid #ddd;background:#fff;border-radius:7px}.remove{border:0;background:transparent;color:#b72045;font-size:12px;padding:0;margin-left:auto}.cart-footer{border-top:1px solid #eee;padding:18px;background:#fff}.cart-total{display:flex;justify-content:space-between;font-weight:900;font-size:18px;margin-bottom:12px}.checkout{width:100%;height:52px;border:0;border-radius:999px;background:#171314;color:white;font-weight:900}.checkout.whatsapp-order{background:#25a857;margin-top:9px}
+
+    .search-panel{position:fixed;z-index:95;top:18px;left:50%;transform:translate(-50%,-20px);width:min(94vw,760px);background:white;border-radius:20px;box-shadow:0 20px 80px rgba(0,0,0,.22);padding:18px;opacity:0;pointer-events:none;transition:.2s}.search-panel.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}.search-row{display:flex;gap:8px}.search-row input{flex:1;height:50px;border:1px solid #e3d9dc;border-radius:12px;padding:0 15px;outline:none}.search-results{display:grid;gap:8px;max-height:55vh;overflow:auto;margin-top:14px}.search-result{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center;border:0;background:#fbf7f8;border-radius:12px;padding:8px;text-align:left}.search-result .search-shot{width:64px;height:70px;border-radius:8px}
+
+    .modal{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:18px;opacity:0;pointer-events:none;transition:.2s}.modal.show{opacity:1;pointer-events:auto}.modal-card{width:min(96vw,900px);max-height:90vh;overflow:auto;background:white;border-radius:22px;box-shadow:0 26px 90px rgba(0,0,0,.26);display:grid;position:relative}.modal-img{min-height:360px;background:#f7eef0}.modal-img .modal-shot{width:100%;height:100%;min-height:360px;max-height:540px}.modal-copy{padding:28px}.modal-copy h3{font-family:"Playfair Display",serif;font-size:36px;margin:6px 0 9px}.modal-copy p{color:#6d6164;line-height:1.65}.modal-close{position:absolute;z-index:2;right:12px;top:12px;width:42px;height:42px;border:0;border-radius:50%;background:white;box-shadow:0 5px 18px rgba(0,0,0,.15);font-size:22px}.modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}.modal-actions .btn{width:100%;padding:0 14px}
+    .toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,20px);z-index:120;background:#171314;color:#fff;padding:12px 16px;border-radius:999px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transition:.2s;white-space:nowrap}.toast.show{opacity:1;transform:translate(-50%,0)}
+
+    @media(min-width:760px){
+      .container{width:min(1280px,calc(100% - 56px))}.hero-grid{min-height:650px}.hero-copy{padding:72px 52px;max-width:52%}.hero h1{font-size:74px}.hero-image-wrap{left:50%;top:0;bottom:0;height:auto}.hero-image{object-position:center 52%}.hero-chip{right:28px;bottom:28px}.scroller{grid-auto-columns:42%}.product-media{height:430px}.newsletter-inner{grid-template-columns:1fr 1.2fr}.footer-grid{grid-template-columns:1.3fr 1fr 1fr}.foot-accordion{border:0}.foot-accordion button{height:auto;padding:0;margin-bottom:12px;pointer-events:none}.foot-accordion button span{display:none}.foot-accordion .panel{display:grid!important}.modal-card{grid-template-columns:1.05fr .95fr}.modal-copy{padding:48px 36px}.modal-img{min-height:600px}
+    }
+    @media(min-width:1040px){
+      .nav{grid-template-columns:auto 1fr auto}.nav-left{display:none}.brand{text-align:left}.desktop-menu{display:flex;align-items:center;justify-content:center;gap:28px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em}.desktop-menu a:hover{color:var(--rose)}.scroller{grid-auto-flow:unset;grid-template-columns:repeat(5,1fr);overflow:visible}.category-card{min-height:330px}.category-card img{height:260px}.product-media{height:360px}.quick{opacity:0}.colour-band{grid-template-columns:.85fr 1.15fr}.colour-copy{padding:50px}.colour-grid{grid-template-columns:repeat(3,1fr);padding:16px}.colour-tile{min-height:215px}.story{grid-template-columns:1.1fr .9fr}.story-visual{min-height:580px}.story-copy{padding:64px 52px}.benefits{grid-template-columns:repeat(4,1fr)}.footer-grid{grid-template-columns:1.4fr 1fr 1fr 1fr}.hero-grid{min-height:690px}.hero-copy{padding:90px 62px}.hero h1{font-size:88px;max-width:610px}.hero p{font-size:16px}
+    }
+  </style>
+</head>
+<body>
+  <div class="announcement"><div class="ticker" aria-hidden="true"><span>🚚 Free shipping on orders over ₦100,000</span><span>✦ Premium statement pieces</span><span>📍 Same-day delivery in Lagos</span><span>🚚 Free shipping on orders over ₦100,000</span><span>✦ Premium statement pieces</span><span>📍 Same-day delivery in Lagos</span></div></div>
+  <header>
+    <div class="container nav">
+      <div class="nav-left">
+        <button class="icon-btn" id="menuBtn" aria-label="Open menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+        <button class="icon-btn search-btn" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button>
+      </div>
+      <a class="brand" href="#top" aria-label="Pink Atelier home"><div class="brand-main">Pink Atelier</div><div class="brand-sub">Bags · Style · You</div></a>
+      <nav class="desktop-menu"><a href="#new">New in</a><a href="#categories">Categories</a><a href="#best">Best selling</a><a href="#sale">Special sales</a><a href="#story">Our story</a></nav>
+      <div class="nav-right">
+        <button class="icon-btn search-btn" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button>
+        <button class="icon-btn" id="accountBtn" aria-label="Account"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c1.4-4.5 4-6.5 7.5-6.5s6.1 2 7.5 6.5"/></svg></button>
+        <button class="icon-btn" id="wishBtn" aria-label="Wishlist"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6l1.2 1.2L12 21l7.6-7.6 1.2-1.2a5.4 5.4 0 0 0 0-7.6Z"/></svg><span class="badge" id="wishBadge">0</span></button>
+        <button class="icon-btn" id="cartBtn" aria-label="Cart"><svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg><span class="badge" id="cartBadge">0</span></button>
+      </div>
+    </div>
+  </header>
+  <div class="delivery-strip"><div class="inner"><span>Port Harcourt: same-day delivery for confirmed orders</span><span>Nationwide delivery available</span><span>Secure WhatsApp order confirmation</span><span>Port Harcourt: same-day delivery for confirmed orders</span><span>Nationwide delivery available</span><span>Secure WhatsApp order confirmation</span></div></div>
+
+  <main id="top">
+    <section class="hero" style="padding-top:18px">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow">Timeless · Elegant · Iconic</div>
+          <h1>A statement in every detail.</h1>
+          <p>Structured top-handle bags in expressive colours, finished with polished gold-tone hardware and made to turn everyday dressing into a moment.</p>
+          <div class="hero-actions"><button class="btn rose" data-scroll="#new">Shop now →</button><button class="btn ghost" data-scroll="#colors">Explore colours</button></div>
+        </div>
+        <div class="hero-image-wrap"><div class="hero-image bagshot bag-pink" role="img" aria-label="Pink statement top-handle bag in premium packaging"></div></div>
+        <div class="hero-chip">✦ Signature Pink · Limited drop</div>
+      </div>
+    </section>
+
+    <section id="categories">
+      <div class="container">
+        <div class="section-head"><div><h2>Explore by Categories</h2><p>Shop the mood that matches your day.</p></div><button class="text-link" data-filter="all">View all →</button></div>
+        <div class="scroller" id="categoryGrid">
+          <button class="category-card" data-category="Pink"><div class="cat-img bagshot bag-pink" role="img" aria-label="Signature pink bags"></div><div class="category-meta"><span><strong>Pink Icons</strong><small>6 pieces</small></span><span class="round-arrow">↗</span></div></button>
+          <button class="category-card" data-category="Ivory"><div class="cat-img bagshot bag-ivory" role="img" aria-label="Ivory luxury bags"></div><div class="category-meta"><span><strong>Ivory Luxe</strong><small>4 pieces</small></span><span class="round-arrow">↗</span></div></button>
+          <button class="category-card" data-category="Noir"><div class="cat-img bagshot bag-noir" role="img" aria-label="Black statement bags"></div><div class="category-meta"><span><strong>Noir Edit</strong><small>5 pieces</small></span><span class="round-arrow">↗</span></div></button>
+          <button class="category-card" data-category="Sky"><div class="cat-img bagshot bag-sky" role="img" aria-label="Sky blue bags"></div><div class="category-meta"><span><strong>Sky Notes</strong><small>3 pieces</small></span><span class="round-arrow">↗</span></div></button>
+          <button class="category-card" data-category="Burgundy"><div class="cat-img bagshot bag-burgundy" role="img" aria-label="Burgundy bags"></div><div class="category-meta"><span><strong>Deep Tones</strong><small>4 pieces</small></span><span class="round-arrow">↗</span></div></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="new" style="padding-top:8px">
+      <div class="container">
+        <div class="section-head"><div><h2>What's New?</h2><p>Fresh colourways from the Pink Atelier edit.</p></div><button class="text-link" data-filter="all">View all →</button></div>
+        <div class="scroller" id="newProducts"></div>
+      </div>
+    </section>
+
+    <section id="colors" style="padding-top:14px">
+      <div class="container colour-band">
+        <div class="colour-copy"><div class="eyebrow" style="color:#f3adbd">Your colour, your mood</div><h3>One silhouette. Six personalities.</h3><p>Tap a colour to jump straight to the matching piece. The same structured shape, reimagined from soft ivory to deep burgundy.</p><button class="btn rose" data-filter="all">Shop every colour →</button></div>
+        <div class="colour-grid">
+          <button class="colour-tile" data-category="Pink"><div class="colour-shot bagshot bag-pink" role="img" aria-label="Pink bag"></div><span>Pink</span></button>
+          <button class="colour-tile" data-category="Ivory"><div class="colour-shot bagshot bag-ivory" role="img" aria-label="Ivory bag"></div><span>Ivory</span></button>
+          <button class="colour-tile" data-category="Noir"><div class="colour-shot bagshot bag-noir" role="img" aria-label="Noir bag"></div><span>Noir</span></button>
+          <button class="colour-tile" data-category="Sky"><div class="colour-shot bagshot bag-sky" role="img" aria-label="Sky bag"></div><span>Sky</span></button>
+          <button class="colour-tile" data-category="Blush"><div class="colour-shot bagshot bag-blush" role="img" aria-label="Blush bag"></div><span>Blush</span></button>
+          <button class="colour-tile" data-category="Burgundy"><div class="colour-shot bagshot bag-burgundy" role="img" aria-label="Burgundy bag"></div><span>Burgundy</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="best">
+      <div class="container">
+        <div class="section-head"><div><h2>Best Selling</h2><p>Most-loved colourways, chosen again and again.</p></div><button class="text-link" data-filter="all">View all →</button></div>
+        <div class="scroller" id="bestProducts"></div>
+      </div>
+    </section>
+
+    <section id="story" style="padding-top:16px">
+      <div class="container story">
+        <div class="story-visual"><div class="story-shot bagshot bag-blush" role="img" aria-label="Blush statement bag"></div></div>
+        <div class="story-copy"><div class="eyebrow" style="color:#f4afbf">More than a bag</div><h3>A little polish changes everything.</h3><p>Designed to move easily from workdays to dinner plans, every piece combines a structured silhouette with a detachable strap, chain detail and gift-ready presentation.</p><div class="checks"><div>Top-handle and shoulder carry</div><div>Structured textured finish</div><div>Polished gold-tone details</div><div>Gift-ready presentation</div><div>Fast delivery support</div></div><button class="btn rose" data-scroll="#new">Shop the collection →</button></div>
+      </div>
+      <div class="container benefits">
+        <div class="benefit"><div class="benefit-icon">🚚</div><div><b>Free Shipping</b><span>On orders over ₦100,000</span></div></div>
+        <div class="benefit"><div class="benefit-icon">🔒</div><div><b>Secure Orders</b><span>Order confirmation via WhatsApp</span></div></div>
+        <div class="benefit"><div class="benefit-icon">↻</div><div><b>Easy Returns</b><span>Hassle-free support</span></div></div>
+        <div class="benefit"><div class="benefit-icon">💬</div><div><b>24/7 Support</b><span>We're here when you need us</span></div></div>
+      </div>
+    </section>
+
+    <section id="sale">
+      <div class="container">
+        <div class="section-head"><div><h2>Special Sales</h2><p>Limited offers while stock lasts.</p></div><button class="text-link" data-filter="all">View all →</button></div>
+        <div class="scroller" id="saleProducts"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="newsletter"><div class="container newsletter-inner"><div><h3>Join Our Style Circle</h3><p>Be first to know about new arrivals, limited drops and private offers.</p></div><form id="newsletterForm"><input id="newsletterEmail" type="email" required placeholder="Enter your email address" aria-label="Email address"><button type="submit">Subscribe</button></form></div></div>
+
+  <footer>
+    <div class="container footer-grid">
+      <div class="footer-brand"><a class="brand" href="#top" style="text-align:left;display:inline-block"><div class="brand-main">Pink Atelier</div><div class="brand-sub">Bags · Style · You</div></a><p>Curated statement bags for women who want everyday dressing to feel a little more special.</p><div class="socials"><a href="https://www.instagram.com/" target="_blank" rel="noreferrer">IG</a><a href="https://www.facebook.com/" target="_blank" rel="noreferrer">FB</a><a href="https://www.tiktok.com/" target="_blank" rel="noreferrer">TK</a></div></div>
+      <div class="foot-accordion"><button type="button">Shop <span>＋</span></button><div class="panel footer-links"><a href="#new">All bags</a><a href="#new">New arrivals</a><a href="#best">Best selling</a><a href="#sale">Special sales</a></div></div>
+      <div class="foot-accordion"><button type="button">Customer Care <span>＋</span></button><div class="panel footer-links"><button class="text-link info-link" data-info="Shipping & Delivery">Shipping info</button><button class="text-link info-link" data-info="Returns & Refunds">Returns & refunds</button><button class="text-link info-link" data-info="Order Tracking">Track order</button><button class="text-link info-link" data-info="Frequently Asked Questions">FAQs</button></div></div>
+      <div class="foot-accordion"><button type="button">Contact <span>＋</span></button><div class="panel footer-links"><a href="tel:+2349044558101">+234 904 455 8101</a><a href="https://wa.me/2349044558101?text=Hi%20Pink%20Atelier%2C%20I%20want%20to%20shop%20a%20bag." target="_blank" rel="noreferrer">Click to chat on WhatsApp</a><a href="mailto:orders@pinkatelier.store">orders@pinkatelier.store</a><span>Lagos, Nigeria</span></div></div>
+    </div>
+    <div class="container footer-bottom"><span>© 2026 Pink Atelier. All rights reserved.</span><span>Refund Policy · Privacy Policy · Terms & Conditions</span><div class="payments"><span class="pay">VISA</span><span class="pay">Mastercard</span><span class="pay">Verve</span><span class="pay">Paystack</span></div></div>
+  </footer>
+
+  <a class="floating-wa" href="https://wa.me/2349044558101?text=Hi%20Pink%20Atelier%2C%20I%20want%20to%20shop%20a%20bag." target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp"><span class="wa-dot">1</span><svg viewBox="0 0 32 32"><path d="M16 3C8.8 3 3 8.5 3 15.3c0 2.6.9 5.1 2.5 7.1L4 29l6.9-1.8c1.6.8 3.4 1.2 5.2 1.2 7.2 0 13-5.5 13-12.3C29.1 8.5 23.2 3 16 3Zm0 22.9c-1.7 0-3.3-.4-4.8-1.2l-.4-.2-4.1 1.1 1.1-3.8-.3-.4a10 10 0 0 1-2-6.1C5.5 9.9 10.2 5.5 16 5.5s10.5 4.4 10.5 9.8S21.8 25.9 16 25.9Zm5.8-7.8c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-.9 1.2-.2.2-.3.2-.7.1-2-.9-3.4-1.7-4.7-3.8-.4-.6.4-.6 1.1-1.9.1-.2.1-.4 0-.6-.1-.2-.7-1.7-1-2.3-.3-.6-.5-.6-.7-.6h-.6c-.2 0-.6.1-.8.4-.3.3-1.1 1-1.1 2.5s1.1 3 1.3 3.2c.2.2 2.2 3.3 5.3 4.6 3.1 1.3 3.1.9 3.7.9.6-.1 1.9-.8 2.1-1.5.3-.7.3-1.3.2-1.5-.1-.2-.3-.3-.6-.4Z"/></svg></a>
+
+  <div class="overlay" id="overlay"></div>
+  <aside class="drawer side-drawer" id="menuDrawer" aria-hidden="true"><div class="drawer-head"><div class="brand" style="text-align:left"><div class="brand-main">Pink Atelier</div><div class="brand-sub">Bags · Style · You</div></div><button class="close" data-close>×</button></div><nav class="mobile-links"><a href="#new">What's New</a><a href="#categories">Explore Categories</a><a href="#best">Best Selling</a><a href="#sale">Special Sales</a><a href="#story">About the Collection</a></nav><div class="menu-contact"><b>Need help choosing?</b><br>Chat directly with us on WhatsApp.<br><a href="https://wa.me/2349044558101?text=Hi%20Pink%20Atelier%2C%20please%20help%20me%20choose%20a%20bag." target="_blank" style="text-decoration:underline;font-weight:800">Start a chat →</a></div></aside>
+  <aside class="drawer cart-drawer" id="cartDrawer" aria-hidden="true"><div class="drawer-head" style="padding:20px"><h3>Your Bag</h3><button class="close" data-close>×</button></div><div class="cart-items" id="cartItems"></div><div class="cart-footer"><div class="cart-total"><span>Subtotal</span><span id="cartTotal">₦0</span></div><button class="checkout" id="checkoutBtn">Proceed to order</button><button class="checkout whatsapp-order" id="whatsappCheckout">Order on WhatsApp</button></div></aside>
+
+  <div class="search-panel" id="searchPanel"><div class="search-row"><input id="searchInput" type="search" placeholder="Search colours, bags, styles..." autocomplete="off"><button class="close" data-close>×</button></div><div class="search-results" id="searchResults"></div></div>
+
+  <div class="modal" id="productModal"><div class="modal-card"><button class="modal-close" data-close>×</button><div class="modal-img"><div class="modal-shot bagshot bag-pink" id="modalImg" role="img" aria-label="Product preview"></div></div><div class="modal-copy"><div class="eyebrow" id="modalTag">Pink Atelier</div><h3 id="modalTitle"></h3><div class="rating">★★★★★ <span style="color:#6c6164">4.9/5</span></div><div class="price-row"><span class="price" id="modalPrice"></span><span class="old" id="modalOld"></span></div><p id="modalDesc"></p><div class="checks" style="color:#171314"><div>Structured top-handle silhouette</div><div>Detachable shoulder strap</div><div>Gift-ready presentation</div></div><div class="modal-actions"><button class="btn" id="modalAdd">Add to cart</button><a class="btn rose" id="modalWa" target="_blank" rel="noreferrer">WhatsApp order</a></div></div></div></div>
+
+  <div class="modal" id="infoModal"><div class="modal-card" style="display:block;max-width:560px"><button class="modal-close" data-close>×</button><div class="modal-copy"><div class="eyebrow">Pink Atelier Help</div><h3 id="infoTitle"></h3><p id="infoBody"></p><button class="btn rose" data-close>Got it</button></div></div></div>
+  <div class="toast" id="toast">Added to cart</div>
+
+  <script>
+    const PHONE='2349044558101';
+    const money=n=>new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',maximumFractionDigits:0}).format(n);
+    const products=[
+      {id:'pink',name:'Pink Blossom Handbag',colour:'Pink',price:150000,old:165000,img:'pink',tag:'New',desc:'The signature statement piece: saturated pink, structured texture, polished gold-tone chain accents and a detachable strap.'},
+      {id:'ivory',name:'Ivory Luxe Handbag',colour:'Ivory',price:150000,old:170000,img:'ivory',tag:'New',desc:'Soft ivory brings a quiet-luxury mood to the same structured silhouette, with warm gold-tone detailing.'},
+      {id:'noir',name:'Noir Classic Handbag',colour:'Noir',price:150000,old:163000,img:'noir',tag:'New',desc:'A rich charcoal-black finish designed for work, evenings and every polished look in between.'},
+      {id:'blush',name:'Blush Rose Handbag',colour:'Blush',price:150000,old:165000,img:'blush',tag:'New',desc:'A softened rosy neutral with feminine warmth, built around a structured top-handle shape.'},
+      {id:'sky',name:'Sky Elegance Handbag',colour:'Sky',price:150000,old:175000,img:'sky',tag:'New',desc:'Fresh sky blue meets polished gold details for a clean, high-impact colour story.'},
+      {id:'burgundy',name:'Burgundy Muse Handbag',colour:'Burgundy',price:155000,old:178000,img:'burgundy',tag:'New',desc:'Deep wine tones make this the dramatic evening option: elegant, rich and easy to style.'}
+    ];
+    const byId=id=>products.find(p=>p.id===id);
+    let cart=JSON.parse(localStorage.getItem('pa-cart')||'[]');
+    let wishlist=JSON.parse(localStorage.getItem('pa-wish')||'[]');
+    let activeModalProduct=null;
+    const toast=document.getElementById('toast');
+    function showToast(msg){toast.textContent=msg;toast.classList.add('show');clearTimeout(showToast.t);showToast.t=setTimeout(()=>toast.classList.remove('show'),1800)}
+    function card(p,{sale=false}={}){
+      return `<article class="product-card" data-product="${p.id}" data-colour="${p.colour}">
+        <div class="product-media"><span class="pill ${sale?'sale':''}">${sale?'-'+Math.round((1-p.price/p.old)*100)+'%':p.tag}</span><button class="wish ${wishlist.includes(p.id)?'active':''}" data-wish="${p.id}" aria-label="Save ${p.name}">♡</button><div class="product-shot bagshot bag-${p.img}" role="img" aria-label="${p.name}"></div><button class="quick" data-quick="${p.id}">Quick view</button></div>
+        <div class="product-info"><h3>${p.name}</h3><div class="rating">★★★★★ <span style="color:#776b6e">(4.9)</span></div><div class="price-row"><span class="price ${sale?'sale-price':''}">${money(p.price)}</span>${sale?`<span class="old">${money(p.old)}</span>`:''}</div><div class="swatches">${products.slice(0,4).map(x=>`<button class="swatch ${x.id===p.id?'active':''}" title="${x.colour}" data-swap="${p.id}" data-color="${x.img}" style="background:${({Pink:'#e77b9a',Ivory:'#eadfcf',Noir:'#2a2929',Sky:'#84bde0',Blush:'#d69aaa',Burgundy:'#743444'})[x.colour]}"></button>`).join('')}</div><button class="add" data-add="${p.id}">Add to cart</button></div>
+      </article>`;
+    }
+    function render(){
+      document.getElementById('newProducts').innerHTML=products.slice(0,5).map(p=>card(p)).join('');
+      document.getElementById('bestProducts').innerHTML=[products[0],products[2],products[1],products[3],products[4]].map(p=>card(p,{sale:true})).join('');
+      document.getElementById('saleProducts').innerHTML=[products[5],products[0],products[4],products[2],products[1]].map(p=>card(p,{sale:true})).join('');
+      bindProductButtons();updateBadges();renderCart();
+    }
+    function bindProductButtons(){
+      document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>addToCart(b.dataset.add,b));
+      document.querySelectorAll('[data-wish]').forEach(b=>b.onclick=()=>toggleWish(b.dataset.wish));
+      document.querySelectorAll('[data-quick]').forEach(b=>b.onclick=()=>openProduct(b.dataset.quick));
+      document.querySelectorAll('[data-swap]').forEach(b=>b.onclick=()=>{const card=b.closest('.product-card');const shot=card.querySelector('.product-shot');shot.className=`product-shot bagshot bag-${b.dataset.color}`;card.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));b.classList.add('active')});
+    }
+    function addToCart(id,btn){const existing=cart.find(i=>i.id===id);existing?existing.qty++:cart.push({id,qty:1});saveCart();if(btn){btn.classList.add('added');btn.textContent='Added ✓';setTimeout(()=>{btn.classList.remove('added');btn.textContent='Add to cart'},1000)}showToast('Added to your bag');}
+    function saveCart(){localStorage.setItem('pa-cart',JSON.stringify(cart));updateBadges();renderCart()}
+    function toggleWish(id){wishlist.includes(id)?wishlist=wishlist.filter(x=>x!==id):wishlist.push(id);localStorage.setItem('pa-wish',JSON.stringify(wishlist));render();showToast(wishlist.includes(id)?'Saved to wishlist':'Removed from wishlist')}
+    function updateBadges(){const count=cart.reduce((a,b)=>a+b.qty,0);const cb=document.getElementById('cartBadge'),wb=document.getElementById('wishBadge');cb.textContent=count;cb.classList.toggle('show',count>0);wb.textContent=wishlist.length;wb.classList.toggle('show',wishlist.length>0)}
+    function renderCart(){const box=document.getElementById('cartItems');if(!cart.length){box.innerHTML='<div class="empty">Your bag is empty.<br><br><button class="btn rose" data-scroll="#new">Start shopping</button></div>';document.getElementById('cartTotal').textContent=money(0);box.querySelector('[data-scroll]')?.addEventListener('click',()=>{closeAll();document.querySelector('#new').scrollIntoView({behavior:'smooth'})});return}box.innerHTML=cart.map(i=>{const p=byId(i.id);return `<div class="cart-item"><div class="cart-shot bagshot bag-${p.img}" role="img" aria-label="${p.name}"></div><div><h4>${p.name}</h4><small>${p.colour}</small><div style="font-weight:800;margin-top:5px">${money(p.price)}</div><div class="qty"><button data-minus="${p.id}">−</button><b>${i.qty}</b><button data-plus="${p.id}">+</button><button class="remove" data-remove="${p.id}">Remove</button></div></div></div>`}).join('');document.getElementById('cartTotal').textContent=money(cart.reduce((sum,i)=>sum+byId(i.id).price*i.qty,0));box.querySelectorAll('[data-plus]').forEach(b=>b.onclick=()=>{cart.find(i=>i.id===b.dataset.plus).qty++;saveCart()});box.querySelectorAll('[data-minus]').forEach(b=>b.onclick=()=>{const i=cart.find(i=>i.id===b.dataset.minus);i.qty--;if(i.qty<=0)cart=cart.filter(x=>x.id!==i.id);saveCart()});box.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{cart=cart.filter(i=>i.id!==b.dataset.remove);saveCart();showToast('Removed')})}
+    function orderText(){if(!cart.length)return 'Hi Pink Atelier, I would like to shop a bag.';const lines=cart.map(i=>{const p=byId(i.id);return `• ${p.name} x${i.qty} — ${money(p.price*i.qty)}`});const total=cart.reduce((s,i)=>s+byId(i.id).price*i.qty,0);return `Hi Pink Atelier, I would like to place this order:\n\n${lines.join('\n')}\n\nSubtotal: ${money(total)}\n\nPlease confirm availability and delivery.`}
+    function waLink(text){return `https://wa.me/${PHONE}?text=${encodeURIComponent(text)}`}
+    function openProduct(id){const p=byId(id);activeModalProduct=p;document.getElementById('modalImg').className=`modal-shot bagshot bag-${p.img}`;document.getElementById('modalTitle').textContent=p.name;document.getElementById('modalTag').textContent=`${p.colour} edit · Pink Atelier`;document.getElementById('modalPrice').textContent=money(p.price);document.getElementById('modalOld').textContent=p.old?money(p.old):'';document.getElementById('modalDesc').textContent=p.desc;document.getElementById('modalWa').href=waLink(`Hi Pink Atelier, I want the ${p.name} (${p.colour}) for ${money(p.price)}. Is it available?`);showLayer(document.getElementById('productModal'))}
+    document.getElementById('modalAdd').onclick=()=>{if(activeModalProduct)addToCart(activeModalProduct.id);closeAll();openDrawer('cart')}
+    function showLayer(el){document.getElementById('overlay').classList.add('show');el.classList.add('show');document.body.classList.add('lock')}
+    function openDrawer(which){const el=which==='cart'?document.getElementById('cartDrawer'):document.getElementById('menuDrawer');document.getElementById('overlay').classList.add('show');el.classList.add('show');el.setAttribute('aria-hidden','false');document.body.classList.add('lock')}
+    function closeAll(){document.querySelectorAll('.drawer,.modal,.search-panel').forEach(x=>x.classList.remove('show'));document.getElementById('overlay').classList.remove('show');document.body.classList.remove('lock')}
+    document.getElementById('menuBtn').onclick=()=>openDrawer('menu');document.getElementById('cartBtn').onclick=()=>openDrawer('cart');document.getElementById('overlay').onclick=closeAll;document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeAll);document.querySelectorAll('.mobile-links a').forEach(a=>a.onclick=closeAll);
+    document.getElementById('accountBtn').onclick=()=>{document.getElementById('infoTitle').textContent='Personal shopping support';document.getElementById('infoBody').innerHTML='Need help choosing a colour, confirming delivery or placing an order? Use the WhatsApp button and we’ll continue your order there.';showLayer(document.getElementById('infoModal'))}
+    document.getElementById('wishBtn').onclick=()=>{const names=wishlist.map(id=>byId(id)?.name).filter(Boolean);document.getElementById('infoTitle').textContent='Your wishlist';document.getElementById('infoBody').innerHTML=names.length?names.map(n=>`• ${n}`).join('<br>'):'You have not saved any pieces yet. Tap the heart on a product to keep it here.';showLayer(document.getElementById('infoModal'))}
+    document.querySelectorAll('.search-btn').forEach(b=>b.onclick=()=>{showLayer(document.getElementById('searchPanel'));setTimeout(()=>document.getElementById('searchInput').focus(),100);search('')});
+    const searchInput=document.getElementById('searchInput');searchInput.oninput=e=>search(e.target.value);function search(q){q=q.trim().toLowerCase();const list=products.filter(p=>!q||[p.name,p.colour,p.desc].join(' ').toLowerCase().includes(q));document.getElementById('searchResults').innerHTML=list.map(p=>`<button class="search-result" data-search-product="${p.id}"><div class="search-shot bagshot bag-${p.img}" aria-hidden="true"></div><span><b>${p.name}</b><br><small>${p.colour} · ${money(p.price)}</small></span></button>`).join('')||'<div class="empty">No matching bags found.</div>';document.querySelectorAll('[data-search-product]').forEach(b=>b.onclick=()=>{closeAll();openProduct(b.dataset.searchProduct)})}
+    function filterAndScroll(colour){closeAll();const section=document.getElementById('new');section.scrollIntoView({behavior:'smooth'});setTimeout(()=>{document.querySelectorAll('#newProducts .product-card').forEach(c=>{c.style.opacity=(colour==='all'||c.dataset.colour===colour)?'1':'.22';c.style.transform=(colour==='all'||c.dataset.colour===colour)?'none':'scale(.97)'})},350);if(colour!=='all')showToast(`${colour} edit highlighted`)}
+    document.querySelectorAll('[data-category]').forEach(b=>b.onclick=()=>filterAndScroll(b.dataset.category));document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>filterAndScroll(b.dataset.filter));document.querySelectorAll('[data-scroll]').forEach(b=>b.onclick=()=>document.querySelector(b.dataset.scroll)?.scrollIntoView({behavior:'smooth'}));
+    document.querySelectorAll('.foot-accordion>button').forEach(b=>b.onclick=()=>b.parentElement.classList.toggle('open'));
+    const infoCopy={
+      'Shipping & Delivery':'We offer nationwide delivery, with same-day delivery available in selected cities for confirmed orders. Delivery timing and fees are confirmed before dispatch.',
+      'Returns & Refunds':'If there is a problem with your order, contact us promptly on WhatsApp with your order details so our support team can review the best resolution.',
+      'Order Tracking':'Send your order name or reference to our WhatsApp line and we will confirm the current delivery status.',
+      'Frequently Asked Questions':'For stock, colour availability, delivery timelines, gifting or styling questions, tap the WhatsApp button for the fastest response.'
+    };document.querySelectorAll('.info-link').forEach(b=>b.onclick=()=>{document.getElementById('infoTitle').textContent=b.dataset.info;document.getElementById('infoBody').textContent=infoCopy[b.dataset.info];showLayer(document.getElementById('infoModal'))});
+    document.getElementById('newsletterForm').onsubmit=e=>{e.preventDefault();const email=document.getElementById('newsletterEmail').value.trim();localStorage.setItem('pa-newsletter',email);e.target.reset();showToast('You’re on the list ✦')};
+    document.getElementById('checkoutBtn').onclick=()=>{if(!cart.length)return showToast('Your bag is empty');closeAll();openProduct(cart[0].id);document.getElementById('modalTitle').textContent='Ready to complete your order?';document.getElementById('modalDesc').textContent='Use WhatsApp to confirm stock, delivery details and payment instructions before your order is dispatched.';document.getElementById('modalWa').href=waLink(orderText());document.getElementById('modalWa').textContent='Continue on WhatsApp'};
+    document.getElementById('whatsappCheckout').onclick=()=>{if(!cart.length)return showToast('Your bag is empty');window.open(waLink(orderText()),'_blank','noopener')};
+    render();
+  </script>
+</body>
+</html>
