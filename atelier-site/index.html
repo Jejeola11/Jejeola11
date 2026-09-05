@@ -1029,6 +1029,284 @@ nav .btn.sm{box-shadow:none}
   .proof-engine-scene,.system-stack .system-card{transition:none!important}
 }
 
+
+/* ===== Fuse 3D Experience — Phase 3 =====
+   Conversion-safe dimensional path. No overlapping sticky cards.
+*/
+
+/* 1. FIX: System path must read one card at a time. */
+.system-stack{
+  display:grid!important;
+  gap:24px!important;
+  perspective:1400px;
+  transform-style:preserve-3d;
+  padding-bottom:0!important;
+}
+.system-stack .system-card,
+.system-stack .system-card.section-reveal{
+  position:relative!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  margin:0!important;
+  z-index:auto!important;
+  opacity:1!important;
+  filter:none!important;
+  transform:
+    perspective(1250px)
+    translateY(var(--path-y,10px))
+    scale(var(--path-scale,.985))
+    rotateX(var(--path-rx,1.2deg))
+    rotateY(var(--path-ry,0deg))!important;
+  transform-origin:center center;
+  transition:
+    transform .55s cubic-bezier(.2,.75,.2,1),
+    box-shadow .45s ease,
+    border-color .35s ease!important;
+  will-change:transform;
+  isolation:isolate;
+}
+.system-stack .system-card:before{z-index:-2!important}
+.system-stack .system-card:after{z-index:-1!important}
+.system-stack .system-card.path-active{
+  --path-y:0px;--path-scale:1;--path-rx:0deg;--path-ry:0deg;
+  border-color:rgba(186,255,99,.30)!important;
+  box-shadow:0 38px 110px rgba(0,0,0,.38),0 0 42px rgba(12,127,112,.055)!important;
+}
+.system-stack .system-card.path-past{
+  --path-y:-2px;--path-scale:.99;--path-rx:.45deg;
+}
+.system-stack .system-card.path-next{
+  --path-y:10px;--path-scale:.982;--path-rx:1.25deg;
+}
+.system-card-copy,.system-card-media{transform:translateZ(0)}
+.system-card.path-active .system-card-copy{transform:translateZ(20px)}
+.system-card.path-active .system-card-media{transform:translateZ(10px)}
+.system-card.create.path-active .system-card-media{
+  transform:translateX(-50%) translateZ(10px)!important;
+}
+
+/* Keep each scene visually opaque so neighboring scenes can never bleed through. */
+.system-card.learn:before{
+  background:radial-gradient(circle at 74% 24%,rgba(186,255,99,.22),transparent 28%),linear-gradient(145deg,#103b30,#071a16 62%,#03110f)!important
+}
+.system-card.create:before{
+  background:linear-gradient(135deg,#7b6100 0%,#cfa80c 28%,#ffe568 58%,#867113 100%)!important
+}
+.system-card.sell:before{
+  background:radial-gradient(circle at 76% 20%,rgba(68,220,161,.19),transparent 30%),linear-gradient(145deg,#0b3329,#041613 68%,#020b09)!important
+}
+.system-card:after{
+  background:linear-gradient(180deg,rgba(2,10,8,.04),rgba(2,10,8,.20) 45%,rgba(2,10,8,.62) 100%)!important
+}
+.system-card.create:after{
+  background:linear-gradient(180deg,rgba(255,255,255,.015),rgba(31,26,0,.08) 46%,rgba(26,22,0,.18) 100%)!important
+}
+
+/* 2. Course path: each skill feels like a physical premium panel, never gimmicky. */
+.course-showcase{perspective:1500px}
+.course-feature.phase3-card{
+  --section-ry:0deg;
+  transform:
+    perspective(1400px)
+    translateY(var(--section-y,10px))
+    rotateY(var(--section-ry))
+    rotateX(var(--section-rx,.7deg))
+    scale(var(--section-scale,.988))!important;
+  transform-origin:center center;
+  transform-style:preserve-3d;
+  transition:transform .6s cubic-bezier(.2,.75,.2,1),box-shadow .5s ease,border-color .4s ease!important;
+}
+.course-feature.phase3-card:nth-child(odd){--section-ry:-1.8deg}
+.course-feature.phase3-card:nth-child(even){--section-ry:1.8deg}
+.course-feature.phase3-card.phase3-active{
+  --section-y:0px;--section-ry:0deg;--section-rx:0deg;--section-scale:1;
+  border-color:rgba(186,255,99,.22);
+  box-shadow:0 34px 100px rgba(0,0,0,.34);
+}
+.course-feature.phase3-card .course-feature-media{
+  transform:translateZ(0);
+  transition:transform .6s cubic-bezier(.2,.75,.2,1)
+}
+.course-feature.phase3-card.phase3-active .course-feature-media{transform:translateZ(18px)}
+.course-feature.phase3-card .course-feature-body{
+  position:relative;z-index:2;transform:translateZ(0);
+  transition:transform .6s cubic-bezier(.2,.75,.2,1)
+}
+.course-feature.phase3-card.phase3-active .course-feature-body{transform:translateZ(24px)}
+
+/* 3. Student work becomes a dimensional portfolio wall. */
+.student-strip{
+  perspective:1100px;
+  padding:18px 0 30px;
+}
+.student-track,.student-group{transform-style:preserve-3d}
+.student-card.media-card{
+  --gallery-ry:0deg;--gallery-y:0px;--gallery-scale:1;
+  transform:
+    perspective(900px)
+    rotateY(var(--gallery-ry))
+    translateY(var(--gallery-y))
+    scale(var(--gallery-scale))!important;
+  transform-origin:center center;
+  transition:transform .16s linear,box-shadow .2s ease,border-color .2s ease!important;
+  will-change:transform;
+  backface-visibility:hidden;
+}
+.student-card.media-card.gallery-focus{
+  border-color:rgba(186,255,99,.86);
+  box-shadow:0 28px 70px rgba(0,0,0,.38),0 0 28px rgba(186,255,99,.08)
+}
+.student-card.media-card.ai:before{
+  content:"AI VIDEO";
+  position:absolute;z-index:4;top:10px;left:10px;
+  padding:5px 7px;border-radius:999px;
+  background:rgba(3,17,15,.78);border:1px solid rgba(186,255,99,.30);
+  color:#dfffad;font-size:7px;font-weight:900;letter-spacing:.08em;
+  backdrop-filter:blur(8px)
+}
+
+/* 4. Reviews: stacked testimonial paper with depth, while auto-scroll stays readable. */
+.reviews-window{perspective:1200px}
+.review-card{
+  transform:perspective(900px) rotateX(.45deg) translateZ(0);
+  transform-style:preserve-3d;
+  box-shadow:0 18px 48px rgba(0,0,0,.18);
+  transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease;
+}
+.review-card:nth-child(3n+1){transform:perspective(900px) rotateY(-.7deg)}
+.review-card:nth-child(3n+2){transform:perspective(900px) rotateY(.7deg)}
+.review-card:hover{
+  transform:perspective(900px) translateZ(14px) scale(1.006);
+  border-color:rgba(244,200,74,.28);
+  box-shadow:0 28px 72px rgba(0,0,0,.28)
+}
+
+/* 5. Why join: feature tiles feel like components, not flat boxes. */
+.why-grid{perspective:1400px}
+.why-card.phase3-card{
+  transform:
+    perspective(1200px)
+    translateY(var(--why-y,8px))
+    rotateX(var(--why-rx,.7deg))
+    rotateY(var(--why-ry,0deg))
+    scale(var(--why-scale,.99))!important;
+  transform-style:preserve-3d;
+  transition:transform .5s cubic-bezier(.2,.75,.2,1),box-shadow .4s ease,border-color .35s ease!important;
+}
+.why-card.phase3-card:nth-child(odd){--why-ry:-1deg}
+.why-card.phase3-card:nth-child(even){--why-ry:1deg}
+.why-card.phase3-card.phase3-active{
+  --why-y:0px;--why-rx:0deg;--why-ry:0deg;--why-scale:1;
+  border-color:rgba(186,255,99,.24);
+  box-shadow:0 28px 80px rgba(0,0,0,.24)
+}
+.why-card .why-visual,.why-card .why-copy{
+  transform:translateZ(0);
+  transition:transform .5s cubic-bezier(.2,.75,.2,1)
+}
+.why-card.phase3-active .why-visual{transform:translateZ(16px)}
+.why-card.phase3-active .why-copy{transform:translateZ(22px)}
+
+/* 6. Instructor: subtle portrait parallax reinforces "real operator" proof. */
+.instructor-shell{perspective:1400px}
+.instructor-photo{
+  --inst-rx:1deg;--inst-ry:-2deg;--inst-y:0px;
+  transform:perspective(1200px) rotateX(var(--inst-rx)) rotateY(var(--inst-ry)) translateY(var(--inst-y));
+  transform-style:preserve-3d;
+  transition:transform .18s ease-out,box-shadow .35s ease
+}
+.instructor-photo img{
+  --inst-img-y:0px;
+  transform:scale(1.045) translateY(var(--inst-img-y));
+  transition:transform .18s ease-out
+}
+.instructor-id{transform:translateZ(28px)}
+.instructor-story{
+  transform:perspective(1200px) rotateY(var(--story-ry,1.2deg)) translateY(var(--story-y,0px));
+  transform-style:preserve-3d;
+  transition:transform .18s ease-out,box-shadow .35s ease
+}
+.instructor-story .role,.instructor-story h3,.instructor-quote,.instructor-proof{transform:translateZ(10px)}
+
+/* 7. Final offer: the purchase card becomes the "object" at the end of the journey. */
+.final-offer-wrap{perspective:1600px}
+.final-pricing-card{
+  --offer-rx:1.4deg;--offer-ry:0deg;--offer-y:10px;--offer-scale:.992;
+  transform:
+    perspective(1500px)
+    translateY(var(--offer-y))
+    rotateX(var(--offer-rx))
+    rotateY(var(--offer-ry))
+    scale(var(--offer-scale))!important;
+  transform-style:preserve-3d;
+  transition:transform .6s cubic-bezier(.2,.75,.2,1),box-shadow .5s ease!important;
+}
+.final-pricing-card.offer-active{
+  --offer-rx:0deg;--offer-ry:0deg;--offer-y:0px;--offer-scale:1;
+  box-shadow:0 44px 140px rgba(0,0,0,.54),0 0 80px rgba(186,255,99,.09)
+}
+.final-pricing-ribbon{position:relative;z-index:4;transform:translateZ(28px)}
+.final-price-block{position:relative;z-index:3;transform:translateZ(20px)}
+.final-bonus,.action-guarantee{position:relative;z-index:3;transform:translateZ(14px)}
+.final-checkout{position:relative;z-index:4;transform:translateZ(22px)}
+
+/* 8. FAQ: selected answer lifts forward, keeping the finish interactive. */
+.faq-list{perspective:1200px}
+.faq-item{
+  transform:perspective(1100px) translateZ(0);
+  transform-origin:center top;
+  transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease,background .3s ease;
+}
+.faq-item[open]{
+  transform:perspective(1100px) translateY(-2px) translateZ(10px);
+  box-shadow:0 24px 70px rgba(0,0,0,.25)
+}
+
+/* Mobile tuning: dimensional, but absolutely no overlap or trapped scroll. */
+@media(max-width:680px){
+  .system-stack{gap:18px!important}
+  .system-stack .system-card,
+  .system-stack .system-card.section-reveal{
+    position:relative!important;
+    top:auto!important;
+    margin:0!important;
+    opacity:1!important;
+    filter:none!important;
+  }
+  .system-stack .system-card.learn,
+  .system-stack .system-card.sell{min-height:520px!important}
+  .system-stack .system-card.create{min-height:650px!important}
+  .system-scroll-cue{margin:2px auto 18px}
+  .system-card-copy{padding:24px 22px}
+  .system-card h3{font-size:38px}
+  .system-card p{font-size:13.5px}
+  .system-card-media{left:20px;right:20px;bottom:20px;height:260px}
+  .system-card.create .system-card-media{
+    width:min(calc(100% - 40px),480px);
+  }
+
+  .course-feature.phase3-card:nth-child(n),
+  .why-card.phase3-card:nth-child(n){
+    --section-ry:0deg;--why-ry:0deg;
+  }
+
+  .student-strip{padding:12px 0 22px}
+  .student-card.media-card{transition:transform .12s linear,box-shadow .18s ease,border-color .18s ease!important}
+
+  .review-card:nth-child(n){transform:perspective(900px) rotateY(0deg)}
+  .instructor-photo{--inst-rx:.6deg;--inst-ry:-1.2deg}
+  .instructor-story{--story-ry:.6deg}
+  .final-pricing-card{--offer-rx:.8deg;--offer-y:6px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .system-stack .system-card,.course-feature.phase3-card,.student-card.media-card,.why-card.phase3-card,
+  .instructor-photo,.instructor-photo img,.instructor-story,.final-pricing-card,.faq-item{
+    transform:none!important;transition:none!important
+  }
+}
+
 </style>
 </head>
 <body id="top">
@@ -1876,101 +2154,168 @@ nav .btn.sm{box-shadow:none}
 </script>
 
 <script>
-/* Fuse 3D Experience — Phase 2: proof-to-mechanism + scroll-stack system */
+/* Fuse 3D Experience — Phase 3: sequential system + full-page dimensional path */
 (function(){
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
 
+  /* Proof engine */
   const engine=document.querySelector('.proof-engine-stage');
   if(engine && !reduced){
     const scene=engine.querySelector('.proof-engine-scene');
-    const setPerspective=function(x,y){
-      scene.style.setProperty('--pe-ry',(x*9-5).toFixed(2)+'deg');
-      scene.style.setProperty('--pe-rx',(7-y*5).toFixed(2)+'deg');
-    };
-
     if(fine){
       engine.addEventListener('pointermove',function(e){
         const r=engine.getBoundingClientRect();
         const x=(e.clientX-r.left)/r.width-.5;
         const y=(e.clientY-r.top)/r.height-.5;
-        setPerspective(x,y);
+        scene.style.setProperty('--pe-ry',(x*8-4).toFixed(2)+'deg');
+        scene.style.setProperty('--pe-rx',(7-y*4.5).toFixed(2)+'deg');
       },{passive:true});
       engine.addEventListener('pointerleave',function(){
-        scene.style.setProperty('--pe-ry','-8deg');
-        scene.style.setProperty('--pe-rx','8deg');
+        scene.style.setProperty('--pe-ry','-5deg');
+        scene.style.setProperty('--pe-rx','7deg');
       },{passive:true});
-    }else{
-      let tick=false;
-      const moveMobile=function(){
-        tick=false;
-        const r=engine.getBoundingClientRect();
-        const vh=window.innerHeight||1;
-        const p=Math.max(-1,Math.min(1,(r.top+r.height/2-vh/2)/vh));
-        scene.style.setProperty('--pe-ry',(-5+p*5).toFixed(2)+'deg');
-        scene.style.setProperty('--pe-rx',(7+p*2).toFixed(2)+'deg');
-        scene.style.setProperty('--pe-spread',(1+Math.abs(p)*.14).toFixed(2));
-      };
-      window.addEventListener('scroll',function(){
-        if(!tick){tick=true;requestAnimationFrame(moveMobile)}
-      },{passive:true});
-      moveMobile();
     }
   }
 
+  /* Safe sequential Learn -> Create -> Sell. No sticky overlap. */
   const stack=document.querySelector('.system-stack');
   const stepNo=document.getElementById('system-step-number');
-  if(stack){
-    const cards=[...stack.querySelectorAll('.system-card')];
-    cards.forEach(function(card,i){card.dataset.stackIndex=String(i)});
+  const systemCards=stack?[...stack.querySelectorAll('.system-card')]:[];
+  systemCards.forEach(function(card,i){
+    card.dataset.stackIndex=String(i);
+    card.classList.add(i===0?'path-active':'path-next');
+  });
 
-    let ticking=false;
-    const updateStack=function(){
-      ticking=false;
-      const vh=window.innerHeight||1;
-      let active=0;
-      let best=Infinity;
-
-      cards.forEach(function(card,i){
-        const r=card.getBoundingClientRect();
-        const d=Math.abs(r.top-vh*.24);
-        if(d<best){best=d;active=i}
-      });
-
-      cards.forEach(function(card,i){
-        card.classList.toggle('stack-active',i===active);
-        card.classList.toggle('stack-past',i<active);
-        card.classList.toggle('stack-next',i>active);
-      });
-      if(stepNo) stepNo.textContent=String(active+1).padStart(2,'0');
-    };
-
-    window.addEventListener('scroll',function(){
-      if(!ticking){ticking=true;requestAnimationFrame(updateStack)}
-    },{passive:true});
-    window.addEventListener('resize',updateStack,{passive:true});
-    updateStack();
+  function updateSystemPath(){
+    if(!systemCards.length)return;
+    const vh=window.innerHeight||1;
+    let active=0,best=Infinity;
+    systemCards.forEach(function(card,i){
+      const r=card.getBoundingClientRect();
+      const d=Math.abs((r.top+r.height*.38)-vh*.5);
+      if(d<best){best=d;active=i;}
+    });
+    systemCards.forEach(function(card,i){
+      card.classList.toggle('path-active',i===active);
+      card.classList.toggle('path-past',i<active);
+      card.classList.toggle('path-next',i>active);
+    });
+    if(stepNo)stepNo.textContent=String(active+1).padStart(2,'0');
   }
 
-  // Keep the subtle depth effect only on supporting cards; the system cards have their own scroll choreography.
-  const depthTargets=document.querySelectorAll('.course-feature,.why-card,.final-pricing-card');
-  depthTargets.forEach(function(card){
-    card.classList.add('depth-card');
-    if(!fine || reduced) return;
-    card.addEventListener('pointermove',function(e){
+  /* Section cards use IntersectionObserver, not stacking. */
+  const phaseCards=[
+    ...document.querySelectorAll('.course-feature'),
+    ...document.querySelectorAll('.why-card')
+  ];
+  phaseCards.forEach(function(card){card.classList.add('phase3-card');});
+
+  if('IntersectionObserver' in window && !reduced){
+    const io=new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        entry.target.classList.toggle('phase3-active',entry.isIntersecting);
+      });
+    },{rootMargin:'-18% 0px -20% 0px',threshold:.12});
+    phaseCards.forEach(function(card){io.observe(card);});
+
+    const offer=document.querySelector('.final-pricing-card');
+    if(offer){
+      const oo=new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){offer.classList.toggle('offer-active',entry.isIntersecting);});
+      },{rootMargin:'-12% 0px -18% 0px',threshold:.18});
+      oo.observe(offer);
+    }
+  }else{
+    phaseCards.forEach(function(card){card.classList.add('phase3-active');});
+    const offer=document.querySelector('.final-pricing-card');if(offer)offer.classList.add('offer-active');
+  }
+
+  /* Dimensional portfolio wall: center pieces come forward as the marquee moves. */
+  const studentStrip=document.querySelector('.student-strip');
+  let galleryRunning=false;
+  let galleryFrame=0;
+  function updateGallery(){
+    if(!studentStrip||!galleryRunning||reduced)return;
+    const vw=window.innerWidth||1;
+    const cards=[...studentStrip.querySelectorAll('.student-card.media-card')];
+    let closest=null,closestD=Infinity;
+    cards.forEach(function(card){
       const r=card.getBoundingClientRect();
-      const x=(e.clientX-r.left)/r.width-.5;
-      const y=(e.clientY-r.top)/r.height-.5;
-      card.style.setProperty('--tilt-y',(x*4.5).toFixed(2)+'deg');
-      card.style.setProperty('--tilt-x',(-y*4).toFixed(2)+'deg');
-      card.style.setProperty('--depth-y','-2px');
-    },{passive:true});
-    card.addEventListener('pointerleave',function(){
-      card.style.setProperty('--tilt-y','0deg');
-      card.style.setProperty('--tilt-x','0deg');
-      card.style.setProperty('--depth-y','0px');
-    },{passive:true});
-  });
+      if(r.right<0||r.left>vw)return;
+      const center=r.left+r.width/2;
+      const n=Math.max(-1,Math.min(1,(center-vw/2)/(vw*.52)));
+      const a=Math.abs(n);
+      card.style.setProperty('--gallery-ry',(-n*8).toFixed(2)+'deg');
+      card.style.setProperty('--gallery-y',(a*9).toFixed(1)+'px');
+      card.style.setProperty('--gallery-scale',(1-a*.055).toFixed(3));
+      const d=Math.abs(center-vw/2);
+      if(d<closestD){closestD=d;closest=card;}
+    });
+    cards.forEach(function(card){card.classList.toggle('gallery-focus',card===closest);});
+    galleryFrame=requestAnimationFrame(updateGallery);
+  }
+  if(studentStrip && 'IntersectionObserver' in window){
+    new IntersectionObserver(function(entries){
+      galleryRunning=entries[0].isIntersecting;
+      if(galleryRunning&&!galleryFrame)galleryFrame=requestAnimationFrame(updateGallery);
+      if(!galleryRunning&&galleryFrame){cancelAnimationFrame(galleryFrame);galleryFrame=0;}
+    },{rootMargin:'100px 0px',threshold:.03}).observe(studentStrip);
+  }
+
+  /* Instructor parallax */
+  const instructor=document.querySelector('.instructor-shell');
+  const photo=instructor&&instructor.querySelector('.instructor-photo');
+  const photoImg=photo&&photo.querySelector('img');
+  const story=instructor&&instructor.querySelector('.instructor-story');
+
+  /* Pointer tilt for premium desktop cards. */
+  const pointerCards=[...document.querySelectorAll('.course-feature,.why-card,.final-pricing-card')];
+  if(fine&&!reduced){
+    pointerCards.forEach(function(card){
+      card.addEventListener('pointermove',function(e){
+        const r=card.getBoundingClientRect();
+        const x=(e.clientX-r.left)/r.width-.5;
+        const y=(e.clientY-r.top)/r.height-.5;
+        if(card.classList.contains('final-pricing-card')){
+          card.style.setProperty('--offer-ry',(x*3.6).toFixed(2)+'deg');
+          card.style.setProperty('--offer-rx',(-y*2.8).toFixed(2)+'deg');
+        }
+      },{passive:true});
+      card.addEventListener('pointerleave',function(){
+        if(card.classList.contains('final-pricing-card')){
+          card.style.setProperty('--offer-ry','0deg');
+          card.style.setProperty('--offer-rx','0deg');
+        }
+      },{passive:true});
+    });
+  }
+
+  let ticking=false;
+  function onScroll3D(){
+    ticking=false;
+    updateSystemPath();
+
+    if(instructor&&photo&&!reduced){
+      const r=instructor.getBoundingClientRect();
+      const vh=window.innerHeight||1;
+      const p=Math.max(-1,Math.min(1,(r.top+r.height*.5-vh*.5)/vh));
+      photo.style.setProperty('--inst-y',(p*-10).toFixed(1)+'px');
+      photo.style.setProperty('--inst-rx',(1+p*1.1).toFixed(2)+'deg');
+      photo.style.setProperty('--inst-ry',(-2+p*1.5).toFixed(2)+'deg');
+      if(photoImg)photoImg.style.setProperty('--inst-img-y',(p*10).toFixed(1)+'px');
+      if(story){
+        story.style.setProperty('--story-y',(p*7).toFixed(1)+'px');
+        story.style.setProperty('--story-ry',(1.2-p*.8).toFixed(2)+'deg');
+      }
+    }
+  }
+  function requestScrollUpdate(){
+    if(!ticking){ticking=true;requestAnimationFrame(onScroll3D);}
+  }
+  window.addEventListener('scroll',requestScrollUpdate,{passive:true});
+  window.addEventListener('resize',requestScrollUpdate,{passive:true});
+  onScroll3D();
 })();
 </script>
 
