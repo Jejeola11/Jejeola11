@@ -1683,6 +1683,112 @@ nav .btn.sm{box-shadow:none}
   .ria-bridge h3{font-size:28px;max-width:14ch}
   .ria-bridge p{font-size:12px;line-height:1.62}
 }
+
+/* ===== Sep 5 mobile containment + locked headline pass =====
+   Keep every visual inside the phone viewport while preserving desktop depth.
+*/
+html,body{width:100%;max-width:100%;overflow-x:clip}
+body{position:relative}
+img,video,svg,canvas,iframe{max-width:100%}
+.wrap,.hero-in,.problem-inner,.system-section,.courses-section,.student-work-section,
+.student-reviews,.why-join,.instructor-section,.final-offer-section,.faq-section,
+.instructor-shell,.instructor-head,.instructor-story,.final-offer-wrap,.final-pricing-card{
+  min-width:0;max-width:100%;
+}
+.hero-headline-locked .hero-line,
+.instructor-headline-locked .instructor-title-line{
+  display:block;
+}
+
+@media(max-width:680px){
+  /* Hero: exactly four lines, no internal re-wrap. */
+  .hero-headline-locked{
+    width:100%;
+    max-width:100%!important;
+    margin:18px auto 0;
+    font-size:clamp(28px,8.35vw,40px)!important;
+    line-height:1.015!important;
+    letter-spacing:-.055em!important;
+    text-align:center;
+  }
+  .hero-headline-locked .hero-line{
+    white-space:nowrap!important;
+    width:100%;
+    max-width:100%;
+  }
+
+  /* Instructor: exactly three lines and fully contained. */
+  .instructor-head{
+    width:100%;
+    padding-inline:0;
+    overflow:hidden;
+  }
+  .instructor-headline-locked{
+    width:100%;
+    max-width:100%!important;
+    margin-inline:auto!important;
+    font-size:clamp(25px,7.35vw,36px)!important;
+    line-height:1.01!important;
+    letter-spacing:-.045em!important;
+    text-align:center;
+  }
+  .instructor-headline-locked .instructor-title-line{
+    white-space:nowrap!important;
+    width:100%;
+    max-width:100%;
+  }
+  .instructor-head p{
+    max-width:34em;
+    padding-inline:2px;
+    font-size:13px;
+    line-height:1.62;
+  }
+  .instructor-facts{
+    max-width:100%;
+    justify-content:center!important;
+    flex-wrap:wrap!important;
+    overflow:visible!important;
+  }
+  .instructor-facts span{max-width:100%}
+
+  /* Neutralize sideways 3D/tilt effects on phones. */
+  .hero .kicker,.hero h1,.hero-proof-line,.hero-copy,.hero-actions,.hero-access-note,.hero-trust,
+  .upwork-proof,.upwork-proof img,.problem-insight,.problem-loop,
+  .courses-intro,.student-work-head,.reviews-head,.why-join-head,.instructor-head,.faq-head,
+  .instructor-photo,.instructor-story,.course-feature,.why-card,.final-pricing-card,.hero-stat{
+    transform:none!important;
+  }
+
+  /* Keep wide internal components scrolling inside themselves, never the page. */
+  .module-rail,.path-switcher,.review-proof-chips,.student-strip{
+    max-width:100%;
+  }
+
+  /* Safer sticky CTA on narrow phones. */
+  .sticky-cta{
+    width:auto!important;
+    max-width:calc(100vw - 16px)!important;
+    left:8px!important;
+    right:8px!important;
+    gap:8px!important;
+    overflow:hidden;
+  }
+  .sticky-cta>div{min-width:0;overflow:hidden}
+  .sticky-cta>div b,.sticky-cta>div span{
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .sticky-cta .btn{
+    flex:0 0 auto;
+    min-width:0!important;
+    white-space:nowrap;
+  }
+}
+
+@media(max-width:380px){
+  .hero-headline-locked{font-size:clamp(27px,8.15vw,31px)!important}
+  .instructor-headline-locked{font-size:24px!important}
+  .sticky-cta>div span{display:none}
+}
 </style>
 </head>
 <body id="top">
@@ -1704,9 +1810,10 @@ nav .btn.sm{box-shadow:none}
 <header class="hero">
   <div class="wrap hero-in">
     <span class="kicker"><i></i> For Nigerian students &amp; fresh graduates</span>
-    <h1>
-      <span class="hero-line">Still in school — but tired</span>
-      <span class="hero-line">of asking home every time</span>
+    <h1 class="hero-headline-locked">
+      <span class="hero-line">Still in school —</span>
+      <span class="hero-line">but tired of asking</span>
+      <span class="hero-line">home every time</span>
       <span class="hero-line grad">you need money?</span>
     </h1>
     <div class="hero-proof-line">Build one <strong class="grad">sellable digital skill</strong> now — so graduation, NYSC or job applications are not your only plan for income.</div>
@@ -2081,7 +2188,7 @@ nav .btn.sm{box-shadow:none}
   <div class="wrap">
     <div class="instructor-head">
       <div class="eyebrow">YOUR INSTRUCTOR · AND A STUDENT TOO</div>
-      <h2><span class="instructor-title-line">Meet Ria. I Refused to Wait</span><span class="instructor-title-line">Until Graduation to <span class="grad">Start Building.</span></span></h2>
+      <h2 class="instructor-headline-locked"><span class="instructor-title-line">Meet Ria. I Refused</span><span class="instructor-title-line">to Wait for Graduation</span><span class="instructor-title-line"><span class="grad">to Start Building.</span></span></h2>
       <p>I am a 300-level Anatomy student, AI Creative Director and founder of Fuse Atelier. I built my creative career alongside school — and Fuse is the practical system I wish I had when I was figuring out how to turn skills into real opportunities.</p>
       <div class="instructor-facts"><span>300-level Anatomy student</span><span>AI Creative Director</span><span>Founder</span><span>Client operator</span></div>
     </div>
