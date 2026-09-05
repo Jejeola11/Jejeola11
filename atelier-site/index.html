@@ -1522,6 +1522,56 @@ nav .btn.sm{box-shadow:none}
   }
 }
 
+
+/* ===== Fuse Clients spacing fix =====
+   Keep the copy and pipeline preview in normal document flow so they can
+   never overlap, regardless of phone width or font wrapping.
+*/
+.system-card.sell{
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+}
+.system-card.sell .system-card-copy{
+  width:100%;
+  max-width:700px;
+  padding-bottom:0;
+}
+.system-card.sell .system-card-copy p{
+  max-width:34em;
+  margin-top:18px;
+}
+.system-card.sell .system-card-media{
+  position:relative;
+  left:auto;
+  right:auto;
+  bottom:auto;
+  width:calc(100% - 52px);
+  height:300px;
+  flex:0 0 auto;
+  margin:28px 26px 24px;
+}
+@media(max-width:680px){
+  .system-card.sell .system-card-copy{padding:22px 22px 0}
+  .system-card.sell h3{font-size:34px;max-width:11ch;line-height:1}
+  .system-card.sell .system-card-copy p{
+    font-size:13px;
+    line-height:1.62;
+    margin-top:17px;
+    max-width:100%;
+  }
+  .system-card.sell .system-card-media{
+    width:calc(100% - 28px);
+    height:286px;
+    margin:24px 14px 14px;
+    border-radius:18px;
+  }
+}
+@media(max-width:460px){
+  .system-card.sell h3{font-size:33px}
+  .system-card.sell .system-card-media{margin-top:26px;height:292px}
+}
+
 </style>
 </head>
 <body id="top">
