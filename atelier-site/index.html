@@ -428,6 +428,112 @@ footer{border-top:1px solid var(--line2);padding:34px 0 90px;color:#70867d;font-
   .final-trust{gap:8px;font-size:8.5px}
 }
 
+
+/* FAQ */
+.faq-section{
+  position:relative;
+  padding:clamp(78px,10vw,132px) 0 clamp(96px,11vw,146px);
+  background:
+    radial-gradient(circle at 12% 8%,rgba(255,229,104,.28),transparent 26%),
+    radial-gradient(circle at 88% 18%,rgba(186,255,99,.22),transparent 28%),
+    #f7f5e8;
+  color:#101916;
+  border-top:1px solid rgba(7,18,15,.08);
+}
+.faq-wrap{max-width:900px}
+.faq-head{text-align:center;max-width:760px;margin:0 auto clamp(42px,6vw,70px)}
+.faq-kicker{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:9px 14px;border-radius:999px;
+  background:#101916;color:#f8f8eb;
+  font-size:9px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;
+  margin-bottom:19px;
+}
+.faq-head h2{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(50px,8vw,88px);font-weight:400;
+  line-height:.88;letter-spacing:-.055em;color:#101916;
+  max-width:9.5ch;margin:0 auto;
+}
+.faq-head p{
+  max-width:580px;margin:22px auto 0;
+  color:#5b625e;font-size:clamp(14px,1.9vw,18px);line-height:1.65;
+}
+.faq-list{
+  border-top:1px solid rgba(16,25,22,.15);
+}
+.faq-item{
+  border-bottom:1px solid rgba(16,25,22,.15);
+}
+.faq-item summary{
+  list-style:none;cursor:pointer;position:relative;
+  display:grid;grid-template-columns:1fr 42px;gap:18px;align-items:center;
+  min-height:96px;padding:24px 4px;
+  font-family:"Bricolage Grotesque",Inter,sans-serif;
+  font-weight:650;font-size:clamp(20px,2.7vw,29px);
+  line-height:1.18;letter-spacing:-.025em;color:#101916;
+}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary:focus-visible{outline:2px solid #7fc736;outline-offset:4px;border-radius:8px}
+.faq-plus{
+  width:38px;height:38px;justify-self:end;position:relative;
+  border-radius:50%;border:1px solid rgba(16,25,22,.18);
+  background:rgba(255,255,255,.4);
+  transition:transform .25s ease,background .25s ease,border-color .25s ease;
+}
+.faq-plus:before,.faq-plus:after{
+  content:"";position:absolute;left:50%;top:50%;
+  width:15px;height:2px;background:#101916;border-radius:2px;
+  transform:translate(-50%,-50%);
+}
+.faq-plus:after{transform:translate(-50%,-50%) rotate(90deg)}
+.faq-item[open] .faq-plus{
+  transform:rotate(45deg);
+  background:linear-gradient(135deg,#ffe568,#baff63,#fff);
+  border-color:rgba(16,25,22,.2);
+}
+.faq-answer{
+  max-width:760px;padding:0 60px 30px 4px;
+  color:#555e59;font-size:clamp(14px,1.75vw,17px);line-height:1.72;
+}
+.faq-answer strong{color:#101916}
+.faq-answer .faq-path{
+  display:inline-flex;gap:5px;flex-wrap:wrap;margin-top:11px;
+  font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;
+}
+.faq-answer .faq-path span{
+  padding:7px 9px;border-radius:999px;background:#101916;color:#f4ffe6;
+}
+.faq-bottom{
+  margin-top:clamp(42px,6vw,68px);padding:26px;
+  border-radius:28px;border:1px solid rgba(16,25,22,.14);
+  background:
+    radial-gradient(circle at 85% 15%,rgba(186,255,99,.55),transparent 34%),
+    linear-gradient(135deg,#fff5bb 0%,#fff 56%,#efffdc 100%);
+  text-align:center;
+}
+.faq-bottom b{
+  display:block;font-family:"Bricolage Grotesque",Inter,sans-serif;
+  font-size:clamp(24px,4vw,38px);letter-spacing:-.04em;color:#101916;
+}
+.faq-bottom p{max-width:560px;margin:8px auto 18px;color:#5f6762;font-size:13px;line-height:1.55}
+.faq-bottom .btn{min-height:58px;min-width:min(100%,380px)}
+@media(max-width:680px){
+  .faq-section{padding:66px 0 104px}
+  .faq-head{margin-bottom:38px}
+  .faq-head h2{font-size:52px;max-width:8ch}
+  .faq-head p{font-size:13px}
+  .faq-item summary{
+    min-height:86px;padding:21px 0;
+    grid-template-columns:1fr 36px;gap:13px;
+    font-size:20px;
+  }
+  .faq-plus{width:34px;height:34px}
+  .faq-answer{padding:0 45px 24px 0;font-size:13px;line-height:1.68}
+  .faq-bottom{padding:22px 17px;border-radius:24px}
+  .faq-bottom b{font-size:28px}
+}
+
 </style>
 </head>
 <body>
@@ -868,6 +974,117 @@ footer{border-top:1px solid var(--line2);padding:34px 0 90px;color:#70867d;font-
   </div>
 </section>
 
+
+<section class="faq-section" id="faq">
+  <div class="wrap faq-wrap">
+    <header class="faq-head">
+      <div class="faq-kicker">GOT QUESTIONS?</div>
+      <h2>Frequently Asked Questions</h2>
+      <p>Everything you should know before joining Fuse Atelier — what you get, how it works, and what happens after you start.</p>
+    </header>
+
+    <div class="faq-list">
+      <details class="faq-item" open>
+        <summary><span>What exactly is Fuse Atelier?</span><i class="faq-plus" aria-hidden="true"></i></summary>
+        <div class="faq-answer">
+          Fuse Atelier is a practical <strong>Learn → Create → Sell</strong> ecosystem. You learn a commercial AI skill inside the Academy, turn it into proof inside Fuse Create, then use Fuse Clients and the Money Engine to research prospects, pitch, follow up and keep opportunities moving.
+          <div class="faq-path"><span>Learn</span><span>Create</span><span>Sell</span></div>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span>Who is Fuse Atelier for?</span><i class="faq-plus" aria-hidden="true"></i></summary>
+        <div class="faq-answer">
+          It is built for beginners, creatives, freelancers, students and anyone who wants to turn AI-assisted skills into work they can actually show and sell. You do not need to already be a designer, video creator or experienced freelancer.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span>Can I join as a complete beginner with no prior AI experience?</span><i class="faq-plus" aria-hidden="true"></i></summary>
+        <div class="faq-answer">
+          Yes. The learning paths start from the workflow itself and move toward practical output. The goal is not to overwhelm you with every AI tool — it is to help you understand a useful process, practise it, and produce something you can use as proof of skill.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span>Is this just a course library, or do I actually get tools?</span><i class="faq-plus" aria-hidden="true"></i></summary>
+        <div class="faq-answer">
+          It is more than a video library. Founding access includes the Academy, Fuse Create, the Fuse Clients pipeline, starter AI credits, prompts, templates, resources and the private community. The pieces are designed to connect so you can move from lesson to sample to prospect without treating each step like a separate system.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span>What skills can I learn inside Fuse Atelier?</span><i class="faq-plus" aria-hidden="true"></i></summary>
+        <div class="faq-answer">
+          The current core paths are <strong>Design & Flyers, AI UGC & Influencer, Landing Pages, and The Money Engine</strong>. The first three focus on creating sellable work; the Money Engine focuses on finding prospects, pitching, following up and turning that work into client opportunities.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span>Can I use Fuse Atelier on my phone?</span><i class="faq-plus" aria-hidden="true"></i></summary>
+        <div class="faq-answer">
+          Yes. Fuse Atelier is being built mobile-first, so the core experience is designed to work from your phone. Some third-party creative tools may still feel easier on a laptop depending on the tool and the type of project you are creating.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span>How much time do I need each week?</span><i class="faq-plus" aria-hidden="true"></i></summary>
+        <div class="faq-answer">
+          The Academy is self-paced. You can learn around school, work or other responsibilities, but implementation matters more than simply watching lessons. A few focused hours used to learn, create a sample and do outreach will take you further than collecting tutorials without practising.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span>AI changes fast. Won't the training become outdated?</span><i class="faq-plus" aria-hidden="true"></i></summary>
+        <div class="faq-answer">
+          Fuse Atelier is designed around workflows, not dependence on one permanent tool. The platform, lessons and resources can keep evolving as better methods appear. Third-party AI products can change, disappear or alter their pricing, so the focus is learning how to adapt the workflow instead of memorising one interface forever.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span>What happens when my starter AI credits finish?</span><i class="faq-plus" aria-hidden="true"></i></summary>
+        <div class="faq-answer">
+          Your Fuse Atelier access does not disappear. AI generation itself uses credits, so when your included starter credits are exhausted, additional generation can be topped up when you need it rather than pretending one founding payment can fund unlimited AI usage forever.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span>Will Fuse Atelier help me find clients?</span><i class="faq-plus" aria-hidden="true"></i></summary>
+        <div class="faq-answer">
+          Yes — client acquisition is part of the system. The Money Engine and Fuse Clients help you research prospects, identify visible problems, create relevant proof, pitch, follow up and track the pipeline. <strong>It is not an income guarantee:</strong> results still depend on your skill, prospect selection, outreach volume, consistency and follow-up.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span>How is this different from free YouTube tutorials?</span><i class="faq-plus" aria-hidden="true"></i></summary>
+        <div class="faq-answer">
+          Free tutorials can teach isolated tricks. Fuse Atelier is built around the entire commercial loop: learn a skill, build proof, find a business that needs it, package the sample, pitch it and follow up. The value is the connected system, practical resources and implementation path — not simply having more videos to watch.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span>Is the ₦15,000 founding price monthly?</span><i class="faq-plus" aria-hidden="true"></i></summary>
+        <div class="faq-answer">
+          No. The current <strong>₦15,000 Founding Access price is one payment</strong> for the Fuse Atelier access described on this page. AI generation remains credit-based because generation has a real ongoing usage cost.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span>What happens after I click “Get Founding Access”?</span><i class="faq-plus" aria-hidden="true"></i></summary>
+        <div class="faq-answer">
+          The checkout button opens WhatsApp with a pre-filled message. You will receive the current payment instructions there, and your access is set up after payment is confirmed.
+        </div>
+      </details>
+    </div>
+
+    <div class="faq-bottom">
+      <b>Still deciding?</b>
+      <p>You do not need another folder of AI tutorials. You need a path from learning the skill to creating proof and putting that proof in front of people who can pay for it.</p>
+      <a class="btn checkout-link" href="#">Join Fuse Atelier — ₦15,000 →</a>
+    </div>
+  </div>
+</section>
+
 <footer><div class="wrap footer-in"><div><b style="color:#b5c8c0">Fuse Atelier</b><br>Where AI skills become income opportunities.</div><div class="footer-links"><a href="/app/studio.html">Sign in</a><a href="https://wa.me/2349044558101?text=Hi%20Ria%2C%20I%20have%20a%20question%20about%20Fuse%20Atelier" target="_blank" rel="noopener">Ask a question</a></div></div></footer>
 
 <div class="lesson-modal" id="lessonModal" aria-hidden="true">
@@ -949,6 +1166,15 @@ footer{border-top:1px solid var(--line2);padding:34px 0 90px;color:#70867d;font-
   }else{
     studentVideos.forEach(function(v){var p=v.play();if(p&&p.catch)p.catch(function(){});});
   }
+
+  document.querySelectorAll('.faq-item').forEach(function(item){
+    item.addEventListener('toggle',function(){
+      if(!item.open)return;
+      document.querySelectorAll('.faq-item[open]').forEach(function(other){
+        if(other!==item)other.removeAttribute('open');
+      });
+    });
+  });
 })();
 </script>
 <script>
