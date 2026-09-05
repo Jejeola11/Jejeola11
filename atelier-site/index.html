@@ -704,6 +704,139 @@ nav .btn.sm{box-shadow:none}
   .btn:after{display:none}
 }
 
+
+/* ===== Fuse 3D Experience — conversion-safe v1 ===== */
+:root{--fuse-teal:#0c7f70;--fuse-teal-deep:#07594f;--fuse-teal-ink:#06483f}
+.teal-flow{
+  color:var(--fuse-teal)!important;
+  -webkit-text-fill-color:var(--fuse-teal)!important;
+  background:none!important;
+  text-shadow:0 0 28px rgba(12,127,112,.12)
+}
+
+/* Reel-inspired dimensional hero: lightweight CSS/JS, no heavy WebGL */
+.hero-3d-stage{
+  --rx:-5deg;--ry:0deg;--lift:0px;
+  position:relative;height:330px;max-width:840px;margin:34px auto 22px;
+  perspective:1100px;transform-style:preserve-3d;overflow:hidden;
+  border:1px solid rgba(186,255,99,.18);border-radius:30px;
+  background:
+    radial-gradient(circle at 52% 48%,rgba(186,255,99,.13),transparent 26%),
+    radial-gradient(circle at 16% 20%,rgba(12,127,112,.22),transparent 32%),
+    radial-gradient(circle at 92% 78%,rgba(255,229,104,.11),transparent 28%),
+    linear-gradient(155deg,#071e19 0%,#03110f 54%,#061b17 100%);
+  box-shadow:0 30px 100px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.04);
+  isolation:isolate
+}
+.hero-3d-stage:before{
+  content:"";position:absolute;inset:-35%;z-index:-2;opacity:.25;
+  background:
+    linear-gradient(90deg,rgba(186,255,99,.08) 1px,transparent 1px),
+    linear-gradient(rgba(186,255,99,.06) 1px,transparent 1px);
+  background-size:48px 48px;
+  transform:perspective(700px) rotateX(68deg) translateY(31%);
+  transform-origin:center bottom;
+  mask-image:linear-gradient(180deg,transparent 8%,#000 70%,transparent 100%)
+}
+.hero-3d-stage:after{
+  content:"";position:absolute;inset:auto 11% -20% 11%;height:46%;
+  background:radial-gradient(ellipse at center,rgba(186,255,99,.18),transparent 66%);
+  filter:blur(28px);z-index:-1;pointer-events:none
+}
+.hero-3d-inner{
+  position:absolute;inset:0;transform-style:preserve-3d;
+  transform:rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--lift));
+  transition:transform .18s ease-out
+}
+.fuse-wave{
+  position:absolute;left:50%;top:51%;width:76%;height:60%;
+  transform:translate(-50%,-50%) translateZ(52px) rotate(-7deg);
+  transform-style:preserve-3d;filter:drop-shadow(0 24px 24px rgba(0,0,0,.32))
+}
+.fuse-wave-bar{
+  position:absolute;width:clamp(38px,6.2vw,66px);height:12px;border-radius:999px;
+  background:linear-gradient(90deg,#fff6a4 0%,#dfff65 30%,#baff63 57%,#55d7bb 100%);
+  box-shadow:0 0 0 1px rgba(255,255,255,.13) inset,0 0 18px rgba(186,255,99,.18);
+  transform-style:preserve-3d
+}
+.hero-3d-core{
+  position:absolute;left:50%;top:52%;z-index:4;transform:translate(-50%,-50%) translateZ(105px);
+  display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:999px;
+  background:rgba(247,255,249,.95);color:#07120f;border:1px solid rgba(255,255,255,.85);
+  box-shadow:0 16px 44px rgba(0,0,0,.26);font-size:10px;font-weight:900;letter-spacing:.04em;
+  white-space:nowrap
+}
+.hero-3d-core i{width:7px;height:7px;border-radius:50%;background:var(--fuse-teal);box-shadow:0 0 0 6px rgba(12,127,112,.10)}
+.hero-3d-chip{
+  position:absolute;z-index:5;display:flex;align-items:center;gap:7px;
+  padding:9px 11px;border-radius:13px;background:rgba(4,20,17,.80);
+  backdrop-filter:blur(12px);border:1px solid rgba(186,255,99,.20);
+  color:#eaffd6;font-size:8px;font-weight:850;letter-spacing:.05em;
+  box-shadow:0 15px 35px rgba(0,0,0,.24);transform-style:preserve-3d;
+  animation:fuseFloat 5.4s ease-in-out infinite
+}
+.hero-3d-chip i{font-style:normal;color:#baff63;font-size:13px}
+.hero-3d-chip.a{left:9%;top:19%;transform:translateZ(88px) rotate(-5deg)}
+.hero-3d-chip.b{right:10%;top:18%;transform:translateZ(64px) rotate(5deg);animation-delay:-1.2s}
+.hero-3d-chip.c{left:14%;bottom:16%;transform:translateZ(42px) rotate(4deg);animation-delay:-2.4s}
+.hero-3d-chip.d{right:9%;bottom:18%;transform:translateZ(96px) rotate(-4deg);animation-delay:-3.5s}
+.hero-3d-caption{
+  position:absolute;left:18px;bottom:15px;z-index:6;color:#7f9e94;
+  font-size:7px;font-weight:850;letter-spacing:.16em;text-transform:uppercase
+}
+@keyframes fuseFloat{
+  0%,100%{margin-top:0}50%{margin-top:-8px}
+}
+
+/* Gentle depth on revenue-critical cards — tilt only on real pointer devices */
+.depth-card{
+  transform-style:preserve-3d;
+  transform:perspective(1200px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg)) translateY(var(--depth-y,0px));
+  transition:transform .22s ease,box-shadow .22s ease;
+  will-change:transform
+}
+@media(hover:hover) and (pointer:fine){
+  .depth-card:hover{box-shadow:0 34px 100px rgba(0,0,0,.34)}
+}
+
+/* 30-day action guarantee */
+.action-guarantee{
+  margin:20px 0 22px;padding:18px;border-radius:22px;
+  display:grid;grid-template-columns:54px 1fr;gap:14px;align-items:start;
+  color:#f3fff8;
+  background:
+    radial-gradient(circle at 94% 12%,rgba(186,255,99,.19),transparent 34%),
+    linear-gradient(145deg,#0b4037 0%,#07594f 48%,#03241f 100%);
+  border:1px solid rgba(186,255,99,.30);
+  box-shadow:0 18px 50px rgba(5,62,53,.18)
+}
+.action-guarantee-seal{
+  width:54px;height:54px;border-radius:17px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#dfff65,#baff63);color:#052019;
+  font-family:"Bricolage Grotesque",sans-serif;font-weight:900;font-size:20px;
+  box-shadow:0 12px 28px rgba(186,255,99,.16)
+}
+.action-guarantee b{display:block;font-size:14px;line-height:1.25}
+.action-guarantee p{margin:6px 0 0;color:#c4d9d2;font-size:10.5px;line-height:1.58}
+.action-guarantee small{display:block;margin-top:7px;color:#96b8ad;font-size:8.5px;line-height:1.5}
+
+@media(max-width:680px){
+  .hero-3d-stage{height:248px;margin:27px auto 18px;border-radius:24px}
+  .fuse-wave{width:88%;height:64%}.fuse-wave-bar{height:9px}
+  .hero-3d-core{padding:9px 12px;font-size:8px}
+  .hero-3d-chip{padding:7px 8px;font-size:6.8px;border-radius:11px}
+  .hero-3d-chip i{font-size:11px}
+  .hero-3d-chip.a{left:5%;top:15%}.hero-3d-chip.b{right:5%;top:15%}
+  .hero-3d-chip.c{left:7%;bottom:14%}.hero-3d-chip.d{right:5%;bottom:15%}
+  .hero-3d-caption{left:13px;bottom:10px;font-size:6px}
+  .action-guarantee{grid-template-columns:46px 1fr;padding:15px;gap:11px;border-radius:19px}
+  .action-guarantee-seal{width:46px;height:46px;border-radius:14px;font-size:17px}
+  .action-guarantee b{font-size:12px}.action-guarantee p{font-size:9.5px}.action-guarantee small{font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero-3d-chip{animation:none}.hero-3d-inner,.depth-card{transition:none!important}
+}
+
 </style>
 </head>
 <body id="top">
@@ -741,6 +874,17 @@ nav .btn.sm{box-shadow:none}
       <span class="hero-stat"><i>💼</i><b>$4K+</b> Upwork earnings</span>
       <span class="hero-stat"><i>✓</i><b>12</b> Upwork jobs</span>
       <span class="hero-stat"><i>🌍</i><b>$3,500/mo</b> UK contract</span>
+    </div>
+    <div class="hero-3d-stage" aria-label="Fuse Atelier Learn Create Sell 3D experience">
+      <div class="hero-3d-inner">
+        <div class="fuse-wave" aria-hidden="true"></div>
+        <div class="hero-3d-core"><i></i><span>Learn → Create → Sell</span></div>
+        <div class="hero-3d-chip a"><i>✦</i><span>Academy</span></div>
+        <div class="hero-3d-chip b"><i>◇</i><span>Fuse Create</span></div>
+        <div class="hero-3d-chip c"><i>◎</i><span>Fuse Clients</span></div>
+        <div class="hero-3d-chip d"><i>↗</i><span>Money Engine</span></div>
+        <div class="hero-3d-caption">ONE ECOSYSTEM · ONE CLIENT PATH</div>
+      </div>
     </div>
     <div class="upwork-proof">
       <img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/founding/money-engine-cropped.png" alt="Maryam Jejeola Upwork profile showing $4K+ total earnings and 12 total jobs" decoding="async">
@@ -1105,7 +1249,7 @@ nav .btn.sm{box-shadow:none}
 
       <div class="final-pricing-body">
         <div class="final-offer-eyebrow">YOU'VE SEEN THE PROOF. HERE'S THE OFFER.</div>
-        <h2>Get the entire <span class="grad">Learn → Create → Sell</span> loop.</h2>
+        <h2>Get the entire <span class="teal-flow">Learn → Create → Sell</span> loop.</h2>
         <p class="final-offer-lead">One payment gives you the Academy, creation workflow, client pipeline, Money Engine, community and starter resources that connect the journey from lesson to outreach.</p>
 
         <div class="final-price-block">
@@ -1146,6 +1290,15 @@ nav .btn.sm{box-shadow:none}
           <div><b>Built for action, not another certificate.</b><span>You learn the skill, create the proof, find the prospect and run the outreach loop until opportunities start moving.</span></div>
         </div>
 
+        <div class="action-guarantee" id="guarantee">
+          <div class="action-guarantee-seal">30</div>
+          <div>
+            <b>30-Day First-Client Action Guarantee</b>
+            <p>Do the required lessons, assignments, prospecting, pitching and follow-up exactly as taught for 30 days. If you still have not landed your first paying client, send your completed action tracker and request a refund of your ₦15,000 Fuse Atelier access payment.</p>
+            <small>This is an action-based guarantee: completing the required implementation steps is necessary to qualify. Watching the training without doing the work does not qualify.</small>
+          </div>
+        </div>
+
         <div class="checkout-steps" aria-label="What happens after you join">
           <div><i>01</i><b>Tap “Get access”</b><span>WhatsApp opens with your request ready to send.</span></div>
           <div><i>02</i><b>Get payment details</b><span>Complete the founding-access payment using the current instructions.</span></div>
@@ -1157,6 +1310,7 @@ nav .btn.sm{box-shadow:none}
         <div class="final-trust">
           <span>✓ Mobile-first</span>
           <span>✓ Start immediately</span>
+          <span>✓ 30-day action guarantee</span>
           <span>✓ One founding-access payment</span>
         </div>
         <p class="final-credit-note">AI generation uses credits. Founding access includes starter credits; extra generation can be topped up when needed. Results depend on your work, prospect selection, outreach and follow-up.</p>
@@ -1180,6 +1334,13 @@ nav .btn.sm{box-shadow:none}
         <div class="faq-answer">
           Fuse Atelier is a practical <strong>Learn → Create → Sell</strong> ecosystem. You learn a commercial AI skill inside the Academy, turn it into proof inside Fuse Create, then use Fuse Clients and the Money Engine to research prospects, pitch, follow up and keep opportunities moving.
           <div class="faq-path"><span>Learn</span><span>Create</span><span>Sell</span></div>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span>How does the 30-day money-back guarantee work?</span><i class="faq-plus" aria-hidden="true"></i></summary>
+        <div class="faq-answer">
+          Fuse Atelier includes a <strong>30-Day First-Client Action Guarantee.</strong> Complete the required lessons and assignments, follow the prospecting, pitching and follow-up process for the full 30 days, and keep the required action tracker. If you do all of that and still do not land your first paying client, you can submit the completed tracker and request a refund of your ₦15,000 access payment. The guarantee is based on implementation, not passive course watching.
         </div>
       </details>
 
@@ -1490,5 +1651,89 @@ nav .btn.sm{box-shadow:none}
   });
 })();
 </script>
+
+<script>
+/* Fuse 3D Experience — inspired by the supplied dimensional web reel */
+(function(){
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const stage=document.querySelector('.hero-3d-stage');
+  const wave=document.querySelector('.fuse-wave');
+
+  if(wave && !wave.children.length){
+    const count=30;
+    for(let i=0;i<count;i++){
+      const bar=document.createElement('span');
+      bar.className='fuse-wave-bar';
+      const p=i/(count-1);
+      const y=50 + Math.sin(i*.63)*18 + Math.sin(i*.19)*5;
+      const z=Math.cos(i*.47)*34;
+      const r=Math.cos(i*.58)*18;
+      const scale=.72 + (Math.sin(i*.31)+1)*.16;
+      bar.style.left=(p*100)+'%';
+      bar.style.top=y+'%';
+      bar.style.opacity=(.62 + (i/count)*.34).toFixed(2);
+      bar.style.transform='translate(-50%,-50%) translateZ('+z+'px) rotateZ('+r+'deg) rotateY(-18deg) scale('+scale.toFixed(2)+')';
+      wave.appendChild(bar);
+    }
+  }
+
+  if(stage && !reduced){
+    const inner=stage.querySelector('.hero-3d-inner');
+    const fine=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+    if(fine){
+      stage.addEventListener('pointermove',function(e){
+        const r=stage.getBoundingClientRect();
+        const x=(e.clientX-r.left)/r.width-.5;
+        const y=(e.clientY-r.top)/r.height-.5;
+        stage.style.setProperty('--ry',(x*9).toFixed(2)+'deg');
+        stage.style.setProperty('--rx',(-5-y*6).toFixed(2)+'deg');
+      },{passive:true});
+      stage.addEventListener('pointerleave',function(){
+        stage.style.setProperty('--ry','0deg');
+        stage.style.setProperty('--rx','-5deg');
+      },{passive:true});
+    }
+
+    let ticking=false;
+    const update=function(){
+      ticking=false;
+      const r=stage.getBoundingClientRect();
+      const vh=window.innerHeight||1;
+      const center=(r.top+r.height/2)-vh/2;
+      const p=Math.max(-1,Math.min(1,center/vh));
+      stage.style.setProperty('--lift',(p*-10).toFixed(1)+'px');
+      if(!fine){
+        stage.style.setProperty('--ry',(p*5).toFixed(2)+'deg');
+        stage.style.setProperty('--rx',(-4+p*2.5).toFixed(2)+'deg');
+      }
+    };
+    window.addEventListener('scroll',function(){
+      if(!ticking){ticking=true;requestAnimationFrame(update)}
+    },{passive:true});
+    update();
+  }
+
+  const depthTargets=document.querySelectorAll('.system-card,.course-feature,.why-card,.final-pricing-card');
+  const fine=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+  depthTargets.forEach(function(card){
+    card.classList.add('depth-card');
+    if(!fine || reduced) return;
+    card.addEventListener('pointermove',function(e){
+      const r=card.getBoundingClientRect();
+      const x=(e.clientX-r.left)/r.width-.5;
+      const y=(e.clientY-r.top)/r.height-.5;
+      card.style.setProperty('--tilt-y',(x*4.5).toFixed(2)+'deg');
+      card.style.setProperty('--tilt-x',(-y*4).toFixed(2)+'deg');
+      card.style.setProperty('--depth-y','-2px');
+    },{passive:true});
+    card.addEventListener('pointerleave',function(){
+      card.style.setProperty('--tilt-y','0deg');
+      card.style.setProperty('--tilt-x','0deg');
+      card.style.setProperty('--depth-y','0px');
+    },{passive:true});
+  });
+})();
+</script>
+
 </body>
 </html>
