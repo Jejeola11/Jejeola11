@@ -193,10 +193,11 @@ footer{border-top:1px solid var(--line2);padding:34px 0 90px;color:#70867d;font-
 .instructor-head{max-width:860px;margin:0 auto 38px;text-align:center}
 .instructor-head .eyebrow{margin-bottom:12px}
 .instructor-head h2{
-  font-size:clamp(44px,6.4vw,72px);
-  line-height:.96;letter-spacing:-.055em;
-  max-width:12ch;margin:0 auto;
+  font-size:clamp(34px,5.4vw,60px);
+  line-height:.98;letter-spacing:-.05em;
+  max-width:none;margin:0 auto;
 }
+.instructor-title-line{display:block;white-space:nowrap}
 .instructor-head p{
   max-width:670px;margin:18px auto 0;
   color:#9eb1aa;font-size:clamp(14px,1.9vw,18px);line-height:1.68
@@ -293,9 +294,10 @@ footer{border-top:1px solid var(--line2);padding:34px 0 90px;color:#70867d;font-
   .instructor-story{padding:24px 22px}
   .instructor-proof{grid-template-columns:1fr 1fr}
   .instructor-stat:last-child{grid-column:1/-1}
-  .instructor-head h2{max-width:11ch}
+  .instructor-head h2{max-width:none;font-size:clamp(33px,8vw,46px)}
 }
 @media(max-width:440px){
+  .instructor-head h2{font-size:31px;letter-spacing:-.045em}
   .instructor-photo{min-height:520px;border-radius:28px}
   .instructor-story{border-radius:28px}
   .instructor-proof{grid-template-columns:1fr}
@@ -633,13 +635,13 @@ footer{border-top:1px solid var(--line2);padding:34px 0 90px;color:#70867d;font-
   <div class="wrap">
     <div class="instructor-head">
       <div class="eyebrow">YOUR INSTRUCTOR</div>
-      <h2>Meet Ria. From Zero To <span class="grad">6 Figures At 20.</span></h2>
-      <p>AI Creative Director, medical student and founder of Fuse Atelier. Ria teaches the exact system she uses herself: learn a commercial skill, turn it into proof, put that proof in front of real businesses and keep moving until the work gets paid.</p>
+      <h2><span class="instructor-title-line">Meet Ria. From Zero</span><span class="instructor-title-line">To <span class="grad">6 Figures At 20.</span></span></h2>
+      <p>AI Creative Director, anatomy student and founder of Fuse Atelier. Ria teaches the exact system she uses herself: learn a commercial skill, turn it into proof, put that proof in front of real businesses and keep moving until the work gets paid.</p>
     </div>
 
     <div class="instructor-shell">
       <figure class="instructor-photo">
-        <img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/deploy/fuse-atelier-netlify/atelier-site/assets/founding/ria-instructor.webp" alt="Ria, founder and instructor at Fuse Atelier" loading="lazy" decoding="async">
+        <img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/5610fa156df365aa45d579d6648d303de0af32a3/atelier-site/assets/founding/ria-instructor.webp" alt="Ria, founder and instructor at Fuse Atelier" loading="lazy" decoding="async">
         <figcaption class="instructor-id">
           <span class="instructor-dot"></span>
           <div><b>Ria · Founder & Instructor</b><span>Fuse Atelier · AI Creative Direction</span></div>
