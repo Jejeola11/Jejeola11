@@ -1,5 +1,5 @@
 // ============================================================
-// POST /.netlify/functions/lesson-video   (Fuse Atelier course player)
+// POST /api/lesson-video   (Fuse Atelier course player)
 // Body: { lesson_key }
 // Protected source of playable lesson-video URLs.
 // ============================================================
@@ -42,12 +42,6 @@ const CURRENT_ACADEMY_ACCESS = {
 };
 
 function env(name) {
-  try {
-    if (globalThis.Netlify && globalThis.Netlify.env && typeof globalThis.Netlify.env.get === 'function') {
-      const value = globalThis.Netlify.env.get(name);
-      if (value) return String(value).trim();
-    }
-  } catch (_) {}
   return String(process.env[name] || '').trim();
 }
 
