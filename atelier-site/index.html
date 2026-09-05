@@ -2226,6 +2226,64 @@ img,video,svg,canvas,iframe{max-width:100%}
   .hero-headline-locked .hero-line{white-space:normal!important}
   .instructor-headline-locked .instructor-title-line{white-space:normal!important}
 }
+
+/* ===== Sep 5 reference-style hero hierarchy ===== */
+.hero-reference-structure{
+  max-width:15.5ch!important;
+  margin-top:26px!important;
+  font-size:clamp(44px,6.7vw,76px)!important;
+  line-height:.97!important;
+  letter-spacing:-.055em!important;
+}
+.hero-reference-structure .hero-line{
+  display:block!important;
+}
+.hero-reference-structure .hero-accent{
+  color:var(--yellow);
+}
+.hero-single-subheading{
+  max-width:680px!important;
+  margin:24px auto 30px!important;
+  color:#9fb2aa!important;
+  font-size:clamp(14px,1.8vw,17px)!important;
+  line-height:1.62!important;
+}
+.hero-actions .btn{
+  min-width:min(440px,100%)!important;
+}
+@media(max-width:760px){
+  .hero-reference-structure{
+    width:100%!important;
+    max-width:100%!important;
+    font-size:clamp(35px,9.8vw,45px)!important;
+    line-height:.96!important;
+    margin-top:22px!important;
+    padding:0!important;
+  }
+  .hero-reference-structure .hero-line{
+    display:block!important;
+    white-space:normal!important;
+  }
+  .hero-single-subheading{
+    max-width:32em!important;
+    margin:20px auto 25px!important;
+    font-size:13px!important;
+    line-height:1.62!important;
+    padding:0 4px!important;
+  }
+  .hero-actions .btn{
+    width:100%!important;
+    min-width:0!important;
+    max-width:420px!important;
+    font-size:12px!important;
+    padding:15px 16px!important;
+  }
+}
+@media(max-width:390px){
+  .hero-reference-structure{
+    font-size:33px!important;
+  }
+}
 </style>
 </head>
 <body id="top">
@@ -2246,17 +2304,16 @@ img,video,svg,canvas,iframe{max-width:100%}
 
 <header class="hero">
   <div class="wrap hero-in">
-    <span class="kicker"><i></i> For beginners ready to build something valuable</span>
-    <h1 class="hero-headline-locked">
-      <span class="hero-line">You need a skill</span>
-      <span class="hero-line">you can sell —</span>
-      <span class="hero-line grad">wherever life has you.</span>
+    <span class="kicker"><i></i> The Learn → Create → Sell Method</span>
+    <h1 class="hero-headline-locked hero-reference-structure">
+      <span class="hero-line">While You Keep Waiting for</span>
+      <span class="hero-line">the <span class="hero-accent">“Right Time,”</span> People Like You</span>
+      <span class="hero-line">Are Building <span class="grad">Skills Businesses Pay For</span></span>
+      <span class="hero-line">— From Their Phone.</span>
     </h1>
-    <div class="hero-proof-line">School. NYSC. At home with the kids. Already working. Living abroad. Build one <strong class="grad">sellable digital skill</strong> you can carry with you.</div>
-    <p class="hero-copy"><b>Fuse Atelier is not an “AI course” for collecting prompts.</b> It is a practical Learn → Create → Sell system: learn one useful skill, create professional work faster with AI, build proof, find the right prospects and learn how to pitch.</p>
+    <p class="hero-copy hero-single-subheading">Fuse Atelier gives beginners a practical Learn → Create → Sell system to learn one useful digital skill, build proof, find the right businesses and start pitching — whether you are in school, on NYSC, at home, working or living abroad.</p>
     <div class="hero-actions">
-      <a class="btn checkout-link" href="https://wa.me/2349044558101?text=Hi%20Ria!%20I%20want%20Fuse%20Atelier%20Founding%20Access%20for%20%E2%82%A615%2C000.%20Please%20send%20me%20the%20payment%20details%20so%20I%20can%20get%20access.">Start Building My Skill — ₦15,000 →</a>
-      <a class="btn ghost hero-secondary" href="#system">See how the system works ↓</a>
+      <a class="btn checkout-link" href="https://wa.me/2349044558101?text=Hi%20Ria!%20I%20want%20Fuse%20Atelier%20Founding%20Access%20for%20%E2%82%A615%2C000.%20Please%20send%20me%20the%20payment%20details%20so%20I%20can%20get%20access.">Show Me the Learn → Create → Sell Method — ₦15,000 →</a>
     </div>
     <div class="hero-access-note"><i></i><span><b>Founding access is open</b> · ₦15,000 one payment · mobile-first</span></div>
     <div class="hero-trust" aria-label="Ria's client-work proof">
