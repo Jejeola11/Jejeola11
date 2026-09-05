@@ -2337,16 +2337,15 @@ img,video,svg,canvas,iframe{max-width:100%}
           <b>From zero AI experience → creating content with her own digital twin</b>
         </div>
         <div class="mary-video mary-video-full">
-          <video id="maryTwinVideo" muted defaultmuted loop playsinline webkit-playsinline autoplay preload="auto"
-            poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_0/v1788628678/marycamella-ai-twin-story-full.jpg"
-            aria-label="Marycamella's AI twin content video">
-            <source src="https://res.cloudinary.com/bzw55wh2/video/upload/v1788628678/marycamella-ai-twin-story-full.mp4" type="video/mp4">
-            <source src="/media/marycamella-ai-twin-story.mp4" type="video/mp4">
+          <video id="maryTwinVideo" muted defaultmuted loop playsinline webkit-playsinline autoplay preload="metadata"
+            poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_0,f_jpg,q_auto:good/v1788629650/marycamella-ai-twin-story-hq.jpg"
+            aria-label="Marycamella's full AI twin content video">
+            <source src="https://res.cloudinary.com/bzw55wh2/video/upload/v1788629650/marycamella-ai-twin-story-hq.mp4" type="video/mp4">
           </video>
         </div>
         <div class="mary-video-foot">
-          <span>AI-twin content created after joining Fuse Atelier</span>
-          <span class="mary-video-live"><i></i> AUTOPLAYING</span>
+          <span>Full 45-sec AI-twin video · same 9:16 frame</span>
+          <span class="mary-video-live"><i></i> AUTOPLAYS IN VIEW</span>
         </div>
       </div>
 
@@ -3439,28 +3438,65 @@ img,video,svg,canvas,iframe{max-width:100%}
 (function(){
   const v=document.getElementById('maryTwinVideo');
   if(!v) return;
+
   v.muted=true;
   v.defaultMuted=true;
   v.playsInline=true;
   v.setAttribute('muted','');
   v.setAttribute('playsinline','');
   v.setAttribute('webkit-playsinline','');
+
+  let started=false;
+  let inView=false;
+
   const play=()=>{
+    if(!inView || document.hidden) return;
     v.muted=true;
     v.defaultMuted=true;
     const p=v.play();
     if(p&&p.catch) p.catch(()=>{});
   };
-  if(v.readyState>=2) play();
-  v.addEventListener('loadedmetadata',play,{once:true});
-  v.addEventListener('loadeddata',play,{once:true});
-  v.addEventListener('canplay',play,{once:true});
-  v.addEventListener('pause',function(){
-    if(!document.hidden && !v.ended) setTimeout(play,120);
+
+  const beginFromStart=()=>{
+    if(started) return play();
+    started=true;
+    try{ v.currentTime=0; }catch(e){}
+    play();
+  };
+
+  if('IntersectionObserver' in window){
+    const observer=new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        inView=entry.isIntersecting && entry.intersectionRatio>=0.28;
+        if(inView) beginFromStart();
+        else if(!v.paused) v.pause();
+      });
+    },{threshold:[0,.28,.5,.8]});
+    observer.observe(v);
+  }else{
+    const check=()=>{
+      const r=v.getBoundingClientRect();
+      inView=r.bottom>0 && r.top<window.innerHeight;
+      if(inView) beginFromStart();
+      else if(!v.paused) v.pause();
+    };
+    window.addEventListener('scroll',check,{passive:true});
+    window.addEventListener('resize',check,{passive:true});
+    check();
+  }
+
+  v.addEventListener('loadedmetadata',()=>{ if(inView) beginFromStart(); },{once:true});
+  v.addEventListener('canplay',()=>{ if(inView) play(); });
+
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){
+      if(!v.paused) v.pause();
+    }else if(inView){
+      play();
+    }
   });
-  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) play(); });
-  window.addEventListener('pageshow',play);
-  window.addEventListener('focus',play);
+
+  window.addEventListener('pageshow',()=>{ if(inView) play(); });
 })();
 </script>
 </body>
