@@ -64,7 +64,7 @@ const naira = (n) => '₦' + Number(n).toLocaleString();
 const usd = (n) => '$' + Math.round(n / cfg.USD_RATE);
 const price = (n) => (showUsd ? usd(n) : naira(n));
 // Download straight from the CDN (the old proxy buffered the whole file and
-// crashed on videos > 6MB — Netlify's function response cap). Fall back to
+// crashed on videos > 6MB — Vercel's function response cap). Fall back to
 // opening the file in a new tab if the CDN blocks a cross-origin fetch.
 async function downloadFile(url) {
  try {
@@ -319,7 +319,7 @@ function pollGrid(ids, resultEl, noteId, btn, label, watermark, queueLabel) {
  if (user) loadProfile();
  if (btn) { btn.disabled = false; btn.textContent = label; }
  };
- // Poll every 8s (not 4) — each poll is a billed Netlify function invocation,
+ // Poll every 8s (not 4) — each poll is a billed Vercel function invocation,
  // and this loop was one of the biggest credit burners on the free plan.
  ids.forEach((id, i) => {
  let s = 0;
@@ -1187,7 +1187,7 @@ async function openCourse() {
  const tier = atelierTier();
  const TIER_LABEL = ['', 'Starter', 'Creator', 'Empire'];
  // 10 Aug 2026: Atelier Starter/Creator/Empire are paused server-side
- // (netlify/functions/_packs.js) -- these buy/upgrade buttons used to hit
+ // (server/functions/_packs.js) -- these buy/upgrade buttons used to hit
  // that checkout directly (buy('atelier_starter'|...)) and would now fail.
  // Existing owners (tier > 0, via module_unlocks) keep full access to what
  // they already own; only the buy/upgrade CTA is swapped for a paused note.
@@ -2278,7 +2278,7 @@ async function loadResyncBox(outputUrl) {
  return;
  }
  // 10 Aug 2026: was / 0.016 * 1.6 (stale) -- must track RESYNC_PER_SEC_USD's
- // CREDIT_USD/RESYNC_MARGIN in netlify/functions/_packs.js.
+ // CREDIT_USD/RESYNC_MARGIN in server/functions/_packs.js.
  const estCredits = av.total_duration_sec ? Math.max(1, Math.ceil(av.total_duration_sec * 0.08 / 0.11 * 2.0)) : null;
  // Motion-mode videos never had word-accurate lip-sync in the first place —
  // Seedance has no audio input at all, it just animates a scene from a
@@ -3071,7 +3071,7 @@ function avvToggleMode() {
  avvUpdateCostEstimate();
 }
 // Live pre-submission cost preview -- mirrors avatarVideoCredits() in
-// netlify/functions/_packs.js exactly (same constants, same formula). Motion
+// server/functions/_packs.js exactly (same constants, same formula). Motion
 // mode (real Seedance 2.0) costs noticeably more per minute than talking
 // mode (InfiniteTalk) -- showing this BEFORE the user commits credits is the
 // whole point, since the two modes' real cost gap is large enough that
@@ -3081,7 +3081,7 @@ const AVV_PER_MIN_TALKING = 3.6;
 const AVV_PER_MIN_MOTION = { '480p': 7.2, '720p': 14.4 };
 const AVV_VOICE_PER_MIN = 0.05;
 // 10 Aug 2026 margin/reprice sweep -- was 1.6/0.016, must track
-// AVATAR_VIDEO_MARGIN/CREDIT_USD in netlify/functions/_packs.js exactly or
+// AVATAR_VIDEO_MARGIN/CREDIT_USD in server/functions/_packs.js exactly or
 // this estimate silently disagrees with the real charge.
 const AVV_MARGIN = 2.0;
 const AVV_CREDIT_USD = 0.11;
