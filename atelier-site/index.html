@@ -837,6 +837,198 @@ nav .btn.sm{box-shadow:none}
   .hero-3d-chip{animation:none}.hero-3d-inner,.depth-card{transition:none!important}
 }
 
+
+/* ===== Fuse 3D Experience — Phase 2 =====
+   Every dimensional effect now has a conversion job:
+   proof -> mechanism -> problem -> system.
+*/
+.proof-engine{
+  max-width:900px;margin:34px auto 0;padding-top:10px;text-align:center
+}
+.proof-engine-copy{max-width:690px;margin:0 auto 22px}
+.proof-engine-kicker{
+  color:#a9d9cd;font-size:8.5px;font-weight:950;letter-spacing:.19em;text-transform:uppercase
+}
+.proof-engine h2{
+  margin:9px auto 0;font-family:"Bricolage Grotesque",Inter,sans-serif;
+  font-size:clamp(32px,5vw,52px);line-height:.98;letter-spacing:-.05em;
+  max-width:12ch;color:#f7fff9
+}
+.proof-engine h2 span{color:#baff63}
+.proof-engine-copy p{
+  max-width:610px;margin:13px auto 0;color:#91a89f;font-size:clamp(12px,1.8vw,15px);line-height:1.65
+}
+.proof-engine-stage{
+  position:relative;height:390px;overflow:hidden;perspective:1300px;
+  border-radius:32px;border:1px solid rgba(186,255,99,.20);
+  background:
+    radial-gradient(circle at 50% 46%,rgba(12,127,112,.22),transparent 28%),
+    radial-gradient(circle at 82% 16%,rgba(186,255,99,.11),transparent 25%),
+    linear-gradient(155deg,#071c18,#03100e 58%,#061814);
+  box-shadow:0 34px 110px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.035);
+  isolation:isolate
+}
+.proof-engine-stage:after{
+  content:"";position:absolute;left:12%;right:12%;bottom:-72px;height:145px;
+  background:radial-gradient(ellipse at center,rgba(186,255,99,.14),transparent 67%);
+  filter:blur(28px);pointer-events:none
+}
+.proof-engine-scene{
+  --pe-rx:8deg;--pe-ry:-8deg;--pe-spread:1;
+  position:absolute;inset:0;transform-style:preserve-3d;
+  transform:rotateX(var(--pe-rx)) rotateY(var(--pe-ry));
+  transition:transform .18s ease-out
+}
+.pe-grid{
+  position:absolute;left:-12%;right:-12%;bottom:-31%;height:70%;
+  background:
+    linear-gradient(90deg,rgba(186,255,99,.065) 1px,transparent 1px),
+    linear-gradient(rgba(186,255,99,.055) 1px,transparent 1px);
+  background-size:42px 42px;transform:rotateX(69deg) translateZ(-62px);
+  transform-origin:center bottom;opacity:.44;
+  mask-image:linear-gradient(180deg,transparent,#000 30%,transparent 98%)
+}
+.pe-card{
+  position:absolute;width:238px;min-height:112px;padding:16px 17px;border-radius:22px;
+  display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:center;text-align:left;
+  background:linear-gradient(145deg,rgba(10,45,37,.96),rgba(3,18,15,.92));
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:0 26px 60px rgba(0,0,0,.36),inset 0 1px 0 rgba(255,255,255,.04);
+  backdrop-filter:blur(12px);transform-style:preserve-3d
+}
+.pe-card:before{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(115deg,rgba(255,255,255,.045),transparent 36%)
+}
+.pe-num{
+  width:42px;height:42px;border-radius:14px;display:grid;place-items:center;
+  color:#07120f;background:linear-gradient(145deg,#fff39a,#baff63);
+  font-size:10px;font-weight:950;box-shadow:0 12px 24px rgba(186,255,99,.12)
+}
+.pe-card-copy small{display:block;color:#83b8aa;font-size:7px;font-weight:950;letter-spacing:.18em}
+.pe-card-copy b{display:block;margin-top:3px;color:#fff;font-size:17px;line-height:1.05}
+.pe-card-copy span{display:block;margin-top:5px;color:#9eb4ac;font-size:9px}
+.pe-learn{
+  left:7%;top:16%;
+  transform:translate3d(calc(-8px * var(--pe-spread)),calc(-4px * var(--pe-spread)),54px) rotateZ(-5deg)
+}
+.pe-create{
+  left:50%;top:38%;z-index:3;
+  transform:translate3d(-50%,0,110px) rotateZ(1deg);
+  border-color:rgba(186,255,99,.22)
+}
+.pe-sell{
+  right:7%;top:18%;
+  transform:translate3d(calc(9px * var(--pe-spread)),calc(2px * var(--pe-spread)),72px) rotateZ(5deg)
+}
+.pe-route{
+  position:absolute;left:50%;top:67%;width:58%;height:14px;
+  transform:translate3d(-50%,0,26px);display:flex;justify-content:space-between;align-items:center
+}
+.pe-route:before{
+  content:"";position:absolute;left:4%;right:4%;height:1px;
+  background:linear-gradient(90deg,transparent,#45b9a5 18%,#baff63 52%,#ffe568 85%,transparent)
+}
+.pe-route i{
+  position:relative;width:9px;height:9px;border-radius:50%;background:#baff63;
+  box-shadow:0 0 0 5px rgba(186,255,99,.07),0 0 25px rgba(186,255,99,.20)
+}
+.pe-payment{
+  position:absolute;left:50%;bottom:11%;z-index:5;
+  transform:translate3d(-50%,0,125px);
+  display:flex;align-items:center;gap:9px;padding:10px 13px;border-radius:999px;
+  color:#07120f;background:linear-gradient(110deg,#fff39a,#dfff65 44%,#9af0d9);
+  box-shadow:0 18px 46px rgba(0,0,0,.30);
+  font-family:"Bricolage Grotesque",Inter,sans-serif
+}
+.pe-payment span{font-size:6.5px;font-weight:950;letter-spacing:.17em;opacity:.65}
+.pe-payment b{font-size:11px;letter-spacing:.03em}
+.pe-payment i{font-style:normal;font-size:13px}
+.proof-engine-footer{
+  position:absolute;left:16px;right:16px;bottom:13px;z-index:8;
+  display:flex;justify-content:center;align-items:center;gap:8px;
+  color:#75978d;font-size:7px;font-weight:850;letter-spacing:.04em
+}
+.proof-engine-footer i{font-style:normal;color:#42675e}
+.proof-engine-footer strong{color:#cfff78}
+.proof-engine-scroll{
+  margin:13px auto 0;width:max-content;max-width:100%;display:flex;gap:8px;align-items:center;
+  color:#96aca4;text-decoration:none;font-size:9px;font-weight:800
+}
+.proof-engine-scroll i{font-style:normal;color:#baff63}
+
+.system-scroll-cue{
+  width:max-content;margin:8px auto 26px;padding:9px 12px;display:flex;align-items:center;gap:9px;
+  border:1px solid rgba(186,255,99,.18);border-radius:999px;
+  background:rgba(186,255,99,.045);color:#9fb8af
+}
+.system-scroll-cue b{
+  width:27px;height:27px;border-radius:9px;display:grid;place-items:center;
+  background:#baff63;color:#07120f;font-size:9px
+}
+.system-scroll-cue span{font-size:8px;font-weight:900;letter-spacing:.10em;text-transform:uppercase}
+.system-scroll-cue i{font-style:normal;color:#baff63}
+
+.system-stack{
+  display:block!important;position:relative;perspective:1400px;transform-style:preserve-3d;
+  padding-bottom:6vh
+}
+.system-stack .system-card{
+  position:sticky;top:118px;margin-bottom:15vh;
+  transform-origin:center 12%;
+  transform:perspective(1200px) translateY(var(--stack-y,18px)) scale(var(--stack-scale,.955)) rotateX(var(--stack-rx,2deg));
+  opacity:var(--stack-opacity,.76);
+  filter:saturate(var(--stack-sat,.82));
+  transition:transform .35s cubic-bezier(.2,.75,.2,1),opacity .3s ease,filter .3s ease,box-shadow .3s ease,border-color .3s ease;
+  will-change:transform;box-shadow:0 28px 90px rgba(0,0,0,.28)
+}
+.system-stack .system-card:nth-child(1){z-index:11}
+.system-stack .system-card:nth-child(2){z-index:12}
+.system-stack .system-card:nth-child(3){z-index:13}
+.system-stack .system-card.stack-active{
+  --stack-y:0px;--stack-scale:1;--stack-rx:0deg;--stack-opacity:1;--stack-sat:1;
+  border-color:rgba(186,255,99,.27);
+  box-shadow:0 38px 120px rgba(0,0,0,.40),0 0 55px rgba(12,127,112,.06)
+}
+.system-stack .system-card.stack-past{
+  --stack-y:-12px;--stack-scale:.935;--stack-rx:1.5deg;--stack-opacity:.42;--stack-sat:.65
+}
+.system-stack .system-card.stack-next{
+  --stack-y:26px;--stack-scale:.965;--stack-rx:2.4deg;--stack-opacity:.82;--stack-sat:.90
+}
+
+@media(max-width:680px){
+  .proof-engine{margin-top:27px}
+  .proof-engine-copy{padding:0 6px}
+  .proof-engine h2{font-size:34px;max-width:11ch}
+  .proof-engine-copy p{font-size:11.5px}
+  .proof-engine-stage{height:330px;border-radius:27px}
+  .proof-engine-scene{--pe-rx:7deg;--pe-ry:-5deg}
+  .pe-card{width:188px;min-height:92px;padding:12px;border-radius:18px;grid-template-columns:34px 1fr;gap:9px}
+  .pe-num{width:34px;height:34px;border-radius:11px;font-size:8px}
+  .pe-card-copy small{font-size:6px}.pe-card-copy b{font-size:14px}.pe-card-copy span{font-size:7.5px}
+  .pe-learn{left:3%;top:13%;transform:translate3d(0,0,42px) rotateZ(-5deg)}
+  .pe-create{left:50%;top:37%;transform:translate3d(-50%,0,98px) rotateZ(1deg)}
+  .pe-sell{right:3%;top:17%;transform:translate3d(0,0,58px) rotateZ(5deg)}
+  .pe-route{width:70%;top:68%}
+  .pe-payment{bottom:13%;padding:9px 11px}.pe-payment b{font-size:10px}
+  .proof-engine-footer{gap:5px;font-size:5.8px;bottom:9px;left:8px;right:8px}
+  .proof-engine-scroll{font-size:8px;margin-top:12px}
+
+  .system-scroll-cue{margin-bottom:20px}
+  .system-stack .system-card{top:104px;margin-bottom:11vh}
+  .system-stack .system-card.learn,.system-stack .system-card.sell{min-height:560px}
+  .system-stack .system-card.create{min-height:620px}
+}
+@media(max-width:390px){
+  .proof-engine-stage{height:312px}
+  .pe-card{width:170px}
+  .pe-card-copy b{font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){
+  .proof-engine-scene,.system-stack .system-card{transition:none!important}
+}
+
 </style>
 </head>
 <body id="top">
@@ -875,20 +1067,45 @@ nav .btn.sm{box-shadow:none}
       <span class="hero-stat"><i>✓</i><b>12</b> Upwork jobs</span>
       <span class="hero-stat"><i>🌍</i><b>$3,500/mo</b> UK contract</span>
     </div>
-    <div class="hero-3d-stage" aria-label="Fuse Atelier Learn Create Sell 3D experience">
-      <div class="hero-3d-inner">
-        <div class="fuse-wave" aria-hidden="true"></div>
-        <div class="hero-3d-core"><i></i><span>Learn → Create → Sell</span></div>
-        <div class="hero-3d-chip a"><i>✦</i><span>Academy</span></div>
-        <div class="hero-3d-chip b"><i>◇</i><span>Fuse Create</span></div>
-        <div class="hero-3d-chip c"><i>◎</i><span>Fuse Clients</span></div>
-        <div class="hero-3d-chip d"><i>↗</i><span>Money Engine</span></div>
-        <div class="hero-3d-caption">ONE ECOSYSTEM · ONE CLIENT PATH</div>
-      </div>
-    </div>
     <div class="upwork-proof">
       <img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/founding/money-engine-cropped.png" alt="Maryam Jejeola Upwork profile showing $4K+ total earnings and 12 total jobs" decoding="async">
       <div class="upwork-caption">My real Upwork profile — $4K+ earned across 12 jobs. The page below shows the system behind the work.</div>
+    </div>
+    <div class="proof-engine" aria-label="The Fuse Atelier client acquisition mechanism">
+      <div class="proof-engine-copy">
+        <div class="proof-engine-kicker">THE PROOF ABOVE IS THE RESULT</div>
+        <h2>This is the <span>engine underneath it.</span></h2>
+        <p>Not “learn AI and hope.” A commercial loop that turns one useful skill into proof, conversations and a real chance to get paid.</p>
+      </div>
+
+      <div class="proof-engine-stage">
+        <div class="proof-engine-scene">
+          <div class="pe-grid" aria-hidden="true"></div>
+
+          <article class="pe-card pe-learn">
+            <div class="pe-num">01</div>
+            <div class="pe-card-copy"><small>ACADEMY</small><b>Learn</b><span>one skill worth selling</span></div>
+          </article>
+
+          <article class="pe-card pe-create">
+            <div class="pe-num">02</div>
+            <div class="pe-card-copy"><small>CREATE</small><b>Build proof</b><span>a client can judge</span></div>
+          </article>
+
+          <article class="pe-card pe-sell">
+            <div class="pe-num">03</div>
+            <div class="pe-card-copy"><small>CLIENTS</small><b>Find + pitch</b><span>the right businesses</span></div>
+          </article>
+
+          <div class="pe-route" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="pe-payment"><span>RESULT</span><b>PAID CLIENT</b><i>↗</i></div>
+        </div>
+        <div class="proof-engine-footer">
+          <span>Skill</span><i>→</i><span>Proof</span><i>→</i><span>Prospect</span><i>→</i><span>Pitch</span><i>→</i><strong>Payment</strong>
+        </div>
+      </div>
+
+      <a class="proof-engine-scroll" href="#problem"><span>Now see why most people never reach the last step</span><i>↓</i></a>
     </div>
   </div>
 </header>
@@ -938,7 +1155,13 @@ nav .btn.sm{box-shadow:none}
       <div class="system-path">Learn <span>→</span> Create <span>→</span> Sell</div>
     </div>
 
-    <div class="system-cards">
+    <div class="system-scroll-cue" aria-hidden="true">
+      <b id="system-step-number">01</b>
+      <span>Scroll the client path</span>
+      <i>↓</i>
+    </div>
+
+    <div class="system-cards system-stack">
       <article class="system-card learn">
         <div class="system-card-copy">
           <div class="system-card-label">01 · Fuse Academy</div>
@@ -1653,68 +1876,84 @@ nav .btn.sm{box-shadow:none}
 </script>
 
 <script>
-/* Fuse 3D Experience — inspired by the supplied dimensional web reel */
+/* Fuse 3D Experience — Phase 2: proof-to-mechanism + scroll-stack system */
 (function(){
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const stage=document.querySelector('.hero-3d-stage');
-  const wave=document.querySelector('.fuse-wave');
+  const fine=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
 
-  if(wave && !wave.children.length){
-    const count=30;
-    for(let i=0;i<count;i++){
-      const bar=document.createElement('span');
-      bar.className='fuse-wave-bar';
-      const p=i/(count-1);
-      const y=50 + Math.sin(i*.63)*18 + Math.sin(i*.19)*5;
-      const z=Math.cos(i*.47)*34;
-      const r=Math.cos(i*.58)*18;
-      const scale=.72 + (Math.sin(i*.31)+1)*.16;
-      bar.style.left=(p*100)+'%';
-      bar.style.top=y+'%';
-      bar.style.opacity=(.62 + (i/count)*.34).toFixed(2);
-      bar.style.transform='translate(-50%,-50%) translateZ('+z+'px) rotateZ('+r+'deg) rotateY(-18deg) scale('+scale.toFixed(2)+')';
-      wave.appendChild(bar);
-    }
-  }
+  const engine=document.querySelector('.proof-engine-stage');
+  if(engine && !reduced){
+    const scene=engine.querySelector('.proof-engine-scene');
+    const setPerspective=function(x,y){
+      scene.style.setProperty('--pe-ry',(x*9-5).toFixed(2)+'deg');
+      scene.style.setProperty('--pe-rx',(7-y*5).toFixed(2)+'deg');
+    };
 
-  if(stage && !reduced){
-    const inner=stage.querySelector('.hero-3d-inner');
-    const fine=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
     if(fine){
-      stage.addEventListener('pointermove',function(e){
-        const r=stage.getBoundingClientRect();
+      engine.addEventListener('pointermove',function(e){
+        const r=engine.getBoundingClientRect();
         const x=(e.clientX-r.left)/r.width-.5;
         const y=(e.clientY-r.top)/r.height-.5;
-        stage.style.setProperty('--ry',(x*9).toFixed(2)+'deg');
-        stage.style.setProperty('--rx',(-5-y*6).toFixed(2)+'deg');
+        setPerspective(x,y);
       },{passive:true});
-      stage.addEventListener('pointerleave',function(){
-        stage.style.setProperty('--ry','0deg');
-        stage.style.setProperty('--rx','-5deg');
+      engine.addEventListener('pointerleave',function(){
+        scene.style.setProperty('--pe-ry','-8deg');
+        scene.style.setProperty('--pe-rx','8deg');
       },{passive:true});
+    }else{
+      let tick=false;
+      const moveMobile=function(){
+        tick=false;
+        const r=engine.getBoundingClientRect();
+        const vh=window.innerHeight||1;
+        const p=Math.max(-1,Math.min(1,(r.top+r.height/2-vh/2)/vh));
+        scene.style.setProperty('--pe-ry',(-5+p*5).toFixed(2)+'deg');
+        scene.style.setProperty('--pe-rx',(7+p*2).toFixed(2)+'deg');
+        scene.style.setProperty('--pe-spread',(1+Math.abs(p)*.14).toFixed(2));
+      };
+      window.addEventListener('scroll',function(){
+        if(!tick){tick=true;requestAnimationFrame(moveMobile)}
+      },{passive:true});
+      moveMobile();
     }
-
-    let ticking=false;
-    const update=function(){
-      ticking=false;
-      const r=stage.getBoundingClientRect();
-      const vh=window.innerHeight||1;
-      const center=(r.top+r.height/2)-vh/2;
-      const p=Math.max(-1,Math.min(1,center/vh));
-      stage.style.setProperty('--lift',(p*-10).toFixed(1)+'px');
-      if(!fine){
-        stage.style.setProperty('--ry',(p*5).toFixed(2)+'deg');
-        stage.style.setProperty('--rx',(-4+p*2.5).toFixed(2)+'deg');
-      }
-    };
-    window.addEventListener('scroll',function(){
-      if(!ticking){ticking=true;requestAnimationFrame(update)}
-    },{passive:true});
-    update();
   }
 
-  const depthTargets=document.querySelectorAll('.system-card,.course-feature,.why-card,.final-pricing-card');
-  const fine=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+  const stack=document.querySelector('.system-stack');
+  const stepNo=document.getElementById('system-step-number');
+  if(stack){
+    const cards=[...stack.querySelectorAll('.system-card')];
+    cards.forEach(function(card,i){card.dataset.stackIndex=String(i)});
+
+    let ticking=false;
+    const updateStack=function(){
+      ticking=false;
+      const vh=window.innerHeight||1;
+      let active=0;
+      let best=Infinity;
+
+      cards.forEach(function(card,i){
+        const r=card.getBoundingClientRect();
+        const d=Math.abs(r.top-vh*.24);
+        if(d<best){best=d;active=i}
+      });
+
+      cards.forEach(function(card,i){
+        card.classList.toggle('stack-active',i===active);
+        card.classList.toggle('stack-past',i<active);
+        card.classList.toggle('stack-next',i>active);
+      });
+      if(stepNo) stepNo.textContent=String(active+1).padStart(2,'0');
+    };
+
+    window.addEventListener('scroll',function(){
+      if(!ticking){ticking=true;requestAnimationFrame(updateStack)}
+    },{passive:true});
+    window.addEventListener('resize',updateStack,{passive:true});
+    updateStack();
+  }
+
+  // Keep the subtle depth effect only on supporting cards; the system cards have their own scroll choreography.
+  const depthTargets=document.querySelectorAll('.course-feature,.why-card,.final-pricing-card');
   depthTargets.forEach(function(card){
     card.classList.add('depth-card');
     if(!fine || reduced) return;
