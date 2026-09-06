@@ -228,7 +228,7 @@ function applyCode(codeRaw, silent) {
   var slots = document.getElementById('slotsNote');
   if (!code) { if (!silent) note.textContent = 'Enter a code first.'; note.className = 'code-note err'; return; }
   note.textContent = 'Checking…'; note.className = 'code-note pending';
-  fetch('/.netlify/functions/validate-promo?code=' + encodeURIComponent(code))
+  fetch('/api/validate-promo?code=' + encodeURIComponent(code))
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (d.valid) {
@@ -266,7 +266,7 @@ document.getElementById('codeInput').addEventListener('keydown', function(e){ if
 function fuseInsiderBuy(packKey, el, pixelData) {
   if (typeof fbq === 'function') fbq('track', 'InitiateCheckout', pixelData);
   el.style.opacity = '.6'; el.style.pointerEvents = 'none'; el.textContent = 'Opening secure checkout…';
-  fetch('/.netlify/functions/paystack-init-guest', {
+  fetch('/api/paystack-init-guest', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ pack: packKey, code: appliedCode || undefined }),
   }).then(function(r){

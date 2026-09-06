@@ -50,7 +50,7 @@
     if(!token){status.textContent='Sign in to Fuse Atelier to load the protected lesson video.';status.style.display='block';return}
     status.textContent='Loading lesson video…';status.style.display='block';
     try{
-      const r=await fetch('/.netlify/functions/lesson-video',{method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+token},body:JSON.stringify({lesson_key:lesson.key})});
+      const r=await fetch('/api/lesson-video',{method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+token},body:JSON.stringify({lesson_key:lesson.key})});
       const d=await r.json();if(!r.ok||!d.url)throw new Error(d.error||'Video unavailable');
       video.src=d.url;video.style.display='block';video.load();status.style.display='none';if(play)play.style.display='none';video.play().catch(()=>{});
     }catch(err){status.textContent=(err&&err.message)||'Video unavailable right now.';status.style.display='block'}

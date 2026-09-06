@@ -35,13 +35,13 @@ window.FUSE = {
     whatsapp: '2349044558101',
   },
 
-  // Buy options. Real prices are enforced server-side in netlify/functions/_packs.js.
+  // Buy options. Real prices are enforced server-side in server/functions/_packs.js.
   // Notes give a concrete "what this actually gets you" estimate (real numbers
   // from _packs.js's cost-plus math), not vague marketing copy — e.g. "~50
   // images or 6 videos" beats "All studios". "Studio ___" naming on the plain
   // subscriptions keeps them unmistakable from the "Fuse Atelier — ___" course
   // tiers below, since Creator/Pro/Empire otherwise echo each other.
-  // Repriced 10 Aug 2026 — must mirror netlify/functions/_packs.js exactly,
+  // Repriced 10 Aug 2026 — must mirror server/functions/_packs.js exactly,
   // since that's the only thing actually enforced server-side; this array is
   // display-only. Atelier Starter/Creator/Empire are commented out because
   // _packs.js paused them — a live button here would hit a checkout error.
@@ -57,7 +57,7 @@ window.FUSE = {
     { key: 'bundle_750', name: '100 credits',  naira: 15000, credits: 100, note: 'Top-up · bulk',          kind: 'pack' },
   ],
 
-  // Launch promo — mirrors netlify/functions/_packs.js exactly (dates + multipliers
+  // Launch promo — mirrors server/functions/_packs.js exactly (dates + multipliers
   // must match, or the buy modal and the actual grant will disagree). Auto-expires
   // at endsAt; nothing to remember to turn off. Named LAUNCH_PROMO (not PROMO) —
   // PROMO below is the older home-banner config, a different, unrelated shape.
@@ -122,9 +122,9 @@ window.FUSE = {
   ],
 
   // ===== Model catalog (Higgsfield-style gallery) =====
-  // slug must match netlify/functions/_packs.js. `sample` is a placeholder you
+  // slug must match server/functions/_packs.js. `sample` is a placeholder you
   // can later swap for a real sample image/video URL.
-  // Credit numbers below must mirror netlify/functions/_packs.js's
+  // Credit numbers below must mirror server/functions/_packs.js's
   // IMAGE_MODELS/VIDEO_MODELS/TOOL_MODELS exactly (repriced 10 Aug 2026) —
   // this array is what actually renders every "X credits" the user sees
   // before generating; the server enforces the real charge independently,
@@ -315,8 +315,8 @@ window.FUSE = {
 
   // Fuse Character Lab links — the prompt-builder companion tool. Reused by the
   // AI Avatar mini-course banner (new buyer → sales page, existing → the tool).
-  CHARLAB_BUY_URL: 'https://fusecharacterlabpage.netlify.app/',
-  CHARLAB_TOOL_URL: 'https://fuse-character-lab.netlify.app/',
+  CHARLAB_BUY_URL: 'https://fuse-atelier.vercel.app/character-lab-landing.html',
+  CHARLAB_TOOL_URL: 'https://fuse-atelier.vercel.app/fuse-character-lab.html',
 
   // Written step-by-step lesson notes shown UNDER each mini-course video. Keyed
   // by course key (matches MINI_COURSES). Written from the real tutorial videos

@@ -1,3 +1,5 @@
+// Canonical origin for checkout callbacks and internal worker requests.
+process.env.APP_URL = 'https://fuse-atelier.vercel.app';
 // Vercel-native API dispatcher for Fuse Atelier.
 // All /api/<function-name> requests are routed here, then handed to the
 // existing CommonJS handlers in server/functions without any Netlify runtime.

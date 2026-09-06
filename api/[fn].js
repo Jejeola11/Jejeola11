@@ -1,3 +1,5 @@
+// Canonical origin for checkout callbacks and internal worker requests.
+process.env.APP_URL = 'https://fuse-atelier.vercel.app';
 // Vercel-native adapter for the existing Fuse Atelier function handlers.
 // One dynamic endpoint keeps the current CommonJS function modules intact while
 // serving them from /api/<function-name> on Vercel.

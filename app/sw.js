@@ -1,7 +1,7 @@
 /* Fuse Studio service worker — makes the app installable + fast.
    Strategy: network-first for everything, falling back to cache when
    offline. We intentionally never cache API/auth calls. */
-const CACHE = 'fuse-studio-v1';
+const CACHE = 'fuse-atelier-vercel-v2';
 const SHELL = [
   '/app/index.html',
   '/app/studio.html',
@@ -24,7 +24,7 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   // Never cache functions, Supabase, Paystack or other cross-origin APIs.
-  if (e.request.method !== 'GET' || url.pathname.includes('/.netlify/') ||
+  if (e.request.method !== 'GET' || url.pathname.startsWith('/api/') ||
       url.origin !== location.origin) {
     return; // let it hit the network normally
   }

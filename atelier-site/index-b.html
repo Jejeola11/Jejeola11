@@ -1329,7 +1329,7 @@ function fuseBuy(packKey, el, pixelData) {
   var fallbackHref = el.getAttribute('href');
   var orig = el.textContent;
   el.style.pointerEvents = 'none'; el.textContent = 'Opening secure checkout…';
-  fetch('/.netlify/functions/paystack-init-guest', {
+  fetch('/api/paystack-init-guest', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ pack: packKey }),
   }).then(function(r){
@@ -1357,7 +1357,7 @@ function fuseBuy(packKey, el, pixelData) {
   var dismissed = false;
   closeBtn.onclick = function(){ dismissed = true; toast.classList.remove('show'); };
 
-  fetch('/.netlify/functions/recent-activity').then(function(r){ return r.json(); }).then(function(d){
+  fetch('/api/recent-activity').then(function(r){ return r.json(); }).then(function(d){
     var items = (d && d.activities) || [];
     if (!items.length) return;
     var i = 0;
@@ -1408,7 +1408,7 @@ function fuseBuy(packKey, el, pixelData) {
 // ============ Studio URL (standalone deploy) ============
 // This page deploys as its OWN site. Set your Fuse Studio domain once here —
 // every tier button and "open the studio" link points at it.
-var STUDIO_URL = 'https://fusestudio.netlify.app';
+var STUDIO_URL = 'https://fuse-atelier.vercel.app';
 document.querySelectorAll('a[href^="/studio"]').forEach(function(a){
   a.href = STUDIO_URL + a.getAttribute('href');
 });

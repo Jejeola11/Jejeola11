@@ -8,6 +8,19 @@
   },
   "routes": [
     {
+      "src": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "fuse-atelier-studio(?:-ria-d6b9)?\\.vercel\\.app"
+        }
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "https://fuse-atelier.vercel.app/$1"
+      }
+    },
+    {
       "src": "/api/([A-Za-z0-9_-]+)",
       "dest": "/api/index.js?fn=$1"
     },

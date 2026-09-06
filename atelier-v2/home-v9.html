@@ -67,7 +67,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f;col
     const v=document.createElement('video');
     configure(v);
     v.dataset.sourceQuality='user-original';
-    v.dataset.delivery='same-domain-netlify-public-hq';
+    v.dataset.delivery='same-domain-vercel-public-hq';
     old.replaceWith(v);
 
     let retryCount=0;
@@ -129,7 +129,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f;col
       }
     `;
     d.head.appendChild(css);
-    d.documentElement.dataset.heroDelivery='same-domain-netlify-public-hq';
+    d.documentElement.dataset.heroDelivery='same-domain-vercel-public-hq';
     patched=true;
     document.body.classList.add('ready');
   }
