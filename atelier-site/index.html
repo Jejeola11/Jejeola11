@@ -4826,14 +4826,106 @@ html{
   }
 }
 
+
+/* ===== Sep 6 final polish: managing + founding scarcity ===== */
+.rebuild-scarcity{
+  width:min(100%,720px);
+  margin:13px auto 0;
+  padding:10px 14px;
+  border:1px solid rgba(255,115,90,.28);
+  background:rgba(255,95,60,.055);
+  color:#c8d6d1;
+  font-size:10.5px;
+  line-height:1.45;
+  font-weight:700;
+}
+.rebuild-scarcity strong{
+  color:#ffe568;
+  font-weight:950;
+}
+.founding-offer-head{max-width:780px;margin-left:auto;margin-right:auto}
+.founding-offer-head h2{max-width:13ch;margin-left:auto;margin-right:auto}
+.founding-offer-head p{max-width:690px;margin-left:auto;margin-right:auto}
+.founding-offer-card{padding-top:34px}
+.founding-meter{
+  margin:0 auto;
+  padding:22px;
+  border:1px solid rgba(255,255,255,.10);
+  background:#071b15;
+}
+.founding-meter-row{
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  align-items:center;
+  color:#f4faf7;
+  font-size:14px;
+}
+.founding-meter-row strong{font-size:16px}
+.founding-meter-row span{
+  color:#ffe568;
+  font-weight:900;
+  white-space:nowrap;
+}
+.founding-meter-track{
+  height:10px;
+  overflow:hidden;
+  margin-top:14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+}
+.founding-meter-track i{
+  display:block;
+  width:80%;
+  height:100%;
+  border-radius:inherit;
+  background:var(--grad);
+}
+.founding-offer-card .payment-cta{margin-top:22px!important}
+.founding-offer-card .payment-guarantee{margin-top:22px}
+@media screen and (min-width:901px){
+  .rebuild-top .rebuild-hero-wrap{
+    width:min(calc(100% - 52px),1080px)!important;
+    max-width:1080px!important;
+  }
+  .rebuild-top .managing-hero-headline{
+    max-width:1000px!important;
+    font-size:clamp(60px,5.2vw,78px)!important;
+    line-height:.94!important;
+  }
+  .rebuild-top .managing-hero-headline>span{white-space:nowrap!important}
+  .rebuild-top .rebuild-hero-copy{
+    max-width:820px!important;
+    font-size:17px!important;
+  }
+  .rebuild-top .rebuild-pill{
+    max-width:900px;
+    line-height:1.35;
+  }
+}
+@media screen and (max-width:900px){
+  .rebuild-top .managing-hero-headline>span{white-space:normal!important}
+  .rebuild-top .rebuild-pill{
+    max-width:100%;
+    justify-content:center;
+    text-align:center;
+    line-height:1.35;
+  }
+  .rebuild-scarcity{
+    font-size:9px;
+    padding:9px 10px;
+  }
+  .founding-meter{padding:17px 15px}
+  .founding-meter-row{font-size:11px}
+  .founding-meter-row strong{font-size:12px}
+}
+
 </style>
 </head>
 <body id="top">
 <div class="rebuild-top">
   <div class="rebuild-strip">
-    <span>LEARN → CREATE → SELL</span>
-    <span>₦15,000 · ONE PAYMENT</span>
-    <span class="desktop">SELF-PACED · BEGINNER FRIENDLY</span>
+    <span>FOUNDING ACCESS · ₦15,000 · CAPPED AT 50 STUDENTS</span>
   </div>
   <nav class="rebuild-nav-shell" aria-label="Main">
     <div class="wrap rebuild-site-nav">
@@ -4846,15 +4938,13 @@ html{
 
   <header class="rebuild-hero">
     <div class="wrap rebuild-hero-wrap">
-      <div class="rebuild-pill"><i></i>Your next chapter can start with one skill.</div>
-      <h1>
-        <span>You keep seeing people your age</span>
-        <span><b class="rebuild-gradient-text">making money online…</b></span>
-        <span>while you’re still wondering</span>
-        <span>what skill to learn, where to start,</span>
-        <span>and if any of it is actually real.</span>
+      <div class="rebuild-pill"><i></i>LEARN → CREATE → SELL · FOUNDING ACCESS: ₦15,000 · ONLY 50 SPOTS AT THIS PRICE</div>
+      <h1 class="managing-hero-headline">
+        <span>You’ve mastered “managing.”</span>
+        <span>It’s time to stop managing</span>
+        <span><b class="rebuild-gradient-text">and start earning.</b></span>
       </h1>
-      <p class="rebuild-hero-copy">Over 1000 Nigerians including students, corpers, 9-5 workers are using this exact step by step system to generate consistent dollar income. <strong>No portfolio, No experience, No laptop &amp; Zero followers.</strong></p>
+      <p class="rebuild-hero-copy">Managing got you through the month. This gets you an actual raise — one AI skill, sold to real businesses, paid in dollars. Over 1,000 Nigerian students, corpers, and 9–5 workers are already using this exact system. <strong>No portfolio. No experience. No laptop. No followers.</strong></p>
 
       <div class="rebuild-stats">
         <div class="rebuild-stat"><b>3</b><small>High Paying AI Skills</small></div>
@@ -4863,7 +4953,8 @@ html{
         <div class="rebuild-stat"><b>30 Days</b><small>or full refund</small></div>
       </div>
 
-      <a class="rebuild-btn rebuild-hero-btn" href="#system">Show me the system for 15k <span aria-hidden="true">↗</span></a>
+      <a class="rebuild-btn rebuild-hero-btn" href="#payment">Claim one of the last founding spots — ₦15,000 <span aria-hidden="true">→</span></a>
+      <div class="rebuild-scarcity">🔥 Founding price ends at 50 students. <strong>10 spots left</strong> — price moves to ₦25,000 after that.</div>
       <p class="rebuild-micro">Academy, practical resources, starter AI credits and community.</p>
       <div class="rebuild-trust">
         <span>BEGINNER FRIENDLY</span>
@@ -4876,46 +4967,42 @@ html{
 <section class="rebuild-section rebuild-problem" id="problem">
 <div class="wrap rebuild-narrow">
 <div class="rebuild-section-head">
-<div class="rebuild-eyebrow">Does this sound familiar?</div>
-<h2>You are ready to build something.<br>
-<span class="rebuild-gradient-text">You need a clear next step.</span>
-</h2>
-<p>There is plenty of advice about making money online. The harder part is knowing what to learn, what to create and who to approach.</p>
+<h2>Does this sound familiar?</h2>
+<p>You’re not broke because you’re lazy. You’re broke because nobody showed you where to start.</p>
 </div>
 <ol class="rebuild-pain-list">
 <li>
 <div>
-<b>You want a skill. But every video points you in a different direction.</b>
-<p>One says design. Another says AI videos. You need a clear place to start and work you can actually practise.</p>
+<b>You’ve mastered “managing.”</b>
+<p>Managing the salary. Managing the “small small” side hustle ideas. Managing the excuses. It’s exhausting — and it’s not getting you anywhere new.</p>
 </div>
 </li>
 <li>
 <div>
-<b>You can make something nice. You are unsure who would pay for it.</b>
-<p>A saved prompt is useful. A relevant sample and a clear service offer take you further.</p>
+<b>Every video tells you something different.</b>
+<p>Design today, AI videos tomorrow. You don’t need more noise — you need one clear skill and real work to practice on.</p>
 </div>
 </li>
 <li>
 <div>
-<b>You have tried pitching and heard nothing back.</b>
-<p>Finding a business is only the beginning. You need to understand its problem, show useful proof and follow up.</p>
+<b>You’ve pitched before. Silence answered back.</b>
+<p>Finding a business isn’t the hard part — knowing their problem, showing proof, and following up properly is.</p>
 </div>
 </li>
 <li>
 <div>
-<b>School, work or family already takes most of your day.</b>
-<p>You need self-paced lessons and a practical next step whenever you sit down to learn.</p>
+<b>School, work, or family eats your whole day</b>
+<p>— and by the time you’re free, you’re too tired to figure it out alone again.</p>
 </div>
 </li>
 <li>
 <div>
-<b>You want more options for yourself.</b>
-<p>Something you can build, improve and carry with you beyond school, NYSC or your current job.</p>
+<b>You want more than “just fine.”</b>
+<p>Not someday. Now — with what you already have: a phone and 30 days.</p>
 </div>
 </li>
 </ol>
-<div class="rebuild-callout">Fuse Atelier connects the steps: <strong class="rebuild-gradient-text">learn a useful skill → create a sample → find a relevant business → pitch → follow up.</strong>
-</div>
+<div class="rebuild-callout">Fuse Atelier connects the steps you’ve been missing: <strong class="rebuild-gradient-text">learn a skill → create proof → find a business that needs it → pitch → get paid.</strong></div>
 </div>
 </section>
 
@@ -5520,42 +5607,24 @@ html{
 
 <section class="decision-section payment-section" id="payment">
   <div class="wrap decision-wrap payment-wrap">
-    <header class="decision-head centered">
-      <div class="decision-kicker">YOUR NEXT STEP</div>
-      <h2>Choose one skill.<br><span class="decision-gradient">Start building<br>something you can sell.</span></h2>
-      <p>Get the training, resources and client-acquisition process in one founding-access payment.</p>
+    <header class="decision-head centered founding-offer-head">
+      <div class="decision-kicker">FOUNDING ACCESS · 40 OF 50 CLAIMED</div>
+      <h2>Your founding price disappears after <span class="decision-gradient">50 students.</span></h2>
+      <p>Right now, you’re getting the complete system — Academy, Fuse Create, the Money Engine, starter AI credits, community, and the 30-Day Guarantee — for ₦15,000.</p>
+      <p>Once we hit 50 founding students, this price closes. New students pay the standard rate.</p>
     </header>
 
-    <article class="payment-card">
+    <article class="payment-card founding-offer-card">
       <div class="payment-ribbon">FUSE ATELIER · FOUNDING ACCESS</div>
-      <div class="payment-price">₦15,000</div>
-      <p class="payment-note">One access payment. Self-paced learning.</p>
-
-      <div class="payment-includes">
-        <div><i>✓</i><p><b>Design & Flyers</b><span>Learn to create promotional and branded visuals.</span></p></div>
-        <div><i>✓</i><p><b>AI UGC & Influencer</b><span>Learn consistent characters, product images and videos.</span></p></div>
-        <div><i>✓</i><p><b>Landing Page Design</b><span>Learn to build and deliver focused sales pages.</span></p></div>
-        <div><i>✓</i><p><b>The Money Engine</b><span>Research prospects, create samples, pitch and follow up.</span></p></div>
-        <div><i>✓</i><p><b>Fuse Create + starter AI credits</b><span>Put the creative workflow into practice.</span></p></div>
-        <div><i>✓</i><p><b>Client pipeline, prompts + resources</b><span>Keep your work and outreach organised.</span></p></div>
-        <div><i>✓</i><p><b>Private community + practical feedback</b><span>Get direction while you learn and build.</span></p></div>
+      <div class="founding-meter" aria-label="40 of 50 founding spots claimed">
+        <div class="founding-meter-row"><strong>40 of 50 founding spots claimed</strong><span>10 left</span></div>
+        <div class="founding-meter-track"><i></i></div>
       </div>
-
-      <a class="btn payment-cta checkout-link" href="https://wa.me/2349044558101?text=Hi%20Ria!%20I%20want%20Fuse%20Atelier%20Founding%20Access%20for%20%E2%82%A615%2C000.%20Please%20send%20me%20the%20payment%20details%20so%20I%20can%20get%20access.">Join Fuse Atelier — ₦15,000 <span>↗</span></a>
-      <p class="payment-helper">This button opens WhatsApp to arrange payment.</p>
-
-      <div class="payment-steps">
-        <div><i>1</i><p><b>Request access</b><span>Send the prepared message to Ria.</span></p></div>
-        <div><i>2</i><p><b>Get payment details</b><span>Confirm what is included and complete payment.</span></p></div>
-        <div><i>3</i><p><b>Receive your access</b><span>Your access is activated after payment confirmation.</span></p></div>
-      </div>
-
+      <a class="btn payment-cta checkout-link" href="https://wa.me/2349044558101?text=Hi%20Ria!%20I%20want%20Fuse%20Atelier%20Founding%20Access%20for%20%E2%82%A615%2C000.%20Please%20send%20me%20the%20payment%20details%20so%20I%20can%20get%20access.">Claim your spot before it’s gone — ₦15,000 <span>→</span></a>
       <div class="payment-guarantee">
         <b class="decision-gradient">30-Day First-Client Action Guarantee</b>
         <p>Complete the required implementation steps and keep your tracker. <a href="#guarantee">Read the conditions.</a></p>
       </div>
-
-      <p class="payment-credit-note">AI generation is credit-based. Ask for the current starter allocation and top-up pricing before paying.</p>
     </article>
   </div>
 </section>
@@ -5671,8 +5740,8 @@ html{
     </div>
 
     <div class="faq-bottom">
-      <b>your mates already got in, what are you waiting for?</b>
-      <p>Do not wait until “someday” to start building something you can sell.</p>
+      <b>Do not wait until “someday” to stop managing.</b>
+      <p>50 founding spots. Once they’re filled, this price is gone for good.</p>
       <a class="btn checkout-link" href="https://wa.me/2349044558101?text=Hi%20Ria!%20I%20want%20Fuse%20Atelier%20Founding%20Access%20for%20%E2%82%A615%2C000.%20Please%20send%20me%20the%20payment%20details%20so%20I%20can%20get%20access.">Get Founding Access — ₦15,000 →</a>
       <div class="faq-cta-meta"><span><i>✓</i> One founding-access payment</span><span><i>✓</i> Start immediately</span><span><i>✓</i> Mobile-first</span></div>
     </div>
