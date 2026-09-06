@@ -3770,6 +3770,106 @@ body.ref-hero-visible .sticky-cta{display:none!important}
   body .restored-benefits p{font-size:11.5px!important}
   body .restored-reviews .review-card{flex-basis:92%!important;width:92%!important;min-width:92%!important}
 }
+
+/* ===== Sep 6 course skill carousel: buttons + swipe/drag ===== */
+.courses-section .path-switcher{
+  display:flex!important;
+  justify-content:flex-start!important;
+  flex-wrap:nowrap!important;
+  gap:9px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  padding:3px 2px 8px!important;
+  margin:24px auto 0!important;
+  scroll-behavior:smooth!important;
+  scrollbar-width:none!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.courses-section .path-switcher::-webkit-scrollbar{display:none!important}
+.courses-section .path-switcher button{
+  flex:0 0 auto!important;
+  white-space:nowrap!important;
+}
+.courses-section .course-showcase{
+  display:flex!important;
+  grid-template-columns:none!important;
+  gap:18px!important;
+  width:100%!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  scroll-snap-type:x mandatory!important;
+  scroll-padding:0!important;
+  padding:4px 0 18px!important;
+  margin:0!important;
+  scrollbar-width:none!important;
+  -ms-overflow-style:none!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-x:contain!important;
+  touch-action:pan-x pan-y!important;
+  cursor:grab!important;
+  perspective:none!important;
+}
+.courses-section .course-showcase::-webkit-scrollbar{display:none!important}
+.courses-section .course-showcase.is-dragging{
+  cursor:grabbing!important;
+  scroll-snap-type:none!important;
+  user-select:none!important;
+}
+.courses-section .course-showcase>.course-feature{
+  flex:0 0 min(860px,86vw)!important;
+  width:min(860px,86vw)!important;
+  min-width:min(860px,86vw)!important;
+  scroll-snap-align:start!important;
+  scroll-snap-stop:always!important;
+  margin:0!important;
+  transform:none!important;
+  perspective:none!important;
+}
+.courses-section .course-showcase>.course-feature.phase3-card,
+.courses-section .course-showcase>.course-feature.phase3-card.phase3-active{
+  transform:none!important;
+}
+.courses-section .course-showcase>.course-feature .course-feature-media,
+.courses-section .course-showcase>.course-feature .course-feature-body{
+  transform:none!important;
+}
+@media(max-width:680px){
+  .courses-section .courses-intro{
+    overflow:visible!important;
+  }
+  .courses-section .path-switcher{
+    width:calc(100vw - 22px)!important;
+    margin-left:calc((100% - (100vw - 22px))/2)!important;
+    padding-right:22px!important;
+  }
+  .courses-section .path-switcher button{
+    padding:11px 16px!important;
+    font-size:11px!important;
+  }
+  .courses-section .course-showcase{
+    width:calc(100vw - 22px)!important;
+    margin-left:calc((100% - (100vw - 22px))/2)!important;
+    gap:12px!important;
+    padding-right:16px!important;
+    padding-bottom:14px!important;
+  }
+  .courses-section .course-showcase>.course-feature{
+    flex:0 0 calc(100vw - 40px)!important;
+    width:calc(100vw - 40px)!important;
+    min-width:calc(100vw - 40px)!important;
+    border-radius:24px!important;
+  }
+  .courses-section .course-feature-media{
+    height:250px!important;
+  }
+  .courses-section .course-feature-body{
+    padding:21px!important;
+  }
+  .courses-section .course-feature h3{
+    font-size:clamp(31px,8.6vw,38px)!important;
+    line-height:.98!important;
+  }
+}
 </style>
 </head>
 <body id="top">
@@ -4699,20 +4799,82 @@ body.ref-hero-visible .sticky-cta{display:none!important}
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLesson();});
 
   var courseButtons=[].slice.call(document.querySelectorAll('[data-course-target]'));
+  var courseRail=document.querySelector('.course-showcase');
+  var courseCards=courseRail?[].slice.call(courseRail.querySelectorAll('.course-feature[id]')):[];
+
+  function setActiveCourse(id,centerButton){
+    courseButtons.forEach(function(b){
+      var active=b.dataset.courseTarget===id;
+      b.classList.toggle('active',active);
+      b.setAttribute('aria-pressed',active?'true':'false');
+      if(active&&centerButton&&b.parentElement){
+        var switcher=b.parentElement;
+        var left=b.offsetLeft-(switcher.clientWidth-b.offsetWidth)/2;
+        switcher.scrollTo({left:Math.max(0,left),behavior:'smooth'});
+      }
+    });
+  }
+
+  function scrollCourseTo(target,behavior){
+    if(!courseRail||!target)return;
+    var railRect=courseRail.getBoundingClientRect();
+    var cardRect=target.getBoundingClientRect();
+    var left=courseRail.scrollLeft+(cardRect.left-railRect.left);
+    courseRail.scrollTo({left:left,behavior:behavior||'smooth'});
+  }
+
   courseButtons.forEach(function(btn){
+    btn.setAttribute('aria-pressed','false');
     btn.addEventListener('click',function(){
       var target=document.getElementById(btn.dataset.courseTarget);
-      if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
+      if(!target)return;
+      scrollCourseTo(target,'smooth');
+      setActiveCourse(target.id,true);
     });
   });
-  if('IntersectionObserver' in window && courseButtons.length){
-    var courseObserver=new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){
-        if(!entry.isIntersecting)return;
-        courseButtons.forEach(function(b){b.classList.toggle('active',b.dataset.courseTarget===entry.target.id);});
+
+  if(courseCards.length){
+    setActiveCourse(courseCards[0].id,false);
+  }
+
+  if(courseRail&&courseCards.length){
+    var courseTick=0;
+    courseRail.addEventListener('scroll',function(){
+      if(courseTick)return;
+      courseTick=requestAnimationFrame(function(){
+        courseTick=0;
+        var railRect=courseRail.getBoundingClientRect();
+        var railCenter=railRect.left+railRect.width/2;
+        var nearest=courseCards[0],best=Infinity;
+        courseCards.forEach(function(card){
+          var r=card.getBoundingClientRect();
+          var center=r.left+r.width/2;
+          var d=Math.abs(center-railCenter);
+          if(d<best){best=d;nearest=card;}
+        });
+        if(nearest)setActiveCourse(nearest.id,true);
       });
-    },{rootMargin:'-30% 0px -55% 0px',threshold:.05});
-    document.querySelectorAll('.course-feature[id]').forEach(function(card){courseObserver.observe(card);});
+    },{passive:true});
+
+    // Mouse/trackpad users can drag the same rail; touch keeps native swipe.
+    var dragging=false,startX=0,startScroll=0;
+    courseRail.addEventListener('pointerdown',function(e){
+      if(e.pointerType==='touch')return;
+      dragging=true;startX=e.clientX;startScroll=courseRail.scrollLeft;
+      courseRail.classList.add('is-dragging');
+      try{courseRail.setPointerCapture(e.pointerId);}catch(_){}
+    });
+    courseRail.addEventListener('pointermove',function(e){
+      if(!dragging)return;
+      courseRail.scrollLeft=startScroll-(e.clientX-startX);
+    });
+    function endCourseDrag(e){
+      if(!dragging)return;
+      dragging=false;courseRail.classList.remove('is-dragging');
+      try{courseRail.releasePointerCapture(e.pointerId);}catch(_){}
+    }
+    courseRail.addEventListener('pointerup',endCourseDrag);
+    courseRail.addEventListener('pointercancel',endCourseDrag);
   }
 
   document.querySelectorAll('.module-rail').forEach(function(rail,index){
