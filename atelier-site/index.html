@@ -3870,6 +3870,452 @@ body.ref-hero-visible .sticky-cta{display:none!important}
     line-height:.98!important;
   }
 }
+
+/* ===== Sep 6 post-video guarantee + resources + payment sequence ===== */
+.offer-video-only{
+  padding:0 0 38px!important;
+  background:#03110f!important;
+}
+.offer-video-only .final-offer-wrap{
+  display:block!important;
+}
+.offer-video-only .final-offer-video{
+  margin:0 auto!important;
+  max-width:820px!important;
+}
+
+.decision-section{
+  padding:82px 0;
+  border-top:1px solid rgba(255,255,255,.075);
+  background:#03110f;
+}
+.decision-wrap{
+  width:min(calc(100% - 42px),860px);
+  margin:0 auto;
+}
+.decision-head{
+  margin-bottom:34px;
+}
+.decision-head.centered{text-align:center}
+.decision-kicker{
+  display:inline-block;
+  margin-bottom:16px;
+  font-size:10px;
+  font-weight:950;
+  line-height:1.4;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  -webkit-text-fill-color:transparent;
+}
+.decision-head h2{
+  margin:0;
+  font-family:"Bricolage Grotesque",Inter,sans-serif;
+  font-size:clamp(46px,7vw,74px);
+  line-height:.96;
+  letter-spacing:-.055em;
+  color:#f5fbf7;
+}
+.decision-gradient{
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent!important;
+  -webkit-text-fill-color:transparent!important;
+}
+.decision-head>p{
+  max-width:680px;
+  margin:20px 0 0;
+  color:#9eafa9;
+  font-size:18px;
+  line-height:1.65;
+}
+.decision-head.centered>p{
+  margin-left:auto;
+  margin-right:auto;
+}
+
+/* Guarantee */
+.guarantee-section{background:#04130f}
+.guarantee-panel{
+  padding:52px 42px;
+  border:1px solid rgba(186,255,99,.26);
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,229,104,.06),transparent 30%),
+    #0a1d16;
+  text-align:center;
+}
+.guarantee-day{
+  width:126px;
+  height:126px;
+  margin:0 auto 34px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  border:2px solid #ffe568;
+  font-family:"Bricolage Grotesque",sans-serif;
+  font-size:54px;
+  font-weight:800;
+  color:#ffe568;
+}
+.guarantee-panel h3{
+  margin:0;
+  font-family:"Bricolage Grotesque",sans-serif;
+  font-size:clamp(35px,5vw,52px);
+  line-height:1.02;
+  letter-spacing:-.045em;
+}
+.guarantee-lead{
+  max-width:650px;
+  margin:28px auto 34px;
+  color:#a8b9b2;
+  font-size:18px;
+  line-height:1.65;
+}
+.guarantee-steps{
+  display:grid;
+  gap:14px;
+  max-width:690px;
+  margin:0 auto;
+  text-align:left;
+}
+.guarantee-step{
+  padding:22px 24px;
+  border:1px solid rgba(186,255,99,.20);
+  background:#10251b;
+}
+.guarantee-step b{
+  display:block;
+  font-size:15px;
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.guarantee-step p{
+  margin:10px 0 0;
+  color:#edf4f0;
+  font-size:16px;
+  line-height:1.55;
+}
+.guarantee-note{
+  max-width:650px;
+  margin:34px auto 0;
+  color:#9eafa9;
+  font-size:17px;
+  line-height:1.65;
+}
+
+/* Resources */
+.resources-section{background:#061713}
+.resources-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  border:1px solid rgba(255,255,255,.09);
+  border-right:0;
+  border-bottom:0;
+}
+.resource-card{
+  min-height:290px;
+  padding:34px 30px;
+  border-right:1px solid rgba(255,255,255,.09);
+  border-bottom:1px solid rgba(255,255,255,.09);
+  background:#082019;
+}
+.resource-icon{
+  margin-bottom:36px;
+  font-size:34px;
+  line-height:1;
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.resource-card h3{
+  margin:0;
+  font-size:26px;
+  line-height:1.12;
+  letter-spacing:-.035em;
+}
+.resource-card p{
+  margin:18px 0 0;
+  color:#9eafa9;
+  font-size:16px;
+  line-height:1.6;
+}
+.resource-card>b{
+  display:block;
+  margin-top:28px;
+  font-size:11px;
+  letter-spacing:.12em;
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.resources-summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:26px;
+  margin-top:18px;
+  padding:28px 30px;
+  border:1px solid rgba(255,255,255,.10);
+  background:#082019;
+}
+.resources-summary small{
+  display:block;
+  margin-bottom:9px;
+  color:#9eafa9;
+  font-size:11px;
+  letter-spacing:.12em;
+}
+.resources-summary strong{
+  font-size:26px;
+  line-height:1.25;
+}
+.resources-summary>span{
+  flex:0 0 auto;
+  padding:12px 16px;
+  border:1px solid rgba(255,229,104,.25);
+  background:#2b2411;
+  font-size:11px;
+  font-weight:900;
+  line-height:1.4;
+  letter-spacing:.08em;
+  background-image:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+/* Payment */
+.payment-section{background:#071812}
+.payment-wrap{max-width:820px}
+.payment-card{
+  padding:42px 38px 38px;
+  border:1px solid rgba(186,255,99,.26);
+  background:
+    radial-gradient(circle at 50% 0%,rgba(186,255,99,.055),transparent 26%),
+    #0a2119;
+}
+.payment-ribbon{
+  width:max-content;
+  max-width:100%;
+  margin:0 auto 38px;
+  padding:14px 22px;
+  background:var(--grad);
+  color:#07120f;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.10em;
+}
+.payment-price{
+  text-align:center;
+  font-family:"Bricolage Grotesque",sans-serif;
+  font-size:clamp(72px,11vw,110px);
+  line-height:.95;
+  font-weight:850;
+  letter-spacing:-.06em;
+  color:#f6fbf8;
+}
+.payment-note{
+  margin:18px 0 36px;
+  text-align:center;
+  color:#a5b7b0;
+  font-size:17px;
+}
+.payment-includes{
+  display:grid;
+  gap:24px;
+  padding:34px 0;
+  border-top:1px solid rgba(255,255,255,.10);
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+.payment-includes>div,
+.payment-steps>div{
+  display:grid;
+  grid-template-columns:32px 1fr;
+  gap:14px;
+  align-items:start;
+}
+.payment-includes i,
+.payment-steps i{
+  font-style:normal;
+  font-size:24px;
+  font-weight:900;
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.payment-includes p,
+.payment-steps p{margin:0}
+.payment-includes b,
+.payment-steps b{
+  display:block;
+  color:#f4faf7;
+  font-size:18px;
+  line-height:1.35;
+}
+.payment-includes span,
+.payment-steps span{
+  display:block;
+  margin-top:6px;
+  color:#9eafa9;
+  font-size:15px;
+  line-height:1.55;
+}
+.payment-cta{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:28px!important;
+  width:100%!important;
+  min-height:68px!important;
+  margin-top:34px!important;
+  border:0!important;
+  border-radius:6px!important;
+  background:var(--grad)!important;
+  color:#07120f!important;
+  font-size:19px!important;
+  font-weight:900!important;
+}
+.payment-cta span{font-size:26px}
+.payment-helper{
+  margin:18px 0 28px;
+  text-align:center;
+  color:#9eafa9;
+  font-size:15px;
+}
+.payment-steps{
+  display:grid;
+  gap:24px;
+  padding-top:6px;
+}
+.payment-guarantee{
+  margin-top:30px;
+  padding:24px 26px;
+  border:1px solid rgba(255,255,255,.10);
+  border-left:4px solid #ffe568;
+  background:#10251c;
+}
+.payment-guarantee b{
+  display:block;
+  font-size:20px;
+}
+.payment-guarantee p{
+  margin:8px 0 0;
+  color:#edf4f0;
+  font-size:16px;
+  line-height:1.55;
+}
+.payment-guarantee a{
+  color:#edf4f0;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+.payment-credit-note{
+  max-width:620px;
+  margin:28px auto 0;
+  text-align:center;
+  color:#9eafa9;
+  font-size:15px;
+  line-height:1.6;
+}
+
+@media(max-width:700px){
+  .offer-video-only{padding-bottom:28px!important}
+  .decision-section{padding:58px 0}
+  .decision-wrap{width:calc(100% - 36px)}
+  .decision-head{margin-bottom:26px}
+  .decision-kicker{font-size:9px;margin-bottom:12px}
+  .decision-head h2{
+    font-size:clamp(39px,11vw,52px);
+    line-height:.98;
+  }
+  .decision-head>p{
+    margin-top:15px;
+    font-size:15px;
+    line-height:1.62;
+  }
+
+  .guarantee-panel{padding:34px 20px}
+  .guarantee-day{
+    width:96px;height:96px;margin-bottom:28px;font-size:43px
+  }
+  .guarantee-panel h3{font-size:34px}
+  .guarantee-lead{
+    margin:22px auto 26px;
+    font-size:15px;
+    line-height:1.62;
+  }
+  .guarantee-step{padding:18px 16px}
+  .guarantee-step b{font-size:14px}
+  .guarantee-step p{font-size:14px}
+  .guarantee-note{
+    margin-top:26px;
+    font-size:14px;
+    line-height:1.65;
+  }
+
+  .resources-grid{
+    grid-template-columns:1fr!important;
+  }
+  .resource-card{
+    min-height:0;
+    padding:28px 22px;
+  }
+  .resource-icon{
+    margin-bottom:24px;
+    font-size:30px;
+  }
+  .resource-card h3{font-size:25px}
+  .resource-card p{font-size:15px}
+  .resource-card>b{font-size:10px;margin-top:22px}
+  .resources-summary{
+    padding:20px 18px;
+    gap:16px;
+  }
+  .resources-summary small{font-size:9px}
+  .resources-summary strong{font-size:20px}
+  .resources-summary>span{font-size:9px;padding:10px 12px}
+
+  .payment-card{padding:30px 22px}
+  .payment-ribbon{
+    margin-bottom:30px;
+    padding:12px 14px;
+    font-size:10px;
+    text-align:center;
+  }
+  .payment-price{font-size:70px}
+  .payment-note{font-size:15px;margin-bottom:28px}
+  .payment-includes{
+    gap:22px;
+    padding:28px 0;
+  }
+  .payment-includes>div,
+  .payment-steps>div{
+    grid-template-columns:28px 1fr;
+    gap:12px;
+  }
+  .payment-includes i,.payment-steps i{font-size:21px}
+  .payment-includes b,.payment-steps b{font-size:17px}
+  .payment-includes span,.payment-steps span{font-size:14px}
+  .payment-cta{
+    min-height:60px!important;
+    margin-top:28px!important;
+    font-size:16px!important;
+  }
+  .payment-helper{font-size:13px}
+  .payment-guarantee{padding:20px 18px}
+  .payment-guarantee b{font-size:18px}
+  .payment-guarantee p{font-size:14px}
+  .payment-credit-note{font-size:13px}
+}
 </style>
 </head>
 <body id="top">
@@ -4471,86 +4917,133 @@ body.ref-hero-visible .sticky-cta{display:none!important}
 
 
 
-<section class="final-offer-section" id="offer">
+
+<section class="final-offer-section offer-video-only" id="offer">
   <div class="wrap final-offer-wrap">
     <div class="final-offer-video" aria-label="Fuse Atelier AI UGC example">
       <video src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/founding/client-proof-loop-v2.mp4" poster="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/founding/ai-ugc-hq.jpg" muted loop playsinline preload="none"></video>
     </div>
+  </div>
+</section>
 
-    <article class="final-pricing-card">
-      <div class="final-pricing-ribbon">
-        <span>FOUNDING ACCESS · ONE PAYMENT</span>
-        <b>₦15,000</b>
+<section class="decision-section guarantee-section" id="guarantee">
+  <div class="wrap decision-wrap">
+    <header class="decision-head">
+      <div class="decision-kicker">SUPPORT YOUR DECISION WITH CLEAR TERMS</div>
+      <h2>Your 30-day<br><span class="decision-gradient">First-Client Action Guarantee.</span></h2>
+    </header>
+
+    <article class="guarantee-panel">
+      <div class="guarantee-day">30</div>
+      <h3 class="decision-gradient">Do the work. Keep<br>your action tracker.</h3>
+      <p class="guarantee-lead">Complete the required lessons, assignments, prospecting, pitching and follow-up exactly as taught for 30 days. If you still have not landed your first paying client, submit your completed action tracker and request a refund of your ₦15,000 access payment.</p>
+
+      <div class="guarantee-steps">
+        <div class="guarantee-step">
+          <b>01 · Learn + practise</b>
+          <p>Complete the required lessons and assignments.</p>
+        </div>
+        <div class="guarantee-step">
+          <b>02 · Take action</b>
+          <p>Follow the prospecting, pitching and follow-up process for 30 days.</p>
+        </div>
+        <div class="guarantee-step">
+          <b>03 · Keep your record</b>
+          <p>Submit your completed tracker if you need to request a refund.</p>
+        </div>
       </div>
 
-      <div class="final-pricing-body">
-        <div class="final-offer-eyebrow">YOU DO NOT NEED MORE SAVED TUTORIALS. YOU NEED A PATH.</div>
-        <h2>Learn it. Prove it. <span class="teal-flow">Sell it.</span></h2>
-        <p class="final-offer-lead">One payment gives you the Academy, creation workflow, client pipeline, Money Engine, community and starter resources that connect learning → proof → prospecting → outreach.</p>
+      <p class="guarantee-note">This guarantee is conditional on implementation. Watching lessons alone does not qualify. Ask Ria for the required action checklist and refund process before paying.</p>
+    </article>
+  </div>
+</section>
 
-        <div class="final-price-block">
-          <div class="final-price-label">Founding member price</div>
-          <div class="final-price"><span>₦</span>15,000</div>
-          <div class="final-price-note">One founding-access payment</div>
-        </div>
+<section class="decision-section resources-section">
+  <div class="wrap decision-wrap">
+    <header class="decision-head">
+      <div class="decision-kicker">INCLUDED WITH FOUNDING ACCESS</div>
+      <h2>Resources that help you<br><span class="decision-gradient">get on with the work.</span></h2>
+      <p>Use the practical support alongside your training, from the first sample to your next follow-up.</p>
+    </header>
 
-        <div class="final-offer-pills" aria-label="Fuse Atelier access areas">
-          <span>Academy</span><span>Create</span><span>Clients</span><span>Community</span>
-        </div>
+    <div class="resources-grid">
+      <article class="resource-card">
+        <div class="resource-icon">✦</div>
+        <h3>Prompts + templates</h3>
+        <p>Use the curated resources inside Fuse to support your creative workflow and practise the methods you learn.</p>
+        <b>INCLUDED</b>
+      </article>
 
-        <div class="final-includes">
-          <div class="final-include">
-            <i>✓</i>
-            <div><b>Fuse Academy — 4 complete learning paths</b><span>Design & Flyers, AI UGC & Influencer, Landing Pages and The Money Engine.</span></div>
-          </div>
-          <div class="final-include">
-            <i>✓</i>
-            <div><b>Fuse Create + starter AI credits</b><span>Move from lesson to real samples, product visuals and client-ready creative work without leaving the ecosystem.</span></div>
-          </div>
-          <div class="final-include">
-            <i>✓</i>
-            <div><b>Fuse Clients — your prospecting + sales workspace</b><span>Organize prospects, attach samples, track pitches, follow up and move opportunities through your pipeline.</span></div>
-          </div>
-          <div class="final-include">
-            <i>✓</i>
-            <div><b>Private community + practical feedback</b><span>Learn alongside other builders, ask questions, get direction and keep implementing instead of getting stuck alone.</span></div>
-          </div>
-          <div class="final-include">
-            <i>✓</i>
-            <div><b>Prompts, templates, resources + founding updates</b><span>Use the curated assets inside the system and benefit from improvements released as Fuse Atelier grows.</span></div>
-          </div>
-        </div>
+      <article class="resource-card">
+        <div class="resource-icon">↗</div>
+        <h3>Prospecting + pitch workflow</h3>
+        <p>Use the Money Engine process to research businesses, prepare samples and plan relevant outreach.</p>
+        <b>INCLUDED</b>
+      </article>
 
-        <div class="final-bonus">
-          <div class="final-bonus-icon">✦</div>
-          <div><b>Built for implementation, not another certificate.</b><span>You learn the skill, create the proof, identify relevant prospects and run the outreach loop instead of stopping at “course completed.”</span></div>
-        </div>
+      <article class="resource-card">
+        <div class="resource-icon">◎</div>
+        <h3>Community + feedback</h3>
+        <p>Ask questions, share your work and get direction while you build your skill.</p>
+        <b>INCLUDED</b>
+      </article>
 
-        <div class="action-guarantee" id="guarantee">
-          <div class="action-guarantee-seal">30</div>
-          <div>
-            <b>30-Day First-Client Action Guarantee</b>
-            <p>Do the required lessons, assignments, prospecting, pitching and follow-up exactly as taught for 30 days. If you still have not landed your first paying client, send your completed action tracker and request a refund of your ₦15,000 Fuse Atelier access payment.</p>
-            <small>This is an action-based guarantee: completing the required implementation steps is necessary to qualify. Watching the training without doing the work does not qualify.</small>
-          </div>
-        </div>
+      <article class="resource-card">
+        <div class="resource-icon">◇</div>
+        <h3>Starter AI credits</h3>
+        <p>Start creating with included credits. AI generation uses credits; further generation can require a paid top-up.</p>
+        <b>STARTER ALLOCATION INCLUDED</b>
+      </article>
+    </div>
 
-        <div class="checkout-steps" aria-label="What happens after you join">
-          <div><i>01</i><b>Tap “Get access”</b><span>WhatsApp opens with your request ready to send.</span></div>
-          <div><i>02</i><b>Get payment details</b><span>Complete the founding-access payment using the current instructions.</span></div>
-          <div><i>03</i><b>Enter Fuse Atelier</b><span>Your access is activated after payment is confirmed.</span></div>
-        </div>
-
-        <a class="btn final-checkout checkout-link" href="https://wa.me/2349044558101?text=Hi%20Ria!%20I%20want%20Fuse%20Atelier%20Founding%20Access%20for%20%E2%82%A615%2C000.%20Please%20send%20me%20the%20payment%20details%20so%20I%20can%20get%20access.">Start Building My Skill — ₦15,000 →</a>
-
-        <div class="final-trust">
-          <span>✓ Mobile-first</span>
-          <span>✓ Start immediately</span>
-          <span>✓ 30-day action guarantee</span>
-          <span>✓ One founding-access payment</span>
-        </div>
-        <p class="final-credit-note">AI generation uses credits. Founding access includes starter credits; extra generation can be topped up when needed. Results depend on your work, prospect selection, outreach and follow-up.</p>
+    <div class="resources-summary">
+      <div>
+        <small>ONE CONNECTED STARTING POINT</small>
+        <strong>Lessons + practise +<br>client acquisition</strong>
       </div>
+      <span>FOUNDING<br>ACCESS</span>
+    </div>
+  </div>
+</section>
+
+<section class="decision-section payment-section" id="payment">
+  <div class="wrap decision-wrap payment-wrap">
+    <header class="decision-head centered">
+      <div class="decision-kicker">YOUR NEXT STEP</div>
+      <h2>Choose one skill.<br><span class="decision-gradient">Start building<br>something you can sell.</span></h2>
+      <p>Get the training, resources and client-acquisition process in one founding-access payment.</p>
+    </header>
+
+    <article class="payment-card">
+      <div class="payment-ribbon">FUSE ATELIER · FOUNDING ACCESS</div>
+      <div class="payment-price">₦15,000</div>
+      <p class="payment-note">One access payment. Self-paced learning.</p>
+
+      <div class="payment-includes">
+        <div><i>✓</i><p><b>Design & Flyers</b><span>Learn to create promotional and branded visuals.</span></p></div>
+        <div><i>✓</i><p><b>AI UGC & Influencer</b><span>Learn consistent characters, product images and videos.</span></p></div>
+        <div><i>✓</i><p><b>Landing Page Design</b><span>Learn to build and deliver focused sales pages.</span></p></div>
+        <div><i>✓</i><p><b>The Money Engine</b><span>Research prospects, create samples, pitch and follow up.</span></p></div>
+        <div><i>✓</i><p><b>Fuse Create + starter AI credits</b><span>Put the creative workflow into practice.</span></p></div>
+        <div><i>✓</i><p><b>Client pipeline, prompts + resources</b><span>Keep your work and outreach organised.</span></p></div>
+        <div><i>✓</i><p><b>Private community + practical feedback</b><span>Get direction while you learn and build.</span></p></div>
+      </div>
+
+      <a class="btn payment-cta checkout-link" href="https://wa.me/2349044558101?text=Hi%20Ria!%20I%20want%20Fuse%20Atelier%20Founding%20Access%20for%20%E2%82%A615%2C000.%20Please%20send%20me%20the%20payment%20details%20so%20I%20can%20get%20access.">Join Fuse Atelier — ₦15,000 <span>↗</span></a>
+      <p class="payment-helper">This button opens WhatsApp to arrange payment.</p>
+
+      <div class="payment-steps">
+        <div><i>1</i><p><b>Request access</b><span>Send the prepared message to Ria.</span></p></div>
+        <div><i>2</i><p><b>Get payment details</b><span>Confirm what is included and complete payment.</span></p></div>
+        <div><i>3</i><p><b>Receive your access</b><span>Your access is activated after payment confirmation.</span></p></div>
+      </div>
+
+      <div class="payment-guarantee">
+        <b class="decision-gradient">30-Day First-Client Action Guarantee</b>
+        <p>Complete the required implementation steps and keep your tracker. <a href="#guarantee">Read the conditions.</a></p>
+      </div>
+
+      <p class="payment-credit-note">AI generation is credit-based. Ask for the current starter allocation and top-up pricing before paying.</p>
     </article>
   </div>
 </section>
