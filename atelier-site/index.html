@@ -2644,6 +2644,253 @@ body.ref-hero-visible .sticky-cta{display:none!important}
   .rebuild-hero h1{font-size:29px!important}
   .rebuild-hero-copy{font-size:11px!important}
 }
+
+/* ===== Sep 6 offer-card alignment + 3D mechanism + compact ecosystem ===== */
+.rebuild-offer-item{
+  grid-template-columns:28px minmax(0,1fr) auto!important;
+  align-items:start!important;
+  min-height:118px;
+  border-radius:7px!important;
+}
+.rebuild-offer-copy{min-width:0}
+.rebuild-tag{
+  grid-column:3!important;
+  grid-row:1!important;
+  justify-self:end!important;
+  align-self:start!important;
+  white-space:nowrap!important;
+}
+
+.rebuild-skill-mechanism-3d{
+  position:relative;
+  overflow:hidden;
+  padding:28px 26px 30px!important;
+  border-radius:24px!important;
+  background:
+    radial-gradient(circle at 50% 76%,rgba(186,255,99,.10),transparent 34%),
+    radial-gradient(circle at 20% 10%,rgba(255,229,104,.055),transparent 32%),
+    #04120f!important;
+  border:1px solid rgba(186,255,99,.28)!important;
+}
+.rebuild-mechanism-intro{
+  max-width:620px;margin:9px 0 0;color:#82978f;font-size:11px;line-height:1.5
+}
+.rebuild-3d-stage{
+  position:relative;
+  height:335px;
+  margin:26px auto 12px;
+  max-width:720px;
+  perspective:1100px;
+  transform-style:preserve-3d;
+}
+.rebuild-3d-card{
+  position:absolute;
+  width:220px;
+  min-height:112px;
+  padding:18px 17px;
+  border:1px solid rgba(186,255,99,.22);
+  border-radius:20px;
+  background:linear-gradient(145deg,#0b2a22,#061713 72%);
+  box-shadow:0 22px 55px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.03);
+  transform-style:preserve-3d;
+}
+.rebuild-3d-card:before{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.035),transparent 35%,rgba(186,255,99,.035));
+}
+.rebuild-3d-card span{
+  display:block;font-size:7.5px;font-weight:900;letter-spacing:.14em;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent
+}
+.rebuild-3d-card b{
+  display:block;margin-top:7px;font-family:"Bricolage Grotesque",sans-serif;
+  font-size:23px;line-height:1;letter-spacing:-.04em;color:#f4fbf7
+}
+.rebuild-3d-card small{display:block;margin-top:6px;color:#748a82;font-size:9.5px}
+.rebuild-3d-card.step-1{left:2%;top:32px;transform:rotate(-7deg) rotateY(8deg) translateZ(12px)}
+.rebuild-3d-card.step-2{left:21%;top:132px;transform:rotate(1deg) translateZ(38px);z-index:4}
+.rebuild-3d-card.step-3{left:39%;top:20px;transform:rotate(5deg) rotateY(-6deg) translateZ(18px);z-index:3}
+.rebuild-3d-card.step-4{right:20%;top:145px;transform:rotate(-2deg) translateZ(34px);z-index:5}
+.rebuild-3d-card.step-5{right:1%;top:42px;transform:rotate(7deg) rotateY(-8deg) translateZ(8px);z-index:2}
+.rebuild-3d-progress{
+  position:relative;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;
+  max-width:540px;margin:0 auto 12px
+}
+.rebuild-3d-progress:before{
+  content:"";position:absolute;left:8%;right:8%;height:2px;
+  background:var(--grad);opacity:.55
+}
+.rebuild-3d-progress i{
+  position:relative;z-index:2;width:16px;height:16px;border-radius:50%;justify-self:center;
+  background:var(--grad);box-shadow:0 0 0 7px rgba(186,255,99,.08),0 0 18px rgba(186,255,99,.22)
+}
+.rebuild-result-pill{
+  width:max-content;max-width:100%;margin:12px auto 0;padding:14px 24px;border-radius:999px;
+  display:flex;align-items:center;gap:14px;background:var(--grad);color:#07120f;
+  box-shadow:0 20px 50px rgba(186,255,99,.10)
+}
+.rebuild-result-pill span{font-size:8px;font-weight:900;letter-spacing:.18em;opacity:.65}
+.rebuild-result-pill b{font-size:17px;letter-spacing:.02em}.rebuild-result-pill strong{font-size:18px}
+.rebuild-result-path{
+  display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:18px;
+  color:#647b72;font-size:9px;font-weight:800
+}
+.rebuild-result-path b{color:#426157}
+
+.rebuild-ecosystem{
+  display:grid;gap:14px;margin-top:34px
+}
+.rebuild-ecosystem-kicker{
+  width:max-content;margin:0 auto 6px;padding:9px 18px;border:1px solid rgba(186,255,99,.20);
+  border-radius:999px;background:#061713;color:#d9e6e0;font-size:9px;font-weight:900;letter-spacing:.14em
+}
+.rebuild-system-card{
+  position:relative;min-height:500px;border-radius:28px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.09);box-shadow:0 22px 60px rgba(0,0,0,.28);isolation:isolate
+}
+.rebuild-system-card:before{
+  content:"";position:absolute;inset:0;z-index:-2
+}
+.rebuild-system-card:after{
+  content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(2,10,8,.04),rgba(2,10,8,.28) 50%,rgba(2,10,8,.78) 100%)
+}
+.rebuild-system-card.academy-card:before{
+  background:radial-gradient(circle at 75% 20%,rgba(186,255,99,.18),transparent 30%),linear-gradient(145deg,#0c352b,#061713 68%,#03110f)
+}
+.rebuild-system-card.create-card:before{
+  background:var(--grad)
+}
+.rebuild-system-card.clients-card:before{
+  background:radial-gradient(circle at 74% 18%,rgba(186,255,99,.14),transparent 30%),linear-gradient(145deg,#0a3027,#051713 70%,#020b09)
+}
+.rebuild-system-card.create-card:after{
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(7,18,15,.06) 45%,rgba(7,18,15,.22) 100%)
+}
+.rebuild-system-copy{
+  position:relative;z-index:2;padding:26px 28px;max-width:560px
+}
+.rebuild-system-label{
+  margin-bottom:10px;font-size:9px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent
+}
+.rebuild-system-card.create-card .rebuild-system-label{
+  color:#07120f;background:none;-webkit-text-fill-color:#07120f
+}
+.rebuild-system-copy h3{
+  max-width:12ch;margin:0;font-family:"Bricolage Grotesque",sans-serif;
+  font-size:clamp(32px,4.6vw,46px);line-height:.98;letter-spacing:-.05em
+}
+.rebuild-system-copy p{
+  max-width:34em;margin:13px 0 0;color:#b3c5be;font-size:14px;line-height:1.55
+}
+.rebuild-system-card.create-card .rebuild-system-copy h3,
+.rebuild-system-card.create-card .rebuild-system-copy p{color:#07120f}
+.rebuild-system-media{
+  position:absolute;left:24px;right:24px;bottom:22px;height:245px;border-radius:22px;
+  overflow:hidden;border:1px solid rgba(255,255,255,.10);background:#061713;
+  box-shadow:0 20px 48px rgba(0,0,0,.26)
+}
+.rebuild-system-media img{width:100%;height:100%;object-fit:cover}
+.rebuild-academy-ui,.rebuild-sell-ui{
+  height:100%;padding:13px;background:linear-gradient(180deg,#061b16,#03110f)
+}
+.rebuild-academy-ui{display:grid;grid-template-rows:auto 1fr;gap:9px}
+.rebuild-ui-head{
+  display:flex;justify-content:space-between;align-items:center;color:#7f948c;
+  font-size:8px;text-transform:uppercase;letter-spacing:.12em
+}
+.rebuild-ui-head b{
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent
+}
+.rebuild-academy-list{display:grid;gap:7px}
+.rebuild-academy-course{
+  display:grid;grid-template-columns:38px 1fr auto;gap:9px;align-items:center;
+  padding:9px;border:1px solid rgba(255,255,255,.08);border-radius:13px;background:#082019
+}
+.rebuild-academy-course.active{
+  border-color:rgba(186,255,99,.40);background:linear-gradient(120deg,rgba(186,255,99,.08),#082019)
+}
+.rebuild-academy-icon{
+  width:38px;height:38px;border-radius:10px;display:grid;place-items:center;
+  background:#0d2b23;color:#cfff72;font-size:16px
+}
+.rebuild-academy-course b{display:block;font-size:10px}
+.rebuild-academy-course small{display:block;margin-top:2px;color:#71867e;font-size:7.3px}
+.rebuild-academy-status{
+  font-size:6.5px;font-weight:900;border-radius:999px;padding:5px 7px;
+  border:1px solid rgba(186,255,99,.22);color:#dfffad
+}
+.rebuild-system-card.create-card{min-height:620px}
+.rebuild-system-card.create-card .create-media{
+  left:50%;right:auto;width:min(calc(100% - 48px),430px);height:auto;aspect-ratio:4/5;
+  transform:translateX(-50%);background:#171713
+}
+.rebuild-system-card.create-card .create-media img{object-fit:contain;background:#171713}
+.rebuild-sell-ui{display:grid;gap:8px}
+.rebuild-sell-row{
+  display:grid;grid-template-columns:1fr auto;gap:9px;align-items:center;
+  padding:11px;border:1px solid rgba(255,255,255,.08);border-radius:13px;background:#082019
+}
+.rebuild-sell-row b{font-size:11px}.rebuild-sell-row span{display:block;margin-top:2px;color:#71867e;font-size:8px}
+.rebuild-sell-stage{
+  font-size:7px;font-weight:900;border:1px solid rgba(186,255,99,.20);color:#dfffad;
+  background:rgba(186,255,99,.04);padding:6px 8px;border-radius:999px
+}
+.rebuild-ecosystem-outro{
+  max-width:680px;margin:18px auto 2px;text-align:center;font-family:"Bricolage Grotesque",sans-serif;
+  font-size:clamp(24px,3.2vw,34px);line-height:1.05;letter-spacing:-.04em;color:#e7f4ee
+}
+
+@media(max-width:700px){
+  .rebuild-offer-item{
+    grid-template-columns:20px minmax(0,1fr) auto!important;
+    gap:9px!important;padding:17px 13px!important;min-height:0
+  }
+  .rebuild-offer-item .rebuild-tag{
+    grid-column:3!important;grid-row:1!important;align-self:start!important;justify-self:end!important;
+    font-size:5.8px!important;padding:4px 5px!important
+  }
+  .rebuild-offer-copy h3{font-size:17px!important;line-height:1.05!important}
+  .rebuild-offer-copy p{font-size:9.6px!important;line-height:1.5!important;margin-top:7px!important}
+  .rebuild-skill-mechanism-3d{padding:20px 13px 23px!important;border-radius:20px!important}
+  .rebuild-mechanism-intro{font-size:9.5px}
+  .rebuild-3d-stage{height:310px;margin-top:18px}
+  .rebuild-3d-card{width:150px;min-height:88px;padding:13px 12px;border-radius:16px}
+  .rebuild-3d-card span{font-size:5.7px}.rebuild-3d-card b{font-size:17px}.rebuild-3d-card small{font-size:7.5px}
+  .rebuild-3d-card.step-1{left:0;top:28px;transform:rotate(-8deg) rotateY(7deg)}
+  .rebuild-3d-card.step-2{left:16%;top:128px;transform:rotate(1deg) translateZ(24px)}
+  .rebuild-3d-card.step-3{left:39%;top:8px;transform:translateX(-10%) rotate(5deg)}
+  .rebuild-3d-card.step-4{right:14%;top:143px;transform:rotate(-2deg) translateZ(26px)}
+  .rebuild-3d-card.step-5{right:0;top:38px;transform:rotate(8deg) rotateY(-7deg)}
+  .rebuild-3d-progress i{width:11px;height:11px;box-shadow:0 0 0 5px rgba(186,255,99,.07)}
+  .rebuild-result-pill{padding:11px 18px;gap:10px}.rebuild-result-pill b{font-size:14px}
+  .rebuild-result-path{font-size:7.5px;gap:6px}
+  .rebuild-ecosystem{gap:11px;margin-top:26px}
+  .rebuild-ecosystem-kicker{font-size:7.5px;padding:7px 13px}
+  .rebuild-system-card{min-height:405px;border-radius:22px}
+  .rebuild-system-card.create-card{min-height:520px}
+  .rebuild-system-copy{padding:20px 18px}
+  .rebuild-system-label{font-size:7px;margin-bottom:8px}
+  .rebuild-system-copy h3{font-size:clamp(27px,7.5vw,34px);max-width:13ch}
+  .rebuild-system-copy p{font-size:11.5px;line-height:1.5;margin-top:10px}
+  .rebuild-system-media{left:16px;right:16px;bottom:15px;height:210px;border-radius:18px}
+  .rebuild-system-card.create-card .create-media{
+    width:min(calc(100% - 32px),360px);aspect-ratio:4/5
+  }
+  .rebuild-academy-ui,.rebuild-sell-ui{padding:10px}
+  .rebuild-academy-course{grid-template-columns:34px 1fr auto;padding:7px;gap:7px}
+  .rebuild-academy-icon{width:34px;height:34px}
+  .rebuild-academy-course b{font-size:9px}.rebuild-academy-course small{font-size:6.3px}
+  .rebuild-sell-row{padding:9px}.rebuild-sell-row b{font-size:9.5px}.rebuild-sell-row span{font-size:7px}
+  .rebuild-sell-stage{font-size:6px;padding:5px 6px}
+  .rebuild-ecosystem-outro{font-size:24px;margin-top:14px}
+}
+@media(max-width:390px){
+  .rebuild-3d-card{width:140px}
+  .rebuild-3d-stage{height:300px}
+  .rebuild-system-copy h3{font-size:27px}
+}
 </style>
 </head>
 <body id="top">
@@ -2745,45 +2992,45 @@ body.ref-hero-visible .sticky-cta{display:none!important}
 <p>Choose one creative path to begin. Use the Money Engine alongside it to learn how to put your work in front of potential clients.</p>
 </div>
 <div class="rebuild-offer-stack">
-<article "class="rebuild-offer-item">
-<span class="rebuild-num">01</span>
-<div>
-<h3>Design & Flyers</h3>
-<p>Create promotional flyers and branded visuals businesses can use. Learn composition, typography, the creative process and how to prepare client-ready work.</p>
-</div>
-<span class="rebuild-tag">CREATIVE SKILL</span>
+<article class="rebuild-offer-item">
+  <span class="rebuild-num">01</span>
+  <div class="rebuild-offer-copy">
+    <h3>Design & Flyers</h3>
+    <p>Create promotional flyers and branded visuals businesses can use. Learn composition, typography, the creative process and how to prepare client-ready work.</p>
+  </div>
+  <span class="rebuild-tag">CREATIVE SKILL</span>
 </article>
-<article "class="rebuild-offer-item">
-<span class="rebuild-num">02</span>
-<div>
-<h3>AI UGC & Influencer</h3>
-<p>Build consistent AI characters, product images and UGC-style videos. Learn the workflow from your reference images to a portfolio you can show a brand.</p>
-</div>
-<span class="rebuild-tag">CREATIVE SKILL</span>
+<article class="rebuild-offer-item">
+  <span class="rebuild-num">02</span>
+  <div class="rebuild-offer-copy">
+    <h3>AI UGC & Influencer</h3>
+    <p>Build consistent AI characters, product images and UGC-style videos. Learn the workflow from your reference images to a portfolio you can show a brand.</p>
+  </div>
+  <span class="rebuild-tag">CREATIVE SKILL</span>
 </article>
-<article "class="rebuild-offer-item">
-<span class="rebuild-num">03</span>
-<div>
-<h3>Landing Page Design</h3>
-<p>Learn to plan, write, build and deliver a focused landing page. Turn a business brief into a clear page that presents an offer and guides visitors to act.</p>
-</div>
-<span class="rebuild-tag">CREATIVE SKILL</span>
+<article class="rebuild-offer-item">
+  <span class="rebuild-num">03</span>
+  <div class="rebuild-offer-copy">
+    <h3>Landing Page Design</h3>
+    <p>Learn to plan, write, build and deliver a focused landing page. Turn a business brief into a clear page that presents an offer and guides visitors to act.</p>
+  </div>
+  <span class="rebuild-tag">CREATIVE SKILL</span>
 </article>
 <article class="rebuild-offer-item featured">
-<span class="rebuild-num">04</span>
-<div>
-<h3>The Money Engine</h3>
-<p>Learn how to research businesses on Google Maps, identify a visible need, create a relevant sample, pitch with context and follow up. This is how the creative work connects to potential buyers.</p>
-</div>
-<span class="rebuild-tag">CLIENT ACQUISITION</span>
+  <span class="rebuild-num">04</span>
+  <div class="rebuild-offer-copy">
+    <h3>The Money Engine</h3>
+    <p>Learn how to research businesses on Google Maps, identify a visible need, create a relevant sample, pitch with context and follow up. This is how the creative work connects to potential buyers.</p>
+  </div>
+  <span class="rebuild-tag">CLIENT ACQUISITION</span>
 </article>
-<article "class="rebuild-offer-item">
-<span class="rebuild-num">05</span>
-<div>
-<h3>Create, organise and keep moving</h3>
-<p>Use the creation workflow, starter AI credits, client pipeline, prompts and community alongside your lessons. Keep your samples, prospects and next steps connected.</p>
-</div>
-<span class="rebuild-tag">PRACTICAL SUPPORT</span>
+<article class="rebuild-offer-item">
+  <span class="rebuild-num">05</span>
+  <div class="rebuild-offer-copy">
+    <h3>Create, organise and keep moving</h3>
+    <p>Use the creation workflow, starter AI credits, client pipeline, prompts and community alongside your lessons. Keep your samples, prospects and next steps connected.</p>
+  </div>
+  <span class="rebuild-tag">PRACTICAL SUPPORT</span>
 </article>
 </div>
 <div class="rebuild-price-summary">
@@ -2796,21 +3043,99 @@ body.ref-hero-visible .sticky-cta{display:none!important}
 <b>₦15,000</b>
 </div>
 </div>
-<div class="rebuild-skill-mechanism" aria-label="The Fuse Atelier client path">
-<small>THE PART MOST COURSES LEAVE OUT</small>
-<h3>How your skill becomes <span class="rebuild-gradient-text">something you can sell.</span></h3>
-<div class="rebuild-mechanism-flow">
-<div class="rebuild-mechanism-step"><strong>01 · ACADEMY</strong><b>Learn</b><span>one useful creative skill.</span></div>
-<div class="rebuild-mechanism-step"><strong>02 · FUSE CREATE</strong><b>Build proof</b><span>make a sample a business can judge.</span></div>
-<div class="rebuild-mechanism-step"><strong>03 · MONEY ENGINE</strong><b>Find a need</b><span>research businesses with a visible problem.</span></div>
-<div class="rebuild-mechanism-step"><strong>04 · OUTREACH</strong><b>Pitch it</b><span>send the sample with a relevant message.</span></div>
-<div class="rebuild-mechanism-step"><strong>05 · PIPELINE</strong><b>Follow up</b><span>keep real conversations moving.</span></div>
+
+<div class="rebuild-skill-mechanism rebuild-skill-mechanism-3d" aria-label="The Fuse Atelier five-step client path">
+  <small>THE PART MOST COURSES LEAVE OUT</small>
+  <h3>How your skill becomes <span class="rebuild-gradient-text">something you can sell.</span></h3>
+  <p class="rebuild-mechanism-intro">The same five steps — now shown as one connected path from learning to a real client conversation.</p>
+
+  <div class="rebuild-3d-stage" aria-label="Five-step Learn Create Sell flow">
+    <div class="rebuild-3d-card step-1">
+      <span>01 · ACADEMY</span><b>Learn</b><small>one useful skill</small>
+    </div>
+    <div class="rebuild-3d-card step-2">
+      <span>02 · FUSE CREATE</span><b>Build proof</b><small>a client can judge</small>
+    </div>
+    <div class="rebuild-3d-card step-3">
+      <span>03 · MONEY ENGINE</span><b>Find a need</b><small>a real business has</small>
+    </div>
+    <div class="rebuild-3d-card step-4">
+      <span>04 · OUTREACH</span><b>Pitch it</b><small>with context</small>
+    </div>
+    <div class="rebuild-3d-card step-5">
+      <span>05 · PIPELINE</span><b>Follow up</b><small>keep it moving</small>
+    </div>
+  </div>
+
+  <div class="rebuild-3d-progress" aria-hidden="true">
+    <i></i><i></i><i></i><i></i><i></i>
+  </div>
+
+  <div class="rebuild-result-pill"><span>RESULT</span><b>PAID CLIENT</b><strong>↗</strong></div>
+  <div class="rebuild-result-path"><span>Skill</span><b>→</b><span>Proof</span><b>→</b><span>Prospect</span><b>→</b><span>Pitch</span><b>→</b><span class="rebuild-gradient-text">Payment</span></div>
 </div>
-<div class="rebuild-service-strip" aria-label="Fuse Atelier workspaces">
-<figure><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/founding/design-flyer-card.jpg" alt="Design and Flyers sample"><figcaption><b>Fuse Academy</b><span>Choose one path and learn the workflow behind the work.</span></figcaption></figure>
-<figure><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/founding/ai-ugc-hq.jpg" alt="AI UGC product visual"><figcaption><b>Fuse Create</b><span>Turn the lesson into a relevant sample before you ever pitch.</span></figcaption></figure>
-<figure><img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/founding/money-engine.jpg" alt="The Money Engine workspace"><figcaption><b>Fuse Clients</b><span>Research prospects, attach proof and track the next move.</span></figcaption></figure>
-</div>
+
+<div class="rebuild-ecosystem" aria-label="Fuse Atelier ecosystem">
+  <div class="rebuild-ecosystem-kicker">LEARN → CREATE → SELL</div>
+
+  <article class="rebuild-system-card academy-card">
+    <div class="rebuild-system-copy">
+      <div class="rebuild-system-label">01 · FUSE ACADEMY</div>
+      <h3>Learn a skill businesses can pay for.</h3>
+      <p>Choose one practical path and learn it around real commercial work.</p>
+    </div>
+    <div class="rebuild-system-media">
+      <div class="rebuild-academy-ui">
+        <div class="rebuild-ui-head"><span>Your learning paths</span><b>Academy</b></div>
+        <div class="rebuild-academy-list">
+          <div class="rebuild-academy-course active">
+            <div class="rebuild-academy-icon">✦</div>
+            <div><b>Design & Flyers</b><small>Promotional creatives, campaigns and client-ready designs</small></div>
+            <span class="rebuild-academy-status">Selected</span>
+          </div>
+          <div class="rebuild-academy-course">
+            <div class="rebuild-academy-icon">◉</div>
+            <div><b>AI UGC & Influencer</b><small>Product videos, creator ads and AI content</small></div>
+            <span class="rebuild-academy-status">Open</span>
+          </div>
+          <div class="rebuild-academy-course">
+            <div class="rebuild-academy-icon">⌁</div>
+            <div><b>Landing Pages</b><small>Conversion pages, launches and portfolio sites</small></div>
+            <span class="rebuild-academy-status">Open</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <article class="rebuild-system-card create-card">
+    <div class="rebuild-system-copy">
+      <div class="rebuild-system-label">02 · FUSE CREATE</div>
+      <h3>Build proof before anyone says yes.</h3>
+      <p>Create the flyer, UGC video, product visual or landing page that makes your ability visible.</p>
+    </div>
+    <div class="rebuild-system-media create-media">
+      <img src="https://raw.githubusercontent.com/Jejeola11/Jejeola11/77e37b4f518897902b46396572dcabe3ed213684/atelier-site/assets/showcase/slamit-beatup.jpg" alt="Client-ready creative built with Fuse" loading="lazy" decoding="async">
+    </div>
+  </article>
+
+  <article class="rebuild-system-card clients-card">
+    <div class="rebuild-system-copy">
+      <div class="rebuild-system-label">03 · FUSE CLIENTS</div>
+      <h3>Stop waiting for clients to find you.</h3>
+      <p>Use the Money Engine to identify businesses, attach your proof, pitch and follow up.</p>
+    </div>
+    <div class="rebuild-system-media">
+      <div class="rebuild-sell-ui">
+        <div class="rebuild-ui-head"><span>Fuse Clients</span><b>Live pipeline</b></div>
+        <div class="rebuild-sell-row"><div><b>Skincare brand</b><span>AI UGC sample attached</span></div><div class="rebuild-sell-stage">Sample ready</div></div>
+        <div class="rebuild-sell-row"><div><b>Fashion store</b><span>Landing page offer sent</span></div><div class="rebuild-sell-stage">Pitched</div></div>
+        <div class="rebuild-sell-row"><div><b>Wellness clinic</b><span>Follow-up due today</span></div><div class="rebuild-sell-stage">Follow up</div></div>
+      </div>
+    </div>
+  </article>
+
+  <div class="rebuild-ecosystem-outro">The goal is not to become “good at AI.” The goal is to become <span class="rebuild-gradient-text">useful enough to sell.</span></div>
 </div>
 <details class="rebuild-curriculum">
 <summary>Explore the curriculum + watch a free lesson</summary>
