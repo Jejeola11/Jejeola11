@@ -28,6 +28,16 @@
 </script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>
+// Social in-app browsers get a readable phone layout; regular phone browsers retain desktop composition.
+(function(){
+  var social=/Instagram|FBAN|FBAV|FB_IAB/i.test(navigator.userAgent);
+  document.documentElement.dataset.view=social?'social':'browser';
+  if(!social && /Android|iPhone|iPod/i.test(navigator.userAgent)){
+    document.querySelector('meta[name="viewport"]').content='width=1200, viewport-fit=cover';
+  }
+})();
+</script>
 <meta name="theme-color" content="#03110f">
 <title>Fuse Atelier — Build a Skill You Can Sell From Anywhere</title>
 <meta name="description" content="Fuse Atelier helps beginners build a sellable digital skill, create client-ready proof, find prospects and pitch with a practical Learn → Create → Sell system. Learn from school, home, work or abroad. Founding access is ₦15,000.">

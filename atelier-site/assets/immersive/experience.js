@@ -18,8 +18,23 @@ const hero=document.querySelector('[data-scene="core"]');
 fallback(hero,['immersive/fuse-logo-transparent.png']);
 const gallery=document.createElement('div');gallery.className='fuse-gallery';
 const stage=document.createElement('div');stage.className='fuse-stage';stage.setAttribute('role','group');stage.setAttribute('aria-label','Six featured creations. Use arrow keys or swipe horizontally to explore.');stage.tabIndex=0;
-gallery.append(stage);fallback(stage,art.slice(0,3));
+gallery.append(stage);fallback(stage,art);
 document.querySelector('#student-work .student-strip')?.before(gallery);
+document.getElementById('student-work')?.classList.add('fuse-gallery-active');
+const caption=document.createElement('div');caption.className='fuse-gallery-caption';gallery.append(caption);
+const titles=['Product Campaign Flyer','Sports Campaign Flyer','Skincare Product Ad','Pet Product Photography','Landing Page Design','Fashion AI Portrait'];
+caption.textContent=titles[0];
+// Keep the original short films available inside the single gallery.
+const films=[...document.querySelectorAll('#student-work .student-strip video')];
+if(films.length){
+  const open=document.createElement('button');open.className='fuse-films-button';open.type='button';open.textContent='Watch student films';gallery.append(open);
+  const dialog=document.createElement('dialog');dialog.className='fuse-film-dialog';dialog.setAttribute('aria-label','Student films');
+  const video=document.createElement('video');video.controls=true;video.playsInline=true;video.preload='none';
+  const name=document.createElement('p');const actions=document.createElement('div');let selected=0;
+  const show=()=>{const source=films[selected];video.pause();video.src=source.dataset.src||source.currentSrc||source.src;video.poster=source.poster;name.textContent=source.closest('article')?.querySelector('span')?.textContent||'Student film';video.load()};
+  [['Previous film',()=>{selected=(selected+films.length-1)%films.length;show()}],['Next film',()=>{selected=(selected+1)%films.length;show()}],['Close',()=>dialog.close()]].forEach(([label,fn])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',fn);actions.append(b)});
+  dialog.append(name,video,actions);document.body.append(dialog);open.addEventListener('click',()=>{show();dialog.showModal()});dialog.addEventListener('close',()=>{video.pause();open.focus()});
+}
 
 // Procedural studio reflections, with no external environment dependency.
 function environment(renderer){
@@ -61,7 +76,7 @@ function ribbon(radius,phase){
 }
 function bindDrag(host,onDelta){
   let x=0,y=0,down=false;
-  host.addEventListener('pointerdown',e=>{x=e.clientX;y=e.clientY;down=true});
+  host.addEventListener('pointerdown',e=>{x=e.clientX;y=e.clientY;down=true;host.setPointerCapture?.(e.pointerId)});
   host.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-x,dy=e.clientY-y;if(Math.abs(dx)>Math.abs(dy))onDelta(dx);x=e.clientX;y=e.clientY});
   const stop=()=>{down=false};host.addEventListener('pointerup',stop);host.addEventListener('pointercancel',stop);host.addEventListener('pointerleave',stop);
 }
@@ -75,8 +90,8 @@ if(core){
   chrome.side=THREE.DoubleSide;
   for(let i=0;i<3;i++){const mesh=new THREE.Mesh(ribbon(1.5+i*.12,i),i===1?lime:chrome);mesh.rotation.set(i*.8,i*.65,i*.45);group.add(mesh)}
   const shape=new THREE.Shape();shape.moveTo(0,.48);shape.lineTo(-.38,-.2);shape.lineTo(.38,-.2);shape.closePath();
-  const badge=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:.12,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.025,bevelThickness:.025}),new THREE.MeshStandardMaterial({color:'#e6b439',metalness:.85,roughness:.2}));group.add(badge);
-  const bar=new THREE.Mesh(new THREE.BoxGeometry(1,.08,.14),chrome);bar.position.y=-.42;bar.rotation.z=.3;group.add(bar);
+  const badge=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:.12,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.025,bevelThickness:.025}),new THREE.MeshStandardMaterial({color:'#fff36a',metalness:.35,roughness:.2}));group.add(badge);
+  const bar=new THREE.Mesh(new THREE.BoxGeometry(1,.08,.14),lime);bar.position.y=-.42;bar.rotation.z=.3;group.add(bar);
   const floor=new THREE.Mesh(new THREE.CircleGeometry(3,64),new THREE.MeshStandardMaterial({color:'#0b241c',metalness:.8,roughness:.3}));floor.rotation.x=-Math.PI/2;floor.position.y=-2.15;core.scene.add(floor);
   let turn=0,paused=false;hero.tabIndex=0;hero.setAttribute('aria-label','Chrome Fuse sculpture. Drag horizontally or use arrow keys to rotate.');
   bindDrag(hero,d=>turn+=d*.008);hero.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();turn+=e.key==='ArrowLeft'?-.3:.3}});
@@ -96,7 +111,7 @@ if(works){
   const move=d=>{target+=d;paused=true};bindDrag(stage,d=>move(-d*.005));
   controls(stage,()=>move(-1),()=>move(1),()=>paused=!paused);
   stage.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();move(e.key==='ArrowLeft'?-1:1)}});
-  works.render=(t,dt)=>{if(!paused&&!reduced.matches)target+=dt*.13;current=reduced.matches?target:current+(target-current)*Math.min(1,dt*7);cards.forEach((c,i)=>{let offset=((i-current+3)%6+6)%6-3;c.position.set(offset*2.5,Math.sin(offset*.5)*.16,-Math.abs(offset)*1.6);c.rotation.y=-offset*.22;c.rotation.z=offset*.025});works.camera.position.z=mobile?10.5:8.5};
+  works.render=(t,dt)=>{if(!paused&&!reduced.matches)target+=dt*.13;current=reduced.matches?target:current+(target-current)*Math.min(1,dt*7);const selected=((Math.round(current)%6)+6)%6;caption.textContent=titles[selected];cards.forEach((c,i)=>{let offset=((i-current+3)%6+6)%6-3;c.position.set(offset*2.5,Math.sin(offset*.5)*.16,-Math.abs(offset)*1.6);c.rotation.y=-offset*.22;c.rotation.z=offset*.025});works.camera.position.z=mobile?7.4:8.5};
 }
 function draw(s,t,dt){try{s.render?.(t,dt);s.renderer.render(s.scene,s.camera);s.host.classList.add('fuse-ready')}catch{s.host.classList.remove('fuse-ready');s.visible=false}}
 let last=0;

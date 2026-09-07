@@ -1,5 +1,34 @@
 /* Visual enhancement only: original page copy and checkout remain in HTML. */
 body{--fuse-light:#bfff56}
+/* Keep the exact logo silhouette while applying the shared brand gradient. */
+.rebuild-brand,.footer-brand>b{background:linear-gradient(110deg,#fff36a,#baff63 55%,#fff);background-clip:text;-webkit-background-clip:text;color:transparent!important}
+.rebuild-brand img{display:none!important}
+.rebuild-brand:before,.footer-brand>b:before{content:"";display:inline-block;flex:none;width:48px;height:48px;background:linear-gradient(135deg,#fff36a 10%,#baff63 55%,#fff 95%);mask:url('/atelier-site/assets/immersive/fuse-logo-transparent.png') center/contain no-repeat;-webkit-mask:url('/atelier-site/assets/immersive/fuse-logo-transparent.png') center/contain no-repeat}
+.footer-brand>b{display:inline-flex;align-items:center;gap:10px}
+#student-work.fuse-gallery-active>.student-strip{display:none!important}
+#student-work{display:block!important}
+#student-work>.wrap{width:min(1120px,calc(100% - 40px))!important;margin-inline:auto!important;min-width:0!important}
+#student-work .student-work-head{width:100%!important;max-width:760px!important;margin-inline:auto!important}
+.fuse-gallery{width:100%;min-width:0}
+.fuse-gallery-caption{position:absolute;top:18px;left:20px;right:20px;text-align:center;color:#efffdc;font-size:14px;z-index:2;pointer-events:none}
+.fuse-films-button{position:absolute;top:48px;left:50%;transform:translateX(-50%);z-index:3;border:1px solid #baff6355;border-radius:24px;padding:8px 16px;background:#061c18;color:#efffdc;font-size:14px;cursor:pointer}
+.fuse-film-dialog{margin:auto;width:min(540px,calc(100% - 24px));max-height:90svh;padding:18px;border:1px solid #baff6377;border-radius:24px;background:#061713;color:#fff;overflow:auto}
+.fuse-film-dialog::backdrop{background:#000c;backdrop-filter:blur(8px)}
+.fuse-film-dialog video{display:block;width:100%;max-height:65svh;margin:14px 0;background:#000;object-fit:contain}
+.fuse-film-dialog>div{display:flex;flex-wrap:wrap;gap:8px}
+.fuse-film-dialog button{padding:12px;border:1px solid #baff6377;border-radius:20px;background:#142b20;color:#fff;cursor:pointer}
+.fuse-film-dialog button:focus-visible,.fuse-films-button:focus-visible{outline:2px solid #fff36a;outline-offset:3px}
+@media(max-width:900px){
+ .rebuild-section,.student-work-section,.restored-section,.courses-section,.final-offer-section{flex-direction:column!important;min-width:0!important}
+ #student-work .student-work-head h2{font-size:clamp(30px,8.4vw,48px)!important;line-height:1.08!important;width:100%!important;max-width:100%!important}
+ #student-work .proof-line{white-space:normal!important;overflow-wrap:normal!important}
+ #student-work .student-work-head p{font-size:16px!important;line-height:1.65!important}
+ #student-work .student-work-cta .btn{min-width:0!important;max-width:100%;white-space:normal}
+ .fuse-chapter,.fuse-twin-screen{transform:none!important}
+ .fuse-gallery{height:480px}
+ .fuse-controls{bottom:24px}
+ .rebuild-brand:before{width:36px;height:36px}
+}
 .fuse-chapter{transform:perspective(1800px) translateY(var(--chapter-lift,0px)) rotateX(var(--chapter-turn,0deg));transform-origin:center;backface-visibility:hidden}
 .fuse-phone-stage{perspective:1600px}
 .fuse-twin-screen{border:7px solid #263b37!important;outline:1px solid #c6e6d870;border-radius:32px!important;box-shadow:14px 20px 0 -8px #061410,0 30px 90px #0008!important;transform:rotateY(-5deg);max-width:100%}
@@ -17,7 +46,9 @@ body{--fuse-light:#bfff56}
 .fuse-controls button{width:44px;height:44px;border-radius:50%;border:1px solid #bfff5655;background:#061c18e8;color:#f4ffe8;cursor:pointer;font-size:20px}
 .fuse-controls button:focus-visible{outline:2px solid #caff68;outline-offset:3px}
 .fuse-gallery{height:clamp(410px,54vw,650px);position:relative;max-width:1300px;margin:24px auto 35px;background:radial-gradient(ellipse at center,#173d2b 0,#030c0b 68%);border-block:1px solid #d8ffac22;overflow:hidden}
-.fuse-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:18px;overflow:hidden;padding:25px}
+.fuse-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-start;gap:18px;overflow-x:auto;padding:25px;scroll-snap-type:x mandatory}
+.fuse-fallback img{flex:0 0 42%;scroll-snap-align:center}
+.fuse-sculpture .fuse-fallback{justify-content:center}
 .fuse-fallback img{width:24%;max-height:85%;object-fit:contain;box-shadow:0 20px 50px #0008}
 .fuse-fallback img:nth-child(2){transform:scale(1.14)}
 .fuse-ready .fuse-fallback{visibility:hidden}
