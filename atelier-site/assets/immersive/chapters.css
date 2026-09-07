@@ -1,0 +1,20 @@
+/* Spatial chapters enhance the existing content, without replacing its layout. */
+.fuse-spatial-section{position:relative!important;isolation:isolate}
+.fuse-spatial-section>.fuse-world{position:absolute!important;inset:0;z-index:0!important;pointer-events:none;overflow:clip;opacity:.48}
+.fuse-spatial-section>:not(.fuse-world){position:relative;z-index:1}
+.fuse-world canvas{position:sticky;top:0;display:block;width:100%;height:100svh;max-height:1000px}
+.fuse-spatial-section:after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 20%,#03100a55 95%)}
+.fuse-spatial-panel{position:relative;transform-style:preserve-3d;perspective:1400px;--panel-x:0deg;--panel-y:0deg;--light-x:50%;--light-y:30%}
+.fuse-spatial-panel:before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:2;background:radial-gradient(circle at var(--light-x) var(--light-y),#e8ffc91c,transparent 45%);border:1px solid #e4ffb82b;box-shadow:inset 0 1px 0 #ffffce33,0 24px 70px #0005}
+.fuse-spatial-panel>img,.fuse-spatial-panel>video,.fuse-spatial-panel>.money-visual{transform:perspective(1400px) rotateX(var(--panel-x)) rotateY(var(--panel-y)) translateZ(18px)!important;transition:transform .2s ease-out;backface-visibility:hidden}
+.rebuild-system-media.fuse-spatial-panel{overflow:visible!important;transform:perspective(1500px) rotateY(var(--panel-y)) rotateX(var(--panel-x));transition:transform .2s ease-out}
+.rebuild-system-media.fuse-spatial-panel>*{position:relative;transform:translateZ(18px)}
+.rebuild-system-media.fuse-spatial-panel>*:nth-child(2){transform:translateZ(36px)}
+.review-card.fuse-spatial-panel,.benefit.fuse-spatial-panel,.resource-card.fuse-spatial-panel{transform:perspective(1600px) rotateX(var(--panel-x)) rotateY(var(--panel-y));transition:transform .25s ease-out;background-color:#071b15ed!important}
+.course-feature-media.fuse-spatial-panel{box-shadow:12px 16px 0 -8px #223e29,0 35px 90px #0008!important}
+.fuse-spatial-section .section-head,.fuse-spatial-section .decision-head{isolation:isolate}
+.fuse-motion-toggle{position:fixed;right:16px;top:12px;z-index:1000;width:40px;height:40px;border:1px solid #dcff8f66;border-radius:50%;color:#ecffd3;background:#061710ed;font-size:18px;cursor:pointer;box-shadow:0 4px 18px #0005}
+.fuse-motion-toggle:focus-visible{outline:2px solid #fff36a;outline-offset:4px}
+.fuse-motion-off .fuse-spatial-panel,.fuse-motion-off .fuse-spatial-panel>*,.fuse-motion-off .fuse-chapter{transform:none!important;transition:none!important}
+@media(max-width:900px){.fuse-world{opacity:.3!important}.fuse-spatial-panel{--panel-x:0deg!important;--panel-y:0deg!important}.fuse-motion-toggle{top:auto;bottom:calc(100px + env(safe-area-inset-bottom));right:12px;width:36px;height:36px}.rebuild-system-media.fuse-spatial-panel{overflow:hidden!important}}
+@media(prefers-reduced-motion:reduce){.fuse-spatial-panel,.fuse-spatial-panel>*{transform:none!important;transition:none!important}}

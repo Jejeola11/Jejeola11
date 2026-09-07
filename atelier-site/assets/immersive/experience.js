@@ -3,6 +3,8 @@ import * as THREE from './three.module.min.js';
 const root='/atelier-site/assets/';
 const art=['showcase/slamit-beatup.jpg','showcase/slamit-heat.jpg','showcase/lamer-underwater.jpg','showcase/bulldog-product.jpg','course-landing-page.png','showcase/avatar-pink-boutique.jpg'];
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+let globalPaused=false,motionTime=0;
+window.addEventListener('fuse-motion',e=>{globalPaused=e.detail.paused});
 const mobile=matchMedia('(max-width: 700px)').matches;
 const instances=[];
 const chapterObjects=[];
@@ -55,7 +57,7 @@ function make(host){
   const resize=()=>{const r=host.getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()};
   const ro=new ResizeObserver(resize);ro.observe(host);resize();
   const state={renderer,scene,camera,host,visible:false,render:null,env,ro};
-  const io=new IntersectionObserver(es=>{state.visible=es[0].isIntersecting;if(state.visible&&reduced.matches)draw(state,0,0)},{rootMargin:'80px'});io.observe(host);state.io=io;
+  const io=new IntersectionObserver(es=>{state.visible=es[0].isIntersecting;if(state.visible&&(reduced.matches||globalPaused))draw(state,0,0)},{rootMargin:'80px'});io.observe(host);state.io=io;
   renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();state.visible=false;host.classList.remove('fuse-ready')});
   renderer.domElement.addEventListener('webglcontextrestored',()=>location.reload());
   instances.push(state);return state;
@@ -96,7 +98,7 @@ if(core){
   let turn=0,paused=false;hero.tabIndex=0;hero.setAttribute('aria-label','Chrome Fuse sculpture. Drag horizontally or use arrow keys to rotate.');
   bindDrag(hero,d=>turn+=d*.008);hero.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();turn+=e.key==='ArrowLeft'?-.3:.3}});
   controls(hero,()=>turn-=.6,()=>turn+=.6,()=>paused=!paused);
-  core.render=(t,dt)=>{if(!paused&&!reduced.matches)turn+=dt*.18;const r=hero.getBoundingClientRect();const scroll=Math.max(-1,Math.min(1,r.top/innerHeight));group.rotation.set(.15+scroll*.16,turn,-.2);group.position.y=reduced.matches?0:Math.sin(t*.6)*.09;group.scale.setScalar(mobile?.83:1);};
+  core.render=(t,dt)=>{if(!paused&&!(reduced.matches||globalPaused))turn+=dt*.18;const r=hero.getBoundingClientRect();const scroll=Math.max(-1,Math.min(1,r.top/innerHeight));group.rotation.set(.15+scroll*.16,turn,-.2);group.position.y=(reduced.matches||globalPaused)?0:Math.sin(t*.6)*.09;group.scale.setScalar(mobile?.83:1);};
 }
 const works=make(stage);
 if(works){
@@ -135,8 +137,8 @@ if(works){
   });
   stage.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();move(e.key==='ArrowLeft'?-1:1)}else if(e.key===' '||e.key==='Enter'){e.preventDefault();toggleVideo()}});
   works.render=(t,dt)=>{
-    if(!paused&&!reduced.matches)target+=dt*.13;
-    current=reduced.matches?target:current+(target-current)*Math.min(1,dt*7);
+    if(!paused&&!(reduced.matches||globalPaused))target+=dt*.13;
+    current=(reduced.matches||globalPaused)?target:current+(target-current)*Math.min(1,dt*7);
     const selected=((Math.round(current)%count)+count)%count;
     if(selected!==active){cards.forEach(c=>c.video?.pause());active=selected;caption.textContent=media[selected].title+(media[selected].src?' · VIDEO':'');playButton.hidden=!media[selected].src;playButton.textContent='Play video'}
     cards.forEach((c,i)=>{const offset=((i-current+count/2)%count+count)%count-count/2;c.group.visible=Math.abs(offset)<4;c.group.position.set(offset*2.5,Math.sin(offset*.5)*.16,-Math.abs(offset)*1.6);c.group.rotation.y=-offset*.22;c.group.rotation.z=offset*.025});
@@ -144,14 +146,15 @@ if(works){
   };
   const visibility=new IntersectionObserver(entries=>{if(!entries[0].isIntersecting)cards.forEach(c=>c.video?.pause())});visibility.observe(stage);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)cards.forEach(c=>c.video?.pause())});
+  window.addEventListener('fuse-motion',e=>{if(e.detail.paused)cards.forEach(c=>c.video?.pause())});
 }
 function draw(s,t,dt){try{s.render?.(t,dt);s.renderer.render(s.scene,s.camera);s.host.classList.add('fuse-ready')}catch{s.host.classList.remove('fuse-ready');s.visible=false}}
 let last=0;
-function tick(ms){const dt=Math.min((ms-last)/1000,.05);last=ms;if(!document.hidden){instances.forEach(s=>{if(s.visible)draw(s,ms/1000,reduced.matches?0:dt)});if(!reduced.matches)chapterObjects.forEach(el=>{const r=el.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;const p=Math.max(-1,Math.min(1,(r.top+r.height/2-innerHeight/2)/innerHeight));el.style.setProperty('--chapter-turn',p*5+'deg');el.style.setProperty('--chapter-lift',p*-12+'px');el.style.setProperty('--fuse-x',(50+p*30)+'%')})}requestAnimationFrame(tick)}requestAnimationFrame(tick);
+function tick(ms){const dt=Math.min((ms-last)/1000,.05);last=ms;if(!globalPaused)motionTime+=dt;if(!document.hidden){instances.forEach(s=>{if(s.visible)draw(s,motionTime,(reduced.matches||globalPaused)?0:dt)});if(!(reduced.matches||globalPaused))chapterObjects.forEach(el=>{const r=el.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;const p=Math.max(-1,Math.min(1,(r.top+r.height/2-innerHeight/2)/innerHeight));el.style.setProperty('--chapter-turn',p*5+'deg');el.style.setProperty('--chapter-lift',p*-12+'px');el.style.setProperty('--fuse-x',(50+p*30)+'%')})}requestAnimationFrame(tick)}requestAnimationFrame(tick);
 document.querySelectorAll('.rebuild-system-card,.course-feature,.founding-offer-card').forEach(el=>{el.classList.add('fuse-chapter');chapterObjects.push(el)});
 // Treat the actual student video as a floating phone, preserving playback controls.
 const twin=document.getElementById('maryTwinVideo');
 if(twin){twin.classList.add('fuse-twin-screen');twin.parentElement.classList.add('fuse-phone-stage')}
-document.querySelectorAll('.course-feature-media,.restored-mary-video,.instructor-photo').forEach(el=>{el.classList.add('fuse-depth');el.addEventListener('pointermove',e=>{if(reduced.matches||e.pointerType==='touch')return;const r=el.getBoundingClientRect();el.style.setProperty('--fuse-ry',((e.clientX-r.left)/r.width-.5)*10+'deg');el.style.setProperty('--fuse-rx',-((e.clientY-r.top)/r.height-.5)*8+'deg')});el.addEventListener('pointerleave',()=>{el.style.setProperty('--fuse-ry','0deg');el.style.setProperty('--fuse-rx','0deg')})});
+document.querySelectorAll('.course-feature-media,.restored-mary-video,.instructor-photo').forEach(el=>{el.classList.add('fuse-depth');el.addEventListener('pointermove',e=>{if((reduced.matches||globalPaused)||e.pointerType==='touch')return;const r=el.getBoundingClientRect();el.style.setProperty('--fuse-ry',((e.clientX-r.left)/r.width-.5)*10+'deg');el.style.setProperty('--fuse-rx',-((e.clientY-r.top)/r.height-.5)*8+'deg')});el.addEventListener('pointerleave',()=>{el.style.setProperty('--fuse-ry','0deg');el.style.setProperty('--fuse-rx','0deg')})});
 // Original testimonial video controls and payment listeners are intentionally untouched.
 window.addEventListener('pagehide',e=>{if(e.persisted)return;instances.forEach(s=>{s.io.disconnect();s.ro.disconnect();s.env.dispose();s.renderer.dispose()})});
