@@ -24,17 +24,17 @@ document.getElementById('student-work')?.classList.add('fuse-gallery-active');
 const caption=document.createElement('div');caption.className='fuse-gallery-caption';gallery.append(caption);
 const titles=['Product Campaign Flyer','Sports Campaign Flyer','Skincare Product Ad','Pet Product Photography','Landing Page Design','Fashion AI Portrait'];
 caption.textContent=titles[0];
-// Keep the original short films available inside the single gallery.
+// Alternate stills and the original student films in one continuous 3D gallery.
 const films=[...document.querySelectorAll('#student-work .student-strip video')];
-if(films.length){
-  const open=document.createElement('button');open.className='fuse-films-button';open.type='button';open.textContent='Watch student films';gallery.append(open);
-  const dialog=document.createElement('dialog');dialog.className='fuse-film-dialog';dialog.setAttribute('aria-label','Student films');
-  const video=document.createElement('video');video.controls=true;video.playsInline=true;video.preload='none';
-  const name=document.createElement('p');const actions=document.createElement('div');let selected=0;
-  const show=()=>{const source=films[selected];video.pause();video.src=source.dataset.src||source.currentSrc||source.src;video.poster=source.poster;name.textContent=source.closest('article')?.querySelector('span')?.textContent||'Student film';video.load()};
-  [['Previous film',()=>{selected=(selected+films.length-1)%films.length;show()}],['Next film',()=>{selected=(selected+1)%films.length;show()}],['Close',()=>dialog.close()]].forEach(([label,fn])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',fn);actions.append(b)});
-  dialog.append(name,video,actions);document.body.append(dialog);open.addEventListener('click',()=>{show();dialog.showModal()});dialog.addEventListener('close',()=>{video.pause();open.focus()});
+const media=[];
+for(let i=0;i<Math.max(art.length,films.length);i++){
+  if(i<art.length)media.push({poster:root+art[i],title:titles[i]});
+  if(i<films.length){const v=films[i];media.push({poster:v.poster,src:v.dataset.src||v.currentSrc||v.src,title:v.closest('article')?.querySelector('span')?.textContent||'Student film'});}
 }
+stage.setAttribute('aria-label','Student images and videos. Swipe or use arrow keys; tap the centered video to play or pause.');
+const playButton=document.createElement('button');playButton.type='button';playButton.className='fuse-films-button';playButton.hidden=true;gallery.append(playButton);
+const fallbackBox=stage.querySelector('.fuse-fallback');fallbackBox.replaceChildren();
+media.forEach(item=>{const el=document.createElement(item.src?'video':'img');if(item.src){el.src=item.src;el.poster=item.poster;el.controls=true;el.playsInline=true;el.preload='none';el.setAttribute('aria-label',item.title)}else{el.src=item.poster;el.alt=item.title;el.loading='lazy'}fallbackBox.append(el)});
 
 // Procedural studio reflections, with no external environment dependency.
 function environment(renderer){
@@ -100,18 +100,50 @@ if(core){
 }
 const works=make(stage);
 if(works){
-  works.camera.position.z=9;const cards=[];let target=0,current=0,paused=false;
-  art.forEach((path,i)=>{
-    const group=new THREE.Group();const frame=new THREE.Mesh(new THREE.BoxGeometry(2.12,2.65,.09),chrome);group.add(frame);
-    loader.load(root+path,texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=Math.min(4,works.renderer.capabilities.getMaxAnisotropy());const ratio=texture.image.width/texture.image.height;let w=2,h=2/ratio;if(h>2.5){h=2.5;w=h*ratio}const face=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:texture}));face.position.z=.055;group.add(face)});
-    works.scene.add(group);cards.push(group);
+  works.camera.position.z=9;const cards=[];let target=0,current=0,paused=false,active=-1;
+  const count=media.length;
+  media.forEach(item=>{
+    const group=new THREE.Group();group.add(new THREE.Mesh(new THREE.BoxGeometry(2.12,2.65,.09),chrome));
+    const material=new THREE.MeshBasicMaterial({color:'#ffffff'});
+    const face=new THREE.Mesh(new THREE.PlaneGeometry(2,2.5),material);face.position.z=.055;group.add(face);
+    loader.load(item.poster,texture=>{texture.colorSpace=THREE.SRGBColorSpace;material.map=texture;material.needsUpdate=true;const ratio=texture.image.width/texture.image.height;face.scale.set(ratio>.8?1:ratio/.8,ratio>.8?.8/ratio:1,1)});
+    const card={group,material,item,video:null};cards.push(card);works.scene.add(group);
   });
-  // Architectural arches recede in real perspective behind the work.
   for(let i=0;i<9;i++){const arch=new THREE.Mesh(new THREE.TorusGeometry(4.1,.018,6,80),new THREE.MeshBasicMaterial({color:i%2?'#365d45':'#b6df7a',transparent:true,opacity:.36-i*.025}));arch.scale.y=1.25;arch.position.z=-i*2-2;works.scene.add(arch)}
   const move=d=>{target+=d;paused=true};bindDrag(stage,d=>move(-d*.005));
   controls(stage,()=>move(-1),()=>move(1),()=>paused=!paused);
-  stage.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();move(e.key==='ArrowLeft'?-1:1)}});
-  works.render=(t,dt)=>{if(!paused&&!reduced.matches)target+=dt*.13;current=reduced.matches?target:current+(target-current)*Math.min(1,dt*7);const selected=((Math.round(current)%6)+6)%6;caption.textContent=titles[selected];cards.forEach((c,i)=>{let offset=((i-current+3)%6+6)%6-3;c.position.set(offset*2.5,Math.sin(offset*.5)*.16,-Math.abs(offset)*1.6);c.rotation.y=-offset*.22;c.rotation.z=offset*.025});works.camera.position.z=mobile?7.4:8.5};
+  function toggleVideo(){
+    const card=cards[active];if(!card?.item.src)return;
+    paused=true;target=Math.round(current);
+    if(!card.video){
+      const v=document.createElement('video');v.crossOrigin='anonymous';v.muted=true;v.loop=true;v.playsInline=true;v.preload='none';v.src=card.item.src;
+      card.video=v;
+      v.addEventListener('loadeddata',()=>{const texture=new THREE.VideoTexture(v);texture.colorSpace=THREE.SRGBColorSpace;card.material.map=texture;card.material.needsUpdate=true});
+      v.addEventListener('play',()=>{playButton.textContent='Pause video'});
+      v.addEventListener('pause',()=>{if(cards[active]===card)playButton.textContent='Play video'});
+    }
+    if(card.video.paused)card.video.play().catch(()=>{playButton.textContent='Tap to retry video'});else card.video.pause();
+  }
+  playButton.addEventListener('click',toggleVideo);
+  let downX=0,downY=0;
+  stage.addEventListener('pointerdown',e=>{downX=e.clientX;downY=e.clientY});
+  stage.addEventListener('pointerup',e=>{
+    if(Math.hypot(e.clientX-downX,e.clientY-downY)>8)return;
+    const r=stage.getBoundingClientRect(),ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),works.camera);
+    const hit=ray.intersectObjects(cards.map(c=>c.group),true)[0];
+    if(hit){const index=cards.findIndex(c=>c.group===hit.object.parent);if(index===active)toggleVideo();else if(index>=0){const delta=((index-Math.round(current)+count/2)%count+count)%count-count/2;move(delta)}}
+  });
+  stage.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();move(e.key==='ArrowLeft'?-1:1)}else if(e.key===' '||e.key==='Enter'){e.preventDefault();toggleVideo()}});
+  works.render=(t,dt)=>{
+    if(!paused&&!reduced.matches)target+=dt*.13;
+    current=reduced.matches?target:current+(target-current)*Math.min(1,dt*7);
+    const selected=((Math.round(current)%count)+count)%count;
+    if(selected!==active){cards.forEach(c=>c.video?.pause());active=selected;caption.textContent=media[selected].title+(media[selected].src?' · VIDEO':'');playButton.hidden=!media[selected].src;playButton.textContent='Play video'}
+    cards.forEach((c,i)=>{const offset=((i-current+count/2)%count+count)%count-count/2;c.group.visible=Math.abs(offset)<4;c.group.position.set(offset*2.5,Math.sin(offset*.5)*.16,-Math.abs(offset)*1.6);c.group.rotation.y=-offset*.22;c.group.rotation.z=offset*.025});
+    works.camera.position.z=mobile?7.4:8.5;
+  };
+  const visibility=new IntersectionObserver(entries=>{if(!entries[0].isIntersecting)cards.forEach(c=>c.video?.pause())});visibility.observe(stage);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)cards.forEach(c=>c.video?.pause())});
 }
 function draw(s,t,dt){try{s.render?.(t,dt);s.renderer.render(s.scene,s.camera);s.host.classList.add('fuse-ready')}catch{s.host.classList.remove('fuse-ready');s.visible=false}}
 let last=0;

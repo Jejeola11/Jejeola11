@@ -1,5 +1,7 @@
 /* Visual enhancement only: original page copy and checkout remain in HTML. */
 body{--fuse-light:#bfff56}
+.rebuild-curriculum[hidden],.fuse-films-button[hidden]{display:none!important}
+.fuse-fallback video{flex:0 0 42%;width:42%;max-height:85%;object-fit:contain;scroll-snap-align:center}
 /* Keep the exact logo silhouette while applying the shared brand gradient. */
 .rebuild-brand,.footer-brand>b{background:linear-gradient(110deg,#fff36a,#baff63 55%,#fff);background-clip:text;-webkit-background-clip:text;color:transparent!important}
 .rebuild-brand img{display:none!important}
