@@ -1,10 +1,10 @@
 /* Quiet content sections with predictable gutters and media in normal flow. */
 .fuse-chapter,.fuse-twin-screen,.fuse-depth>img,.fuse-depth>video{transform:none!important;transition:none!important}
-body .rebuild-system-card{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;align-items:center!important;gap:32px!important;padding:36px!important;min-height:0!important;height:auto!important;overflow:hidden!important}
-body .rebuild-system-card .rebuild-system-copy{position:relative!important;inset:auto!important;width:100%!important;max-width:none!important;padding:0!important;min-width:0!important;transform:none!important}
-body .rebuild-system-card .rebuild-system-media{position:relative!important;inset:auto!important;width:100%!important;max-width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:auto!important;margin:0!important;transform:none!important;overflow:hidden!important;align-self:center!important}
-body .rebuild-system-card .create-media img{display:block!important;width:100%!important;height:auto!important;max-height:520px!important;object-fit:contain!important;transform:none!important}
-body .rebuild-system-card .rebuild-academy-ui,body .rebuild-system-card .rebuild-sell-ui{position:relative!important;inset:auto!important;width:100%!important;min-width:0!important;transform:none!important}
+body #system .rebuild-system-card{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;align-items:center!important;gap:32px!important;padding:36px!important;min-height:0!important;height:auto!important;overflow:hidden!important}
+body #system .rebuild-system-card .rebuild-system-copy{position:relative!important;inset:auto!important;width:100%!important;max-width:none!important;padding:0!important;min-width:0!important;transform:none!important}
+body #system .rebuild-system-card .rebuild-system-media{position:relative!important;inset:auto!important;width:100%!important;max-width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:auto!important;margin:0!important;transform:none!important;overflow:hidden!important;align-self:center!important}
+body #system .rebuild-system-card .create-media img{display:block!important;width:100%!important;height:auto!important;max-height:520px!important;object-fit:contain!important;transform:none!important}
+body #system .rebuild-system-card .rebuild-academy-ui,body #system .rebuild-system-card .rebuild-sell-ui{position:relative!important;inset:auto!important;width:100%!important;min-width:0!important;transform:none!important}
 body .rebuild-ecosystem-outro{white-space:normal!important;overflow-wrap:break-word;max-width:100%}
 @media(max-width:900px){
  html{--section-gutter:24px}
@@ -12,15 +12,15 @@ body .rebuild-ecosystem-outro{white-space:normal!important;overflow-wrap:break-w
  body section{box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;margin-inline:0!important;padding-left:max(var(--section-gutter),env(safe-area-inset-left))!important;padding-right:max(var(--section-gutter),env(safe-area-inset-right))!important}
  body section>.wrap,body section>.narrow,body #student-work>.wrap,body .rebuild-system>.wrap{box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;padding-inline:0!important;margin-inline:auto!important}
  body section :is(.section-head,.decision-head,.student-work-head,.courses-intro,.rebuild-section-head,.rebuild-ecosystem,.course-feature,.founder-proof,.coach,.payment-card,.guarantee-panel){min-width:0!important;max-width:100%!important}
- body .rebuild-system-card{grid-template-columns:minmax(0,1fr)!important;gap:24px!important;padding:24px!important;border-radius:24px!important}
- body .rebuild-system-card .rebuild-system-copy h3{max-width:none!important;font-size:clamp(28px,7vw,38px)!important;line-height:1.08!important}
- body .rebuild-system-card .rebuild-system-copy p{max-width:none!important;font-size:16px!important;line-height:1.6!important}
- body .rebuild-system-card .rebuild-academy-ui,body .rebuild-system-card .rebuild-sell-ui{padding:12px!important}
+ body #system .rebuild-system-card{grid-template-columns:minmax(0,1fr)!important;gap:24px!important;padding:24px!important;border-radius:24px!important}
+ body #system .rebuild-system-card .rebuild-system-copy h3{max-width:none!important;font-size:clamp(28px,7vw,38px)!important;line-height:1.08!important}
+ body #system .rebuild-system-card .rebuild-system-copy p{max-width:none!important;font-size:16px!important;line-height:1.6!important}
+ body #system .rebuild-system-card .rebuild-academy-ui,body #system .rebuild-system-card .rebuild-sell-ui{padding:12px!important}
  body .rebuild-academy-course{grid-template-columns:32px minmax(0,1fr)!important;gap:8px!important;padding:10px!important}
  body .rebuild-academy-status{grid-column:2;justify-self:start}
  body .rebuild-sell-row{display:flex!important;flex-wrap:wrap!important;gap:10px!important;padding:12px!important}
  body .rebuild-sell-row>div,body .rebuild-academy-course>div{min-width:0!important;max-width:100%!important}
- body .rebuild-system-card .create-media img{max-height:none!important}
+ body #system .rebuild-system-card .create-media img{max-height:none!important}
  body section h2,body section h3,body section p{overflow-wrap:break-word}
  body #student-work .proof-line{white-space:normal!important}
  body .course-feature-media,body .restored-mary-video,body .final-offer-video{width:100%!important;max-width:100%!important;min-width:0!important;margin-inline:0!important;transform:none!important}
