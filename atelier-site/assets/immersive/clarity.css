@@ -122,3 +122,18 @@ html.fuse-phone body .rebuild-top .rebuild-hero-wrap .hero-five-lines{font-size:
 html.fuse-phone body .international-four-lines{font-size:10px!important;padding:14px 8px!important;grid-template-columns:20px minmax(0,1fr)!important;column-gap:6px!important}
 html.fuse-phone body .rebuild-scarcity.scarcity-two-lines{font-size:9px!important;padding:13px 4px!important}
 @media(prefers-reduced-motion:reduce){.reflective-pill::after{animation:none;display:none}}
+
+/* Keep the fixed hero copy groups inside narrow mobile containers. */
+html body .hero-five-lines,html body .international-four-lines,html body .international-four-lines>span{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+html body .hero-five-lines>span,html body .international-four-lines>span>strong,html body .international-four-lines>span>span{max-width:100%!important}
+.problem-gradient-title{width:max-content;max-width:100%;background:linear-gradient(105deg,#fff36a 0%,#d9ff51 48%,#8fff65 100%)!important;background-clip:text!important;-webkit-background-clip:text!important;color:transparent!important}
+@media(max-width:900px){
+ html body .hero-five-lines>span{white-space:nowrap!important;letter-spacing:-.012em!important}
+ html body .international-four-lines>span>strong,html body .international-four-lines>span>span{white-space:nowrap!important;letter-spacing:-.018em!important}
+}
+html.fuse-phone body .hero-five-lines>span{white-space:nowrap!important;letter-spacing:-.018em!important}
+html.fuse-phone body .international-four-lines>span>strong,html.fuse-phone body .international-four-lines>span>span{white-space:nowrap!important;letter-spacing:-.025em!important}
+@media(max-width:340px){
+ html body .hero-five-lines{font-size:9px!important}
+ html body .international-four-lines{font-size:9px!important}
+}
