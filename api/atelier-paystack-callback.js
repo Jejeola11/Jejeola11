@@ -1,6 +1,7 @@
 // Verifies the Paystack transaction before sending a buyer to WhatsApp.
 const PRICE_KOBO = 1500000;
-const WHATSAPP_NUMBER = '2349044558101';
+const WHATSAPP_NUMBER_LOCAL = '09044558101';
+const WHATSAPP_NUMBER = '234' + WHATSAPP_NUMBER_LOCAL.slice(1);
 
 function redirect(res, url) {
   res.statusCode = 302;
