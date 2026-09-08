@@ -27,7 +27,10 @@
 })();
 </script>
 <meta charset="utf-8">
-<meta name="viewport" content="width=1200, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>
+(()=>{const phone=Math.min(screen.width,screen.height)<=600&&matchMedia('(pointer:coarse)').matches;if(!phone)return;document.documentElement.classList.add('fuse-phone');const fit=()=>{const width=Math.min(screen.width,screen.height);document.documentElement.style.zoom=String(Math.max(1,innerWidth/width));};fit();addEventListener('resize',fit,{passive:true});})();
+</script>
 <meta name="theme-color" content="#03110f">
 <title>Fuse Atelier — Build a Skill You Can Sell From Anywhere</title>
 <meta name="description" content="Fuse Atelier helps beginners build a sellable digital skill, create client-ready proof, find prospects and pitch with a practical Learn → Create → Sell system. Learn from school, home, work or abroad. Founding access is ₦15,000.">
@@ -4926,6 +4929,7 @@ html{
 <link rel="stylesheet" href="/atelier-site/assets/immersive/layout-repair.css">
 <link rel="stylesheet" href="/atelier-site/assets/immersive/hologram.css">
 <script defer src="/atelier-site/assets/immersive/hologram.js"></script>
+<link rel="stylesheet" href="/atelier-site/assets/immersive/reading.css">
 </head>
 <body id="top">
 <div class="rebuild-top">
@@ -4944,7 +4948,7 @@ html{
   <header class="rebuild-hero">
     <div class="fuse-sculpture fuse-projection" role="group" aria-label="Ria hologram projected above the interactive Fuse sculpture">
       <div class="ria-hologram">
-        <video id="riaHologram" poster="/atelier-site/assets/immersive/ria-hologram-poster.jpg" data-src="/atelier-site/assets/immersive/ria-hologram.mp4" muted playsinline preload="none" aria-label="Ria's AI twin introducing Fuse Atelier"></video>
+        <video id="riaHologram" poster="/atelier-site/assets/immersive/ria-hologram-poster.jpg" src="/atelier-site/assets/immersive/ria-hologram.mp4" autoplay muted playsinline preload="auto" aria-label="Ria's AI twin introducing Fuse Atelier"></video>
         <div class="ria-hologram-controls">
           <button type="button" id="riaListen">Hear from Ria</button>
           <button type="button" id="riaPause" aria-label="Play introduction">Play</button>

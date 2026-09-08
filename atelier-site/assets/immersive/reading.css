@@ -1,0 +1,46 @@
+/* Physical-phone reading layout also applies when a browser requests a desktop page. */
+.fuse-phone{width:auto;overflow-x:clip;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.fuse-phone body{width:100%;min-width:0;margin:0;font-size:16px}
+.fuse-phone body section{box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;padding:56px 24px!important;margin-inline:0!important;display:block!important;min-height:0!important}
+.fuse-phone body section>.wrap,.fuse-phone body #student-work>.wrap,.fuse-phone body .rebuild-system>.wrap{width:100%!important;max-width:100%!important;padding-inline:0!important;margin-inline:0!important}
+.fuse-phone body :is(section p,section li,blockquote,details p,.rebuild-hero-copy){font-size:16px!important;line-height:1.65!important;max-width:100%!important}
+.fuse-phone body section h2{font-size:34px!important;line-height:1.12!important;max-width:100%!important;letter-spacing:-.035em!important}
+.fuse-phone body section h3{font-size:26px!important;line-height:1.2!important;max-width:100%!important}
+.fuse-phone body :is(.eyebrow,.rebuild-system-label,.rebuild-offer-tag,.student-gallery-hint,.rebuild-pill,.rebuild-ui-head,.rebuild-ecosystem-kicker,summary){font-size:13px!important;line-height:1.5!important;white-space:normal!important}
+.fuse-phone body :is(.btn,.rebuild-btn,.rebuild-hero-btn,.checkout-link,.text-link,.rebuild-preview-link){font-size:16px!important;line-height:1.4!important;white-space:normal!important;min-width:0!important;max-width:100%!important}
+.fuse-phone body :is(.rebuild-system-card,.course-feature,.founder-proof,.coach,.decision-grid,.resources-grid,.benefits,.benefits-grid){display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:24px!important;min-width:0!important}
+.fuse-phone body #system .rebuild-system-card{grid-template-columns:minmax(0,1fr)!important;padding:22px!important;gap:24px!important}
+.fuse-phone body #system .rebuild-system-copy h3{font-size:30px!important;max-width:none!important}
+.fuse-phone body #system .rebuild-system-copy p{font-size:16px!important}
+.fuse-phone body .rebuild-offer-item{display:grid!important;grid-template-columns:28px minmax(0,1fr)!important;gap:12px!important;padding:20px!important}
+.fuse-phone body .rebuild-offer-item>:last-child{grid-column:2}
+.fuse-phone body :is(.rebuild-academy-course,.rebuild-sell-row){display:flex!important;flex-wrap:wrap!important;gap:10px!important;padding:12px!important}
+.fuse-phone body :is(.rebuild-academy-course b,.rebuild-sell-row b){font-size:15px!important}
+.fuse-phone body :is(.rebuild-academy-course small,.rebuild-sell-row span,.rebuild-academy-status,.rebuild-sell-stage){font-size:12px!important;line-height:1.5!important}
+.fuse-phone body .rebuild-top .rebuild-hero-wrap{width:calc(100% - 48px)!important;max-width:none!important;padding-top:30px!important}
+.fuse-phone body .rebuild-top .rebuild-hero h1{font-size:42px!important;line-height:1.08!important;max-width:100%!important}
+.fuse-phone body .managing-hero-headline>span,.fuse-phone body .proof-line{white-space:normal!important}
+.fuse-phone body .rebuild-trust,.fuse-phone body .rebuild-micro{font-size:12px!important;line-height:1.5!important;flex-wrap:wrap!important}
+.fuse-phone body .rebuild-stat small{font-size:11px!important}
+.fuse-phone body .rebuild-stat>b{font-size:22px!important}
+.fuse-phone body .rebuild-site-nav{width:calc(100% - 40px)!important;gap:12px!important}
+.fuse-phone body .rebuild-brand{font-size:17px!important}
+.fuse-phone body .rebuild-signin{font-size:13px!important}
+.fuse-phone body .rebuild-strip{font-size:11px!important;line-height:1.5!important}
+.fuse-phone body :is(.course-feature-media,.restored-mary-video,.final-offer-video,.coach>img){width:100%!important;max-width:100%!important;min-width:0!important;transform:none!important;margin:0!important}
+.fuse-phone body .reviews-grid{max-width:100%!important;margin-inline:0!important}
+.fuse-phone body .review-card{min-width:0!important;width:100%!important;flex-basis:100%!important}
+.fuse-phone body .course-feature>div{box-sizing:border-box!important;width:100%!important;min-width:0!important;max-width:100%!important}
+.fuse-phone body summary{font-size:17px!important;line-height:1.45!important}
+.fuse-phone body section small{font-size:13px!important;line-height:1.5!important}
+.fuse-phone body .sticky-cta{left:12px!important;right:12px!important;width:auto!important;max-width:none!important;padding:12px!important;gap:12px!important;box-sizing:border-box!important}
+.fuse-phone body .sticky-cta b{font-size:14px!important;line-height:1.4!important}
+.fuse-phone body .sticky-cta span{font-size:12px!important}
+.fuse-phone body .sticky-cta .btn{font-size:14px!important;min-width:0!important;padding:14px!important}
+.fuse-phone body .fuse-gallery{width:100%!important;height:440px!important}
+.fuse-phone body .ria-hologram{width:300px!important;max-width:90%!important}
+.fuse-phone body .ria-hologram-controls{top:auto!important;bottom:32px!important;left:50%!important;transform:translateX(-50%)!important;flex-direction:row!important;min-width:0!important}
+.fuse-phone body .fuse-projection>[data-scene="core"]{height:310px!important;margin-top:-45px!important}
+.ria-keyed-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mask-image:linear-gradient(#000 75%,transparent 100%);-webkit-mask-image:linear-gradient(#000 75%,transparent 100%)}
+.ria-keyed #riaHologram{opacity:0}
+.ria-hologram{isolation:auto}
