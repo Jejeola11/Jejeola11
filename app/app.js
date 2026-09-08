@@ -386,7 +386,7 @@ function pollChat(id, outEl, noteId, btn, label) {
 window.fuseAuthHeader = () => authHeader();
 window.toast = (m) => toast(m);
 // --- Fuse Academy bridge (app/academy.js is a plain script) ---
-window.fuseOpenStudio = (k) => { if (k === 'academy') return showView('academy'); openStudio(k); };
+window.fuseOpenStudio = (k) => { if (k === 'academy') { location.href = '/atelier-v2/academy-v2.html'; return; } openStudio(k); };
 window.fuseCourseUnlocks = () => courseUnlocks;
 window.fuseIsAdmin = () => userIsAdmin;
 window.fuseUserName = () => (user && (user.user_metadata?.full_name || user.user_metadata?.name || (user.email || '').split('@')[0])) || '';
@@ -6004,8 +6004,8 @@ window.addEventListener('DOMContentLoaded', () => {
  $('menuOverlay').onclick = (e) => { if (e.target === $('menuOverlay')) closeMenu(); };
  $('menuTopup').onclick = () => { closeMenu(); openBuy(); };
  $('menuStreak').onclick = () => { closeMenu(); claimDaily(); };
- $('menuCourses').onclick = () => { closeMenu(); openAllCourses(); };
- document.querySelectorAll('.subnav-tab').forEach((t) => t.onclick = () => {
+ $('menuCourses').onclick = closeMenu;
+ document.querySelectorAll('.subnav-tab[data-go]').forEach((t) => t.onclick = () => {
  const go = t.dataset.go;
  if (go === 'tab-image') { showView('models'); buildModels('image'); }
  else if (go === 'tab-video') { showView('models'); buildModels('video'); }

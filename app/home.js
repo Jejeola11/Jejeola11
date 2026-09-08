@@ -126,8 +126,9 @@
     sWrap.appendChild(el('h2', 'fh-h2', 'Every studio'));
     const sGrid = el('div', 'fh-studios');
     STUDIOS.forEach((s) => {
-      const c = el('button', 'fh-studio', `<span class="fh-studio-n">${esc(s.n)}</span><span class="fh-studio-d">${esc(s.d)}</span>`);
-      c.onclick = () => go(s.k);
+      const c = el(s.k === 'academy' ? 'a' : 'button', 'fh-studio', `<span class="fh-studio-n">${esc(s.n)}</span><span class="fh-studio-d">${esc(s.d)}</span>`);
+      if (s.k === 'academy') c.href = '/atelier-v2/academy-v2.html';
+      else c.onclick = () => go(s.k);
       sGrid.appendChild(c);
     });
     sWrap.appendChild(sGrid);
