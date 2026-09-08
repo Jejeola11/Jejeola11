@@ -98,3 +98,27 @@ html{scroll-behavior:smooth}
 .header-join-now:focus-visible{outline:2px solid #d4ff4f;outline-offset:3px}
 #hero-checkout{scroll-margin-top:100px}
 @media(max-width:540px){.header-join-now{min-height:34px;padding:8px 13px;font-size:11px}.rebuild-brand{font-size:clamp(17px,5vw,24px)!important}}
+
+/* Precise hero line layout and attention treatment. */
+html body .rebuild-top .rebuild-hero-wrap .reflective-pill{position:relative!important;isolation:isolate;overflow:hidden!important;min-height:54px!important;max-width:360px!important;padding:9px 20px!important;border:1px solid rgba(194,255,88,.48)!important;background:linear-gradient(120deg,rgba(7,34,25,.92),rgba(23,52,31,.82))!important;box-shadow:0 0 0 1px rgba(255,245,101,.05) inset,0 12px 34px rgba(128,255,83,.12)!important;font-size:10px!important;font-weight:800!important;line-height:1.55!important;letter-spacing:.08em!important;color:#efffd5!important}
+.reflective-pill::after{content:"";position:absolute;z-index:-1;inset:-70% auto -70% -38%;width:25%;transform:rotate(18deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);filter:blur(2px);animation:hero-pill-reflect 3.4s ease-in-out infinite}
+@keyframes hero-pill-reflect{0%,22%{left:-38%;opacity:0}32%{opacity:.9}58%{left:118%;opacity:.35}59%,100%{left:118%;opacity:0}}
+html body .rebuild-top .rebuild-hero-wrap .hero-five-lines{order:2!important;align-self:center!important;width:100%!important;max-width:none!important;text-align:center!important;font-size:clamp(10px,1.08vw,15px)!important;line-height:1.65!important;margin:0 0 20px!important}
+.hero-five-lines>span{display:block;white-space:nowrap}
+.hero-five-lines .hero-emphasis{font-weight:750;color:#d7e5df}
+html body .rebuild-top .rebuild-hero-wrap .rebuild-stat:nth-child(2)>b{font-size:12px!important;letter-spacing:-.055em!important}
+html body .international-four-lines{display:grid!important;grid-template-columns:28px minmax(0,1fr)!important;align-items:start!important;width:100%!important;text-align:left!important}
+.international-four-lines>span>strong,.international-four-lines>span>span{display:block;white-space:nowrap}
+html body .rebuild-scarcity.scarcity-two-lines{width:100%!important;text-align:center!important}
+.scarcity-two-lines>span{display:block;white-space:nowrap}
+html body .rebuild-trust{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;width:100%!important;gap:4px!important;align-items:center!important}
+html body .rebuild-trust>span{display:flex!important;align-items:center!important;justify-content:center!important;min-width:0!important;white-space:nowrap!important;text-align:center!important;font-size:clamp(7px,.82vw,11px)!important;letter-spacing:.025em!important}
+@media(max-width:900px){
+ html body .rebuild-top .rebuild-hero-wrap .hero-five-lines{font-size:clamp(9.5px,2.65vw,13px)!important}
+ html body .international-four-lines{font-size:clamp(10px,2.9vw,13px)!important;padding:14px 10px!important;grid-template-columns:22px minmax(0,1fr)!important;column-gap:7px!important}
+ html body .rebuild-scarcity.scarcity-two-lines{font-size:clamp(9px,2.65vw,12px)!important;padding:13px 5px!important}
+}
+html.fuse-phone body .rebuild-top .rebuild-hero-wrap .hero-five-lines{font-size:10px!important}
+html.fuse-phone body .international-four-lines{font-size:10px!important;padding:14px 8px!important;grid-template-columns:20px minmax(0,1fr)!important;column-gap:6px!important}
+html.fuse-phone body .rebuild-scarcity.scarcity-two-lines{font-size:9px!important;padding:13px 4px!important}
+@media(prefers-reduced-motion:reduce){.reflective-pill::after{animation:none;display:none}}
