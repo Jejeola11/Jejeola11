@@ -4978,6 +4978,55 @@ html{
   }
 }
 
+
+/* ===== Sep 8 eyebrow + stat + sticky CTA polish ===== */
+.rebuild-pill-lines{
+  flex-direction:column;
+  gap:2px;
+  line-height:1.18!important;
+}
+.rebuild-pill-lines i{
+  display:none;
+}
+.rebuild-pill-lines span{
+  display:block;
+  white-space:nowrap;
+}
+.rebuild-problem-title{
+  display:inline-block;
+}
+.rebuild-stat:nth-child(2)>b{
+  font-size:18px!important;
+  letter-spacing:-.03em;
+}
+.sticky-cta>div>b{
+  font-size:14px;
+  letter-spacing:-.01em;
+}
+.sticky-cta>div>span{
+  display:none!important;
+}
+.sticky-cta .btn{
+  min-width:118px;
+}
+@media screen and (min-width:901px){
+  .rebuild-top .rebuild-pill-lines{
+    padding:9px 16px!important;
+    font-size:11px!important;
+  }
+  .rebuild-top .rebuild-stat:nth-child(2)>b{
+    font-size:21px!important;
+  }
+}
+@media screen and (max-width:900px){
+  .rebuild-pill-lines span{
+    white-space:nowrap;
+  }
+  .rebuild-stat:nth-child(2)>b{
+    font-size:15px!important;
+  }
+}
+
 </style>
 </head>
 <body id="top">
@@ -4996,7 +5045,7 @@ html{
 
   <header class="rebuild-hero">
     <div class="wrap rebuild-hero-wrap">
-      <div class="rebuild-pill"><i></i>LEARN → CREATE → SELL · FOUNDING ACCESS: ₦15,000 · ONLY 50 SPOTS AT THIS PRICE</div>
+      <div class="rebuild-pill rebuild-pill-lines"><i></i><span>LEARN → CREATE → SELL</span><span>ONLY 50 SPOTS AT THIS PRICE</span></div>
       <h1 class="managing-hero-headline">
         <span>You’ve mastered “managing.”</span>
         <span>It’s time to stop managing</span>
@@ -5040,7 +5089,7 @@ html{
 <section class="rebuild-section rebuild-problem" id="problem">
 <div class="wrap rebuild-narrow">
 <div class="rebuild-section-head">
-<h2>Does this sound familiar?</h2>
+<h2 class="rebuild-gradient-text rebuild-problem-title">Does this sound familiar?</h2>
 <p>You’re not broke because you’re lazy. You’re broke because nobody showed you where to start.</p>
 </div>
 <ol class="rebuild-pain-list">
@@ -5859,7 +5908,7 @@ html{
   </div>
 </div>
 
-<div class="sticky-cta"><div><b>Build a skill you can sell · ₦15,000</b><span>Academy + Create + Clients</span></div><a class="btn checkout-link" href="#paystack">Join · ₦15k →</a></div>
+<div class="sticky-cta"><div><b>₦15,000 • $10</b></div><a class="btn checkout-link" href="#paystack">Join Now</a></div>
 <script>
 (function(){
   var modal=document.getElementById('lessonModal');
