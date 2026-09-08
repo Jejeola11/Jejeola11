@@ -1,0 +1,53 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/[fn].js": {
+      "includeFiles": "server/functions/**",
+      "maxDuration": 60
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "fuse-atelier-studio(?:-ria-d6b9)?\\.vercel\\.app"
+        }
+      ],
+      "status": 307,
+      "headers": {
+        "Location": "https://fuse-atelier.vercel.app/$1"
+      }
+    },
+    {
+      "src": "/",
+      "status": 307,
+      "headers": {
+        "Location": "/app/studio.html"
+      }
+    },
+    {
+      "src": "/studio/?",
+      "dest": "/app/studio.html"
+    },
+    {
+      "src": "/app/?",
+      "dest": "/app/index.html"
+    },
+    {
+      "src": "/app/studio/?",
+      "dest": "/app/studio.html"
+    },
+    {
+      "src": "/atelier/?",
+      "dest": "/atelier-site/index.html"
+    },
+    {
+      "handle": "filesystem"
+    }
+  ],
+  "installCommand": "node bootstrap.cjs && npm ci --omit=dev",
+  "buildCommand": "node build.cjs",
+  "outputDirectory": "public"
+}
