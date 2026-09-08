@@ -90,3 +90,11 @@ html body .rebuild-top .rebuild-hero-wrap .rebuild-stat:last-child{border-right:
 html body .rebuild-top .rebuild-hero-wrap .rebuild-stat>b{font-size:14px!important;line-height:1.3!important;letter-spacing:-.04em!important;white-space:nowrap!important;margin:0 0 5px!important}
 html body .rebuild-top .rebuild-hero-wrap .rebuild-stat small{font-size:8px!important;line-height:1.4!important;letter-spacing:.02em!important}
 html body .rebuild-top .rebuild-hero-wrap .rebuild-hero-btn{order:4!important;margin-bottom:18px!important}
+
+/* Header conversion shortcut. */
+html{scroll-behavior:smooth}
+.header-join-now{display:inline-flex;align-items:center;justify-content:center;margin-left:auto;min-height:38px;padding:9px 18px;border-radius:999px;background:linear-gradient(110deg,#fff36a,#baff63);color:#06130e!important;font-size:13px;font-weight:800;line-height:1;text-decoration:none;box-shadow:0 8px 30px rgba(186,255,99,.16);transition:transform .2s ease,box-shadow .2s ease}
+.header-join-now:hover{transform:translateY(-2px);box-shadow:0 10px 34px rgba(186,255,99,.26)}
+.header-join-now:focus-visible{outline:2px solid #d4ff4f;outline-offset:3px}
+#hero-checkout{scroll-margin-top:100px}
+@media(max-width:540px){.header-join-now{min-height:34px;padding:8px 13px;font-size:11px}.rebuild-brand{font-size:clamp(17px,5vw,24px)!important}}
