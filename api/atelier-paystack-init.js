@@ -34,14 +34,14 @@ module.exports = async function handler(req, res) {
         email,
         amount: PRICE_KOBO,
         currency: 'NGN',
-        channels: ['bank_transfer', 'card', 'bank', 'ussd'],
+        // Keep card first for international buyers; Paystack hides local-only\n        // methods when they are not available to the paying customer.\n        channels: ['card', 'bank_transfer', 'bank', 'ussd'],
         callback_url: CALLBACK_URL,
         metadata: {
           product: 'Fuse Atelier Founding Access',
-          amount_naira: 15000,
+          amount_naira: 15000,\n          international_cards_enabled: true,
           source: 'atelier-landing-page',
           custom_fields: [
-            { display_name: 'Offer', variable_name: 'offer', value: 'Founding Access — ₦15,000' }
+            { display_name: 'Offer', variable_name: 'offer', value: 'Founding Access — ₦15,000 NGN' }
           ]
         }
       }),
