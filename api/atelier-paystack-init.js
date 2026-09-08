@@ -1,7 +1,5 @@
 // Fuse Atelier founding-access Paystack checkout.
 // Server-side amount is fixed at ₦15,000. No browser-provided price is trusted.
-const crypto = require('crypto');
-
 const PRICE_KOBO = 1500000;
 const CALLBACK_URL = 'https://fuse-atelier.vercel.app/api/atelier-paystack-callback';
 
@@ -21,7 +19,7 @@ module.exports = async function handler(req, res) {
   const secret = process.env.PAYSTACK_SECRET_KEY;
   if (!secret) return send(res, 500, { error: 'Payment system is not configured yet.' });
 
-  const email = 'fuse-' + Date.now() + '-' + crypto.randomBytes(4).toString('hex') + '@fuseatelier.ng';
+  const email = 'maryamjejeola002@gmail.com';
 
   try {
     const response = await fetch('https://api.paystack.co/transaction/initialize', {
@@ -34,7 +32,6 @@ module.exports = async function handler(req, res) {
         email,
         amount: PRICE_KOBO,
         currency: 'NGN',
-        channels: ['bank_transfer', 'card', 'bank', 'ussd'],
         callback_url: CALLBACK_URL,
         metadata: {
           product: 'Fuse Atelier Founding Access',
