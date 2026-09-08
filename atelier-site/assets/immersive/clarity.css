@@ -137,3 +137,20 @@ html.fuse-phone body .international-four-lines>span>strong,html.fuse-phone body 
  html body .hero-five-lines{font-size:9px!important}
  html body .international-four-lines{font-size:9px!important}
 }
+
+/* Compact the five learning-path cards without changing their headings. */
+html body .rebuild-offer-stack{gap:12px!important}
+html body .rebuild-offer-item{display:grid!important;grid-template-columns:44px minmax(0,1fr) auto!important;grid-template-rows:auto auto!important;column-gap:14px!important;row-gap:14px!important;align-items:start!important;height:auto!important;min-height:0!important;padding:22px!important}
+html body .rebuild-offer-item>.rebuild-num{grid-column:1!important;grid-row:1!important;margin:3px 0 0!important}
+html body .rebuild-offer-item>.rebuild-offer-copy{display:contents!important}
+html body .rebuild-offer-item .rebuild-offer-copy>h3{grid-column:2!important;grid-row:1!important;margin:0!important}
+html body .rebuild-offer-item>.rebuild-tag{grid-column:3!important;grid-row:1!important;align-self:start!important;margin:0!important}
+html body .rebuild-offer-item .rebuild-offer-copy>p{grid-column:1/-1!important;grid-row:2!important;width:100%!important;max-width:none!important;margin:0!important;font-size:13px!important;line-height:1.58!important;letter-spacing:0!important}
+@media(max-width:900px){
+ html body .rebuild-offer-item{grid-template-columns:34px minmax(0,1fr) auto!important;padding:18px!important;column-gap:10px!important;row-gap:12px!important}
+ html body .rebuild-offer-item .rebuild-offer-copy>p{font-size:11.5px!important;line-height:1.55!important}
+ html body .rebuild-offer-item>.rebuild-tag{font-size:7px!important;padding:6px 7px!important}
+}
+html.fuse-phone body .rebuild-offer-item{grid-template-columns:32px minmax(0,1fr) auto!important;padding:18px!important;column-gap:9px!important;row-gap:12px!important}
+html.fuse-phone body .rebuild-offer-item .rebuild-offer-copy>p{font-size:11px!important;line-height:1.55!important}
+html.fuse-phone body .rebuild-offer-item>.rebuild-tag{font-size:6.5px!important;padding:5px 6px!important}
