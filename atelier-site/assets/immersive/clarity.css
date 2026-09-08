@@ -72,3 +72,11 @@ html.fuse-phone body .rebuild-stats{grid-template-columns:repeat(2,minmax(0,1fr)
 html.fuse-phone body section{padding:60px 24px!important}
 html.fuse-phone body :is(.resource-card,.payment-card,.guarantee-panel,.course-feature-body){padding:20px!important}
 html.fuse-phone body .course-feature{gap:0!important}
+
+/* Focused hero typography adjustment. */
+.managing-gradient{background:linear-gradient(110deg,#fff36a,#baff63 65%,#efffd5);background-clip:text;-webkit-background-clip:text;color:transparent}
+html body .rebuild-top .rebuild-hero-wrap .hero-four-lines{align-self:center;width:100%;max-width:none!important;text-align:center!important;font-size:clamp(8px,1.02vw,14px)!important;line-height:1.7!important;margin:0 0 20px!important}
+.hero-four-lines>span{display:block;white-space:nowrap}
+.hero-four-lines .hero-emphasis{font-weight:700;color:#d7e5df}
+html.fuse-phone body .rebuild-top .rebuild-hero-wrap .hero-four-lines{font-size:clamp(8px,2.25vw,12px)!important}
+@media(max-width:900px){html body .rebuild-top .rebuild-hero-wrap .hero-four-lines{font-size:clamp(8px,2.25vw,14px)!important}}
