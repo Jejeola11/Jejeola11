@@ -4920,6 +4920,64 @@ html{
   .founding-meter-row strong{font-size:12px}
 }
 
+
+/* ===== Sep 8 hero copy line-lock + international checkout note ===== */
+.rebuild-hero-copy-lines span,
+.rebuild-international-note span,
+.rebuild-scarcity-lines span{
+  display:block;
+}
+.rebuild-international-note{
+  width:min(100%,720px);
+  margin:12px auto 0;
+  color:#93a79f;
+  font-size:11px;
+  line-height:1.5;
+  text-align:center;
+}
+.rebuild-scarcity-lines{
+  margin-top:10px;
+}
+@media screen and (min-width:901px){
+  .rebuild-top .rebuild-hero-copy-lines{
+    max-width:940px!important;
+    font-size:19px!important;
+    line-height:1.48!important;
+    margin-top:23px!important;
+    margin-bottom:22px!important;
+  }
+  .rebuild-top .rebuild-hero-copy-lines span,
+  .rebuild-top .rebuild-international-note span,
+  .rebuild-top .rebuild-scarcity-lines span{
+    white-space:nowrap!important;
+  }
+  .rebuild-top .rebuild-international-note{
+    max-width:760px;
+    font-size:12.5px;
+    line-height:1.42;
+  }
+  .rebuild-top .rebuild-scarcity-lines{
+    width:min(100%,760px);
+    font-size:11.5px;
+    line-height:1.45;
+  }
+}
+@media screen and (max-width:900px){
+  .rebuild-top .rebuild-hero-copy-lines{
+    font-size:12.8px!important;
+    line-height:1.5!important;
+  }
+  .rebuild-top .rebuild-hero-copy-lines span,
+  .rebuild-top .rebuild-international-note span,
+  .rebuild-top .rebuild-scarcity-lines span{
+    white-space:normal!important;
+  }
+  .rebuild-top .rebuild-international-note{
+    font-size:9.5px;
+    line-height:1.48;
+  }
+}
+
 </style>
 </head>
 <body id="top">
@@ -4944,7 +5002,13 @@ html{
         <span>It’s time to stop managing</span>
         <span><b class="rebuild-gradient-text">and start earning.</b></span>
       </h1>
-      <p class="rebuild-hero-copy">Managing got you through the month. This gets you an actual raise — one AI skill, sold to real businesses, paid in dollars. Over 1,000 Nigerian students, corpers, and 9–5 workers are already using this exact system. <strong>No portfolio. No experience. No laptop. No followers.</strong></p>
+      <p class="rebuild-hero-copy rebuild-hero-copy-lines">
+        <span>Managing got you through the month. This gets you an actual raise —</span>
+        <span>one AI skill, sold to real businesses, paid in dollars.</span>
+        <span>Over 1,000 Nigerian students, corpers, and 9–5 workers</span>
+        <span>are already using this exact system.</span>
+        <span><strong>No portfolio. No experience. No laptop. No followers.</strong></span>
+      </p>
 
       <div class="rebuild-stats">
         <div class="rebuild-stat"><b>3</b><small>High Paying AI Skills</small></div>
@@ -4954,7 +5018,16 @@ html{
       </div>
 
       <a class="rebuild-btn rebuild-hero-btn checkout-link" href="#paystack">Claim one of the last founding spots — ₦15,000 <span aria-hidden="true">→</span></a>
-      <div class="rebuild-scarcity">🔥 Founding price ends at 50 students. <strong>10 spots left</strong> — price moves to ₦25,000 after that.</div>
+      <div class="rebuild-international-note">
+        <span>Joining from outside Nigeria?</span>
+        <span>Pay securely with an international Visa or Mastercard.</span>
+        <span>Your card issuer converts ₦15,000 NGN</span>
+        <span>into your local currency.</span>
+      </div>
+      <div class="rebuild-scarcity rebuild-scarcity-lines">
+        <span>🔥 Founding price ends at 50 students. <strong>10 spots left</strong> —</span>
+        <span>price moves to ₦25,000 after that.</span>
+      </div>
       <p class="rebuild-micro">Academy, practical resources, starter AI credits and community.</p>
       <div class="rebuild-trust">
         <span>BEGINNER FRIENDLY</span>
