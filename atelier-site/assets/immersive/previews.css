@@ -28,4 +28,4 @@ body #system .fuse-demo .rebuild-3d-card span,body #system .fuse-demo .rebuild-3
 @media(prefers-reduced-motion:reduce){.fuse-demo [data-demo-item],body #system .fuse-demo .rebuild-3d-card{transform:none!important;transition:none!important}.fuse-demo [data-demo-item]:after{animation:none!important}}
 
 /* Playback is automatic across the landing-page visual scenes. */
-.fuse-controls,.fuse-demo-controls,.fuse-demo-description,.fuse-films-button,.ria-hologram-controls{display:none!important}
+.fuse-controls,.fuse-demo-controls,.fuse-demo-description,.fuse-films-button{display:none!important}
