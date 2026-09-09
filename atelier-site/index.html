@@ -5358,7 +5358,7 @@ html{
 </div>
 <div class="founder-proof">
 <figure class="proof-image">
-<img src="https://cdn.jsdelivr.net/gh/Jejeola11/Jejeola11@deploy/fuse-atelier-netlify/atelier-site/assets/founding/money-engine-cropped.png" alt="Maryam Jejeola Upwork profile showing more than $4,000 earned and 12 jobs" loading="lazy" decoding="async">
+<img src="https://cdn.jsdelivr.net/gh/Jejeola11/Jejeola11@fix/fuse-app-navigation/atelier-site/assets/founding/money-engine-cropped.png" alt="Maryam Jejeola Upwork profile showing more than $4,000 earned and 12 jobs" loading="lazy" decoding="async">
 <figcaption>Ria's Upwork profile: $4K+ total earnings across 12 jobs.</figcaption>
 </figure>
 <div class="proof-copy">
@@ -5463,7 +5463,7 @@ html{
 
 <section class="restored-section restored-coach" id="instructor">
 <div class="wrap narrow coach">
-<img src="https://cdn.jsdelivr.net/gh/Jejeola11/Jejeola11@deploy/fuse-atelier-netlify/atelier-site/assets/founding/ria-instructor-live-v2.webp" alt="Ria, Fuse Atelier founder and instructor" loading="lazy" decoding="async">
+<img src="https://cdn.jsdelivr.net/gh/Jejeola11/Jejeola11@fix/fuse-app-navigation/atelier-site/assets/founding/ria-instructor-live-v2.webp" alt="Ria, Fuse Atelier founder and instructor" loading="lazy" decoding="async">
 <div>
 <div class="eyebrow">YOUR COACH · A STUDENT TOO</div>
 <h2>Meet Ria.<br>
@@ -6636,6 +6636,20 @@ html{
     },{threshold:.35});
     io.observe(v);
   }else{play()}
+})();
+</script>
+<script>
+/* Keep the live Atelier build independent of the old Netlify asset branch. */
+(function(){
+  const legacy='@deploy/fuse-atelier-netlify';
+  document.querySelectorAll('img,video').forEach(function(el){
+    ['src','data-src','poster'].forEach(function(attr){
+      const value=el.getAttribute(attr);
+      if(!value)return;
+      if(value==='/media/ai-campaign-flyer.jpg')el.setAttribute(attr,'/atelier-site/assets/work/ai-campaign-flyer.jpg');
+      else if(value.includes(legacy))el.setAttribute(attr,value.replace(legacy,'@fix/fuse-app-navigation'));
+    });
+  });
 })();
 </script>
 </body>
