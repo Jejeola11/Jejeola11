@@ -267,3 +267,67 @@ html body .usd-card-4{top:71%!important;animation-delay:-6.2s!important}
 @media (prefers-reduced-motion:reduce){
   html body .usd-payment-card{animation:none!important;opacity:1!important;transform:none!important}
 }
+
+/* payment proof feed sits in the hero reading path */
+html body .rebuild-top .usd-payment-feed{
+  position:relative!important;
+  display:block!important;
+  width:min(100%,520px)!important;
+  height:72px!important;
+  margin:0 0 17px!important;
+  overflow:hidden!important;
+  border:1px solid rgba(215,255,83,.28)!important;
+  border-radius:16px!important;
+  background:linear-gradient(110deg,rgba(8,38,31,.9),rgba(26,58,34,.64))!important;
+  box-shadow:0 0 28px rgba(171,255,71,.09),inset 0 0 18px rgba(215,255,83,.05)!important;
+}
+html body .usd-feed-kicker{
+  position:absolute!important;
+  top:9px!important;
+  left:14px!important;
+  z-index:2!important;
+  color:rgba(220,255,120,.7)!important;
+  font:600 8px/1 "IBM Plex Mono",monospace!important;
+  letter-spacing:.17em!important;
+}
+html body .usd-feed-track{position:absolute!important;inset:0!important}
+html body .usd-feed-item{
+  position:absolute!important;
+  inset:21px 12px 8px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  white-space:nowrap!important;
+  opacity:0!important;
+  transform:translateY(14px) scale(.97)!important;
+  animation:usd-feed-rise 8s cubic-bezier(.2,.75,.2,1) infinite!important;
+  color:rgba(244,255,244,.78)!important;
+  font:500 13px/1 Inter,sans-serif!important;
+}
+html body .usd-feed-item b{color:#f4fff0!important;font-weight:700!important}
+html body .usd-feed-item strong{
+  margin-left:auto!important;
+  color:#eaff65!important;
+  font:800 clamp(20px,3vw,28px)/1 Inter,sans-serif!important;
+  letter-spacing:-.05em!important;
+  text-shadow:0 0 14px rgba(214,255,84,.3)!important;
+}
+html body .usd-feed-dot{width:7px!important;height:7px!important;flex:0 0 7px!important;border-radius:50%!important;background:#dfff5a!important;box-shadow:0 0 10px rgba(214,255,84,.85)!important}
+html body .usd-feed-item:nth-child(1){animation-delay:-.2s!important}
+html body .usd-feed-item:nth-child(2){animation-delay:-2.2s!important}
+html body .usd-feed-item:nth-child(3){animation-delay:-4.2s!important}
+html body .usd-feed-item:nth-child(4){animation-delay:-6.2s!important}
+@keyframes usd-feed-rise{
+  0%,10%{opacity:0;transform:translateY(14px) scale(.97)}
+  18%,55%{opacity:1;transform:translateY(0) scale(1)}
+  67%,100%{opacity:0;transform:translateY(-14px) scale(1.02)}
+}
+@media (max-width:900px){
+  html body .rebuild-top .usd-payment-feed{width:100%!important;height:68px!important;margin-bottom:16px!important}
+  html body .usd-feed-item{font-size:12px!important;gap:5px!important}
+  html body .usd-feed-item strong{font-size:22px!important}
+}
+@media (prefers-reduced-motion:reduce){
+  html body .usd-feed-item{animation:none!important;opacity:1!important;transform:none!important}
+  html body .usd-feed-item:not(:first-child){display:none!important}
+}
