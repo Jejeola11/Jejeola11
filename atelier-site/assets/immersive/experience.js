@@ -36,7 +36,7 @@ for(let i=0;i<Math.max(art.length,films.length);i++){
 stage.setAttribute('aria-label','Student images and videos. Swipe or use arrow keys; tap the centered video to play or pause.');
 const playButton=document.createElement('button');playButton.type='button';playButton.className='fuse-films-button';playButton.hidden=true;gallery.append(playButton);
 const fallbackBox=stage.querySelector('.fuse-fallback');fallbackBox.replaceChildren();
-media.forEach(item=>{const el=document.createElement(item.src?'video':'img');if(item.src){el.src=item.src;el.poster=item.poster;el.controls=true;el.playsInline=true;el.preload='none';el.setAttribute('aria-label',item.title)}else{el.src=item.poster;el.alt=item.title;el.loading='lazy'}fallbackBox.append(el)});
+media.forEach(item=>{const el=document.createElement(item.src?'video':'img');if(item.src){el.src=item.src;el.poster=item.poster;el.controls=false;el.muted=true;el.loop=true;el.autoplay=true;el.playsInline=true;el.preload='metadata';el.setAttribute('aria-label',item.title)}else{el.src=item.poster;el.alt=item.title;el.loading='lazy'}fallbackBox.append(el)});
 
 // Procedural studio reflections, with no external environment dependency.
 function environment(renderer){
@@ -82,10 +82,7 @@ function bindDrag(host,onDelta){
   host.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-x,dy=e.clientY-y;if(Math.abs(dx)>Math.abs(dy))onDelta(dx);x=e.clientX;y=e.clientY});
   const stop=()=>{down=false};host.addEventListener('pointerup',stop);host.addEventListener('pointercancel',stop);host.addEventListener('pointerleave',stop);
 }
-function controls(host,prev,next,toggle){
-  const row=document.createElement('div');row.className='fuse-controls';
-  [['←','Previous view',prev],['Ⅱ','Pause animation',toggle],['→','Next view',next]].forEach(([symbol,label,fn])=>{const b=document.createElement('button');b.type='button';b.textContent=symbol;b.setAttribute('aria-label',label);b.addEventListener('click',()=>{fn();if(label==='Pause animation'){const paused=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',String(paused));b.textContent=paused?'▷':'Ⅱ';b.setAttribute('aria-label',paused?'Resume animation':'Pause animation')}});row.append(b)});host.parentElement.append(row);
-}
+function controls(){ /* visuals autoplay; no visible playback controls */ }
 const core=make(hero);
 if(core){
   const group=new THREE.Group();core.scene.add(group);
@@ -112,21 +109,21 @@ if(works){
     const card={group,material,item,video:null};cards.push(card);works.scene.add(group);
   });
   for(let i=0;i<9;i++){const arch=new THREE.Mesh(new THREE.TorusGeometry(4.1,.018,6,80),new THREE.MeshBasicMaterial({color:i%2?'#365d45':'#b6df7a',transparent:true,opacity:.36-i*.025}));arch.scale.y=1.25;arch.position.z=-i*2-2;works.scene.add(arch)}
-  const move=d=>{target+=d;paused=true};bindDrag(stage,d=>move(-d*.005));
+  const move=d=>{target+=d};bindDrag(stage,d=>move(-d*.005));
   controls(stage,()=>move(-1),()=>move(1),()=>paused=!paused);
   function toggleVideo(){
     const card=cards[active];if(!card?.item.src)return;
-    paused=true;target=Math.round(current);
+    target=Math.round(current);
     if(!card.video){
-      const v=document.createElement('video');v.crossOrigin='anonymous';v.muted=true;v.loop=true;v.playsInline=true;v.preload='none';v.src=card.item.src;
+      const v=document.createElement('video');v.crossOrigin='anonymous';v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.preload='auto';v.src=card.item.src;
       card.video=v;
       v.addEventListener('loadeddata',()=>{const texture=new THREE.VideoTexture(v);texture.colorSpace=THREE.SRGBColorSpace;card.material.map=texture;card.material.needsUpdate=true});
       v.addEventListener('play',()=>{playButton.textContent='Pause video'});
       v.addEventListener('pause',()=>{if(cards[active]===card)playButton.textContent='Play video'});
     }
-    if(card.video.paused)card.video.play().catch(()=>{playButton.textContent='Tap to retry video'});else card.video.pause();
+    card.video.play().catch(()=>{});
   }
-  playButton.addEventListener('click',toggleVideo);
+  playButton.hidden=true;
   let downX=0,downY=0;
   stage.addEventListener('pointerdown',e=>{downX=e.clientX;downY=e.clientY});
   stage.addEventListener('pointerup',e=>{
@@ -135,12 +132,12 @@ if(works){
     const hit=ray.intersectObjects(cards.map(c=>c.group),true)[0];
     if(hit){const index=cards.findIndex(c=>c.group===hit.object.parent);if(index===active)toggleVideo();else if(index>=0){const delta=((index-Math.round(current)+count/2)%count+count)%count-count/2;move(delta)}}
   });
-  stage.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();move(e.key==='ArrowLeft'?-1:1)}else if(e.key===' '||e.key==='Enter'){e.preventDefault();toggleVideo()}});
+  stage.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();move(e.key==='ArrowLeft'?-1:1)}});
   works.render=(t,dt)=>{
     if(!paused&&!(reduced.matches||globalPaused))target+=dt*.13;
     current=(reduced.matches||globalPaused)?target:current+(target-current)*Math.min(1,dt*7);
     const selected=((Math.round(current)%count)+count)%count;
-    if(selected!==active){cards.forEach(c=>c.video?.pause());active=selected;caption.textContent=media[selected].title+(media[selected].src?' · VIDEO':'');playButton.hidden=!media[selected].src;playButton.textContent='Play video'}
+    if(selected!==active){cards.forEach(c=>c.video?.pause());active=selected;caption.textContent=media[selected].title+(media[selected].src?' · VIDEO':'');playButton.hidden=true;if(media[selected].src)toggleVideo()}
     cards.forEach((c,i)=>{const offset=((i-current+count/2)%count+count)%count-count/2;c.group.visible=Math.abs(offset)<4;c.group.position.set(offset*2.5,Math.sin(offset*.5)*.16,-Math.abs(offset)*1.6);c.group.rotation.y=-offset*.22;c.group.rotation.z=offset*.025});
     works.camera.position.z=mobile?7.4:8.5;
   };
