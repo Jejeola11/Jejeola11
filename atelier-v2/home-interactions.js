@@ -9,6 +9,7 @@ else if(t.closest('.bottom')){if(x.includes('home')){k='home-nav';u='/atelier-v2
 else if(t.matches('.openCreate,.tool,.workflow-card,.hero-card,.lane-card')||t.closest('.sheet-grid')){k='create';u='/atelier-v2/create.html'}
 else if(x.includes('start creating')){k='create-start';u='/atelier-v2/create.html'}
 else if(x.includes('find prospects')||t.matches('.offer-btn')){k='prospects';u='/atelier-v2/clients.html'}
+else if(x.includes('community')){k='community';u='/atelier-v2/community.html'}
 else if(x==='library'||x.includes('open library')){k='library';u='/app/workspace.html?view=library'}
 else if(t.matches('.credit')||x.includes('credits')){k='credits';u='/app/workspace.html?view=profile'}
 if(!u)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation?.();if(once(k))go(u)};
