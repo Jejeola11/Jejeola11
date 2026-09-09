@@ -154,3 +154,116 @@ html body .rebuild-offer-item .rebuild-offer-copy>p{grid-column:1/-1!important;g
 html.fuse-phone body .rebuild-offer-item{grid-template-columns:32px minmax(0,1fr) auto!important;padding:18px!important;column-gap:9px!important;row-gap:12px!important}
 html.fuse-phone body .rebuild-offer-item .rebuild-offer-copy>p{font-size:11px!important;line-height:1.55!important}
 html.fuse-phone body .rebuild-offer-item>.rebuild-tag{font-size:6.5px!important;padding:5px 6px!important}
+
+/* USD payment stream: a lightweight depth cue for the hero projection */
+html body .rebuild-hero-wrap .hero-left-headline{
+  align-self:flex-start!important;
+  text-align:left!important;
+  width:100%!important;
+  max-width:100%!important;
+}
+html body .hero-left-headline>span{
+  display:block!important;
+  white-space:nowrap!important;
+}
+html body .fuse-projection{
+  position:relative!important;
+  perspective:1100px!important;
+  overflow:visible!important;
+}
+html body .usd-payment-stream{
+  position:absolute!important;
+  z-index:8!important;
+  top:8%!important;
+  right:-12%!important;
+  width:min(260px,58%)!important;
+  height:78%!important;
+  pointer-events:none!important;
+  transform:rotateY(-28deg)!important;
+  transform-style:preserve-3d!important;
+}
+html body .usd-stream-label{
+  position:absolute!important;
+  top:-12px!important;
+  right:4px!important;
+  color:rgba(214,255,86,.72)!important;
+  font:600 9px/1.2 "IBM Plex Mono",monospace!important;
+  letter-spacing:.2em!important;
+  white-space:nowrap!important;
+}
+html body .usd-stream-rail{
+  position:absolute!important;
+  top:8%!important;
+  right:8%!important;
+  width:2px!important;
+  height:82%!important;
+  border-radius:999px!important;
+  background:linear-gradient(180deg,transparent,rgba(215,255,83,.75),transparent)!important;
+  box-shadow:0 0 22px rgba(215,255,83,.35)!important;
+  transform:rotateY(90deg)!important;
+  transform-origin:center!important;
+}
+html body .usd-payment-card{
+  position:absolute!important;
+  right:0!important;
+  width:190px!important;
+  min-height:70px!important;
+  padding:11px 13px!important;
+  display:grid!important;
+  grid-template-columns:1fr auto!important;
+  grid-template-rows:auto 1fr!important;
+  gap:3px 10px!important;
+  border:1px solid rgba(215,255,83,.28)!important;
+  border-radius:14px!important;
+  background:linear-gradient(135deg,rgba(7,33,28,.92),rgba(29,58,36,.72))!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.3), inset 0 0 22px rgba(215,255,83,.08)!important;
+  backdrop-filter:blur(10px)!important;
+  transform-style:preserve-3d!important;
+  opacity:0!important;
+  animation:usd-payment-pop 8s cubic-bezier(.2,.75,.2,1) infinite!important;
+}
+html body .usd-payment-card small{
+  grid-column:1/-1!important;
+  color:rgba(244,255,238,.65)!important;
+  font:600 9px/1.1 "IBM Plex Mono",monospace!important;
+  letter-spacing:.11em!important;
+}
+html body .usd-payment-card b{
+  align-self:end!important;
+  color:#efff75!important;
+  font:700 clamp(24px,3vw,38px)/.95 Inter,sans-serif!important;
+  letter-spacing:-.06em!important;
+}
+html body .usd-payment-card i{
+  align-self:end!important;
+  justify-self:end!important;
+  color:#d8ff71!important;
+  font:700 8px/1 "IBM Plex Mono",monospace!important;
+  letter-spacing:.08em!important;
+  font-style:normal!important;
+}
+html body .usd-card-1{top:8%!important;animation-delay:-.2s!important}
+html body .usd-card-2{top:29%!important;animation-delay:-2.2s!important}
+html body .usd-card-3{top:50%!important;animation-delay:-4.2s!important}
+html body .usd-card-4{top:71%!important;animation-delay:-6.2s!important}
+@keyframes usd-payment-pop{
+  0%,12%{opacity:0;transform:translate3d(100px,22px,-90px) rotateY(-42deg) scale(.62)}
+  24%{opacity:1}
+  52%{opacity:1;transform:translate3d(0,0,0) rotateY(-10deg) scale(1)}
+  75%{opacity:0;transform:translate3d(-34px,-16px,70px) rotateY(12deg) scale(1.06)}
+  100%{opacity:0;transform:translate3d(-34px,-16px,70px) rotateY(12deg) scale(1.06)}
+}
+@media (max-width:900px){
+  html body .usd-payment-stream{
+    top:6%!important;
+    right:-3%!important;
+    width:60%!important;
+    height:72%!important;
+    transform:scale(.78) rotateY(-28deg)!important;
+    transform-origin:right center!important;
+  }
+  html body .usd-payment-card{width:170px!important}
+}
+@media (prefers-reduced-motion:reduce){
+  html body .usd-payment-card{animation:none!important;opacity:1!important;transform:none!important}
+}
