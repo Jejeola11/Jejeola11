@@ -4956,10 +4956,10 @@ html{
 <link rel="stylesheet" href="/atelier-site/assets/immersive/experience.css">
 <script type="module" src="/atelier-site/assets/immersive/experience.js?v=autoplay-1"></script>
 <link rel="stylesheet" href="/atelier-site/assets/immersive/layout-repair.css">
-<link rel="stylesheet" href="/atelier-site/assets/immersive/hologram.css">
-<script defer src="/atelier-site/assets/immersive/hologram.js"></script>
+<link rel="stylesheet" href="/atelier-site/assets/immersive/hologram.css?v=hear-ria-1">
+<script defer src="/atelier-site/assets/immersive/hologram.js?v=hear-ria-1"></script>
 <link rel="stylesheet" href="/atelier-site/assets/immersive/reading.css">
-<link rel="stylesheet" href="/atelier-site/assets/immersive/previews.css?v=autoplay-1">
+<link rel="stylesheet" href="/atelier-site/assets/immersive/previews.css?v=hear-ria-1">
 <script defer src="/atelier-site/assets/immersive/previews.js?v=autoplay-1"></script>
 <link rel="stylesheet" href="/atelier-site/assets/immersive/reviews.css">
 <script defer src="/atelier-site/assets/immersive/reviews.js"></script>
@@ -4983,6 +4983,9 @@ html{
     <div class="fuse-sculpture fuse-projection" role="group" aria-label="Ria hologram projected above the interactive Fuse sculpture">
       <div class="ria-hologram">
         <video id="riaHologram" poster="/atelier-site/assets/immersive/ria-hologram-poster.jpg" src="/atelier-site/assets/immersive/ria-hologram.mp4" autoplay muted playsinline preload="auto" aria-label="Ria's AI twin introducing Fuse Atelier"></video>
+        <div class="ria-hologram-controls">
+          <button type="button" id="riaListen" aria-label="Play Ria introduction with sound">▶ Hear Ria</button>
+        </div>
         
       </div>
       <div class="fuse-stage" data-scene="core"></div>
