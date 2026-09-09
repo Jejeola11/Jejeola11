@@ -1552,5 +1552,46 @@ src="https://www.facebook.com/tr?id=1558555608390410&ev=PageView&noscript=1"
 <script src="/app/academy.js?v=20260814a"></script>
 <script src="/app/home.js?v=20260908-navigation"></script>
 <script type="module" src="/app/app.js?v=20260908-navigation"></script>
-</body>
+<style id="fuse-rebuild-home-style">
+#fuse-rebuild-home{max-width:1120px;margin:0 auto;padding:18px 14px 70px;color:#f5fff9;font-family:Inter,system-ui,sans-serif}
+#fuse-rebuild-home .fr-hero{border:1px solid #78a99566;border-radius:24px;padding:24px;background:linear-gradient(125deg,#09271f,#123b2c);position:relative;overflow:hidden;box-shadow:0 22px 65px #0007}
+#fuse-rebuild-home .fr-hero:after{content:"";position:absolute;width:230px;height:230px;border-radius:50%;right:-60px;top:-90px;background:#baff6326;filter:blur(6px)}
+#fuse-rebuild-home .fr-ey{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#baff63;font-weight:900}
+#fuse-rebuild-home h1{font-size:clamp(30px,6vw,52px);line-height:.96;letter-spacing:-.07em;margin:9px 0;max-width:620px}
+#fuse-rebuild-home h1 em{font-style:normal;background:linear-gradient(110deg,#ffe568,#baff63);-webkit-background-clip:text;color:transparent}
+#fuse-rebuild-home p{color:#b9cec5;line-height:1.5;margin:0;max-width:620px}
+#fuse-rebuild-home .fr-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+#fuse-rebuild-home a{color:inherit;text-decoration:none}
+#fuse-rebuild-home .fr-btn{border:0;border-radius:11px;padding:11px 14px;background:linear-gradient(110deg,#ffe568,#baff63);color:#07130f;font-weight:900;font-size:12px}
+#fuse-rebuild-home .fr-btn.alt{background:#ffffff0d;border:1px solid #ffffff2a;color:#fff}
+#fuse-rebuild-home .fr-sec{margin-top:27px}.fr-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:10px}.fr-head h2{font-size:20px;letter-spacing:-.04em;margin:0}.fr-head small{font-size:10px;color:#91aaa1}
+#fuse-rebuild-home .fr-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+#fuse-rebuild-home .fr-stat{padding:13px;border:1px solid #245248;border-radius:15px;background:#081d18}.fr-stat strong{font-size:23px;display:block}.fr-stat span{font-size:10px;color:#91aaa1}
+#fuse-rebuild-home .fr-courses{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.fr-card{display:block;padding:15px;border:1px solid #245248;border-radius:17px;background:linear-gradient(145deg,#0b261f,#071914);min-height:135px;transition:.2s}.fr-card:hover{transform:translateY(-2px);border-color:#baff6370}.fr-icon{width:38px;height:38px;border-radius:11px;background:#baff6318;border:1px solid #baff6330;display:grid;place-items:center;font-size:18px}.fr-card h3{font-size:15px;margin:12px 0 5px}.fr-card p{font-size:11px;line-height:1.4}.fr-tag{display:inline-block;margin-top:10px;border-radius:99px;padding:5px 7px;background:#baff6315;color:#dfffaa;font-size:9px}
+#fuse-rebuild-home .fr-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.fr-flow a{padding:12px 8px;border:1px solid #245248;border-radius:13px;background:#081d18;text-align:center}.fr-flow b{display:block;color:#baff63;font-size:18px}.fr-flow span{display:block;font-size:10px;color:#b8cdc4;margin-top:5px}
+#fuse-rebuild-home .fr-community{display:grid;grid-template-columns:1.2fr .8fr;gap:10px}.fr-feed{padding:15px;border:1px solid #245248;border-radius:17px;background:#081d18}.fr-post{padding:11px 0;border-bottom:1px solid #ffffff12}.fr-post:last-child{border:0}.fr-post b{font-size:11px}.fr-post span{display:block;color:#91aaa1;font-size:10px;line-height:1.4;margin-top:4px}.fr-side{padding:15px;border:1px solid #245248;border-radius:17px;background:linear-gradient(145deg,#12382d,#081d18)}.fr-side h3{margin:0 0 8px;font-size:16px}.fr-side p{font-size:11px}.fr-side .fr-btn{display:inline-block;margin-top:14px}
+@media(max-width:680px){#fuse-rebuild-home{padding:14px 10px 76px}.fr-grid{grid-template-columns:repeat(2,1fr)!important}.fr-courses{grid-template-columns:1fr!important}.fr-flow{grid-template-columns:repeat(3,1fr)!important}.fr-flow a:nth-child(4),.fr-flow a:nth-child(5){display:none}.fr-community{grid-template-columns:1fr!important}#fuse-rebuild-home h1{font-size:36px}}
+</style>
+<script>
+(function(){
+function build(){
+ const host=document.getElementById('fs-home'); if(!host||host.dataset.rebuilt)return;
+ host.dataset.rebuilt='1';
+ const old=[...document.querySelectorAll('#view-home > *')].filter(x=>x!==host); old.forEach(x=>x.style.display='none');
+ host.innerHTML=`<div id="fuse-rebuild-home">
+ <section class="fr-hero"><div class="fr-ey">Fuse Atelier · Learn → Create → Sell</div><h1>Build something <em>worth selling.</em></h1><p>Your AI skill is only the beginning. Learn the workflow, create proof, find the right opportunity and turn it into paid work.</p><div class="fr-actions"><a class="fr-btn" href="/atelier-v2/learn.html">Continue Academy →</a><a class="fr-btn alt" href="/atelier-v2/studio-hub.html">Open Studio Workflows</a></div></section>
+ <section class="fr-sec"><div class="fr-head"><h2>Your workspace</h2><small>Keep moving</small></div><div class="fr-grid"><div class="fr-stat"><strong>53</strong><span>Academy lessons</span></div><div class="fr-stat"><strong>120</strong><span>Credits available</span></div><div class="fr-stat"><strong>0</strong><span>Client samples</span></div><div class="fr-stat"><strong>0</strong><span>Community posts</span></div></div></section>
+ <section class="fr-sec"><div class="fr-head"><h2>Start learning</h2><small>Included with access</small></div><div class="fr-courses">
+ <a class="fr-card" href="/atelier-v2/academy-v2.html?course=design"><div class="fr-icon">▧</div><h3>Design & Flyers</h3><p>Create visuals businesses can use to sell and communicate.</p><span class="fr-tag">19 lessons</span></a>
+ <a class="fr-card" href="/atelier-v2/academy-v2.html?course=video"><div class="fr-icon">◉</div><h3>AI UGC & Influencer</h3><p>Build creator-style campaigns and brand content.</p><span class="fr-tag">17 lessons</span></a>
+ <a class="fr-card" href="/atelier-v2/academy-v2.html?course=landing"><div class="fr-icon">⌗</div><h3>Landing Page Design</h3><p>Turn attention into enquiries and sales.</p><span class="fr-tag">10 lessons</span></a>
+ <a class="fr-card" href="/atelier-v2/academy-v2.html?course=money"><div class="fr-icon">↗</div><h3>Money Engine</h3><p>Find opportunities and pitch an offer with confidence.</p><span class="fr-tag">7 lessons</span></a>
+ </div></section>
+ <section class="fr-sec"><div class="fr-head"><h2>The Fuse path</h2><small>Your operating system</small></div><div class="fr-flow"><a href="/atelier-v2/learn.html"><b>1</b><span>Learn</span></a><a href="/atelier-v2/studio-hub.html"><b>2</b><span>Create proof</span></a><a href="/atelier-v2/engines.html"><b>3</b><span>Find work</span></a><a href="/atelier-v2/clients.html"><b>4</b><span>Pitch</span></a><a href="#community"><b>5</b><span>Get feedback</span></a></div></section>
+ <section class="fr-sec"><div class="fr-head"><h2>Community</h2><small>Share the work, not just the idea</small></div><div class="fr-community"><div class="fr-feed"><div class="fr-post"><b>Ria’s review desk</b><span>Submit your latest creation and get a clear next improvement.</span></div><div class="fr-post"><b>Student wins</b><span>See what other Fuse Atelier members are creating and selling.</span></div><div class="fr-post"><b>Challenges</b><span>Weekly prompts to help you build proof consistently.</span></div><a class="fr-btn alt" href="#community">Open Community →</a></div><div class="fr-side"><h3>Ready for your next client?</h3><p>Generate a qualified prospect pack, attach a sample and start a real conversation.</p><a class="fr-btn" href="/atelier-v2/engines.html">Open Money Engines</a></div></div></section>
+ </div>`;
+}
+build(); new MutationObserver(build).observe(document.body,{childList:true,subtree:true});
+})();
+</script></body>
 </html>
