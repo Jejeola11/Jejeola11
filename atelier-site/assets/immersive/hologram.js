@@ -1,12 +1,11 @@
 (()=>{
- const video=document.getElementById('riaHologram'),listen=document.getElementById('riaListen'),pause=document.getElementById('riaPause');
+ const video=document.getElementById('riaHologram'),listen=document.getElementById('riaListen');
  if(!video)return;
- video.defaultMuted=true;video.muted=true;video.autoplay=true;video.playsInline=true;
+ video.defaultMuted=true;video.muted=true;video.autoplay=true;video.loop=true;video.playsInline=true;
  let finished=false,userPaused=false;
- function sync(){pause.textContent=video.ended?'Replay':video.paused?'Play':'Pause';pause.setAttribute('aria-label',pause.textContent+' introduction');listen.textContent=video.muted?'Hear from Ria':'Mute audio'}
+ function sync(){if(!listen)return;listen.textContent=video.muted?'▶ Hear Ria':'🔊 Sound on';listen.setAttribute('aria-label',video.muted?'Play Ria introduction with sound':'Mute Ria introduction')}
  const play=()=>video.play().catch(sync);
- listen.addEventListener('click',()=>{video.muted=!video.muted;if(!video.muted){video.currentTime=0;finished=false;userPaused=false;play()}sync()});
- pause.addEventListener('click',()=>{if(video.paused){if(video.ended)video.currentTime=0;finished=false;userPaused=false;play()}else{userPaused=true;video.pause()}});
+ listen?.addEventListener('click',()=>{video.muted=!video.muted;if(!video.muted){video.currentTime=0;finished=false;userPaused=false;play()}sync()});
  video.addEventListener('play',sync);video.addEventListener('pause',sync);video.addEventListener('ended',()=>{finished=true;sync()});
  video.addEventListener('canplay',()=>{if(!finished&&!userPaused&&video.paused)play()},{once:true});
  addEventListener('pageshow',()=>{if(!finished&&!userPaused)play()});
