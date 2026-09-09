@@ -42,13 +42,22 @@
   }
 
   async function syncHome(client, session) {
-    const { data } = await client.from('profiles').select('credits').eq('id', session.user.id).maybeSingle();
+    const { data } = await client.from('profiles').select('credits,is_admin').eq('id', session.user.id).maybeSingle();
     const d = deepestDoc();
     const credit = [...d.querySelectorAll('button')].find(item => /credits/i.test(item.textContent || ''));
     if (credit && data && Number.isFinite(Number(data.credits))) credit.textContent = `✦ ${Number(data.credits)} credits`;
     const email = session.user.email || 'Fuse student';
     const menu = d.querySelector('.profile-menu .profile-top div:nth-child(2)');
     if (menu) menu.innerHTML = `<b>${email.split('@')[0]}</b><div style="font-size:12px;color:var(--muted)">${email}</div>`;
+    const profileMenu = d.querySelector('.profile-menu');
+    if (data?.is_admin && profileMenu && !profileMenu.querySelector('[data-fuse-ops]')) {
+      const item = d.createElement('button');
+      item.type = 'button'; item.dataset.fuseOps = '1'; item.className = 'menu-row menu-button';
+      item.innerHTML = '<span class="menu-ico">◈</span><span>Fuse Operations</span><b>›</b>';
+      item.onclick = () => { window.top.location.href = '/atelier-v2/admin.html'; };
+      const divider = profileMenu.querySelector('.menu-divider');
+      if (divider) profileMenu.insertBefore(item, divider); else profileMenu.appendChild(item);
+    }
   }
 
   async function start() {
