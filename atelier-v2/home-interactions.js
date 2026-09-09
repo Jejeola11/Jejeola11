@@ -10,7 +10,7 @@ else if(t.matches('.openCreate,.tool,.workflow-card,.hero-card,.lane-card')||t.c
 else if(x.includes('start creating')){k='create-start';u='/atelier-v2/create.html'}
 else if(x.includes('find prospects')||t.matches('.offer-btn')){k='prospects';u='/atelier-v2/clients.html'}
 else if(x.includes('community')){k='community';u='/atelier-v2/community.html'}
-else if(x==='library'||x.includes('open library')){k='library';u='/app/workspace.html?view=library'}
+else if(x.includes('resource')||x==='library'||x.includes('open library')){k='resources';u='/atelier-v2/resources.html'}
 else if(t.matches('.credit')||x.includes('credits')){k='credits';u='/app/workspace.html?view=profile'}
 if(!u)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation?.();if(once(k))go(u)};
 d.addEventListener('pointerup',e=>{if(e.pointerType==='touch'||e.pointerType==='pen')h(e)},true);d.addEventListener('click',h,true);const s=d.createElement('style');s.textContent='button,.tool,.workflow-card,.hero-card,.lane-card{touch-action:manipulation;-webkit-tap-highlight-color:transparent}.next-move-btn,.resume-row button,.openCreate,.tool,.workflow-card,.lane-card{pointer-events:auto!important;cursor:pointer!important}';d.head.appendChild(s)}
