@@ -399,3 +399,25 @@ body #system .rebuild-3d-progress{display:none!important}
 @media(prefers-reduced-motion:reduce){
   body #system .rebuild-3d-card,body #system .rebuild-3d-card:after{animation:none!important}
 }
+
+/* Independent fan avoids legacy demo-grid transforms and controls. */
+html body .rebuild-top .rebuild-hero-wrap .hero-left-headline{text-align:center!important;align-self:center!important}
+.fuse-arc{position:relative;width:100%;height:330px;overflow:hidden;margin:28px auto 18px;isolation:isolate;perspective:1000px}
+.fuse-arc-wheel{position:absolute;left:50%;top:340px;width:0;height:0;transform-style:preserve-3d}
+.fuse-arc-card{position:absolute;left:-85px;bottom:0;width:170px;height:240px;padding:22px 16px;box-sizing:border-box;border-radius:14px;border:1px solid #eaffaa66;background:linear-gradient(160deg,#fff36a,#baff63 45%,#176847 80%,#03201a);color:#08251b;transform-origin:50% calc(100% + 140px);animation:fuse-arc-orbit 20s linear infinite;animation-delay:calc(var(--slot) * -4s);box-shadow:0 18px 35px #0005,inset 0 1px #ffffba;backface-visibility:hidden}
+.fuse-arc-card:nth-child(2){background:linear-gradient(160deg,#eaffdd,#bfff69 35%,#285f3d)}
+.fuse-arc-card:nth-child(3){background:linear-gradient(160deg,#124d35,#89cb46 55%,#fff36a);color:#f3ffdf}
+.fuse-arc-card:nth-child(4){background:linear-gradient(160deg,#fbf8be,#d4f553 50%,#176044)}
+.fuse-arc-card:nth-child(5){background:linear-gradient(160deg,#ccff9a,#6cae36 55%,#082c21)}
+.fuse-arc-card>span{display:block;font-size:10px;font-weight:800;letter-spacing:.12em}
+.fuse-arc-card>b{display:block;margin-top:42px;font-size:29px;line-height:1.05;letter-spacing:-.04em}
+.fuse-arc-card>small{display:block;margin-top:16px;font-size:13px;line-height:1.4}
+@keyframes fuse-arc-orbit{
+0%{transform:translateY(-140px) rotate(-75deg);opacity:0}
+8%{opacity:1}
+50%{transform:translateY(-140px) rotate(0deg);opacity:1}
+92%{opacity:1}
+100%{transform:translateY(-140px) rotate(75deg);opacity:0}
+}
+@media(max-width:700px){.fuse-arc{height:270px}.fuse-arc-wheel{top:300px}.fuse-arc-card{width:125px;left:-62.5px;height:195px;padding:17px 12px}.fuse-arc-card>b{font-size:24px;margin-top:30px}.fuse-arc-card>span{font-size:8px}.fuse-arc-card>small{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.fuse-arc{height:auto;overflow:visible}.fuse-arc-wheel{position:static;width:auto;display:flex;flex-wrap:wrap;gap:12px}.fuse-arc-card{position:relative;left:auto;bottom:auto;animation:none;transform:none;width:calc(50% - 6px);height:195px}}
