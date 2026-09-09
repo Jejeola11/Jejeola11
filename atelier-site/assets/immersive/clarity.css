@@ -331,3 +331,71 @@ html body .usd-feed-item:nth-child(4){animation-delay:-6.2s!important}
   html body .usd-feed-item{animation:none!important;opacity:1!important;transform:none!important}
   html body .usd-feed-item:not(:first-child){display:none!important}
 }
+
+/* Reference-style automatic learning path choreography */
+body #system .rebuild-skill-mechanism-3d{overflow:hidden!important}
+body #system .rebuild-3d-stage{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:18px!important;
+  height:auto!important;
+  min-height:360px!important;
+  padding:26px 18px 30px!important;
+  border:1px solid rgba(214,255,116,.34)!important;
+  background:
+    radial-gradient(circle at 50% 25%,rgba(190,255,100,.10),transparent 42%),
+    linear-gradient(145deg,rgba(8,31,24,.8),rgba(3,16,13,.9))!important;
+  overflow:hidden!important;
+}
+body #system .rebuild-3d-card{
+  position:relative!important;
+  inset:auto!important;
+  width:auto!important;
+  min-height:146px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  padding:24px 24px!important;
+  border:1px solid rgba(196,255,112,.16)!important;
+  border-radius:30px!important;
+  background:linear-gradient(145deg,rgba(15,46,34,.92),rgba(6,26,20,.92))!important;
+  box-shadow:0 18px 42px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.04)!important;
+  transform:none!important;
+  animation:path-card-drift 8s ease-in-out infinite!important;
+}
+body #system .rebuild-3d-card:after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(120deg,transparent 30%,rgba(230,255,160,.16) 50%,transparent 70%);
+  background-size:220% 100%;animation:path-card-sheen 8s ease-in-out infinite!important;
+}
+body #system .rebuild-3d-card span{font-size:11px!important;letter-spacing:.14em!important;color:#e9f6d9!important;background:none!important;-webkit-text-fill-color:initial!important}
+body #system .rebuild-3d-card b{margin-top:18px!important;font-size:clamp(26px,4vw,42px)!important;line-height:.95!important;color:#f0ffc8!important}
+body #system .rebuild-3d-card small{margin-top:16px!important;font-size:15px!important;color:#d1dfd5!important}
+body #system .rebuild-3d-card.step-1{grid-column:1!important;grid-row:1!important;animation-delay:-.2s!important}
+body #system .rebuild-3d-card.step-2{grid-column:2!important;grid-row:1!important;animation-delay:-2.2s!important}
+body #system .rebuild-3d-card.step-3{grid-column:1!important;grid-row:2!important;animation-delay:-4.2s!important}
+body #system .rebuild-3d-card.step-4{grid-column:2!important;grid-row:2!important;animation-delay:-6.2s!important}
+body #system .rebuild-3d-card.step-5{grid-column:1/-1!important;grid-row:3!important;width:calc(50% - 9px)!important;justify-self:center!important;animation-delay:-1.2s!important}
+body #system .rebuild-3d-progress{display:none!important}
+@keyframes path-card-drift{
+  0%,100%{transform:translate3d(0,0,0) rotate(0deg) scale(1);box-shadow:0 18px 42px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.04)}
+  32%{transform:translate3d(0,-8px,0) rotate(-.6deg) scale(1.012);box-shadow:0 25px 48px rgba(0,0,0,.34),0 0 0 1px rgba(208,255,111,.08),inset 0 1px 0 rgba(255,255,255,.05)}
+  60%{transform:translate3d(0,2px,0) rotate(.5deg) scale(.996)}
+}
+@keyframes path-card-sheen{
+  0%,20%{background-position:140% 0;opacity:0}
+  40%,65%{background-position:0 0;opacity:1}
+  82%,100%{background-position:-120% 0;opacity:0}
+}
+@media(max-width:700px){
+  body #system .rebuild-3d-stage{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;min-height:390px!important;padding:20px 14px 24px!important}
+  body #system .rebuild-3d-card{min-height:142px!important;padding:18px 16px!important;border-radius:24px!important}
+  body #system .rebuild-3d-card span{font-size:9px!important;line-height:1.25!important}
+  body #system .rebuild-3d-card b{margin-top:14px!important;font-size:clamp(22px,6vw,31px)!important}
+  body #system .rebuild-3d-card small{margin-top:12px!important;font-size:12px!important}
+  body #system .rebuild-3d-card.step-5{width:calc(50% - 6px)!important}
+}
+@media(prefers-reduced-motion:reduce){
+  body #system .rebuild-3d-card,body #system .rebuild-3d-card:after{animation:none!important}
+}
