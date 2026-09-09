@@ -26,3 +26,6 @@ body #system .fuse-demo .rebuild-3d-card span,body #system .fuse-demo .rebuild-3
 .fuse-phone body #system .rebuild-3d-stage.fuse-demo{grid-template-columns:repeat(5,160px)!important;overflow-x:auto!important;scroll-snap-type:x mandatory}
 .fuse-phone .money-visual.fuse-demo .money-pipe{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 @media(prefers-reduced-motion:reduce){.fuse-demo [data-demo-item],body #system .fuse-demo .rebuild-3d-card{transform:none!important;transition:none!important}.fuse-demo [data-demo-item]:after{animation:none!important}}
+
+/* Playback is automatic across the landing-page visual scenes. */
+.fuse-controls,.fuse-demo-controls,.fuse-demo-description,.fuse-films-button,.ria-hologram-controls{display:none!important}
