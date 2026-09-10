@@ -1,0 +1,154 @@
+[
+  {
+    "id": "community-01",
+    "title": "Flame & Flavor",
+    "source": "VID-20260809-WA0048(4).mp4",
+    "width": 368,
+    "height": 464,
+    "type": "video"
+  },
+  {
+    "id": "community-02",
+    "title": "Jewelry in Motion",
+    "source": "VID-20260810-WA0081(1)(1).mp4",
+    "width": 480,
+    "height": 714,
+    "type": "video"
+  },
+  {
+    "id": "community-03",
+    "title": "The Jewelry Edit",
+    "source": "VID-20260810-WA0081(3).mp4",
+    "width": 480,
+    "height": 714,
+    "type": "video"
+  },
+  {
+    "id": "community-04",
+    "title": "Daily Ritual",
+    "source": "VID-20260812-WA0051(2).mp4",
+    "width": 480,
+    "height": 854,
+    "type": "video"
+  },
+  {
+    "id": "community-05",
+    "title": "Morning Glow",
+    "source": "VID-20260812-WA0052(3).mp4",
+    "width": 360,
+    "height": 640,
+    "type": "video"
+  },
+  {
+    "id": "community-06",
+    "title": "Everyday Elegance",
+    "source": "VID-20260819-WA0067(2).mp4",
+    "width": 478,
+    "height": 850,
+    "type": "video"
+  },
+  {
+    "id": "community-07",
+    "title": "Beauty Close-Up",
+    "source": "VID-20260820-WA0018(1).mp4",
+    "width": 480,
+    "height": 864,
+    "type": "video"
+  },
+  {
+    "id": "community-08",
+    "title": "Skincare Spotlight",
+    "source": "VID-20260820-WA0020(2).mp4",
+    "width": 480,
+    "height": 854,
+    "type": "video"
+  },
+  {
+    "id": "community-09",
+    "title": "Studio News",
+    "source": "VID-20260827-WA0029(1).mp4",
+    "width": 480,
+    "height": 854,
+    "type": "video"
+  },
+  {
+    "id": "community-10",
+    "title": "On the Move",
+    "source": "VID-20260903-WA0063(1).mp4",
+    "width": 360,
+    "height": 640,
+    "type": "video"
+  },
+  {
+    "id": "community-11",
+    "title": "City Muse",
+    "source": "VID-20260903-WA0064(2).mp4",
+    "width": 360,
+    "height": 640,
+    "type": "video"
+  },
+  {
+    "id": "community-12",
+    "title": "Morning Mood",
+    "source": "VID-20260904-WA0043(1).mp4",
+    "width": 360,
+    "height": 640,
+    "type": "video"
+  },
+  {
+    "id": "community-13",
+    "title": "Street Style",
+    "source": "VID-20260904-WA0053(1).mp4",
+    "width": 360,
+    "height": 640,
+    "type": "video"
+  },
+  {
+    "id": "community-14",
+    "title": "Behind the Wheel",
+    "source": "VID-20260905-WA0044.mp4",
+    "width": 478,
+    "height": 850,
+    "type": "video"
+  },
+  {
+    "id": "community-15",
+    "title": "Golden Hour",
+    "source": "VID-20260908-WA0008.mp4",
+    "width": 478,
+    "height": 850,
+    "type": "video"
+  },
+  {
+    "id": "community-16",
+    "title": "Bridal Dream",
+    "source": "VID-20260908-WA0009(1).mp4",
+    "width": 360,
+    "height": 640,
+    "type": "video"
+  },
+  {
+    "id": "community-17",
+    "title": "Evening Out",
+    "source": "VID-20260908-WA0018.mp4",
+    "width": 480,
+    "height": 854,
+    "type": "video"
+  },
+  {
+    "id": "community-18",
+    "title": "Style in Sync",
+    "source": "VID-20260908-WA0024.mp4",
+    "width": 478,
+    "height": 850,
+    "type": "video"
+  },
+  {
+    "id": "community-19",
+    "title": "Creator Stories",
+    "source": "VID-20260908-WA0079.mp4",
+    "width": 480,
+    "height": 854,
+    "type": "video"
+  }
+]
