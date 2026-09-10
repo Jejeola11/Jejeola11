@@ -11,3 +11,24 @@
 @media(min-width:700px){.reference-main{max-width:900px}.reference-header{max-width:900px}.feature-slide{max-height:340px;aspect-ratio:2.5;padding:26px}.slide-copy h1{font-size:30px}.slide-copy p{font-size:17px}.slide-sculpture{width:45%;right:3%;top:0}.today-grid{gap:25px;max-width:650px}.star-placeholder{max-width:125px}.today-card{font-size:14px}.today-section{margin-top:16px}.today-section h2{font-size:18px}.home-search{height:46px}.account-menu{right:max(16px,calc((100vw - 900px)/2))}}
 @media(prefers-reduced-motion:reduce){.reference-home *{animation:none!important;transition:none!important}}
 .reference-home .menu-credit{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px}.reference-home .menu-credit>div{display:grid;gap:4px}.reference-home .menu-credit>a{margin:0;padding:8px 16px}
+
+/* Palette matched to the supplied accent/background swatches. */
+.reference-home{--brand-ground:linear-gradient(105deg,#090909 0%,#021418 52%,#25454A 100%);--brand-accent:linear-gradient(100deg,#F4DB5E 0%,#A9FF67 50%,#F4F4F4 100%);background:var(--brand-ground)!important;background-attachment:fixed}
+.reference-home .credit-banner{background:var(--brand-accent);color:#090909}
+.reference-home .credit-banner>a,.reference-home .pricing-link{background:var(--brand-ground);color:#fff}
+.reference-home .credit-banner>button{color:#25454A}
+.reference-home .pricing-link small,.reference-home .menu-credit>a,.reference-home .fuse-nav .nav-create svg{background:var(--brand-accent);color:#090909}
+.reference-home .home-search{background:linear-gradient(105deg,#090909,#021418 52%,#25454A) padding-box,var(--brand-accent) border-box;border:1px solid transparent}
+.reference-home .carousel-window,.reference-home .feature-slide{background:var(--brand-ground)}
+.reference-home .slide-copy h1,.reference-home .today-section h2{background:var(--brand-accent);background-clip:text;-webkit-background-clip:text;color:transparent;width:fit-content}
+.reference-home .account-menu{background:var(--brand-ground);padding:12px 10px 8px;border-radius:18px}
+.reference-home .menu-identity{margin:0 4px 10px;gap:9px}
+.reference-home .menu-identity strong{font-size:14px;line-height:1.25}
+.reference-home .menu-identity p{margin:3px 0 0;font-size:12px;line-height:1.25}
+.reference-home .menu-credit{background:linear-gradient(110deg,#090909,#10272c 60%,#25454A);padding:10px;margin-bottom:6px}
+.reference-home .account-menu nav a{min-height:36px;padding:5px 8px;gap:10px;font-size:13px;line-height:1.2;justify-content:flex-start}
+.reference-home .account-menu nav a>svg{width:17px;height:17px;flex:none;color:#b2c8bd}
+.reference-home .account-menu nav a>span{margin-left:auto}
+.reference-home .account-menu #menuStatus:empty{display:none}
+.reference-home .fuse-nav{background:linear-gradient(105deg,#090909f5,#021418f5 52%,#25454Af5)}
+.reference-home .logo-link img,.reference-home .menu-identity img{clip-path:inset(10% round 24%);transform:scale(1.18)}
