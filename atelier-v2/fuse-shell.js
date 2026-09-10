@@ -1,11 +1,11 @@
 (() => {
   'use strict';
   const mobileStyles=document.createElement('link');
-  mobileStyles.rel='stylesheet';mobileStyles.href='/atelier-v2/mobile-refinement.css?v=mobile-2';document.head.append(mobileStyles);
+  mobileStyles.rel='stylesheet';mobileStyles.href='/atelier-v2/mobile-refinement.css?v=teal-1';document.head.append(mobileStyles);
   const root='/atelier-v2/';
   const paths={home:'home.html',academy:'learn.html',create:'studio.html',community:'community.html',profile:'profile.html'};
-  const icons={home:'M3 10 12 3 21 10v11h-6v-7H9v7H3z',academy:'m2 9 10-5 10 5-10 5z M5 11v7q7 5 14 0v-7',create:'m12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3z',community:'M21 11a9 8 0 0 1-9 8H5l-3 3V11a9 8 0 0 1 19 0z',profile:'M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M4 22v-3a8 6 0 0 1 16 0v3'};
-  document.querySelectorAll('[data-fuse-header]').forEach(el=>{el.innerHTML=`<header class="fuse-top"><a class="fuse-brand" href="${root}home.html">FUSE <span>ATELIER</span></a><div class="fuse-account"><a class="fuse-wallet" data-balance href="${root}profile.html">My credits</a><a class="fuse-avatar" aria-label="Open profile" href="${root}profile.html">F</a></div></header>`});
+  const icons={home:'M3 10 12 3 21 10v11h-6v-7H9v7H3z',academy:'m2 9 10-5 10 5-10 5z M5 11v7q7 5 14 0v-7',create:'M12 4v16 M4 12h16',community:'M21 11a9 8 0 0 1-9 8H5l-3 3V11a9 8 0 0 1 19 0z',profile:'M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M4 22v-3a8 6 0 0 1 16 0v3'};
+  document.querySelectorAll('[data-fuse-header]').forEach(el=>{el.innerHTML=`<header class="fuse-top"><a class="fuse-brand" href="${root}home.html">FUSE <span>ATELIER</span></a><div class="fuse-account"><a class="fuse-wallet" data-balance href="${root}profile.html">My credits</a><a class="fuse-avatar" aria-label="Open profile" href="${root}profile.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22v-3a8 7 0 0 1 16 0v3"/></svg></a></div></header>`});
   const nav=document.createElement('nav');nav.className='fuse-nav';nav.setAttribute('aria-label','Main navigation');
   nav.innerHTML=Object.entries(paths).map(([key,path])=>`<a class="nav-${key}" ${document.body.dataset.page===key?'aria-current="page"':''} href="${root+path}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${icons[key]}"/></svg><span>${key[0].toUpperCase()+key.slice(1)}</span></a>`).join('');document.body.append(nav);
   const videos=[...document.querySelectorAll('video[data-preview]')];

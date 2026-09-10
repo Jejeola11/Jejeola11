@@ -24,12 +24,12 @@ main{padding:20px 0 48px}.hero{position:relative;overflow:hidden;border:1px soli
 @media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}.stat{min-height:78px}.hero{padding:20px 17px;border-radius:22px}.hero h1{font-size:42px}.toolbar{grid-template-columns:1fr}.prospect{grid-template-columns:1fr}.prospect-right{text-align:left;min-width:0}.quick{justify-content:flex-start}.grid2{grid-template-columns:1fr}.section{margin-top:20px}.section-head h2{font-size:21px}.pipeline{margin-right:-12px;padding-right:12px}.account{display:none}}
 @media(min-width:721px){.overlay{align-items:center;padding:24px}.sheet{border-radius:25px;max-height:90vh}}
 </style>
-<link rel="stylesheet" href="/atelier-v2/fuse.css"><script src="/atelier-v2/fuse-shell.js" defer></script><script src="/atelier-v2/legacy-bridge.js" defer></script></head>
-<body data-page="academy">
+<link rel="stylesheet" href="/atelier-v2/fuse.css?v=teal-1"><script src="/atelier-v2/fuse-shell.js?v=teal-1" defer></script><script src="/atelier-v2/legacy-bridge.js" defer></script></head>
+<body data-page="academy"><div data-fuse-header></div>
 <div id="authView" class="auth hidden">
   <div class="auth-card">
     <div class="brand">Fuse <span>Atelier</span></div>
-    <h1>Your client pipeline lives here.</h1>
+    <h1>Sign in to view clients</h1>
     <p>Sign in with the same Fuse account you use for Academy. Your prospects are private to your account.</p>
     <div class="field"><label>Email</label><input id="loginEmail" type="email" autocomplete="email"></div>
     <div class="field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password"></div>
@@ -39,11 +39,11 @@ main{padding:20px 0 48px}.hero{position:relative;overflow:hidden;border:1px soli
 </div>
 
 <div id="app" class="hidden">
-<header class="top"><div class="shell top-in"><div class="brand">Fuse <span>Clients</span></div><div class="top-actions"><span id="accountEmail" class="account"></span><button id="refreshBtn" class="icon" title="Refresh">↻</button><button id="addTopBtn" class="primary" type="button">+ Prospect</button></div></div></header>
+<header class="client-toolbar"><div class="shell top-in"><div class="brand">Fuse <span>Clients</span></div><div class="top-actions"><span id="accountEmail" class="account"></span><button id="refreshBtn" class="icon" title="Refresh">↻</button><button id="addTopBtn" class="primary" type="button">+ Prospect</button></div></div></header>
 <main class="shell">
   <section class="hero">
     <div class="eyebrow">THE SELL SIDE OF FUSE</div>
-    <h1>Turn your skill into <em>paid conversations.</em></h1>
+    <h1>Clients</h1>
     <p>Build your prospect list, attach proof, pitch, follow up and keep every opportunity moving until it becomes a client.</p>
     <div class="hero-actions"><button id="addHeroBtn" class="primary" type="button">Add a prospect →</button><a class="ghost" href="/atelier-v2/academy-v2.html">Open Money Engine</a></div>
     <div class="sprint"><b>50-PROSPECT SPRINT</b><span id="sprintText">Add your first prospect to begin.</span></div>
@@ -52,7 +52,7 @@ main{padding:20px 0 48px}.hero{position:relative;overflow:hidden;border:1px soli
   <section id="stats" class="stats"></section>
 
   <section class="section">
-    <div class="section-head"><div><div class="eyebrow">PIPELINE</div><h2>Move people toward paid.</h2></div><p>Tap a stage to filter.</p></div>
+    <div class="section-head"><div><div class="eyebrow">PIPELINE</div><h2>Pipeline</h2></div><p>Tap a stage to filter.</p></div>
     <div id="pipeline" class="pipeline"></div>
   </section>
 
@@ -61,7 +61,7 @@ main{padding:20px 0 48px}.hero{position:relative;overflow:hidden;border:1px soli
   </section>
 
   <section class="section">
-    <div class="section-head"><div><div class="eyebrow">PROSPECTS</div><h2>Your client list</h2></div><p id="resultCount"></p></div>
+    <div class="section-head"><div><div class="eyebrow">PROSPECTS</div><h2>Prospects</h2></div><p id="resultCount"></p></div>
     <div class="toolbar"><div class="search">⌕ <input id="searchInput" placeholder="Search brand, niche, contact, problem…"></div><div id="filters" class="filters"></div></div>
     <div id="prospects" class="prospects"></div>
   </section>

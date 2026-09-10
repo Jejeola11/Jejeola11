@@ -1,0 +1,10 @@
+(() => {
+'use strict';
+const rows=[...document.querySelectorAll('[data-course]')],status=document.getElementById('courseStatus');
+const range=(prefix,n)=>Array.from({length:n},(_,i)=>prefix+(i+1));
+const required={design:range('flyer-m',6),video:range('aiv-m',16),landing:range('web-m',10).map(k=>k==='web-m3'?'web-m3-current':k),money:['money']};
+let ready=false,mine=true;
+function render(){let count=0;rows.forEach(row=>{row.hidden=ready&&mine&&row.dataset.owned!=='true';if(!row.hidden)count++});document.getElementById('myCourses').classList.toggle('active',mine);document.getElementById('allCourses').classList.toggle('active',!mine);document.getElementById('myCourses').setAttribute('aria-pressed',String(mine));document.getElementById('allCourses').setAttribute('aria-pressed',String(!mine));if(ready)status.textContent=count?'':'No courses unlocked yet. Tap Explore to view courses.'}
+document.getElementById('myCourses').onclick=()=>{mine=true;render()};document.getElementById('allCourses').onclick=()=>{mine=false;render()};
+(async()=>{try{const sb=await Fuse.client(),session=await Fuse.session();const [p,u]=await Promise.all([sb.from('profiles').select('is_admin').eq('id',session.user.id).maybeSingle(),sb.from('module_unlocks').select('module_key').eq('user_id',session.user.id)]);if(p.error||u.error)throw(p.error||u.error);const owned=new Set((u.data||[]).map(r=>r.module_key)),full=p.data?.is_admin||owned.has('atelier-full')||owned.has('atelier-empire'),bundle=owned.has('atelier-starter')||owned.has('atelier-creator');rows.forEach(row=>{const keys=required[row.dataset.course],all=full||keys.every(k=>owned.has(k)),some=all||bundle||keys.some(k=>owned.has(k)),tag=row.querySelector('.access-tag');row.dataset.owned=String(some);tag.textContent=all?'Included':some?'Module access':'Locked';tag.classList.toggle('locked',!some)});ready=true;render()}catch(e){mine=false;rows.forEach(r=>{r.querySelector('.access-tag').textContent='View course';r.querySelector('.access-tag').classList.add('locked')});render();status.textContent=e.message}})();
+})();

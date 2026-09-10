@@ -1,81 +1,11 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#02110f">
-<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
-<title>Fuse Academy — Mobile V3</title>
-<style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f}#stage{position:fixed;inset:0;width:100%;height:100%;border:0;background:#02110f;opacity:0;transition:opacity .18s ease;pointer-events:auto}.loader{position:fixed;inset:0;display:grid;place-items:center;background:#02110f;color:#f7fff9;font-family:Inter,system-ui,sans-serif;z-index:2}.loader-inner{text-align:center}.mark{width:48px;height:48px;border-radius:16px;margin:0 auto 10px;background:linear-gradient(135deg,#ffe568,#baff63 72%,#fff);display:grid;place-items:center;color:#07120f;font-size:23px;font-weight:950;box-shadow:0 18px 46px rgba(186,255,99,.14)}.loader b{font-size:13px}.loader p{margin:5px 0 0;color:#7f978e;font-size:10px}.ready #stage{opacity:1}.ready .loader{display:none;pointer-events:none}
-</style>
-<link rel="stylesheet" href="/atelier-v2/fuse.css"><script src="/atelier-v2/fuse-shell.js" defer></script><script src="/atelier-v2/legacy-bridge.js" defer></script></head>
-<body data-page="academy">
-<div class="loader"><div class="loader-inner"><div class="mark">✦</div><b>Opening Fuse Academy</b><p>Preparing your learning studio.</p></div></div>
-<iframe id="stage" src="./academy/index.html?v=20260904-buttons&base=1" title="Fuse Academy"></iframe>
-<script src="./academy-v2-runtime.js?v=e8448519-drive-titles" defer></script>
-<script src="./academy-sell-bridge.js?v=ad8a346a" defer></script>
-<script>
-(()=>{
- const stage=document.getElementById('stage');
- const qs=new URLSearchParams(location.search);
- const requestedLesson=(qs.get('lesson')||'').trim();
- const requestedCourse=(qs.get('course')||'').trim();
- const requestedResume=(qs.get('resume')||'').trim();
- let tries=0,routeDone=false;
- function inside(){try{return{d:stage.contentDocument,w:stage.contentWindow}}catch(e){return{d:null,w:null}}}
- function routeRequest(w){
-  if(routeDone)return true;
-  if(!requestedLesson&&!requestedCourse&&!requestedResume){routeDone=true;return true}
-  if(!w||typeof w.realCourse!=='function')return false;
-  if(requestedResume&&typeof w.resumeCourse==='function'&&w.realCourse(requestedResume)){w.resumeCourse(requestedResume);routeDone=true;return true}
-  if(requestedLesson){
-   if(typeof w.openLesson!=='function')return false;
-   for(const key of ['design','video','landing','money']){
-    const c=w.realCourse(key);if(!c)continue;
-    const modules=c.modules||[];
-    for(let mi=0;mi<modules.length;mi++){
-     const lessons=modules[mi].lessons||[];
-     for(let li=0;li<lessons.length;li++)if(lessons[li]&&lessons[li].key===requestedLesson){w.openLesson(key,mi,li);routeDone=true;return true}
-    }
-   }
-   return false;
-  }
-  if(requestedCourse&&typeof w.openCourse==='function'&&w.realCourse(requestedCourse)){w.openCourse(requestedCourse);routeDone=true;return true}
-  return false;
- }
- function bindFlowActions(d,w){
-  if(!d||!w)return;
-  const lesson=d.querySelector('.lesson-view.active');
-  if(lesson){
-   [...lesson.querySelectorAll('button')].forEach(b=>{
-    const t=(b.textContent||'').toLowerCase();
-    if((t.includes('open fuse create')||t.includes('open in create'))&&!b.dataset.fuseCreateLessonBound){b.dataset.fuseCreateLessonBound='1';b.onclick=e=>{e.preventDefault();w.top.location.href='/atelier-v2/create.html?source=academy'}}
-   });
-  }
- }
- function bind(){
-  tries++;
-  const {d,w}=inside();
-  if(!d||!w){if(tries<180)setTimeout(bind,100);return}
-  try{
-   const navs=[...d.querySelectorAll('.bottom .nav')];
-   const clients=navs.find(n=>/clients?/i.test(n.textContent));
-   const profile=navs.find(n=>/profile/i.test(n.textContent));
-   const create=navs.find(n=>n.classList.contains('create'))||navs[2];
-   if(clients&&!clients.dataset.fuseClientsBound){clients.dataset.fuseClientsBound='1';clients.onclick=e=>{e.preventDefault();window.top.location.href='/atelier-v2/clients.html'};clients.style.cursor='pointer'}
-   if(create&&!create.dataset.fuseCreateBound){create.dataset.fuseCreateBound='1';create.onclick=e=>{e.preventDefault();window.top.location.href='/atelier-v2/create.html'};create.style.cursor='pointer'}
-   if(profile&&!profile.dataset.fuseProfileBound){profile.dataset.fuseProfileBound='1';profile.onclick=e=>{e.preventDefault();window.top.location.href='/app/studio.html?view=profile'};profile.style.cursor='pointer'}
-   bindFlowActions(d,w);
-   routeRequest(w);
-   if(!d.__fuseAcademyFlowObserver){d.__fuseAcademyFlowObserver=true;new MutationObserver(()=>{bindFlowActions(d,w);routeRequest(w)}).observe(d.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']})}
-   if((clients&&create&&profile)&&(routeDone||(!requestedLesson&&!requestedCourse&&!requestedResume)))return;
-  }catch(e){}
-  if(tries<180)setTimeout(bind,100);
- }
- stage.addEventListener('load',()=>setTimeout(bind,220));
- setTimeout(bind,650);
-})();
-</script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#021416"><title>Lessons · Fuse Atelier</title><link rel="stylesheet" href="fuse.css?v=teal-1"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script><script src="/app/course.js" defer></script><script src="academy/course-current.js" defer></script><script src="fuse-shell.js?v=teal-1" defer></script><script src="lesson.js?v=teal-1" defer></script></head><body data-page="academy"><div data-fuse-header></div><main class="fuse-wrap narrow">
+<div class="fuse-heading back-title"><a href="learn.html" aria-label="Back to Academy">←</a><h1 id="courseTitle">Academy</h1></div>
+<div id="lessonPlayer" class="lesson-player" aria-label="Lesson video"><div class="panel"><p class="muted">Choose a lesson to begin.</p></div></div>
+<p id="lessonStatus" class="status" role="status"></p><button id="retryLesson" class="btn" hidden>Retry lesson</button>
+<div class="fuse-heading"><h2 id="lessonTitle">Lessons</h2></div>
+<div class="underline-tabs" aria-label="Lesson details"><button class="active" data-lesson-tab="lessons" aria-pressed="true">Lessons</button><button data-lesson-tab="notes" aria-pressed="false">Notes</button><button data-lesson-tab="resources" aria-pressed="false">Resources</button></div>
+<section id="lessonsPanel" class="lesson-list"></section>
+<section id="notesPanel" class="panel" hidden><p class="muted">Open an available lesson to view its notes.</p></section>
+<section id="resourcesPanel" class="panel" hidden><h2>Creator resources</h2><p class="muted">Browse supporting prompts, guides and templates.</p><a class="btn" href="resources.html">Open Resources →</a></section>
+<div class="row lesson-actions"><a href="studio.html" class="btn">Try it in Create ↗</a><button class="btn primary" id="nextLesson" disabled>Next lesson →</button></div>
+</main></body></html>

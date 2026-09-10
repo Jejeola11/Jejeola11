@@ -27,7 +27,7 @@
   function addOverlay() {
     const el = document.createElement('section');
     el.className = 'fuse-auth'; el.id = 'fuseAuth';
-    el.innerHTML = `<form class="fuse-auth-card" id="fuseAuthForm"><div class="fuse-auth-mark">F</div><h1 id="fuseAuthTitle">Welcome to Fuse Atelier.</h1><p id="fuseAuthCopy">Sign in to access your Academy, credits, creation tools and client pipeline.</p><label>EMAIL</label><input id="fuseEmail" type="email" autocomplete="email" required><label id="fusePasswordLabel">PASSWORD</label><input id="fusePassword" type="password" autocomplete="current-password" required minlength="8"><button class="fuse-auth-link" id="fuseForgot" type="button">Forgot or change password?</button><button id="fuseSignIn" type="submit">Enter Fuse Atelier →</button><p class="fuse-auth-msg" id="fuseAuthMsg"></p><p class="fuse-auth-foot">Use the same email attached to your Fuse Atelier access.</p></form>`;
+    el.innerHTML = `<form class="fuse-auth-card" id="fuseAuthForm"><div class="fuse-auth-mark">F</div><h1 id="fuseAuthTitle">Welcome back</h1><p id="fuseAuthCopy">Continue your creative journey.</p><label for="fuseEmail">Email</label><input id="fuseEmail" type="email" autocomplete="email" required><label id="fusePasswordLabel" for="fusePassword">Password</label><input id="fusePassword" type="password" autocomplete="current-password" required minlength="8"><button class="fuse-auth-link" id="fuseForgot" type="button">Forgot password?</button><button id="fuseSignIn" type="submit">Log in →</button><p class="fuse-auth-msg" id="fuseAuthMsg"></p><p class="fuse-auth-foot">Use the same email attached to your Fuse Atelier access.</p></form>`;
     document.body.appendChild(el); return el;
   }
 
@@ -99,7 +99,7 @@
 
       document.getElementById('fuseAuthForm').addEventListener('submit', async event => {
         event.preventDefault();
-        const idleText = recovery ? 'Save new password →' : 'Enter Fuse Atelier →';
+        const idleText = recovery ? 'Save new password →' : 'Log in →';
         button.disabled = true; button.textContent = recovery ? 'Saving…' : 'Signing in…'; msg.classList.remove('ok'); msg.textContent = '';
         try {
           if (recovery) {

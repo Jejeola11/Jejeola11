@@ -1,36 +1,39 @@
-/* Compact controls and unobscured media across the shared app shell. */
-.fuse-heading h1{font-size:28px;line-height:1.25;letter-spacing:-.6px}
-.fuse-heading h2{font-size:22px;line-height:1.3;letter-spacing:-.4px}
-.fuse-heading{margin:20px 0 14px}
-.fuse-wrap{margin-top:20px}
-.visual-card{min-height:0!important;isolation:auto;background:#0b1512;display:flex;flex-direction:column}
-.visual-card img,.visual-card video{position:relative!important;inset:auto!important;display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:contain;background:#030805;z-index:auto}
-.visual-card:after{display:none!important}
-.visual-card .caption{position:static!important;padding:16px;background:#0b1512;border-top:1px solid #26332b}
-.visual-card .caption h2{font-size:20px;line-height:1.3;letter-spacing:-.3px;margin:0}
-.visual-card .caption p{font-size:14px;line-height:1.5;margin:6px 0 0;color:#b7c4bd}
-.visual-card .badge{display:none}
-.visual-card .caption .btn{margin-top:12px;font-size:14px;min-height:44px}
-.visual-card .caption .eyebrow{display:block;font-size:12px;margin-bottom:6px}
-.short-grid h3{font-size:18px;line-height:1.35}
-.short-grid p{font-size:14px;line-height:1.5}
-.short-grid .eyebrow{display:none}
-.fuse-top{height:66px}.fuse-brand{font-size:21px}.fuse-wallet{font-size:14px}
-.fuse-auth h1{font-size:26px!important;line-height:1.2!important;letter-spacing:-.4px!important}
-.fuse-auth p{font-size:14px!important}.fuse-auth label{font-size:14px!important;letter-spacing:0!important}
-@media(max-width:700px){
- .fuse-top{height:60px;padding:0 14px;gap:8px}.fuse-brand{font-size:18px;letter-spacing:-.5px}.fuse-account{gap:8px}.fuse-wallet{padding:8px 11px}.fuse-avatar{width:34px;height:34px}
- .fuse-wrap{width:calc(100% - 28px);margin-top:16px}.fuse-heading{margin:16px 0 12px}.fuse-heading h1{font-size:24px}.fuse-heading h2{font-size:20px}
- .fuse-heading .eyebrow{display:none}.tabs{gap:8px;padding-bottom:12px}.tabs .btn{min-height:42px;padding:8px 14px;font-size:14px}
- .feature-grid{display:grid;grid-auto-flow:column;grid-auto-columns:78%;grid-template-columns:none;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;padding-bottom:8px}
- .feature-grid .visual-card,.feature-grid .visual-card:first-child{grid-column:auto;min-height:0!important;scroll-snap-align:start}
- .feature-grid .visual-card img,.feature-grid .visual-card video{aspect-ratio:4/5;max-height:340px}
- .visual-card{border-radius:14px}.visual-card .caption{padding:12px}.visual-card .caption h2{font-size:18px}.visual-card .caption p{font-size:14px}
- .course-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.course-grid .visual-card{min-height:0!important}.course-grid .visual-card img{aspect-ratio:1/1}
- .course-grid .visual-card .caption h2{font-size:16px;line-height:1.35;letter-spacing:0}.course-grid .caption .btn{font-size:14px;width:100%;padding:8px;min-height:42px}
- .course-grid>.panel{grid-column:1/-1}.panel{padding:16px;border-radius:14px}.panel h2{font-size:20px}.short-grid{gap:10px}.short-grid .panel{padding:14px}.short-grid h3{font-size:16px;margin-bottom:4px}
- .fuse-nav{height:calc(68px + env(safe-area-inset-bottom))}.fuse-nav .nav-create svg{width:40px;height:30px}.fuse-nav a{font-size:13px}
- .balance{font-size:32px;letter-spacing:-.6px}.account-grid #email{font-size:18px;letter-spacing:0}.studio-grid{gap:18px}
- .fuse-auth-card{padding:22px!important}.fuse-auth h1{font-size:24px!important}
-}
-@media(max-width:360px){.fuse-brand{font-size:16px}.fuse-account{gap:6px}.fuse-wallet{padding:7px 9px}.course-grid{grid-template-columns:1fr}.course-grid .visual-card img{aspect-ratio:4/3}}
+/* Legacy views inherit the approved dark teal mobile system. */
+:root{--bg:#021416!important;--panel:#092326!important;--panel2:#102c2f!important;--s:#092326!important;--line:#294346!important;--text:#f4faf9!important;--muted:#a4b8ba!important;--grad:linear-gradient(115deg,#f8ec83,#c0ff68 48%,#d6ff9d 76%,#f9fff3)!important}
+body{background:#021416!important}
+body>.top{display:none!important}
+.shell{width:min(760px,calc(100% - 32px))!important}
+.hero{padding:0!important;border:0!important;background:none!important;border-radius:0!important;margin:0 0 16px!important}
+.hero:before,.hero:after{display:none!important}
+.hero h1,.authcard h1{font-size:20px!important;line-height:1.3!important;letter-spacing:-.4px!important;margin:0 0 8px!important}
+.hero p{font-size:14px!important;line-height:1.5!important}
+.hero .eyebrow,.hero .online,.hero .soft,.hero .stats{display:none!important}
+.head h2,.feed-head h2,.sectionhead h2{font-size:16px!important;letter-spacing:0!important}
+.brand{font-size:14px!important}
+.bottom,.bottom-nav{display:none!important}
+.composer,.post,.history,.card,.game,.authcard,.modalcard{background:var(--panel)!important;border-radius:12px!important;border-color:var(--line)!important}
+.composer textarea,.composer input,.reply-input,.search input{background:#061d20!important;border-color:var(--line)!important;font-size:16px!important}
+.postbody,.reply{font-size:14px!important;line-height:1.5!important}
+.who b{font-size:13px!important}.who small{font-size:11px!important}.avatar{width:34px!important;height:34px!important;border-radius:50%!important;font-size:14px!important}
+.tag,.ria,.message,.empty,.media,.small,.chip,.open,.play,.save,.badge,.history p{font-size:12px!important}
+.small,.chip,.open,.play,.save,.feed-head button{min-height:44px!important}
+.feed-head button{font-size:12px!important}.feed-head .eyebrow,.sectionhead .eyebrow,.head .eyebrow{display:none!important}
+.post{margin-left:12px!important}.post .media{min-height:44px;display:flex;align-items:center}
+.postbody{margin:10px 0!important}.replies{background:#061d2060;padding:10px!important;border-radius:10px}
+.composer{margin:12px 0 20px!important}.composer textarea{min-height:70px!important}.primary{min-height:44px;font-size:14px!important;font-weight:650!important}
+.card h3,.game h3{font-size:15px!important;letter-spacing:0!important;line-height:1.4!important}.card p,.game p{font-size:13px!important;line-height:1.5!important}
+.card{min-height:210px!important;padding:14px!important}.card.featured{grid-column:auto!important}.card.featured:after{display:none!important}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.grid .meta{gap:8px;flex-wrap:wrap}.grid .badge{font-size:10px!important}.grid .actions{flex-wrap:wrap}.grid .open{font-size:12px!important;height:auto;padding:8px}
+.games{grid-template-columns:1fr!important}.game{min-height:0!important;gap:8px}.game .play{margin-top:8px!important}.game .art{display:none}.gamecopy h2{font-size:20px!important}.modal{z-index:200!important}.score{font-size:13px!important}
+.fuse-auth{background:#021416!important;overflow-y:auto!important}
+.fuse-auth-card{border:0!important;box-shadow:none!important;border-radius:0!important;background:none!important;padding:20px 4px!important;max-width:370px!important}
+.fuse-auth-mark{background:var(--chrome)!important;color:#163034!important;border-radius:12px!important;width:58px!important;height:58px!important;margin-bottom:42px!important}
+.fuse-auth h1{font-size:20px!important;line-height:1.3!important;letter-spacing:-.4px!important}
+.fuse-auth p,.fuse-auth label{font-size:14px!important;letter-spacing:0!important;font-weight:400!important}
+.fuse-auth input{background:#061d20!important;border-color:var(--line)!important;border-radius:10px!important;font-size:16px!important;height:48px!important}
+.fuse-auth button{background:var(--grad)!important;font-size:14px!important;font-weight:650!important;height:46px!important;border-radius:10px!important}
+.fuse-auth .fuse-auth-link{background:none!important;color:var(--lime)!important;font-size:13px!important}
+.fuse-auth-foot{font-size:12px!important}.fuse-auth-msg{font-size:13px!important}
+@media(max-width:370px){.grid{gap:8px!important}.card{padding:10px!important}.composebar{flex-wrap:wrap}.post{margin-left:0!important}}
+.client-toolbar{width:min(760px,calc(100% - 32px));margin:auto}.client-toolbar .top-in{min-height:58px;display:flex;align-items:center;justify-content:space-between}.client-toolbar .brand{font-size:14px!important}.client-toolbar .account{display:none}.client-toolbar button{min-height:44px;font-size:14px!important}
+.section-head h2,.sheet-head h2{font-size:16px!important;letter-spacing:0!important}.section-head p,.sheet-head p{font-size:12px!important}.section-head .eyebrow{display:none}

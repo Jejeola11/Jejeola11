@@ -30,7 +30,7 @@ function due(r){if(!r.next_follow_up||['won','lost'].includes(r.status))return f
 function normalizeUrl(v){const s=String(v||'').trim();if(!s)return'';try{return new URL(/^https?:\/\//i.test(s)?s:'https://'+s).href}catch{return''}}
 function whatsappUrl(v){const d=String(v||'').replace(/\D/g,'');return d?`https://wa.me/${d}`:''}
 function instagramUrl(v){const s=String(v||'').trim();if(!s)return'';if(/^https?:\/\//i.test(s))return s;return `https://instagram.com/${s.replace(/^@/,'')}`}
-function createSampleUrl(r){return `/atelier-v2/create-sample.html?prospect=${encodeURIComponent(r.id)}&service=${encodeURIComponent(r.service||'')}`}
+function createSampleUrl(r){return `/atelier-v2/studio.html?type=image`}
 
 async function getSession(){const{data,error}=await sb.auth.getSession();if(error)throw error;return data.session||null}
 function showAuth(msg=''){$('authView').classList.remove('hidden');$('app').classList.add('hidden');$('loginMessage').textContent=msg}
