@@ -1,0 +1,36 @@
+/* Compact controls and unobscured media across the shared app shell. */
+.fuse-heading h1{font-size:28px;line-height:1.25;letter-spacing:-.6px}
+.fuse-heading h2{font-size:22px;line-height:1.3;letter-spacing:-.4px}
+.fuse-heading{margin:20px 0 14px}
+.fuse-wrap{margin-top:20px}
+.visual-card{min-height:0!important;isolation:auto;background:#0b1512;display:flex;flex-direction:column}
+.visual-card img,.visual-card video{position:relative!important;inset:auto!important;display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:contain;background:#030805;z-index:auto}
+.visual-card:after{display:none!important}
+.visual-card .caption{position:static!important;padding:16px;background:#0b1512;border-top:1px solid #26332b}
+.visual-card .caption h2{font-size:20px;line-height:1.3;letter-spacing:-.3px;margin:0}
+.visual-card .caption p{font-size:14px;line-height:1.5;margin:6px 0 0;color:#b7c4bd}
+.visual-card .badge{display:none}
+.visual-card .caption .btn{margin-top:12px;font-size:14px;min-height:44px}
+.visual-card .caption .eyebrow{display:block;font-size:12px;margin-bottom:6px}
+.short-grid h3{font-size:18px;line-height:1.35}
+.short-grid p{font-size:14px;line-height:1.5}
+.short-grid .eyebrow{display:none}
+.fuse-top{height:66px}.fuse-brand{font-size:21px}.fuse-wallet{font-size:14px}
+.fuse-auth h1{font-size:26px!important;line-height:1.2!important;letter-spacing:-.4px!important}
+.fuse-auth p{font-size:14px!important}.fuse-auth label{font-size:14px!important;letter-spacing:0!important}
+@media(max-width:700px){
+ .fuse-top{height:60px;padding:0 14px;gap:8px}.fuse-brand{font-size:18px;letter-spacing:-.5px}.fuse-account{gap:8px}.fuse-wallet{padding:8px 11px}.fuse-avatar{width:34px;height:34px}
+ .fuse-wrap{width:calc(100% - 28px);margin-top:16px}.fuse-heading{margin:16px 0 12px}.fuse-heading h1{font-size:24px}.fuse-heading h2{font-size:20px}
+ .fuse-heading .eyebrow{display:none}.tabs{gap:8px;padding-bottom:12px}.tabs .btn{min-height:42px;padding:8px 14px;font-size:14px}
+ .feature-grid{display:grid;grid-auto-flow:column;grid-auto-columns:78%;grid-template-columns:none;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;padding-bottom:8px}
+ .feature-grid .visual-card,.feature-grid .visual-card:first-child{grid-column:auto;min-height:0!important;scroll-snap-align:start}
+ .feature-grid .visual-card img,.feature-grid .visual-card video{aspect-ratio:4/5;max-height:340px}
+ .visual-card{border-radius:14px}.visual-card .caption{padding:12px}.visual-card .caption h2{font-size:18px}.visual-card .caption p{font-size:14px}
+ .course-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.course-grid .visual-card{min-height:0!important}.course-grid .visual-card img{aspect-ratio:1/1}
+ .course-grid .visual-card .caption h2{font-size:16px;line-height:1.35;letter-spacing:0}.course-grid .caption .btn{font-size:14px;width:100%;padding:8px;min-height:42px}
+ .course-grid>.panel{grid-column:1/-1}.panel{padding:16px;border-radius:14px}.panel h2{font-size:20px}.short-grid{gap:10px}.short-grid .panel{padding:14px}.short-grid h3{font-size:16px;margin-bottom:4px}
+ .fuse-nav{height:calc(68px + env(safe-area-inset-bottom))}.fuse-nav .nav-create svg{width:40px;height:30px}.fuse-nav a{font-size:13px}
+ .balance{font-size:32px;letter-spacing:-.6px}.account-grid #email{font-size:18px;letter-spacing:0}.studio-grid{gap:18px}
+ .fuse-auth-card{padding:22px!important}.fuse-auth h1{font-size:24px!important}
+}
+@media(max-width:360px){.fuse-brand{font-size:16px}.fuse-account{gap:6px}.fuse-wallet{padding:7px 9px}.course-grid{grid-template-columns:1fr}.course-grid .visual-card img{aspect-ratio:4/3}}
