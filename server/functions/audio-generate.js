@@ -31,7 +31,7 @@ const { submitSpeech } = require('./_providers');
 const MODEL = 'omnivoice-voice-clone';
 
 exports.handler = async (event) => {
-  let db, user, cost = 0;
+  let db, user, cost = 0, charged = false;
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
 
@@ -53,8 +53,10 @@ exports.handler = async (event) => {
       const voiceUuid = (body.resemble_voice_uuid || '').trim();
       if (!voiceUuid) return json(400, { error: 'Pick a Resemble voice.' });
 
-      const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
+      const { data: balance, error: spendError } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
+      if (spendError) return json(500, { error: 'Could not check your credits.' });
       if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
+      charged = true;
 
       const requestId = 'resemble-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
       await db.from('jobs').insert({ request_id: requestId, user_id: user.id, kind: 'audio', model: `resemble:${voiceUuid}`, prompt: text, credits: cost, status: 'processing' });
@@ -66,14 +68,17 @@ exports.handler = async (event) => {
     const referenceText = (body.reference_text || '').trim();
     if (!voiceSampleUrl) return json(400, { error: 'Add a voice sample (upload one, or pick a trained avatar\'s voice).' });
 
-    const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
+    const { data: balance, error: spendError } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
+    if (spendError) return json(500, { error: 'Could not check your credits.' });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
+    charged = true;
 
     const { requestId } = await submitSpeech({ audio: voiceSampleUrl, text, speed, referenceText });
     await db.from('jobs').insert({ request_id: requestId, user_id: user.id, kind: 'audio', model: MODEL, prompt: text, credits: cost, status: 'processing' });
     return json(200, { request_id: requestId, credits: balance });
   } catch (e) {
-    try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
-    return json(502, { error: (e && e.message) || 'Could not start audio generation', refunded: cost });
+    let refunded = 0;
+    try { if (charged && db && user && cost) { const {error} = await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); if (!error) refunded=cost; } } catch (_) {}
+    return json(502, { error: (e && e.message) || 'Could not start audio generation', refunded });
   }
 };

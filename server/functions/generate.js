@@ -146,9 +146,7 @@ exports.handler = async (event) => {
   // Trial-tier cap — a free user who has never actually paid Fuse Studio
   // anything can only spend their signup/streak giveaway credits on the
   // cheapest model per category, not a $1.20+ render (see the cost audit).
-  if (plan === 'free' && !isAdmin && !hasPurchased && !canUseTrial(model)) {
-    return json(403, { error: 'Free trial credits only cover our starter models (like Flux Schnell). Buy a credit pack to unlock every model.', code: 'TRIAL_TIER_ONLY' });
-  }
+  // All students can use their available credits; no subscription/trial gate.
 
   // Reference-image editing (nano-banana-edit) is slow — always a single image, run async.
   const count = useRef ? 1 : Math.min(Math.max(parseInt(body.count, 10) || 1, 1), 4);

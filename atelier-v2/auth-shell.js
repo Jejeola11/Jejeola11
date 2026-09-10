@@ -44,13 +44,13 @@
   async function syncHome(client, session) {
     const { data } = await client.from('profiles').select('credits,is_admin').eq('id', session.user.id).maybeSingle();
     const d = deepestDoc();
-    const credit = [...d.querySelectorAll('button')].find(item => /credits/i.test(item.textContent || ''));
+    const credit = d.querySelector('[data-balance]') || [...d.querySelectorAll('button')].find(item => /credits/i.test(item.textContent || ''));
     if (credit && data && Number.isFinite(Number(data.credits))) credit.textContent = `✦ ${Number(data.credits)} credits`;
     const email = session.user.email || 'Fuse student';
     const menu = d.querySelector('.profile-menu .profile-top div:nth-child(2)');
-    if (menu) menu.innerHTML = `<b>${email.split('@')[0]}</b><div style="font-size:12px;color:var(--muted)">${email}</div>`;
+    if (menu) menu.textContent = email;
     const profileMenu = d.querySelector('.profile-menu');
-    if (data?.is_admin && profileMenu && !profileMenu.querySelector('[data-fuse-ops]')) {
+    if (session.user.id === '7e2c817f-9ff1-4fea-b42f-b36656f833d4' && profileMenu && !profileMenu.querySelector('[data-fuse-ops]')) {
       const item = d.createElement('button');
       item.type = 'button'; item.dataset.fuseOps = '1'; item.className = 'menu-row menu-button';
       item.innerHTML = '<span class="menu-ico">◈</span><span>Fuse Operations</span><b>›</b>';
@@ -64,7 +64,7 @@
     addStyles(); const overlay = addOverlay();
     try {
       await loadSupabase();
-      const client = window.supabase.createClient(URL, KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+      const client = window.__fuseClient ||= window.supabase.createClient(URL, KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
       let recovery = new URLSearchParams(location.search).get('recovery') === '1';
       const title = document.getElementById('fuseAuthTitle');
       const copy = document.getElementById('fuseAuthCopy');
@@ -78,6 +78,7 @@
         copy.textContent = 'Enter a secure password with at least 8 characters.';
         passwordLabel.textContent = 'NEW PASSWORD'; password.autocomplete = 'new-password';
         forgot.hidden = true; button.textContent = 'Save new password →';
+        document.getElementById('fuseEmail').required = false;
       };
       client.auth.onAuthStateChange(event => { if (event === 'PASSWORD_RECOVERY') showRecovery(); });
       const { data } = await client.auth.getSession();
@@ -90,7 +91,7 @@
         msg.classList.remove('ok'); msg.textContent = '';
         if (!email) { msg.textContent = 'Enter your email first, then tap this link.'; return; }
         forgot.disabled = true;
-        const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}/?recovery=1` });
+        const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}/atelier-v2/home.html?recovery=1` });
         forgot.disabled = false;
         if (error) { msg.textContent = error.message || 'Could not send the reset email.'; return; }
         msg.classList.add('ok'); msg.textContent = 'Password reset email sent. Open the link in your inbox.';

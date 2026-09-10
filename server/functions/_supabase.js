@@ -1,5 +1,7 @@
 // Shared Supabase admin client + auth helper for Netlify Functions.
 const { createClient } = require('@supabase/supabase-js');
+// Accept both common server-side names; never expose either value to clients.
+process.env.WAVESPEED_KEY = (process.env.WAVESPEED_KEY || process.env.WAVESPEED_API_KEY || '').trim();
 
 // Service-role client: full DB access, server-only. Never expose this key.
 function admin() {

@@ -1,0 +1,6 @@
+'use strict';
+const {json}=require('./_supabase');
+const {IMAGE_MODELS,VIDEO_MODELS,PACKS,audioCredits,estimateScriptMinutes}=require('./_packs');
+const catalog=()=>({image:[['flux-schnell-image','Flux Schnell'],['nano-banana','Nano Banana'],['nano-banana-2','Nano Banana 2'],['qwen-image','Qwen Image']].map(([id,label])=>({id,label,credits:IMAGE_MODELS[id],aspects:['1:1','9:16','16:9','4:5']})),video:[{id:'grok-imagine-text-to-video',label:'Grok Imagine',credits:VIDEO_MODELS['grok-imagine-text-to-video'],durations:['6s','10s'],aspects:['16:9','9:16'],resolutions:['480p']}],audio:[{id:'omnivoice',label:'OmniVoice',credits:audioCredits(.2)}]});
+exports.catalog=catalog;
+exports.handler=async event=>{if(event.httpMethod!=='GET')return json(405,{error:'Method not allowed'});const wave=Boolean((process.env.WAVESPEED_KEY||process.env.WAVESPEED_API_KEY||'').trim());return json(200,{...catalog(),generationConfigured:wave,paymentsConfigured:Boolean(process.env.PAYSTACK_SECRET_KEY&&process.env.APP_URL),packs:Object.entries(PACKS).filter(([,p])=>p.kind==='pack').map(([id,p])=>({id,label:p.label,credits:p.credits,amount_naira:p.amount_naira})),audioEstimate:{wordsPerMinute:150},provider:'WaveSpeed'})};

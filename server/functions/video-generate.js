@@ -35,15 +35,14 @@ exports.handler = async (event) => {
   if (plan === 'free' && !isAdmin && !canUseFree(model)) {
     return json(403, { error: 'Video requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
   }
-  if (plan === 'free' && !isAdmin && !hasPurchased && !canUseTrial(model)) {
-    return json(403, { error: 'Free trial credits only cover our starter models (like Grok Imagine). Buy a credit pack to unlock every model.', code: 'TRIAL_TIER_ONLY' });
-  }
+  // All students can use their available credits; no subscription/trial gate.
 
   const durMult = String(duration).startsWith('10') ? 2 : 1;
   const cost = VIDEO_MODELS[model] * durMult;
 
   const db = admin();
-  const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
+  const { data: balance, error: spendError } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
+  if (spendError) return json(500, { error: 'Could not check your credits. No generation was started.' });
   if (balance === null) return json(402, { error: 'Not enough credits.', code: 'NO_CREDITS' });
 
   try {
