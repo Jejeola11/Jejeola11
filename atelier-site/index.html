@@ -4964,6 +4964,64 @@ html{
 <link rel="stylesheet" href="/atelier-site/assets/immersive/reviews.css">
 <script defer src="/atelier-site/assets/immersive/reviews.js"></script>
 <link rel="stylesheet" href="/atelier-site/assets/immersive/clarity.css?v=offer-cards-1">
+
+<style id="fuse-five-card-orbit">
+/* Five-step orbit — all five cards remain visible and move automatically. */
+.rebuild-skill-mechanism-3d{overflow:hidden!important}
+.rebuild-3d-stage{
+  --orbit-spread:min(18vw,128px);
+  position:relative!important;height:clamp(290px,38vw,360px)!important;
+  max-width:720px!important;margin:24px auto 10px!important;
+  overflow:hidden!important;perspective:1200px!important;
+  border:1px solid rgba(186,255,99,.18);border-radius:22px;
+  background:
+    radial-gradient(ellipse 76% 34% at 50% 102%,rgba(186,255,99,.18),transparent 70%),
+    linear-gradient(180deg,rgba(4,25,20,.35),rgba(2,13,10,.92));
+}
+.rebuild-3d-stage:after{
+  content:"";position:absolute;left:10%;right:10%;bottom:-31%;height:62%;
+  border:1px solid rgba(215,255,163,.32);border-radius:50%;
+  box-shadow:0 -10px 0 rgba(186,255,99,.035),0 -22px 0 rgba(186,255,99,.025);
+  pointer-events:none;
+}
+.rebuild-3d-stage .rebuild-3d-card{
+  position:absolute!important;left:50%!important;top:49%!important;right:auto!important;
+  width:clamp(118px,18vw,154px)!important;min-height:clamp(170px,24vw,210px)!important;
+  padding:17px 14px!important;border-radius:18px!important;
+  transform-origin:50% 120%;will-change:transform,opacity,filter;
+  background:linear-gradient(155deg,#173d2b,#09251d 64%,#061713)!important;
+  border:1px solid rgba(199,255,111,.30)!important;
+  box-shadow:0 22px 46px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.08)!important;
+  animation:fuse-card-orbit 18s cubic-bezier(.45,.05,.2,1) infinite!important;
+}
+.rebuild-3d-stage .rebuild-3d-card span{font-size:7px!important;letter-spacing:.12em!important}
+.rebuild-3d-stage .rebuild-3d-card b{margin-top:24px!important;font-size:clamp(19px,2.7vw,25px)!important;color:#efffc7!important}
+.rebuild-3d-stage .rebuild-3d-card small{position:absolute;left:14px;right:14px;bottom:28px;margin:0!important;font-size:8.5px!important;color:#9fb4aa!important}
+.rebuild-3d-stage .step-1{animation-delay:0s!important}
+.rebuild-3d-stage .step-2{animation-delay:-3.6s!important}
+.rebuild-3d-stage .step-3{animation-delay:-7.2s!important}
+.rebuild-3d-stage .step-4{animation-delay:-10.8s!important}
+.rebuild-3d-stage .step-5{animation-delay:-14.4s!important}
+.rebuild-3d-progress{display:none!important}
+@keyframes fuse-card-orbit{
+  0%{opacity:.72;z-index:1;filter:brightness(.72);transform:translate(-50%,-50%) translateX(calc(var(--orbit-spread)*-2)) translateY(52px) rotate(-18deg) scale(.78)}
+  20%{opacity:.9;z-index:3;filter:brightness(.9);transform:translate(-50%,-50%) translateX(calc(var(--orbit-spread)*-1)) translateY(15px) rotate(-9deg) scale(.92)}
+  40%{opacity:1;z-index:8;filter:brightness(1.12);transform:translate(-50%,-50%) translateX(0) translateY(-10px) rotate(0) scale(1.08)}
+  60%{opacity:.9;z-index:3;filter:brightness(.9);transform:translate(-50%,-50%) translateX(var(--orbit-spread)) translateY(15px) rotate(9deg) scale(.92)}
+  80%{opacity:.72;z-index:1;filter:brightness(.72);transform:translate(-50%,-50%) translateX(calc(var(--orbit-spread)*2)) translateY(52px) rotate(18deg) scale(.78)}
+  91%{opacity:0;z-index:0;filter:brightness(.65);transform:translate(-50%,-50%) translateX(calc(var(--orbit-spread)*2.35)) translateY(68px) rotate(23deg) scale(.7)}
+  91.01%{opacity:0;z-index:0;transform:translate(-50%,-50%) translateX(calc(var(--orbit-spread)*-2.35)) translateY(68px) rotate(-23deg) scale(.7)}
+  100%{opacity:.72;z-index:1;filter:brightness(.72);transform:translate(-50%,-50%) translateX(calc(var(--orbit-spread)*-2)) translateY(52px) rotate(-18deg) scale(.78)}
+}
+@media(max-width:700px){
+  .rebuild-3d-stage{--orbit-spread:min(19vw,82px);height:305px!important;border-radius:18px}
+  .rebuild-3d-stage .rebuild-3d-card{width:118px!important;min-height:168px!important;padding:14px 12px!important}
+  .rebuild-3d-stage .rebuild-3d-card b{font-size:18px!important}
+  .rebuild-3d-stage .rebuild-3d-card small{left:12px;right:12px;bottom:24px;font-size:7.5px!important}
+}
+@media(prefers-reduced-motion:reduce){.rebuild-3d-stage .rebuild-3d-card{animation-duration:36s!important}}
+</style>
+
 </head>
 <body id="top">
 <div class="rebuild-top">
@@ -5136,14 +5194,26 @@ html{
   <h3>How your skill becomes <span class="rebuild-gradient-text">something you can sell.</span></h3>
   <p class="rebuild-mechanism-intro">The same five steps — now shown as one connected path from learning to a real client conversation.</p>
 
-  <div class="rebuild-3d-stage fan-stage" aria-label="Five-step Learn Create Sell flow, moving automatically">
-    <div class="rebuild-3d-fan">
-      <div class="rebuild-3d-card step-1"><span>01 · ACADEMY</span><b>Learn</b><small>one useful skill</small></div>
-      <div class="rebuild-3d-card step-2"><span>02 · FUSE CREATE</span><b>Build proof</b><small>a client can judge</small></div>
-      <div class="rebuild-3d-card step-3"><span>03 · MONEY ENGINE</span><b>Find a need</b><small>a real business has</small></div>
-      <div class="rebuild-3d-card step-4"><span>04 · OUTREACH</span><b>Pitch it</b><small>with context</small></div>
-      <div class="rebuild-3d-card step-5"><span>05 · PIPELINE</span><b>Follow up</b><small>keep it moving</small></div>
+  <div class="rebuild-3d-stage" aria-label="Five-step Learn Create Sell flow">
+    <div class="rebuild-3d-card step-1">
+      <span>01 · ACADEMY</span><b>Learn</b><small>one useful skill</small>
     </div>
+    <div class="rebuild-3d-card step-2">
+      <span>02 · FUSE CREATE</span><b>Build proof</b><small>a client can judge</small>
+    </div>
+    <div class="rebuild-3d-card step-3">
+      <span>03 · MONEY ENGINE</span><b>Find a need</b><small>a real business has</small>
+    </div>
+    <div class="rebuild-3d-card step-4">
+      <span>04 · OUTREACH</span><b>Pitch it</b><small>with context</small>
+    </div>
+    <div class="rebuild-3d-card step-5">
+      <span>05 · PIPELINE</span><b>Follow up</b><small>keep it moving</small>
+    </div>
+  </div>
+
+  <div class="rebuild-3d-progress" aria-hidden="true">
+    <i></i><i></i><i></i><i></i><i></i>
   </div>
 
   <div class="rebuild-result-pill"><span>RESULT</span><b>PAID CLIENT</b><strong>↗</strong></div>
@@ -5248,7 +5318,7 @@ html{
       <div class="eyebrow">GIVE A BUSINESS SOMETHING IT CAN SEE</div>
       <h2><span class="proof-line">This is the kind of work</span><span class="proof-line rebuild-gradient-text">you can learn to</span><span class="proof-line rebuild-gradient-text">create.</span></h2>
       <p>A flyer for a launch. A product video for a skincare brand. A landing page for an offer. Your sample makes the service real.</p>
-      <div class="student-gallery-hint">A moving collection of student work</div>
+      <div class="student-gallery-hint">Swipe or drag to explore · tap a video to pause/play</div>
     </div>
   </div>
   <div class="student-strip" aria-label="Student work gallery">
@@ -6634,73 +6704,6 @@ html{
   });
 })();
 </script>
-<style>
-/* Connected path: an autonomous five-card fan, inspired by the supplied motion reference.
-   It has no controls: the visual keeps moving while the copy stays calm and readable. */
-.rebuild-skill-mechanism-3d{
-  overflow:clip!important;
-}
-.rebuild-3d-stage.fan-stage{
-  display:block!important;
-  height:clamp(300px,38vw,430px)!important;
-  max-width:740px!important;
-  margin:28px auto 8px!important;
-  overflow:hidden;
-  isolation:isolate;
-  perspective:1400px!important;
-  background:
-    radial-gradient(ellipse 72% 44% at 50% 103%,rgba(186,255,99,.16),transparent 68%),
-    linear-gradient(180deg,rgba(6,29,23,.16),rgba(2,12,9,.84));
-  border:1px solid rgba(186,255,99,.20);
-  border-radius:24px;
-}
-.fan-stage:before{
-  content:"";position:absolute;z-index:-1;left:50%;bottom:-68%;width:120%;height:90%;
-  transform:translateX(-50%);border:1px solid rgba(217,255,162,.19);border-radius:50%;
-  box-shadow:0 -12px 0 rgba(186,255,99,.03),0 -26px 0 rgba(186,255,99,.025),0 -42px 0 rgba(186,255,99,.02);
-}
-.fan-stage:after{
-  content:"";position:absolute;left:0;right:0;bottom:0;height:31%;
-  background:linear-gradient(180deg,transparent,rgba(2,12,9,.55));pointer-events:none;
-}
-.rebuild-3d-fan{
-  position:absolute;left:50%;bottom:-12px;width:min(108%,760px);height:104%;
-  transform:translateX(-50%);transform-style:preserve-3d;animation:fan-sway 16s ease-in-out infinite;
-}
-.rebuild-3d-fan .rebuild-3d-card{
-  position:absolute!important;left:50%!important;top:auto!important;bottom:7%!important;
-  width:clamp(128px,21vw,180px)!important;min-height:clamp(166px,25vw,214px)!important;
-  padding:18px 15px!important;transform-origin:50% 118%;border-radius:18px!important;
-  background:linear-gradient(160deg,rgba(41,88,57,.96),#0c2d21 57%,#061713)!important;
-  box-shadow:0 20px 38px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.11)!important;
-  will-change:transform;backface-visibility:hidden;
-}
-.rebuild-3d-fan .rebuild-3d-card:after{
-  content:"";position:absolute;left:13%;right:13%;bottom:17px;height:1px;background:rgba(222,255,181,.21);
-}
-.rebuild-3d-fan .rebuild-3d-card span{font-size:8px!important;color:#e4f2df!important;background:none!important;-webkit-text-fill-color:currentColor;letter-spacing:.12em!important}
-.rebuild-3d-fan .rebuild-3d-card b{margin-top:26px!important;font-size:clamp(20px,3vw,27px)!important;color:#edffbf!important}
-.rebuild-3d-fan .rebuild-3d-card small{position:absolute;left:15px;right:15px;bottom:34px;color:#bfd1c7!important;font-size:9px!important;line-height:1.35}
-.rebuild-3d-fan .step-1{z-index:1;animation:fan-card-1 16s ease-in-out infinite!important}
-.rebuild-3d-fan .step-2{z-index:2;animation:fan-card-2 16s ease-in-out infinite!important}
-.rebuild-3d-fan .step-3{z-index:5;border-color:rgba(229,255,116,.9)!important;background:linear-gradient(155deg,#45622b,#183720 65%,#092117)!important;animation:fan-card-3 16s ease-in-out infinite!important}
-.rebuild-3d-fan .step-4{z-index:3;animation:fan-card-4 16s ease-in-out infinite!important}
-.rebuild-3d-fan .step-5{z-index:1;animation:fan-card-5 16s ease-in-out infinite!important}
-@keyframes fan-sway{0%,100%{transform:translateX(-50%) rotateY(-5deg)}50%{transform:translateX(-50%) rotateY(5deg)}}
-@keyframes fan-card-1{0%,100%{transform:translateX(-50%) rotate(-54deg) translateY(20px) translateZ(-46px)}50%{transform:translateX(-50%) rotate(-38deg) translateY(4px) translateZ(-15px)}}
-@keyframes fan-card-2{0%,100%{transform:translateX(-50%) rotate(-27deg) translateY(3px) translateZ(0)}50%{transform:translateX(-50%) rotate(-14deg) translateY(-11px) translateZ(35px)}}
-@keyframes fan-card-3{0%,100%{transform:translateX(-50%) rotate(0deg) translateY(-13px) translateZ(62px)}50%{transform:translateX(-50%) rotate(14deg) translateY(-5px) translateZ(28px)}}
-@keyframes fan-card-4{0%,100%{transform:translateX(-50%) rotate(28deg) translateY(3px) translateZ(0)}50%{transform:translateX(-50%) rotate(40deg) translateY(13px) translateZ(-20px)}}
-@keyframes fan-card-5{0%,100%{transform:translateX(-50%) rotate(55deg) translateY(21px) translateZ(-45px)}50%{transform:translateX(-50%) rotate(63deg) translateY(33px) translateZ(-72px)}}
-@media(max-width:700px){
-  .rebuild-3d-stage.fan-stage{height:300px!important;margin-top:20px!important;border-radius:19px}
-  .rebuild-3d-fan{width:128%;height:100%;bottom:-2px}
-  .rebuild-3d-fan .rebuild-3d-card{width:132px!important;min-height:169px!important;padding:15px 13px!important}
-  .rebuild-3d-fan .rebuild-3d-card span{font-size:6.8px!important}.rebuild-3d-fan .rebuild-3d-card b{font-size:21px!important;margin-top:23px!important}.rebuild-3d-fan .rebuild-3d-card small{left:13px;right:13px;bottom:28px;font-size:8px!important}
-}
-@media(prefers-reduced-motion:reduce){.rebuild-3d-fan,.rebuild-3d-fan .rebuild-3d-card{animation:none!important}.rebuild-3d-fan .step-1{transform:translateX(-50%) rotate(-48deg)!important}.rebuild-3d-fan .step-2{transform:translateX(-50%) rotate(-24deg)!important}.rebuild-3d-fan .step-3{transform:translateX(-50%) translateY(-12px)!important}.rebuild-3d-fan .step-4{transform:translateX(-50%) rotate(24deg)!important}.rebuild-3d-fan .step-5{transform:translateX(-50%) rotate(48deg)!important}}
-
-</style>
 <script>
 /* Showcase media is presentation-only: no player chrome or tap-to-pause state. */
 (function(){
