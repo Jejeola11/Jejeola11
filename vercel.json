@@ -9,6 +9,8 @@
     { "src": "/app/?", "dest": "/app/index.html" },
     { "src": "/app/studio/?", "dest": "/app/studio.html" },
     { "src": "/atelier/?", "dest": "/atelier-site/index.html" },
+    { "src": "/class/?", "dest": "/atelier-site/phone-to-client.html" },
+    { "src": "/phone-to-client/?", "dest": "/atelier-site/phone-to-client.html" },
     { "handle": "filesystem" }
   ]
 }
