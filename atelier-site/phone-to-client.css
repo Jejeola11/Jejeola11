@@ -13,40 +13,41 @@
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--ink);color:var(--white);font-family:"DM Sans",sans-serif;font-size:16px;line-height:1.65;overflow-x:hidden}
+body{margin:0;background:radial-gradient(circle at 50% 8%,#0b2822 0,#020806 34%);color:var(--white);font-family:"Archivo",sans-serif;font-size:16px;line-height:1.65;overflow-x:hidden}
 img{display:block;max-width:100%}
 a{color:inherit;text-decoration:none}
 .section-shell{width:min(100% - 34px,940px);margin-inline:auto}
 .site-header{position:relative;z-index:20;width:min(100% - 34px,1100px);height:78px;margin:auto;display:flex;align-items:center;justify-content:space-between}
-.brand img{width:118px;height:auto;filter:drop-shadow(0 5px 20px rgba(169,255,105,.12))}
-.mini-cta{padding:11px 18px;border:1px solid rgba(169,255,105,.42);border-radius:999px;color:#eaffd9;text-transform:uppercase;font-weight:800;font-size:.75rem;letter-spacing:.08em}
+.brand img{width:46px;height:46px;border-radius:13px;filter:drop-shadow(0 8px 24px rgba(169,255,105,.18))}
+.mini-cta{font-family:inherit;background:transparent;padding:11px 18px;border:1px solid rgba(169,255,105,.42);border-radius:999px;color:#eaffd9;text-transform:uppercase;font-weight:800;font-size:.75rem;letter-spacing:.08em;cursor:pointer}
 .hero{padding:72px 0 54px;text-align:center}
 .hero-inner{max-width:900px;margin:auto}
 .kicker,.section-number{color:var(--lime);font-size:.75rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase}
 .kicker{display:inline-flex;margin:0 0 22px;padding:8px 14px;border:1px solid rgba(169,255,105,.24);border-radius:999px;background:rgba(169,255,105,.055)}
-h1,h2,h3{font-family:"League Spartan",sans-serif;text-transform:uppercase;letter-spacing:-.045em}
-h1{margin:0;font-size:clamp(2.7rem,6vw,4.2rem);line-height:.89;font-weight:800}
+h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif;text-transform:uppercase;letter-spacing:-.045em}
+h1{margin:0;font-size:clamp(2.55rem,5.6vw,4rem);line-height:.94;font-weight:800}
 h1 span{display:block}
 h1 em{font-style:normal;background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}
 .starting{margin:26px 0 16px;color:var(--yellow);font-size:.82rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase}
-.primary-btn,.offer-btn{display:inline-flex;min-height:58px;align-items:center;justify-content:center;padding:16px 36px;border:0;border-radius:12px;background:var(--chrome);color:#04110e;font-weight:900;text-transform:uppercase;letter-spacing:.05em;box-shadow:0 18px 44px rgba(169,255,105,.15);transition:transform .2s ease,box-shadow .2s ease}
+.primary-btn,.offer-btn{font-family:"Archivo",sans-serif;display:inline-flex;min-height:58px;align-items:center;justify-content:center;padding:16px 36px;border:0;border-radius:14px;background:var(--chrome);color:#04110e;font-weight:800;text-transform:uppercase;letter-spacing:.05em;box-shadow:0 18px 44px rgba(169,255,105,.15);transition:transform .2s ease,box-shadow .2s ease;cursor:pointer}
 .primary-btn:hover,.offer-btn:hover{transform:translateY(-2px);box-shadow:0 22px 55px rgba(169,255,105,.25)}
 .button-note{margin:11px 0 0;color:#7f958c;font-size:.72rem}
 .giveaway-wrap{padding-bottom:68px}
 .giveaway{position:relative;overflow:hidden;padding:32px 36px;border:1px solid rgba(255,255,255,.3);border-radius:var(--radius);background:var(--chrome);color:#04110e;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.3)}
-.giveaway:after{content:"$2K";position:absolute;right:-10px;bottom:-48px;font-family:"League Spartan";font-size:9rem;font-weight:800;color:rgba(0,0,0,.055);line-height:1}
+.giveaway:after{content:"$2K";position:absolute;right:-10px;bottom:-48px;font-family:"Bricolage Grotesque";font-size:9rem;font-weight:800;color:rgba(0,0,0,.055);line-height:1}
 .giveaway-label{position:relative;z-index:1;font-size:.67rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
-.giveaway p{position:relative;z-index:1;margin:5px 0 2px;font-family:"League Spartan";font-size:clamp(2.2rem,6vw,4rem);font-weight:800;line-height:1;text-transform:uppercase;letter-spacing:-.035em}
+.giveaway p{position:relative;z-index:1;margin:5px 0 5px;font-family:"Bricolage Grotesque";font-size:clamp(2.05rem,6vw,3.8rem);font-weight:800;line-height:1;text-transform:uppercase;letter-spacing:-.035em}
 .giveaway small{position:relative;z-index:1;display:block;font-size:.72rem;font-weight:600;opacity:.72}
 .story{padding:0 0 92px}
 .copy-card{padding:clamp(27px,5vw,55px);border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(150deg,#071d19,#030e0c);box-shadow:0 30px 100px rgba(0,0,0,.28)}
 .copy-card p{max-width:730px;margin:0 auto 20px;color:#dfe9e5;font-size:clamp(1rem,2.2vw,1.16rem)}
 .copy-card strong{color:#fff}
-.copy-card .copy-close{margin-top:32px;font-family:"League Spartan";font-size:clamp(1.85rem,4vw,3rem);font-weight:800;line-height:1;text-transform:uppercase;color:#fff;letter-spacing:-.035em}
+.copy-card .copy-close{margin-top:32px;font-family:"Bricolage Grotesque";font-size:clamp(1.85rem,4vw,3rem);font-weight:800;line-height:1;text-transform:uppercase;color:#fff;letter-spacing:-.035em}
 .copy-card .limited{color:var(--lime);font-size:.85rem;font-weight:700}
 .copy-card .primary-btn{margin-top:7px}
 .mission{padding:92px 0;text-align:center}
-.mission h2{max-width:790px;margin:14px auto 15px;font-size:clamp(2.8rem,7vw,5.7rem);line-height:.88;background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mission h2{max-width:790px;margin:14px auto 15px;font-size:clamp(2.45rem,6.2vw,5rem);line-height:.91;background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mission h2 span{display:block}
 .mission-sub{margin:0;color:var(--muted);font-size:clamp(1rem,2.3vw,1.25rem)}
 .host{padding:0 0 108px}
 .host-grid{display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr);gap:58px;align-items:center}
@@ -67,7 +68,7 @@ h1 em{font-style:normal;background:var(--chrome);-webkit-background-clip:text;ba
 .offer-card h3{margin:13px 0 12px;font-size:2.6rem;line-height:.9}
 .offer-card>p{margin:0 0 28px;color:#343936;line-height:1.55}
 .offer-tag{align-self:flex-start;color:#0b322c;font-size:.72rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
-.price{margin-top:auto;font-family:"League Spartan";font-size:2.45rem;font-weight:800;line-height:1}
+.price{margin-top:auto;font-family:"Bricolage Grotesque";font-size:2.45rem;font-weight:800;line-height:1}
 .price b{font-size:1.25rem}
 .offer-card small{display:block;margin:8px 0 22px;color:#626965}
 .offer-btn{width:100%;margin-top:auto;background:#020806;color:#fff;box-shadow:none;text-align:center}
@@ -82,32 +83,43 @@ summary::-webkit-details-marker{display:none}
 summary:after{content:"+";position:absolute;right:8px;top:17px;color:var(--lime);font-size:1.6rem;font-weight:400}
 details[open] summary:after{content:"−"}
 details p{margin:0;padding:0 50px 23px 0;color:var(--muted)}
-footer{padding:45px 20px 105px;border-top:1px solid var(--line);text-align:center;color:#7e938b}
-footer img{width:110px;margin:0 auto 14px}
+footer{padding:38px 20px 46px;border-top:1px solid var(--line);text-align:center;color:#7e938b}
+footer img{width:34px;height:34px;border-radius:10px;margin:0 auto 12px}
 footer p{margin:0 0 5px;text-transform:uppercase;font-size:.7rem;font-weight:800;letter-spacing:.14em;color:#c5d8d0}
 footer small{font-size:.68rem}
-.sticky-mobile{display:none}
+.lead-dialog{width:min(calc(100% - 36px),610px);max-height:calc(100dvh - 34px);overflow:auto;margin:auto;padding:34px;border:1px solid rgba(169,255,105,.3);border-radius:28px;background:#f8f9f2;color:#101411;box-shadow:0 40px 120px rgba(0,0,0,.72)}
+.lead-dialog::backdrop{background:rgba(0,8,6,.78);backdrop-filter:blur(10px)}
+.lead-dialog h2{font-size:clamp(2rem,6vw,3rem);line-height:.95;margin:8px 42px 10px 0}
+.lead-dialog .section-number{margin:0;color:#0b5b4e}.dialog-intro{margin:0 0 23px;color:#56605b;line-height:1.5}
+.dialog-close{position:absolute;right:19px;top:16px;width:38px;height:38px;border:0;border-radius:50%;background:#e9ece4;color:#111;font-size:1.55rem;line-height:1;cursor:pointer}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.lead-dialog label{display:block;margin:0 0 14px;font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#26312c}
+.lead-dialog input,.lead-dialog select{display:block;width:100%;margin-top:7px;padding:14px;border:1px solid #cdd4cd;border-radius:11px;background:#fff;color:#111;font:500 1rem "Archivo",sans-serif;outline:none}
+.lead-dialog input:focus,.lead-dialog select:focus{border-color:#308a70;box-shadow:0 0 0 3px rgba(48,138,112,.12)}
+.lead-dialog .submit-btn{width:100%;margin-top:2px}.form-status{min-height:1.3em;margin:0 0 8px;color:#a42f2f;font-size:.82rem;font-weight:700}
+.consent{display:block;margin:11px auto 0;text-align:center;color:#68726d;font-size:.67rem}.honey{position:absolute!important;left:-9999px!important}
+.submit-btn:disabled{opacity:.65;cursor:wait}
 @media(max-width:720px){
-  .section-shell{width:min(100% - 24px,940px)}
-  .site-header{width:calc(100% - 24px);height:64px}
-  .brand img{width:96px}.mini-cta{padding:8px 12px;font-size:.62rem}
+  .section-shell{width:min(100% - 40px,940px)}
+  .site-header{width:calc(100% - 40px);height:70px}
+  .brand img{width:42px;height:42px}.mini-cta{padding:8px 12px;font-size:.62rem}
   .hero{padding:46px 0 40px}
   .kicker{font-size:.62rem;margin-bottom:18px}
-  h1{font-size:clamp(1.78rem,7.4vw,3.2rem);line-height:.91;letter-spacing:-.055em}
+  h1{font-size:clamp(1.64rem,6.75vw,2.7rem);line-height:.96;letter-spacing:-.045em}
   h1 span{white-space:nowrap}
   .starting{margin-top:22px}
   .primary-btn{width:100%;min-height:55px;padding:15px 20px}
   .giveaway-wrap{padding-bottom:50px}.giveaway{padding:27px 17px;border-radius:22px}.giveaway p{font-size:2.15rem}.giveaway small{font-size:.61rem;line-height:1.45}
   .story{padding-bottom:65px}.copy-card{border-radius:22px}.copy-card p{font-size:.96rem;line-height:1.67}.copy-card .copy-close{font-size:2rem;line-height:.98}
-  .mission{padding:66px 0}.mission h2{font-size:clamp(2.6rem,12vw,4.2rem)}.mission-sub{font-size:.93rem}
+  .mission{padding:66px 0}.mission h2{font-size:clamp(2.25rem,10.2vw,3.75rem)}.mission-sub{font-size:.93rem}
   .host{padding-bottom:74px}.host-grid{grid-template-columns:1fr;gap:34px}.host-image{width:100%;border-radius:23px}.host-copy h2{font-size:4.7rem}.host-copy h3{font-size:1.55rem}.host-copy p:not(.section-number){font-size:.94rem}
   .begin{padding:74px 0}.begin-heading{margin-bottom:28px}.begin-heading h2{font-size:3.4rem}.begin-heading>p:last-child{font-size:.92rem}
   .offer-grid{grid-template-columns:1fr;gap:16px}.offer-card{padding:27px 23px;border-radius:22px}.offer-card h3{font-size:2.35rem}.offer-card>p{font-size:.94rem}.price{font-size:2.25rem}
-  .faq-section{padding:66px 0 105px}.faq-section .begin-heading{text-align:left}.faq-section .begin-heading h2{font-size:3rem}.faq-list{margin-top:6px}summary{font-size:.96rem;padding:19px 44px 19px 0}summary:after{top:14px}details p{font-size:.9rem;padding-right:15px}
-  .sticky-mobile{display:flex;position:fixed;z-index:50;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));min-height:53px;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.5);border-radius:13px;background:var(--chrome);color:#04110e;font-size:.82rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em;box-shadow:0 16px 50px rgba(0,0,0,.5)}
+  .faq-section{padding:66px 0 78px}.faq-section .begin-heading{text-align:left}.faq-section .begin-heading h2{font-size:3rem}.faq-list{margin-top:6px}summary{font-size:.96rem;padding:19px 44px 19px 0}summary:after{top:14px}details p{font-size:.9rem;padding-right:15px}
+  .lead-dialog{width:calc(100% - 28px);padding:27px 20px;border-radius:22px}.form-grid{grid-template-columns:1fr;gap:0}.lead-dialog h2{font-size:2rem}.lead-dialog input,.lead-dialog select{padding:13px}
 }
 @media(max-width:390px){
-  h1{font-size:7.2vw}
+  h1{font-size:6.65vw}
   .hero{padding-top:36px}.copy-card{padding:24px 20px}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.primary-btn,.offer-btn{transition:none}}
