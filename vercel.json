@@ -48,6 +48,14 @@
       "dest": "/atelier-site/index.html"
     },
     {
+      "src": "/class/?",
+      "dest": "/atelier-site/phone-to-client.html"
+    },
+    {
+      "src": "/phone-to-client/?",
+      "dest": "/atelier-site/phone-to-client.html"
+    },
+    {
       "handle": "filesystem"
     }
   ]
