@@ -13,7 +13,7 @@
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:radial-gradient(circle at 50% 8%,#0b2822 0,#020806 34%);color:var(--white);font-family:"Archivo",sans-serif;font-size:16px;line-height:1.65;overflow-x:hidden}
+body{margin:0;background:radial-gradient(circle at 50% 96%,#155d51 0,#082019 38%,#020806 78%);color:var(--white);font-family:"Archivo",sans-serif;font-size:16px;line-height:1.65;overflow-x:hidden}
 img{display:block;max-width:100%}
 a{color:inherit;text-decoration:none}
 .section-shell{width:min(100% - 34px,940px);margin-inline:auto}
@@ -105,7 +105,7 @@ footer small{font-size:.68rem}
   .brand img{width:42px;height:42px}.mini-cta{padding:8px 12px;font-size:.62rem}
   .hero{padding:46px 0 40px}
   .kicker{font-size:.62rem;margin-bottom:18px}
-  h1{font-size:clamp(1.64rem,6.75vw,2.7rem);line-height:.96;letter-spacing:-.045em}
+  h1{font-size:clamp(1.64rem,6.75vw,2.7rem);line-height:1.05;letter-spacing:-.045em}
   h1 span{white-space:nowrap}
   .starting{margin-top:22px}
   .primary-btn{width:100%;min-height:55px;padding:15px 20px}

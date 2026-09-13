@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#020806">
+  <title>Phone-to-Client Dashboard | Fuse Atelier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#020806;--teal:#0c342d;--paper:#f7f8f1;--lime:#a9ff69;--yellow:#ffe061;--chrome:linear-gradient(102deg,#ffe061,#a9ff69 52%,#fff)}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 100%,#176355,#081e19 39%,#020806 78%);color:#fff;font:15px/1.5 Archivo,system-ui,sans-serif}.wrap{width:min(100% - 36px,1180px);margin:auto;padding:36px 0 70px}.brand{display:flex;align-items:center;gap:12px;font-family:"Bricolage Grotesque";font-size:20px;font-weight:800}.brand img{width:42px;border-radius:12px}.eyebrow{margin:42px 0 7px;color:var(--lime);font-weight:800;font-size:11px;letter-spacing:.13em;text-transform:uppercase}h1{font:800 clamp(32px,7vw,58px)/.94 "Bricolage Grotesque";letter-spacing:-.05em;text-transform:uppercase;margin:0}.sub{color:#bdcec8;margin:13px 0 28px}.login{max-width:440px;margin:10vh auto;padding:28px;border:1px solid rgba(255,255,255,.16);border-radius:24px;background:#f7f8f1;color:#111}.login h1{font-size:34px}.login p{color:#526059}.login label{display:block;font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin:15px 0 6px}.login input{width:100%;padding:14px;border:1px solid #cbd3cd;border-radius:12px;font:16px Archivo}.btn{border:0;border-radius:13px;padding:14px 18px;background:var(--chrome);color:#06110e;font:800 13px Archivo;text-transform:uppercase;letter-spacing:.06em;cursor:pointer}.login .btn{width:100%;margin-top:18px}.error{min-height:18px;color:#b42d2d;font-size:13px}.hidden{display:none}.topline{display:flex;justify-content:space-between;align-items:center;gap:12px}.signout{background:transparent;color:#eaffd9;border:1px solid rgba(169,255,105,.45)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:26px 0}.stat{padding:22px;border:1px solid rgba(255,255,255,.14);border-radius:20px;background:rgba(4,22,18,.75)}.stat span{display:block;color:#a9bbb4;font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase}.stat b{display:block;margin-top:5px;font:800 42px/.9 "Bricolage Grotesque";background:var(--chrome);-webkit-background-clip:text;color:transparent}.table-card{overflow:auto;border:1px solid rgba(255,255,255,.15);border-radius:22px;background:rgba(4,19,16,.76)}table{width:100%;min-width:900px;border-collapse:collapse;text-align:left}th,td{padding:16px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top}th{color:var(--lime);font-size:11px;letter-spacing:.09em;text-transform:uppercase}td{color:#d8e3de}td strong{color:#fff}.empty{text-align:center;padding:52px;color:#a9bbb4}@media(max-width:600px){.wrap{width:min(100% - 28px,1180px);padding-top:22px}.eyebrow{margin-top:30px}.stats{grid-template-columns:1fr}.stat b{font-size:37px}.topline{align-items:flex-start}.signout{font-size:10px;padding:11px}.login{margin:8vh auto;padding:23px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="login" id="login">
+      <div class="brand"><img src="/atelier-site/assets/fuse-mark-latest.webp" alt=""> Fuse Atelier</div>
+      <p class="eyebrow">Private dashboard</p><h1>Class registrations</h1>
+      <p>Sign in with your Fuse Atelier admin account to see your Phone-to-Client leads.</p>
+      <form id="login-form"><label>Email<input id="email" type="email" value="riadigitals0@gmail.com" autocomplete="email" required></label><label>Password<input id="password" type="password" autocomplete="current-password" required></label><p class="error" id="error"></p><button class="btn" type="submit">Open dashboard</button></form>
+    </section>
+    <section class="hidden" id="dashboard">
+      <div class="topline"><div class="brand"><img src="/atelier-site/assets/fuse-mark-latest.webp" alt=""> Fuse Atelier</div><button class="btn signout" id="signout">Sign out</button></div>
+      <p class="eyebrow">Phone-to-Client Class</p><h1>Your registrations</h1><p class="sub">Every person who completes the form before joining your WhatsApp group appears here.</p>
+      <div class="stats"><article class="stat"><span>Total registrations</span><b id="total">—</b></article><article class="stat"><span>Registered today</span><b id="today">—</b></article><article class="stat"><span>Countries reached</span><b id="countries">—</b></article></div>
+      <div class="table-card"><table><thead><tr><th>Name</th><th>WhatsApp</th><th>Email</th><th>Country</th><th>Biggest struggle</th><th>Joined</th></tr></thead><tbody id="rows"></tbody></table><p class="empty hidden" id="empty">No registrations yet. Your first lead will appear here.</p></div>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabase = window.supabase.createClient('https://rgbweaimkcndjznlazho.supabase.co','sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3');
+    const login = document.getElementById('login'), dashboard = document.getElementById('dashboard'), error = document.getElementById('error');
+    const esc = text => String(text || '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
+    async function loadDashboard() {
+      const {data:{session}} = await supabase.auth.getSession(); if (!session) return;
+      const response = await fetch('/api/phone-to-client-admin',{headers:{Authorization:'Bearer '+session.access_token}});
+      const data = await response.json(); if (!response.ok) { error.textContent=data.error || 'Unable to open dashboard.'; await supabase.auth.signOut(); return; }
+      login.classList.add('hidden'); dashboard.classList.remove('hidden');
+      total.textContent=data.stats.total;today.textContent=data.stats.today;countries.textContent=data.stats.countries;
+      rows.innerHTML=data.leads.map(lead=>'<tr><td><strong>'+esc(lead.first_name)+'</strong></td><td>'+esc(lead.whatsapp)+'</td><td>'+esc(lead.email)+'</td><td>'+esc(lead.country)+'</td><td>'+esc(lead.biggest_struggle)+'</td><td>'+new Date(lead.created_at).toLocaleString()+'</td></tr>').join('');
+      if (!data.leads.length) empty.classList.remove('hidden');
+    }
+    document.getElementById('login-form').addEventListener('submit', async event => {event.preventDefault();error.textContent='';const button=event.currentTarget.querySelector('button');button.disabled=true;button.textContent='Signing in…';const {error:signInError}=await supabase.auth.signInWithPassword({email:email.value,password:password.value});button.disabled=false;button.textContent='Open dashboard';if(signInError){error.textContent=signInError.message;return}loadDashboard();});
+    document.getElementById('signout').addEventListener('click',async()=>{await supabase.auth.signOut();dashboard.classList.add('hidden');login.classList.remove('hidden');});
+    loadDashboard();
+  </script>
+</body>
+</html>

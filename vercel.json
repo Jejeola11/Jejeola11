@@ -11,6 +11,7 @@
     { "src": "/atelier/?", "dest": "/atelier-site/index.html" },
     { "src": "/class/?", "dest": "/atelier-site/phone-to-client.html" },
     { "src": "/phone-to-client/?", "dest": "/atelier-site/phone-to-client.html" },
+    { "src": "/class-dashboard/?", "dest": "/atelier-site/class-dashboard.html" },
     { "handle": "filesystem" }
   ]
 }
