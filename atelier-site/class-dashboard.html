@@ -30,21 +30,22 @@
   </main>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const supabase = window.supabase.createClient('https://rgbweaimkcndjznlazho.supabase.co','sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3');
+    const supabaseClient = window.supabase.createClient('https://rgbweaimkcndjznlazho.supabase.co','sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3');
     const login = document.getElementById('login'), dashboard = document.getElementById('dashboard'), error = document.getElementById('error');
     const esc = text => String(text || '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
     async function loadDashboard() {
-      const {data:{session}} = await supabase.auth.getSession(); if (!session) return;
+      const {data:{session}} = await supabaseClient.auth.getSession(); if (!session) return;
       const response = await fetch('/api/phone-to-client-admin',{headers:{Authorization:'Bearer '+session.access_token}});
-      const data = await response.json(); if (!response.ok) { error.textContent=data.error || 'Unable to open dashboard.'; await supabase.auth.signOut(); return; }
+      const data = await response.json(); if (!response.ok) { error.textContent=data.error || 'Unable to open dashboard.'; await supabaseClient.auth.signOut(); return; }
       login.classList.add('hidden'); dashboard.classList.remove('hidden');
       total.textContent=data.stats.total;today.textContent=data.stats.today;countries.textContent=data.stats.countries;
       rows.innerHTML=data.leads.map(lead=>'<tr><td><strong>'+esc(lead.first_name)+'</strong></td><td>'+esc(lead.whatsapp)+'</td><td>'+esc(lead.email)+'</td><td>'+esc(lead.country)+'</td><td>'+esc(lead.biggest_struggle)+'</td><td>'+new Date(lead.created_at).toLocaleString()+'</td></tr>').join('');
       if (!data.leads.length) empty.classList.remove('hidden');
     }
-    document.getElementById('login-form').addEventListener('submit', async event => {event.preventDefault();error.textContent='';const button=event.currentTarget.querySelector('button');button.disabled=true;button.textContent='Signing in…';const {error:signInError}=await supabase.auth.signInWithPassword({email:email.value,password:password.value});button.disabled=false;button.textContent='Open dashboard';if(signInError){error.textContent=signInError.message;return}loadDashboard();});
-    document.getElementById('signout').addEventListener('click',async()=>{await supabase.auth.signOut();dashboard.classList.add('hidden');login.classList.remove('hidden');});
+    document.getElementById('login-form').addEventListener('submit', async event => {event.preventDefault();error.textContent='';const button=event.currentTarget.querySelector('button');button.disabled=true;button.textContent='Signing in…';const {error:signInError}=await supabaseClient.auth.signInWithPassword({email:email.value,password:password.value});button.disabled=false;button.textContent='Open dashboard';if(signInError){error.textContent=signInError.message;return}loadDashboard();});
+    document.getElementById('signout').addEventListener('click',async()=>{await supabaseClient.auth.signOut();dashboard.classList.add('hidden');login.classList.remove('hidden');});
     loadDashboard();
   </script>
 </body>
 </html>
+33:    const supabaseClient = window.supabase.createClient('https://rgbweaimkcndjznlazho.supabase.co','sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3');
