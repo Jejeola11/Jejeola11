@@ -11,9 +11,8 @@ exports.handler = async (event) => {
   const token = String((event.headers && (event.headers.authorization || event.headers.Authorization)) || '').replace(/^Bearer\s+/i, '').trim();
   const url = (process.env.SUPABASE_URL || '').trim();
   const key = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
-  if (!token) return json(401, { error: 'Please sign in to view this dashboard.' });
+  if (!token) return json(401, { error: 'Please use your secure email link to open this dashboard.' });
   if (!url || !key) return json(503, { error: 'Dashboard is briefly unavailable.' });
-
   const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data: auth, error: authError } = await supabase.auth.getUser(token);
   if (authError || !auth.user || auth.user.app_metadata?.phone_to_client_admin !== true) return json(403, { error: 'You do not have access to this dashboard.' });
