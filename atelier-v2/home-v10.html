@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#02110f">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<title>Fuse Atelier — Premium Mobile Home V10</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02110f;color:#f8fff9;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+#stage{position:fixed;inset:0;width:100%;height:100%;border:0;background:#02110f;opacity:0;transition:opacity .2s ease}
+.loader{position:fixed;inset:0;display:grid;place-items:center;background:#02110f;z-index:5}.ready #stage{opacity:1}.ready .loader{display:none}
+.mark{width:48px;height:48px;border-radius:15px;margin:0 auto 12px;background:linear-gradient(135deg,#ffe568,#baff63 70%,#fff);display:grid;place-items:center;color:#07120f;font-size:24px;font-weight:950;box-shadow:0 16px 44px rgba(186,255,99,.14)}
+.loader div{text-align:center}.loader b{font-size:13px}.loader p{margin:5px 0 0;color:#789087;font-size:10px}
+</style>
+</head>
+<body>
+<div class="loader"><div><div class="mark">✦</div><b>Opening Fuse Atelier</b><p>Preparing your workspace.</p></div></div>
+<iframe id="stage" src="./home-v9.html?v=20260902-v10" title="Fuse Atelier"></iframe>
+<script>
+(()=>{
+ const stage=document.getElementById('stage');
+ let patched=false,tries=0;
+ function uiDoc(){
+   try{
+     const v9=stage.contentDocument;
+     const v6=v9&&v9.getElementById('stage')?.contentDocument;
+     const v5=v6&&v6.getElementById('app')?.contentDocument;
+     return v5||null;
+   }catch(e){return null}
+ }
+ function el(d,tag,cls,html){const x=d.createElement(tag);if(cls)x.className=cls;if(html!=null)x.innerHTML=html;return x}
+ function patch(){
+   if(patched)return;
+   tries++;
+   const d=uiDoc();
+   if(!d||!d.querySelector('.hero')||!d.querySelector('.tools')){
+     if(tries<180)return setTimeout(patch,100);
+     document.body.classList.add('ready');return;
+   }
+   if(d.documentElement.dataset.homeV10){patched=true;document.body.classList.add('ready');return}
+   d.documentElement.dataset.homeV10='1';
+
+   const tabs=d.querySelector('.tabs');
+   if(tabs){
+     const strip=el(d,'section','next-move');
+     strip.innerHTML=`
+       <div class="next-move-copy">
+         <span class="mini-label">YOUR NEXT MOVE</span>
+         <b>Finish one skill. Make one sample. Pitch one client.</b>
+         <small>Fuse keeps the path short so you can move from learning to earning without losing momentum.</small>
+       </div>
+       <button class="next-move-btn">Continue path <span>→</span></button>`;
+     tabs.insertAdjacentElement('afterend',strip);
+   }
+
+   const quick=d.querySelector('.quick');
+   if(quick){
+     const cards=[...quick.querySelectorAll('.card')];
+     if(cards[0]){
+       cards[0].classList.add('learning-card');
+       const eyebrow=cards[0].querySelector('.eyebrow'); if(eyebrow)eyebrow.textContent='Continue learning';
+       const h=cards[0].querySelector('h2,h3'); if(h)h.textContent='Build a creator-style UGC ad';
+       const p=cards[0].querySelector('p'); if(p)p.textContent='Finish the lesson, create the sample, then turn it into a starter offer for beauty and ecommerce brands.';
+       const lesson=cards[0].querySelector('.lesson');
+       if(lesson){
+         const copy=lesson.querySelector('.lesson-copy');
+         if(copy){const b=copy.querySelector('b');if(b)b.textContent='UGC Ad Sprint';const s=copy.querySelector('small');if(s)s.textContent='58% complete · 12 min left'}
+       }
+       if(!cards[0].querySelector('.resume-row')){
+         const row=el(d,'div','resume-row','<span><b>58%</b> complete</span><button>Resume lesson →</button>');cards[0].appendChild(row);
+       }
+     }
+     if(cards[1]){
+       cards[1].classList.add('pulse-card');
+       const eyebrow=cards[1].querySelector('.eyebrow'); if(eyebrow)eyebrow.textContent='Fuse pulse';
+       const h=cards[1].querySelector('h2,h3'); if(h)h.textContent='Your momentum this week';
+       const p=cards[1].querySelector('p'); if(p)p.textContent='Small progress compounds: learn, create, package, pitch.';
+       const stats=[...cards[1].querySelectorAll('.stat')];
+       const vals=[['3','Lessons'],['5','Creations'],['2','Offers ready']];
+       stats.forEach((s,i)=>{if(vals[i])s.innerHTML='<strong>'+vals[i][0]+'</strong><span>'+vals[i][1]+'</span>'});
+     }
+   }
+
+   const tools=[...d.querySelectorAll('.tool')];
+   const toolMeta=[
+     ['AI Photoshoot','Sell as: campaign images','$80–$250'],
+     ['AI Video','Sell as: short-form ad','$100–$350'],
+     ['Fuse Twin','Sell as: avatar content','$150–$500'],
+     ['AI UGC','Sell as: creator ad','$100–$300'],
+     ['Product Ads','Sell as: product campaign','$150–$600'],
+     ['Edit & Enhance','Sell as: content polish','$50–$180']
+   ];
+   tools.forEach((tool,i)=>{
+     const meta=toolMeta[i]; if(!meta)return;
+     const b=tool.querySelector('b');if(b)b.textContent=meta[0];
+     const small=tool.querySelector('small');if(small)small.textContent=meta[1];
+     if(!tool.querySelector('.tool-price'))tool.insertAdjacentHTML('beforeend','<span class="tool-price">Starter '+meta[2]+'</span>');
+   });
+
+   const sectionHeads=[...d.querySelectorAll('.section .head h2')];
+   const createHead=sectionHeads.find(h=>/create/i.test(h.textContent)&&h.closest('.section')?.querySelector('.tools'));
+   if(createHead){createHead.textContent='Create something brands can buy';const eye=createHead.parentElement?.querySelector('.eyebrow');if(eye)eye.textContent='Fuse Create'}
+   const workflowHead=sectionHeads.find(h=>/sellable/i.test(h.textContent));
+   if(workflowHead){workflowHead.textContent='Start with a proven client workflow'}
+   const path=d.querySelector('.path');
+   if(path){
+     const sec=path.closest('.section');const h=sec?.querySelector('.head h2');if(h)h.textContent='Your path to paid work';
+     const eye=sec?.querySelector('.eyebrow');if(eye)eye.textContent='Learn → Create → Sell';
+     const steps=[...path.querySelectorAll('.step')];
+     const data=[
+       ['1','Learn the skill','Short, practical lessons built around a service you can sell.'],
+       ['2','Create the sample','Use Fuse tools to make proof of work before you pitch.'],
+       ['3','Package the offer','Turn the sample into a clear deliverable, price and promise.'],
+       ['4','Find & pitch clients','Build a prospect list and send personalized outreach.']
+     ];
+     steps.forEach((s,i)=>{if(!data[i])return;const it=s.querySelector('i');if(it)it.textContent=data[i][0];const b=s.querySelector('b,strong,h3');if(b)b.textContent=data[i][1];const p=s.querySelector('p');if(p)p.textContent=data[i][2]});
+   }
+
+   const earn=d.querySelector('.earn');
+   if(earn){
+     earn.classList.add('earn-v10');
+     const eye=earn.querySelector('.eyebrow');if(eye)eye.textContent='Earn with this';
+     const h=earn.querySelector('h2');if(h)h.textContent='AI Product Campaigns';
+     const p=earn.querySelector('p');if(p)p.textContent='Create launch visuals, product films and social ads for fashion, beauty and ecommerce brands.';
+     const offer=earn.querySelector('.offer');if(offer){offer.innerHTML='<div><small>Starter service</small><strong>$150–$600</strong></div><button class="offer-btn">Build this offer →</button>'}
+   }
+
+   const made=[...d.querySelectorAll('.section')].find(s=>s.querySelector('.head h2')?.textContent.trim()==='Made in Fuse');
+   if(made){
+     const eye=made.querySelector('.eyebrow');if(eye)eye.textContent='Real outputs · real services';
+     const h=made.querySelector('.head h2');if(h)h.textContent='Made in Fuse';
+     const more=made.querySelector('.more');if(more)more.textContent='Explore the library →';
+   }
+
+   const style=d.createElement('style');
+   style.textContent=`
+    :root{--v10-line:rgba(186,255,99,.17);--v10-soft:#8aa097}
+    .next-move{margin:13px 0 0;border:1px solid rgba(186,255,99,.2);border-radius:18px;background:linear-gradient(115deg,rgba(186,255,99,.09),rgba(255,229,104,.025) 60%,rgba(6,25,20,.95));padding:14px 15px;display:flex;align-items:center;justify-content:space-between;gap:14px;box-shadow:0 12px 34px rgba(0,0,0,.14)}
+    .next-move-copy{min-width:0}.mini-label{display:block;font-size:7px;letter-spacing:.14em;color:#baff63;font-weight:950;margin-bottom:4px}.next-move-copy b{display:block;font-size:13px;letter-spacing:-.018em}.next-move-copy small{display:block;color:#849a91;font-size:9px;margin-top:4px;line-height:1.4}.next-move-btn{flex:none;border:0;border-radius:12px;background:linear-gradient(105deg,#ffe568,#baff63 75%,#fff);color:#07120f;padding:10px 12px;font-size:9px;font-weight:950}.next-move-btn span{margin-left:4px}
+    .learning-card{background:linear-gradient(145deg,#071d18,#09281f)!important;border-color:rgba(186,255,99,.22)!important}.pulse-card{background:linear-gradient(145deg,#061914,#071f19)!important}.resume-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;padding-top:11px;border-top:1px solid rgba(255,255,255,.06)}.resume-row span{font-size:9px;color:#82988f}.resume-row span b{color:#dfff9f}.resume-row button{border:1px solid rgba(186,255,99,.25);background:rgba(186,255,99,.08);color:#dfffaf;border-radius:10px;padding:8px 10px;font-size:9px;font-weight:900}
+    .tool-price{display:inline-flex;margin-top:8px;border-radius:999px;background:rgba(186,255,99,.07);border:1px solid rgba(186,255,99,.2);padding:5px 7px;font-size:7px;font-weight:900;color:#cfff8f;letter-spacing:.01em}.tool{position:relative;overflow:hidden}.tool:after{content:"";position:absolute;inset:auto -30px -40px auto;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(186,255,99,.08),transparent 68%);pointer-events:none}
+    .path .step{position:relative;overflow:hidden}.path .step:after{content:"";position:absolute;width:70px;height:70px;border-radius:50%;right:-28px;top:-28px;background:radial-gradient(circle,rgba(186,255,99,.07),transparent 70%)}
+    .earn-v10{border-color:rgba(186,255,99,.25)!important;box-shadow:0 18px 48px rgba(0,0,0,.18)}.earn-v10 .offer{justify-content:space-between}.earn-v10 .offer>div{display:flex;flex-direction:column}.earn-v10 .offer small{font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:#8ea39b}.earn-v10 .offer strong{font-size:24px;margin-top:2px}.offer-btn{border:0;border-radius:11px;background:linear-gradient(105deg,#ffe568,#baff63 72%,#fff);color:#07120f;padding:10px 12px;font-size:9px;font-weight:950}
+    @media(max-width:620px){
+      .next-move{padding:12px 12px;border-radius:15px;margin-top:10px}.next-move-copy small{display:none}.next-move-copy b{font-size:11px;line-height:1.28}.next-move-btn{padding:9px 10px;font-size:8px;border-radius:10px}
+      .quick{gap:8px!important}.learning-card,.pulse-card{min-height:0!important}.learning-card h2,.pulse-card h2{font-size:17px!important;margin:4px 0 6px!important}.learning-card p,.pulse-card p{margin:0!important;font-size:9px!important;line-height:1.4!important}.resume-row{margin-top:10px;padding-top:9px}.resume-row button{padding:7px 8px;font-size:8px}
+      .tool{min-width:142px!important;padding:7px 7px 10px!important}.tool small{line-height:1.25!important;min-height:22px}.tool-price{font-size:6.5px!important;padding:5px 6px!important}
+      .path{gap:7px!important}.path .step{padding:13px!important;border-radius:14px!important}.path .step i{width:24px!important;height:24px!important;border-radius:8px!important;margin-bottom:8px!important;font-size:10px!important}.path .step b,.path .step strong,.path .step h3{font-size:11px!important}.path .step p{font-size:8px!important;line-height:1.4!important;margin-bottom:0!important}
+      .earn-v10{border-radius:17px!important}.earn-v10 .earn-copy{padding:16px!important}.earn-v10 h2{font-size:22px!important}.earn-v10 p{font-size:9px!important;line-height:1.4!important}.earn-v10 .offer strong{font-size:20px!important}.offer-btn{font-size:8px;padding:9px 10px}
+    }
+   `;
+   d.head.appendChild(style);
+   patched=true;
+   document.body.classList.add('ready');
+ }
+ stage.addEventListener('load',()=>{setTimeout(patch,300);setTimeout(patch,800);setTimeout(patch,1500)});
+ setTimeout(patch,700);setTimeout(patch,1600);setTimeout(()=>document.body.classList.add('ready'),3200);
+})();
+</script>
+</body>
+</html>

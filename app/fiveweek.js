@@ -32,10 +32,10 @@ window.FUSE_5WEEK = {
   whatsapp: 'https://chat.whatsapp.com/JMVhLvgCs40JXtNv7Yf1zI?s=cl&p=a&mlu=1&amv=2', // course discussion group (community, not payment)
   accessCode: 'UGC500',         // code you can hand out manually if you ever want a self-serve unlock
   creditsCost: 65,               // in-app credit price to unlock (optional path, ~ same ₦10,000 value at the new ₦154/credit baseline)
-  charLabBuyUrl: 'https://fusecharacterlabpage.netlify.app/', // purchase / sales page (Day 2 banner + promo card)
-  charLabLoginUrl: 'https://fuse-character-lab.netlify.app/', // the actual tool — only unlocks for buyers' emails
-  pitchPilotUrl: 'https://pitch-pilot2.netlify.app/', // Day 5 + Day 6 banner — sign up free, 3 free pitches
-  landingUrl: 'https://500-dollar-week.netlify.app', // sales page shown to locked users
+  charLabBuyUrl: 'https://fusecharacterlabpage.vercel.app/', // purchase / sales page (Day 2 banner + promo card)
+  charLabLoginUrl: 'https://fuse-character-lab.vercel.app/', // the actual tool — only unlocks for buyers' emails
+  pitchPilotUrl: 'https://pitch-pilot2.vercel.app/', // Day 5 + Day 6 banner — sign up free, 3 free pitches
+  landingUrl: 'https://500-dollar-week.vercel.app', // sales page shown to locked users
   dayCredits: 50, // credits to unlock a single day (must match KEY_COST in unlock-module.js)
   // Default lesson videos (overridable per-day in Admin via course_videos).
   dayVideos: {
@@ -503,7 +503,7 @@ Best,
         </ul>
         <p>Plus 12 bonus vault resources (prompt vaults, proposal swipe files, a 90-day roadmap) and <b>83 Fuse Studio credits</b> included on day one.</p>
         <div class="wk-call">🔥 Founding price: <b>₦60,000</b> lifetime access (first 50 students) — then ₦90,000. You already proved you can do this in 7 days. Now scale it.</div>
-        <a class="btn gold block" href="https://fuse-atelier.netlify.app" target="_blank" rel="noopener" style="margin-top:6px">🎬 See Fuse Atelier — join at the founding price →</a>
+        <a class="btn gold block" href="https://fuse-atelier.vercel.app" target="_blank" rel="noopener" style="margin-top:6px">🎬 See Fuse Atelier — join at the founding price →</a>
 
         <p><b>Today's action:</b> pitch the retainer to your first client, set your 30-day income target, and take a look at Fuse Atelier while the founding price is still open.</p>`,
     },

@@ -51,37 +51,14 @@
   function tile(media, cls) {
     const v = document.createElement('video');
     v.className = cls || '';
-    v.muted = true; v.defaultMuted = true; v.loop = true; v.playsInline = true;
-    v.autoplay = true; v.controls = false; v.preload = 'none';
-    v.removeAttribute('controls');
-    v.setAttribute('autoplay', '');
-    v.setAttribute('muted', '');
-    v.setAttribute('loop', '');
-    v.setAttribute('playsinline', '');
-    v.setAttribute('disablepictureinpicture', '');
-    v.setAttribute('controlslist', 'nodownload nofullscreen noremoteplayback');
+    v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'none';
     v.setAttribute('poster', media.poster);
     v.dataset.src = media.src;
     return v;
   }
 
-  // Keep homepage media presentation-only: autoplaying visuals with no
-  // browser or injected play/pause UI.
-  function removeMediaControls(root) {
-    root.querySelectorAll('video').forEach((v) => {
-      v.controls = false;
-      v.removeAttribute('controls');
-    });
-    root.querySelectorAll(
-      '.video-controls, .media-controls, .play-pause, .play-button, .pause-button,' +
-      ' button[aria-label="Play"], button[aria-label="Pause"],' +
-      ' button[title="Play"], button[title="Pause"]'
-    ).forEach((control) => control.remove());
-  }
-
   let io = null;
   function observe(root) {
-    removeMediaControls(root);
     if (!('IntersectionObserver' in window)) {
       root.querySelectorAll('video[data-src]').forEach((v) => { v.src = v.dataset.src; v.autoplay = true; });
       return;
@@ -149,8 +126,9 @@
     sWrap.appendChild(el('h2', 'fh-h2', 'Every studio'));
     const sGrid = el('div', 'fh-studios');
     STUDIOS.forEach((s) => {
-      const c = el('button', 'fh-studio', `<span class="fh-studio-n">${esc(s.n)}</span><span class="fh-studio-d">${esc(s.d)}</span>`);
-      c.onclick = () => go(s.k);
+      const c = el(s.k === 'academy' ? 'a' : 'button', 'fh-studio', `<span class="fh-studio-n">${esc(s.n)}</span><span class="fh-studio-d">${esc(s.d)}</span>`);
+      if (s.k === 'academy') c.href = '/atelier-v2/academy-v2.html';
+      else c.onclick = () => go(s.k);
       sGrid.appendChild(c);
     });
     sWrap.appendChild(sGrid);
@@ -165,11 +143,6 @@
     root.appendChild(rWrap);
 
     observe(root);
-
-    // Some mobile browsers or late scripts may add controls after rendering.
-    // Strip only control UI inside the homepage when that happens.
-    const mediaObserver = new MutationObserver(() => removeMediaControls(root));
-    mediaObserver.observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['controls'] });
   }
 
   // ---------------------------------------------------------------

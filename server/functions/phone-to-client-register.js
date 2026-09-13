@@ -33,14 +33,16 @@ exports.handler = async (event) => {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email)) return json(400, { error: 'Please enter a valid email address.' });
   if (!/^[+()\d\s-]{7,40}$/.test(lead.whatsapp)) return json(400, { error: 'Please enter a valid WhatsApp number, including your country code.' });
 
-  const url = (process.env.SUPABASE_URL || '').trim();
+  // Some shared Fuse deployments store the Data API URL instead of the
+  // project base URL. supabase-js appends /rest/v1 itself, so normalize it.
+  const url = (process.env.SUPABASE_URL || '').trim().replace(/\/rest\/v1\/?$/i, '').replace(/\/$/, '');
   const key = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
   if (!url || !key) return json(503, { error: 'Registration is briefly unavailable. Please try again.' });
 
   const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
   const { error } = await supabase.from('phone_to_client_leads').upsert(lead, { onConflict: 'email' });
   if (error) {
-    console.error('phone-to-client registration failed', error.code);
+    console.error('phone-to-client registration failed', error.code, error.message);
     return json(500, { error: 'We could not save your registration. Please try again.' });
   }
   return json(200, { ok: true });

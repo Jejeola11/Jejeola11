@@ -1,0 +1,28 @@
+/* Interactive depth stays inside authored UI previews, never uploaded media. */
+.fuse-demo{position:relative;isolation:isolate;perspective:1200px;--demo-x:0deg;--demo-y:0deg;--light-x:50%;--light-y:30%}
+.fuse-demo:before{content:"";position:absolute;inset:0;border:1px solid #d8ff9d38;border-radius:inherit;box-shadow:inset 0 1px 0 #f5ffd955,0 18px 45px #0004;pointer-events:none;z-index:2;background:radial-gradient(circle at var(--light-x) var(--light-y),#e8ffb312,transparent 50%)}
+.fuse-demo [data-demo-item]{cursor:pointer;position:relative;transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease,background .35s ease;transform:perspective(1100px) rotateX(var(--demo-x)) rotateY(var(--demo-y));transform-origin:center;border:1px solid #caff6a22!important;outline:none}
+.fuse-demo [data-demo-item].demo-selected{transform:perspective(1100px) translateZ(22px) rotateX(var(--demo-x)) rotateY(var(--demo-y)) translateY(-3px);border-color:#d2ff80!important;box-shadow:0 9px 0 -5px #34582b,0 15px 32px #0006,inset 0 1px 0 #edffc788;background:linear-gradient(135deg,#213b26,#0b2017)!important}
+.fuse-demo [data-demo-item]:focus-visible,.fuse-demo-controls button:focus-visible{outline:2px solid #fff36a!important;outline-offset:3px}
+.fuse-demo [data-demo-item].demo-selected:after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,transparent 30%,#ecffb916 50%,transparent 70%);background-size:220% 100%;animation:demo-glint 1.3s ease-out both}
+@keyframes demo-glint{from{background-position:150% 0}to{background-position:-50% 0}}
+body #system .rebuild-3d-stage.fuse-demo{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:14px!important;position:relative!important;width:100%!important;height:auto!important;min-height:0!important;max-width:100%!important;padding:24px 14px 30px!important;box-sizing:border-box;overflow:visible!important;transform:none!important}
+body #system .fuse-demo .rebuild-3d-card{position:relative!important;inset:auto!important;width:auto!important;height:auto!important;min-height:160px!important;padding:20px 14px!important;opacity:1!important;animation:none!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:10px!important;border-radius:18px!important;transform:perspective(1100px) rotateY(-5deg)!important;background:#0a1f17!important;box-sizing:border-box;color:#f5ffe8!important}
+body #system .fuse-demo .rebuild-3d-card.demo-selected{transform:perspective(1100px) translateY(-7px) rotateY(0deg)!important;background:linear-gradient(135deg,#334b23,#0b2418)!important}
+body #system .fuse-demo .rebuild-3d-card b{font-size:23px!important;line-height:1.1!important;color:#eeffbe!important}
+body #system .fuse-demo .rebuild-3d-card span,body #system .fuse-demo .rebuild-3d-card small{font-size:13px!important;line-height:1.4!important;white-space:normal!important;color:#d0ddca!important}
+.fuse-demo-controls{position:relative;z-index:3;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;padding:14px 0 4px}
+.fuse-demo-controls button{min-width:44px;min-height:44px;padding:9px 14px;border:1px solid #baff6344;border-radius:24px;background:#091d15;color:#eaffcb;font:inherit;font-size:14px;cursor:pointer}
+.fuse-demo-controls output{min-width:45px;text-align:center;font:14px monospace;color:#d6edb9}
+.fuse-demo-description{font-size:12px!important;color:#b2c7b8!important;text-align:center;margin:8px 0 0!important;line-height:1.4!important}
+.rebuild-3d-progress i.demo-lit{background:#d8ff75!important;box-shadow:0 0 12px #baff6366!important;animation:none!important}
+.rebuild-3d-progress i{animation:none!important}
+.rebuild-academy-ui.fuse-demo,.rebuild-sell-ui.fuse-demo,.money-visual.fuse-demo{padding:20px!important;box-sizing:border-box;max-width:100%;border-radius:22px;overflow:hidden}
+.money-visual.fuse-demo .money-pipe{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px!important;padding:10px 3px 18px!important;min-width:0}
+.money-visual.fuse-demo .money-col{min-width:0!important;padding:12px 8px;border-radius:14px}
+.money-visual.fuse-demo .money-col>b{font-size:14px!important}
+.money-visual.fuse-demo .money-lead{font-size:12px!important;line-height:1.4!important;white-space:normal!important}
+@media(max-width:900px){body #system .rebuild-3d-stage.fuse-demo{grid-template-columns:repeat(5,160px)!important;overflow-x:auto!important;scroll-snap-type:x mandatory;gap:12px!important;padding-inline:8px!important}.fuse-demo .rebuild-3d-card{scroll-snap-align:center}.money-visual.fuse-demo .money-pipe{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+.fuse-phone body #system .rebuild-3d-stage.fuse-demo{grid-template-columns:repeat(5,160px)!important;overflow-x:auto!important;scroll-snap-type:x mandatory}
+.fuse-phone .money-visual.fuse-demo .money-pipe{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+@media(prefers-reduced-motion:reduce){.fuse-demo [data-demo-item],body #system .fuse-demo .rebuild-3d-card{transform:none!important;transition:none!important}.fuse-demo [data-demo-item]:after{animation:none!important}}

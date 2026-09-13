@@ -1,0 +1,1 @@
+const fs=require('node:fs');fs.mkdirSync('public',{recursive:true});for(const name of fs.readdirSync('.')){if(name.startsWith('.')||['public','api','server','node_modules','netlify','scripts','package.json','package-lock.json','vercel.json','vercel-bootstrap.cjs','vercel-static.cjs'].includes(name))continue;fs.cpSync(name,'public/'+name,{recursive:true});}

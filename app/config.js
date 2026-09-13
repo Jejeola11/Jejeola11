@@ -3,8 +3,8 @@
 // Fill the two Supabase values after creating your project.
 // ============================================================
 window.FUSE = {
-  SUPABASE_URL: 'https://rimsktvqmwmxchhivgmt.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpbXNrdHZxbXdteGNoaGl2Z210Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMDEzNDEsImV4cCI6MjA5NzU3NzM0MX0.cbA2fw-WBjGLR3NGp-8_kcE2oA1NdnN-CcxaeFsrNyY',
+  SUPABASE_URL: 'https://rgbweaimkcndjznlazho.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3',
 
   // Preview password — lets you (or anyone) tour the studio UI without
   // a Supabase account. Generation/payments still need a real login.
@@ -46,15 +46,9 @@ window.FUSE = {
   // display-only. Atelier Starter/Creator/Empire are commented out because
   // _packs.js paused them — a live button here would hit a checkout error.
   PACKS: [
-    { key: 'creator_mo', name: 'Studio Creator', naira: 29000, credits: 260, note: '~130 images or 11 videos', kind: 'sub' },
-    { key: 'pro_mo',     name: 'Studio Pro',     naira: 9000,  credits: 60,  note: '~30 images or 2-3 videos', kind: 'sub', featured: true },
-    { key: 'agency_mo',  name: 'Agency',         naira: 59000, credits: 650, note: '~325 images or 29 videos · white-label', kind: 'sub' },
-    { key: 'atelier_starter', name: 'Fuse Atelier — Starter', naira: 10000, credits: 17,  note: 'Design skills + Money Engine', kind: 'course' },
-    { key: 'atelier_creator', name: 'Fuse Atelier — Creator', naira: 25000, credits: 67,  note: '16 skills + community + Character Lab', kind: 'course', featured: true },
-    { key: 'atelier_empire',  name: 'Fuse Atelier — Empire',  naira: 70000, credits: 200, note: 'Everything + direct access to Ria', kind: 'course' },
     { key: 'bundle_120', name: '20 credits',   naira: 3000,  credits: 20,  note: 'Top-up · never expires', kind: 'pack' },
-    { key: 'bundle_320', name: '40 credits',   naira: 7000,  credits: 40,  note: 'Top-up · best value',    kind: 'pack' },
-    { key: 'bundle_750', name: '100 credits',  naira: 15000, credits: 100, note: 'Top-up · bulk',          kind: 'pack' },
+    { key: 'bundle_320', name: '40 credits',   naira: 7000,  credits: 40,  note: 'Top-up · never expires', kind: 'pack', featured: true },
+    { key: 'bundle_750', name: '100 credits',  naira: 15000, credits: 100, note: 'Top-up · never expires', kind: 'pack' },
   ],
 
   // Launch promo — mirrors netlify/functions/_packs.js exactly (dates + multipliers

@@ -1,0 +1,10 @@
+.fuse-projection{height:auto!important;display:flex;flex-direction:column;align-items:center;overflow:hidden;padding-top:20px;background:radial-gradient(ellipse at 50% 74%,#1e3d202e,transparent 52%),#020a09}
+.ria-hologram{position:relative;width:clamp(300px,34vw,430px);max-width:88%;z-index:2;isolation:isolate}
+.ria-hologram video{display:block;width:100%;height:auto;aspect-ratio:3/4;object-fit:contain;mix-blend-mode:screen;mask-image:linear-gradient(to bottom,transparent,#000 6%,#000 78%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,transparent,#000 6%,#000 78%,transparent 100%)}
+.ria-hologram:after{content:"";position:absolute;left:44%;right:44%;top:85%;height:110px;background:linear-gradient(#ebff9b88,#baff6366,transparent);filter:blur(14px);pointer-events:none;z-index:-1}
+.fuse-projection>[data-scene="core"]{height:360px!important;margin-top:-76px;width:100%;flex:none}
+.ria-hologram-controls{position:absolute;top:48%;left:calc(100% + 24px);display:flex;flex-direction:column;gap:10px;min-width:145px}
+.ria-hologram-controls button{border:1px solid #cbff7166;background:#071a14ed;color:#f5ffe8;border-radius:24px;padding:12px 16px;font:inherit;font-size:14px;white-space:nowrap;cursor:pointer}
+.ria-hologram-controls button:first-child{background:linear-gradient(110deg,#fff36a,#baff63,#efffd5);color:#07120f;font-weight:750}
+.ria-hologram-controls button:focus-visible{outline:2px solid #fff36a;outline-offset:4px}
+@media(max-width:900px){.ria-hologram{width:320px}.ria-hologram-controls{top:auto;bottom:40px;left:50%;transform:translateX(-50%);flex-direction:row;min-width:0}.fuse-projection>[data-scene="core"]{height:310px!important;margin-top:-42px}}

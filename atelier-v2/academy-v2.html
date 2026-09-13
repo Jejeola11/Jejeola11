@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#021416"><title>Lessons · Fuse Atelier</title><link rel="stylesheet" href="fuse.css?v=teal-1"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script><script src="/app/course.js" defer></script><script src="academy/course-current.js" defer></script><script src="fuse-shell.js?v=teal-1" defer></script><script src="lesson.js?v=teal-1" defer></script></head><body data-page="academy"><div data-fuse-header></div><main class="fuse-wrap narrow">
+<div class="fuse-heading back-title"><a href="learn.html" aria-label="Back to Academy">←</a><h1 id="courseTitle">Academy</h1></div>
+<div id="lessonPlayer" class="lesson-player" aria-label="Lesson video"><div class="panel"><p class="muted">Choose a lesson to begin.</p></div></div>
+<p id="lessonStatus" class="status" role="status"></p><button id="retryLesson" class="btn" hidden>Retry lesson</button>
+<div class="fuse-heading"><h2 id="lessonTitle">Lessons</h2></div>
+<div class="underline-tabs" aria-label="Lesson details"><button class="active" data-lesson-tab="lessons" aria-pressed="true">Lessons</button><button data-lesson-tab="notes" aria-pressed="false">Notes</button><button data-lesson-tab="resources" aria-pressed="false">Resources</button></div>
+<section id="lessonsPanel" class="lesson-list"></section>
+<section id="notesPanel" class="panel" hidden><p class="muted">Open an available lesson to view its notes.</p></section>
+<section id="resourcesPanel" class="panel" hidden><h2>Creator resources</h2><p class="muted">Browse supporting prompts, guides and templates.</p><a class="btn" href="resources.html">Open Resources →</a></section>
+<div class="row lesson-actions"><a href="studio.html" class="btn">Try it in Create ↗</a><button class="btn primary" id="nextLesson" disabled>Next lesson →</button></div>
+</main></body></html>
