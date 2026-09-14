@@ -7,16 +7,19 @@ const SAFE_COUNT = new Set([2, 5, 10, 15, 20]);
 const clean = (value, max = 240) => String(value || '').trim().replace(/\s+/g, ' ').slice(0, max);
 const domainOf = (url) => { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (_) { return ''; } };
 
-function queriesFor({ niche, locations, skill }) {
+function queriesFor({ niche, locations, skill, signals = [] }) {
   const place = locations[0] || 'United States';
   const base = `${niche} ${place}`;
-  return [
-    `${base} launching new product`,
-    `${base} hiring marketing OR creative`,
-    `${base} event tickets promotion`,
-    `${base} paid ads campaign`,
-    `${base} new collection announcement ${skill}`
-  ];
+  const all = {
+    meta_ads: `${base} Meta Facebook Instagram ads campaign`,
+    google_ads: `${base} Google search ads sponsored`,
+    launch: `${base} launching new product new collection announcement`,
+    event: `${base} event tickets promotion RSVP register`,
+    growth: `${base} hiring marketing OR creative growth`,
+    weak_page: `${base} landing page booking shop online ${skill}`
+  };
+  const selected = signals.filter(key => all[key]);
+  return (selected.length ? selected : Object.keys(all)).map(key => `${all[key]} ${skill}`);
 }
 
 function inferSignal(result) {
@@ -62,6 +65,23 @@ async function firecrawlSearch(query) {
   return Array.isArray(payload.data) ? payload.data : [];
 }
 
+async function firecrawlScrape(url) {
+  const key = (process.env.FIRECRAWL_API_KEY || '').trim();
+  try {
+    const res = await fetch('https://api.firecrawl.dev/v2/scrape', {
+      method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, formats: ['markdown'] })
+    });
+    if (!res.ok) return {};
+    const payload = await res.json();
+    const markdown = String(payload.data?.markdown || '').slice(0, 120000);
+    const emails = [...new Set(markdown.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi) || [])].slice(0, 5);
+    const socials = [...new Set((markdown.match(/https?:\/\/(?:www\.)?(?:instagram|linkedin|facebook|tiktok|x)\.com\/[^\s)]+/gi) || []).map(x => x.replace(/[.,;]+$/, '')))].slice(0, 8);
+    const founderLine = markdown.split('\n').find(line => /founder|co-founder|owner| led by/i.test(line) && line.length < 220);
+    return { emails, socials, founder_hint: founderLine ? clean(founderLine.replace(/[*#]/g, ''), 220) : '' };
+  } catch (_) { return {}; }
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
   const user = await getUser(event);
@@ -72,6 +92,7 @@ exports.handler = async (event) => {
   const requestedCount = Number(body.requested_count);
   const skill = clean(body.skill, 120), niche = clean(body.niche, 120);
   const locations = Array.isArray(body.locations) ? body.locations.map(x => clean(x, 80)).filter(Boolean).slice(0, 5) : [];
+  const signals = Array.isArray(body.signals) ? body.signals.map(x => clean(x, 40)).slice(0, 6) : [];
   const offer = body.offer && typeof body.offer === 'object' ? body.offer : {};
   const portfolioUrl = clean(body.portfolio_url, 500);
   if (!SAFE_COUNT.has(requestedCount) || !skill || !niche || !locations.length) return json(400, { error: 'Choose a skill, niche, location and valid prospect count.' });
@@ -91,7 +112,7 @@ exports.handler = async (event) => {
     charged = true;
     await db.from('credit_ledger').insert({ user_id: user.id, amount: -creditCost, balance_after: balance, reason: 'client_finder_research', resource_id: request.id });
 
-    const batches = await Promise.all(queriesFor({ niche, locations, skill }).map(firecrawlSearch));
+    const batches = await Promise.all(queriesFor({ niche, locations, skill, signals }).map(firecrawlSearch));
     const seen = new Set(); const candidates = [];
     for (const result of batches.flat()) {
       const url = clean(result.url || result.metadata?.url, 700), domain = domainOf(url);
@@ -102,7 +123,8 @@ exports.handler = async (event) => {
       const signal = inferSignal(result), gap = gapFor(signal, skill);
       const evidence = [{ url, title: title || domain, observation: clean(result.description || result.markdown || `Found during research for ${niche}.`, 450), captured_at: new Date().toISOString() }];
       const pitch = pitchFor(brand, '', signal, gap, { ...offer, skill }, portfolioUrl);
-      candidates.push({ user_id: user.id, research_request_id: request.id, brand_name: brand, niche, location: locations[0], website: `https://${domain}`, service: skill, offer_price: Number(offer.price) || null, offer_currency: clean(offer.currency || 'USD', 8), portfolio_url: portfolioUrl || null, status: 'research_ready', source: 'Verified web research', visible_problem: gap, research_summary: `Why now: ${signal}. Verify the exact contact and landing page before sending.`, signals: [{ type: signal, confidence: 'observed', source_url: url }], evidence, pitch_email: pitch.email, pitch_whatsapp: pitch.whatsapp, pitch_instagram: pitch.instagram });
+      const contact = await firecrawlScrape(`https://${domain}`);
+      candidates.push({ user_id: user.id, research_request_id: request.id, brand_name: brand, niche, location: locations[0], website: `https://${domain}`, service: skill, offer_price: Number(offer.price) || null, offer_currency: clean(offer.currency || 'USD', 8), portfolio_url: portfolioUrl || null, status: 'research_ready', source: 'Verified web research', visible_problem: gap, research_summary: `Why now: ${signal}. Verify the exact contact and landing page before sending.`, signals: [{ type: signal, confidence: 'observed', source_url: url }], evidence, contact_details: [{ source_url: `https://${domain}`, emails: contact.emails || [], socials: contact.socials || [], founder_hint: contact.founder_hint || '', verified: false }], pitch_email: pitch.email, pitch_whatsapp: pitch.whatsapp, pitch_instagram: pitch.instagram });
       if (candidates.length >= requestedCount) break;
     }
     if (!candidates.length) throw new Error('No evidence-backed prospects were found.');
