@@ -1,3 +1,746 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#02110f"><title>Client Finder · Fuse Atelier</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><link rel="stylesheet" href="/atelier-v2/fuse.css?v=teal-1"><script src="/atelier-v2/fuse-shell.js?v=teal-1" defer></script><style>
-:root{--bg:#02110f;--panel:#06201a;--line:rgba(147,211,183,.18);--lime:#baff63;--yellow:#ffe568;--ink:#03110d;--text:#f3fff8;--muted:#91aaa0;--grad:linear-gradient(110deg,#ffe568,#dfff70 50%,#baff63)}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 75% -10%,rgba(186,255,99,.12),transparent 28%),var(--bg);color:var(--text);font-family:Archivo,sans-serif;padding-bottom:96px}.wrap{width:min(1160px,calc(100% - 28px));margin:auto}.hidden{display:none!important}button,input,select,textarea{font:inherit}button{cursor:pointer}.eyebrow{color:var(--lime);font-size:10px;font-weight:900;letter-spacing:.14em}.topbar{padding:18px 0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}.title{font:800 28px 'Bricolage Grotesque';letter-spacing:-.06em}.title span,.hero h1 em{font-style:normal;background:var(--grad);color:transparent;background-clip:text}.wallet{border:1px solid var(--line);border-radius:99px;padding:9px 12px;color:var(--lime);font-size:11px;font-weight:800}.hero{position:relative;overflow:hidden;padding:30px;border:1px solid var(--line);border-radius:28px;background:linear-gradient(130deg,#092b22,#061610 65%)}.hero:after{content:'';position:absolute;width:340px;height:340px;right:-140px;top:-190px;border-radius:50%;background:radial-gradient(circle,rgba(255,229,104,.26),transparent 66%)}.hero h1{font:800 clamp(42px,7vw,74px)/.88 'Bricolage Grotesque';letter-spacing:-.07em;margin:8px 0 14px;max-width:700px;position:relative;z-index:1}.hero p{margin:0;max-width:630px;color:#b2c6bd;font-size:14px;line-height:1.55;position:relative;z-index:1}.hero-actions{display:flex;gap:8px;margin-top:21px;position:relative;z-index:1;flex-wrap:wrap}.primary,.secondary,.quiet{border-radius:13px;padding:12px 15px;font-size:12px;font-weight:900;border:0}.primary{color:var(--ink);background:var(--grad)}.secondary{color:#effff6;background:#0a2b22;border:1px solid var(--line)}.quiet{color:var(--muted);background:transparent}.grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin-top:16px}.panel{border:1px solid var(--line);border-radius:22px;background:rgba(6,32,26,.94);padding:19px}.panel h2{font:800 25px 'Bricolage Grotesque';letter-spacing:-.05em;margin:4px 0}.panel p{font-size:12px;color:var(--muted);line-height:1.5}.launch-note{border-left:3px solid var(--yellow);padding:3px 0 3px 11px;font-size:12px;line-height:1.5;color:#e8f5eb}.metric-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:16px}.metric{padding:13px;border-radius:15px;background:#0a2b22}.metric b{display:block;font:800 27px 'Bricolage Grotesque';letter-spacing:-.05em}.metric span{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.section{margin-top:26px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:10px}.section h2{font:800 29px 'Bricolage Grotesque';letter-spacing:-.06em;margin:2px 0}.section-head p{margin:0;color:var(--muted);font-size:11px}.prospects{display:grid;gap:10px}.prospect{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;border:1px solid var(--line);border-radius:20px;padding:16px;background:linear-gradient(125deg,#08261e,#051914)}.prospect h3{font:800 19px 'Bricolage Grotesque';letter-spacing:-.04em;margin:0}.sub,.problem{font-size:11px;color:var(--muted);line-height:1.45;margin-top:5px}.problem{color:#c2d4cc;max-width:650px}.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}.chip{padding:5px 7px;border:1px solid var(--line);border-radius:99px;font-size:8px;color:#cce1d8}.chip.signal{color:var(--yellow)}.card-actions{display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap;justify-content:flex-end}.small{border:1px solid var(--line);background:#09291f;color:#eafff2;border-radius:10px;padding:8px 10px;font-size:10px;font-weight:800}.small.hot{background:var(--grad);border:0;color:var(--ink)}.empty{border:1px dashed var(--line);border-radius:18px;padding:28px;color:var(--muted);text-align:center;font-size:12px}.modal{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px)}.modal.open{display:flex}.sheet{width:min(760px,100%);max-height:92dvh;overflow:auto;background:#062018;border:1px solid var(--line);border-radius:25px 25px 0 0;padding:21px 18px calc(25px + env(safe-area-inset-bottom))}.sheet h2{font:800 30px 'Bricolage Grotesque';letter-spacing:-.06em;margin:5px 0}.close{float:right;border:1px solid var(--line);background:#0a2d23;color:white;border-radius:10px;width:36px;height:36px;font-size:20px}.step{display:none}.step.active{display:block}.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{margin-top:12px}.field.full{grid-column:1/-1}.field label{display:block;font-size:10px;font-weight:900;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;border-radius:12px;border:1px solid var(--line);background:#031710;color:#fff;padding:11px;font-size:12px;outline:0}.field textarea{min-height:112px;resize:vertical}.choices{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:8px}.choice{border:1px solid var(--line);background:#092a20;color:#dff0e8;border-radius:12px;padding:11px 5px;font-weight:900;font-size:12px}.choice.active{background:var(--grad);color:var(--ink);border-color:transparent}.wizard-footer{display:flex;justify-content:space-between;gap:8px;margin-top:20px;padding-top:15px;border-top:1px solid var(--line)}.pricebar{margin-top:14px;padding:12px;border-radius:13px;background:#0b2d22;color:#d6e8df;font-size:11px}.pricebar b{color:var(--lime)}.detail-label{font-size:9px;color:var(--lime);font-weight:900;letter-spacing:.1em;margin-top:16px}.detail-text{white-space:pre-wrap;font-size:12px;line-height:1.55;color:#dceee5;margin-top:6px}.copy{float:right;margin-left:8px}.toast{position:fixed;z-index:200;bottom:105px;left:50%;transform:translateX(-50%);background:#153a2e;border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-size:11px;opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1}.toast.bad{border-color:#8f5555;color:#ffd0d0}@media(max-width:680px){.wrap{width:min(100% - 20px,1160px)}.hero{padding:23px 18px}.hero h1{font-size:47px}.grid{grid-template-columns:1fr}.fields{grid-template-columns:1fr}.prospect{grid-template-columns:1fr}.card-actions{justify-content:flex-start}.choices{grid-template-columns:repeat(5,1fr)}.choice{font-size:10px}.sheet{padding:18px 14px}.topbar{padding-top:13px}}
-</style></head><body data-page="academy"><div data-fuse-header></div><main class="wrap"><div class="topbar"><div><div class="eyebrow">MONEY ENGINE</div><div class="title">Client <span>Finder</span></div></div><a class="wallet" href="/atelier-v2/profile.html" data-balance>Credits</a></div><section class="hero"><div class="eyebrow">EVIDENCE, NOT RANDOM PITCHING</div><h1>Find the brands already <em>moving.</em></h1><p>Choose your skill, niche and market. Client Finder surfaces evidence-backed brands with a clear gap, then gives you a first-direction pitch you can send yourself.</p><div class="hero-actions"><button id="startFinder" class="primary">Find client opportunities →</button><a class="secondary" href="/atelier-v2/academy-v2.html">Open Money Engine</a></div></section><section class="grid"><div class="panel"><div class="eyebrow">THE NEW PROCESS</div><h2>Ask first. Make the sample after interest.</h2><p class="launch-note">You do not make free samples for cold leads. You earn the right to make one after a reply, then Fuse builds your focused sample brief and offer copy.</p></div><div class="panel"><div class="eyebrow">YOUR PIPELINE</div><div class="metric-grid"><div class="metric"><b id="mReady">0</b><span>Ready to pitch</span></div><div class="metric"><b id="mReplies">0</b><span>Replies</span></div><div class="metric"><b id="mBriefs">0</b><span>Briefs ready</span></div><div class="metric"><b id="mWon">0</b><span>Won</span></div></div></div></section><section class="section"><div class="section-head"><div><div class="eyebrow">OPPORTUNITIES</div><h2>Your client board</h2></div><p id="count"></p></div><div id="prospects" class="prospects"></div></section></main><div id="finderModal" class="modal"><div class="sheet"><button class="close" data-close="finderModal">×</button><div class="eyebrow">CLIENT FINDER</div><h2 id="wizardTitle">Set your direction</h2><p id="wizardHint">This keeps your research focused and your offer credible.</p><div class="step active" data-step="1"><div class="fields"><div class="field"><label>Skill you want to monetize *</label><input id="skill" placeholder="e.g. AI UGC, landing pages, flyers"></div><div class="field"><label>Niche you want to own *</label><input id="niche" placeholder="e.g. skincare brands"></div><div class="field full"><label>Where should Fuse look? *</label><input id="locations" placeholder="e.g. United Kingdom, United States, Canada"></div></div><div class="pricebar">Market suggestion: <b id="marketSuggestion">Choose a skill and niche to get a focused route.</b></div></div><div class="step" data-step="2"><div class="fields"><div class="field"><label>Offer title *</label><input id="offerTitle" placeholder="e.g. 3 UGC ad concepts for a launch"></div><div class="field"><label>Portfolio link</label><input id="portfolio" placeholder="https://your-portfolio.com"></div><div class="field"><label>Price</label><input id="offerPrice" type="number" min="0" placeholder="350"></div><div class="field"><label>Currency</label><select id="currency"><option>USD</option><option>GBP</option><option>EUR</option><option>NGN</option></select></div></div><div class="pricebar">The pitch will ask permission to share your direction first. It will not attach a free sample automatically.</div></div><div class="step" data-step="3"><div class="eyebrow">HOW MANY?</div><h2>Choose your research batch</h2><p>Every result must include a source link and observed signal. We never make up decision-makers or proof.</p><div class="choices" id="counts"><button class="choice" data-count="2">2<br><small>10 cr</small></button><button class="choice active" data-count="5">5<br><small>22 cr</small></button><button class="choice" data-count="10">10<br><small>40 cr</small></button><button class="choice" data-count="15">15<br><small>56 cr</small></button><button class="choice" data-count="20">20<br><small>70 cr</small></button></div><div class="pricebar">You will spend <b id="costText">22 credits</b> only when evidence-backed research begins.</div></div><div class="wizard-footer"><button id="backStep" class="quiet">Back</button><button id="nextStep" class="primary">Continue →</button></div></div></div><div id="detailModal" class="modal"><div class="sheet"><button class="close" data-close="detailModal">×</button><div class="eyebrow">OPPORTUNITY</div><h2 id="dBrand"></h2><div id="dMeta" class="sub"></div><div id="dBody"></div></div></div><div id="replyModal" class="modal"><div class="sheet"><button class="close" data-close="replyModal">×</button><div class="eyebrow">CLIENT REPLIED</div><h2>Turn the reply into a sample brief</h2><p>Paste exactly what they said. Fuse will build a focused, honest brief for your next move.</p><div class="field"><label>Client reply *</label><textarea id="replyText" placeholder="Paste their message here…"></textarea></div><div class="field"><label>Anything else you know?</label><textarea id="replyNotes" placeholder="Budget, deadline, product, goal, objection…"></textarea></div><div class="wizard-footer"><button class="quiet" data-close="replyModal">Cancel</button><button id="makeBrief" class="primary">Create sample brief →</button></div></div></div><div id="toast" class="toast"></div><script src="/atelier-v2/clients.js?v=client-finder-1"></script></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#02110f" />
+    <title>Client Finder · Fuse Atelier</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="/atelier-v2/fuse.css?v=teal-1" />
+    <script src="/atelier-v2/fuse-shell.js?v=teal-1" defer></script>
+    <style>
+      :root {
+        --bg: #02110f;
+        --panel: #06201a;
+        --line: rgba(147, 211, 183, 0.18);
+        --lime: #baff63;
+        --yellow: #ffe568;
+        --ink: #03110d;
+        --text: #f3fff8;
+        --muted: #91aaa0;
+        --grad: linear-gradient(110deg, #ffe568, #dfff70 50%, #baff63);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background:
+          radial-gradient(
+            circle at 75% -10%,
+            rgba(186, 255, 99, 0.12),
+            transparent 28%
+          ),
+          var(--bg);
+        color: var(--text);
+        font-family: Archivo, sans-serif;
+        padding-bottom: 96px;
+      }
+      .wrap {
+        width: min(1160px, calc(100% - 28px));
+        margin: auto;
+      }
+      .hidden {
+        display: none !important;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      .eyebrow {
+        color: var(--lime);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.14em;
+      }
+      .topbar {
+        padding: 18px 0 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .title {
+        font: 800 28px "Bricolage Grotesque";
+        letter-spacing: -0.06em;
+      }
+      .title span,
+      .hero h1 em {
+        font-style: normal;
+        background: var(--grad);
+        color: transparent;
+        background-clip: text;
+      }
+      .wallet {
+        border: 1px solid var(--line);
+        border-radius: 99px;
+        padding: 9px 12px;
+        color: var(--lime);
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: 30px;
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        background: linear-gradient(130deg, #092b22, #061610 65%);
+      }
+      .hero:after {
+        content: "";
+        position: absolute;
+        width: 340px;
+        height: 340px;
+        right: -140px;
+        top: -190px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 229, 104, 0.26),
+          transparent 66%
+        );
+      }
+      .hero h1 {
+        font: 800 clamp(42px, 7vw, 74px)/0.88 "Bricolage Grotesque";
+        letter-spacing: -0.07em;
+        margin: 8px 0 14px;
+        max-width: 700px;
+        position: relative;
+        z-index: 1;
+      }
+      .hero p {
+        margin: 0;
+        max-width: 630px;
+        color: #b2c6bd;
+        font-size: 14px;
+        line-height: 1.55;
+        position: relative;
+        z-index: 1;
+      }
+      .hero-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 21px;
+        position: relative;
+        z-index: 1;
+        flex-wrap: wrap;
+      }
+      .primary,
+      .secondary,
+      .quiet {
+        border-radius: 13px;
+        padding: 12px 15px;
+        font-size: 12px;
+        font-weight: 900;
+        border: 0;
+      }
+      .primary {
+        color: var(--ink);
+        background: var(--grad);
+      }
+      .secondary {
+        color: #effff6;
+        background: #0a2b22;
+        border: 1px solid var(--line);
+      }
+      .quiet {
+        color: var(--muted);
+        background: transparent;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 14px;
+        margin-top: 16px;
+      }
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: rgba(6, 32, 26, 0.94);
+        padding: 19px;
+      }
+      .panel h2 {
+        font: 800 25px "Bricolage Grotesque";
+        letter-spacing: -0.05em;
+        margin: 4px 0;
+      }
+      .panel p {
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .launch-note {
+        border-left: 3px solid var(--yellow);
+        padding: 3px 0 3px 11px;
+        font-size: 12px;
+        line-height: 1.5;
+        color: #e8f5eb;
+      }
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-top: 16px;
+      }
+      .metric {
+        padding: 13px;
+        border-radius: 15px;
+        background: #0a2b22;
+      }
+      .metric b {
+        display: block;
+        font: 800 27px "Bricolage Grotesque";
+        letter-spacing: -0.05em;
+      }
+      .metric span {
+        font-size: 9px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .section {
+        margin-top: 26px;
+      }
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+      .section h2 {
+        font: 800 29px "Bricolage Grotesque";
+        letter-spacing: -0.06em;
+        margin: 2px 0;
+      }
+      .section-head p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .prospects {
+        display: grid;
+        gap: 10px;
+      }
+      .prospect {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 16px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 16px;
+        background: linear-gradient(125deg, #08261e, #051914);
+      }
+      .prospect h3 {
+        font: 800 19px "Bricolage Grotesque";
+        letter-spacing: -0.04em;
+        margin: 0;
+      }
+      .sub,
+      .problem {
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.45;
+        margin-top: 5px;
+      }
+      .problem {
+        color: #c2d4cc;
+        max-width: 650px;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 10px;
+      }
+      .chip {
+        padding: 5px 7px;
+        border: 1px solid var(--line);
+        border-radius: 99px;
+        font-size: 8px;
+        color: #cce1d8;
+      }
+      .chip.signal {
+        color: var(--yellow);
+      }
+      .card-actions {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .small {
+        border: 1px solid var(--line);
+        background: #09291f;
+        color: #eafff2;
+        border-radius: 10px;
+        padding: 8px 10px;
+        font-size: 10px;
+        font-weight: 800;
+      }
+      .small.hot {
+        background: var(--grad);
+        border: 0;
+        color: var(--ink);
+      }
+      .empty {
+        border: 1px dashed var(--line);
+        border-radius: 18px;
+        padding: 28px;
+        color: var(--muted);
+        text-align: center;
+        font-size: 12px;
+      }
+      .modal {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+        backdrop-filter: blur(6px);
+      }
+      .modal.open {
+        display: flex;
+      }
+      .sheet {
+        width: min(760px, 100%);
+        max-height: 92dvh;
+        overflow: auto;
+        background: #062018;
+        border: 1px solid var(--line);
+        border-radius: 25px 25px 0 0;
+        padding: 21px 18px calc(25px + env(safe-area-inset-bottom));
+      }
+      .sheet h2 {
+        font: 800 30px "Bricolage Grotesque";
+        letter-spacing: -0.06em;
+        margin: 5px 0;
+      }
+      .close {
+        float: right;
+        border: 1px solid var(--line);
+        background: #0a2d23;
+        color: white;
+        border-radius: 10px;
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+      }
+      .step {
+        display: none;
+      }
+      .step.active {
+        display: block;
+      }
+      .fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .field {
+        margin-top: 12px;
+      }
+      .field.full {
+        grid-column: 1/-1;
+      }
+      .field label {
+        display: block;
+        font-size: 10px;
+        font-weight: 900;
+        margin-bottom: 6px;
+      }
+      .field input,
+      .field select,
+      .field textarea {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: #031710;
+        color: #fff;
+        padding: 11px;
+        font-size: 12px;
+        outline: 0;
+      }
+      .field textarea {
+        min-height: 112px;
+        resize: vertical;
+      }
+      .choices {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 7px;
+        margin-top: 8px;
+      }
+      .choice {
+        border: 1px solid var(--line);
+        background: #092a20;
+        color: #dff0e8;
+        border-radius: 12px;
+        padding: 11px 5px;
+        font-weight: 900;
+        font-size: 12px;
+      }
+      .choice.active {
+        background: var(--grad);
+        color: var(--ink);
+        border-color: transparent;
+      }
+      .wizard-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid var(--line);
+      }
+      .pricebar {
+        margin-top: 14px;
+        padding: 12px;
+        border-radius: 13px;
+        background: #0b2d22;
+        color: #d6e8df;
+        font-size: 11px;
+      }
+      .signal-choices {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+        margin-top: 7px;
+      }
+      .signal-choices label {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 10px;
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        background: #08251e;
+        color: #c8ddd3;
+        font-size: 10px;
+      }
+      .signal-choices input { accent-color: var(--lime); }
+      @media (max-width: 520px) { .signal-choices { grid-template-columns: 1fr; } }
+      .pricebar b {
+        color: var(--lime);
+      }
+      .detail-label {
+        font-size: 9px;
+        color: var(--lime);
+        font-weight: 900;
+        letter-spacing: 0.1em;
+        margin-top: 16px;
+      }
+      .detail-text {
+        white-space: pre-wrap;
+        font-size: 12px;
+        line-height: 1.55;
+        color: #dceee5;
+        margin-top: 6px;
+      }
+      .copy {
+        float: right;
+        margin-left: 8px;
+      }
+      .toast {
+        position: fixed;
+        z-index: 200;
+        bottom: 105px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #153a2e;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 11px 14px;
+        font-size: 11px;
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.2s;
+      }
+      .toast.show {
+        opacity: 1;
+      }
+      .toast.bad {
+        border-color: #8f5555;
+        color: #ffd0d0;
+      }
+      @media (max-width: 680px) {
+        .wrap {
+          width: min(100% - 20px, 1160px);
+        }
+        .hero {
+          padding: 23px 18px;
+        }
+        .hero h1 {
+          font-size: 47px;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .fields {
+          grid-template-columns: 1fr;
+        }
+        .prospect {
+          grid-template-columns: 1fr;
+        }
+        .card-actions {
+          justify-content: flex-start;
+        }
+        .choices {
+          grid-template-columns: repeat(5, 1fr);
+        }
+        .choice {
+          font-size: 10px;
+        }
+        .sheet {
+          padding: 18px 14px;
+        }
+        .topbar {
+          padding-top: 13px;
+        }
+      }
+    </style>
+  </head>
+  <body data-page="academy">
+    <div data-fuse-header></div>
+    <main class="wrap">
+      <div class="topbar">
+        <div>
+          <div class="eyebrow">MONEY ENGINE</div>
+          <div class="title">Client <span>Finder</span></div>
+        </div>
+        <a class="wallet" href="/atelier-v2/profile.html" data-balance
+          >Credits</a
+        >
+      </div>
+      <section class="hero">
+        <div class="eyebrow">EVIDENCE, NOT RANDOM PITCHING</div>
+        <h1>Find the brands already <em>moving.</em></h1>
+        <p>
+          Choose your skill, niche and market. Client Finder surfaces
+          evidence-backed brands with a clear gap, then gives you a
+          first-direction pitch you can send yourself.
+        </p>
+        <div class="hero-actions">
+          <button id="startFinder" class="primary">
+            Find client opportunities →</button
+          ><a class="secondary" href="/atelier-v2/academy-v2.html"
+            >Open Money Engine</a
+          >
+        </div>
+      </section>
+      <section class="grid">
+        <div class="panel">
+          <div class="eyebrow">THE NEW PROCESS</div>
+          <h2>Ask first. Make the sample after interest.</h2>
+          <p class="launch-note">
+            You do not make free samples for cold leads. You earn the right to
+            make one after a reply, then Fuse builds your focused sample brief
+            and offer copy.
+          </p>
+        </div>
+        <div class="panel">
+          <div class="eyebrow">YOUR PIPELINE</div>
+          <div class="metric-grid">
+            <div class="metric">
+              <b id="mReady">0</b><span>Ready to pitch</span>
+            </div>
+            <div class="metric"><b id="mReplies">0</b><span>Replies</span></div>
+            <div class="metric">
+              <b id="mBriefs">0</b><span>Briefs ready</span>
+            </div>
+            <div class="metric"><b id="mWon">0</b><span>Won</span></div>
+          </div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">OPPORTUNITIES</div>
+            <h2>Your client board</h2>
+          </div>
+          <p id="count"></p>
+        </div>
+        <div id="prospects" class="prospects"></div>
+      </section>
+    </main>
+    <div id="finderModal" class="modal">
+      <div class="sheet">
+        <button class="close" data-close="finderModal">×</button>
+        <div class="eyebrow">CLIENT FINDER</div>
+        <h2 id="wizardTitle">Set your direction</h2>
+        <p id="wizardHint">
+          This keeps your research focused and your offer credible.
+        </p>
+        <div class="step active" data-step="1">
+          <div class="fields">
+            <div class="field">
+              <label>Skill you want to monetize *</label
+              ><input
+                id="skill"
+                placeholder="e.g. AI UGC, landing pages, flyers"
+              />
+            </div>
+            <div class="field">
+              <label>Niche you want to own *</label
+              ><input id="niche" placeholder="e.g. skincare brands" />
+            </div>
+            <div class="field full">
+              <label>Where should Fuse look? *</label
+              ><input
+                id="locations"
+                placeholder="e.g. United Kingdom, United States, Canada"
+              />
+            </div>
+            <div class="field full">
+              <label>Buying signals to prioritise</label>
+              <div class="signal-choices">
+                <label><input type="checkbox" name="researchSignal" value="meta_ads" checked /> Meta ads</label>
+                <label><input type="checkbox" name="researchSignal" value="google_ads" checked /> Google / Maps ads</label>
+                <label><input type="checkbox" name="researchSignal" value="launch" checked /> Product launch</label>
+                <label><input type="checkbox" name="researchSignal" value="event" checked /> Event promotion</label>
+                <label><input type="checkbox" name="researchSignal" value="growth" checked /> Hiring / growth</label>
+                <label><input type="checkbox" name="researchSignal" value="weak_page" checked /> Weak landing page</label>
+              </div>
+            </div>
+          </div>
+          <div class="pricebar">
+            Market suggestion:
+            <b id="marketSuggestion"
+              >Choose a skill and niche to get a focused route.</b
+            >
+          </div>
+        </div>
+        <div class="step" data-step="2">
+          <div class="fields">
+            <div class="field">
+              <label>Offer title *</label
+              ><input
+                id="offerTitle"
+                placeholder="e.g. 3 UGC ad concepts for a launch"
+              />
+            </div>
+            <div class="field">
+              <label>Portfolio link</label
+              ><input id="portfolio" placeholder="https://your-portfolio.com" />
+            </div>
+            <div class="field">
+              <label>Price</label
+              ><input id="offerPrice" type="number" min="0" placeholder="350" />
+            </div>
+            <div class="field">
+              <label>Currency</label
+              ><select id="currency">
+                <option>USD</option>
+                <option>GBP</option>
+                <option>EUR</option>
+                <option>NGN</option>
+              </select>
+            </div>
+          </div>
+          <div class="pricebar">
+            The pitch will ask permission to share your direction first. It will
+            not attach a free sample automatically.
+          </div>
+        </div>
+        <div class="step" data-step="3">
+          <div class="eyebrow">HOW MANY?</div>
+          <h2>Choose your research batch</h2>
+          <p>
+            Every result must include a source link and observed signal. We
+            never make up decision-makers or proof.
+          </p>
+          <div class="choices" id="counts">
+            <button class="choice" data-count="2">
+              2<br /><small>10 cr</small></button
+            ><button class="choice active" data-count="5">
+              5<br /><small>22 cr</small></button
+            ><button class="choice" data-count="10">
+              10<br /><small>40 cr</small></button
+            ><button class="choice" data-count="15">
+              15<br /><small>56 cr</small></button
+            ><button class="choice" data-count="20">
+              20<br /><small>70 cr</small>
+            </button>
+          </div>
+          <div class="pricebar">
+            You will spend <b id="costText">22 credits</b> only when
+            evidence-backed research begins.
+          </div>
+        </div>
+        <div class="wizard-footer">
+          <button id="backStep" class="quiet">Back</button
+          ><button id="nextStep" class="primary">Continue →</button>
+        </div>
+      </div>
+    </div>
+    <div id="detailModal" class="modal">
+      <div class="sheet">
+        <button class="close" data-close="detailModal">×</button>
+        <div class="eyebrow">OPPORTUNITY</div>
+        <h2 id="dBrand"></h2>
+        <div id="dMeta" class="sub"></div>
+        <div id="dBody"></div>
+      </div>
+    </div>
+    <div id="replyModal" class="modal">
+      <div class="sheet">
+        <button class="close" data-close="replyModal">×</button>
+        <div class="eyebrow">CLIENT REPLIED</div>
+        <h2>Turn the reply into a sample brief</h2>
+        <p>
+          Paste exactly what they said. Fuse will build a focused, honest brief
+          for your next move.
+        </p>
+        <div class="field">
+          <label>Client reply *</label
+          ><textarea
+            id="replyText"
+            placeholder="Paste their message here…"
+          ></textarea>
+        </div>
+        <div class="field">
+          <label>Anything else you know?</label
+          ><textarea
+            id="replyNotes"
+            placeholder="Budget, deadline, product, goal, objection…"
+          ></textarea>
+        </div>
+        <div class="wizard-footer">
+          <button class="quiet" data-close="replyModal">Cancel</button
+          ><button id="makeBrief" class="primary">Create sample brief →</button>
+        </div>
+      </div>
+    </div>
+    <div id="reviewModal" class="modal">
+      <div class="sheet">
+        <button class="close" data-close="reviewModal">×</button>
+        <div class="eyebrow">PERSONAL REVIEW</div>
+        <h2>Get Maryam’s direction</h2>
+        <p>Share the client’s reply and what you’re unsure about. Your review request will be attached to this prospect.</p>
+        <div class="field"><label>What do you want reviewed? *</label><textarea id="reviewQuestion" placeholder="Should I send the sample? Is this offer strong enough? What should I reply next?"></textarea></div>
+        <div class="field"><label>Extra context</label><textarea id="reviewContext" placeholder="Deadline, budget, screenshots or anything else you know…"></textarea></div>
+        <div class="wizard-footer"><button class="quiet" data-close="reviewModal">Cancel</button><button id="requestReview" class="primary">Request personal review →</button></div>
+      </div>
+    </div>
+    <div id="toast" class="toast"></div>
+    <script src="/atelier-v2/clients.js?v=client-finder-1"></script>
+  </body>
+</html>
