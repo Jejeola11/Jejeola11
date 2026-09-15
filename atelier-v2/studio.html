@@ -1,5 +1,364 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#021416"><title>Create · Fuse Atelier</title><link rel="stylesheet" href="fuse.css?v=teal-1"><style>
-:root{--create-lime:#e2ff4e;--create-soft:#d9ffca;--create-muted:#a8c0bd;--create-line:#315354}body.create-catalog{background:radial-gradient(circle at 100% 0,#1a5552 0,transparent 35%),linear-gradient(115deg,#001313,#002827 70%,#174e4c);min-height:100svh;padding-bottom:20px}.create-catalog .fuse-nav{display:none}.create-wrap{width:100%;max-width:760px;margin:0 auto;padding:47px 32px 40px}.create-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:54px}.create-title{margin:0;color:var(--create-lime);font-size:56px;line-height:1;font-weight:850;letter-spacing:-.08em}.create-close{width:84px;height:84px;border:0;border-radius:50%;background:linear-gradient(135deg,#eaff4e,#d4ffbe);color:#06201d;font-size:51px;font-weight:300;line-height:1;display:grid;place-items:center;cursor:pointer;box-shadow:0 13px 35px #baff6340}.create-close span{transform:translateY(-3px)}.create-tabs{display:flex;gap:18px;overflow-x:auto;margin:0 -32px 73px;padding:0 0 2px;scrollbar-width:none}.create-tabs::-webkit-scrollbar{display:none}.create-tab{flex:0 0 auto;height:80px;padding:0 40px;border:2px solid var(--create-line);border-radius:45px;background:rgba(0,16,17,.32);color:var(--create-muted);font-size:29px;font-weight:750;cursor:pointer}.create-tab.active{background:linear-gradient(110deg,#ebff52,#d5ffc8);border-color:transparent;color:#061b19;box-shadow:0 14px 32px #baff6340}.create-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:27px;row-gap:37px}.create-card{display:block;min-width:0;color:inherit;text-decoration:none;cursor:pointer}.create-media{aspect-ratio:3/4;border:4px solid #d7ff4d;border-radius:42px;overflow:hidden;background:#031313;box-shadow:0 0 0 1px #f8ffd0 inset}.create-media img{display:block;width:100%;height:100%;object-fit:cover}.create-card h2{font-size:28px;line-height:1.05;letter-spacing:-.045em;color:var(--create-lime);margin:21px 6px 0;font-weight:800}.model-grid .model-card{min-height:330px;border:2px solid #6b9b33;border-radius:30px;background:linear-gradient(145deg,#001a1a,#062d2b);padding:31px 32px 26px;display:flex;flex-direction:column;color:#eefbdc}.model-card .model-meta{display:flex;justify-content:space-between;align-items:center;gap:8px}.model-badge{display:inline-flex;align-items:center;min-height:42px;padding:0 18px;border-radius:24px;background:linear-gradient(110deg,#efff51,#dfffd1);color:#061713;font-size:18px;font-weight:850;text-transform:uppercase}.model-credits{font-size:22px;font-weight:800;white-space:nowrap}.model-card h2{margin:auto 0 16px;color:var(--create-lime);font-size:32px;line-height:1.08;letter-spacing:-.05em}.model-card p{margin:0;color:var(--create-muted);font-size:23px;line-height:1.45}.model-grid .model-card.featured{min-height:470px}.empty-state{grid-column:1/-1;color:var(--create-muted);font-size:18px;padding:30px 4px}@media(max-width:560px){.create-title{font-size:56px}.create-tab{height:80px;padding:0 38px;font-size:28px}.create-grid{column-gap:25px;row-gap:34px}.create-media{border-radius:39px}.create-card h2{font-size:27px}.model-grid .model-card{min-height:310px;padding:31px 32px 25px}.model-grid .model-card.featured{min-height:470px}.model-card h2{font-size:31px}.model-card p{font-size:22px}}@media(max-width:390px){.create-wrap{padding-left:20px;padding-right:20px}.create-tabs{margin-left:-20px;margin-right:-20px}.create-tab{padding:0 29px;font-size:24px}.create-media{border-radius:30px}.create-card h2{font-size:23px}.model-grid .model-card{padding:24px 23px}.model-card h2{font-size:26px}.model-card p{font-size:18px}}
-</style></head><body class="create-catalog" data-page="create"><main class="create-wrap"><header class="create-top"><h1 class="create-title">Create</h1><button class="create-close" id="closeCreate" aria-label="Close Create"><span>×</span></button></header><nav class="create-tabs" id="createTabs" aria-label="Create categories"></nav><section class="create-grid" id="createGrid"></section></main><script>
-const media='/atelier-site/assets/work/';const tabs=['All','Image','Video','Twin','Page','Voice','Flyer','Content','Lipsync','UGC'];const tools=[{cat:'Image',title:'Create Image',img:'still-03.jpg',href:'studio.html?type=image'},{cat:'Video',title:'Create Video',img:'work-20-poster.jpg',href:'studio.html?type=video'},{cat:'Page',title:'Build Landing Page',img:'ai-campaign-flyer.jpg',href:'../pitchpilot/site-builder.html'},{cat:'Twin',title:'Create Your AI Twin',img:'still-01.jpg',href:'studio.html?type=image'},{cat:'Voice',title:'Clone Your Voice',voice:true,href:'studio.html?type=audio'},{cat:'Flyer',title:'AI Flyer',img:'ai-campaign-flyer.jpg',href:'studio.html?type=image'},{cat:'Lipsync',title:'Lipsync Video',img:'work-11-poster.jpg',href:'studio.html?type=video'},{cat:'UGC',title:'UGC Video',img:'work-10-poster.jpg',href:'studio.html?type=video'},{cat:'Content',title:'Instagram Content',img:'work-03-poster.jpg',href:'studio.html?type=image'}];const models=[['BEST QUALITY','2 credits','GPT Image 2.5 Sunburst','Precision, detail and premium campaign images.'],['FAST','2 credits','GPT Image 2.5 Flare','Fast, polished everyday image generation.'],['PHOTOREAL','2 credits','MiniMax H3 Image','Cinema-grade portraits and realistic stills.'],['MARKETING','3 credits','Seedream 5 Pro','Strong composition, typography and product visuals.'],['CONSISTENT','4 credits','Nano Banana 2','Characters, edits and reliable reference consistency.'],['4K PRO','5 credits','Nano Banana Pro','High-resolution professional images and precise edits.'],['CREATIVE','2 credits','Flux 2 Pro','Stylized campaigns with sharp prompt control.'],['TYPOGRAPHY','3 credits','Qwen Image 3 Pro','Clean text, posters and commercial compositions.']];let selected=new URLSearchParams(location.search).get('category')||'All';function renderTabs(){document.getElementById('createTabs').innerHTML=tabs.map(t=>`<button class="create-tab ${selected===t?'active':''}" data-tab="${t}">${t}</button>`).join('');document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{selected=b.dataset.tab;render()})}function render(){renderTabs();const grid=document.getElementById('createGrid');if(selected==='Image'){grid.className='create-grid model-grid';grid.innerHTML=models.map((m,i)=>`<article class="model-card ${i===0?'featured':''}"><div class="model-meta"><span class="model-badge">${m[0]}</span><span class="model-credits">${m[1]}</span></div><h2>${m[2]}</h2><p>${m[3]}</p></article>`).join('');return}grid.className='create-grid';const list=selected==='All'?tools:tools.filter(t=>t.cat===selected);grid.innerHTML=list.length?list.map(t=>`<a class="create-card" href="${t.href}"><div class="create-media">${t.voice?'<div style="height:100%;display:grid;place-items:center;background:radial-gradient(circle,#214d32,#001616)"><span style="font-size:86px;color:#ddff89">▮▮▮</span></div>':`<img src="${media+t.img}" alt="${t.title}" loading="lazy">`}</div><h2>${t.title}</h2></a>`).join(''):'<p class="empty-state">More Create tools are coming soon.</p>'}document.getElementById('closeCreate').onclick=()=>location.href='home.html';render();
-</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#001012">
+  <title>Create · Fuse Atelier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="fuse.css?v=responsive-4">
+  <style>
+    :root{
+      --deep:#001012;
+      --mid:#00191B;
+      --light:#1B4C52;
+      --surface:#062125;
+      --line:#315456;
+      --yellow:#FFE66A;
+      --lime:#DFFF4E;
+      --white:#EEFFE0;
+      --chrome:linear-gradient(105deg,#FFE66A 0%,#DFFF4E 52%,#EEFFE0 100%);
+      --muted:#b7cbca;
+    }
+    *{box-sizing:border-box}
+    html{background:var(--deep)}
+    body.create-catalog{
+      margin:0;
+      min-height:100svh;
+      padding:0 0 28px;
+      overflow-x:hidden;
+      color:#fff;
+      font-family:"Montserrat",Arial,sans-serif;
+      background:
+        radial-gradient(circle at 94% 6%,rgba(27,76,82,.42),transparent 30%),
+        linear-gradient(112deg,var(--deep) 0%,var(--mid) 62%,var(--light) 100%);
+    }
+    body.create-catalog *{font-family:"Montserrat",Arial,sans-serif}
+    .create-catalog .fuse-nav{display:none!important}
+    .create-wrap{
+      width:min(920px,calc(100% - 32px));
+      margin:0 auto;
+      padding:34px 0 26px;
+    }
+    .create-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+      margin-bottom:34px;
+    }
+    .create-title{
+      margin:0;
+      font-size:28px;
+      line-height:1;
+      letter-spacing:-1.2px;
+      font-weight:500;
+      background:var(--chrome);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+    .create-close{
+      width:52px;
+      height:52px;
+      border:0;
+      border-radius:50%;
+      background:var(--chrome);
+      color:#001012;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      box-shadow:0 10px 24px rgba(223,255,78,.15);
+    }
+    .create-close span{
+      font-size:36px;
+      line-height:.8;
+      font-weight:300;
+      transform:translateY(-1px);
+    }
+    .create-tabs{
+      display:flex;
+      gap:14px;
+      overflow-x:auto;
+      margin:0 calc(50% - 50vw) 38px;
+      padding:0 max(16px,calc((100vw - 920px)/2)) 2px;
+      scrollbar-width:none;
+      scroll-snap-type:x proximity;
+    }
+    .create-tabs::-webkit-scrollbar{display:none}
+    .create-tab{
+      flex:0 0 auto;
+      min-width:110px;
+      height:54px;
+      padding:0 24px;
+      border:1.5px solid var(--line);
+      border-radius:999px;
+      background:rgba(0,16,18,.28);
+      color:var(--muted);
+      font-size:18px;
+      font-weight:500;
+      cursor:pointer;
+      scroll-snap-align:start;
+      white-space:nowrap;
+    }
+    .create-tab.active{
+      background:var(--chrome);
+      border-color:transparent;
+      color:#001012;
+      box-shadow:0 10px 24px rgba(223,255,78,.14);
+    }
+    .create-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:28px 24px;
+      align-items:start;
+    }
+    .create-card{
+      min-width:0;
+      color:inherit;
+      text-decoration:none;
+      display:block;
+    }
+    .create-media{
+      width:100%;
+      aspect-ratio:3/4;
+      overflow:hidden;
+      border:2px solid transparent;
+      border-radius:24px;
+      background:
+        linear-gradient(var(--surface),var(--surface)) padding-box,
+        var(--chrome) border-box;
+    }
+    .create-media img,
+    .create-media video{
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:cover;
+      background:var(--surface);
+    }
+    .create-card h2{
+      margin:13px 4px 0;
+      font-size:18px;
+      line-height:1.18;
+      letter-spacing:-.55px;
+      font-weight:500;
+      background:var(--chrome);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+
+    .voice-card{
+      height:100%;
+      display:grid;
+      place-items:center;
+      background:
+        radial-gradient(circle at 50% 46%,rgba(223,255,78,.16),transparent 32%),
+        linear-gradient(145deg,#00191B,#123c39);
+    }
+    .voice-bars{
+      display:flex;align-items:center;gap:10px;height:120px
+    }
+    .voice-bars i{
+      width:12px;border-radius:999px;background:linear-gradient(180deg,#FFE66A,#DFFF4E,#EEFFE0);opacity:.75
+    }
+    .voice-bars i:nth-child(1){height:42px}.voice-bars i:nth-child(2){height:70px}.voice-bars i:nth-child(3){height:104px}.voice-bars i:nth-child(4){height:76px}.voice-bars i:nth-child(5){height:48px}
+
+    .model-card{
+      min-height:360px;
+      border:1.5px solid rgba(223,255,78,.48);
+      border-radius:24px;
+      background:linear-gradient(145deg,rgba(0,25,27,.98),rgba(6,33,37,.98));
+      padding:26px 26px 24px;
+      display:flex;
+      flex-direction:column;
+      color:#fff;
+    }
+    .model-meta{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .model-badge{
+      display:inline-flex;
+      align-items:center;
+      min-height:34px;
+      padding:0 15px;
+      border-radius:999px;
+      background:var(--chrome);
+      color:#001012;
+      font-size:13px;
+      line-height:1;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:.03em;
+    }
+    .model-credits{
+      color:#fff;
+      font-size:16px;
+      line-height:1.2;
+      font-weight:500;
+      white-space:nowrap;
+    }
+    .model-card h2{
+      margin:auto 0 12px;
+      font-size:22px;
+      line-height:1.15;
+      letter-spacing:-.75px;
+      font-weight:500;
+      background:var(--chrome);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+    .model-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.52;
+      font-weight:300;
+    }
+    .model-card.featured{min-height:472px}
+
+    .empty-state{
+      grid-column:1/-1;
+      margin:0;
+      padding:26px 4px;
+      color:var(--muted);
+      font-size:16px;
+      font-weight:300;
+    }
+
+    @media(min-width:760px){
+      .create-wrap{padding-top:38px}
+      .create-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:30px 24px}
+      .model-card{min-height:340px}
+      .model-card.featured{min-height:420px}
+    }
+    @media(max-width:560px){
+      .create-wrap{width:calc(100% - 32px);padding-top:28px}
+      .create-top{margin-bottom:30px}
+      .create-close{width:50px;height:50px}
+      .create-tab{min-width:110px;height:52px;padding:0 22px;font-size:17px}
+      .create-tabs{gap:12px;margin-bottom:34px}
+      .create-grid{gap:24px 22px}
+      .create-media{border-radius:22px}
+      .create-card h2{font-size:17px;margin-top:12px}
+      .model-card{min-height:355px;padding:22px 18px 20px;border-radius:22px}
+      .model-card.featured{min-height:470px}
+      .model-card h2{font-size:20px}
+      .model-card p{font-size:15px}
+      .model-badge{font-size:12px;min-height:32px;padding:0 13px}
+      .model-credits{font-size:15px}
+    }
+    @media(max-width:390px){
+      .create-wrap{width:calc(100% - 24px)}
+      .create-tabs{padding-left:12px;padding-right:12px}
+      .create-tab{min-width:102px;padding:0 19px;font-size:16px}
+      .create-grid{gap:22px 18px}
+      .create-media{border-radius:20px}
+      .create-card h2{font-size:16px}
+      .model-card{padding:20px 16px;min-height:340px}
+      .model-card.featured{min-height:450px}
+      .model-card h2{font-size:19px}
+      .model-card p{font-size:14px}
+      .model-badge{font-size:11px;padding:0 11px}
+      .model-credits{font-size:14px}
+    }
+  </style>
+</head>
+<body class="create-catalog" data-page="create">
+  <main class="create-wrap">
+    <header class="create-top">
+      <h1 class="create-title">Create</h1>
+      <button class="create-close" id="closeCreate" aria-label="Close Create"><span>×</span></button>
+    </header>
+    <nav class="create-tabs" id="createTabs" aria-label="Create categories"></nav>
+    <section class="create-grid" id="createGrid"></section>
+  </main>
+
+  <script>
+    const media='/atelier-site/assets/work/';
+    const tabs=['All','Image','Video','Twin','Page','Voice','Flyer','Content','Lipsync','UGC'];
+
+    const tools=[
+      {cat:'Image',title:'Create Image',img:'still-03.jpg',href:'studio.html?type=image'},
+      {cat:'Video',title:'Create Video',img:'work-20-poster.jpg',href:'studio.html?type=video'},
+      {cat:'Page',title:'Build Landing Page',img:'ai-campaign-flyer.jpg',href:'../pitchpilot/site-builder.html'},
+      {cat:'Twin',title:'Create Your AI Twin',img:'still-01.jpg',href:'studio.html?type=image'},
+      {cat:'Voice',title:'Clone Your Voice',voice:true,href:'studio.html?type=audio'},
+      {cat:'Flyer',title:'AI Flyer',img:'ai-campaign-flyer.jpg',href:'studio.html?type=image'},
+      {cat:'Lipsync',title:'Lipsync Video',img:'work-11-poster.jpg',href:'studio.html?type=video'},
+      {cat:'UGC',title:'UGC Video',img:'work-10-poster.jpg',href:'studio.html?type=video'},
+      {cat:'Content',title:'Instagram Content',img:'work-03-poster.jpg',href:'studio.html?type=image'}
+    ];
+
+    const models=[
+      ['BEST QUALITY','2 credits','GPT Image 2.5 Sunburst','Precision, detail and premium campaign images.'],
+      ['FAST','2 credits','GPT Image 2.5 Flare','Fast, polished everyday image generation.'],
+      ['PHOTOREAL','2 credits','MiniMax H3 Image','Cinema-grade portraits and realistic stills.'],
+      ['MARKETING','3 credits','Seedream 5 Pro','Strong composition, typography and product visuals.'],
+      ['CONSISTENT','4 credits','Nano Banana 2','Characters, edits and reliable reference consistency.'],
+      ['4K PRO','5 credits','Nano Banana Pro','High-resolution professional images and precise edits.'],
+      ['CREATIVE','2 credits','Flux 2 Pro','Stylized campaigns with sharp prompt control.'],
+      ['TYPOGRAPHY','3 credits','Qwen Image 3 Pro','Clean text, posters and commercial compositions.']
+    ];
+
+    let selected=new URLSearchParams(location.search).get('category')||'All';
+
+    function renderTabs(){
+      document.getElementById('createTabs').innerHTML=tabs.map(t =>
+        '<button class="create-tab '+(selected===t?'active':'')+'" data-tab="'+t+'">'+t+'</button>'
+      ).join('');
+      document.querySelectorAll('[data-tab]').forEach(btn=>{
+        btn.onclick=()=>{
+          selected=btn.dataset.tab;
+          const url=new URL(location.href);
+          if(selected==='All')url.searchParams.delete('category');else url.searchParams.set('category',selected);
+          history.replaceState(null,'',url);
+          render();
+          requestAnimationFrame(()=>btn.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'}));
+        };
+      });
+    }
+
+    function mediaMarkup(tool){
+      if(tool.voice){
+        return '<div class="voice-card" aria-hidden="true"><div class="voice-bars"><i></i><i></i><i></i><i></i><i></i></div></div>';
+      }
+      return '<img src="'+media+tool.img+'" alt="'+tool.title+'" loading="lazy">';
+    }
+
+    function toolMarkup(tool){
+      return '<a class="create-card" href="'+tool.href+'"><div class="create-media">'+mediaMarkup(tool)+'</div><h2>'+tool.title+'</h2></a>';
+    }
+
+    function modelMarkup(m,i){
+      return '<article class="model-card '+(i===0?'featured':'')+'"><div class="model-meta"><span class="model-badge">'+m[0]+'</span><span class="model-credits">'+m[1]+'</span></div><h2>'+m[2]+'</h2><p>'+m[3]+'</p></article>';
+    }
+
+    function render(){
+      renderTabs();
+      const grid=document.getElementById('createGrid');
+
+      if(selected==='Image'){
+        grid.className='create-grid model-grid';
+        const imageTool=tools.find(t=>t.cat==='Image');
+        grid.innerHTML=toolMarkup(imageTool)+models.map(modelMarkup).join('');
+        return;
+      }
+
+      grid.className='create-grid';
+      const list=selected==='All'?tools:tools.filter(t=>t.cat===selected);
+      grid.innerHTML=list.length?list.map(toolMarkup).join(''):'<p class="empty-state">More Create tools are coming soon.</p>';
+    }
+
+    document.getElementById('closeCreate').onclick=()=>location.href='home.html';
+    render();
+  </script>
+</body>
+</html>
