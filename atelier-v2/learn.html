@@ -1,8 +1,84 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#021416"><title>Academy · Fuse Atelier</title><link rel="stylesheet" href="fuse.css?v=teal-1"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script><script src="fuse-shell.js?v=teal-1" defer></script><script src="learn.js?v=teal-1" defer></script></head><body data-page="academy"><div data-fuse-header></div>
-<main class="fuse-wrap academy-page"><div class="academy-heading"><div><p class="academy-kicker">FUSE ATELIER · ACADEMY</p><h1>Learn. Create. Sell.</h1><p class="academy-intro">Build the skills, then turn them into clients.</p></div></div><div class="underline-tabs" aria-label="Course filter"><button id="myCourses" class="active" aria-pressed="true">My courses</button><button id="allCourses" aria-pressed="false">Explore</button></div><p id="courseStatus" class="status" role="status">Checking your course access…</p>
-<section class="course-list" id="courseList" aria-label="Courses">
-<a class="course-row" data-course="design" href="academy-v2.html?course=design"><div class="course-art"><img src="/atelier-site/assets/work/ai-campaign-flyer.jpg" alt="" loading="lazy"><span class="course-number">01</span></div><div class="course-info"><h2>Design & Flyers</h2><p>19 lessons · Start from the basics</p><span class="access-tag">Checking access</span></div><span class="arrow" aria-hidden="true">›</span></a>
-<a class="course-row" data-course="video" href="academy-v2.html?course=video"><div class="course-art"><img src="/atelier-site/assets/work/work-08-poster.jpg" alt="" loading="lazy"><span class="course-number">02</span></div><div class="course-info"><h2>AI UGC & Influencer</h2><p>17 lessons · Create content that sells</p><span class="access-tag">Checking access</span></div><span class="arrow" aria-hidden="true">›</span></a>
-<a class="course-row" data-course="landing" href="academy-v2.html?course=landing"><div class="course-art"><img src="/atelier-site/assets/work/still-02.jpg" alt="" loading="lazy"><span class="course-number">03</span></div><div class="course-info"><h2>Landing Page Design</h2><p>10 lessons · Build pages that convert</p><span class="access-tag">Checking access</span></div><span class="arrow" aria-hidden="true">›</span></a>
-<a class="course-row" data-course="money" href="money.html"><div class="course-art"><img src="/atelier-site/assets/work/work-03-poster.jpg" alt="" loading="lazy"><span class="course-number">04</span></div><div class="course-info"><h2>The Money Engine System</h2><p>7 lessons · Turn your skill into clients</p><span class="access-tag">Checking access</span></div><span class="arrow" aria-hidden="true">›</span></a>
-</section></main></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#001012">
+  <title>Academy · Fuse Atelier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="fuse.css?v=responsive-4">
+  <link rel="stylesheet" href="academy-ui.css?v=academy-v3">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
+  <script src="fuse-shell.js?v=nav-client-4" defer></script>
+  <script src="learn.js?v=academy-v3" defer></script>
+</head>
+<body class="academy-v3" data-page="academy">
+  <header class="academy-top">
+    <a class="academy-back" href="home.html" aria-label="Back to Home">←</a>
+    <a class="academy-brand" href="home.html">
+      <img src="media/fuse-mark-login-exact.png" alt="">
+      <span>Fuse Atelier</span>
+    </a>
+    <a class="academy-pricing" href="/pricing.html">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 11 3h7l3 3v7l-8 8L3 11Z"/><circle cx="16.5" cy="7.5" r="1"/></svg>
+      <span>Pricing</span>
+      <span class="academy-pricing-badge">50% OFF</span>
+    </a>
+  </header>
+
+  <main class="academy-shell">
+    <p class="academy-welcome">Welcome back, <span id="academyName">there</span>!</p>
+    <h1 class="academy-title">My courses</h1>
+    <p class="academy-lead">Pick up where you left off. Your next skill is ready.</p>
+    <p id="courseStatus" class="academy-status" role="status">Checking your course access…</p>
+
+    <section class="academy-cards" aria-label="My courses">
+      <a class="academy-course design" data-course="design" href="academy-v2.html?course=design">
+        <div class="academy-copy">
+          <h2>Design &amp; Flyers</h2>
+          <p>Create polished flyers and brand visuals clients will pay for.</p>
+          <span class="academy-start">Start</span>
+        </div>
+        <div class="academy-visual">
+          <img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1789492170/fuse-atelier/academy/design-card.webp" alt="Pink luxury flyer design" loading="eager">
+        </div>
+      </a>
+
+      <a class="academy-course ugc" data-course="video" href="academy-v2.html?course=video">
+        <div class="academy-copy">
+          <h2>AI UGC &amp; Influencer</h2>
+          <p>Create scroll-stopping AI UGC and influencer content for brands.</p>
+          <span class="academy-start">Start</span>
+        </div>
+        <div class="academy-visual">
+          <img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1789492185/fuse-atelier/academy/ugc-card.webp" alt="AI influencer campaign visual" loading="lazy">
+        </div>
+      </a>
+
+      <a class="academy-course landing" data-course="landing" href="academy-v2.html?course=landing">
+        <div class="academy-copy">
+          <h2>Landing Page Design</h2>
+          <p>Build high-converting landing pages that turn visitors into buyers.</p>
+          <span class="academy-start">Start</span>
+        </div>
+        <div class="academy-visual">
+          <img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1789492222/fuse-atelier/academy/landing-card.webp" alt="Luxury landing page design" loading="lazy">
+        </div>
+      </a>
+
+      <a class="academy-course money" data-course="money" href="money.html">
+        <div class="academy-copy">
+          <h2>The Money Engine System</h2>
+          <p>Turn your skill into clients.</p>
+          <span class="academy-start">Start</span>
+        </div>
+        <div class="academy-visual">
+          <img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1789492228/fuse-atelier/academy/money-card.webp" alt="Money Engine course visual" loading="lazy">
+        </div>
+      </a>
+    </section>
+  </main>
+</body>
+</html>
