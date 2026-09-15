@@ -1,4 +1,263 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#02110f"><title>Fuse Operations</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<style>:root{--bg:#02110f;--panel:#071d18;--line:#285044;--lime:#baff63;--yellow:#ffe568;--text:#f6fff9;--muted:#91a69e;--grad:linear-gradient(110deg,#ffe568,#baff63)}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% -6%,#154a39,transparent 30%),var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,sans-serif;padding-bottom:36px}.shell{width:min(930px,calc(100% - 24px));margin:auto}.top{position:sticky;top:0;z-index:3;background:#02110fed;backdrop-filter:blur(18px);border-bottom:1px solid #baff6318}.topin{height:66px;display:flex;align-items:center;justify-content:space-between}.back,.refresh{border:1px solid var(--line);background:var(--panel);color:#fff;border-radius:12px;padding:9px 12px;font-weight:900;font:inherit}.brand{font-weight:950;font-size:19px;letter-spacing:-.04em}.brand span{color:var(--lime)}.hidden{display:none!important}main{padding:22px 0}.hero{border:1px solid #4b7c6a;border-radius:27px;padding:24px;background:linear-gradient(145deg,#09271f,#061814)}.eyebrow{font-size:9px;font-weight:950;letter-spacing:.18em;color:var(--lime)}h1{font-size:clamp(37px,7vw,58px);letter-spacing:-.06em;line-height:.9;margin:9px 0 12px}h1 em{font-style:normal;color:var(--yellow)}.hero p{max-width:600px;color:#abc0b8;font-size:12px;line-height:1.55;margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.metric{border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,#08241d,#061713);padding:16px;min-height:120px}.metric i{display:block;font-style:normal;color:var(--lime);font-size:8px;font-weight:950;letter-spacing:.12em}.metric b{display:block;font-size:32px;letter-spacing:-.06em;margin-top:15px}.metric span{font-size:9px;color:var(--muted)}.note{margin-top:14px;border:1px solid #ffe56844;background:#322d1455;border-radius:17px;padding:14px;font-size:11px;line-height:1.5;color:#dce8e2}.note b{color:var(--yellow)}.auth{min-height:73vh;display:grid;place-items:center}.authcard{width:min(420px,100%);border:1px solid var(--line);border-radius:24px;background:var(--panel);padding:23px}.authcard h2{font-size:31px;letter-spacing:-.05em;margin:8px 0}.authcard p{color:var(--muted);font-size:11px;line-height:1.55}.authcard a{display:block;text-align:center;text-decoration:none;background:var(--grad);color:#07120f;padding:12px;border-radius:12px;font-weight:950;margin-top:15px}@media(max-width:600px){.hero{padding:20px 17px}.grid{grid-template-columns:1fr 1fr}.metric{min-height:105px}.metric b{font-size:28px}}@media(max-width:370px){.grid{grid-template-columns:1fr}}</style><link rel="stylesheet" href="/atelier-v2/fuse.css"><script src="/atelier-v2/fuse-shell.js" defer></script><script src="/atelier-v2/legacy-bridge.js" defer></script></head>
-<body data-page="profile"><header class="top"><div class="shell topin"><button class="back" onclick="location.href='/atelier-v2/'">←</button><div class="brand">Fuse <span>Operations</span></div><button id="refresh" class="refresh">Refresh ↻</button></div></header><main class="shell"><section id="gate" class="auth hidden"><div class="authcard"><div class="eyebrow">PRIVATE ADMIN</div><h2>Operations locked.</h2><p>Only the Fuse Atelier owner can open this screen.</p><a href="/atelier-v2/">Back to Fuse Atelier →</a></div></section><div id="app" class="hidden"><section class="hero"><div class="eyebrow">PRIVATE ADMIN VIEW</div><h1>See what’s <em>moving.</em></h1><p>A clean live view of your Fuse Atelier ecosystem. Course access and manual grants remain in the Studio admin; this screen keeps the product health and usage numbers together.</p></section><section id="metrics" class="grid"></section><section class="note"><b>Student safety:</b> this dashboard shows aggregate figures only. It does not expose student emails, passwords, or private work. Refresh after grants, purchases, or new students.</section></div></main><script>(()=>{const URL='https://rgbweaimkcndjznlazho.supabase.co',KEY='sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3',sb=supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}),$=x=>document.getElementById(x);const cards=[['members','MEMBERS','Members'],['new_members_7d','LAST 7 DAYS','New members'],['total_credits','CREDIT LIABILITY','Credits held'],['resources_unlocked','RESOURCE VAULT','Unlocks'],['community_posts','FUSE ROOM','Posts'],['community_replies','FUSE ROOM','Replies'],['game_sessions','FUSE PLAY','Play sessions'],['credits_spent_on_resources','CREDITS SPENT','Resources'],['credits_spent_on_play','CREDITS SPENT','Play']];function n(x){return Number(x||0).toLocaleString()}async function load(){const{data,error}=await sb.rpc('admin_fuse_overview');if(error){$('app').classList.add('hidden');$('gate').classList.remove('hidden');return}$('metrics').innerHTML=cards.map(([key,tag,label])=>`<article class="metric"><i>${tag}</i><b>${n(data[key])}</b><span>${label}</span></article>`).join('')}async function boot(){const{data}=await sb.auth.getSession();if(!data.session){$('gate').classList.remove('hidden');return}const{data:profile}=await sb.from('profiles').select('is_admin').eq('id',data.session.user.id).maybeSingle();if(!profile?.is_admin||data.session.user.id!=='7e2c817f-9ff1-4fea-b42f-b36656f833d4'){$('gate').classList.remove('hidden');return}$('app').classList.remove('hidden');$('refresh').onclick=load;await load()}boot()})()</script></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#001012">
+  <title>Fuse Operations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <link rel="stylesheet" href="/atelier-v2/fuse.css?v=responsive-4">
+  <script src="/atelier-v2/fuse-shell.js?v=nav-client-4" defer></script>
+  <style>
+    :root{
+      --deep:#001012;--mid:#00191B;--light:#1B4C52;--surface:#062125;--line:#315456;
+      --yellow:#FFE66A;--lime:#DFFF4E;--white:#EEFFE0;
+      --chrome:linear-gradient(105deg,#FFE66A 0%,#DFFF4E 52%,#EEFFE0 100%);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;min-height:100svh;padding-bottom:110px;color:#fff;font-family:Montserrat,Arial,sans-serif;
+      background:radial-gradient(circle at 90% 5%,rgba(27,76,82,.38),transparent 32%),linear-gradient(112deg,var(--deep),var(--mid) 58%,var(--light));
+    }
+    button,input{font:inherit}
+    .hidden{display:none!important}
+    .ops-top{
+      position:sticky;top:0;z-index:5;background:rgba(0,16,18,.88);backdrop-filter:blur(16px);
+      border-bottom:1px solid rgba(49,84,86,.65)
+    }
+    .ops-topin{width:min(980px,calc(100% - 32px));height:76px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .ops-back,.ops-refresh{
+      min-height:44px;padding:0 15px;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:#fff
+    }
+    .ops-brand{font-size:20px;font-weight:500}.ops-brand span{background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}
+    main{width:min(980px,calc(100% - 32px));margin:28px auto}
+    .gate{min-height:62vh;display:grid;place-items:center}
+    .gate-card,.panel,.metric{
+      border:1.5px solid var(--line);background:linear-gradient(145deg,rgba(6,33,37,.96),rgba(0,25,27,.96));border-radius:24px
+    }
+    .gate-card{width:min(520px,100%);padding:28px}.gate-card h1{margin:10px 0;font-size:34px}.gate-card p{color:#b8cdca;font-weight:300;line-height:1.6}
+    .eyebrow{font-size:13px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--lime)}
+    .btn{
+      min-height:50px;padding:0 20px;border:0;border-radius:14px;background:var(--chrome);color:#001012;font-weight:500;cursor:pointer
+    }
+    .btn.secondary{border:1px solid var(--line);background:var(--surface);color:#fff}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .hero{margin-bottom:18px;padding:24px 26px;border:1.5px solid var(--line);border-radius:26px;background:linear-gradient(145deg,rgba(6,33,37,.96),rgba(0,25,27,.92))}
+    .hero h1{margin:9px 0 8px;font-size:38px;line-height:1;letter-spacing:-1.8px;font-weight:500;background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .hero p{margin:0;color:#b8cdca;font-size:15px;font-weight:300;line-height:1.6}
+    .panel{padding:24px;margin-top:18px}
+    .panel h2{margin:0 0 6px;font-size:24px;font-weight:500}
+    .panel>p{margin:0 0 22px;color:#b8cdca;font-size:14px;font-weight:300;line-height:1.55}
+    .student-form{display:grid;gap:18px}
+    .field{display:grid;gap:8px}
+    .field label{font-size:15px;color:#eaf8f4;font-weight:400}
+    .field input{
+      width:100%;height:54px;border:1.5px solid var(--line);border-radius:14px;background:#041b1e;color:#fff;padding:0 16px;outline:none;font-size:16px;font-weight:300
+    }
+    .field input:focus{border-color:var(--lime)}
+    .course-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .course-option{
+      min-height:58px;display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#041b1e
+    }
+    .course-option input{width:18px;height:18px;accent-color:#DFFF4E}
+    .course-option strong{font-size:14px;font-weight:500}.course-option small{display:block;color:#9fb5b2;font-size:11px;font-weight:300;margin-top:3px}
+    .all-option{border-color:rgba(223,255,78,.55);background:linear-gradient(120deg,rgba(223,255,78,.10),rgba(6,33,37,.94))}
+    .form-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .status{min-height:0;margin:0;color:#ffcf7b;font-size:13px;line-height:1.5;font-weight:300}.status:empty{display:none}.status.ok{color:#dfff77}
+    .student-result{margin-top:18px;padding:16px;border:1px solid var(--line);border-radius:16px;background:#041b1e}
+    .student-result strong{font-size:16px}.student-result p{margin:7px 0 0;color:#b8cdca;font-size:13px;line-height:1.5;font-weight:300}
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+    .metric{padding:17px}.metric span{font-size:11px;color:var(--lime);text-transform:uppercase;letter-spacing:.08em}.metric b{display:block;margin-top:10px;font-size:28px;font-weight:500}
+    @media(max-width:650px){
+      main{margin-top:20px}.ops-topin{height:68px}.ops-brand{font-size:17px}.hero{padding:20px}.hero h1{font-size:31px}
+      .panel{padding:18px}.panel h2{font-size:21px}.course-grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:380px){.metrics{grid-template-columns:1fr}.ops-refresh{display:none}}
+  </style>
+</head>
+<body data-page="profile">
+  <header class="ops-top">
+    <div class="ops-topin">
+      <button class="ops-back" type="button" onclick="location.href='/atelier-v2/profile.html'">←</button>
+      <div class="ops-brand">Fuse <span>Operations</span></div>
+      <button id="refresh" class="ops-refresh" type="button">Refresh ↻</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="gate" class="gate hidden">
+      <div class="gate-card">
+        <div class="eyebrow">PRIVATE ADMIN</div>
+        <h1>Operations locked.</h1>
+        <p>Only the Fuse Atelier owner can open this screen.</p>
+        <button class="btn" type="button" onclick="location.href='/atelier-v2/profile.html'">Back to Fuse Atelier →</button>
+      </div>
+    </section>
+
+    <div id="app" class="hidden">
+      <section class="hero">
+        <div class="eyebrow">PRIVATE ADMIN VIEW</div>
+        <h1>Fuse Operations</h1>
+        <p>Add a student, grant one or more Academy courses, and give creation credits from one place.</p>
+      </section>
+
+      <section class="panel">
+        <h2>Student access</h2>
+        <p>Enter the student's purchase email. If the account does not exist yet, Fuse will create it so the student can use the same email on the login page.</p>
+
+        <form id="studentForm" class="student-form">
+          <div class="field">
+            <label for="studentEmail">Student email</label>
+            <input id="studentEmail" type="email" autocomplete="email" placeholder="student@email.com" required>
+          </div>
+
+          <div class="field">
+            <label>Course access</label>
+            <div class="course-grid">
+              <label class="course-option all-option">
+                <input id="allCourses" type="checkbox" value="all">
+                <span><strong>All four courses</strong><small>Design, UGC, Landing Page + Money Engine</small></span>
+              </label>
+              <label class="course-option">
+                <input class="courseCheck" type="checkbox" value="design">
+                <span><strong>Design &amp; Flyers</strong><small>Full Design course</small></span>
+              </label>
+              <label class="course-option">
+                <input class="courseCheck" type="checkbox" value="video">
+                <span><strong>AI UGC &amp; Influencer</strong><small>Full AI UGC course</small></span>
+              </label>
+              <label class="course-option">
+                <input class="courseCheck" type="checkbox" value="landing">
+                <span><strong>Landing Page Design</strong><small>Full Landing Page course</small></span>
+              </label>
+              <label class="course-option">
+                <input class="courseCheck" type="checkbox" value="money">
+                <span><strong>Money Engine</strong><small>Full Money Engine course</small></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="credits">Credits to add</label>
+            <input id="credits" type="number" min="0" step="1" value="0" inputmode="numeric">
+          </div>
+
+          <div class="form-actions">
+            <button id="grantBtn" class="btn" type="submit">Add / update student</button>
+            <button id="lookupBtn" class="btn secondary" type="button">Check student</button>
+          </div>
+          <p id="studentStatus" class="status" role="status" aria-live="polite"></p>
+        </form>
+
+        <div id="studentResult" class="student-result hidden"></div>
+      </section>
+
+      <section class="metrics" id="metrics"></section>
+    </div>
+  </main>
+
+<script>
+(() => {
+  'use strict';
+  const OWNER_EMAIL='riadigitals0@gmail.com';
+  const URL='https://rgbweaimkcndjznlazho.supabase.co';
+  const KEY='sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3';
+  const sb=supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  const $=id=>document.getElementById(id);
+  let session=null;
+
+  function selectedCourses(){
+    if($('allCourses').checked) return ['all'];
+    return [...document.querySelectorAll('.courseCheck:checked')].map(el=>el.value);
+  }
+  function syncAll(){
+    const on=$('allCourses').checked;
+    document.querySelectorAll('.courseCheck').forEach(el=>{el.disabled=on;if(on)el.checked=false});
+  }
+  $('allCourses').addEventListener('change',syncAll);
+
+  async function api(body){
+    const response=await fetch('/api/owner-student-access',{
+      method:'POST',
+      headers:{authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    let data={};try{data=await response.json()}catch{}
+    if(!response.ok)throw Error(data.error||'Request failed.');
+    return data;
+  }
+
+  function showStudent(data){
+    const access=(data.courses||[]).length?(data.courses||[]).join(', '):'No course access yet';
+    $('studentResult').innerHTML='<strong>'+data.email+'</strong><p>Credits: '+Number(data.credits||0).toLocaleString()+'<br>Courses: '+access+'</p>';
+    $('studentResult').classList.remove('hidden');
+  }
+
+  async function lookup(){
+    const email=$('studentEmail').value.trim().toLowerCase();
+    if(!email){$('studentStatus').textContent='Enter the student email first.';return}
+    $('studentStatus').className='status';$('studentStatus').textContent='Checking student…';
+    try{
+      const data=await api({action:'lookup',email});
+      showStudent(data);
+      $('studentStatus').className='status ok';$('studentStatus').textContent='Student found.';
+    }catch(e){$('studentStatus').textContent=e.message}
+  }
+  $('lookupBtn').onclick=lookup;
+
+  $('studentForm').onsubmit=async e=>{
+    e.preventDefault();
+    const email=$('studentEmail').value.trim().toLowerCase();
+    const courses=selectedCourses();
+    const credits=Math.max(0,parseInt($('credits').value||'0',10)||0);
+    if(!courses.length&&credits<=0){
+      $('studentStatus').textContent='Choose at least one course or enter credits to add.';
+      return;
+    }
+    $('grantBtn').disabled=true;$('lookupBtn').disabled=true;
+    $('studentStatus').className='status';$('studentStatus').textContent='Updating student access…';
+    try{
+      const data=await api({action:'grant',email,courses,credits});
+      showStudent(data);
+      $('studentStatus').className='status ok';
+      $('studentStatus').textContent=(data.created?'Student added. ':'Student updated. ')+'Access saved successfully.';
+      $('credits').value='0';
+    }catch(err){
+      $('studentStatus').textContent=err.message;
+    }finally{
+      $('grantBtn').disabled=false;$('lookupBtn').disabled=false;
+    }
+  };
+
+  async function loadMetrics(){
+    try{
+      const {data,error}=await sb.rpc('admin_fuse_overview');
+      if(error||!data)return;
+      const cards=[
+        ['members','Members'],['new_members_7d','New members · 7d'],['total_credits','Credits held'],
+        ['resources_unlocked','Resource unlocks'],['community_posts','Community posts'],['game_sessions','Play sessions']
+      ];
+      $('metrics').innerHTML=cards.map(([k,label])=>'<article class="metric"><span>'+label+'</span><b>'+Number(data[k]||0).toLocaleString()+'</b></article>').join('');
+    }catch{}
+  }
+
+  async function boot(){
+    const {data}=await sb.auth.getSession();
+    session=data.session;
+    const email=(session?.user?.email||'').trim().toLowerCase();
+    if(!session||email!==OWNER_EMAIL){
+      $('gate').classList.remove('hidden');
+      return;
+    }
+    $('app').classList.remove('hidden');
+    $('refresh').onclick=async()=>{await loadMetrics();await lookup()};
+    await loadMetrics();
+  }
+  boot();
+})();
+</script>
+</body>
+</html>
