@@ -103,6 +103,15 @@ window.FUSE_ACADEMY_MONEY={
   key:'money',name:'The Money Engine System',sub:'Turn your skill into clients',
   resources:[{title:'Resources',desc:'Money Engine resources and supporting files.'}],
   modules:[
+    {key:'money-new-chatgpt-module',title:'New Chatgpt Hack to Money Engine',kicker:'New Module',isNew:true,watchNow:true,lessons:[
+      Object.assign(simpleLesson('money-chatgpt-hack','New Chatgpt Hack to Money Engine'),{
+        videoUrl:'https://youtu.be/xUYxx7vZNxc?si=I0VHqxSAEL2sfh3V',
+        isNew:true,
+        watchNow:true,
+        learnText:'See how to use the new ChatGPT workflow inside the Money Engine to research faster, sharpen your opportunity angle and move into outreach with a clearer offer.',
+        actionText:'Watch the full hack, then use it on one real prospect before you continue to the rest of the Money Engine.'
+      })
+    ]},
     {key:'money-start-module',title:'Start Here',lessons:[simpleLesson('money-start','1. Start Here - Understand The System First')]},
     {key:'money-m1-module',title:'Module 1',lessons:[simpleLesson('money-m1','Module 1 - How It Works')]},
     {key:'money-m2-module',title:'Module 2',lessons:[simpleLesson('money-m2','Module 2 - The 50 - Lead Hunt')]},

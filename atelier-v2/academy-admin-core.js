@@ -4,7 +4,7 @@ const SUPABASE_URL='https://rgbweaimkcndjznlazho.supabase.co';
 const SUPABASE_KEY='sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3';
 const ADMIN_ENDPOINT=SUPABASE_URL+'/functions/v1/academy-admin';
 const ACADEMY_URL='/atelier-v2/academy-v2.html';
-const COURSE_FIX='/atelier-v2/academy/course-current.js?v=20260903-drive-titles';
+const COURSE_FIX='/atelier-v2/academy/course-current.js?v=20260915-money-new-module';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const $=id=>document.getElementById(id);
 const META={

@@ -1,11 +1,70 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#021416"><title>Lessons · Fuse Atelier</title><link rel="stylesheet" href="fuse.css?v=teal-1"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script><script src="/app/course.js" defer></script><script src="academy/course-current.js" defer></script><script src="fuse-shell.js?v=teal-1" defer></script><script src="lesson.js?v=teal-1" defer></script></head><body data-page="academy"><div data-fuse-header></div><main class="fuse-wrap narrow">
-<div class="fuse-heading back-title"><a href="learn.html" aria-label="Back to Academy">←</a><h1 id="courseTitle">Academy</h1></div>
-<div id="lessonPlayer" class="lesson-player" aria-label="Lesson video"><div class="panel"><p class="muted">Choose a lesson to begin.</p></div></div>
-<p id="lessonStatus" class="status" role="status"></p><button id="retryLesson" class="btn" hidden>Retry lesson</button>
-<div class="fuse-heading"><h2 id="lessonTitle">Lessons</h2></div>
-<div class="underline-tabs" aria-label="Lesson details"><button class="active" data-lesson-tab="lessons" aria-pressed="true">Lessons</button><button data-lesson-tab="notes" aria-pressed="false">Notes</button><button data-lesson-tab="resources" aria-pressed="false">Resources</button></div>
-<section id="lessonsPanel" class="lesson-list"></section>
-<section id="notesPanel" class="panel" hidden><p class="muted">Open an available lesson to view its notes.</p></section>
-<section id="resourcesPanel" class="panel" hidden><h2>Creator resources</h2><p class="muted">Browse supporting prompts, guides and templates.</p><a class="btn" href="resources.html">Open Resources →</a></section>
-<div class="row lesson-actions"><a href="studio.html" class="btn">Try it in Create ↗</a><button class="btn primary" id="nextLesson" disabled>Next lesson →</button></div>
-</main></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#001012">
+  <title>Course · Fuse Atelier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="fuse.css?v=responsive-4">
+  <link rel="stylesheet" href="lesson-ui.css?v=course-ui-1">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
+  <script src="/app/course.js" defer></script>
+  <script src="academy/course-current.js?v=money-new-1" defer></script>
+  <script src="fuse-shell.js?v=nav-client-4" defer></script>
+  <script src="lesson.js?v=course-ui-1" defer></script>
+</head>
+<body class="course-page" data-page="academy">
+  <header class="course-top">
+    <a class="course-brand" href="learn.html" aria-label="Back to Academy">
+      <img src="media/fuse-mark-login-exact.png" alt="">
+      <span>Fuse Atelier</span>
+    </a>
+    <button id="openModules" class="course-menu" type="button" aria-label="Open course modules" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <main class="course-shell">
+    <p id="lessonKicker" class="course-kicker">COURSE · MODULE</p>
+    <div id="lessonBadges" class="course-badges" hidden></div>
+    <h1 id="lessonTitle" class="course-title">Lesson</h1>
+
+    <section id="lessonPlayer" class="lesson-player-v2" aria-label="Lesson video">
+      <div class="player-state"><strong>Loading lesson…</strong></div>
+    </section>
+    <p id="lessonStatus" class="course-status" role="status"></p>
+    <button id="retryLesson" class="course-retry" type="button" hidden>Retry lesson</button>
+
+    <section class="learn-card">
+      <h2>What you’ll learn</h2>
+      <p id="learnCopy"></p>
+      <div class="action-card">
+        <h3>Next action step</h3>
+        <p id="actionCopy"></p>
+      </div>
+    </section>
+
+    <div class="course-actions">
+      <a class="course-action ghost" href="studio.html">Try it in Create ↗</a>
+      <button class="course-action primary" id="nextLesson" type="button">Next lesson →</button>
+    </div>
+  </main>
+
+  <button id="drawerBackdrop" class="drawer-backdrop" type="button" aria-label="Close modules" tabindex="-1"></button>
+  <aside id="moduleDrawer" class="module-drawer" aria-hidden="true" aria-label="Course modules">
+    <div class="drawer-head">
+      <strong>All modules</strong>
+      <button id="closeModules" class="drawer-close" type="button" aria-label="Close modules">×</button>
+    </div>
+    <section class="drawer-course">
+      <div id="drawerCourseName" class="drawer-course-name">COURSE</div>
+      <div id="drawerCourseMeta" class="drawer-course-meta">0 lessons · start at your own pace</div>
+      <div class="drawer-progress" aria-label="Course progress"><i id="drawerProgress"></i></div>
+    </section>
+    <div id="drawerModules" class="drawer-modules"></div>
+  </aside>
+</body>
+</html>
