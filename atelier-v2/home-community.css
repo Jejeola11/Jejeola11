@@ -45,3 +45,20 @@
 /* Community videos autoplay without pause/play controls. Preview trigger v2. */
 .reference-home .community-heading{justify-content:flex-start}
 .reference-home #galleryMotion,.reference-home .media-actions{display:none!important}
+
+/* v2: hero artwork is the transparent cutout only — no image panel/background. */
+.reference-home .slide-sculpture{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.reference-home .slide-sculpture::before,
+.reference-home .slide-sculpture::after{content:none!important;display:none!important}
+.reference-home .slide-sculpture img{
+  display:block;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  max-width:100%;
+  max-height:100%;
+}
