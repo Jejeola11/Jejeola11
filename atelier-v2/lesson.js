@@ -70,6 +70,50 @@ function moduleStartIndex(mi){
   return n;
 }
 
+function copyText(text){
+  if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(text);
+  return new Promise((resolve,reject)=>{
+    const ta=document.createElement('textarea');
+    ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy')?resolve():reject(new Error('Copy failed'))}catch(e){reject(e)}
+    ta.remove();
+  });
+}
+
+function configurePrimaryAction(lesson){
+  const action=$('lessonPrimaryAction');
+  if(!action)return;
+  action.onclick=null;
+  if(lesson.copyPrompt){
+    action.removeAttribute('href');
+    action.setAttribute('role','button');
+    action.setAttribute('tabindex','0');
+    action.textContent='Copy prompt';
+    action.onclick=async e=>{
+      e.preventDefault();
+      const original='Copy prompt';
+      try{
+        await copyText(lesson.copyPrompt);
+        action.textContent='Copied ✓';
+        setTimeout(()=>{if(index>=0&&lessons[index]?.key===lesson.key)action.textContent=original},1800);
+      }catch{
+        action.textContent='Copy failed';
+        setTimeout(()=>{if(index>=0&&lessons[index]?.key===lesson.key)action.textContent=original},1800);
+      }
+    };
+    action.onkeydown=e=>{
+      if(e.key==='Enter'||e.key===' '){e.preventDefault();action.click()}
+    };
+  }else{
+    action.href='studio.html';
+    action.removeAttribute('role');
+    action.removeAttribute('tabindex');
+    action.onkeydown=null;
+    action.textContent='Try it in Create ↗';
+  }
+}
+
 function renderBadges(lesson){
   const box=$('lessonBadges');
   const tags=[];
@@ -184,6 +228,7 @@ async function open(i,scroll=false){
   $('lessonTitle').textContent=lesson.title;
   document.title=cleanTopic(lesson.title)+' · Fuse Atelier';
   renderBadges(lesson);
+  configurePrimaryAction(lesson);
   const topic=cleanTopic(lesson.title);
   $('learnCopy').textContent=lesson.learnText||('In this lesson, '+topic+' is broken into a clear, practical workflow you can apply immediately.');
   $('actionCopy').textContent=lesson.actionText||('Pause and apply the key idea from “'+lesson.title+'” before you continue.');
