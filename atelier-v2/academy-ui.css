@@ -1,4 +1,4 @@
-/* Fuse Atelier Academy v3 — approved Montserrat + teal/chrome system */
+/* Fuse Atelier Academy v5 — approved Montserrat + teal/chrome system */
 :root{
   --academy-deep:#001012;
   --academy-mid:#00191B;
@@ -28,7 +28,7 @@ body.academy-v3 *{font-family:"Montserrat",Arial,sans-serif}
 .academy-top{
   width:min(1040px,calc(100% - 40px));
   margin:0 auto;
-  min-height:116px;
+  min-height:96px;
   display:grid;
   grid-template-columns:auto minmax(0,1fr) auto;
   align-items:center;
@@ -64,10 +64,10 @@ body.academy-v3 *{font-family:"Montserrat",Arial,sans-serif}
 
 .academy-shell{
   width:min(960px,calc(100% - 40px));
-  margin:24px auto 48px;
+  margin:4px auto 48px;
 }
 .academy-welcome{
-  margin:0 0 17px;color:#fff;font-size:17px;line-height:1.35;font-weight:400;
+  margin:0 0 12px;color:#fff;font-size:17px;line-height:1.35;font-weight:400;
 }
 .academy-title{
   margin:0;
@@ -75,15 +75,15 @@ body.academy-v3 *{font-family:"Montserrat",Arial,sans-serif}
   background:var(--academy-chrome);-webkit-background-clip:text;background-clip:text;color:transparent;
 }
 .academy-lead{
-  max-width:740px;margin:22px 0 40px;
+  max-width:740px;margin:18px 0 30px;
   color:#f5f8f6;font-size:17px;line-height:1.55;font-weight:300;
 }
 .academy-status{
-  margin:-18px 0 22px;color:#d7e6e3;font-size:15px;line-height:1.45;font-weight:300;
+  margin:-12px 0 18px;color:#d7e6e3;font-size:15px;line-height:1.45;font-weight:300;
 }
 .academy-status:empty{display:none}
 
-.academy-cards{display:grid;gap:24px}
+.academy-cards{display:grid;gap:22px}
 .academy-course{
   position:relative;
   width:100%;aspect-ratio:16/9;min-height:0;
@@ -98,22 +98,22 @@ body.academy-v3 *{font-family:"Montserrat",Arial,sans-serif}
 .academy-course:hover{transform:translateY(-2px);box-shadow:0 18px 42px rgba(0,0,0,.24)}
 .academy-course[hidden]{display:none!important}
 .academy-copy{
-  min-width:0;padding:28px 24px 24px;
+  min-width:0;padding:26px 24px 22px;
   display:flex;flex-direction:column;align-items:flex-start;
 }
 .academy-copy h2{
   margin:0 0 12px;
-  max-width:100%;
-  font-size:22px;line-height:1.14;letter-spacing:-.7px;font-weight:500;
+  max-width:92%;
+  font-size:24px;line-height:1.08;letter-spacing:-.8px;font-weight:500;
   text-wrap:balance;
   background:var(--academy-chrome);-webkit-background-clip:text;background-clip:text;color:transparent;
 }
 .academy-copy p{
   max-width:500px;margin:0;
-  color:#f7fbf9;font-size:16px;line-height:1.5;font-weight:300;
+  color:#f7fbf9;font-size:16px;line-height:1.48;font-weight:300;
 }
 .academy-start{
-  margin-top:auto;min-width:106px;height:50px;padding:0 24px;border-radius:999px;
+  margin-top:auto;min-width:106px;height:48px;padding:0 24px;border-radius:999px;
   display:inline-flex;align-items:center;justify-content:center;
   background:var(--academy-chrome);color:#071411;
   font-size:18px;line-height:1;font-weight:500;
@@ -138,10 +138,16 @@ body.academy-v3 *{font-family:"Montserrat",Arial,sans-serif}
 .academy-course.ugc .academy-visual img{object-position:center 38%}
 .academy-course.landing .academy-visual img{object-position:center top}
 .academy-course.money .academy-visual{background:linear-gradient(145deg,#00191B,#062125) padding-box,var(--academy-chrome) border-box}
-.academy-course.money .academy-visual img{object-fit:cover;object-position:center center;padding:0}
+.academy-course.money .academy-visual img{
+  object-fit:cover;
+  object-position:center 30%;
+  padding:0;
+  transform:scale(1.22);
+  transform-origin:center 34%;
+}
 
 @media(max-width:700px){
-  .academy-top{width:calc(100% - 32px);min-height:108px;gap:12px}
+  .academy-top{width:calc(100% - 32px);min-height:88px;gap:12px}
   .academy-back{width:48px;height:48px;border-radius:14px;font-size:24px}
   .academy-brand{gap:10px}
   .academy-brand img{width:46px;height:46px}
@@ -149,26 +155,28 @@ body.academy-v3 *{font-family:"Montserrat",Arial,sans-serif}
   .academy-pricing{min-width:128px;height:50px;padding:0 14px;gap:8px;font-size:17px}
   .academy-pricing svg{width:22px;height:22px}
   .academy-pricing-badge{right:9px;bottom:-15px;min-width:82px;height:31px;font-size:14px}
-  .academy-shell{width:calc(100% - 40px);margin-top:18px}
-  .academy-lead{margin:18px 0 32px;font-size:16px;line-height:1.55}
+  .academy-shell{width:calc(100% - 40px);margin-top:0}
+  .academy-welcome{margin-bottom:10px}
+  .academy-lead{margin:15px 0 26px;font-size:16px;line-height:1.52}
   .academy-cards{gap:18px}
-  .academy-copy{padding:18px 15px 15px}
-  .academy-copy h2{font-size:clamp(18px,4.8vw,21px);line-height:1.13;margin-bottom:9px;letter-spacing:-.55px}
-  .academy-copy p{font-size:clamp(13px,3.55vw,15px);line-height:1.42}
-  .academy-start{min-width:92px;height:42px;padding:0 18px;font-size:15px}
+  .academy-copy{padding:16px 14px 14px}
+  .academy-copy h2{font-size:clamp(20px,5.3vw,23px);line-height:1.08;margin-bottom:8px;letter-spacing:-.62px;max-width:94%}
+  .academy-copy p{font-size:clamp(13px,3.55vw,15px);line-height:1.4}
+  .academy-start{min-width:90px;height:40px;padding:0 17px;font-size:15px}
   .academy-visual{width:calc(100% - 10px);margin:0 5px 0 0;border-radius:18px}
 }
 @media(max-width:430px){
-  .academy-top{gap:8px}
+  .academy-top{gap:8px;min-height:84px}
   .academy-pricing{min-width:112px;padding:0 10px;font-size:15px}
   .academy-pricing-badge{min-width:74px;height:28px;font-size:12px}
-  .academy-shell{width:calc(100% - 32px)}
+  .academy-shell{width:calc(100% - 32px);margin-top:-2px}
   .academy-course{grid-template-columns:minmax(0,1fr) 42%;border-radius:22px}
-  .academy-copy{padding:16px 13px 14px}
-  .academy-copy h2{font-size:19px;line-height:1.12;letter-spacing:-.45px}
-  .academy-copy p{font-size:13px;line-height:1.4}
-  .academy-start{min-width:82px;height:39px;padding:0 15px;font-size:14px}
+  .academy-copy{padding:14px 12px 12px}
+  .academy-copy h2{font-size:20px;line-height:1.06;letter-spacing:-.5px;max-width:96%}
+  .academy-copy p{font-size:12.5px;line-height:1.35}
+  .academy-start{min-width:80px;height:37px;padding:0 14px;font-size:14px}
   .academy-visual{width:calc(100% - 8px);margin-right:4px;border-radius:16px}
+  .academy-course.money .academy-visual img{transform:scale(1.28);object-position:center 28%}
 }
 @media(max-width:360px){
   .academy-brand span{display:none}
@@ -176,7 +184,7 @@ body.academy-v3 *{font-family:"Montserrat",Arial,sans-serif}
   .academy-welcome{font-size:15px}
   .academy-title{font-size:26px}
   .academy-copy h2{font-size:18px}
-  .academy-copy p{font-size:12px}
+  .academy-copy p{font-size:11.5px}
 }
 @media(prefers-reduced-motion:reduce){
   .academy-course{transition:none}
