@@ -17,3 +17,54 @@
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 /* Native lesson view, without nested application frames. */
 .lesson-player{background:#011012;border:1px solid var(--line);border-radius:12px;overflow:hidden;min-height:120px;display:grid;place-items:center}.lesson-player video,.lesson-player iframe{display:block;width:100%;height:min(58dvh,480px);border:0;object-fit:contain;background:#011012}.lesson-list{display:grid;gap:8px}.lesson-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px;min-height:56px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);font-size:14px;line-height:1.45}.lesson-item[aria-current=true]{border-color:var(--lime);background:#12312e}.lesson-number{font-size:12px;color:var(--muted);min-width:22px}.lesson-actions{margin:18px 0}.lesson-actions .btn{font-size:13px}#notesPanel{font-size:14px;line-height:1.6}#notesPanel h4{font-size:15px}#notesPanel p,#notesPanel li{font-size:14px}
+
+/* Fuse Atelier mobile-only lock v3. Keep every app page in the approved phone layout. */
+html{background:#001012!important}
+body{
+  width:min(430px,100%)!important;
+  max-width:430px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  overflow-x:hidden!important;
+}
+.fuse-wrap,.client-toolbar{
+  width:calc(100% - 32px)!important;
+  max-width:398px!important;
+}
+.fuse-top{padding-left:16px!important;padding-right:16px!important}
+.feature-grid{grid-template-columns:1fr 1fr!important;gap:10px!important}
+.feature-grid .visual-card:first-child{grid-column:1/-1!important}
+.feature-grid .visual-card:first-child img,
+.feature-grid .visual-card:first-child video{aspect-ratio:4/3!important;object-fit:contain!important;max-height:320px!important}
+.feature-grid .visual-card:not(:first-child) img,
+.feature-grid .visual-card:not(:first-child) video{aspect-ratio:1/1!important;object-position:center 35%!important}
+.studio-grid,.short-grid,.account-grid{grid-template-columns:1fr!important}
+.studio-grid{gap:22px!important}
+.fuse-heading{margin:18px 0 10px!important}
+.fuse-heading h1{font-size:20px!important}
+.fuse-heading h2{font-size:16px!important}
+.fuse-brand{font-size:12px!important;letter-spacing:1.5px!important}
+.fuse-wallet{font-size:11px!important}
+.fuse-account{gap:2px!important}
+.tabs{gap:6px!important}
+.tabs .btn{font-size:13px!important;padding:9px 10px!important}
+.course-row>img{width:82px!important;height:88px!important}
+.identity{margin-top:16px!important}
+.short-grid .panel{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important}
+.short-grid .panel p{max-width:55%!important}
+.academy-page{margin-top:16px!important}
+.academy-heading h1{font-size:27px!important}
+.academy-page .course-list{gap:10px!important}
+.academy-page .course-info{padding:10px 10px 11px!important;min-height:90px!important}
+.academy-page .course-row h2{font-size:13px!important}
+.academy-page .course-row p{font-size:9px!important}
+.academy-page .access-tag{font-size:7px!important;margin-top:7px!important}
+@media(min-width:431px){
+  .fuse-nav{
+    left:50%!important;
+    right:auto!important;
+    width:430px!important;
+    max-width:430px!important;
+    transform:translateX(-50%)!important;
+  }
+}
