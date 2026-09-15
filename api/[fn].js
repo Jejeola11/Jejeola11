@@ -53,8 +53,11 @@ module.exports = async function vercelHandler(req, res) {
     if (out && out.isBase64Encoded) return res.end(Buffer.from(payload, 'base64'));
     return res.end(typeof payload === 'string' ? payload : JSON.stringify(payload));
   } catch (err) {
+    console.error('[Fuse API]', err);
     res.statusCode = 500;
     res.setHeader('content-type','application/json; charset=utf-8');
-    return res.end(JSON.stringify({ error: (err && err.message) || 'Server error' }));
+    return res.end(JSON.stringify({
+      error: 'We could not verify your access right now. Please use the same email address you used when purchasing Fuse Atelier, then try again.'
+    }));
   }
 };

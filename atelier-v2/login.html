@@ -24,7 +24,7 @@
       <div class="field"><label for="name">Your Name</label><div class="input-wrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 22v-3a8 6 0 0 1 16 0v3"/></svg><input id="name" autocomplete="name" placeholder="Your name" required></div></div>
       <div class="field"><label for="email">Email Address</label><div class="input-wrap"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><input id="email" type="email" autocomplete="email" placeholder="your@email.com" required></div></div>
       <button class="submit" id="submit" type="submit">Get access</button>
-      <p class="message" id="message" role="status"></p>
+      <p class="message" id="message" role="status" aria-live="polite"></p>
     </form>
     <p class="foot">Don't have access yet? <a href="/atelier">Get the Blueprint</a> <span class="arrow">→</span></p>
   </main>
@@ -46,7 +46,7 @@
         localStorage.setItem('fuse_display_name',name);
         location.replace('/atelier-v2/home.html');
       }catch(error){
-        message.textContent='We could not find access for that email. Please use the email from your purchase.';
+        message.textContent='We couldn’t find this email in Fuse Atelier. Please use the same email address you used for your purchase. If you believe this is a mistake, please contact support.';
         button.disabled=false;button.textContent='Get access';
       }
     });
