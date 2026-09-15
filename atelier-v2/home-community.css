@@ -17,3 +17,31 @@
 @media(max-width:360px){.community-heading{align-items:flex-start}.reference-home .community-heading h2{font-size:15px;max-width:190px}.reference-home #galleryMotion{font-size:10px;padding:4px 7px}}
 @keyframes chromeFloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-4px) rotate(2deg)}}
 @media(prefers-reduced-motion:reduce){.reference-home .slide-sculpture img,.reference-home .star-placeholder img{animation:none}.community-piece{transition:none}}
+
+/* Hero cutouts: transparent model images sit into the lower card edge. */
+.reference-home .slide-sculpture{
+  right:-1%;
+  top:auto;
+  bottom:-1px;
+  width:51%;
+  height:100%;
+  display:grid;
+  place-items:end center;
+  overflow:visible;
+}
+.reference-home .slide-sculpture img,
+.reference-home .slide-1 .slide-sculpture img,
+.reference-home .slide-2 .slide-sculpture img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center bottom;
+  border-radius:0;
+  mix-blend-mode:normal;
+  filter:none;
+  animation:none;
+  transform:none;
+}
+/* Community videos autoplay without pause/play controls. */
+.reference-home .community-heading{justify-content:flex-start}
+.reference-home #galleryMotion,.reference-home .media-actions{display:none!important}
