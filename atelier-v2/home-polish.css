@@ -117,3 +117,58 @@
   -webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;
   font-weight:500!important
 }
+
+
+/* Hero CTA + exact HQ artwork refinement v7 */
+.reference-home .slide-copy{
+  max-width:52%!important;
+}
+.reference-home .slide-copy>a{
+  width:auto!important;
+  max-width:max-content!important;
+  min-height:40px!important;
+  padding:8px 14px!important;
+  border-radius:10px!important;
+  font-size:14px!important;
+  line-height:1!important;
+  font-weight:500!important;
+  white-space:nowrap!important;
+  flex:none!important;
+}
+.reference-home .slide-sculpture{
+  width:50%!important;
+}
+.reference-home .slide-sculpture img{
+  image-rendering:auto!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+}
+@media(max-width:430px){
+  .reference-home .feature-slide{
+    padding:14px 14px!important;
+  }
+  .reference-home .slide-copy{
+    max-width:51%!important;
+  }
+  .reference-home .slide-copy h1{
+    margin-bottom:8px!important;
+  }
+  .reference-home .slide-copy>a{
+    min-height:38px!important;
+    padding:7px 12px!important;
+    font-size:13px!important;
+    border-radius:9px!important;
+  }
+  .reference-home .slide-sculpture{
+    width:51%!important;
+    right:-1%!important;
+  }
+}
+@media(max-width:360px){
+  .reference-home .slide-copy>a{
+    padding:7px 10px!important;
+    font-size:12px!important;
+  }
+}
