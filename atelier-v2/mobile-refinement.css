@@ -38,16 +38,7 @@ body>.top{display:none!important}
 .client-toolbar{width:min(760px,calc(100% - 32px));margin:auto}.client-toolbar .top-in{min-height:58px;display:flex;align-items:center;justify-content:space-between}.client-toolbar .brand{font-size:14px!important}.client-toolbar .account{display:none}.client-toolbar button{min-height:44px;font-size:14px!important}
 .section-head h2,.sheet-head h2{font-size:16px!important;letter-spacing:0!important}.section-head p,.sheet-head p{font-size:12px!important}.section-head .eyebrow{display:none}
 
-/* Legacy mobile-only lock v3. */
-html{background:#001012!important}
-body{
-  width:min(430px,100%)!important;
-  max-width:430px!important;
-  margin-left:auto!important;
-  margin-right:auto!important;
-  overflow-x:hidden!important;
-}
-.shell,.client-toolbar{
-  width:calc(100% - 32px)!important;
-  max-width:398px!important;
+/* Responsive restoration: keep compact rules on phones, allow the existing desktop widths above. */
+@media(min-width:701px){
+  .shell,.client-toolbar{width:min(760px,calc(100% - 48px))!important;max-width:none!important}
 }

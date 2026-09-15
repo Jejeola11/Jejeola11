@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap');
 
-/* Homepage polish v5 — exact Fuse Atelier type and color system. */
+/* Homepage polish v6 — responsive Fuse Atelier type, motion and color system. */
 .reference-home{
   --fa-deep:#001012;
   --fa-mid:#00191B;
@@ -43,12 +43,14 @@
 }
 .reference-home .today-card{font-family:'Montserrat',sans-serif!important;font-weight:500!important}
 
-/* Use the four supplied Today artworks exactly — no old chrome stars, masking or blend effects. */
+/* Use the four supplied Today artworks exactly, with restrained depth and motion. */
 .reference-home .star-placeholder{
   display:grid!important;
   place-items:center!important;
   overflow:visible!important;
   background:transparent!important;
+  perspective:800px!important;
+  transform-style:preserve-3d!important;
 }
 .reference-home .star-placeholder img,
 .reference-home .card-0 .star-placeholder img,
@@ -64,10 +66,28 @@
   border-radius:0!important;
   background:transparent!important;
   box-shadow:none!important;
-  filter:none!important;
   mix-blend-mode:normal!important;
-  transform:none!important;
-  animation:none!important;
+  transform-origin:50% 78%!important;
+  transform-style:preserve-3d!important;
+  backface-visibility:hidden!important;
+  will-change:transform,filter!important;
+  filter:drop-shadow(0 8px 13px rgba(0,16,18,.32))!important;
+  animation:todayCardFloat 5.8s ease-in-out infinite!important;
+}
+.reference-home .card-1 .star-placeholder img{animation-delay:-1.45s!important}
+.reference-home .card-2 .star-placeholder img{animation-delay:-2.9s!important}
+.reference-home .card-3 .star-placeholder img{animation-delay:-4.35s!important}
+@keyframes todayCardFloat{
+  0%,100%{transform:translateY(0) rotateX(1.2deg) rotateY(-2deg) scale(1)}
+  50%{transform:translateY(-4px) rotateX(-1deg) rotateY(2.4deg) scale(1.018)}
+}
+@media(hover:hover){
+  .reference-home .today-card:hover .star-placeholder img{
+    filter:drop-shadow(0 11px 18px rgba(223,255,78,.18))!important
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .reference-home .star-placeholder img{animation:none!important;transform:none!important}
 }
 
 /* Community videos are passive, looping visual content: no player UI or unavailable badge. */
@@ -83,3 +103,17 @@
 .reference-home .account-menu,
 .reference-home .search-results{background:linear-gradient(145deg,#001012,#00191B 55%,#1B4C52)!important;border-color:#315456!important}
 .reference-home .menu-credit{background:#062125!important}
+
+/* Footer selection: every active page uses the exact chrome, including Create. */
+.reference-home .fuse-nav .nav-create svg{background:transparent!important;color:inherit!important;width:21px!important;height:21px!important;padding:0!important;border-radius:0!important}
+.reference-home .fuse-nav a[aria-current="page"]{color:#EEFFE0!important}
+.reference-home .fuse-nav a[aria-current="page"] svg{
+  width:32px!important;height:30px!important;padding:5px!important;border-radius:11px!important;
+  background:var(--fa-chrome)!important;color:#001012!important;
+  box-shadow:0 5px 16px rgba(223,255,78,.13),inset 0 1px 0 rgba(255,255,255,.55)!important
+}
+.reference-home .fuse-nav a[aria-current="page"] span{
+  background:var(--fa-chrome)!important;
+  -webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;
+  font-weight:500!important
+}

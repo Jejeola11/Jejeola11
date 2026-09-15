@@ -102,44 +102,13 @@
   0%,100%{transform:translateX(0) scale(1) rotate(-.25deg)}
   50%{transform:translateX(-2px) scale(1.018) rotate(.35deg)}
 }
-
-/* Fuse Atelier is intentionally a mobile-format app on every screen size. */
-.reference-home{
-  width:min(430px,100%)!important;
-  max-width:430px!important;
-  margin:0 auto!important;
-  overflow-x:hidden!important;
-}
-.reference-home .credit-banner{padding:8px 12px!important}
-.reference-home .reference-header{
-  width:calc(100% - 32px)!important;
-  max-width:none!important;
-  height:66px!important;
-}
-.reference-home .reference-main{
-  width:calc(100% - 24px)!important;
-  max-width:none!important;
-  margin:10px auto 0!important;
-}
-.reference-home .feature-slide{
-  max-height:none!important;
-  aspect-ratio:1.78!important;
-  padding:14px 13px!important;
-}
-.reference-home .slide-copy h1{font-size:24px!important}
-.reference-home .slide-copy p{font-size:15px!important}
-.reference-home .today-grid{gap:10px!important;max-width:none!important}
-.reference-home .star-placeholder{max-width:none!important}
-.reference-home .today-card{font-size:12px!important}
-.reference-home .today-section{margin-top:6px!important}
-.reference-home .today-section h2{font-size:16px!important}
-.reference-home .home-search{height:42px!important}
-.reference-home .account-menu{
-  right:max(14px,calc((100vw - 430px)/2 + 14px))!important;
-}
-@media(min-width:431px){
-  html{background:#001012!important}
-}
 @media(prefers-reduced-motion:reduce){
   .reference-home .slide-sculpture img{animation:none!important}
+}
+
+/* Responsive restoration v4: hero remains baseline-anchored on phones and scales cleanly on desktop. */
+@media(min-width:700px){
+  .reference-home .slide-sculpture{
+    width:42%!important;right:4%!important;bottom:-1px!important;height:100%!important
+  }
 }
