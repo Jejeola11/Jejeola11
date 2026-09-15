@@ -365,3 +365,67 @@ body.drawer-open .module-drawer{transform:translateX(0);visibility:visible;trans
   .course-action{font-size:12.5px;min-height:42px}
   .drawer-dot{width:24px;height:24px}
 }
+
+
+/* Course header refinement v3: compact brand + dedicated Academy back control */
+.course-brand-wrap{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
+.course-back{
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  flex:none;
+  border:1px solid rgba(49,84,86,.9);
+  border-radius:10px;
+  background:rgba(6,33,37,.72);
+  color:#EEFFE0;
+  font-size:18px;
+  line-height:1;
+  font-weight:400;
+}
+.course-back:hover{
+  border-color:#DFFF4E;
+  color:#DFFF4E;
+}
+.course-brand{gap:9px}
+.course-brand img{width:38px;height:38px}
+.course-brand span{
+  font-size:18px;
+  letter-spacing:-.55px;
+  font-weight:500;
+}
+.course-top{
+  min-height:78px;
+}
+.course-menu{
+  transform:translateY(-1px);
+}
+
+@media(max-width:700px){
+  .course-brand-wrap{gap:7px}
+  .course-back{
+    width:30px;
+    height:30px;
+    border-radius:9px;
+    font-size:17px;
+  }
+  .course-brand{gap:8px}
+  .course-brand img{width:36px;height:36px}
+  .course-brand span{font-size:17px}
+  .course-top{min-height:76px}
+}
+@media(max-width:430px){
+  .course-back{
+    width:28px;
+    height:28px;
+    font-size:16px;
+  }
+  .course-brand img{width:34px;height:34px}
+  .course-brand span{font-size:16px}
+  .course-top{min-height:72px}
+}

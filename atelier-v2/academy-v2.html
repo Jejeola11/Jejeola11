@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="fuse.css?v=responsive-4">
-  <link rel="stylesheet" href="lesson-ui.css?v=course-ui-2">
+  <link rel="stylesheet" href="lesson-ui.css?v=course-ui-3">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
   <script src="/app/course.js" defer></script>
   <script src="academy/course-current.js?v=money-new-1" defer></script>
@@ -18,10 +18,13 @@
 </head>
 <body class="course-page" data-page="academy">
   <header class="course-top">
-    <a class="course-brand" href="learn.html" aria-label="Back to Academy">
-      <img src="media/fuse-mark-login-exact.png" alt="">
-      <span>Fuse Atelier</span>
-    </a>
+    <div class="course-brand-wrap">
+      <a class="course-back" href="learn.html" aria-label="Back to Academy">←</a>
+      <a class="course-brand" href="learn.html" aria-label="Academy">
+        <img src="media/fuse-mark-login-exact.png" alt="">
+        <span>Fuse Atelier</span>
+      </a>
+    </div>
     <button id="openModules" class="course-menu" type="button" aria-label="Open course modules" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
