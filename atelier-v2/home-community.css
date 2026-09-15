@@ -42,6 +42,6 @@
   animation:none;
   transform:none;
 }
-/* Community videos autoplay without pause/play controls. */
+/* Community videos autoplay without pause/play controls. Preview trigger v2. */
 .reference-home .community-heading{justify-content:flex-start}
 .reference-home #galleryMotion,.reference-home .media-actions{display:none!important}
