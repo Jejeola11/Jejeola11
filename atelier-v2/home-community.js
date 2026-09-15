@@ -35,8 +35,8 @@
       img.width=row.width;img.height=row.height;media.append(img);
     }else{
       const video=document.createElement('video');
-      const src='media/community/'+row.id+'.mp4?v=autoplay-4';
-      const poster='media/community/'+row.id+'.webp?v=autoplay-4';
+      const src='media/community/'+row.id+'.mp4?v=autoplay-5';
+      const poster='media/community/'+row.id+'.webp?v=autoplay-5';
       video.src=src;
       video.poster=poster;
       video.muted=true;video.defaultMuted=true;video.loop=true;video.playsInline=true;
@@ -87,7 +87,7 @@
   window.addEventListener('pageshow',keepPlaying);
   window.addEventListener('focus',keepPlaying);
 
-  fetch('media/community/manifest.json?v=autoplay-4')
+  fetch('media/community/manifest.json?v=autoplay-5')
     .then(r=>{if(!r.ok)throw Error('Gallery unavailable');return r.json();})
     .then(rows=>{
       const order=[19,16,18,17,9,8,6,7,5,4,2,3,1,15,14,12,13,10,11];
