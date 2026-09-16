@@ -194,6 +194,13 @@ const VIDEO_COST = {        // real $ cost, WaveSpeed-first (see _providers.js) 
   // against WaveSpeed. Confirmed live 2026-07-16 via WaveSpeed's own
   // catalog: x-ai/grok-imagine-video is 0.05 there, cheaper than MuAPI.
   'grok-imagine-text-to-video': 0.05,          'grok-imagine-image-to-video': 0.05,
+  // New Fuse Create video page: WaveSpeed-native flexible models. The values
+  // here are the 5-second LOWEST-resolution baseline used to register the
+  // slugs in VIDEO_MODELS; videoCreditsForRequest() below prices the actual
+  // duration + resolution selected by the student.
+  'minimax-h3-text-to-video': 0.20,             'minimax-h3-image-to-video': 0.20,   // 5s @480p
+  'wan-3-text-to-video': 0.25,                  'wan-3-image-to-video': 0.25,        // 5s @480p
+  'gemini-omni-1.1-flash-text-to-video': 0.15, 'gemini-omni-1.1-flash-image-to-video': 0.15, // 5s @360p
   'veo3-text-to-video': 1.20,                  'veo3-image-to-video': 1.20,
   // Omni Studio (verified live against MuAPI's catalog + validation endpoints)
   'gemini-omni-video-edit': 2.40,              // needs a Pro/Business MuAPI plan — see omni-video-edit.js
@@ -237,6 +244,32 @@ Object.assign(IMAGE_MODELS, IMAGE_MODEL_OVERRIDES);
 // these specific tiers rather than letting the formula derive them; applied
 // after the auto-computation so every other model still gets clean,
 // auditable cost-plus math).
+// Per-second WaveSpeed rates for the flexible video models exposed in
+// atelier-v2/video-create.html. These are intentionally server-side so the
+// browser can DISPLAY an estimate, but can never decide what gets charged.
+// Rates verified against WaveSpeed's current model docs in Sep 2026.
+const VIDEO_DYNAMIC_RATES = {
+  'minimax-h3-text-to-video': { '480p': 0.04, '540p': 0.06, '768p': 0.08, '1080p': 0.16 },
+  'minimax-h3-image-to-video': { '480p': 0.04, '540p': 0.06, '768p': 0.08, '1080p': 0.16 },
+  'wan-3-text-to-video': { '480p': 0.05, '720p': 0.10, '1080p': 0.20 },
+  'wan-3-image-to-video': { '480p': 0.05, '720p': 0.10, '1080p': 0.20 },
+  'gemini-omni-1.1-flash-text-to-video': { '360p': 0.03, '720p': 0.10, '1080p': 0.15, '4k': 0.30 },
+  'gemini-omni-1.1-flash-image-to-video': { '360p': 0.03, '720p': 0.10, '1080p': 0.15, '4k': 0.30 },
+};
+function videoCreditsForRequest(model, duration, resolution) {
+  const rates = VIDEO_DYNAMIC_RATES[model];
+  if (rates) {
+    const keys = Object.keys(rates);
+    const rate = rates[resolution] != null ? rates[resolution] : rates[keys[0]];
+    const secs = Math.max(1, Math.ceil(parseFloat(duration) || 5));
+    return creditsFor(rate * secs, VIDEO_MARGIN);
+  }
+  const base = VIDEO_MODELS[model];
+  if (!base) return null;
+  const secs = Math.max(1, parseInt(duration, 10) || 5);
+  return base * (secs >= 10 ? 2 : 1);
+}
+
 Object.assign(VIDEO_MODELS, {
   'seedance-2-mini-text-to-video': 17,     'seedance-2-mini-image-to-video': 17,     // formula would give 8
   // 10 Aug 2026, pass 3: raised off Ria's original numbers (45/6/7) to close
@@ -366,4 +399,4 @@ function canUseTrial(model) {
   return TRIAL_IMAGE.includes(model) || TRIAL_VIDEO.includes(model);
 }
 
-module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree, TRIAL_IMAGE, TRIAL_VIDEO, canUseTrial, PROMO, promoActive, creditsForPack, avatarVideoCredits, estimateScriptMinutes, audioCredits, resyncCredits, lipsyncDialogueCredits };
+module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, VIDEO_DYNAMIC_RATES, videoCreditsForRequest, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree, TRIAL_IMAGE, TRIAL_VIDEO, canUseTrial, PROMO, promoActive, creditsForPack, avatarVideoCredits, estimateScriptMinutes, audioCredits, resyncCredits, lipsyncDialogueCredits };
