@@ -614,7 +614,7 @@
         const up=await sb.storage.from('landing-assets').upload(path,file,{upsert:false,contentType:file.type||undefined});
         if(up.error)throw up.error;
         const url=sb.storage.from('landing-assets').getPublicUrl(path).data.publicUrl;
-        const patch=file.type.startsWith('video/')?{video_url:url}:{image_url:url};
+        const patch=file.type.startsWith('video/')?{video_url:url}:{image_url:url,video_url:''};
         await sectionMutation({target:selectedTarget,operation:'update',patch},'Placing replacement media…');
       }catch(e){setStatus(e.message||'Could not upload that media.','error')}
     }
