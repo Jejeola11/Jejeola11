@@ -353,13 +353,13 @@
       }
     }
 
-    async function startAssets(){
-      if(!projectId||!brief.generateAssets)return;
+    async function startAssets(force=false){
+      if(!projectId||(!brief.generateAssets&&!force))return;
       assetBox.hidden=false;
       assetSummary.textContent='Starting';
       assetList.innerHTML='<div class="asset-row" data-status="processing"><i class="asset-dot"></i><b>Preparing website visuals</b><em>Starting…</em></div>';
       try{
-        const out=await Fuse.api('page-assets-start',{project_id:projectId});
+        const out=await Fuse.api('page-assets-start',{project_id:projectId,force});
         if(out.errors&&out.errors.length&&!out.started?.length){
           setStatus(out.errors[0],'error');
         }else if(out.errors&&out.errors.length){
@@ -475,7 +475,7 @@
       if(!projectId||busy)return;
       brief.generateAssets=true;
       setStatus('Starting a fresh set of website visuals. Normal Image/Video credits apply…');
-      await startAssets();
+      await startAssets(true);
     }
 
     async function publish(){
