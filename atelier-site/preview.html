@@ -199,14 +199,17 @@ nav{
 .hero h1{
   max-width:760px;
   margin:25px 0 0;
-  font-size:26px;
-  line-height:1.3;
+  font-size:clamp(18px,2.15vw,23px);
+  line-height:1.22;
   letter-spacing:-.025em;
   font-weight:700;
 }
-.hero h1 .result{
+.hero h1 .hero-line{
   display:block;
-  margin-top:8px;
+  white-space:nowrap;
+}
+.hero h1 .result{
+  margin-top:3px;
 }
 .hero-copy{
   max-width:700px;
@@ -258,82 +261,48 @@ nav{
   font-weight:500;
 }
 
-/* HERO VISUAL PLACEHOLDERS */
+/* HERO VISUALS */
 .hero-visual{
   position:relative;
   min-height:500px;
 }
 .visual-card{
   position:absolute;
-  border:1px solid var(--field);
-  border-radius:24px;
-  background:
-    linear-gradient(135deg,rgba(255,230,106,.05),rgba(223,255,78,.03)),
-    var(--surface);
-  box-shadow:0 28px 70px rgba(0,0,0,.28);
+  border:1px solid rgba(238,255,224,.18);
+  border-radius:22px;
+  background:var(--surface);
+  box-shadow:0 28px 70px rgba(0,0,0,.34);
   overflow:hidden;
 }
-.visual-card:before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:
-    linear-gradient(135deg,transparent 0 42%,rgba(238,255,224,.045) 42% 58%,transparent 58%),
-    radial-gradient(circle at 78% 12%,rgba(223,255,78,.11),transparent 27%);
-}
-.visual-card .ph{
-  position:relative;
-  min-height:100%;
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-end;
-  padding:18px;
-}
-.visual-card small{
-  color:var(--lime);
-  font-size:12px;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  font-weight:700;
-}
-.visual-card strong{
-  margin-top:7px;
-  font-size:17px;
-  line-height:1.35;
-  font-weight:700;
+.visual-card img,
+.visual-card video{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
 }
 .visual-card.one{
-  width:74%;
-  height:330px;
+  width:68%;
+  aspect-ratio:720/666;
   left:0;
-  top:30px;
+  top:64px;
+  z-index:2;
 }
 .visual-card.two{
-  width:58%;
-  height:235px;
+  width:43%;
+  aspect-ratio:853/1280;
   right:0;
   top:0;
-  transform:rotate(2deg);
+  z-index:3;
+  transform:rotate(1.5deg);
 }
 .visual-card.three{
-  width:61%;
-  height:220px;
-  right:18px;
-  bottom:8px;
-  transform:rotate(-2deg);
-}
-.visual-badge{
-  position:absolute;
-  left:14px;
-  bottom:28px;
-  z-index:3;
-  padding:11px 14px;
-  border-radius:16px;
-  background:var(--chrome);
-  color:#07110e;
-  font-size:13px;
-  font-weight:700;
-  box-shadow:0 16px 38px rgba(0,0,0,.25);
+  width:66%;
+  aspect-ratio:16/9;
+  left:7%;
+  bottom:0;
+  z-index:4;
+  transform:rotate(-1.25deg);
 }
 
 /* PAIN */
@@ -1063,18 +1032,18 @@ footer span{
   .brand span{font-size:25px}
   .nav-btn{font-size:13px;min-height:39px;padding:8px 12px}
   .hero{padding:54px 0 62px}
-  .hero h1,.section-head h2,.main-heading{font-size:26px}
+  .hero h1{font-size:clamp(17px,5.05vw,21px);line-height:1.23}
+  .section-head h2,.main-heading{font-size:26px}
   .hero-copy,.section-head p,.secondary{font-size:16px}
   .pill{font-size:12px;padding:8px 11px}
   .hero-actions{display:block}
   .hero-actions .btn{width:100%}
   .hero-actions .btn+.btn{margin-top:10px}
   .hero-stats{grid-template-columns:1fr 1fr}
-  .hero-visual{min-height:385px}
-  .visual-card.one{width:78%;height:250px;top:42px}
-  .visual-card.two{width:58%;height:180px}
-  .visual-card.three{width:61%;height:170px;bottom:3px}
-  .visual-badge{left:8px;bottom:8px;font-size:11px}
+  .hero-visual{min-height:365px}
+  .visual-card.one{width:70%;height:auto;top:58px}
+  .visual-card.two{width:42%;height:auto;top:0}
+  .visual-card.three{width:68%;height:auto;left:4%;right:auto;bottom:0}
   .section{padding:62px 0}
   .pain-grid{grid-template-columns:1fr}
   .pain-card{padding:20px}
@@ -1131,8 +1100,11 @@ footer span{
     <div class="hero-copy-col">
       <div class="pill">Turn AI Skills Into Money Engine</div>
       <h1>
-        <span>Still Learning AI With No Clients?</span>
-        <span class="result chrome-text">My Students Are Turning It Into $200–$500/Month Client Work From Their Phones.</span>
+        <span class="hero-line">Still Learning AI</span>
+        <span class="hero-line">With No Clients?</span>
+        <span class="hero-line result chrome-text">My Students Are Turning It</span>
+        <span class="hero-line result chrome-text">Into $200–$500/Month Client</span>
+        <span class="hero-line result chrome-text">Work From Their Phones.</span>
       </h1>
       <p class="hero-copy">
         Stop collecting tools with nothing to show for it. Fuse Atelier gives you 3 sellable AI skill paths plus the Money Engine to build proof, find businesses, pitch the right people and turn what you know into paid client work — from your phone.
@@ -1151,26 +1123,16 @@ footer span{
       </div>
     </div>
 
-    <div class="hero-visual" aria-label="Visual proof placeholders">
+    <div class="hero-visual" aria-label="Proof and student work examples">
       <article class="visual-card one">
-        <div class="ph">
-          <small>Student work placeholder</small>
-          <strong>AI UGC / Product Creative</strong>
-        </div>
+        <img src="/atelier-site/assets/sales-preview/proof-upwork.webp" alt="Upwork proof showing more than four thousand dollars in total earnings">
       </article>
       <article class="visual-card two">
-        <div class="ph">
-          <small>Proof placeholder</small>
-          <strong>Client reply / testimonial</strong>
-        </div>
+        <img src="/atelier-site/assets/sales-preview/rosen-work.webp" alt="ROSEN skincare product creative example">
       </article>
       <article class="visual-card three">
-        <div class="ph">
-          <small>Student work placeholder</small>
-          <strong>Landing page / design sample</strong>
-        </div>
+        <video src="/atelier-site/assets/sales-preview/hero-work.mp4" muted autoplay loop playsinline preload="auto" aria-label="AI creative video example"></video>
       </article>
-      <div class="visual-badge">Real student work + proof will sit here</div>
     </div>
   </div>
 </section>
@@ -1566,5 +1528,17 @@ footer span{
   <a class="btn" href="#pricing">See Plans</a>
 </div>
 
+<script>
+(() => {
+  const videos=[...document.querySelectorAll('.hero-visual video')];
+  const play=v=>{v.muted=true;v.defaultMuted=true;v.playsInline=true;v.play().catch(()=>{});};
+  videos.forEach(v=>{
+    v.addEventListener('canplay',()=>play(v));
+    v.addEventListener('ended',()=>{v.currentTime=0;play(v);});
+    play(v);
+  });
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden) videos.forEach(play);});
+})();
+</script>
 </body>
 </html>
