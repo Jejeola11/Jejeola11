@@ -9,6 +9,12 @@ function esc(v=''){
 }
 function arr(v){ return Array.isArray(v)?v:[]; }
 function text(v,fallback=''){ return typeof v==='string'&&v.trim()?v.trim():fallback; }
+function safeUrl(v=''){
+  try{
+    const u=new URL(String(v));
+    return (u.protocol==='https:'||u.protocol==='http:')?u.toString():'';
+  }catch{return ''}
+}
 
 function itemCards(items){
   return arr(items).slice(0,6).map((it,i)=>{
@@ -61,6 +67,8 @@ function renderSite(spec={},opts={}){
   const card=isLight?'#ffffff':surface;
   const line=isLight?'#d7ddda':'#315456';
   const heroVisual=text(hero.visual&&hero.visual.type,'editorial-gradient');
+  const heroImage=safeUrl(hero.visual&&hero.visual.image_url);
+  const heroVideo=safeUrl(hero.visual&&hero.visual.video_url);
   const exp=text(theme.experience,text(motion.level,'clean'));
   const sections=arr(spec.sections).slice(0,12);
   const interactive=heroVisual==='orb-3d'||motion.three_d===true||exp==='3d';
@@ -79,7 +87,7 @@ function renderSite(spec={},opts={}){
 'nav{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(18px);border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent)}'+
 'nav .in{height:70px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{font-size:19px;font-weight:600;letter-spacing:-.5px}.navlinks{display:flex;align-items:center;gap:20px}.navlinks a{color:var(--muted);text-decoration:none;font-size:13px}.navlinks .navcta{padding:10px 15px;border-radius:999px;color:#001012;background:linear-gradient(105deg,var(--secondary),var(--accent),#EEFFE0);font-weight:500}'+
 '.hero{min-height:82svh;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);gap:54px;align-items:center;padding:78px 0}.eyebrow,.section-head>span,.cta-block>span{display:inline-block;color:var(--accent);font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase}.hero h1{margin:12px 0 16px;max-width:760px;font-size:clamp(44px,7vw,82px);line-height:.94;letter-spacing:-3px;font-weight:500}.hero p{max-width:610px;margin:0;color:var(--muted);font-size:17px;line-height:1.65;font-weight:300}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}.hero-actions a{padding:13px 19px;border-radius:999px;text-decoration:none;font-size:14px;font-weight:500}.primary{background:linear-gradient(105deg,var(--secondary),var(--accent),#EEFFE0);color:#001012}.ghost{border:1px solid var(--line);color:var(--ink);background:color-mix(in srgb,var(--card) 78%,transparent)}'+
-'.hero-art{position:relative;min-height:500px;display:grid;place-items:center;perspective:1000px}.hero-card{position:absolute;width:78%;aspect-ratio:4/5;border-radius:32px;border:1px solid color-mix(in srgb,var(--accent) 32%,var(--line));background:linear-gradient(145deg,color-mix(in srgb,var(--card) 90%,#fff 4%),color-mix(in srgb,var(--accent) 18%,var(--card)));box-shadow:0 35px 80px rgba(0,0,0,.28);overflow:hidden}.hero-card:before{content:"";position:absolute;inset:-20%;background:radial-gradient(circle at 70% 25%,color-mix(in srgb,var(--secondary) 70%,transparent),transparent 16%),radial-gradient(circle at 25% 75%,color-mix(in srgb,var(--accent) 60%,transparent),transparent 20%);filter:blur(2px)}'+
+'.hero-art{position:relative;min-height:500px;display:grid;place-items:center;perspective:1000px}.hero-card,.hero-media{position:absolute;width:78%;aspect-ratio:4/5;border-radius:32px;border:1px solid color-mix(in srgb,var(--accent) 32%,var(--line));box-shadow:0 35px 80px rgba(0,0,0,.28);overflow:hidden}.hero-card{background:linear-gradient(145deg,color-mix(in srgb,var(--card) 90%,#fff 4%),color-mix(in srgb,var(--accent) 18%,var(--card)))}.hero-card:before{content:"";position:absolute;inset:-20%;background:radial-gradient(circle at 70% 25%,color-mix(in srgb,var(--secondary) 70%,transparent),transparent 16%),radial-gradient(circle at 25% 75%,color-mix(in srgb,var(--accent) 60%,transparent),transparent 20%);filter:blur(2px)}.hero-media img,.hero-media video{width:100%;height:100%;display:block;object-fit:cover}.hero-media:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(0,16,18,.28))}.hero-art .orb{z-index:3}.hero-art.has-media .orb{width:145px;height:145px;position:absolute;right:4%;bottom:8%;opacity:.92}'+
 '.orb{width:230px;height:230px;border-radius:50%;position:relative;background:conic-gradient(from 210deg,var(--accent),var(--secondary),#EEFFE0,var(--accent));box-shadow:0 28px 80px color-mix(in srgb,var(--accent) 30%,transparent);transform-style:preserve-3d}.orb:after{content:"";position:absolute;inset:22%;border-radius:50%;background:var(--card);filter:blur(2px)}'+
 '.section{padding:86px 0}.section-head{max-width:760px;margin:0 0 30px}.section-head h2,.cta-block h2{margin:8px 0 10px;font-size:clamp(30px,5vw,52px);line-height:1.02;letter-spacing:-1.8px;font-weight:500}.section-head p,.cta-block p{margin:0;color:var(--muted);font-size:15px;line-height:1.65;font-weight:300;max-width:650px}'+
 '.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.card{min-height:180px;padding:22px;border:1px solid var(--line);border-radius:24px;background:color-mix(in srgb,var(--card) 92%,transparent)}.num{font-size:11px;color:var(--accent);letter-spacing:.1em}.card h3{margin:22px 0 8px;font-size:19px;font-weight:500}.card p{margin:0;color:var(--muted);font-size:13px;line-height:1.55;font-weight:300}'+
@@ -95,7 +103,12 @@ function renderSite(spec={},opts={}){
 '</style></head><body>'+
 '<nav><div class="wrap in"><div class="brand">'+esc(brand)+'</div><div class="navlinks">'+arr(nav.items).slice(0,4).map(i=>'<a href="#content">'+esc(i)+'</a>').join('')+'<a class="navcta" href="#contact">'+esc(text(nav.cta,'Get started'))+'</a></div></div></nav>'+
 '<main><section class="hero wrap"><div><span class="eyebrow">'+esc(text(hero.eyebrow,'PREMIUM EXPERIENCE'))+'</span><h1>'+esc(text(hero.headline,'Build something people remember.'))+'</h1><p>'+esc(text(hero.subheadline,'A clear, premium experience designed around the next action.'))+'</p><div class="hero-actions"><a class="primary" href="#contact">'+esc(text(hero.primary_cta,'Get started'))+' →</a>'+(hero.secondary_cta?'<a class="ghost" href="#content">'+esc(hero.secondary_cta)+'</a>':'')+'</div></div>'+
-'<div class="hero-art">'+(interactive?'<div class="orb" data-orb></div>':'<div class="hero-card"></div>')+'</div></section>'+
+'<div class="hero-art'+((heroImage||heroVideo)?' has-media':'')+'">'+
+((heroImage||heroVideo)
+  ? '<div class="hero-media">'+(heroVideo?'<video src="'+esc(heroVideo)+'" autoplay muted loop playsinline preload="metadata" poster="'+esc(heroImage)+'"></video>':'<img src="'+esc(heroImage)+'" alt="" loading="eager" decoding="async">')+'</div>'
+  : '<div class="hero-card"></div>')+
+(interactive?'<div class="orb" data-orb></div>':'')+
+'</div></section>'+
 '<div id="content" class="wrap">'+sections.map((s,i)=>'<div class="'+(reveal?'reveal':'')+'" style="--i:'+i+'">'+renderSection(s)+'</div>').join('')+'</div>'+
 '<section id="contact" class="wrap section"><div class="cta-block"><span>LET’S BUILD</span><h2>'+esc(text(meta.objective,'Ready for the next step?'))+'</h2><p>'+esc(text(meta.audience,'Make the next action easy and clear.'))+'</p><a href="mailto:hello@example.com">Get started →</a></div></section></main>'+
 '<footer><div class="wrap"><b>'+esc(brand)+'</b><br>Built with Fuse Pages.</div></footer>'+
