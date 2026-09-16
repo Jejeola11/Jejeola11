@@ -50,21 +50,54 @@
     .preview-badge{position:absolute;z-index:2;top:12px;right:12px;height:28px;padding:0 10px;border-radius:999px;display:flex;align-items:center;background:rgba(6,33,37,.82);border:1px solid rgba(238,255,224,.16);font-size:11px;font-weight:500;color:#fff;backdrop-filter:blur(9px)}
 
     .upload-zone{
-      min-height:154px;border:1.4px dashed rgba(49,84,86,.88);border-radius:18px;background:rgba(6,33,37,.68);
-      display:flex;align-items:center;justify-content:center;text-align:center;padding:15px;position:relative;overflow:hidden;
+      min-height:220px;border:1.4px dashed rgba(49,84,86,.88);border-radius:20px;background:rgba(6,33,37,.68);
+      display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;position:relative;overflow:visible;
     }
     .upload-zone.drag{border-color:#DFFF4E;background:rgba(27,76,82,.45)}
     .upload-empty{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--muted)}
-    .upload-icon{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#12383c,#071a1d);border:1px solid rgba(238,255,224,.12)}
-    .upload-icon svg{width:21px;height:21px;stroke:#d9e7e5}
-    .upload-label{font-size:15px;line-height:1.25;font-weight:400;color:#f3f7f6}
-    .upload-sub{font-size:13px;line-height:1.25;font-weight:300;color:#8fa4a3}
-    .thumb-grid{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .thumb{aspect-ratio:16/9;border-radius:13px;overflow:hidden;position:relative;background:#001012;border:1px solid rgba(49,84,86,.75)}
-    .thumb img,.thumb video{width:100%;height:100%;display:block;object-fit:cover}
-    .thumb span{position:absolute;left:7px;bottom:6px;background:rgba(0,16,18,.78);border:1px solid rgba(238,255,224,.12);border-radius:999px;padding:4px 7px;font-size:9px;font-weight:500}
-    .thumb button{position:absolute;top:5px;right:5px;width:23px;height:23px;border:0;border-radius:50%;background:rgba(0,16,18,.84);color:#fff;font-size:15px}
-    .add-thumb{aspect-ratio:16/9;border:1px dashed rgba(223,255,78,.5);border-radius:13px;background:rgba(0,25,27,.7);color:#DFFF4E;font-size:22px}
+    .upload-icon{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#12383c,#071a1d);border:1px solid rgba(238,255,224,.12)}
+    .upload-icon svg{width:24px;height:24px;stroke:#d9e7e5}
+    .upload-label{font-size:16px;line-height:1.25;font-weight:400;color:#f3f7f6}
+    .upload-sub{font-size:13px;line-height:1.35;font-weight:300;color:#8fa4a3}
+    .thumb-grid{width:100%;display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:flex-start;gap:11px}
+    .thumb,.add-thumb{
+      flex:0 0 calc((100% - 33px)/4);
+      aspect-ratio:.78;
+      border-radius:17px;
+      position:relative;
+    }
+    .thumb{overflow:visible;background:#001012;border:1px solid rgba(49,84,86,.78)}
+    .thumb img,.thumb video{
+      width:100%;height:100%;display:block;object-fit:cover;border-radius:16px;overflow:hidden
+    }
+    .thumb span{
+      position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+      max-width:calc(100% - 12px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      background:rgba(0,16,18,.74);backdrop-filter:blur(8px);
+      border:1px solid rgba(238,255,224,.10);border-radius:999px;
+      padding:4px 7px;font-size:9px;font-weight:500;color:#fff
+    }
+    .thumb button{
+      position:absolute;top:-8px;right:-8px;z-index:4;width:24px;height:24px;border:1px solid rgba(238,255,224,.10);
+      border-radius:50%;display:grid;place-items:center;background:#273130;color:#fff;font-size:15px;line-height:1;
+      box-shadow:0 4px 12px rgba(0,0,0,.28)
+    }
+    .thumb.audio-ref{
+      display:grid;place-items:center;background:linear-gradient(145deg,#0c2528,#001012);
+      border:1px solid rgba(49,84,86,.78);overflow:visible
+    }
+    .thumb.audio-ref .audio-glyph{
+      width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:rgba(238,255,224,.08);
+      font-size:22px;color:#DFFF4E
+    }
+    .add-thumb{
+      border:0;background:#10282b;color:#a9bcba;font-size:0;display:grid;place-items:center;overflow:hidden
+    }
+    .add-thumb:before{
+      content:"+";width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+      background:#334341;color:#c5d2d0;font-size:23px;font-weight:300;
+      box-shadow:0 4px 14px rgba(0,0,0,.20)
+    }
 
     .prompt-card{margin-top:14px;border-radius:18px;border:1px solid rgba(49,84,86,.76);background:rgba(6,33,37,.94);overflow:hidden}
     .prompt{width:100%;min-height:142px;max-height:260px;resize:vertical;border:0;outline:0;background:transparent;color:#fff;padding:16px 16px 12px;font-size:16px;line-height:1.5;font-weight:300}
@@ -381,16 +414,16 @@
     }
     function thumbMarkup(f,i){
       const type=kindOf(f),url=URL.createObjectURL(f),label=refLabel(f,i);
-      if(type==='video')return `<div class="thumb"><video src="${url}" muted playsinline></video><span>${label}</span><button type="button" data-rm="${i}">×</button></div>`;
-      if(type==='audio')return `<div class="thumb" style="display:grid;place-items:center"><div style="font-size:30px">♪</div><span>${label}</span><button type="button" data-rm="${i}">×</button></div>`;
-      return `<div class="thumb"><img src="${url}"><span>${label}</span><button type="button" data-rm="${i}">×</button></div>`;
+      if(type==='video')return `<div class="thumb"><video src="${url}" muted playsinline preload="metadata"></video><span>${label}</span><button type="button" aria-label="Remove reference" data-rm="${i}">×</button></div>`;
+      if(type==='audio')return `<div class="thumb audio-ref"><div class="audio-glyph">♪</div><span>${label}</span><button type="button" aria-label="Remove reference" data-rm="${i}">×</button></div>`;
+      return `<div class="thumb"><img src="${url}" alt="${label}"><span>${label}</span><button type="button" aria-label="Remove reference" data-rm="${i}">×</button></div>`;
     }
     function renderThumbs(){
       const g=$('thumbGrid'),e=$('uploadEmpty'),m=active();
       if(!files.length){g.hidden=true;e.hidden=false;g.innerHTML='';updateUI();return}
       e.hidden=true;g.hidden=false;
       const max=m.key==='seedance-2.5'?6:2;
-      g.innerHTML=files.map(thumbMarkup).join('')+(files.length<max?'<button class="add-thumb" id="addMore" type="button">+</button>':'');
+      g.innerHTML=(files.length<max?'<button class="add-thumb" id="addMore" type="button" aria-label="Add another reference">+</button>':'')+files.map(thumbMarkup).join('');
       g.querySelectorAll('[data-rm]').forEach(b=>b.onclick=x=>{
         x.stopPropagation();
         const f=files[+b.dataset.rm];
