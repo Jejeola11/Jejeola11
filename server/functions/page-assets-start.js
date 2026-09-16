@@ -31,6 +31,7 @@ exports.handler=async(event)=>{
 
     const spec=q.data.site_spec||{};
     const force=body.force===true;
+    const requestedKind=body.kind==='video'?'video':body.kind==='image'?'image':'';
     if((!spec.assets||spec.assets.generate!==true)&&!force){
       return json(200,{ok:true,started:[],skipped:true,message:'AI asset generation is off for this project.'});
     }
@@ -45,7 +46,7 @@ exports.handler=async(event)=>{
     const errors=[];
 
     // Hero image — uses the same 2-credit Sunburst route as Fuse Create.
-    try{
+    if(requestedKind!=='video') try{
       const imageHandler=require('./generate');
       const ir=await imageHandler.handler({
         ...event,
@@ -76,8 +77,10 @@ exports.handler=async(event)=>{
 
     // Cinematic experiences also get a lightweight 6s loop using the cheapest
     // production video model already exposed in Fuse Create.
-    const wantsVideo=spec.theme?.experience==='cinematic' ||
-      spec.assets?.requested?.some(x=>x&&x.kind==='video');
+    const wantsVideo=requestedKind==='video' || (!requestedKind && (
+      spec.theme?.experience==='cinematic' ||
+      spec.assets?.requested?.some(x=>x&&x.kind==='video')
+    ));
 
     if(wantsVideo){
       try{
