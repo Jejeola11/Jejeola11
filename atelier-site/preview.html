@@ -4,8 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#001012">
-<title>Fuse Atelier — Sales Page Preview</title>
-<meta name="robots" content="noindex,nofollow">
+<title>Fuse Atelier — Build Your AI Business</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1118,6 +1117,53 @@ footer span{
   .sticky{display:grid}
   body{padding-bottom:84px}
 }
+
+/* STUDENT WINS — live proof cards */
+.student-wins-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+.student-win-card{
+  position:relative;
+  aspect-ratio:3/4;
+  margin:0;
+  overflow:hidden;
+  border-radius:24px;
+  border:1px solid rgba(238,255,224,.18);
+  background:#00191B;
+  box-shadow:0 22px 54px rgba(0,0,0,.26);
+}
+.student-win-card img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  background:#00191B;
+}
+.student-win-card.loading:after{
+  content:"Loading student win…";
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  color:#829994;
+  font-size:14px;
+  text-align:center;
+  background:#00191B;
+}
+.student-win-card.ready:after{display:none}
+@media (max-width:760px){
+  .student-wins-grid{
+    grid-template-columns:1fr;
+    max-width:430px;
+    margin:0 auto;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1290,36 +1336,23 @@ footer span{
   </div>
 </section>
 
-<section class="section visual-section">
+<section class="section visual-section" id="student-wins">
   <div class="wrap">
-    <div class="section-head">
-      <div class="eyebrow">Proof & student wins</div>
-      <h2>Not just lessons. <span class="chrome-text">Proof that people are applying them.</span></h2>
-      <p>These placeholders are reserved for real student messages, client replies, portfolio wins and testimonials.</p>
+    <div class="section-head left">
+      <div class="eyebrow">My Student wins</div>
+      <h2>Don't take my word for it — here's what students are already doing:</h2>
     </div>
 
-    <div class="proof-grid">
-      <article class="proof-card">
-        <div class="shot">TESTIMONIAL SCREENSHOT PLACEHOLDER</div>
-        <div>
-          <strong>Student transformation</strong>
-          <p>Short context and result will sit here once we choose the strongest testimonial.</p>
-        </div>
-      </article>
-      <article class="proof-card">
-        <div class="shot">CLIENT REPLY PLACEHOLDER</div>
-        <div>
-          <strong>Brand / founder response</strong>
-          <p>Use an outreach response that shows the Money Engine turning practice into a real conversation.</p>
-        </div>
-      </article>
-      <article class="proof-card">
-        <div class="shot">RESULT / PAYMENT PLACEHOLDER</div>
-        <div>
-          <strong>Student win or proof</strong>
-          <p>Use only a result we can verify and explain clearly on the final page.</p>
-        </div>
-      </article>
+    <div class="student-wins-grid">
+      <figure class="student-win-card loading">
+        <img id="student-win-1" alt="Fuse Atelier student testimonial showing an Upwork client win">
+      </figure>
+      <figure class="student-win-card loading">
+        <img id="student-win-2" alt="Fuse Atelier student showing a new brand deal and client work">
+      </figure>
+      <figure class="student-win-card loading">
+        <img id="student-win-3" alt="Fuse Atelier student outreach response and client opportunity">
+      </figure>
     </div>
   </div>
 </section>
@@ -1527,9 +1560,7 @@ footer span{
     <p>Choose the level of support that matches how you want to execute: learn the complete system yourself, finish one skill with implementation support, or work directly with Ria through the first 30 days.</p>
     <div class="final-actions">
       <a class="btn" href="#pricing">Choose My Plan →</a>
-      <a class="btn ghost" href="/atelier">Back To Current Page</a>
     </div>
-    <div class="notice" style="margin-top:18px">Preview build only — checkout links will be connected after the page structure and copy are approved.</div>
   </div>
 </section>
 </main>
@@ -1559,6 +1590,41 @@ footer span{
     play(v);
   });
   document.addEventListener('visibilitychange',()=>{if(!document.hidden) videos.forEach(play);});
+
+  const studentWinSources = {
+    "student-win-1":[
+      "/atelier-site/assets/sales-preview/student-wins/win1-0.b64",
+      "/atelier-site/assets/sales-preview/student-wins/win1-1.b64",
+      "/atelier-site/assets/sales-preview/student-wins/win1-2.b64",
+      "/atelier-site/assets/sales-preview/student-wins/win1-3.b64"
+    ],
+    "student-win-2":[
+      "/atelier-site/assets/sales-preview/student-wins/win2-0.b64",
+      "/atelier-site/assets/sales-preview/student-wins/win2-1.b64"
+    ],
+    "student-win-3":[
+      "/atelier-site/assets/sales-preview/student-wins/win3-0.b64",
+      "/atelier-site/assets/sales-preview/student-wins/win3-1.b64",
+      "/atelier-site/assets/sales-preview/student-wins/win3-2.b64"
+    ]
+  };
+  Object.entries(studentWinSources).forEach(async ([id,parts])=>{
+    const img=document.getElementById(id);
+    if(!img) return;
+    try{
+      const chunks=await Promise.all(parts.map(async p=>{
+        const r=await fetch(p,{cache:"force-cache"});
+        if(!r.ok) throw new Error("asset "+r.status);
+        return (await r.text()).trim();
+      }));
+      img.src="data:image/webp;base64,"+chunks.join("");
+      img.closest(".student-win-card")?.classList.add("ready");
+    }catch(err){
+      console.warn("Student win image failed to load",id,err);
+      img.alt="Student win screenshot";
+    }
+  });
+
 })();
 </script>
 </body>
