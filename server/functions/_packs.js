@@ -138,6 +138,9 @@ const creditsForImage = (cost_usd, margin) => Math.min(6, Math.max(2, creditsFor
 // returns real, current pricing + full schemas for its whole catalog) on
 // 2026-07-16, not estimated.
 const IMAGE_COST = {
+  'gpt-image-2.5-sunburst': 0.024, // WaveSpeed OpenAI GPT Image 2.5 Sunburst, starting price
+  'gpt-image-2.5-flare': 0.024,    // WaveSpeed OpenAI GPT Image 2.5 Flare, starting price
+  'minimax-h3-image': 0.02,        // WaveSpeed MiniMax H3 text-to-image, 1K starting price
   'flux-schnell-image': 0.003,  // was 0.01 on MuAPI — WaveSpeed's wavespeed-ai/flux-schnell verified live at 0.003
   'flux-dev-image': 0.012,      // was 0.025 on MuAPI — WaveSpeed's wavespeed-ai/flux-dev verified live at 0.012
   'gpt-image-2-text-to-image': 0.06,   // OpenAI GPT Image 2 — now routed via WaveSpeed's openai/gpt-image-2/text-to-image (0.06) everywhere it's selected, not just Flyer Studio; MuAPI (0.04) kept only as the automatic fallback if WAVESPEED_KEY is ever missing
@@ -214,6 +217,20 @@ const IMAGE_MODELS = Object.fromEntries(Object.entries(IMAGE_COST).map(([k, v]) 
 const VIDEO_MODELS = Object.fromEntries(Object.entries(VIDEO_COST).map(([k, v]) => [k, creditsFor(v, VIDEO_MARGIN)]));
 const TOOL_MODELS = Object.fromEntries(Object.entries(TOOL_COST).map(([k, v]) => [k, creditsFor(v, IMAGE_MARGIN)]));
 const MODEL_COST = IMAGE_MODELS; // back-compat alias
+
+// Fuse Atelier image-catalog pricing. These are the student-facing base
+// charges for normal 2K generation. 4K is doubled by the dedicated creator.
+const IMAGE_MODEL_OVERRIDES = {
+  'gpt-image-2.5-sunburst': 2,
+  'gpt-image-2.5-flare': 2,
+  'minimax-h3-image': 1,
+  'seedream-5.0': 3,
+  'nano-banana-2': 4,
+  'nano-banana-pro-ws-text-to-image': 8,
+  'flux-2-pro': 2,
+  'qwen-image': 3,
+};
+Object.assign(IMAGE_MODELS, IMAGE_MODEL_OVERRIDES);
 
 // Explicit credit overrides, 10 Aug 2026 pricing call — these deliberately
 // don't match the cost-plus formula above (Ria dictated exact numbers for
