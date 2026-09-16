@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#001012">
+  <title>Create Video · Fuse Atelier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="/app/config.js?v=20260909-supabase"></script>
+  <style>
+    :root{
+      --deep:#001012;--mid:#00191B;--light:#1B4C52;--surface:#062125;--line:#315456;
+      --yellow:#FFE66A;--lime:#DFFF4E;--white:#EEFFE0;--muted:#9eb4b3;--muted2:#718686;
+      --chrome:linear-gradient(105deg,#FFE66A 0%,#DFFF4E 52%,#EEFFE0 100%);
+      --panel:rgba(6,33,37,.96);--panel2:rgba(0,25,27,.985);
+    }
+    *{box-sizing:border-box}
+    html{background:var(--deep)}
+    body{
+      margin:0;min-height:100svh;color:#fff;font-family:Montserrat,Arial,sans-serif;overflow-x:hidden;
+      background:radial-gradient(circle at 94% 5%,rgba(27,76,82,.30),transparent 30%),linear-gradient(148deg,#001012 0%,#00191B 65%,#102f33 130%);
+      padding-bottom:calc(112px + env(safe-area-inset-bottom));
+    }
+    button,textarea,input{font:inherit} button{cursor:pointer}
+    .shell{width:min(760px,100%);margin:0 auto}
+    .topbar{
+      height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;
+      border-bottom:1px solid rgba(49,84,86,.72);background:rgba(0,16,18,.93);backdrop-filter:blur(16px);
+      position:sticky;top:0;z-index:30;
+    }
+    .brand-trigger{display:flex;align-items:center;gap:10px;border:0;background:none;color:#fff;padding:0;min-width:0}
+    .brand-logo{width:34px;height:34px;border-radius:9px;object-fit:cover;flex:none}
+    .brand-title{font-size:25px;line-height:1;font-weight:500;white-space:nowrap}
+    .chev{width:9px;height:9px;border-right:1.7px solid currentColor;border-bottom:1.7px solid currentColor;transform:rotate(45deg) translateY(-2px);margin-left:2px;opacity:.8}
+    .close-btn{width:40px;height:40px;border:1px solid rgba(49,84,86,.75);border-radius:13px;background:#082226;color:#eef9f4;display:grid;place-items:center;position:relative;flex:none}
+    .close-btn:before,.close-btn:after{content:"";position:absolute;width:20px;height:1.5px;background:currentColor}
+    .close-btn:before{transform:rotate(45deg)}.close-btn:after{transform:rotate(-45deg)}
+
+    .main{padding:18px 14px 24px}
+    .preview{
+      aspect-ratio:16/9;border-radius:20px;overflow:hidden;position:relative;border:1px solid rgba(49,84,86,.75);
+      background:radial-gradient(circle at 75% 20%,rgba(223,255,78,.18),transparent 20%),linear-gradient(135deg,#031617,#173f42 65%,#001012);
+      margin-bottom:14px;
+    }
+    .preview video{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92) contrast(1.02)}
+    .preview:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,16,18,.20) 55%,rgba(0,16,18,.66))}
+    .preview-name{position:absolute;z-index:2;left:18px;right:18px;bottom:14px;font-size:23px;line-height:1.05;font-weight:500;background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .preview-badge{position:absolute;z-index:2;top:12px;right:12px;height:28px;padding:0 10px;border-radius:999px;display:flex;align-items:center;background:rgba(6,33,37,.82);border:1px solid rgba(238,255,224,.16);font-size:11px;font-weight:500;color:#fff;backdrop-filter:blur(9px)}
+
+    .upload-zone{
+      min-height:154px;border:1.4px dashed rgba(49,84,86,.88);border-radius:18px;background:rgba(6,33,37,.68);
+      display:flex;align-items:center;justify-content:center;text-align:center;padding:15px;position:relative;overflow:hidden;
+    }
+    .upload-zone.drag{border-color:#DFFF4E;background:rgba(27,76,82,.45)}
+    .upload-empty{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--muted)}
+    .upload-icon{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#12383c,#071a1d);border:1px solid rgba(238,255,224,.12)}
+    .upload-icon svg{width:21px;height:21px;stroke:#d9e7e5}
+    .upload-label{font-size:15px;line-height:1.25;font-weight:400;color:#f3f7f6}
+    .upload-sub{font-size:13px;line-height:1.25;font-weight:300;color:#8fa4a3}
+    .thumb-grid{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .thumb{aspect-ratio:16/9;border-radius:13px;overflow:hidden;position:relative;background:#001012;border:1px solid rgba(49,84,86,.75)}
+    .thumb img{width:100%;height:100%;display:block;object-fit:cover}
+    .thumb span{position:absolute;left:7px;bottom:6px;background:rgba(0,16,18,.78);border:1px solid rgba(238,255,224,.12);border-radius:999px;padding:4px 7px;font-size:9px;font-weight:500}
+    .thumb button{position:absolute;top:5px;right:5px;width:23px;height:23px;border:0;border-radius:50%;background:rgba(0,16,18,.84);color:#fff;font-size:15px}
+    .add-thumb{aspect-ratio:16/9;border:1px dashed rgba(223,255,78,.5);border-radius:13px;background:rgba(0,25,27,.7);color:#DFFF4E;font-size:22px}
+
+    .prompt-card{margin-top:14px;border-radius:18px;border:1px solid rgba(49,84,86,.76);background:rgba(6,33,37,.94);overflow:hidden}
+    .prompt{width:100%;min-height:142px;max-height:260px;resize:vertical;border:0;outline:0;background:transparent;color:#fff;padding:16px 16px 12px;font-size:16px;line-height:1.5;font-weight:300}
+    .prompt::placeholder{color:#758989}
+    .model-row{height:50px;border-top:1px solid rgba(49,84,86,.52);display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:rgba(0,25,27,.42)}
+    .model-left{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:300;color:var(--muted)}
+    .model-select{display:flex;align-items:center;gap:9px;color:#fff;background:none;border:0;font-size:14px;font-weight:400;min-width:0}
+    .model-select span{display:block;max-width:205px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+    .control-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}
+    .ctrl{min-height:62px;border:1px solid rgba(49,84,86,.55);border-radius:14px;background:var(--surface);color:#fff;padding:10px 11px;text-align:left}
+    .ctrl-label{display:block;font-size:11px;font-weight:400;color:#829695;margin-bottom:7px}
+    .ctrl-value{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:15px;font-weight:400}
+    .audio-row{margin-top:9px;min-height:54px;border:1px solid rgba(49,84,86,.55);border-radius:14px;background:var(--surface);display:flex;align-items:center;justify-content:space-between;padding:0 13px}
+    .audio-copy b{font-size:14px;font-weight:400}.audio-copy small{display:block;margin-top:3px;color:#8fa4a3;font-size:11px;font-weight:300}
+    .switch{width:43px;height:25px;border:0;border-radius:999px;background:#315456;padding:3px;transition:.2s}
+    .switch i{display:block;width:19px;height:19px;border-radius:50%;background:#eef6f5;transition:.2s}
+    .switch.on{background:var(--chrome)}.switch.on i{transform:translateX(18px);background:#001012}
+    .note{min-height:20px;margin:10px 2px 0;color:#b8cbca;font-size:14px;font-weight:300;line-height:1.4}
+    .note.err{color:#ffb9b9}.note.ok{color:#dfff9f}
+
+    .bottom{position:fixed;left:0;right:0;bottom:0;z-index:28;padding:14px 0 calc(14px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(0,16,18,0),rgba(0,16,18,.9) 25%,#001012 48%);pointer-events:none}
+    .bottom-inner{width:min(760px,100%);margin:0 auto;padding:0 14px;pointer-events:auto}
+    .generate{width:100%;height:56px;border:0;border-radius:16px;background:var(--chrome);color:#001012;font-size:17px;font-weight:500;box-shadow:0 7px 0 rgba(157,185,20,.55)}
+    .generate:disabled{opacity:.58;box-shadow:none}
+
+    .popover{position:fixed;z-index:80;display:none;background:#062125;border:1px solid rgba(49,84,86,.72);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.48);overflow:hidden}
+    .popover.open{display:block}
+    .pop-title{padding:12px 15px 8px;color:#849797;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+    .pop-list button{width:100%;height:48px;border:0;border-top:1px solid rgba(49,84,86,.34);background:transparent;color:#fff;text-align:left;padding:0 16px;font-size:15px;font-weight:400}
+    .pop-list button.on{background:rgba(27,76,82,.34);color:#DFFF4E}
+    .duration-pop{width:180px;bottom:92px;left:max(14px,calc(50% - 350px))}
+    .aspect-pop{width:180px;bottom:92px;left:50%;transform:translateX(-50%)}
+    .quality-pop{width:180px;bottom:92px;right:max(14px,calc(50% - 350px))}
+
+    .overlay{position:fixed;inset:0;z-index:100;background:rgba(0,10,11,.76);backdrop-filter:blur(4px);display:none}
+    .overlay.open{display:block}
+    .model-sheet{position:absolute;left:0;right:0;bottom:0;max-height:64vh;border-radius:24px 24px 0 0;background:#00191B;border-top:1px solid rgba(49,84,86,.65);overflow:auto;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
+    .search-wrap{position:sticky;top:0;background:rgba(0,25,27,.97);z-index:2;padding:15px 14px 11px;border-bottom:1px solid rgba(49,84,86,.40)}
+    .search{height:44px;border-radius:14px;border:1px solid rgba(49,84,86,.65);background:#062125;display:flex;align-items:center;gap:10px;padding:0 13px}
+    .search svg{width:20px;height:20px;stroke:#aabdbc}.search input{flex:1;border:0;outline:0;background:transparent;color:#fff;font-size:15px;font-weight:300}.search input::placeholder{color:#839494}
+    .sheet-label{padding:14px 18px 7px;color:#9db0af;font-size:12px;font-weight:500}
+    .model-option{width:100%;border:0;background:transparent;color:#fff;display:flex;align-items:center;gap:12px;padding:10px 18px;text-align:left}
+    .model-option.on{background:rgba(27,76,82,.30)}
+    .mi{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(145deg,#12383c,#07191b);border:1px solid rgba(238,255,224,.08);font-size:12px;font-weight:600;color:#DFFF4E;flex:none}
+    .mo-copy{min-width:0;flex:1}.mo-name{font-size:14px;font-weight:500;line-height:1.2}.mo-desc{font-size:11px;font-weight:300;color:#91a4a3;margin-top:4px;line-height:1.3}
+    .tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}.tag{display:inline-flex;height:18px;align-items:center;padding:0 6px;border-radius:6px;background:#0b292c;color:#a9bcbb;font-size:8px;font-weight:500}
+    .new{display:inline-flex;margin-left:6px;padding:2px 5px;border-radius:6px;background:#DFFF4E;color:#001012;font-size:8px;font-weight:600;vertical-align:2px}
+    .check{color:#DFFF4E;font-size:18px;flex:none}
+
+    .feature-menu{position:fixed;z-index:120;top:60px;left:10px;width:248px;max-width:calc(100vw - 20px);max-height:52vh;overflow:auto;border-radius:18px;background:#062125;border:1px solid rgba(49,84,86,.78);box-shadow:0 30px 70px rgba(0,0,0,.5);display:none;padding:8px 0}
+    .feature-menu.open{display:block}
+    .feature-section{padding:7px 14px;color:#829695;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+    .feature-link{display:flex;align-items:center;gap:11px;padding:11px 14px;color:#eef8f4;text-decoration:none;font-size:14px;font-weight:400}
+    .feature-link.current{background:rgba(27,76,82,.35)}
+    .feature-icon{width:29px;height:29px;border-radius:9px;background:#0b2a2d;border:1px solid rgba(49,84,86,.55);display:grid;place-items:center;color:#DFFF4E;font-size:13px;flex:none}
+
+    @media(min-width:650px){
+      .main{padding-left:20px;padding-right:20px}.bottom-inner{padding-left:20px;padding-right:20px}.feature-menu{left:max(14px,calc(50% - 366px))}
+    }
+    @media(max-width:390px){
+      .brand-title{font-size:22px}.preview-name{font-size:20px}.control-grid{gap:7px}.ctrl{padding:9px}.ctrl-value{font-size:13px}.model-select span{max-width:150px}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <button class="brand-trigger" id="featureTrigger" aria-haspopup="menu" aria-expanded="false">
+        <img class="brand-logo" src="media/fuse-mark-login-exact.png" alt="Fuse Atelier">
+        <span class="brand-title">VIDEO</span><i class="chev"></i>
+      </button>
+      <button class="close-btn" id="closeBtn" aria-label="Close"></button>
+    </header>
+
+    <main class="main">
+      <section class="preview" id="preview">
+        <video id="previewVideo" muted autoplay loop playsinline preload="metadata"></video>
+        <span class="preview-badge" id="previewBadge">AUTO</span>
+        <div class="preview-name" id="previewName">Create Video</div>
+      </section>
+
+      <section class="upload-zone" id="uploadZone">
+        <input id="fileInput" type="file" accept="image/*" multiple hidden>
+        <div class="upload-empty" id="uploadEmpty">
+          <button class="upload-icon" id="uploadBtn" type="button" aria-label="Choose images">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m5 17 4.5-4.5 3.5 3 2.5-2.5L20 17"/></svg>
+          </button>
+          <div class="upload-label">Add a start image <span style="font-weight:300;color:#8fa4a3">(optional)</span></div>
+          <div class="upload-sub">Text-to-video works without one · add up to 2 frames</div>
+        </div>
+        <div class="thumb-grid" id="thumbGrid" hidden></div>
+      </section>
+
+      <section class="prompt-card">
+        <textarea class="prompt" id="prompt" placeholder="Describe your scene, movement, camera direction, mood and audio..."></textarea>
+        <div class="model-row">
+          <div class="model-left"><span>Model</span></div>
+          <button class="model-select" id="modelTrigger" type="button"><span id="modelName">Auto</span><i class="chev"></i></button>
+        </div>
+      </section>
+
+      <div class="control-grid">
+        <button class="ctrl" id="durationChip" type="button"><span class="ctrl-label">Duration</span><span class="ctrl-value"><b id="durationLabel">5s</b><i class="chev"></i></span></button>
+        <button class="ctrl" id="aspectChip" type="button"><span class="ctrl-label">Aspect</span><span class="ctrl-value"><b id="aspectLabel">9:16</b><i class="chev"></i></span></button>
+        <button class="ctrl" id="qualityChip" type="button"><span class="ctrl-label">Quality</span><span class="ctrl-value"><b id="qualityLabel">720p</b><i class="chev"></i></span></button>
+      </div>
+      <div class="audio-row">
+        <div class="audio-copy"><b>Generate audio</b><small>Kept on when the selected model supports native sound.</small></div>
+        <button class="switch on" id="audioToggle" type="button" aria-pressed="true"><i></i></button>
+      </div>
+      <div class="note" id="note"></div>
+    </main>
+  </div>
+
+  <div class="bottom">
+    <div class="bottom-inner">
+      <button class="generate" id="generateBtn" type="button">Generate ✦ <span id="creditCost">5</span></button>
+    </div>
+  </div>
+
+  <div class="popover duration-pop" id="durationPop"><div class="pop-title">Duration</div><div class="pop-list" id="durationList"></div></div>
+  <div class="popover aspect-pop" id="aspectPop"><div class="pop-title">Aspect ratio</div><div class="pop-list" id="aspectList"></div></div>
+  <div class="popover quality-pop" id="qualityPop"><div class="pop-title">Quality</div><div class="pop-list" id="qualityList"></div></div>
+
+  <div class="overlay" id="modelOverlay">
+    <section class="model-sheet" role="dialog" aria-modal="true" aria-label="Choose video model">
+      <div class="search-wrap">
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><circle cx="10.5" cy="10.5" r="7"/><path d="m16 16 5 5"/></svg>
+          <input id="modelSearch" placeholder="Search video models...">
+        </div>
+      </div>
+      <div class="sheet-label">Featured video models</div>
+      <div id="modelList"></div>
+    </section>
+  </div>
+
+  <nav class="feature-menu" id="featureMenu">
+    <div class="feature-section">Create</div>
+    <a class="feature-link" href="image-create.html"><span class="feature-icon">✦</span><span>Create Image</span></a>
+    <a class="feature-link current" href="video-create.html"><span class="feature-icon">▶</span><span>Create Video</span></a>
+    <a class="feature-link" href="studio.html?category=Twin"><span class="feature-icon">◎</span><span>Create Your AI Twin</span></a>
+    <a class="feature-link" href="../pitchpilot/site-builder.html"><span class="feature-icon">▤</span><span>Build Landing Page</span></a>
+    <a class="feature-link" href="studio.html?category=Voice"><span class="feature-icon">⌁</span><span>Clone Your Voice</span></a>
+    <a class="feature-link" href="/app/workspace.html?go=flyer&source=fuse-create"><span class="feature-icon">▣</span><span>AI Flyer</span></a>
+    <a class="feature-link" href="studio.html?category=Content"><span class="feature-icon">#</span><span>Instagram Content</span></a>
+    <a class="feature-link" href="studio.html?category=Lipsync"><span class="feature-icon">◉</span><span>Lipsync Video</span></a>
+    <a class="feature-link" href="studio.html?category=UGC"><span class="feature-icon">▸</span><span>UGC Video</span></a>
+  </nav>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+    const cfg=window.FUSE||{}, sb=createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY), $=id=>document.getElementById(id);
+
+    const MODELS=[
+      {key:'minimax-h3',name:'MiniMax H3',desc:'Native-audio cinematic generation with flexible 3–15s clips.',short:'H3',api:'minimax-h3-text-to-video',res:['480p','540p','768p','1080p'],dur:[3,5,8,10,15],aspects:['16:9','9:16','1:1','4:3','3:4'],preview:'/app/media/samples/vid1.mp4',tag:'2K',fresh:true},
+      {key:'wan-3',name:'Wan 3.0',desc:'Flexible 2–30s video with strong image guidance and native audio.',short:'W3',api:'wan-3-text-to-video',res:['480p','720p','1080p'],dur:[2,5,8,10,15,30],aspects:['16:9','9:16','1:1','4:3','3:4'],preview:'/app/media/samples/vid2.mp4',tag:'BEST VALUE',fresh:true},
+      {key:'grok-imagine',name:'Grok Imagine',desc:'Fast, punchy social video generation.',short:'GX',api:'grok-imagine-text-to-video',res:['720p'],dur:[6,10],aspects:['16:9','9:16'],preview:'/app/media/samples/vid2.mp4',base:1,tag:'FAST'},
+      {key:'kling-standard',name:'Kling 3.0 Standard',desc:'Polished motion and cinematic control.',short:'K3',api:'kling-v3-turbo-standard-text-to-video',res:['720p'],dur:[5,10],aspects:['16:9','9:16','1:1'],preview:'/app/media/samples/vid4.mp4',base:9,tag:'CINEMATIC'},
+      {key:'seedance-turbo',name:'Seedance Turbo',desc:'Premium movement, camera direction and scene quality.',short:'SD',api:'seedance-2-text-to-video',res:['720p'],dur:[5,10],aspects:['16:9','9:16','1:1'],preview:'/app/media/samples/vid3.mp4',base:11,tag:'PRO'},
+      {key:'veo-fast',name:'Veo 3.1 Fast',desc:'High-end cinematic prompting for premium storytelling.',short:'V3',api:'veo3-text-to-video',res:['720p'],dur:[8],aspects:['16:9','9:16'],preview:'/app/media/samples/vid5.mp4',base:22,tag:'PREMIUM'},
+      {key:'omni-flash',name:'Gemini Omni Flash 1.1',desc:'Fast synchronized-audio video generation from text or image.',short:'GO',api:'gemini-omni-1.1-flash-text-to-video',res:['360p','720p','1080p','4k'],dur:[3,5,8,10],aspects:['16:9','9:16'],preview:'/app/media/samples/vid3.mp4',tag:'OMNI',fresh:true}
+    ];
+    const RATES={
+      'minimax-h3':{'480p':.04,'540p':.06,'768p':.08,'1080p':.16},
+      'wan-3':{'480p':.05,'720p':.10,'1080p':.20},
+      'omni-flash':{'360p':.03,'720p':.10,'1080p':.15,'4k':.30}
+    };
+    const CREDIT_USD=.11, MARGIN=2;
+    let selectedKey=new URLSearchParams(location.search).get('model')||'auto';
+    if(selectedKey!=='auto'&&!MODELS.some(m=>m.key===selectedKey))selectedKey='auto';
+    let duration=5,aspect='9:16',quality='720p',audioOn=true,files=[],uploadedUrls=[];
+
+    const selected=()=>MODELS.find(m=>m.key===selectedKey)||null;
+    const active=()=>selected()||MODELS.find(m=>m.key==='wan-3');
+    const note=(m,k='')=>{$('note').textContent=m||'';$('note').className='note'+(k?' '+k:'')};
+    const closePops=()=>document.querySelectorAll('.popover.open').forEach(p=>p.classList.remove('open'));
+
+    function normalizedSettings(){
+      const m=active();
+      if(!m.dur.includes(duration))duration=m.dur.includes(5)?5:m.dur[0];
+      if(!m.res.includes(quality))quality=m.res.includes('720p')?'720p':m.res[0];
+      if(!m.aspects.includes(aspect))aspect=m.aspects.includes('9:16')?'9:16':m.aspects[0];
+    }
+    function credits(){
+      const m=active(), rates=RATES[m.key];
+      if(rates)return Math.max(1,Math.ceil(((rates[quality]??rates[Object.keys(rates)[0]])*duration/CREDIT_USD)*MARGIN));
+      return (m.base||1)*(duration>=10?2:1);
+    }
+    function updateUI(){
+      normalizedSettings();
+      const m=active();
+      $('modelName').textContent=selectedKey==='auto'?'Auto · '+m.name:m.name;
+      $('durationLabel').textContent=duration+'s';$('aspectLabel').textContent=aspect;$('qualityLabel').textContent=quality;
+      $('creditCost').textContent=credits();
+      $('previewName').textContent=selectedKey==='auto'?'Create Video':m.name;
+      $('previewBadge').textContent=selectedKey==='auto'?'AUTO':m.tag;
+      if($('previewVideo').getAttribute('src')!==m.preview){$('previewVideo').src=m.preview;$('previewVideo').play().catch(()=>{})}
+      renderControls();
+    }
+    function renderControls(){
+      const m=active();
+      $('durationList').innerHTML=m.dur.map(v=>`<button data-dur="${v}" class="${v===duration?'on':''}">${v}s</button>`).join('');
+      $('aspectList').innerHTML=m.aspects.map(v=>`<button data-aspect="${v}" class="${v===aspect?'on':''}">${v}</button>`).join('');
+      $('qualityList').innerHTML=m.res.map(v=>`<button data-quality="${v}" class="${v===quality?'on':''}">${v}</button>`).join('');
+      $('durationList').querySelectorAll('button').forEach(b=>b.onclick=()=>{duration=+b.dataset.dur;closePops();updateUI()});
+      $('aspectList').querySelectorAll('button').forEach(b=>b.onclick=()=>{aspect=b.dataset.aspect;closePops();updateUI()});
+      $('qualityList').querySelectorAll('button').forEach(b=>b.onclick=()=>{quality=b.dataset.quality;closePops();updateUI()});
+    }
+    function renderModels(q=''){
+      q=q.trim().toLowerCase();
+      const list=MODELS.filter(m=>!q||m.name.toLowerCase().includes(q)||m.desc.toLowerCase().includes(q));
+      const auto=`<button class="model-option ${selectedKey==='auto'?'on':''}" data-model="auto"><span class="mi">A</span><span class="mo-copy"><span class="mo-name">Auto</span><span class="mo-desc">Fuse chooses a balanced model and keeps the controls simple.</span></span>${selectedKey==='auto'?'<span class="check">✓</span>':''}</button>`;
+      $('modelList').innerHTML=auto+list.map(m=>`<button class="model-option ${selectedKey===m.key?'on':''}" data-model="${m.key}"><span class="mi">${m.short}</span><span class="mo-copy"><span class="mo-name">${m.name}${m.fresh?'<span class="new">NEW</span>':''}</span><span class="mo-desc">${m.desc}</span><span class="tags"><span class="tag">${m.res.join(' · ')}</span><span class="tag">${m.dur[0]}–${m.dur[m.dur.length-1]}s</span></span></span>${selectedKey===m.key?'<span class="check">✓</span>':''}</button>`).join('');
+      $('modelList').querySelectorAll('[data-model]').forEach(b=>b.onclick=()=>{
+        selectedKey=b.dataset.model;
+        const u=new URL(location.href);if(selectedKey==='auto')u.searchParams.delete('model');else u.searchParams.set('model',selectedKey);history.replaceState(null,'',u);
+        $('modelOverlay').classList.remove('open');updateUI();renderModels($('modelSearch').value);
+      });
+    }
+    function renderThumbs(){
+      const g=$('thumbGrid'),e=$('uploadEmpty');
+      if(!files.length){g.hidden=true;e.hidden=false;g.innerHTML='';return}
+      e.hidden=true;g.hidden=false;
+      g.innerHTML=files.map((f,i)=>`<div class="thumb"><img src="${URL.createObjectURL(f)}"><span>${i===0?'START':'END'}</span><button type="button" data-rm="${i}">×</button></div>`).join('')+(files.length<2?'<button class="add-thumb" id="addMore" type="button">+</button>':'');
+      g.querySelectorAll('[data-rm]').forEach(b=>b.onclick=x=>{x.stopPropagation();files.splice(+b.dataset.rm,1);uploadedUrls=[];renderThumbs()});
+      const a=$('addMore');if(a)a.onclick=x=>{x.stopPropagation();$('fileInput').click()};
+    }
+    function addFiles(incoming){
+      const imgs=[...incoming].filter(f=>f.type&&f.type.startsWith('image/'));
+      const room=2-files.length;files.push(...imgs.slice(0,room));uploadedUrls=[];renderThumbs();
+      if(imgs.length>room)note('Use up to two images: start frame and optional end frame.','err');else note('');
+    }
+    async function auth(){const {data}=await sb.auth.getSession();return data.session||null}
+    async function uploadRefs(session){
+      if(uploadedUrls.length===files.length&&files.length)return uploadedUrls;
+      uploadedUrls=[];
+      for(let i=0;i<files.length;i++){
+        const f=files[i],ext=(f.name.split('.').pop()||'jpg').toLowerCase(),p=`${session.user.id}/video-ref-${Date.now()}-${i}.${ext}`;
+        const {error}=await sb.storage.from('avatars').upload(p,f,{upsert:true,contentType:f.type||undefined});if(error)throw error;
+        uploadedUrls.push(sb.storage.from('avatars').getPublicUrl(p).data.publicUrl);
+      }
+      return uploadedUrls;
+    }
+    async function generate(){
+      const prompt=$('prompt').value.trim();
+      if(!prompt)return note('Describe the video you want to create first.','err');
+      const session=await auth();if(!session)return note('Please sign in to Fuse Atelier again before generating.','err');
+      const btn=$('generateBtn');btn.disabled=true;btn.textContent='Preparing…';note('');
+      try{
+        let refs=[];if(files.length){btn.textContent='Uploading frame…';refs=await uploadRefs(session)}
+        const m=active();
+        btn.textContent='Submitting…';
+        const res=await fetch('/api/video-generate',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({
+          prompt,model:m.api,aspect,duration:duration+'s',resolution:quality,generate_audio:audioOn,
+          image_url:refs[0]||undefined,reference_image_urls:refs.length>1?[refs[1]]:undefined
+        })});
+        const data=await res.json().catch(()=>({}));
+        if(!res.ok){if(res.status===402)throw new Error('Not enough credits. Top up and try again.');throw new Error(data.error||'Video generation could not start.')}
+        try{
+          const key='fuse_pending_jobs',existing=JSON.parse(localStorage.getItem(key)||'[]');
+          existing.push({request_id:data.request_id,endpoint:'job-status',mediaType:'video',label:prompt.slice(0,60),model:m.api,started_at:Date.now()});
+          localStorage.setItem(key,JSON.stringify(existing));
+        }catch(_){}
+        note('Video started — opening your Library.','ok');btn.textContent='Started ✓';
+        setTimeout(()=>location.href='/app/workspace.html?view=library',600);
+      }catch(e){note(e.message||'Video generation failed. Your credits were not charged.','err');btn.disabled=false;btn.innerHTML='Generate ✦ <span id="creditCost"></span>';updateUI()}
+    }
+
+    $('closeBtn').onclick=()=>location.href='studio.html?category=Video';
+    $('uploadBtn').onclick=()=>$('fileInput').click();
+    $('uploadZone').onclick=e=>{if(!e.target.closest('button'))$('fileInput').click()};
+    $('fileInput').onchange=e=>{addFiles(e.target.files);e.target.value=''};
+    ['dragenter','dragover'].forEach(ev=>$('uploadZone').addEventListener(ev,e=>{e.preventDefault();$('uploadZone').classList.add('drag')}));
+    ['dragleave','drop'].forEach(ev=>$('uploadZone').addEventListener(ev,e=>{e.preventDefault();$('uploadZone').classList.remove('drag')}));
+    $('uploadZone').addEventListener('drop',e=>addFiles(e.dataTransfer.files));
+
+    const togglePop=(id,e)=>{e.stopPropagation();const p=$(id),was=p.classList.contains('open');closePops();p.classList.toggle('open',!was)};
+    $('durationChip').onclick=e=>togglePop('durationPop',e);$('aspectChip').onclick=e=>togglePop('aspectPop',e);$('qualityChip').onclick=e=>togglePop('qualityPop',e);
+    document.addEventListener('click',e=>{if(!e.target.closest('.popover')&&!e.target.closest('.ctrl'))closePops()});
+
+    $('audioToggle').onclick=()=>{audioOn=!audioOn;$('audioToggle').classList.toggle('on',audioOn);$('audioToggle').setAttribute('aria-pressed',audioOn?'true':'false')};
+    $('modelTrigger').onclick=()=>{$('modelOverlay').classList.add('open');$('modelSearch').focus()};
+    $('modelOverlay').onclick=e=>{if(e.target===$('modelOverlay'))$('modelOverlay').classList.remove('open')};
+    $('modelSearch').oninput=e=>renderModels(e.target.value);
+
+    $('featureTrigger').onclick=e=>{e.stopPropagation();const m=$('featureMenu');m.classList.toggle('open');$('featureTrigger').setAttribute('aria-expanded',m.classList.contains('open'))};
+    document.addEventListener('click',e=>{if(!e.target.closest('#featureMenu')&&!e.target.closest('#featureTrigger')){$('featureMenu').classList.remove('open');$('featureTrigger').setAttribute('aria-expanded','false')}});
+    $('generateBtn').onclick=generate;
+
+    renderThumbs();renderModels();updateUI();
+  </script>
+</body>
+</html>
