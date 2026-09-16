@@ -20,7 +20,9 @@ exports.handler = async (event) => {
   const pack = PACKS[body.pack];
   if (!pack || pack.kind !== 'pack') return json(400, { error: 'Unknown credit pack.' });
 
-  const appUrl = (process.env.APP_URL || 'https://fuse-atelier.vercel.app').replace(/\/+$/, '');
+  const forwardedHost = event.headers['x-forwarded-host'] || event.headers.host || '';
+  const forwardedProto = event.headers['x-forwarded-proto'] || 'https';
+  const appUrl = (forwardedHost ? `${forwardedProto}://${forwardedHost}` : (process.env.APP_URL || 'https://fuse-atelier.vercel.app')).replace(/\/+$/, '');
   const res = await fetch('https://api.paystack.co/transaction/initialize', {
     method: 'POST',
     headers: {
