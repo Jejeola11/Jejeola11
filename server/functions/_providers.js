@@ -169,6 +169,25 @@ const VIDEO_ROUTES = {
   // Gemini Omni 1.1 Flash: 3-10s, synchronized audio, up to 4K.
   'gemini-omni-1.1-flash-text-to-video': { kind: 't2v', pick: () => 'google/gemini-omni-1.1-flash/text-to-video', durationRange: [3, 10], resolutionParam: true },
   'gemini-omni-1.1-flash-image-to-video': { kind: 'i2v', pick: () => 'google/gemini-omni-1.1-flash/image-to-video', durationRange: [3, 10], resolutionParam: true },
+  // Seedance 2.5 reference workflow. With only one/two images it uses the
+  // true image-to-video endpoint (start + optional last frame). As soon as
+  // video/audio references or a larger image reference pack is present, it
+  // switches to Seedance 2.5's multimodal text-to-video endpoint so
+  // reference_images / reference_videos / reference_audios are preserved.
+  'seedance-2.5-reference-to-video': {
+    kind: 'seedance25',
+    pick: (o) => {
+      const images = Array.isArray(o.reference_image_urls) ? o.reference_image_urls.filter(Boolean) : [];
+      const videos = Array.isArray(o.reference_video_urls) ? o.reference_video_urls.filter(Boolean) : [];
+      const audios = Array.isArray(o.reference_audio_urls) ? o.reference_audio_urls.filter(Boolean) : [];
+      return (videos.length || audios.length || images.length > 2)
+        ? 'bytedance/seedance-2.5/text-to-video'
+        : 'bytedance/seedance-2.5/image-to-video';
+    },
+    durationRange: [4, 30],
+    resolutionParam: true,
+    waveSpeedOnly: true,
+  },
   'seedance-2-mini-text-to-video': { kind: 't2v', pick: (o) => o.resolution === '720p' ? 'bytedance/seedance-v1-lite-t2v-720p' : 'bytedance/seedance-v1-lite-t2v-480p' },
   'seedance-2-mini-image-to-video': { kind: 'i2v', pick: (o) => o.resolution === '720p' ? 'bytedance/seedance-v1-lite-i2v-720p' : 'bytedance/seedance-v1-lite-i2v-480p' },
   'seedance-2-text-to-video': { kind: 't2v', pick: () => 'bytedance/seedance-v1-lite-t2v-720p' },
@@ -362,7 +381,23 @@ function wsVideoBody(route, opts, hosted) {
   // cloned narration on once at the end — asking it to generate audio here
   // would just be wasted compute with no effect on the final video.
   if (route.noGenAudio) body.generate_audio = false;
-  if (route.kind === 'i2v') {
+  if (route.kind === 'seedance25') {
+    const images = (Array.isArray(opts.reference_image_urls) ? opts.reference_image_urls : []).filter(Boolean).slice(0, 30);
+    const videos = (Array.isArray(opts.reference_video_urls) ? opts.reference_video_urls : []).filter(Boolean).slice(0, 10);
+    const audios = (Array.isArray(opts.reference_audio_urls) ? opts.reference_audio_urls : []).filter(Boolean).slice(0, 10);
+    const useMultimodal = videos.length || audios.length || images.length > 2;
+    body.generate_audio = opts.generate_audio !== false;
+    if (useMultimodal) {
+      body.reference_images = images;
+      body.reference_videos = videos;
+      body.reference_audios = audios;
+      body.aspect_ratio = opts.aspect || '16:9';
+    } else {
+      delete body.aspect_ratio;
+      body.image = images[0] || opts.image_url;
+      if (images[1]) body.last_image = images[1];
+    }
+  } else if (route.kind === 'i2v') {
     body.image = (hosted && hosted[0]) || opts.image_url;
     if (hosted && hosted[1]) body.last_image = hosted[1];
   }
@@ -398,11 +433,14 @@ async function submitVideo(model, opts, hosted) {
       const id = await wsSubmit(route.pick(opts), wsVideoBody(route, opts, hosted));
       return { requestId: 'ws:' + id, provider: 'wavespeed' };
     } catch (e) {
+      if (route.waveSpeedOnly) throw e;
       // Same idea: a WaveSpeed balance/quota error shouldn't dead-end the
       // user either — fall through to MuAPI below (the same fallback that
       // already runs when WAVESPEED_KEY is simply unset).
       if (!isBalanceError(e)) console.error('[submitVideo] WaveSpeed failed, falling back:', e && e.message);
     }
+  } else if (route && route.waveSpeedOnly) {
+    throw new Error('Seedance 2.5 is temporarily unavailable because the WaveSpeed connection is not configured.');
   }
   // MuAPI (default / fallback) — unchanged behaviour.
   const payload = { prompt: opts.prompt, aspect_ratio: opts.aspect, duration: durInt(opts.duration), resolution: opts.resolution };
