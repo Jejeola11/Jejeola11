@@ -1143,19 +1143,6 @@ footer span{
   object-position:center;
   background:#00191B;
 }
-.student-win-card.loading:after{
-  content:"Loading student win…";
-  position:absolute;
-  inset:0;
-  display:grid;
-  place-items:center;
-  padding:24px;
-  color:#829994;
-  font-size:14px;
-  text-align:center;
-  background:#00191B;
-}
-.student-win-card.ready:after{display:none}
 @media (max-width:760px){
   .student-wins-grid{
     grid-template-columns:1fr;
@@ -1344,14 +1331,14 @@ footer span{
     </div>
 
     <div class="student-wins-grid">
-      <figure class="student-win-card loading">
-        <img id="student-win-1" alt="Fuse Atelier student testimonial showing an Upwork client win">
+      <figure class="student-win-card">
+        <img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1789530155/student-win-upwork.webp" alt="Fuse Atelier student testimonial showing an Upwork client win" loading="lazy" decoding="async">
       </figure>
-      <figure class="student-win-card loading">
-        <img id="student-win-2" alt="Fuse Atelier student showing a new brand deal and client work">
+      <figure class="student-win-card">
+        <img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1789530167/student-win-brand-deal.webp" alt="Fuse Atelier student showing a new brand deal and client work" loading="lazy" decoding="async">
       </figure>
-      <figure class="student-win-card loading">
-        <img id="student-win-3" alt="Fuse Atelier student outreach response and client opportunity">
+      <figure class="student-win-card">
+        <img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1789530177/student-win-outreach.webp" alt="Fuse Atelier student outreach response and client opportunity" loading="lazy" decoding="async">
       </figure>
     </div>
   </div>
@@ -1590,40 +1577,6 @@ footer span{
     play(v);
   });
   document.addEventListener('visibilitychange',()=>{if(!document.hidden) videos.forEach(play);});
-
-  const studentWinSources = {
-    "student-win-1":[
-      "/atelier-site/assets/sales-preview/student-wins/win1-0.b64",
-      "/atelier-site/assets/sales-preview/student-wins/win1-1.b64",
-      "/atelier-site/assets/sales-preview/student-wins/win1-2.b64",
-      "/atelier-site/assets/sales-preview/student-wins/win1-3.b64"
-    ],
-    "student-win-2":[
-      "/atelier-site/assets/sales-preview/student-wins/win2-0.b64",
-      "/atelier-site/assets/sales-preview/student-wins/win2-1.b64"
-    ],
-    "student-win-3":[
-      "/atelier-site/assets/sales-preview/student-wins/win3-0.b64",
-      "/atelier-site/assets/sales-preview/student-wins/win3-1.b64",
-      "/atelier-site/assets/sales-preview/student-wins/win3-2.b64"
-    ]
-  };
-  Object.entries(studentWinSources).forEach(async ([id,parts])=>{
-    const img=document.getElementById(id);
-    if(!img) return;
-    try{
-      const chunks=await Promise.all(parts.map(async p=>{
-        const r=await fetch(p,{cache:"force-cache"});
-        if(!r.ok) throw new Error("asset "+r.status);
-        return (await r.text()).trim();
-      }));
-      img.src="data:image/webp;base64,"+chunks.join("");
-      img.closest(".student-win-card")?.classList.add("ready");
-    }catch(err){
-      console.warn("Student win image failed to load",id,err);
-      img.alt="Student win screenshot";
-    }
-  });
 
 })();
 </script>

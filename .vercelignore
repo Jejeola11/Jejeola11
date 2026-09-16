@@ -1,0 +1,23 @@
+# Fuse Atelier deployment slimming
+# These files remain in GitHub but are not needed in Vercel runtime deployments.
+
+# Development / build support
+.claude/
+tests/
+scripts/
+supabase/
+deployment/
+
+# Internal setup document
+Fuse-Studio-Setup-Guide.pdf
+
+# Legacy sales-page variants no longer routed
+atelier-site/index-b.html
+atelier-site/index-starter.html
+atelier-site/index-legacy-first-client.html
+
+# Legacy sales media no longer used by the live /atelier page
+atelier-site/assets/hero.mp4
+atelier-site/assets/course-design-flyer.png
+atelier-site/assets/course-landing-page.png
+atelier-site/assets/immersive/
