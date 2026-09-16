@@ -78,8 +78,10 @@ exports.handler=async(event)=>{
       }));
       const heroVideo=assets.filter(a=>a.role==='hero-loop'&&a.kind==='video'&&a.status==='completed'&&a.url).at(-1);
       const heroImage=assets.filter(a=>a.role==='hero'&&a.kind==='image'&&a.status==='completed'&&a.url).at(-1);
+      const heroImageIsNewest=heroImage && (!heroVideo || new Date(heroImage.created_at).getTime()>new Date(heroVideo.created_at).getTime());
       if(heroImage)spec.hero.visual.image_url=heroImage.url;
-      if(heroVideo)spec.hero.visual.video_url=heroVideo.url;
+      if(heroImageIsNewest)spec.hero.visual.video_url='';
+      else if(heroVideo)spec.hero.visual.video_url=heroVideo.url;
 
       // Section-specific media roles are stable because every SiteSpec section
       // carries an id: section:<sectionId>:image|video.
@@ -89,8 +91,10 @@ exports.handler=async(event)=>{
         const image=assets.filter(a=>a.role==='section:'+section.id+':image'&&a.status==='completed'&&a.url).at(-1);
         const video=assets.filter(a=>a.role==='section:'+section.id+':video'&&a.status==='completed'&&a.url).at(-1);
         if(image||video)section.media={...(section.media||{})};
+        const imageIsNewest=image && (!video || new Date(image.created_at).getTime()>new Date(video.created_at).getTime());
         if(image)section.media.image_url=image.url;
-        if(video)section.media.video_url=video.url;
+        if(imageIsNewest)section.media.video_url='';
+        else if(video)section.media.video_url=video.url;
       }
 
       const upd=await db.from('page_projects').update({site_spec:spec}).eq('id',projectId).eq('user_id',user.id);
