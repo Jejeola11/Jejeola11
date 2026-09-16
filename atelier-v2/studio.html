@@ -162,9 +162,23 @@
       display:flex;align-items:center;gap:10px;height:120px
     }
     .voice-bars i{
-      width:12px;border-radius:999px;background:linear-gradient(180deg,#FFE66A,#DFFF4E,#EEFFE0);opacity:.75
+      width:12px;
+      border-radius:999px;
+      background:linear-gradient(180deg,#FFE66A,#DFFF4E,#EEFFE0);
+      opacity:.82;
+      transform-origin:center;
+      animation:voicePulse 1.05s ease-in-out infinite;
+      box-shadow:0 0 18px rgba(223,255,78,.10);
     }
-    .voice-bars i:nth-child(1){height:42px}.voice-bars i:nth-child(2){height:70px}.voice-bars i:nth-child(3){height:104px}.voice-bars i:nth-child(4){height:76px}.voice-bars i:nth-child(5){height:48px}
+    .voice-bars i:nth-child(1){height:42px;animation-delay:0s}
+    .voice-bars i:nth-child(2){height:70px;animation-delay:.12s}
+    .voice-bars i:nth-child(3){height:104px;animation-delay:.24s}
+    .voice-bars i:nth-child(4){height:76px;animation-delay:.36s}
+    .voice-bars i:nth-child(5){height:48px;animation-delay:.48s}
+    @keyframes voicePulse{
+      0%,100%{transform:scaleY(.45);opacity:.55}
+      50%{transform:scaleY(1.05);opacity:1}
+    }
 
     .model-card{
       min-height:360px;
@@ -288,12 +302,12 @@
       {cat:'Image',title:'Create Image',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1788626963/4870020.png',href:'studio.html?type=image'},
       {cat:'Video',title:'Create Video',video:'/atelier-site/assets/course-ai-ugc.mp4',href:'studio.html?type=video'},
       {cat:'Page',title:'Build Landing Page',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789492222/fuse-atelier/academy/landing-card.webp',href:'../pitchpilot/site-builder.html'},
-      {cat:'Twin',title:'Create Your AI Twin',img:'/atelier-site/assets/work/still-01.jpg',href:'studio.html?type=image'},
+      {cat:'Twin',title:'Create Your AI Twin',img:'media/create/ai-twin.webp',href:'studio.html?type=image'},
       {cat:'Voice',title:'Clone Your Voice',voice:true,href:'studio.html?type=audio'},
-      {cat:'Flyer',title:'AI Flyer',img:'/atelier-site/assets/work/ai-campaign-flyer.jpg',href:'studio.html?type=image'},
-      {cat:'Lipsync',title:'Lipsync Video',video:'/atelier-site/assets/work/work-11.mp4',href:'studio.html?type=video'},
-      {cat:'UGC',title:'UGC Video',video:'/atelier-site/assets/work/work-10.mp4',href:'studio.html?type=video'},
-      {cat:'Content',title:'Instagram Content',video:'/atelier-site/assets/work/work-03.mp4',href:'studio.html?type=image'}
+      {cat:'Flyer',title:'AI Flyer',img:'media/create/ai-flyer.webp',href:'studio.html?type=image'},
+      {cat:'Lipsync',title:'Lipsync Video',video:'media/create/lipsync.mp4',href:'studio.html?type=video'},
+      {cat:'UGC',title:'UGC Video',video:'/app/media/hero-bg.mp4',href:'studio.html?type=video'},
+      {cat:'Content',title:'Instagram Content',video:'media/create/instagram.mp4',href:'studio.html?type=image'}
     ];
 
     const models=[
