@@ -237,7 +237,6 @@
     };
     const CREDIT_USD=.11, MARGIN=2;
     let selectedKey=new URLSearchParams(location.search).get('model')||'auto';
-    if(selectedKey==='seedance-turbo')selectedKey='seedance-2.5';
     if(selectedKey!=='auto'&&!MODELS.some(m=>m.key===selectedKey))selectedKey='auto';
     let duration=5,aspect='9:16',quality='720p',audioOn=true,files=[],uploadedUrls=[];
 
