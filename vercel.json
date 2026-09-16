@@ -28,11 +28,11 @@
     },
     {
       "src": "/atelier/?",
-      "dest": "/atelier-site/preview.html"
+      "dest": "/atelier-site/final.html"
     },
     {
       "src": "/atelier-preview/?",
-      "dest": "/atelier-site/preview.html"
+      "dest": "/atelier-site/final.html"
     },
     {
       "handle": "filesystem"
