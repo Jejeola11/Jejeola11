@@ -35,6 +35,10 @@
       "dest": "/atelier-site/final.html"
     },
     {
+      "src": "/p/([^/]+)/?",
+      "dest": "/api/page-site?slug=$1"
+    },
+    {
       "handle": "filesystem"
     }
   ]
