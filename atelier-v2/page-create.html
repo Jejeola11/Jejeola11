@@ -91,6 +91,9 @@
       border:1px solid rgba(238,255,224,.10);background:#00191B;color:#cbd9d7;font-size:11px;font-weight:300
     }
     .attachment span{max-width:116px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .attachment.uploading{color:#FFE66A}
+    .attachment.ready{border-color:rgba(223,255,78,.22);color:#EEFFE0}
+    .attachment.failed{border-color:rgba(255,140,120,.30);color:#ffd3cb}
     .composer-actions{display:flex;align-items:center;justify-content:space-between;gap:9px}
     .composer-left{display:flex;align-items:center;gap:8px;min-width:0}
     .icon-btn{
@@ -293,6 +296,7 @@
     let experience='clean';
     let generateAssets=false;
     let files=[];
+    let uploadPromise=null;
 
     const typeNames={
       landing:'AI Landing Page',
@@ -328,9 +332,57 @@
     };
 
     attachBtn.onclick=()=>assetInput.click();
+
+    function safeFileName(name){
+      return String(name||'asset')
+        .toLowerCase()
+        .replace(/[^a-z0-9._-]+/g,'-')
+        .replace(/-+/g,'-')
+        .slice(0,90);
+    }
+    function drawAttachments(){
+      attachments.innerHTML=files.map(a=>{
+        const cls=a.status==='ready'?'ready':a.status==='failed'?'failed':'uploading';
+        const icon=a.status==='ready'?'✓':a.status==='failed'?'!':'↥';
+        return '<span class="attachment '+cls+'">'+icon+' <span>'+String(a.name||'asset').replace(/[<>]/g,'')+'</span></span>';
+      }).join('');
+    }
+    async function uploadSelectedAssets(selected){
+      const sb=await Fuse.client();
+      const session=await Fuse.session();
+      const uid=session.user.id;
+      for(let i=0;i<selected.length;i++){
+        const file=selected[i];
+        const item=files[i];
+        if(!item)continue;
+        try{
+          if(file.size>25*1024*1024)throw Error('File is larger than 25 MB.');
+          const path=uid+'/pages/'+Date.now()+'-'+i+'-'+safeFileName(file.name);
+          const up=await sb.storage.from('landing-assets').upload(path,file,{upsert:false,contentType:file.type||undefined});
+          if(up.error)throw up.error;
+          const url=sb.storage.from('landing-assets').getPublicUrl(path).data.publicUrl;
+          item.url=url;
+          item.status='ready';
+        }catch(e){
+          item.status='failed';
+          item.error=(e&&e.message)||'Upload failed';
+        }
+        drawAttachments();
+      }
+      const failed=files.filter(x=>x.status==='failed');
+      if(failed.length){
+        document.getElementById('assetNote').innerHTML='<strong>'+failed.length+' asset'+(failed.length>1?'s':'')+' could not upload.</strong> You can continue without them or choose the files again.';
+      }
+      sendBtn.disabled=false;
+    }
+
     assetInput.onchange=()=>{
-      files=[...assetInput.files].slice(0,8);
-      attachments.innerHTML=files.map(f=>`<span class="attachment">✦ <span>${f.name}</span></span>`).join('');
+      const selected=[...assetInput.files].slice(0,8);
+      files=selected.map(f=>({name:f.name,type:f.type,size:f.size,url:'',status:'uploading'}));
+      drawAttachments();
+      sendBtn.disabled=true;
+      document.getElementById('assetNote').innerHTML='<strong>Uploading your assets…</strong> Fuse will use uploaded images or video directly in the first website draft.';
+      uploadPromise=uploadSelectedAssets(selected).finally(()=>{uploadPromise=null});
     };
 
     enhanceBtn.onclick=()=>{
@@ -344,10 +396,22 @@
       promptEl.focus();
     };
 
-    function launch(){
+    async function launch(){
       const prompt=promptEl.value.trim();
       if(!prompt){promptEl.focus();return}
-      const spec={prompt,type:selectedType,experience,generateAssets,attachments:files.map(f=>({name:f.name,type:f.type,size:f.size})),createdAt:Date.now()};
+      if(uploadPromise){
+        sendBtn.disabled=true;
+        await uploadPromise;
+      }
+      const readyFiles=files.filter(f=>f.status==='ready'&&f.url);
+      const spec={
+        prompt,
+        type:selectedType,
+        experience,
+        generateAssets,
+        attachments:readyFiles.map(f=>({name:f.name,type:f.type,size:f.size,url:f.url})),
+        createdAt:Date.now()
+      };
       sessionStorage.setItem('fuse_page_brief',JSON.stringify(spec));
       const u=new URL('page-workspace.html',location.href);
       u.searchParams.set('type',selectedType);
