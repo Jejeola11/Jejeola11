@@ -243,6 +243,7 @@
           <div class="field"><label id="eyebrowLabel" for="editEyebrow">Eyebrow</label><input id="editEyebrow" type="text" maxlength="160"></div>
           <div class="field"><label id="titleLabel" for="editTitle">Heading</label><input id="editTitle" type="text" maxlength="220"></div>
           <div class="field"><label id="bodyLabel" for="editBody">Supporting copy</label><textarea id="editBody" maxlength="1200"></textarea></div>
+          <div class="field" id="itemsField" hidden><label id="itemsLabel" for="editItems">Cards / items</label><textarea id="editItems" maxlength="4000" placeholder="Title | Supporting text"></textarea></div>
           <div class="field" id="buttonField"><label for="editButton">Button text</label><input id="editButton" type="text" maxlength="100"></div>
           <div class="editor-actions">
             <button class="save" id="saveSection" type="button">Save section</button>
@@ -357,6 +358,9 @@
     const editEyebrow=document.getElementById('editEyebrow');
     const editTitle=document.getElementById('editTitle');
     const editBody=document.getElementById('editBody');
+    const editItems=document.getElementById('editItems');
+    const itemsField=document.getElementById('itemsField');
+    const itemsLabel=document.getElementById('itemsLabel');
     const editButton=document.getElementById('editButton');
     const buttonField=document.getElementById('buttonField');
     const saveSection=document.getElementById('saveSection');
@@ -559,6 +563,8 @@
         editTitle.value=selected.data.headline||'';
         editBody.value=selected.data.subheadline||'';
         editButton.value=selected.data.primary_cta||'';
+        itemsField.hidden=true;
+        editItems.value='';
         buttonField.hidden=false;
         moveUp.hidden=moveDown.hidden=duplicateSection.hidden=deleteSection.hidden=true;
         genSectionImage.textContent='AI image';
@@ -570,7 +576,25 @@
         editTitle.value=selected.data.title||'';
         editBody.value=selected.data.text||'';
         editButton.value=selected.data.button||'';
-        buttonField.hidden=selected.data.type!=='cta';
+        const type=String(selected.data.type||'');
+        const hasItems=Array.isArray(selected.data.items)&&selected.data.items.length>0;
+        itemsField.hidden=!hasItems;
+        if(hasItems){
+          if(type==='faq'){
+            itemsLabel.textContent='FAQ · one per line: Question | Answer';
+            editItems.value=selected.data.items.map(x=>(x.q||'')+' | '+(x.a||'')).join('\n');
+          }else if(type==='testimonials'){
+            itemsLabel.textContent='Testimonials · one per line: Quote | Name';
+            editItems.value=selected.data.items.map(x=>(x.quote||'')+' | '+(x.name||'')).join('\n');
+          }else if(selected.data.items.every(x=>typeof x==='string')){
+            itemsLabel.textContent='Items · one per line';
+            editItems.value=selected.data.items.join('\n');
+          }else{
+            itemsLabel.textContent='Cards · one per line: Title | Supporting text';
+            editItems.value=selected.data.items.map(x=>(x.title||'')+' | '+(x.text||'')).join('\n');
+          }
+        }else editItems.value='';
+        buttonField.hidden=type!=='cta';
         moveUp.hidden=moveDown.hidden=duplicateSection.hidden=deleteSection.hidden=false;
         moveUp.disabled=selected.index===0;
         moveDown.disabled=selected.index===(project.site_spec.sections.length-1);
@@ -596,9 +620,20 @@
     async function saveSelectedSection(){
       const selected=currentSelection();
       if(!selected)return;
-      const patch=selected.kind==='hero'
-        ? {eyebrow:editEyebrow.value,headline:editTitle.value,subheadline:editBody.value,primary_cta:editButton.value}
-        : {eyebrow:editEyebrow.value,title:editTitle.value,text:editBody.value,button:editButton.value};
+      let patch;
+      if(selected.kind==='hero'){
+        patch={eyebrow:editEyebrow.value,headline:editTitle.value,subheadline:editBody.value,primary_cta:editButton.value};
+      }else{
+        patch={eyebrow:editEyebrow.value,title:editTitle.value,text:editBody.value,button:editButton.value};
+        if(!itemsField.hidden){
+          const lines=editItems.value.split(/\n+/).map(x=>x.trim()).filter(Boolean).slice(0,8);
+          const type=String(selected.data.type||'');
+          if(type==='faq')patch.items=lines.map(line=>{const p=line.split('|');return {q:(p.shift()||'').trim(),a:p.join('|').trim()}});
+          else if(type==='testimonials')patch.items=lines.map(line=>{const p=line.split('|');return {quote:(p.shift()||'').trim(),name:p.join('|').trim()}});
+          else if((selected.data.items||[]).every(x=>typeof x==='string'))patch.items=lines;
+          else patch.items=lines.map(line=>{const p=line.split('|');return {title:(p.shift()||'').trim(),text:p.join('|').trim()}});
+        }
+      }
       await sectionMutation({target:selectedTarget,operation:'update',patch},'Saving this section…');
     }
 
