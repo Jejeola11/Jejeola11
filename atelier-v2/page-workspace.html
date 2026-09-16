@@ -74,6 +74,20 @@
     .engine.error{border-style:solid;border-color:rgba(255,140,120,.35);color:#ffd3cb;background:rgba(255,120,100,.05)}
     .public-link{display:none;margin-top:9px;color:#DFFF4E;font-size:12px;line-height:1.45;word-break:break-all}
     .public-link.on{display:block}
+    .ask-box{
+      margin-top:12px;padding:11px;border:1px solid rgba(49,84,86,.72);border-radius:15px;background:#00191B
+    }
+    .ask-box label{display:block;margin:0 0 7px;color:#DFFF4E;font-size:11px;font-weight:400;letter-spacing:.04em}
+    .ask-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}
+    .ask-row input{
+      min-width:0;height:42px;border:1px solid var(--line);border-radius:12px;background:#062125;color:#fff;
+      outline:0;padding:0 11px;font-size:13px;font-weight:300
+    }
+    .ask-row input:focus{border-color:#DFFF4E}
+    .ask-row button{
+      min-width:82px;border:0;border-radius:12px;background:var(--chrome);color:#001012;font-size:13px;font-weight:500
+    }
+    .ask-help{margin:7px 2px 0;color:#7f9694;font-size:10px;line-height:1.4;font-weight:300}
     .asset-box{
       margin-top:12px;padding:12px;border:1px solid rgba(49,84,86,.72);border-radius:15px;background:#00191B
     }
@@ -124,7 +138,8 @@
     .versions-head span{font-size:12px;color:#a9bcba}
     .version-list{display:flex;gap:6px;overflow-x:auto;margin-top:8px;scrollbar-width:none}
     .version-list::-webkit-scrollbar{display:none}
-    .version{flex:0 0 auto;padding:6px 8px;border:1px solid var(--line);border-radius:9px;background:#00191B;color:#b8c8c6;font-size:10px}
+    .version{flex:0 0 auto;padding:6px 8px;border:1px solid var(--line);border-radius:9px;background:#00191B;color:#b8c8c6;font-size:10px;cursor:pointer}
+    .version:hover{border-color:#DFFF4E;color:#EEFFE0}
     @media(max-width:760px){
       .layout{grid-template-columns:1fr}
       .head{align-items:flex-start;flex-direction:column}
@@ -177,9 +192,20 @@
         </div>
 
         <div class="engine" id="engineStatus">Fuse will turn this brief into a structured SiteSpec, page copy and a safe rendered website.</div>
+
+        <div class="ask-box" id="askBox" hidden>
+          <label for="askInput">ASK FUSE TO EDIT THE PAGE</label>
+          <div class="ask-row">
+            <input id="askInput" type="text" maxlength="1800" placeholder="Make the hero darker and more cinematic…">
+            <button id="askButton" type="button">Update</button>
+          </div>
+          <p class="ask-help">Text/layout revisions create a saved version. Use Regenerate visuals below when you want new AI media.</p>
+        </div>
+
         <div class="asset-box" id="assetBox" hidden>
           <div class="asset-head"><strong>AI website assets</strong><span id="assetSummary">Preparing</span></div>
           <div class="asset-list" id="assetList"></div>
+          <button class="secondary" id="regenerateAssets" type="button" style="width:100%;min-height:40px;margin-top:9px;font-size:12px">Regenerate visuals</button>
         </div>
         <a class="public-link" id="publicLink" target="_blank" rel="noopener">Open published website ↗</a>
 
@@ -245,6 +271,10 @@
     const assetBox=document.getElementById('assetBox');
     const assetList=document.getElementById('assetList');
     const assetSummary=document.getElementById('assetSummary');
+    const askBox=document.getElementById('askBox');
+    const askInput=document.getElementById('askInput');
+    const askButton=document.getElementById('askButton');
+    const regenerateAssets=document.getElementById('regenerateAssets');
 
     function showBrief(){
       typeLabel.textContent=labels[brief.type]||'FUSE PAGE';
@@ -271,6 +301,7 @@
       previewMeta.textContent=(out.project.title||'Untitled')+' · '+(out.project.status||'draft');
       projectTitle.textContent=out.project.title||'Website project';
       workspaceState.textContent=(out.project.status||'draft').toUpperCase();
+      askBox.hidden=false;
       if(out.project.status==='published'&&out.project.slug){
         publicLink.href='/api/page-site?slug='+encodeURIComponent(out.project.slug);
         publicLink.classList.add('on');
@@ -349,7 +380,8 @@
       if(!versions.length){root.hidden=true;return}
       root.hidden=false;
       document.getElementById('versionCount').textContent=versions.length+' saved';
-      list.innerHTML=versions.map(v=>'<span class="version">v'+v.version_no+(v.note?' · '+String(v.note).replace(/[<>]/g,''):'')+'</span>').join('');
+      list.innerHTML=versions.map(v=>'<button class="version" type="button" data-version="'+v.version_no+'">v'+v.version_no+(v.note?' · '+String(v.note).replace(/[<>]/g,''):'')+'</button>').join('');
+      list.querySelectorAll('[data-version]').forEach(btn=>btn.onclick=()=>restoreVersion(Number(btn.dataset.version)));
     }
     async function loadProject(){
       if(!projectId)return;
@@ -403,6 +435,49 @@
         generateBtn.textContent=projectId?'Generate new version':'Generate first draft';
       }
     }
+    async function revise(){
+      if(!projectId||busy)return;
+      const instruction=askInput.value.trim();
+      if(!instruction){askInput.focus();return}
+      setBusy(true);
+      askButton.disabled=true;
+      askButton.textContent='Updating…';
+      setStatus('Fuse is revising this version while keeping everything you did not ask to change…');
+      try{
+        const out=await Fuse.api('page-revise',{project_id:projectId,instruction});
+        askInput.value='';
+        project=out.project;
+        setStatus(out.ai_used?'Update applied. A new version was saved automatically.':'Update applied with the Fuse fallback editor. A new version was saved automatically.','success');
+        await loadProject();
+      }catch(e){
+        setStatus(e.message||'Could not update this website.','error');
+      }finally{
+        setBusy(false);
+        askButton.disabled=false;
+        askButton.textContent='Update';
+      }
+    }
+
+    async function restoreVersion(versionNo){
+      if(!projectId||busy||!versionNo)return;
+      setBusy(true);
+      setStatus('Restoring version '+versionNo+' while keeping your current version in history…');
+      try{
+        await Fuse.api('page-version-restore',{project_id:projectId,version_no:versionNo});
+        setStatus('Version '+versionNo+' restored as a new draft version.','success');
+        await loadProject();
+      }catch(e){
+        setStatus(e.message||'Could not restore that version.','error');
+      }finally{setBusy(false)}
+    }
+
+    async function regenerateVisuals(){
+      if(!projectId||busy)return;
+      brief.generateAssets=true;
+      setStatus('Starting a fresh set of website visuals. Normal Image/Video credits apply…');
+      await startAssets();
+    }
+
     async function publish(){
       if(!projectId||busy)return;
       setBusy(true);
@@ -426,6 +501,9 @@
 
     generateBtn.onclick=generate;
     publishBtn.onclick=publish;
+    askButton.onclick=revise;
+    askInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();revise()}});
+    regenerateAssets.onclick=regenerateVisuals;
     document.querySelectorAll('[data-mode]').forEach(btn=>btn.onclick=()=>{
       document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('active',x===btn));
       shell.classList.toggle('desktop',btn.dataset.mode==='desktop');
