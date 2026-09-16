@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#001012">
+  <title>Create Image · Fuse Atelier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="/app/config.js?v=20260909-supabase"></script>
+  <style>
+    :root{
+      --deep:#001012;--mid:#00191B;--light:#1B4C52;--surface:#062125;--line:#315456;
+      --yellow:#FFE66A;--lime:#DFFF4E;--white:#EEFFE0;--muted:#9eb4b3;--muted2:#718686;
+      --chrome:linear-gradient(105deg,#FFE66A 0%,#DFFF4E 52%,#EEFFE0 100%);
+      --panel:rgba(6,33,37,.94);--panel2:rgba(0,25,27,.98);
+    }
+    *{box-sizing:border-box}
+    html{background:var(--deep)}
+    body{
+      margin:0;min-height:100svh;color:#fff;font-family:Montserrat,Arial,sans-serif;overflow-x:hidden;
+      background:radial-gradient(circle at 95% 4%,rgba(27,76,82,.28),transparent 29%),linear-gradient(148deg,#001012 0%,#00191B 66%,#102f33 130%);
+      padding-bottom:calc(190px + env(safe-area-inset-bottom));
+    }
+    button,textarea,input{font:inherit}
+    button{cursor:pointer}
+    .shell{width:min(760px,100%);margin:0 auto}
+    .topbar{
+      height:78px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;
+      border-bottom:1px solid rgba(49,84,86,.75);background:rgba(0,16,18,.90);backdrop-filter:blur(18px);
+      position:sticky;top:0;z-index:30;
+    }
+    .brand-trigger{display:flex;align-items:center;gap:10px;background:none;border:0;color:#fff;padding:0;min-width:0}
+    .brand-logo{width:38px;height:38px;object-fit:contain;flex:none}
+    .brand-title{font-size:20px;font-weight:500;letter-spacing:-.55px;white-space:nowrap}
+    .chev{width:9px;height:9px;border-right:1.8px solid #a8b8b7;border-bottom:1.8px solid #a8b8b7;transform:rotate(45deg) translateY(-2px);margin-left:3px}
+    .close-btn{width:44px;height:44px;border:1px solid rgba(49,84,86,.65);border-radius:14px;background:#082226;color:#eef9f4;display:grid;place-items:center;flex:none}
+    .close-btn:before,.close-btn:after{content:"";position:absolute;width:21px;height:1.5px;background:currentColor}
+    .close-btn:before{transform:rotate(45deg)}.close-btn:after{transform:rotate(-45deg)}
+    .close-btn{position:relative}
+
+    .main{padding:40px 32px 20px}
+    .upload-zone{
+      min-height:248px;border:1.5px dashed rgba(49,84,86,.9);border-radius:24px;background:rgba(6,33,37,.68);
+      display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;position:relative;overflow:hidden;
+      transition:border-color .2s ease,background .2s ease;
+    }
+    .upload-zone.drag{border-color:#DFFF4E;background:rgba(27,76,82,.44)}
+    .upload-empty{display:flex;flex-direction:column;align-items:center;gap:16px;color:var(--muted)}
+    .upload-icon{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#12383c,#071a1d);border:1px solid rgba(238,255,224,.12);box-shadow:0 10px 28px rgba(0,0,0,.23)}
+    .upload-icon svg{width:24px;height:24px;stroke:#d9e7e5}
+    .upload-label{font-size:16px;font-weight:300}.upload-label b{font-weight:400;color:#dce8e6}
+    .thumb-grid{width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+    .thumb{aspect-ratio:1;border-radius:13px;overflow:hidden;position:relative;background:#001012;border:1px solid rgba(49,84,86,.75)}
+    .thumb img{width:100%;height:100%;display:block;object-fit:cover}
+    .thumb button{position:absolute;top:5px;right:5px;width:24px;height:24px;border:0;border-radius:50%;background:rgba(0,16,18,.82);color:#fff;font-size:16px;line-height:1}
+    .add-thumb{aspect-ratio:1;border:1px dashed rgba(223,255,78,.5);border-radius:13px;background:rgba(0,25,27,.7);color:#DFFF4E;font-size:24px}
+
+    .prompt-card{
+      margin-top:28px;border-radius:24px;border:1px solid rgba(49,84,86,.78);background:rgba(6,33,37,.92);overflow:hidden;
+      box-shadow:0 18px 40px rgba(0,0,0,.18);
+    }
+    .prompt{
+      width:100%;min-height:228px;max-height:330px;resize:vertical;border:0;outline:0;background:transparent;color:#fff;
+      padding:24px 24px 18px;font-size:18px;line-height:1.55;font-weight:300;
+    }
+    .prompt::placeholder{color:#758989}
+    .model-row{
+      height:62px;border-top:1px solid rgba(49,84,86,.55);display:flex;align-items:center;justify-content:space-between;padding:0 20px;
+      color:var(--muted);background:rgba(0,25,27,.44);
+    }
+    .model-left{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:300}
+    .brain{width:20px;height:20px;border:1.5px solid currentColor;border-radius:45% 55% 52% 48%;position:relative;opacity:.9}
+    .brain:after{content:"";position:absolute;left:8px;top:2px;bottom:2px;width:1px;background:currentColor;opacity:.8}
+    .model-select{display:flex;align-items:center;gap:10px;color:#fff;background:none;border:0;font-size:16px;font-weight:400;min-width:0}
+    .model-select span{display:block;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+    .note{min-height:24px;margin:14px 2px 0;color:#b8cbca;font-size:14px;font-weight:300;line-height:1.45}
+    .note.err{color:#ffb9b9}.note.ok{color:#dfff9f}
+
+    .controls{
+      position:fixed;left:0;right:0;bottom:0;z-index:24;padding:16px 0 calc(16px + env(safe-area-inset-bottom));
+      background:linear-gradient(180deg,rgba(0,16,18,0),rgba(0,16,18,.90) 18%,#001012 42%);
+      pointer-events:none;
+    }
+    .controls-inner{width:min(760px,100%);margin:0 auto;padding:0 32px;pointer-events:auto}
+    .chips{display:flex;gap:10px;margin-bottom:14px}
+    .chip{
+      height:50px;min-width:0;flex:0 0 auto;padding:0 17px;border:1px solid rgba(49,84,86,.55);border-radius:999px;background:#062125;color:#fff;
+      display:flex;align-items:center;gap:9px;font-size:15px;font-weight:500;
+    }
+    .chip.active{box-shadow:0 0 0 3px rgba(49,84,86,.34)}
+    .chip svg{width:20px;height:20px;stroke:#a8bcbc}
+    .generate{
+      width:100%;height:64px;border:0;border-radius:18px;background:var(--chrome);color:#001012;font-size:18px;font-weight:500;
+      box-shadow:0 8px 0 rgba(157,185,20,.58),0 14px 28px rgba(223,255,78,.08);
+    }
+    .generate:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+
+    .popover{
+      position:fixed;z-index:80;display:none;background:#062125;border:1px solid rgba(49,84,86,.72);border-radius:22px;
+      box-shadow:0 28px 65px rgba(0,0,0,.48);overflow:hidden;
+    }
+    .popover.open{display:block}
+    .pop-title{padding:15px 18px 10px;color:#849797;font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+    .aspect-pop{width:350px;max-width:calc(100vw - 34px);bottom:178px;left:max(18px,calc(50% - 350px))}
+    .aspect-grid{display:grid;grid-template-columns:repeat(2,1fr)}
+    .aspect-grid button{height:58px;border:0;border-top:1px solid rgba(49,84,86,.35);background:transparent;color:#fff;font-size:16px;font-weight:500;text-align:left;padding:0 23px;display:flex;align-items:center;gap:11px}
+    .aspect-grid button:nth-child(odd){border-right:1px solid rgba(49,84,86,.35)}
+    .aspect-grid button.on{background:rgba(27,76,82,.35)}
+    .ratio-shape{width:18px;height:18px;border:1.5px solid #a9b9b8;border-radius:4px}
+    .quality-pop{width:240px;bottom:178px;left:50%;transform:translateX(-50%)}
+    .quality-pop button,.batch-pop button{width:100%;height:58px;border:0;border-top:1px solid rgba(49,84,86,.35);background:transparent;color:#fff;text-align:left;padding:0 24px;font-size:17px;font-weight:500}
+    .quality-pop button.on,.batch-pop button.on{background:rgba(27,76,82,.35)}
+    .batch-pop{width:250px;bottom:178px;right:max(18px,calc(50% - 360px))}
+    .batch-pop button{display:flex;align-items:center;gap:18px}.batch-dots{letter-spacing:2px;color:#dbe6e4}
+
+    .overlay{position:fixed;inset:0;z-index:100;background:rgba(0,10,11,.78);backdrop-filter:blur(4px);display:none}
+    .overlay.open{display:block}
+    .model-sheet{
+      position:absolute;left:0;right:0;bottom:0;max-height:min(78vh,760px);border-radius:26px 26px 0 0;background:#00191B;
+      border-top:1px solid rgba(49,84,86,.65);overflow:auto;padding-bottom:calc(18px + env(safe-area-inset-bottom));
+    }
+    .search-wrap{position:sticky;top:0;background:rgba(0,25,27,.96);z-index:2;padding:20px 20px 14px;border-bottom:1px solid rgba(49,84,86,.40)}
+    .search{height:48px;border-radius:16px;border:1px solid rgba(49,84,86,.65);background:#062125;display:flex;align-items:center;gap:11px;padding:0 15px}
+    .search svg{width:22px;height:22px;stroke:#aabdbc}.search input{flex:1;border:0;outline:0;background:transparent;color:#fff;font-size:16px;font-weight:300}.search input::placeholder{color:#839494}
+    .sheet-label{padding:18px 24px 8px;color:#9db0af;font-size:14px;font-weight:500}
+    .model-option{width:100%;border:0;background:transparent;color:#fff;display:flex;align-items:center;gap:14px;padding:12px 24px;text-align:left}
+    .model-option:hover,.model-option.on{background:rgba(27,76,82,.30)}
+    .mi{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,#12383c,#07191b);border:1px solid rgba(238,255,224,.08);font-size:14px;font-weight:600;color:#DFFF4E;flex:none}
+    .mo-copy{min-width:0;flex:1}.mo-name{font-size:15px;font-weight:500;line-height:1.22}.mo-desc{font-size:12px;font-weight:300;color:#91a4a3;margin-top:4px;line-height:1.35}
+    .new{display:inline-flex;margin-left:7px;padding:3px 6px;border-radius:7px;background:#DFFF4E;color:#001012;font-size:8px;font-weight:600;vertical-align:2px}
+    .check{color:#DFFF4E;font-size:20px;flex:none}
+
+    .feature-menu{
+      position:fixed;z-index:120;top:66px;left:max(18px,calc(50% - 360px));width:330px;max-width:calc(100vw - 36px);max-height:calc(100vh - 110px);
+      overflow:auto;border-radius:20px;background:#062125;border:1px solid rgba(49,84,86,.78);box-shadow:0 30px 70px rgba(0,0,0,.5);display:none;padding:12px 0;
+    }
+    .feature-menu.open{display:block}
+    .feature-section{padding:8px 18px;color:#829695;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+    .feature-link{display:flex;align-items:center;gap:13px;padding:14px 18px;color:#eef8f4;text-decoration:none;font-size:15px;font-weight:400}
+    .feature-link.current{background:rgba(27,76,82,.35)}
+    .feature-icon{width:32px;height:32px;border-radius:10px;background:#0b2a2d;border:1px solid rgba(49,84,86,.55);display:grid;place-items:center;color:#DFFF4E;font-size:15px}
+
+    @media(max-width:520px){
+      body{padding-bottom:calc(180px + env(safe-area-inset-bottom))}
+      .topbar{height:72px;padding:0 16px}.brand-logo{width:34px;height:34px}.brand-title{font-size:18px}.close-btn{width:40px;height:40px;border-radius:13px}
+      .main{padding:28px 16px 10px}.upload-zone{min-height:200px;border-radius:20px}.prompt-card{margin-top:22px;border-radius:20px}.prompt{min-height:215px;padding:22px 20px;font-size:17px}
+      .model-row{height:58px;padding:0 17px}.model-select{font-size:15px}.model-select span{max-width:170px}
+      .controls-inner{padding:0 16px}.chips{gap:8px}.chip{height:48px;padding:0 14px;font-size:14px}.generate{height:60px;border-radius:16px}
+      .aspect-pop{left:18px;bottom:168px}.quality-pop{bottom:168px}.batch-pop{right:18px;bottom:168px}
+      .feature-menu{left:14px;top:62px}
+      .thumb-grid{grid-template-columns:repeat(3,1fr)}
+    }
+    @media(max-width:370px){
+      .chip{padding:0 11px;gap:6px;font-size:13px}.chip svg{width:18px;height:18px}.chips{gap:6px}.brand-title{font-size:17px}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <button class="brand-trigger" id="featureTrigger" aria-haspopup="menu" aria-expanded="false">
+        <img class="brand-logo" src="media/fuse-mark-gradient.webp" alt="Fuse Atelier">
+        <span class="brand-title">CREATE IMAGE</span>
+        <i class="chev" aria-hidden="true"></i>
+      </button>
+      <button class="close-btn" id="closeBtn" aria-label="Close"></button>
+    </header>
+
+    <main class="main">
+      <section class="upload-zone" id="uploadZone">
+        <input id="fileInput" type="file" accept="image/*" multiple hidden>
+        <div class="upload-empty" id="uploadEmpty">
+          <button class="upload-icon" id="uploadBtn" type="button" aria-label="Choose images">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m5 17 4.5-4.5 3.5 3 2.5-2.5L20 17"/></svg>
+          </button>
+          <div class="upload-label"><b>Choose images to upload</b> (up to 14)</div>
+        </div>
+        <div class="thumb-grid" id="thumbGrid" hidden></div>
+      </section>
+
+      <section class="prompt-card">
+        <textarea class="prompt" id="prompt" placeholder="Describe the image you want to create..."></textarea>
+        <div class="model-row">
+          <div class="model-left"><span class="brain"></span><span>Model</span></div>
+          <button class="model-select" id="modelTrigger" type="button"><span id="modelName">Auto</span><i class="chev"></i></button>
+        </div>
+      </section>
+      <div class="note" id="note"></div>
+    </main>
+  </div>
+
+  <div class="controls">
+    <div class="controls-inner">
+      <div class="chips">
+        <button class="chip" id="aspectChip" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="5" y="3" width="14" height="18" rx="3"/></svg>
+          <span id="aspectLabel">3:4</span>
+        </button>
+        <button class="chip" id="qualityChip" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M7 4h10l4 5-9 11L3 9z"/><path d="M3 9h18"/></svg>
+          <span id="qualityLabel">2K</span>
+        </button>
+        <button class="chip" id="batchChip" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="m12 3 8 4-8 4-8-4z"/><path d="m4 12 8 4 8-4"/><path d="m4 17 8 4 8-4"/></svg>
+          <span id="batchLabel">1</span>
+        </button>
+      </div>
+      <button class="generate" id="generateBtn" type="button">Generate ✦ <span id="creditCost">2</span></button>
+    </div>
+  </div>
+
+  <div class="popover aspect-pop" id="aspectPop">
+    <div class="pop-title">Aspect ratio</div>
+    <div class="aspect-grid" id="aspectGrid"></div>
+  </div>
+
+  <div class="popover quality-pop" id="qualityPop">
+    <div class="pop-title">Quality</div>
+    <button data-quality="2K">2K</button>
+    <button data-quality="4K">4K</button>
+  </div>
+
+  <div class="popover batch-pop" id="batchPop">
+    <div class="pop-title">Batch size</div>
+    <button data-batch="1"><span class="batch-dots">•</span>1</button>
+    <button data-batch="2"><span class="batch-dots">••</span>2</button>
+    <button data-batch="3"><span class="batch-dots">••<br>•</span>3</button>
+    <button data-batch="4"><span class="batch-dots">••<br>••</span>4</button>
+  </div>
+
+  <div class="overlay" id="modelOverlay">
+    <section class="model-sheet" role="dialog" aria-modal="true" aria-label="Choose model">
+      <div class="search-wrap">
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><circle cx="10.5" cy="10.5" r="7"/><path d="m16 16 5 5"/></svg>
+          <input id="modelSearch" placeholder="Search models...">
+        </div>
+      </div>
+      <div class="sheet-label">Featured models</div>
+      <div id="modelList"></div>
+    </section>
+  </div>
+
+  <nav class="feature-menu" id="featureMenu">
+    <div class="feature-section">Create</div>
+    <a class="feature-link current" href="image-create.html"><span class="feature-icon">✦</span><span>Create Image</span></a>
+    <a class="feature-link" href="studio.html?category=Video"><span class="feature-icon">▶</span><span>Create Video</span></a>
+    <a class="feature-link" href="studio.html?category=Twin"><span class="feature-icon">◎</span><span>Create Your AI Twin</span></a>
+    <a class="feature-link" href="../pitchpilot/site-builder.html"><span class="feature-icon">▤</span><span>Build Landing Page</span></a>
+    <a class="feature-link" href="studio.html?category=Voice"><span class="feature-icon">⌁</span><span>Clone Your Voice</span></a>
+    <a class="feature-link" href="/app/workspace.html?go=flyer&source=fuse-create"><span class="feature-icon">▣</span><span>AI Flyer</span></a>
+    <a class="feature-link" href="studio.html?category=Content"><span class="feature-icon">#</span><span>Instagram Content</span></a>
+    <a class="feature-link" href="studio.html?category=Lipsync"><span class="feature-icon">◉</span><span>Lipsync Video</span></a>
+    <a class="feature-link" href="studio.html?category=UGC"><span class="feature-icon">▸</span><span>UGC Video</span></a>
+  </nav>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+
+    const cfg=window.FUSE||{};
+    const sb=createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY);
+    const $=id=>document.getElementById(id);
+
+    const MODELS=[
+      {key:'sunburst',name:'GPT Image 2.5 Sunburst',desc:'Exceptional quality, precise edits',short:'2.5',credits:2,api:'gpt-image-2-text-to-image',fresh:true},
+      {key:'flare',name:'GPT Image 2.5 Flare',desc:'Stunning everyday images, fast',short:'FL',credits:2,api:'flux-schnell-image',fresh:true},
+      {key:'minimax-h3',name:'MiniMax H3 Image',desc:'Natural, photoreal image creation',short:'H3',credits:1,api:'flux-dev-image'},
+      {key:'seedream-5-pro',name:'Seedream 5 Pro',desc:'Intelligent visual reasoning and campaigns',short:'S5',credits:3,api:'seedream-5.0'},
+      {key:'nano-banana-2',name:'Nano Banana 2',desc:'Consistent characters and reference editing',short:'NB',credits:4,api:'nano-banana-2'},
+      {key:'nano-banana-pro',name:'Nano Banana Pro',desc:"Google's premium 4K generation model",short:'NP',credits:8,api:'nano-banana-pro-ws-text-to-image'},
+      {key:'flux-2-pro',name:'Flux 2 Pro',desc:'Creative campaign images with sharp control',short:'F2',credits:2,api:'flux-2-pro'},
+      {key:'qwen-image-3-pro',name:'Qwen Image 3 Pro',desc:'Clean typography and commercial compositions',short:'Q3',credits:3,api:'qwen-image'}
+    ];
+    const ASPECTS=['1:1','3:4','4:3','2:3','3:2','9:16','16:9','21:9'];
+    let selectedKey=new URLSearchParams(location.search).get('model')||'auto';
+    if(selectedKey!=='auto'&&!MODELS.some(m=>m.key===selectedKey))selectedKey='auto';
+    let aspect='3:4',quality='2K',batch=1,files=[],uploadedUrls=[];
+
+    const currentModel=()=>MODELS.find(m=>m.key===selectedKey)||null;
+    const note=(msg,kind='')=>{ $('note').textContent=msg||''; $('note').className='note'+(kind?' '+kind:''); };
+    const closePops=()=>document.querySelectorAll('.popover.open').forEach(x=>x.classList.remove('open'));
+
+    function smartAutoModel(){
+      const text=$('prompt').value.toLowerCase();
+      if(files.length||/character|consistent|same face|reference|model sheet|edit|replace/.test(text)) return MODELS.find(m=>m.key==='nano-banana-2');
+      if(/flyer|poster|text|typography|menu|price list|logo/.test(text)) return MODELS.find(m=>m.key==='qwen-image-3-pro');
+      if(/product|campaign|advert|commercial|packaging|brand/.test(text)) return MODELS.find(m=>m.key==='seedream-5-pro');
+      return MODELS.find(m=>m.key==='sunburst');
+    }
+    function activeModel(){return currentModel()||smartAutoModel()}
+    function updateCost(){
+      const m=activeModel();
+      const q=quality==='4K'?3:1;
+      const c=Math.max(1,(m?.credits||2)*batch*q);
+      $('creditCost').textContent=c;
+      $('modelName').textContent=selectedKey==='auto'?'Auto':m.name;
+      $('aspectLabel').textContent=aspect;$('qualityLabel').textContent=quality;$('batchLabel').textContent=batch;
+      document.querySelectorAll('[data-quality]').forEach(b=>b.classList.toggle('on',b.dataset.quality===quality));
+      document.querySelectorAll('[data-batch]').forEach(b=>b.classList.toggle('on',+b.dataset.batch===batch));
+    }
+
+    function renderAspects(){
+      $('aspectGrid').innerHTML=ASPECTS.map(a=>`<button data-aspect="${a}" class="${a===aspect?'on':''}"><span class="ratio-shape"></span>${a}</button>`).join('');
+      $('aspectGrid').querySelectorAll('button').forEach(b=>b.onclick=()=>{aspect=b.dataset.aspect;closePops();renderAspects();updateCost();});
+    }
+    function renderModels(q=''){
+      q=q.trim().toLowerCase();
+      const list=MODELS.filter(m=>!q||m.name.toLowerCase().includes(q)||m.desc.toLowerCase().includes(q));
+      const auto=`<button class="model-option ${selectedKey==='auto'?'on':''}" data-model="auto"><span class="mi">A</span><span class="mo-copy"><span class="mo-name">Auto</span><span class="mo-desc">Fuse chooses the strongest model for your prompt and references.</span></span>${selectedKey==='auto'?'<span class="check">✓</span>':''}</button>`;
+      $('modelList').innerHTML=auto+list.map(m=>`<button class="model-option ${selectedKey===m.key?'on':''}" data-model="${m.key}"><span class="mi">${m.short}</span><span class="mo-copy"><span class="mo-name">${m.name}${m.fresh?'<span class="new">NEW</span>':''}</span><span class="mo-desc">${m.desc}</span></span>${selectedKey===m.key?'<span class="check">✓</span>':''}</button>`).join('');
+      $('modelList').querySelectorAll('[data-model]').forEach(b=>b.onclick=()=>{
+        selectedKey=b.dataset.model;
+        const u=new URL(location.href);if(selectedKey==='auto')u.searchParams.delete('model');else u.searchParams.set('model',selectedKey);history.replaceState(null,'',u);
+        $('modelOverlay').classList.remove('open');renderModels($('modelSearch').value);updateCost();
+      });
+    }
+
+    function renderThumbs(){
+      const grid=$('thumbGrid'),empty=$('uploadEmpty');
+      if(!files.length){grid.hidden=true;empty.hidden=false;grid.innerHTML='';return}
+      empty.hidden=true;grid.hidden=false;
+      grid.innerHTML=files.map((f,i)=>`<div class="thumb"><img src="${URL.createObjectURL(f)}"><button type="button" data-rm="${i}" aria-label="Remove image">×</button></div>`).join('')+(files.length<14?'<button class="add-thumb" id="addMore" type="button">+</button>':'');
+      grid.querySelectorAll('[data-rm]').forEach(b=>b.onclick=e=>{e.stopPropagation();files.splice(+b.dataset.rm,1);uploadedUrls=[];renderThumbs();updateCost();});
+      const add=$('addMore');if(add)add.onclick=e=>{e.stopPropagation();$('fileInput').click();};
+    }
+    function addFiles(incoming){
+      const imgs=[...incoming].filter(f=>f.type&&f.type.startsWith('image/'));
+      const room=14-files.length;files.push(...imgs.slice(0,room));uploadedUrls=[];renderThumbs();updateCost();
+      if(imgs.length>room)note('You can upload up to 14 images.','err');else note('');
+    }
+
+    async function auth(){
+      const {data}=await sb.auth.getSession();
+      return data.session||null;
+    }
+    async function uploadRefs(session){
+      if(uploadedUrls.length===files.length&&files.length)return uploadedUrls;
+      uploadedUrls=[];
+      for(let i=0;i<files.length;i++){
+        const f=files[i];
+        const ext=(f.name.split('.').pop()||'jpg').toLowerCase();
+        const path=`${session.user.id}/create-ref-${Date.now()}-${i}.${ext}`;
+        const {error}=await sb.storage.from('avatars').upload(path,f,{upsert:true,contentType:f.type||undefined});
+        if(error)throw error;
+        uploadedUrls.push(sb.storage.from('avatars').getPublicUrl(path).data.publicUrl);
+      }
+      return uploadedUrls;
+    }
+
+    async function generate(){
+      const prompt=$('prompt').value.trim();
+      if(!prompt)return note('Describe what you want to create first.','err');
+      const session=await auth();
+      if(!session)return note('Please sign in to Fuse Atelier again before generating.','err');
+
+      const btn=$('generateBtn');btn.disabled=true;btn.textContent='Preparing…';note('');
+      try{
+        let refs=[];
+        if(files.length){btn.textContent='Uploading references…';refs=await uploadRefs(session)}
+        const m=activeModel();
+        btn.textContent='Submitting…';
+        const res=await fetch('/api/generate',{
+          method:'POST',
+          headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},
+          body:JSON.stringify({
+            prompt,model:m.api,aspect,count:batch,res:quality==='4K'?3:1,
+            reference_image_urls:refs.length?refs:undefined
+          })
+        });
+        const data=await res.json().catch(()=>({}));
+        if(!res.ok){
+          if(res.status===402)throw new Error('Not enough credits. Top up your credits and try again.');
+          throw new Error(data.error||'Generation could not start.');
+        }
+        note('Started successfully — opening your Library.','ok');
+        btn.textContent='Started ✓';
+        setTimeout(()=>location.href='/app/workspace.html?view=library',650);
+      }catch(e){
+        note(e.message||'Generation failed. Your credits were not charged.','err');
+        btn.disabled=false;btn.innerHTML='Generate ✦ <span id="creditCost"></span>';updateCost();
+      }
+    }
+
+    $('closeBtn').onclick=()=>location.href='studio.html';
+    $('uploadBtn').onclick=()=>$('fileInput').click();
+    $('uploadZone').onclick=e=>{if(e.target.closest('button'))return;$('fileInput').click();};
+    $('fileInput').onchange=e=>{addFiles(e.target.files);e.target.value='';};
+    ['dragenter','dragover'].forEach(ev=>$('uploadZone').addEventListener(ev,e=>{e.preventDefault();$('uploadZone').classList.add('drag')}));
+    ['dragleave','drop'].forEach(ev=>$('uploadZone').addEventListener(ev,e=>{e.preventDefault();$('uploadZone').classList.remove('drag')}));
+    $('uploadZone').addEventListener('drop',e=>addFiles(e.dataTransfer.files));
+
+    $('aspectChip').onclick=e=>{e.stopPropagation();const p=$('aspectPop');const was=p.classList.contains('open');closePops();p.classList.toggle('open',!was)};
+    $('qualityChip').onclick=e=>{e.stopPropagation();const p=$('qualityPop');const was=p.classList.contains('open');closePops();p.classList.toggle('open',!was)};
+    $('batchChip').onclick=e=>{e.stopPropagation();const p=$('batchPop');const was=p.classList.contains('open');closePops();p.classList.toggle('open',!was)};
+    document.querySelectorAll('[data-quality]').forEach(b=>b.onclick=()=>{quality=b.dataset.quality;closePops();updateCost()});
+    document.querySelectorAll('[data-batch]').forEach(b=>b.onclick=()=>{batch=+b.dataset.batch;closePops();updateCost()});
+    document.addEventListener('click',e=>{if(!e.target.closest('.popover')&&!e.target.closest('.chip'))closePops()});
+
+    $('modelTrigger').onclick=()=>{$('modelOverlay').classList.add('open');$('modelSearch').focus()};
+    $('modelOverlay').onclick=e=>{if(e.target===$('modelOverlay'))$('modelOverlay').classList.remove('open')};
+    $('modelSearch').oninput=e=>renderModels(e.target.value);
+
+    $('featureTrigger').onclick=e=>{e.stopPropagation();const m=$('featureMenu');m.classList.toggle('open');$('featureTrigger').setAttribute('aria-expanded',m.classList.contains('open'))};
+    document.addEventListener('click',e=>{if(!e.target.closest('#featureMenu')&&!e.target.closest('#featureTrigger')){$('featureMenu').classList.remove('open');$('featureTrigger').setAttribute('aria-expanded','false')}});
+
+    $('prompt').addEventListener('input',()=>{if(selectedKey==='auto')updateCost()});
+    $('generateBtn').onclick=generate;
+
+    renderAspects();renderModels();renderThumbs();updateCost();
+  </script>
+</body>
+</html>
