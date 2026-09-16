@@ -219,6 +219,7 @@
     .notice{margin:14px auto 0;max-width:600px;color:#91a7a5;font-size:15px;line-height:1.5;font-weight:300;text-align:center}
     .checkout-status{min-height:19px;margin:10px auto 0;color:#c3d3d1;font-size:15px;font-weight:300;text-align:center}
     .checkout-status.error{color:#ffd0bf}
+    .checkout-status.success{color:#DFFF4E;font-weight:400}
 
     .sticky-buy{
       position:fixed;left:50%;transform:translateX(-50%);bottom:calc(91px + env(safe-area-inset-bottom));
@@ -390,17 +391,41 @@
     updateBuy();
 
     window.addEventListener('load',async()=>{
+      const status=document.getElementById('checkoutStatus');
+      const params=new URLSearchParams(location.search);
+      const payment=params.get('payment');
+
+      if(payment==='success'){
+        const added=Math.max(0,parseInt(params.get('credits')||'0',10)||0);
+        status.className='checkout-status success';
+        status.textContent=added
+          ? `Payment successful — ${added} credits have been added to your account.`
+          : 'Payment successful — your credits have been added.';
+        document.getElementById('buyButton').disabled=false;
+        history.replaceState({},'',location.pathname);
+      }else if(payment==='failed'||payment==='amount_mismatch'||payment==='verify_error'){
+        status.className='checkout-status error';
+        status.textContent=payment==='amount_mismatch'
+          ? 'We could not confirm the correct payment amount. Your account was not charged with credits.'
+          : 'We could not confirm that payment yet. If you completed payment, please wait a moment and refresh.';
+        history.replaceState({},'',location.pathname);
+      }
+
       try{
         const response=await fetch('/api/studio-config',{signal:AbortSignal.timeout(8000)});
         if(response.ok){
           const config=await response.json();
           if(config.paymentsConfigured===false){
-            document.getElementById('checkoutStatus').textContent='Checkout is being connected. You can still review the packs.';
+            status.className='checkout-status error';
+            status.textContent='Checkout is temporarily unavailable.';
             document.getElementById('buyButton').disabled=true;
           }
         }
       }catch{}
-      if(window.Fuse) Fuse.balance().catch(()=>{});
+
+      if(window.Fuse){
+        try{await Fuse.balance()}catch{}
+      }
     });
   </script>
 </body>
