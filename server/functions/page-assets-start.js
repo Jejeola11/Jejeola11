@@ -30,7 +30,8 @@ exports.handler=async(event)=>{
     if(!q.data)return json(404,{error:'Website project not found.'});
 
     const spec=q.data.site_spec||{};
-    if(!spec.assets||spec.assets.generate!==true){
+    const force=body.force===true;
+    if((!spec.assets||spec.assets.generate!==true)&&!force){
       return json(200,{ok:true,started:[],skipped:true,message:'AI asset generation is off for this project.'});
     }
 
