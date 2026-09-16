@@ -452,13 +452,13 @@
       }
     }
 
-    async function startAssets(force=false){
+    async function startAssets(force=false,kind=''){
       if(!projectId||(!brief.generateAssets&&!force))return;
       assetBox.hidden=false;
       assetSummary.textContent='Starting';
       assetList.innerHTML='<div class="asset-row" data-status="processing"><i class="asset-dot"></i><b>Preparing website visuals</b><em>Starting…</em></div>';
       try{
-        const out=await Fuse.api('page-assets-start',{project_id:projectId,force});
+        const out=await Fuse.api('page-assets-start',{project_id:projectId,force,kind});
         if(out.errors&&out.errors.length&&!out.started?.length){
           setStatus(out.errors[0],'error');
         }else if(out.errors&&out.errors.length){
@@ -620,8 +620,7 @@
       if(selected.kind==='hero'){
         brief.generateAssets=true;
         setStatus('Generating a fresh hero '+kind+'. Normal '+(kind==='video'?'Video':'Image')+' credits apply…');
-        if(kind==='image')await startAssets(true);
-        else await startAssets(true);
+        await startAssets(true,kind);
         return;
       }
       try{
