@@ -20,7 +20,9 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'GET') return { statusCode: 405, body: 'Method not allowed' };
 
   const secret = (process.env.PAYSTACK_SECRET_KEY || '').trim();
-  const appUrl = (process.env.APP_URL || 'https://fuse-atelier.vercel.app').replace(/\/+$/, '');
+  const forwardedHost = event.headers['x-forwarded-host'] || event.headers.host || '';
+  const forwardedProto = event.headers['x-forwarded-proto'] || 'https';
+  const appUrl = (forwardedHost ? `${forwardedProto}://${forwardedHost}` : (process.env.APP_URL || 'https://fuse-atelier.vercel.app')).replace(/\/+$/, '');
   const q = event.queryStringParameters || {};
   const reference = String(q.reference || q.trxref || '').trim();
 
