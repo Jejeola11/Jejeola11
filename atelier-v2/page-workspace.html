@@ -303,7 +303,7 @@
       workspaceState.textContent=(out.project.status||'draft').toUpperCase();
       askBox.hidden=false;
       if(out.project.status==='published'&&out.project.slug){
-        publicLink.href='/api/page-site?slug='+encodeURIComponent(out.project.slug);
+        publicLink.href='/p/'+encodeURIComponent(out.project.slug);
         publicLink.classList.add('on');
       }
     }
