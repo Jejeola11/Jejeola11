@@ -92,7 +92,29 @@ exports.handler=async(event)=>{
     const target=clean(body.target,80);
     let note='Visual editor update';
 
-    if(target==='hero'){
+    if(target==='site'){
+      if(operation!=='update')return json(400,{error:'Site settings support direct edits only.'});
+      const patch=body.patch&&typeof body.patch==='object'?body.patch:{};
+      spec.meta=spec.meta||{};
+      spec.nav=spec.nav||{};
+      spec.contact=spec.contact||{};
+      spec.theme=spec.theme||{};
+      if(patch.brand!==undefined){
+        const brand=clean(patch.brand,100);
+        spec.nav.brand=brand;
+        spec.meta.title=brand||spec.meta.title;
+      }
+      if(patch.objective!==undefined)spec.meta.objective=clean(patch.objective,500);
+      if(patch.audience!==undefined)spec.meta.audience=clean(patch.audience,500);
+      if(patch.cta!==undefined)spec.nav.cta=clean(patch.cta,100);
+      if(patch.cta_url!==undefined)spec.contact.cta_url=safeUrl(patch.cta_url);
+      if(patch.email!==undefined)spec.contact.email=clean(patch.email,180);
+      if(patch.phone!==undefined)spec.contact.phone=clean(patch.phone,80);
+      if(patch.mode==='dark'||patch.mode==='light')spec.theme.mode=patch.mode;
+      if(typeof patch.accent==='string'&&/^#[0-9a-f]{6}$/i.test(patch.accent))spec.theme.accent=patch.accent;
+      if(typeof patch.secondary==='string'&&/^#[0-9a-f]{6}$/i.test(patch.secondary))spec.theme.secondary=patch.secondary;
+      note='Updated site settings';
+    }else if(target==='hero'){
       if(operation!=='update')return json(400,{error:'Hero supports direct edits only.'});
       spec.hero=spec.hero||{};
       const patch=body.patch&&typeof body.patch==='object'?body.patch:{};
