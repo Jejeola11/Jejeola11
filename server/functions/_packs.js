@@ -15,10 +15,16 @@
 // as before) — naira prices are UNCHANGED, only the credit counts dropped.
 // Old credit counts are kept in trailing comments for reference.
 const PACKS = {
-  // ---- One-time credit packs (paid by transfer, instant, no recurring) ----
-  starter: { label: 'Starter',  amount_naira: 2500,  credits: 10,  kind: 'pack' }, // was 60
-  creator: { label: 'Creator',  amount_naira: 6000,  credits: 30, kind: 'pack' }, // best value // was 180
-  pro:     { label: 'Pro Pack', amount_naira: 12000, credits: 70, kind: 'pack' }, // was 420
+  // ---- One-time Fuse Atelier credit packs — 16 Sep 2026 ----
+  // Exact student-facing prices used by atelier-v2/pricing.html.
+  // amount_usd is display guidance for international buyers; Paystack currently
+  // initializes NGN checkout from amount_naira.
+  starter: { label: 'Starter', amount_naira: 1000,  amount_usd: 1,  credits: 10,  kind: 'pack' },
+  mini:    { label: 'Mini',    amount_naira: 2500,  amount_usd: 2,  credits: 26,  kind: 'pack' },
+  creator: { label: 'Creator', amount_naira: 5000,  amount_usd: 4,  credits: 55,  kind: 'pack' },
+  pro:     { label: 'Pro',     amount_naira: 10000, amount_usd: 8,  credits: 115, kind: 'pack' },
+  studio:  { label: 'Studio',  amount_naira: 20000, amount_usd: 15, credits: 240, kind: 'pack' },
+  power:   { label: 'Power',   amount_naira: 50000, amount_usd: 38, credits: 650, kind: 'pack' },
 
   // ---- Monthly plans (renew by paying again; we remind before expiry) ----
   // Repriced 10 Aug 2026 (Ria's second pricing pass) — naira AND credits both
@@ -65,9 +71,9 @@ const PACKS = {
 
   // ---- Credit top-up bundles (one-time; buy anytime, even mid-plan) ----
   // Repriced again 10 Aug 2026 (Ria's second pass, exact numbers given).
-  bundle_120: { label: '20 credits', amount_naira: 3000,  credits: 20, kind: 'pack' }, // was 17
-  bundle_320: { label: '40 credits', amount_naira: 7000,  credits: 40, kind: 'pack' }, // was 45
-  bundle_750: { label: '100 credits', amount_naira: 15000, credits: 100, kind: 'pack' }, // was 97
+  bundle_120: { label: '20 credits', amount_naira: 3000,  credits: 20, kind: 'legacy_pack' }, // was 17
+  bundle_320: { label: '40 credits', amount_naira: 7000,  credits: 40, kind: 'legacy_pack' }, // was 45
+  bundle_750: { label: '100 credits', amount_naira: 15000, credits: 100, kind: 'legacy_pack' }, // was 97
 };
 
 // ============================================================
