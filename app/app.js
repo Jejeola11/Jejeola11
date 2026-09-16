@@ -427,6 +427,10 @@ function syncSubnav(go) {
  document.querySelectorAll('.subnav-tab').forEach((t) => t.classList.toggle('active', t.dataset.go === go));
 }
 function showView(name, opts = {}) {
+ if (name === 'library' && location.pathname.indexOf('/app/workspace') !== -1) {
+   location.href = '/atelier-v2/library.html';
+   return;
+ }
  scrollMem[curView] = window.scrollY; // remember where we were
  document.querySelectorAll('.view').forEach((v) => v.classList.remove('active'));
  const el = $('view-' + name);
