@@ -143,7 +143,7 @@
     const tabs=['All','Image','Video','Twin','Page','Voice','Flyer','Content','Lipsync','UGC'];
 
     const tools=[
-      {cat:'Image',title:'Create Image',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1788626963/4870020.png',route:'studio:generate'},
+      {cat:'Image',title:'Create Image',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1788626963/4870020.png',href:'image-create.html'},
       {cat:'Video',title:'Create Video',video:'/atelier-site/assets/course-ai-ugc.mp4',route:'video-seedance'},
       {cat:'Page',title:'Build Landing Page',img:'/atelier-site/assets/work/landing-card.jpg',fallback:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789492222/fuse-atelier/academy/landing-card.webp',href:'../pitchpilot/site-builder.html'},
       {cat:'Twin',title:'Create Your AI Twin',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789528511/fuse-atelier/create/ai-twin-car.jpg',route:'avatar'},
@@ -159,14 +159,14 @@
         title:'Image models',
         text:'Fast everyday generations, premium campaign visuals and consistent characters.',
         items:[
-          {name:'GPT Image 2.5 Sunburst',badge:'BEST QUALITY',credits:'2 credits',desc:'Precision, detail and premium campaign images.',visual:'sunburst',word:'2.5'},
-          {name:'GPT Image 2.5 Flare',badge:'FAST',credits:'2 credits',desc:'Fast, polished everyday image generation.',visual:'flare',word:'FLARE'},
-          {name:'MiniMax H3 Image',badge:'PHOTOREAL',credits:'1 credit',desc:'Natural portraits and realistic commercial stills.',visual:'minimax',word:'H3'},
-          {name:'Seedream 5 Pro',badge:'MARKETING',credits:'3 credits',desc:'Strong composition, products and campaign graphics.',visual:'seedream',word:'5 PRO',route:'image:seedream-5.0'},
-          {name:'Nano Banana 2',badge:'CONSISTENT',credits:'4 credits',desc:'Reliable characters, references and creative edits.',visual:'nano',word:'NB 2',route:'image:nano-banana-2'},
-          {name:'Nano Banana Pro',badge:'4K PRO',credits:'8 credits',desc:'High-resolution professional imagery and precise edits.',visual:'nanopro',word:'4K'},
-          {name:'Flux 2 Pro',badge:'CREATIVE',credits:'2 credits',desc:'Stylized campaigns with sharp prompt control.',visual:'flux',word:'FLUX',route:'image:flux-2-pro'},
-          {name:'Qwen Image 3 Pro',badge:'TYPOGRAPHY',credits:'3 credits',desc:'Clean text, posters and commercial compositions.',visual:'qwen',word:'QWEN'}
+          {name:'GPT Image 2.5 Sunburst',badge:'BEST QUALITY',credits:'2 credits',desc:'Precision, detail and premium campaign images.',visual:'sunburst',word:'2.5',route:'imagepage:sunburst'},
+          {name:'GPT Image 2.5 Flare',badge:'FAST',credits:'2 credits',desc:'Fast, polished everyday image generation.',visual:'flare',word:'FLARE',route:'imagepage:flare'},
+          {name:'MiniMax H3 Image',badge:'PHOTOREAL',credits:'1 credit',desc:'Natural portraits and realistic commercial stills.',visual:'minimax',word:'H3',route:'imagepage:minimax-h3'},
+          {name:'Seedream 5 Pro',badge:'MARKETING',credits:'3 credits',desc:'Strong composition, products and campaign graphics.',visual:'seedream',word:'5 PRO',route:'imagepage:seedream-5-pro'},
+          {name:'Nano Banana 2',badge:'CONSISTENT',credits:'4 credits',desc:'Reliable characters, references and creative edits.',visual:'nano',word:'NB 2',route:'imagepage:nano-banana-2'},
+          {name:'Nano Banana Pro',badge:'4K PRO',credits:'8 credits',desc:'High-resolution professional imagery and precise edits.',visual:'nanopro',word:'4K',route:'imagepage:nano-banana-pro'},
+          {name:'Flux 2 Pro',badge:'CREATIVE',credits:'2 credits',desc:'Stylized campaigns with sharp prompt control.',visual:'flux',word:'FLUX',route:'imagepage:flux-2-pro'},
+          {name:'Qwen Image 3 Pro',badge:'TYPOGRAPHY',credits:'3 credits',desc:'Clean text, posters and commercial compositions.',visual:'qwen',word:'QWEN',route:'imagepage:qwen-image-3-pro'}
         ]
       },
       Video:{
@@ -277,7 +277,7 @@
 
     function wireModelRoutes(){
       document.querySelectorAll('.model-card[data-route]').forEach(card=>{
-        const open=()=>location.href=workspace(card.dataset.route);
+        const open=()=>{const r=card.dataset.route||'';location.href=r.startsWith('imagepage:')?'image-create.html?model='+encodeURIComponent(r.slice(10)):workspace(r);};
         card.onclick=open;
         card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}};
       });
