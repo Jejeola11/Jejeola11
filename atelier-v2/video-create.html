@@ -96,7 +96,15 @@
     .pop-title{padding:12px 15px 8px;color:#849797;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.05em}
     .pop-list button{width:100%;height:48px;border:0;border-top:1px solid rgba(49,84,86,.34);background:transparent;color:#fff;text-align:left;padding:0 16px;font-size:15px;font-weight:400}
     .pop-list button.on{background:rgba(27,76,82,.34);color:#DFFF4E}
-    .duration-pop{width:180px;bottom:92px;left:max(14px,calc(50% - 350px))}
+    .custom-duration{display:none;padding:10px 12px 12px;border-top:1px solid rgba(49,84,86,.34)}
+    .custom-duration.show{display:block}
+    .custom-duration label{display:block;color:#8fa4a3;font-size:11px;font-weight:400;margin-bottom:7px}
+    .custom-duration-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}
+    .custom-duration input{min-width:0;height:40px;border:1px solid rgba(49,84,86,.65);border-radius:11px;background:#00191B;color:#fff;padding:0 10px;font-size:14px;font-weight:300;outline:0}
+    .custom-duration input:focus{border-color:#DFFF4E}
+    .custom-duration button{height:40px;border:0;border-radius:11px;background:var(--chrome);color:#001012;padding:0 12px;font-size:12px;font-weight:500}
+    .custom-duration small{display:block;margin-top:6px;color:#6f8583;font-size:10px;font-weight:300}
+    .duration-pop{width:210px;bottom:92px;left:max(14px,calc(50% - 350px))}
     .aspect-pop{width:180px;bottom:92px;left:50%;transform:translateX(-50%)}
     .quality-pop{width:180px;bottom:92px;right:max(14px,calc(50% - 350px))}
 
@@ -186,7 +194,18 @@
     </div>
   </div>
 
-  <div class="popover duration-pop" id="durationPop"><div class="pop-title">Duration</div><div class="pop-list" id="durationList"></div></div>
+  <div class="popover duration-pop" id="durationPop">
+    <div class="pop-title">Duration</div>
+    <div class="pop-list" id="durationList"></div>
+    <div class="custom-duration" id="customDurationWrap">
+      <label for="customDuration">Custom seconds</label>
+      <div class="custom-duration-row">
+        <input id="customDuration" type="number" min="4" max="30" step="1" inputmode="numeric" placeholder="14">
+        <button id="applyDuration" type="button">Apply</button>
+      </div>
+      <small>Seedance 2.5 supports any whole number from 4–30s.</small>
+    </div>
+  </div>
   <div class="popover aspect-pop" id="aspectPop"><div class="pop-title">Aspect ratio</div><div class="pop-list" id="aspectList"></div></div>
   <div class="popover quality-pop" id="qualityPop"><div class="pop-title">Quality</div><div class="pop-list" id="qualityList"></div></div>
 
@@ -225,7 +244,7 @@
       {key:'wan-3',name:'Wan 3.0',desc:'Flexible 2–30s video with strong image guidance and native audio.',short:'W3',api:'wan-3-text-to-video',res:['480p','720p','1080p'],dur:[2,5,8,10,15,30],aspects:['16:9','9:16','1:1','4:3','3:4'],preview:'/app/media/samples/vid2.mp4',tag:'BEST VALUE',fresh:true},
       {key:'grok-imagine',name:'Grok Imagine',desc:'Fast, punchy social video generation.',short:'GX',api:'grok-imagine-text-to-video',res:['720p'],dur:[6,10],aspects:['16:9','9:16'],preview:'/app/media/samples/vid2.mp4',base:1,tag:'FAST'},
       {key:'kling-standard',name:'Kling 3.0 Standard',desc:'Polished motion and cinematic control.',short:'K3',api:'kling-v3-turbo-standard-text-to-video',res:['720p'],dur:[5,10],aspects:['16:9','9:16','1:1'],preview:'/app/media/samples/vid4.mp4',base:9,tag:'CINEMATIC'},
-      {key:'seedance-2.5',name:'Seedance 2.5',desc:'WaveSpeed Seedance 2.5 with up to six image, video or audio references, native audio and 4–30s generation.',short:'S2.5',api:'seedance-2.5-image-to-video',res:['480p','720p','1080p','4k'],dur:[4,5,8,10,15,20,25,30],aspects:['16:9','9:16','4:3','3:4','1:1','21:9'],preview:'/app/media/samples/vid3.mp4',tag:'6 REFS',fresh:true,mixedRefs:true},
+      {key:'seedance-2.5',name:'Seedance 2.5',desc:'WaveSpeed Seedance 2.5 with up to six image, video or audio references, native audio and 4–30s generation.',short:'S2.5',api:'seedance-2.5-image-to-video',res:['480p','720p','1080p','4k'],dur:[4,5,8,10,15,20,25,30],customDur:[4,30],aspects:['16:9','9:16','4:3','3:4','1:1','21:9'],preview:'/app/media/samples/vid3.mp4',tag:'6 REFS',fresh:true,mixedRefs:true},
       {key:'veo-fast',name:'Veo 3.1 Fast',desc:'High-end cinematic prompting for premium storytelling.',short:'V3',api:'veo3-text-to-video',res:['720p'],dur:[8],aspects:['16:9','9:16'],preview:'/app/media/samples/vid5.mp4',base:22,tag:'PREMIUM'},
       {key:'omni-flash',name:'Gemini Omni Flash 1.1',desc:'Fast synchronized-audio video generation from text or image.',short:'GO',api:'gemini-omni-1.1-flash-text-to-video',res:['360p','720p','1080p','4k'],dur:[3,5,8,10],aspects:['16:9','9:16'],preview:'/app/media/samples/vid3.mp4',tag:'OMNI',fresh:true}
     ];
@@ -235,7 +254,7 @@
       'seedance-2.5':{'480p':.18,'720p':.36,'1080p':.90,'4k':1.80},
       'omni-flash':{'360p':.03,'720p':.10,'1080p':.15,'4k':.30}
     };
-    const CREDIT_USD=.11, MARGIN=2;
+    const CREDIT_USD=.11, MARGIN=2, SEEDANCE_CREDIT_USD=.05;
     let selectedKey=new URLSearchParams(location.search).get('model')||'auto';
     if(selectedKey!=='auto'&&!MODELS.some(m=>m.key===selectedKey))selectedKey='auto';
     let duration=5,aspect='9:16',quality='720p',audioOn=true,files=[],uploadedRefs=[];
@@ -258,7 +277,11 @@
 
     function normalizedSettings(){
       const m=active();
-      if(!m.dur.includes(duration))duration=m.dur.includes(5)?5:m.dur[0];
+      if(m.customDur){
+        duration=Math.min(m.customDur[1],Math.max(m.customDur[0],Math.round(Number(duration)||5)));
+      }else if(!m.dur.includes(duration)){
+        duration=m.dur.includes(5)?5:m.dur[0];
+      }
       if(!m.res.includes(quality))quality=m.res.includes('720p')?'720p':m.res[0];
       if(!aspectLocked()&&!m.aspects.includes(aspect)){
         aspect=m.aspects.includes('9:16')?'9:16':m.aspects[0];
@@ -272,10 +295,13 @@
           const refRates={'480p':.11,'720p':.22,'1080p':.55,'4k':1.10};
           const refSecs=Math.min(30,videoFiles.reduce((s,f)=>s+Math.max(2,Math.ceil(fileDurations.get(f)||0)),0));
           const rate=refRates[quality]??refRates['720p'];
-          return Math.max(1,Math.ceil((rate*(duration+refSecs)/CREDIT_USD)*MARGIN));
+          return Math.max(1,Math.ceil((rate*(duration+refSecs)/SEEDANCE_CREDIT_USD)*MARGIN));
         }
       }
-      if(rates)return Math.max(1,Math.ceil(((rates[quality]??rates[Object.keys(rates)[0]])*duration/CREDIT_USD)*MARGIN));
+      if(rates){
+        const creditUsd=m.key==='seedance-2.5'?SEEDANCE_CREDIT_USD:CREDIT_USD;
+        return Math.max(1,Math.ceil(((rates[quality]??rates[Object.keys(rates)[0]])*duration/creditUsd)*MARGIN));
+      }
       return (m.base||1)*(duration>=10?2:1);
     }
     function updateUI(){
@@ -307,6 +333,13 @@
     function renderControls(){
       const m=active();
       $('durationList').innerHTML=m.dur.map(v=>`<button data-dur="${v}" class="${v===duration?'on':''}">${v}s</button>`).join('');
+      const customWrap=$('customDurationWrap');
+      customWrap.classList.toggle('show',!!m.customDur);
+      if(m.customDur){
+        $('customDuration').min=m.customDur[0];
+        $('customDuration').max=m.customDur[1];
+        $('customDuration').value=duration;
+      }
       $('aspectList').innerHTML=aspectLocked()
         ? '<button class="on" disabled>Aspect follows start image</button>'
         : m.aspects.map(v=>`<button data-aspect="${v}" class="${v===aspect?'on':''}">${v}</button>`).join('');
@@ -315,6 +348,21 @@
       $('aspectList').querySelectorAll('button[data-aspect]').forEach(b=>b.onclick=()=>{aspect=b.dataset.aspect;closePops();updateUI()});
       $('qualityList').querySelectorAll('button').forEach(b=>b.onclick=()=>{quality=b.dataset.quality;closePops();updateUI()});
     }
+    function applyCustomDuration(){
+      const m=active();
+      if(!m.customDur)return;
+      let v=Math.round(Number($('customDuration').value));
+      if(!Number.isFinite(v))v=duration;
+      v=Math.min(m.customDur[1],Math.max(m.customDur[0],v));
+      duration=v;
+      closePops();
+      updateUI();
+    }
+    $('applyDuration').onclick=applyCustomDuration;
+    $('customDuration').addEventListener('keydown',e=>{
+      if(e.key==='Enter'){e.preventDefault();applyCustomDuration()}
+    });
+
     function renderModels(q=''){
       q=q.trim().toLowerCase();
       const list=MODELS.filter(m=>!q||m.name.toLowerCase().includes(q)||m.desc.toLowerCase().includes(q));
