@@ -207,10 +207,10 @@ const VIDEO_COST = {        // real $ cost, WaveSpeed-first (see _providers.js) 
   'minimax-h3-text-to-video': 0.20,             'minimax-h3-image-to-video': 0.20,   // 5s @480p
   'wan-3-text-to-video': 0.25,                  'wan-3-image-to-video': 0.25,        // 5s @480p
   'gemini-omni-1.1-flash-text-to-video': 0.15, 'gemini-omni-1.1-flash-image-to-video': 0.15, // 5s @360p
-  // Seedance 2.5 multimodal reference workflow. Base = 5s @480p with no
-  // reference video. Actual request pricing is calculated below from
-  // WaveSpeed's current Sep 2026 per-second schedule.
-  'seedance-2.5-reference-to-video': 0.90,
+  // Exact WaveSpeed non-turbo Seedance 2.5 Image-to-Video.
+  // Official WaveSpeed base price: $0.90 per 5s @480p.
+  // Actual duration + resolution pricing is calculated below.
+  'seedance-2.5-image-to-video': 0.90,
   'veo3-text-to-video': 1.20,                  'veo3-image-to-video': 1.20,
   // Omni Studio (verified live against MuAPI's catalog + validation endpoints)
   'gemini-omni-video-edit': 2.40,              // needs a Pro/Business MuAPI plan — see omni-video-edit.js
@@ -265,27 +265,15 @@ const VIDEO_DYNAMIC_RATES = {
   'wan-3-image-to-video': { '480p': 0.05, '720p': 0.10, '1080p': 0.20 },
   'gemini-omni-1.1-flash-text-to-video': { '360p': 0.03, '720p': 0.10, '1080p': 0.15, '4k': 0.30 },
   'gemini-omni-1.1-flash-image-to-video': { '360p': 0.03, '720p': 0.10, '1080p': 0.15, '4k': 0.30 },
-  // WaveSpeed Seedance 2.5 output-only rates (USD / generated second).
-  'seedance-2.5-reference-to-video': { '480p': 0.18, '720p': 0.36, '1080p': 0.90, '4k': 1.80 },
+  // WaveSpeed Seedance 2.5 Image-to-Video official USD / generated second.
+  // 480p $0.18/s · 720p $0.36/s · 1080p $0.90/s · 4K $1.80/s.
+  'seedance-2.5-image-to-video': { '480p': 0.18, '720p': 0.36, '1080p': 0.90, '4k': 1.80 },
 };
-const SEEDANCE25_REFERENCE_VIDEO_RATES = { '480p': 0.11, '720p': 0.22, '1080p': 0.55, '4k': 1.10 };
 function videoCreditsForRequest(model, duration, resolution, pricingContext = {}) {
   const rates = VIDEO_DYNAMIC_RATES[model];
   if (rates) {
     const keys = Object.keys(rates);
     const outputSecs = Math.max(1, Math.ceil(parseFloat(duration) || 5));
-    if (model === 'seedance-2.5-reference-to-video' && Number(pricingContext.referenceVideoCount || 0) > 0) {
-      const rate = SEEDANCE25_REFERENCE_VIDEO_RATES[resolution] != null
-        ? SEEDANCE25_REFERENCE_VIDEO_RATES[resolution]
-        : SEEDANCE25_REFERENCE_VIDEO_RATES['720p'];
-      // WaveSpeed normalizes each reference video to at least 2s, caps the
-      // combined reference-video input at 30s, and bills normalized reference
-      // seconds + output seconds at the reference-video rate.
-      const count = Math.min(10, Math.max(0, Math.floor(Number(pricingContext.referenceVideoCount) || 0)));
-      const supplied = Math.max(0, Math.ceil(Number(pricingContext.referenceVideoSeconds) || 0));
-      const referenceSecs = Math.min(30, Math.max(count * 2, supplied));
-      return creditsFor(rate * (outputSecs + referenceSecs), VIDEO_MARGIN);
-    }
     const rate = rates[resolution] != null ? rates[resolution] : rates[keys[0]];
     return creditsFor(rate * outputSecs, VIDEO_MARGIN);
   }
