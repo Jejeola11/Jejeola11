@@ -154,6 +154,19 @@
       margin-top:10px;padding:20px 12px;border:1px dashed rgba(49,84,86,.76);border-radius:15px;text-align:center;
       color:#94aaa8;font-size:13px;line-height:1.5;font-weight:300
     }
+    .recent-list{display:grid;gap:9px;margin-top:10px}
+    .recent-item{
+      min-height:62px;padding:10px 11px;border:1px solid rgba(49,84,86,.74);border-radius:15px;
+      display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;
+      text-decoration:none;color:#fff;background:#00191B
+    }
+    .recent-item strong{display:block;font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .recent-item span{display:block;margin-top:4px;color:#91a8a5;font-size:11px;font-weight:300}
+    .recent-item b{
+      min-width:76px;padding:7px 8px;border-radius:999px;text-align:center;
+      background:rgba(223,255,78,.08);border:1px solid rgba(223,255,78,.18);
+      color:#DFFF4E;font-size:10px;font-weight:400;text-transform:uppercase
+    }
     .notice{margin:17px auto 0;max-width:600px;text-align:center;color:#819795;font-size:13px;line-height:1.45;font-weight:300}
     @media(min-width:680px){
       .types{grid-template-columns:repeat(5,minmax(0,1fr))}
@@ -252,7 +265,7 @@
 
     <section class="recent">
       <h2>Your Fuse Pages</h2>
-      <div class="empty">Your generated websites will live here with preview, edit, duplicate, version history and publish controls.</div>
+      <div id="recentPages"><div class="empty">Your generated websites will live here with preview, edit, version history and publish controls.</div></div>
     </section>
 
     <p class="notice">V1 builder shell · website generation, AI asset orchestration, editing and publishing are being connected in stages.</p>
@@ -337,6 +350,27 @@
       if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();launch();}
     });
 
+    async function loadRecentPages(){
+      const root=document.getElementById('recentPages');
+      try{
+        const out=await Fuse.api('page-projects');
+        const projects=out.projects||[];
+        if(!projects.length){
+          root.innerHTML='<div class="empty">Your generated websites will live here with preview, edit, version history and publish controls.</div>';
+          return;
+        }
+        const names={landing:'Landing page',sales:'Sales page',business:'Business website',portfolio:'Portfolio','3d':'3D experience'};
+        root.innerHTML='<div class="recent-list">'+projects.slice(0,6).map(p=>{
+          const title=String(p.title||'Untitled website').replace(/[<>]/g,'');
+          const type=names[p.page_type]||'Website';
+          const status=String(p.status||'draft').replace(/[<>]/g,'');
+          return '<a class="recent-item" href="page-workspace.html?id='+encodeURIComponent(p.id)+'&type='+encodeURIComponent(p.page_type||'landing')+'"><div><strong>'+title+'</strong><span>'+type+' · '+new Date(p.updated_at||p.created_at).toLocaleDateString(undefined,{month:'short',day:'numeric'})+'</span></div><b>'+status+'</b></a>';
+        }).join('')+'</div>';
+      }catch(e){
+        root.innerHTML='<div class="empty">Could not load your saved websites right now.</div>';
+      }
+    }
+
     const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
     if(SpeechRecognition){
       voiceBtn.onclick=()=>{
@@ -355,7 +389,14 @@
       voiceBtn.onclick=()=>promptEl.focus();
       voiceBtn.title='Voice input is not supported in this browser';
     }
+
+    window.addEventListener('load',()=>{
+      if(window.Fuse){
+        Fuse.balance().catch(()=>{});
+        loadRecentPages();
+      }
+    });
   </script>
-  <script src="fuse-shell.js?v=pages-v1"></script>
+  <script src="fuse-shell.js?v=pages-engine-1"></script>
 </body>
 </html>
