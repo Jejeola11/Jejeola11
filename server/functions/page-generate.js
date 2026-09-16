@@ -204,6 +204,14 @@ Write specific conversion-focused copy based on the user's actual brief. Do not 
   if(!text) throw new Error('Site planning model returned no content.');
   return JSON.parse(text);
 }
+function ensureSectionIds(spec){
+  const out={...spec};
+  out.sections=(Array.isArray(spec.sections)?spec.sections:[]).map((s,i)=>({
+    ...s,
+    id: cleanText(s&&s.id,80) || ('sec-'+Date.now().toString(36)+'-'+(i+1)+'-'+Math.random().toString(36).slice(2,7))
+  }));
+  return out;
+}
 function projectTitle(spec,brief){
   const t=cleanText(spec?.meta?.title,80);
   return t&&t!=='Your Brand'?t:typeLabel(brief.type);
@@ -230,7 +238,7 @@ exports.handler=async(event)=>{
 
     let aiUsed=false,raw=null;
     try{raw=await geminiSpec(brief);aiUsed=!!raw}catch(e){console.error('[page-generate] Gemini fallback:',e&&e.message)}
-    const spec=normalizeSpec(raw,brief);
+    const spec=ensureSectionIds(normalizeSpec(raw,brief));
     const db=admin();
     const requestedProject=cleanText(body.project_id,80);
     let project=null;
