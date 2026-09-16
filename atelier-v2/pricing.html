@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#001012">
+  <title>Pricing · Fuse Atelier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
+  <script src="fuse-shell.js?v=pricing-1" defer></script>
+  <style>
+    :root{
+      --deep:#001012;
+      --mid:#00191B;
+      --light:#1B4C52;
+      --surface:#062125;
+      --line:#315456;
+      --yellow:#FFE66A;
+      --lime:#DFFF4E;
+      --white:#EEFFE0;
+      --text:#f7fbf7;
+      --muted:#a8bcba;
+      --chrome:linear-gradient(105deg,#FFE66A 0%,#DFFF4E 52%,#EEFFE0 100%);
+    }
+    *{box-sizing:border-box}
+    html{background:var(--deep);scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100svh;
+      overflow-x:hidden;
+      color:var(--text);
+      font-family:Montserrat,Arial,sans-serif;
+      background:
+        radial-gradient(circle at 92% 6%,rgba(27,76,82,.44),transparent 28%),
+        radial-gradient(circle at 6% 40%,rgba(223,255,78,.055),transparent 24%),
+        linear-gradient(112deg,var(--deep) 0%,var(--mid) 66%,#0b3034 100%);
+      padding-bottom:calc(172px + env(safe-area-inset-bottom));
+    }
+    button,a{font:inherit}
+    button{-webkit-tap-highlight-color:transparent}
+    .pricing-page{width:min(760px,calc(100% - 28px));margin:0 auto;padding:14px 0 44px}
+    .pricing-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}
+    .close-btn{
+      width:38px;height:38px;flex:none;border:1px solid rgba(238,255,224,.12);border-radius:50%;
+      display:grid;place-items:center;background:rgba(6,33,37,.86);color:#fff;text-decoration:none;
+      box-shadow:0 8px 22px rgba(0,0,0,.18)
+    }
+    .close-btn span{font-size:25px;line-height:.8;font-weight:300;transform:translateY(-1px)}
+    .brand{
+      margin:0;
+      font-size:25px;
+      line-height:1;
+      font-weight:500;
+      letter-spacing:-.8px;
+      background:var(--chrome);
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+    }
+    .balance-pill{
+      min-height:36px;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;
+      border:1px solid rgba(223,255,78,.25);border-radius:999px;background:rgba(6,33,37,.75);
+      color:#d7e5e3;font-size:13px;font-weight:400;white-space:nowrap
+    }
+
+    .promo{
+      position:relative;isolation:isolate;overflow:hidden;
+      min-height:230px;border:1px solid rgba(223,255,78,.34);border-radius:28px;
+      background:
+        radial-gradient(circle at 15% 18%,rgba(255,230,106,.32),transparent 22%),
+        radial-gradient(circle at 82% 24%,rgba(223,255,78,.22),transparent 24%),
+        linear-gradient(150deg,#082224 0%,#123f3c 50%,#071819 100%);
+      padding:28px 22px 24px;display:flex;flex-direction:column;justify-content:flex-end;
+      box-shadow:0 24px 64px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.05)
+    }
+    .promo:before,.promo:after{
+      content:"";position:absolute;border-radius:999px;z-index:-1;filter:blur(.2px);
+      border:1px solid rgba(238,255,224,.16);background:rgba(238,255,224,.04)
+    }
+    .promo:before{width:170px;height:170px;right:-42px;top:-54px;animation:floatOne 8s ease-in-out infinite}
+    .promo:after{width:92px;height:92px;left:-24px;top:52px;animation:floatTwo 6s ease-in-out infinite}
+    @keyframes floatOne{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(-12px,18px) rotate(8deg)}}
+    @keyframes floatTwo{0%,100%{transform:translate(0,0)}50%{transform:translate(15px,-8px)}}
+    .promo-kicker{
+      width:max-content;max-width:100%;display:inline-flex;align-items:center;gap:7px;
+      padding:7px 10px;border-radius:999px;background:var(--chrome);color:#001012;
+      font-size:13px;font-weight:500;margin-bottom:12px
+    }
+    .promo h1{margin:0;font-size:26px;line-height:1.02;font-weight:500;letter-spacing:-1.15px}
+    .promo h1 strong{
+      display:block;font-weight:500;font-size:clamp(44px,12vw,62px);letter-spacing:-2.6px;
+      background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent
+    }
+    .promo p{margin:11px 0 0;max-width:520px;color:#d5e3e1;font-size:14px;line-height:1.52;font-weight:300}
+
+    .intro{padding:24px 2px 14px}
+    .intro h2{margin:0;font-size:26px;line-height:1.08;font-weight:500;letter-spacing:-.9px}
+    .intro p{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.52;font-weight:300}
+
+    .packs{display:grid;grid-template-columns:1fr;gap:12px}
+    .pack-card{
+      width:100%;position:relative;overflow:hidden;text-align:left;color:#fff;
+      border:1.5px solid rgba(49,84,86,.95);border-radius:22px;background:rgba(6,33,37,.92);
+      padding:16px;cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease
+    }
+    .pack-card:active{transform:scale(.992)}
+    .pack-card[aria-pressed="true"]{
+      border-color:#DFFF4E;
+      box-shadow:0 0 0 1px rgba(223,255,78,.16),0 14px 34px rgba(0,0,0,.22);
+      background:
+        radial-gradient(circle at 92% 8%,rgba(223,255,78,.12),transparent 25%),
+        linear-gradient(145deg,#0a2a2d,#062125)
+    }
+    .pack-top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:11px}
+    .radio{
+      width:23px;height:23px;border:2px solid #547174;border-radius:50%;display:grid;place-items:center;flex:none
+    }
+    .pack-card[aria-pressed="true"] .radio{border-color:#DFFF4E;background:var(--chrome)}
+    .pack-card[aria-pressed="true"] .radio:after{content:"✓";font-size:13px;color:#001012;font-weight:500}
+    .pack-name{min-width:0}
+    .pack-name h3{margin:0;font-size:19px;line-height:1.15;font-weight:500;letter-spacing:-.45px}
+    .pack-name p{margin:4px 0 0;color:var(--muted);font-size:13px;font-weight:300}
+    .price-box{
+      min-width:98px;padding:11px 12px;border-radius:17px;text-align:right;
+      background:linear-gradient(145deg,rgba(49,84,86,.72),rgba(0,16,18,.86));
+      border:1px solid rgba(238,255,224,.08)
+    }
+    .price-box strong{display:block;font-size:20px;line-height:1;font-weight:500;letter-spacing:-.55px}
+    .price-box small{display:block;margin-top:6px;color:#c7d8d6;font-size:12px;font-weight:300}
+    .pack-rule{height:1px;background:rgba(49,84,86,.7);margin:14px 0 12px}
+    .pack-details{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .credits{font-size:16px;font-weight:400}
+    .value{color:var(--muted);font-size:13px;font-weight:300}
+    .tag{
+      position:absolute;right:14px;top:0;transform:translateY(-1px);
+      display:inline-flex;align-items:center;min-height:26px;padding:0 9px;border-radius:0 0 10px 10px;
+      background:var(--chrome);color:#001012;font-size:10px;font-weight:500;letter-spacing:.03em
+    }
+    .tag.alt{background:#0f4541;color:#DFFF4E;border:1px solid rgba(223,255,78,.22);border-top:0}
+
+    .why{margin-top:24px;padding:20px;border:1px solid rgba(49,84,86,.85);border-radius:24px;background:rgba(6,33,37,.72)}
+    .why h2{margin:0 0 13px;font-size:25px;line-height:1.08;font-weight:500;letter-spacing:-.75px}
+    .why-grid{display:grid;grid-template-columns:1fr;gap:10px}
+    .why-card{padding:14px;border:1px solid rgba(49,84,86,.66);border-radius:16px;background:rgba(0,16,18,.34)}
+    .why-card strong{display:block;font-size:15px;font-weight:400}
+    .why-card p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.45;font-weight:300}
+
+    .comparison{margin-top:24px}
+    .comparison h2{margin:0 0 12px;font-size:25px;font-weight:500;letter-spacing:-.75px}
+    .compare-box{overflow:hidden;border:1px solid rgba(49,84,86,.8);border-radius:20px;background:rgba(6,33,37,.62)}
+    .compare-row{display:grid;grid-template-columns:1.1fr .8fr .8fr;gap:8px;padding:12px 14px;border-bottom:1px solid rgba(49,84,86,.6);align-items:center}
+    .compare-row:last-child{border-bottom:0}
+    .compare-row.head{color:var(--muted);font-size:12px;font-weight:400}
+    .compare-row:not(.head){font-size:13px}
+    .compare-row span:nth-child(2),.compare-row span:nth-child(3){text-align:right}
+    .save{color:#DFFF4E}
+
+    .faq{margin-top:28px}
+    .faq h2{margin:0 0 12px;font-size:26px;line-height:1.05;font-weight:500;letter-spacing:-.9px}
+    .faq details{border:1px solid rgba(49,84,86,.82);border-radius:16px;background:rgba(6,33,37,.76);margin-bottom:9px;overflow:hidden}
+    .faq summary{list-style:none;padding:15px 16px;cursor:pointer;font-size:15px;font-weight:400;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .faq summary::-webkit-details-marker{display:none}
+    .faq summary:after{content:"⌄";font-size:17px;color:#DFFF4E}
+    .faq details[open] summary:after{transform:rotate(180deg)}
+    .faq p{margin:0;padding:0 16px 15px;color:var(--muted);font-size:13px;line-height:1.55;font-weight:300}
+
+    .notice{margin:14px 2px 0;color:#91a7a5;font-size:13px;line-height:1.5;font-weight:300}
+    .checkout-status{min-height:19px;margin:10px 2px 0;color:#c3d3d1;font-size:13px;font-weight:300}
+    .checkout-status.error{color:#ffd0bf}
+
+    .sticky-buy{
+      position:fixed;left:50%;transform:translateX(-50%);bottom:calc(91px + env(safe-area-inset-bottom));
+      z-index:990;width:min(732px,calc(100% - 28px));min-height:62px;border:0;border-radius:20px;
+      background:var(--chrome);color:#001012;font-size:16px;font-weight:500;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      box-shadow:0 10px 0 rgba(110,130,34,.48),0 22px 44px rgba(0,0,0,.3);
+      padding:12px 18px
+    }
+    .sticky-buy small{font-size:12px;font-weight:400;opacity:.72}
+    .sticky-buy:disabled{opacity:.55;cursor:not-allowed}
+    @media(min-width:680px){
+      .packs{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .why-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .promo{min-height:260px}
+    }
+    @media(max-width:390px){
+      .pricing-page{width:calc(100% - 22px)}
+      .brand{font-size:23px}
+      .balance-pill{font-size:12px;padding:0 10px}
+      .promo{padding:23px 17px 20px;border-radius:24px;min-height:220px}
+      .promo h1{font-size:24px}
+      .pack-card{padding:14px;border-radius:19px}
+      .pack-name h3{font-size:17px}
+      .price-box{min-width:89px;padding:10px}
+      .price-box strong{font-size:18px}
+      .credits{font-size:15px}
+      .sticky-buy{width:calc(100% - 22px)}
+    }
+    @media(prefers-reduced-motion:reduce){
+      *,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+    }
+  </style>
+</head>
+<body data-page="profile">
+  <main class="pricing-page">
+    <header class="pricing-head">
+      <a class="close-btn" href="home.html" aria-label="Close pricing"><span>×</span></a>
+      <h1 class="brand">Fuse Atelier</h1>
+      <span class="balance-pill" data-balance>My credits</span>
+    </header>
+
+    <section class="promo" aria-labelledby="promoTitle">
+      <span class="promo-kicker">✦ Credit packs · One-time top-up</span>
+      <h1 id="promoTitle"><strong>23% OFF</strong>PER CREDIT</h1>
+      <p>Go bigger, pay less per credit. The Power pack brings your credit cost down by about 23% compared with Starter.</p>
+    </section>
+
+    <section class="intro">
+      <h2>Choose your credit pack</h2>
+      <p>No subscription. Top up when you need it and use your credits across Fuse Create.</p>
+    </section>
+
+    <section class="packs" id="packs" aria-label="Credit packs"></section>
+
+    <section class="why">
+      <h2>Built for how creators actually work</h2>
+      <div class="why-grid">
+        <article class="why-card"><strong>One-time top-up</strong><p>Buy credits only when you need them. No monthly commitment on these packs.</p></article>
+        <article class="why-card"><strong>Use across Create</strong><p>Your balance works across supported image, video, voice and creator tools.</p></article>
+        <article class="why-card"><strong>Better value at scale</strong><p>Larger packs lower your effective cost per credit, up to about 23%.</p></article>
+      </div>
+    </section>
+
+    <section class="comparison">
+      <h2>Quick comparison</h2>
+      <div class="compare-box" id="compareBox"></div>
+    </section>
+
+    <section class="faq">
+      <h2>Frequently asked questions</h2>
+      <details><summary>How do credits work?</summary><p>Each Fuse Create model or tool has its own credit cost. Your balance is deducted only when you run a supported generation.</p></details>
+      <details><summary>Is this a subscription?</summary><p>No. These are one-time credit top-ups. You can buy another pack whenever you want more credits.</p></details>
+      <details><summary>Why does Power say 23% off per credit?</summary><p>Starter works out to ₦100 per credit. Power works out to about ₦76.92 per credit, which is roughly 23% lower.</p></details>
+      <details><summary>What does the dollar price mean?</summary><p>The USD amount is shown as a simple international price reference. The available checkout currency depends on the payment method connected to your account.</p></details>
+    </section>
+
+    <p class="notice">Prices shown are for one-time credit top-ups. Different AI models use different numbers of credits per generation.</p>
+    <p class="checkout-status" id="checkoutStatus" role="status"></p>
+  </main>
+
+  <button class="sticky-buy" id="buyButton" type="button">
+    <span id="buyLabel">Get Creator · ₦5,000 / $4</span>
+    <small>55 credits</small>
+  </button>
+
+  <script>
+    const PACKS = [
+      {id:'starter',name:'Starter',naira:1000,usd:1,credits:10},
+      {id:'mini',name:'Mini',naira:2500,usd:2,credits:26},
+      {id:'creator',name:'Creator',naira:5000,usd:4,credits:55,tag:'MOST POPULAR'},
+      {id:'pro',name:'Pro',naira:10000,usd:8,credits:115},
+      {id:'studio',name:'Studio',naira:20000,usd:15,credits:240,tag:'CREATOR VALUE',alt:true},
+      {id:'power',name:'Power',naira:50000,usd:38,credits:650,tag:'SAVE 23%',alt:true}
+    ];
+    const starterRate = PACKS[0].naira / PACKS[0].credits;
+    const fmtN = n => '₦' + n.toLocaleString('en-NG');
+    const perCredit = p => p.naira / p.credits;
+    const saving = p => Math.max(0,Math.round((1 - perCredit(p)/starterRate)*100));
+    let selected = PACKS.find(p=>p.id==='creator');
+
+    function packCard(p){
+      const save=saving(p);
+      return `<button class="pack-card" type="button" data-pack="${p.id}" aria-pressed="${p.id===selected.id?'true':'false'}">
+        ${p.tag?`<span class="tag ${p.alt?'alt':''}">${p.tag}</span>`:''}
+        <div class="pack-top">
+          <span class="radio" aria-hidden="true"></span>
+          <span class="pack-name"><h3>${p.name}</h3><p>${p.credits} credits</p></span>
+          <span class="price-box"><strong>${fmtN(p.naira)}</strong><small>$${p.usd}</small></span>
+        </div>
+        <div class="pack-rule"></div>
+        <div class="pack-details">
+          <span class="credits">${p.credits} credits</span>
+          <span class="value">${fmtN(Math.round(perCredit(p)*100)/100)}/credit${save? ` · <span class="save">save ${save}%</span>`:''}</span>
+        </div>
+      </button>`;
+    }
+
+    function render(){
+      document.getElementById('packs').innerHTML=PACKS.map(packCard).join('');
+      document.querySelectorAll('[data-pack]').forEach(card=>{
+        card.onclick=()=>{
+          selected=PACKS.find(p=>p.id===card.dataset.pack)||selected;
+          render();
+          updateBuy();
+        };
+      });
+      document.getElementById('compareBox').innerHTML=
+        '<div class="compare-row head"><span>Pack</span><span>Credits</span><span>Value</span></div>'+
+        PACKS.map(p=>`<div class="compare-row"><span>${p.name}</span><span>${p.credits}</span><span class="${saving(p)?'save':''}">${saving(p)?saving(p)+'% less':'Base'}</span></div>`).join('');
+    }
+
+    function updateBuy(){
+      document.getElementById('buyLabel').textContent=`Get ${selected.name} · ${fmtN(selected.naira)} / $${selected.usd}`;
+      document.querySelector('#buyButton small').textContent=`${selected.credits} credits`;
+    }
+
+    async function buy(){
+      const status=document.getElementById('checkoutStatus');
+      const btn=document.getElementById('buyButton');
+      btn.disabled=true;
+      status.className='checkout-status';
+      status.textContent='Opening secure checkout…';
+      try{
+        if(!window.Fuse) throw Error('Checkout is still loading. Please try again.');
+        const result=await Fuse.api('paystack-init',{pack:selected.id});
+        const url=new URL(result.authorization_url);
+        if(url.protocol!=='https:'||url.hostname!=='checkout.paystack.com') throw Error('Checkout address could not be verified.');
+        location.href=url.href;
+      }catch(err){
+        status.className='checkout-status error';
+        status.textContent=err.message||'Could not open checkout.';
+        btn.disabled=false;
+      }
+    }
+
+    document.getElementById('buyButton').onclick=buy;
+    render();
+    updateBuy();
+
+    window.addEventListener('load',async()=>{
+      try{
+        const response=await fetch('/api/studio-config',{signal:AbortSignal.timeout(8000)});
+        if(response.ok){
+          const config=await response.json();
+          if(config.paymentsConfigured===false){
+            document.getElementById('checkoutStatus').textContent='Checkout is being connected. You can still review the packs.';
+            document.getElementById('buyButton').disabled=true;
+          }
+        }
+      }catch{}
+      if(window.Fuse) Fuse.balance().catch(()=>{});
+    });
+  </script>
+</body>
+</html>
