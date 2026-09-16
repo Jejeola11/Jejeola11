@@ -387,7 +387,7 @@
         }catch(_){}
         note('Started successfully — opening your Library.','ok');
         btn.textContent='Started ✓';
-        setTimeout(()=>location.href='/app/workspace.html?view=library',500);
+        location.href='/atelier-v2/library.html';
       }catch(e){
         note(e.message||'Generation failed. Your credits were not charged.','err');
         btn.disabled=false;btn.innerHTML='Generate ✦ <span id="creditCost"></span>';updateCost();
