@@ -158,6 +158,17 @@ async function triggerTextWorker(requestId) {
 // Field names verified from each model's page (t2v: prompt/aspect_ratio/duration
 // /camera_fixed/seed; i2v adds image/last_image).
 const VIDEO_ROUTES = {
+  // Fuse Create flexible models (WaveSpeed native).
+  // MiniMax H3: 3-15s. Image-to-video follows the input image canvas, so
+  // aspect_ratio is deliberately omitted on that route.
+  'minimax-h3-text-to-video': { kind: 't2v', pick: () => 'wavespeed-ai/minimax-h3/text-to-video', durationRange: [3, 15], resolutionParam: true },
+  'minimax-h3-image-to-video': { kind: 'i2v', pick: () => 'wavespeed-ai/minimax-h3/image-to-video', durationRange: [3, 15], resolutionParam: true, noAspect: true },
+  // Wan 3.0: 2-30s with optional native audio.
+  'wan-3-text-to-video': { kind: 't2v', pick: () => 'alibaba/wan-3.0/text-to-video', durationRange: [2, 30], resolutionParam: true, audioField: 'enable_audio' },
+  'wan-3-image-to-video': { kind: 'i2v', pick: () => 'alibaba/wan-3.0/image-to-video', durationRange: [2, 30], resolutionParam: true, audioField: 'enable_audio' },
+  // Gemini Omni 1.1 Flash: 3-10s, synchronized audio, up to 4K.
+  'gemini-omni-1.1-flash-text-to-video': { kind: 't2v', pick: () => 'google/gemini-omni-1.1-flash/text-to-video', durationRange: [3, 10], resolutionParam: true },
+  'gemini-omni-1.1-flash-image-to-video': { kind: 'i2v', pick: () => 'google/gemini-omni-1.1-flash/image-to-video', durationRange: [3, 10], resolutionParam: true },
   'seedance-2-mini-text-to-video': { kind: 't2v', pick: (o) => o.resolution === '720p' ? 'bytedance/seedance-v1-lite-t2v-720p' : 'bytedance/seedance-v1-lite-t2v-480p' },
   'seedance-2-mini-image-to-video': { kind: 'i2v', pick: (o) => o.resolution === '720p' ? 'bytedance/seedance-v1-lite-i2v-720p' : 'bytedance/seedance-v1-lite-i2v-480p' },
   'seedance-2-text-to-video': { kind: 't2v', pick: () => 'bytedance/seedance-v1-lite-t2v-720p' },
@@ -342,8 +353,10 @@ function wsVideoBody(route, opts, hosted) {
   let duration = rawDuration;
   if (route.durationEnum) duration = route.durationEnum.includes(rawDuration) ? rawDuration : route.durationEnum.reduce((a, b) => Math.abs(b - rawDuration) < Math.abs(a - rawDuration) ? b : a);
   else if (route.durationRange) duration = Math.min(route.durationRange[1], Math.max(route.durationRange[0], rawDuration));
-  const body = { prompt: opts.prompt || '', aspect_ratio: opts.aspect || '9:16', duration };
+  const body = { prompt: opts.prompt || '', duration };
+  if (!route.noAspect) body.aspect_ratio = opts.aspect || '9:16';
   if (route.resolutionParam) body.resolution = opts.resolution || '720p';
+  if (route.audioField) body[route.audioField] = opts.generate_audio !== false;
   // Seedance 2.0 can generate its own ambient/sound-effect audio track, but
   // the avatar pipeline always mutes+discards per-chunk audio and muxes the
   // cloned narration on once at the end — asking it to generate audio here
