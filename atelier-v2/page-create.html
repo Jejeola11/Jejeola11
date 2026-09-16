@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#001012">
+  <title>Fuse Pages · AI Website Builder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
+  <style>
+    :root{
+      --deep:#001012;--mid:#00191B;--light:#1B4C52;--surface:#062125;--line:#315456;
+      --yellow:#FFE66A;--lime:#DFFF4E;--white:#EEFFE0;--muted:#a9bcba;
+      --chrome:linear-gradient(105deg,#FFE66A 0%,#DFFF4E 52%,#EEFFE0 100%);
+    }
+    *{box-sizing:border-box}
+    html{background:var(--deep)}
+    body{
+      margin:0;min-height:100svh;overflow-x:hidden;color:#fff;font-family:Montserrat,Arial,sans-serif;
+      padding:0 0 calc(98px + env(safe-area-inset-bottom));
+      background:
+        radial-gradient(circle at 50% -12%,rgba(238,255,224,.10),transparent 26%),
+        radial-gradient(circle at 87% 17%,rgba(27,76,82,.58),transparent 31%),
+        linear-gradient(155deg,#001012 0%,#00191B 58%,#0d3135 100%);
+    }
+    body:before{
+      content:"";position:fixed;inset:auto -25% 76px -25%;height:38vh;pointer-events:none;z-index:-1;
+      background:
+        radial-gradient(ellipse at 30% 100%,rgba(255,230,106,.12),transparent 43%),
+        radial-gradient(ellipse at 72% 100%,rgba(223,255,78,.10),transparent 42%),
+        linear-gradient(180deg,transparent,rgba(238,255,224,.045));
+      filter:blur(8px);
+    }
+    button,textarea,input{font:inherit}
+    button{cursor:pointer}
+    .page-wrap{width:min(760px,calc(100% - 28px));margin:0 auto;padding:14px 0 34px}
+    .page-top{
+      min-height:62px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;
+      padding:8px 10px;border:1px solid rgba(238,255,224,.10);border-radius:22px;
+      background:rgba(6,33,37,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+      box-shadow:0 18px 45px rgba(0,0,0,.18);
+    }
+    .back{
+      width:40px;height:40px;border:1px solid var(--line);border-radius:14px;display:grid;place-items:center;
+      background:#00191B;color:#fff;text-decoration:none;font-size:24px;font-weight:300;
+    }
+    .brand{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0}
+    .brand img{width:29px;height:29px;object-fit:contain;border-radius:8px}
+    .brand strong{
+      font-size:25px;line-height:1;font-weight:500;letter-spacing:-.75px;white-space:nowrap;
+      background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent
+    }
+    .wallet{
+      min-height:38px;padding:0 11px;border:1px solid rgba(223,255,78,.26);border-radius:999px;
+      display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:#d8e5e3;
+      background:rgba(0,16,18,.64);font-size:13px;font-weight:300;white-space:nowrap
+    }
+    .hero{text-align:center;padding:34px 5px 17px}
+    .hero-badge{
+      display:inline-flex;align-items:center;gap:7px;min-height:31px;padding:0 11px;border-radius:999px;
+      border:1px solid rgba(223,255,78,.22);background:rgba(6,33,37,.72);color:#DFFF4E;
+      font-size:13px;font-weight:400;letter-spacing:.02em
+    }
+    .hero h1{
+      max-width:520px;margin:13px auto 8px;font-size:26px;line-height:1.08;font-weight:500;letter-spacing:-.9px
+    }
+    .hero h1 span{background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .hero p{max-width:540px;margin:0 auto;color:#b8cac8;font-size:15px;line-height:1.52;font-weight:300}
+    .composer-shell{
+      margin-top:7px;padding:12px;border:1px solid rgba(238,255,224,.12);border-radius:26px;
+      background:linear-gradient(145deg,rgba(238,255,224,.07),rgba(6,33,37,.72));
+      box-shadow:0 28px 70px rgba(0,0,0,.24)
+    }
+    .composer{
+      position:relative;overflow:hidden;border:1.5px solid var(--line);border-radius:22px;background:#062125;
+      min-height:220px;padding:18px 16px 15px
+    }
+    .composer:focus-within{border-color:#DFFF4E;box-shadow:0 0 0 1px rgba(223,255,78,.12)}
+    .composer textarea{
+      width:100%;min-height:106px;resize:none;border:0;outline:0;background:transparent;color:#fff;
+      font-size:16px;line-height:1.5;font-weight:300;padding:0 0 12px
+    }
+    .composer textarea::placeholder{color:#8ba3a1}
+    .attachments{display:flex;gap:7px;overflow-x:auto;margin:0 0 10px;scrollbar-width:none}
+    .attachments:empty{display:none}
+    .attachments::-webkit-scrollbar{display:none}
+    .attachment{
+      max-width:160px;height:31px;display:inline-flex;align-items:center;gap:6px;padding:0 9px;border-radius:10px;
+      border:1px solid rgba(238,255,224,.10);background:#00191B;color:#cbd9d7;font-size:11px;font-weight:300
+    }
+    .attachment span{max-width:116px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .composer-actions{display:flex;align-items:center;justify-content:space-between;gap:9px}
+    .composer-left{display:flex;align-items:center;gap:8px;min-width:0}
+    .icon-btn{
+      width:42px;height:42px;flex:none;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;
+      background:#00191B;color:#d9e4e2;font-size:20px;font-weight:300
+    }
+    .enhance{
+      height:42px;max-width:175px;padding:0 14px;border:1px solid var(--line);border-radius:999px;
+      background:#00191B;color:#dce7e5;font-size:13px;font-weight:400;white-space:nowrap
+    }
+    .enhance.on{border-color:#DFFF4E;color:#DFFF4E}
+    .send{
+      width:44px;height:44px;flex:none;border:0;border-radius:50%;display:grid;place-items:center;
+      background:var(--chrome);color:#001012;font-size:22px;font-weight:400;box-shadow:0 9px 24px rgba(223,255,78,.15)
+    }
+    .send:disabled{opacity:.45;cursor:not-allowed}
+    .quick-row{
+      margin-top:10px;display:flex;gap:7px;overflow-x:auto;padding-bottom:1px;scrollbar-width:none
+    }
+    .quick-row::-webkit-scrollbar{display:none}
+    .quick{
+      flex:0 0 auto;min-height:34px;padding:0 10px;border:1px solid rgba(49,84,86,.82);border-radius:999px;
+      background:rgba(0,25,27,.80);color:#b9cac8;font-size:12px;font-weight:300
+    }
+    .quick.active{background:var(--chrome);color:#001012;border-color:transparent;font-weight:400}
+    .section-head{
+      display:flex;align-items:end;justify-content:space-between;gap:14px;margin:25px 2px 12px
+    }
+    .section-head h2{margin:0;font-size:20px;line-height:1.15;font-weight:500;letter-spacing:-.55px}
+    .section-head p{margin:4px 0 0;color:var(--muted);font-size:13px;line-height:1.4;font-weight:300}
+    .section-head span{color:#a9bcba;font-size:12px;font-weight:300;white-space:nowrap}
+    .types{
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px
+    }
+    .type{
+      position:relative;overflow:hidden;min-height:184px;padding:0;border:1.5px solid var(--line);border-radius:22px;
+      background:#062125;color:#fff;text-align:left;isolation:isolate
+    }
+    .type.active{border-color:#DFFF4E;box-shadow:0 0 0 1px rgba(223,255,78,.11),0 18px 36px rgba(0,0,0,.20)}
+    .type-visual{position:absolute;inset:0;z-index:-2}
+    .type-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,16,18,.02),rgba(0,16,18,.88))}
+    .mock{position:absolute;inset:18px 15px 50px;border-radius:13px;border:1px solid rgba(238,255,224,.18);overflow:hidden;background:#0c2224;box-shadow:0 16px 30px rgba(0,0,0,.22)}
+    .mock .bar{height:16px;border-bottom:1px solid rgba(238,255,224,.10);background:rgba(238,255,224,.04)}
+    .mock .line{height:7px;border-radius:999px;background:rgba(238,255,224,.72);margin:12px 11px 0}
+    .mock .line.sm{width:46%;opacity:.35;margin-top:7px}
+    .mock .cta{width:38%;height:14px;border-radius:999px;background:var(--chrome);margin:13px 11px}
+    .visual-sales{background:radial-gradient(circle at 72% 25%,rgba(255,230,106,.34),transparent 22%),linear-gradient(145deg,#001012,#1B4C52)}
+    .visual-business{background:radial-gradient(circle at 28% 28%,rgba(238,255,224,.20),transparent 20%),linear-gradient(145deg,#062125,#123b3f)}
+    .visual-portfolio{background:radial-gradient(circle at 70% 25%,rgba(223,255,78,.24),transparent 18%),linear-gradient(145deg,#00191B,#2d5557)}
+    .visual-3d{background:conic-gradient(from 215deg at 50% 44%,#001012,#315456,#DFFF4E,#FFE66A,#1B4C52,#001012)}
+    .visual-landing{background:radial-gradient(circle at 25% 22%,rgba(255,230,106,.30),transparent 20%),linear-gradient(145deg,#062125,#001012 65%,#1B4C52)}
+    .type-copy{position:absolute;left:13px;right:13px;bottom:12px;z-index:2}
+    .type-copy small{display:block;margin-bottom:3px;color:#DFFF4E;font-size:10px;font-weight:400;letter-spacing:.05em}
+    .type-copy strong{display:block;font-size:15px;line-height:1.1;font-weight:500}
+    .type-copy span{display:block;margin-top:4px;color:#bac9c7;font-size:11px;line-height:1.35;font-weight:300}
+    .recent{
+      margin-top:24px;border:1px solid rgba(49,84,86,.74);border-radius:21px;padding:17px;background:rgba(6,33,37,.56)
+    }
+    .recent h2{margin:0;font-size:18px;font-weight:500;letter-spacing:-.4px}
+    .empty{
+      margin-top:10px;padding:20px 12px;border:1px dashed rgba(49,84,86,.76);border-radius:15px;text-align:center;
+      color:#94aaa8;font-size:13px;line-height:1.5;font-weight:300
+    }
+    .notice{margin:17px auto 0;max-width:600px;text-align:center;color:#819795;font-size:13px;line-height:1.45;font-weight:300}
+    @media(min-width:680px){
+      .types{grid-template-columns:repeat(5,minmax(0,1fr))}
+      .type{min-height:170px}
+      .type-copy span{display:none}
+    }
+    @media(max-width:390px){
+      .page-wrap{width:calc(100% - 22px)}
+      .page-top{grid-template-columns:auto 1fr auto;padding:7px 8px;border-radius:20px}
+      .brand{justify-content:flex-start}
+      .brand img{width:27px;height:27px}
+      .brand strong{font-size:21px}
+      .wallet{max-width:112px;overflow:hidden;text-overflow:ellipsis;font-size:11px;padding:0 9px}
+      .hero{padding-top:29px}
+      .hero h1{font-size:26px}
+      .composer-shell{padding:9px;border-radius:23px}
+      .composer{padding:16px 13px 13px;border-radius:19px}
+      .enhance{max-width:143px;padding:0 11px;font-size:12px}
+      .icon-btn{width:40px;height:40px}
+      .send{width:42px;height:42px}
+      .types{gap:10px}
+      .type{min-height:176px;border-radius:19px}
+    }
+  </style>
+</head>
+<body data-page="create">
+  <main class="page-wrap">
+    <header class="page-top">
+      <a class="back" href="studio.html?category=Page" aria-label="Back to Page tools">×</a>
+      <div class="brand">
+        <img src="media/fuse-mark-palette.webp" alt="" width="29" height="29">
+        <strong>Fuse Pages</strong>
+      </div>
+      <a class="wallet" href="pricing.html" data-balance>My credits</a>
+    </header>
+
+    <section class="hero">
+      <span class="hero-badge">✦ AI WEBSITE BUILDER</span>
+      <h1>Build beautiful <span>websites with AI</span></h1>
+      <p>Describe the experience. Fuse plans the page, copy, visuals, motion and assets around your brief.</p>
+    </section>
+
+    <section class="composer-shell" aria-label="Website prompt">
+      <div class="composer">
+        <textarea id="pagePrompt" maxlength="1800" placeholder="Build a luxury skincare landing page for a serum called Lumière, with editorial visuals, cinematic motion and a premium product reveal..."></textarea>
+        <div class="attachments" id="attachments"></div>
+        <div class="composer-actions">
+          <div class="composer-left">
+            <button class="icon-btn" id="attachBtn" type="button" aria-label="Add images, video or brand assets">＋</button>
+            <input id="assetInput" type="file" accept="image/*,video/*,.pdf" multiple hidden>
+            <button class="enhance" id="enhanceBtn" type="button">✦ Enhance prompt</button>
+            <button class="icon-btn" id="voiceBtn" type="button" aria-label="Speak prompt">⌁</button>
+          </div>
+          <button class="send" id="sendBtn" type="button" aria-label="Build website">↑</button>
+        </div>
+      </div>
+      <div class="quick-row" id="experienceRow">
+        <button class="quick active" data-experience="clean" type="button">Clean</button>
+        <button class="quick" data-experience="animated" type="button">Animated</button>
+        <button class="quick" data-experience="cinematic" type="button">Cinematic</button>
+        <button class="quick" data-experience="3d" type="button">3D Interactive</button>
+        <button class="quick" data-assets="generate" type="button">Generate assets with Fuse</button>
+      </div>
+    </section>
+
+    <div class="section-head">
+      <div>
+        <h2>Start with a page type</h2>
+        <p>Choose a direction or just describe what you want above.</p>
+      </div>
+      <span>5 builders</span>
+    </div>
+
+    <section class="types" id="typeGrid">
+      <button class="type active" type="button" data-type="landing">
+        <div class="type-visual visual-landing"><div class="mock"><div class="bar"></div><div class="line"></div><div class="line sm"></div><div class="cta"></div></div></div>
+        <div class="type-copy"><small>CONVERSION</small><strong>AI Landing Page</strong><span>Focused one-page campaigns.</span></div>
+      </button>
+      <button class="type" type="button" data-type="sales">
+        <div class="type-visual visual-sales"><div class="mock"><div class="bar"></div><div class="line"></div><div class="line sm"></div><div class="cta"></div></div></div>
+        <div class="type-copy"><small>SELL</small><strong>Sales Page</strong><span>Long-form offers and launches.</span></div>
+      </button>
+      <button class="type" type="button" data-type="business">
+        <div class="type-visual visual-business"><div class="mock"><div class="bar"></div><div class="line"></div><div class="line sm"></div><div class="cta"></div></div></div>
+        <div class="type-copy"><small>BUSINESS</small><strong>Business Website</strong><span>Premium service websites.</span></div>
+      </button>
+      <button class="type" type="button" data-type="portfolio">
+        <div class="type-visual visual-portfolio"><div class="mock"><div class="bar"></div><div class="line"></div><div class="line sm"></div><div class="cta"></div></div></div>
+        <div class="type-copy"><small>SHOWCASE</small><strong>Portfolio</strong><span>Creative work and case studies.</span></div>
+      </button>
+      <button class="type" type="button" data-type="3d">
+        <div class="type-visual visual-3d"><div class="mock"><div class="bar"></div><div class="line"></div><div class="line sm"></div><div class="cta"></div></div></div>
+        <div class="type-copy"><small>IMMERSIVE</small><strong>3D Experience</strong><span>Motion-led interactive websites.</span></div>
+      </button>
+    </section>
+
+    <section class="recent">
+      <h2>Your Fuse Pages</h2>
+      <div class="empty">Your generated websites will live here with preview, edit, duplicate, version history and publish controls.</div>
+    </section>
+
+    <p class="notice">V1 builder shell · website generation, AI asset orchestration, editing and publishing are being connected in stages.</p>
+  </main>
+
+  <script>
+    const promptEl=document.getElementById('pagePrompt');
+    const sendBtn=document.getElementById('sendBtn');
+    const typeButtons=[...document.querySelectorAll('[data-type]')];
+    const expButtons=[...document.querySelectorAll('[data-experience]')];
+    const assetMode=document.querySelector('[data-assets="generate"]');
+    const attachBtn=document.getElementById('attachBtn');
+    const assetInput=document.getElementById('assetInput');
+    const attachments=document.getElementById('attachments');
+    const enhanceBtn=document.getElementById('enhanceBtn');
+    const voiceBtn=document.getElementById('voiceBtn');
+
+    const qs=new URLSearchParams(location.search);
+    let selectedType=qs.get('type')||'landing';
+    let experience='clean';
+    let generateAssets=false;
+    let files=[];
+
+    const typeNames={
+      landing:'AI Landing Page',
+      sales:'Sales Page',
+      business:'Business Website',
+      portfolio:'Portfolio',
+      '3d':'3D Interactive Website'
+    };
+
+    function syncType(){
+      typeButtons.forEach(btn=>btn.classList.toggle('active',btn.dataset.type===selectedType));
+    }
+    syncType();
+
+    typeButtons.forEach(btn=>btn.onclick=()=>{
+      selectedType=btn.dataset.type;
+      syncType();
+      btn.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+    });
+
+    expButtons.forEach(btn=>btn.onclick=()=>{
+      experience=btn.dataset.experience;
+      expButtons.forEach(x=>x.classList.toggle('active',x===btn));
+      if(experience==='3d') selectedType='3d',syncType();
+    });
+
+    assetMode.onclick=()=>{
+      generateAssets=!generateAssets;
+      assetMode.classList.toggle('active',generateAssets);
+    };
+
+    attachBtn.onclick=()=>assetInput.click();
+    assetInput.onchange=()=>{
+      files=[...assetInput.files].slice(0,8);
+      attachments.innerHTML=files.map(f=>`<span class="attachment">✦ <span>${f.name}</span></span>`).join('');
+    };
+
+    enhanceBtn.onclick=()=>{
+      const raw=promptEl.value.trim();
+      if(!raw){
+        promptEl.value=`Create a premium ${typeNames[selectedType]} for a modern brand. Strong visual hierarchy, conversion-focused copy, refined spacing, premium visuals and polished mobile responsiveness.`;
+      }else{
+        promptEl.value=`${raw}\n\nCreative direction: premium visual hierarchy, conversion-focused copy, intentional typography, refined spacing, strong mobile design, useful social proof and a clear CTA. Experience: ${experience}. ${generateAssets?'Generate any missing visuals and media with Fuse.':'Use uploaded brand assets wherever available.'}`;
+      }
+      enhanceBtn.classList.add('on');
+      promptEl.focus();
+    };
+
+    function launch(){
+      const prompt=promptEl.value.trim();
+      if(!prompt){promptEl.focus();return}
+      const spec={prompt,type:selectedType,experience,generateAssets,attachments:files.map(f=>({name:f.name,type:f.type,size:f.size})),createdAt:Date.now()};
+      sessionStorage.setItem('fuse_page_brief',JSON.stringify(spec));
+      const u=new URL('page-workspace.html',location.href);
+      u.searchParams.set('type',selectedType);
+      location.href=u.href;
+    }
+    sendBtn.onclick=launch;
+    promptEl.addEventListener('keydown',e=>{
+      if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();launch();}
+    });
+
+    const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(SpeechRecognition){
+      voiceBtn.onclick=()=>{
+        const r=new SpeechRecognition();
+        r.lang='en-US';r.interimResults=false;r.maxAlternatives=1;
+        voiceBtn.textContent='●';
+        r.onresult=e=>{
+          const heard=e.results[0][0].transcript;
+          promptEl.value=(promptEl.value.trim()?promptEl.value.trim()+' ':'')+heard;
+        };
+        r.onend=()=>voiceBtn.textContent='⌁';
+        r.onerror=()=>voiceBtn.textContent='⌁';
+        r.start();
+      };
+    }else{
+      voiceBtn.onclick=()=>promptEl.focus();
+      voiceBtn.title='Voice input is not supported in this browser';
+    }
+  </script>
+  <script src="fuse-shell.js?v=pages-v1"></script>
+</body>
+</html>
