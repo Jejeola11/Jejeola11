@@ -96,6 +96,39 @@ exports.handler = async (event) => {
   }
   if (!userId) return { statusCode: 200, body: 'missing user' };
 
+  // Credit-pack purchases use one atomic DB transaction shared with the
+  // verified Paystack callback. This makes webhook retries and callback races
+  // idempotent: the same reference can never add the pack credits twice.
+  if (pack.kind === 'pack') {
+    if (d.currency !== 'NGN' || amountNaira !== pack.amount_naira) {
+      console.error('credit-pack amount mismatch:', reference, meta.pack, amountNaira, d.currency);
+      return { statusCode: 200, body: 'amount mismatch' };
+    }
+
+    const packCredits = creditsForPack(meta.pack, pack.credits);
+    const { data: fulfilled, error: fulfillErr } = await db.rpc('fulfill_credit_pack_purchase', {
+      p_user_id: userId,
+      p_reference: reference,
+      p_amount_naira: amountNaira,
+      p_pack: meta.pack,
+      p_credits: packCredits,
+      p_raw: d,
+    });
+
+    if (fulfillErr) {
+      console.error('atomic credit-pack fulfillment failed:', reference, fulfillErr.message);
+      return { statusCode: 500, body: 'fulfillment failed' };
+    }
+
+    const row = Array.isArray(fulfilled) ? fulfilled[0] : fulfilled;
+    if (row && row.processed) {
+      try { await sweepToBank(db, amountNaira, reference); } catch (e) {
+        console.error('credit-pack payout sweep failed:', e && e.message);
+      }
+    }
+    return { statusCode: 200, body: 'ok (credit pack)' };
+  }
+
   // 4) Credit the user — multiplied during the launch promo for subscription
   // packs, or overridden to a flat bonus for the course pack (see _packs.js).
   // add_credits (see schema-phase31.sql) now RAISES if `userId` doesn't match
