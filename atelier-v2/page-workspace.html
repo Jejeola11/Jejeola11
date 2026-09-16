@@ -121,6 +121,22 @@
       padding:0 9px;font-size:11px;font-weight:300;outline:0
     }
     .add-row button{padding:0 11px;background:rgba(223,255,78,.08);color:#DFFF4E;border-color:rgba(223,255,78,.22)}
+    .site-settings{
+      margin-top:12px;border:1px solid rgba(49,84,86,.72);border-radius:15px;background:#00191B;overflow:hidden
+    }
+    .site-settings summary{
+      list-style:none;cursor:pointer;padding:11px 12px;color:#dce8e5;font-size:12px;font-weight:500
+    }
+    .site-settings summary::-webkit-details-marker{display:none}
+    .site-settings summary:after{content:"＋";float:right;color:#DFFF4E}
+    .site-settings[open] summary:after{content:"−"}
+    .site-settings-body{padding:0 11px 11px}
+    .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+    .settings-grid .field.full{grid-column:1/-1}
+    .settings-save{
+      width:100%;min-height:40px;margin-top:9px;border:0;border-radius:11px;background:var(--chrome);
+      color:#001012;font-size:12px;font-weight:500
+    }
     .asset-box{
       margin-top:12px;padding:12px;border:1px solid rgba(49,84,86,.72);border-radius:15px;background:#00191B
     }
@@ -237,6 +253,28 @@
           </div>
           <p class="ask-help">Text/layout revisions create a saved version. You can also tap any section in the preview to edit it directly.</p>
         </div>
+
+        <details class="site-settings" id="siteSettings" hidden>
+          <summary>Site settings</summary>
+          <div class="site-settings-body">
+            <div class="settings-grid">
+              <div class="field full"><label for="siteBrand">Brand name</label><input id="siteBrand" type="text" maxlength="100"></div>
+              <div class="field"><label for="siteMode">Theme</label><select id="siteMode"><option value="dark">Dark</option><option value="light">Light</option></select></div>
+              <div class="field"><label for="siteAccent">Accent</label><select id="siteAccent">
+                <option value="#DFFF4E">Chrome lime</option>
+                <option value="#FFE66A">Chrome yellow</option>
+                <option value="#EEFFE0">Chrome white</option>
+                <option value="#1B4C52">Light teal</option>
+              </select></div>
+              <div class="field full"><label for="siteCTA">CTA button</label><input id="siteCTA" type="text" maxlength="100"></div>
+              <div class="field full"><label for="siteURL">CTA / checkout URL</label><input id="siteURL" type="url" placeholder="https://..."></div>
+              <div class="field"><label for="siteEmail">Email</label><input id="siteEmail" type="email"></div>
+              <div class="field"><label for="sitePhone">Phone</label><input id="sitePhone" type="tel"></div>
+              <div class="field full"><label for="publishSlug">Public URL slug</label><input id="publishSlug" type="text" maxlength="60" placeholder="my-brand"></div>
+            </div>
+            <button class="settings-save" id="saveSiteSettings" type="button">Save site settings</button>
+          </div>
+        </details>
 
         <div class="section-editor" id="sectionEditor" hidden>
           <div class="editor-head"><strong id="editorTitle">Edit section</strong><span id="editorType">SECTION</span></div>
@@ -374,6 +412,16 @@
     const sectionMediaInput=document.getElementById('sectionMediaInput');
     const addSectionType=document.getElementById('addSectionType');
     const addSection=document.getElementById('addSection');
+    const siteSettings=document.getElementById('siteSettings');
+    const siteBrand=document.getElementById('siteBrand');
+    const siteMode=document.getElementById('siteMode');
+    const siteAccent=document.getElementById('siteAccent');
+    const siteCTA=document.getElementById('siteCTA');
+    const siteURL=document.getElementById('siteURL');
+    const siteEmail=document.getElementById('siteEmail');
+    const sitePhone=document.getElementById('sitePhone');
+    const publishSlug=document.getElementById('publishSlug');
+    const saveSiteSettings=document.getElementById('saveSiteSettings');
 
     function showBrief(){
       typeLabel.textContent=labels[brief.type]||'FUSE PAGE';
@@ -502,6 +550,18 @@
         const d=await r.json();if(!r.ok)throw Error(d.error||'Could not load website project.');return d;
       })();
       project=detail.project;versions=detail.versions||[];
+      if(project&&project.site_spec){
+        siteSettings.hidden=false;
+        const spec=project.site_spec||{};
+        siteBrand.value=spec.nav?.brand||spec.meta?.title||'';
+        siteMode.value=spec.theme?.mode==='light'?'light':'dark';
+        siteAccent.value=['#DFFF4E','#FFE66A','#EEFFE0','#1B4C52'].includes(spec.theme?.accent)?spec.theme.accent:'#DFFF4E';
+        siteCTA.value=spec.nav?.cta||'';
+        siteURL.value=spec.contact?.cta_url||'';
+        siteEmail.value=spec.contact?.email||'';
+        sitePhone.value=spec.contact?.phone||'';
+        publishSlug.value=project.slug||publishSlug.value||'';
+      }
       if(project&&project.site_spec&&project.site_spec.meta&&project.site_spec.meta.source_prompt){
         brief.prompt=project.site_spec.meta.source_prompt;
         brief.type=project.page_type||brief.type;
@@ -617,6 +677,23 @@
       }finally{setBusy(false)}
     }
 
+    async function saveSettings(){
+      if(!projectId||busy)return;
+      await sectionMutation({
+        target:'site',
+        operation:'update',
+        patch:{
+          brand:siteBrand.value,
+          mode:siteMode.value,
+          accent:siteAccent.value,
+          cta:siteCTA.value,
+          cta_url:siteURL.value,
+          email:siteEmail.value,
+          phone:sitePhone.value
+        }
+      },'Saving site settings…');
+    }
+
     async function saveSelectedSection(){
       const selected=currentSelection();
       if(!selected)return;
@@ -721,7 +798,7 @@
       publishBtn.textContent='Publishing…';
       setStatus('Creating a public snapshot of this version…');
       try{
-        const out=await Fuse.api('page-publish',{project_id:projectId});
+        const out=await Fuse.api('page-publish',{project_id:projectId,slug:publishSlug.value.trim()});
         project={...(project||{}),...(out.project||{})};
         publicLink.href=out.public_url;
         publicLink.classList.add('on');
@@ -758,6 +835,7 @@
     addSection.onclick=async()=>{
       await sectionMutation({operation:'add',section_type:addSectionType.value,index:(project?.site_spec?.sections||[]).length},'Adding section…');
     };
+    saveSiteSettings.onclick=saveSettings;
     window.addEventListener('message',e=>{
       const d=e.data||{};
       if(d.type==='fuse-page-select'&&d.target)openEditor(String(d.target));
