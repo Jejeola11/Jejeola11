@@ -28,7 +28,7 @@
     },
     {
       "src": "/atelier/?",
-      "dest": "/atelier-site/index.html"
+      "dest": "/atelier-site/preview.html"
     },
     {
       "src": "/atelier-preview/?",
