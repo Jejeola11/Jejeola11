@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="fuse.css?v=footer-unified-7">
+  <link rel="stylesheet" href="fuse.css?v=create-models-premium-1">
   <style>
     :root{
       --deep:#001012;--mid:#00191B;--light:#1B4C52;--surface:#062125;--line:#315456;
@@ -19,26 +19,34 @@
     html{background:var(--deep)}
     body.create-catalog{
       margin:0;min-height:100svh;overflow-x:hidden;color:#fff;font-family:Montserrat,Arial,sans-serif;
-      padding:0 0 calc(94px + env(safe-area-inset-bottom));
-      background:radial-gradient(circle at 94% 6%,rgba(27,76,82,.42),transparent 30%),linear-gradient(112deg,var(--deep) 0%,var(--mid) 62%,var(--light) 100%);
+      padding:0 0 calc(96px + env(safe-area-inset-bottom));
+      background:
+        radial-gradient(circle at 94% 6%,rgba(27,76,82,.42),transparent 30%),
+        linear-gradient(112deg,var(--deep) 0%,var(--mid) 62%,var(--light) 100%);
     }
-    button{font:inherit}
-    .create-wrap{width:min(920px,calc(100% - 32px));margin:0 auto;padding:16px 0 24px}
-    .create-top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:18px}
-    .create-title{margin:0;font-size:28px;line-height:1;font-weight:500;letter-spacing:-1.1px;background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}
+    button,a{font:inherit}
+    .create-wrap{width:min(920px,calc(100% - 32px));margin:0 auto;padding:16px 0 30px}
+    .create-top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:17px}
+    .create-title{margin:0;font-size:28px;line-height:1;font-weight:500;letter-spacing:-1.05px;background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}
     .create-close{width:38px;height:38px;flex:none;border:0;border-radius:50%;display:grid;place-items:center;background:var(--chrome);color:#001012;cursor:pointer;box-shadow:0 8px 20px rgba(223,255,78,.13)}
-    .create-close span{font-size:27px;line-height:.8;font-weight:300;transform:translateY(-1px)}
+    .create-close span{font-size:26px;line-height:.8;font-weight:300;transform:translateY(-1px)}
 
-    .create-tabs{display:flex;gap:9px;overflow-x:auto;margin:0 calc(50% - 50vw) 26px;padding:0 max(16px,calc((100vw - 920px)/2)) 2px;scrollbar-width:none;scroll-snap-type:x proximity}
+    .create-tabs{display:flex;gap:9px;overflow-x:auto;margin:0 calc(50% - 50vw) 18px;padding:0 max(16px,calc((100vw - 920px)/2)) 2px;scrollbar-width:none;scroll-snap-type:x proximity}
     .create-tabs::-webkit-scrollbar{display:none}
-    .create-tab{flex:0 0 auto;min-width:84px;height:40px;padding:0 16px;border:1.5px solid var(--line);border-radius:999px;background:rgba(0,16,18,.3);color:var(--muted);font-size:14px;font-weight:500;white-space:nowrap;cursor:pointer;scroll-snap-align:start}
+    .create-tab{flex:0 0 auto;min-width:80px;height:40px;padding:0 15px;border:1.5px solid var(--line);border-radius:999px;background:rgba(0,16,18,.34);color:var(--muted);font-size:14px;font-weight:500;white-space:nowrap;cursor:pointer;scroll-snap-align:start}
     .create-tab.active{background:var(--chrome);border-color:transparent;color:#001012;box-shadow:0 8px 20px rgba(223,255,78,.11)}
 
+    .catalog-intro{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:0 2px 17px}
+    .catalog-intro h2{margin:0;font-size:17px;line-height:1.15;font-weight:500;color:#fff}
+    .catalog-intro p{margin:6px 0 0;color:var(--muted);font-size:16px;line-height:1.35;font-weight:300;max-width:620px}
+    .catalog-count{flex:none;color:var(--muted);font-size:12px;font-weight:400}
+
     .create-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 22px;align-items:start}
-    .create-card{min-width:0;display:block;text-decoration:none;color:inherit}
+    .create-card{min-width:0;display:block;text-decoration:none;color:inherit;position:relative}
     .create-media{width:100%;aspect-ratio:3/4;overflow:hidden;border:2px solid transparent;border-radius:22px;background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--chrome) border-box}
     .create-media img,.create-media video{width:100%;height:100%;display:block;object-fit:cover;background:var(--surface)}
-    .create-card h2{margin:10px 4px 0;font-size:15px;line-height:1.18;letter-spacing:-.4px;font-weight:500;background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .create-card h2{margin:10px 4px 0;font-size:15px;line-height:1.18;letter-spacing:-.3px;font-weight:500;background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .pin-badge{position:absolute;top:10px;left:10px;z-index:3;display:inline-flex;align-items:center;height:25px;padding:0 9px;border-radius:999px;background:rgba(0,16,18,.82);border:1px solid rgba(238,255,224,.20);backdrop-filter:blur(10px);font-size:9px;font-weight:600;letter-spacing:.06em;color:#fff}
 
     .voice-card{height:100%;display:grid;place-items:center;background:radial-gradient(circle at 50% 46%,rgba(223,255,78,.16),transparent 32%),linear-gradient(145deg,#00191B,#123c39)}
     .voice-bars{display:flex;align-items:center;gap:9px;height:100px}
@@ -46,15 +54,56 @@
     .voice-bars i:nth-child(1){height:36px;animation-delay:0s}.voice-bars i:nth-child(2){height:62px;animation-delay:.12s}.voice-bars i:nth-child(3){height:90px;animation-delay:.24s}.voice-bars i:nth-child(4){height:66px;animation-delay:.36s}.voice-bars i:nth-child(5){height:42px;animation-delay:.48s}
     @keyframes voicePulse{0%,100%{transform:scaleY(.45);opacity:.55}50%{transform:scaleY(1.05);opacity:1}}
 
-    .model-grid{gap:16px 14px}
+    .model-grid{gap:15px 13px}
     .model-grid .create-media{aspect-ratio:4/3;border-radius:18px}
     .model-grid .create-card h2{font-size:14px;margin-top:8px}
-    .model-card{aspect-ratio:4/3;min-height:0;border:1.5px solid rgba(223,255,78,.48);border-radius:18px;background:linear-gradient(145deg,rgba(0,25,27,.98),rgba(6,33,37,.98));padding:13px;display:flex;flex-direction:column;color:#fff;overflow:hidden}
-    .model-meta{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-    .model-badge{display:inline-flex;align-items:center;min-height:24px;padding:0 8px;border-radius:999px;background:var(--chrome);color:#001012;font-size:9px;line-height:1;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
-    .model-credits{color:#fff;font-size:11px;line-height:1.15;font-weight:500;white-space:nowrap}
-    .model-card h2{margin:auto 0 5px;font-size:15px;line-height:1.08;letter-spacing:-.45px;font-weight:500;background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .model-card p{margin:0;color:var(--muted);font-size:11px;line-height:1.32;font-weight:300;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .model-card{
+      aspect-ratio:4/3;min-height:0;border:1.5px solid rgba(223,255,78,.40);border-radius:18px;overflow:hidden;
+      position:relative;background:#062125;color:#fff;isolation:isolate;box-shadow:0 15px 36px rgba(0,0,0,.16);
+    }
+    .model-card::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,16,18,.02) 18%,rgba(0,16,18,.26) 51%,rgba(0,16,18,.95) 100%);z-index:2;pointer-events:none}
+    .model-card::after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.05);border-radius:inherit;z-index:5;pointer-events:none}
+    .model-visual{position:absolute;inset:0;z-index:0;overflow:hidden;background:#082426}
+    .model-visual img,.model-visual video{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.01)}
+    .model-visual video{background:#082426}
+    .model-card:hover .model-visual img,.model-card:hover .model-visual video{transform:scale(1.035)}
+    .model-visual img,.model-visual video{transition:transform .45s ease}
+    .model-shine{position:absolute;inset:-35%;z-index:1;background:linear-gradient(115deg,transparent 35%,rgba(238,255,224,.08) 48%,transparent 58%);transform:translateX(-28%) rotate(5deg);animation:shine 7s ease-in-out infinite;pointer-events:none}
+    @keyframes shine{0%,70%,100%{transform:translateX(-35%) rotate(5deg)}85%{transform:translateX(35%) rotate(5deg)}}
+    .model-meta{position:absolute;z-index:3;top:10px;left:10px;right:10px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+    .model-badge{display:inline-flex;align-items:center;min-height:24px;padding:0 8px;border-radius:999px;background:var(--chrome);color:#001012;font-size:9px;line-height:1;font-weight:600;text-transform:uppercase;letter-spacing:.03em;box-shadow:0 7px 18px rgba(0,0,0,.18)}
+    .model-credits{display:inline-flex;align-items:center;min-height:24px;padding:0 8px;border-radius:999px;background:rgba(0,16,18,.72);border:1px solid rgba(238,255,224,.14);backdrop-filter:blur(8px);color:#fff;font-size:10px;line-height:1;font-weight:500;white-space:nowrap}
+    .model-copy{position:absolute;z-index:3;left:11px;right:11px;bottom:10px}
+    .model-copy h2{margin:0 0 4px;font-size:14px;line-height:1.06;letter-spacing:-.34px;font-weight:500;color:#fff}
+    .model-copy p{margin:0;color:#c4d4d2;font-size:10px;line-height:1.28;font-weight:300;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .model-card[data-route]{cursor:pointer;text-decoration:none}
+    .model-card[data-route]:active{transform:scale(.985)}
+    .model-card{transition:transform .2s ease,border-color .2s ease}
+    .model-card:hover{border-color:rgba(223,255,78,.72)}
+
+    .visual-sunburst{background:radial-gradient(circle at 65% 18%,rgba(255,230,106,.62),transparent 18%),radial-gradient(circle at 28% 72%,rgba(223,255,78,.46),transparent 24%),linear-gradient(135deg,#25150a,#0b3935 58%,#001012)}
+    .visual-flare{background:radial-gradient(circle at 24% 28%,rgba(255,230,106,.74),transparent 17%),radial-gradient(circle at 72% 65%,rgba(27,76,82,.9),transparent 26%),linear-gradient(135deg,#153b38,#001012)}
+    .visual-minimax{background:radial-gradient(ellipse at 52% 38%,rgba(238,255,224,.28),transparent 18%),radial-gradient(circle at 25% 75%,rgba(255,230,106,.25),transparent 21%),linear-gradient(135deg,#111d1e,#17484b)}
+    .visual-seedream{background:radial-gradient(circle at 20% 20%,rgba(255,230,106,.55),transparent 18%),radial-gradient(circle at 77% 72%,rgba(134,85,255,.30),transparent 25%),linear-gradient(145deg,#173c39,#071d1d)}
+    .visual-nano{background:radial-gradient(circle at 70% 28%,rgba(223,255,78,.52),transparent 20%),radial-gradient(circle at 25% 70%,rgba(74,190,204,.28),transparent 24%),linear-gradient(145deg,#061a1c,#173a35)}
+    .visual-nanopro{background:radial-gradient(circle at 25% 28%,rgba(238,255,224,.36),transparent 20%),linear-gradient(125deg,#43320b,#162928 48%,#061012)}
+    .visual-flux{background:conic-gradient(from 230deg at 70% 45%,#001012,#1b4c52,#dfff4e,#ffe66a,#001012)}
+    .visual-qwen{background:radial-gradient(circle at 35% 30%,rgba(255,230,106,.35),transparent 20%),linear-gradient(140deg,#20174a,#0b4549 60%,#001012)}
+    .visual-grok{background:linear-gradient(145deg,#070707,#213c3b 72%,#7f9b39)}
+    .visual-kling{background:radial-gradient(circle at 70% 28%,rgba(255,230,106,.52),transparent 18%),linear-gradient(145deg,#08191c,#174353)}
+    .visual-wan{background:radial-gradient(circle at 35% 26%,rgba(111,203,255,.32),transparent 22%),linear-gradient(140deg,#001012,#0f3942 50%,#332f0e)}
+    .visual-seedance{background:radial-gradient(circle at 23% 22%,rgba(255,102,147,.26),transparent 22%),radial-gradient(circle at 75% 68%,rgba(223,255,78,.25),transparent 25%),linear-gradient(145deg,#102525,#1b2949)}
+    .visual-veo{background:radial-gradient(circle at 70% 24%,rgba(89,170,255,.34),transparent 22%),linear-gradient(150deg,#081c2c,#0b3d35 55%,#091211)}
+    .visual-omni{background:radial-gradient(circle at 48% 44%,rgba(238,255,224,.48),transparent 15%),conic-gradient(from 210deg,#001012,#315456,#dfff4e,#ffe66a,#1b4c52,#001012)}
+    .visual-voice{background:radial-gradient(circle at 50% 50%,rgba(223,255,78,.18),transparent 30%),linear-gradient(145deg,#00191B,#123c39)}
+    .visual-twin{background:radial-gradient(circle at 50% 30%,rgba(238,255,224,.23),transparent 18%),linear-gradient(145deg,#072124,#173936)}
+    .visual-content{background:radial-gradient(circle at 28% 28%,rgba(255,230,106,.30),transparent 18%),radial-gradient(circle at 78% 68%,rgba(223,255,78,.22),transparent 20%),linear-gradient(145deg,#071b1d,#173d40)}
+
+    .visual-word{position:absolute;inset:0;display:grid;place-items:center;z-index:1;font-size:clamp(21px,5vw,34px);font-weight:500;letter-spacing:-1px;color:rgba(255,255,255,.94);text-shadow:0 10px 28px rgba(0,0,0,.28)}
+    .visual-word small{display:block;font-size:9px;font-weight:500;letter-spacing:.15em;text-align:center;margin-top:4px;color:#dfff4e;text-transform:uppercase}
+    .visual-bars{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:7px;z-index:1}
+    .visual-bars i{width:7px;border-radius:999px;background:var(--chrome);animation:voicePulse 1.15s ease-in-out infinite}
+    .visual-bars i:nth-child(1){height:28px}.visual-bars i:nth-child(2){height:48px;animation-delay:.1s}.visual-bars i:nth-child(3){height:72px;animation-delay:.2s}.visual-bars i:nth-child(4){height:54px;animation-delay:.3s}.visual-bars i:nth-child(5){height:33px;animation-delay:.4s}
 
     .empty-state{grid-column:1/-1;margin:0;padding:24px 4px;color:var(--muted);font-size:16px;font-weight:300}
 
@@ -62,12 +111,17 @@
       .create-wrap{padding-top:22px}
       .create-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 24px}
       .model-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-      .model-card h2{font-size:16px}.model-card p{font-size:12px}.model-badge{font-size:10px}.model-credits{font-size:12px}
+      .model-copy h2{font-size:15px}.model-copy p{font-size:11px}.model-badge{font-size:10px}.model-credits{font-size:11px}
+    }
+    @media(max-width:520px){
+      .catalog-intro{align-items:flex-start}.catalog-count{display:none}
+      .catalog-intro p{font-size:15px}
     }
     @media(max-width:390px){
       .create-wrap{width:calc(100% - 24px);padding-top:14px}.create-close{width:36px;height:36px}.create-close span{font-size:25px}
-      .create-tabs{padding-left:12px;padding-right:12px}.create-tab{min-width:80px;padding:0 14px;font-size:13px}
-      .create-grid{gap:22px 18px}.create-card h2{font-size:14px}.model-grid{gap:14px 12px}.model-card{padding:11px;border-radius:16px}.model-card h2{font-size:13px}.model-card p{font-size:10px}.model-badge{font-size:8px;min-height:22px;padding:0 7px}.model-credits{font-size:10px}
+      .create-tabs{padding-left:12px;padding-right:12px}.create-tab{min-width:78px;padding:0 13px;font-size:13px}
+      .create-grid{gap:22px 18px}.create-card h2{font-size:14px}.model-grid{gap:13px 11px}
+      .model-copy{left:9px;right:9px;bottom:8px}.model-copy h2{font-size:12px}.model-copy p{font-size:9px}.model-meta{top:8px;left:8px;right:8px}.model-badge{font-size:8px;min-height:21px;padding:0 6px}.model-credits{font-size:9px;min-height:21px;padding:0 6px}
     }
   </style>
 </head>
@@ -78,37 +132,109 @@
       <button class="create-close" id="closeCreate" aria-label="Close Create"><span>×</span></button>
     </header>
     <nav class="create-tabs" id="createTabs" aria-label="Create categories"></nav>
+    <section class="catalog-intro" id="catalogIntro" hidden>
+      <div><h2 id="catalogTitle"></h2><p id="catalogText"></p></div>
+      <span class="catalog-count" id="catalogCount"></span>
+    </section>
     <section class="create-grid" id="createGrid"></section>
   </main>
 
   <script>
     const tabs=['All','Image','Video','Twin','Page','Voice','Flyer','Content','Lipsync','UGC'];
+
     const tools=[
-      {cat:'Image',title:'Create Image',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1788626963/4870020.png',href:'studio.html?type=image'},
-      {cat:'Video',title:'Create Video',video:'/atelier-site/assets/course-ai-ugc.mp4',href:'studio.html?type=video'},
+      {cat:'Image',title:'Create Image',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1788626963/4870020.png',route:'studio:generate'},
+      {cat:'Video',title:'Create Video',video:'/atelier-site/assets/course-ai-ugc.mp4',route:'video-seedance'},
       {cat:'Page',title:'Build Landing Page',img:'/atelier-site/assets/work/landing-card.jpg',fallback:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789492222/fuse-atelier/academy/landing-card.webp',href:'../pitchpilot/site-builder.html'},
-      {cat:'Twin',title:'Create Your AI Twin',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789528511/fuse-atelier/create/ai-twin-car.jpg',href:'studio.html?type=image'},
-      {cat:'Voice',title:'Clone Your Voice',voice:true,href:'studio.html?type=audio'},
-      {cat:'Flyer',title:'AI Flyer',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789527907/fuse-atelier/create/ai-flyer-rosen.jpg',href:'studio.html?type=image'},
-      {cat:'Lipsync',title:'Lipsync Video',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789529143/fuse-atelier/create/lipsync-video.mp4',href:'studio.html?type=video'},
-      {cat:'UGC',title:'UGC Video',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789528540/fuse-atelier/create/ugc-video.mp4',href:'studio.html?type=video'},
-      {cat:'Content',title:'Instagram Content',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789525979/student-content.mp4',href:'studio.html?type=image'}
+      {cat:'Twin',title:'Create Your AI Twin',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789528511/fuse-atelier/create/ai-twin-car.jpg',route:'avatar'},
+      {cat:'Voice',title:'Clone Your Voice',voice:true,route:'audio'},
+      {cat:'Flyer',title:'AI Flyer',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789527907/fuse-atelier/create/ai-flyer-rosen.jpg',route:'flyer'},
+      {cat:'Lipsync',title:'Lipsync Video',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789529143/fuse-atelier/create/lipsync-video.mp4',route:'omni'},
+      {cat:'UGC',title:'UGC Video',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789528540/fuse-atelier/create/ugc-video.mp4',route:'video-seedance'},
+      {cat:'Content',title:'Instagram Content',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789525979/student-content.mp4',route:'studio:generate'}
     ];
-    const models=[
-      ['BEST QUALITY','2 credits','GPT Image 2.5 Sunburst','Precision, detail and premium campaign images.'],
-      ['FAST','2 credits','GPT Image 2.5 Flare','Fast, polished everyday image generation.'],
-      ['PHOTOREAL','2 credits','MiniMax H3 Image','Cinema-grade portraits and realistic stills.'],
-      ['MARKETING','3 credits','Seedream 5 Pro','Strong composition, typography and product visuals.'],
-      ['CONSISTENT','4 credits','Nano Banana 2','Characters, edits and reliable reference consistency.'],
-      ['4K PRO','5 credits','Nano Banana Pro','High-resolution professional images and precise edits.'],
-      ['CREATIVE','2 credits','Flux 2 Pro','Stylized campaigns with sharp prompt control.'],
-      ['TYPOGRAPHY','3 credits','Qwen Image 3 Pro','Clean text, posters and commercial compositions.']
-    ];
+
+    const catalogs={
+      Image:{
+        title:'Image models',
+        text:'Fast everyday generations, premium campaign visuals and consistent characters.',
+        items:[
+          {name:'GPT Image 2.5 Sunburst',badge:'BEST QUALITY',credits:'2 credits',desc:'Precision, detail and premium campaign images.',visual:'sunburst',word:'2.5'},
+          {name:'GPT Image 2.5 Flare',badge:'FAST',credits:'2 credits',desc:'Fast, polished everyday image generation.',visual:'flare',word:'FLARE'},
+          {name:'MiniMax H3 Image',badge:'PHOTOREAL',credits:'1 credit',desc:'Natural portraits and realistic commercial stills.',visual:'minimax',word:'H3'},
+          {name:'Seedream 5 Pro',badge:'MARKETING',credits:'3 credits',desc:'Strong composition, products and campaign graphics.',visual:'seedream',word:'5 PRO',route:'image:seedream-5.0'},
+          {name:'Nano Banana 2',badge:'CONSISTENT',credits:'4 credits',desc:'Reliable characters, references and creative edits.',visual:'nano',word:'NB 2',route:'image:nano-banana-2'},
+          {name:'Nano Banana Pro',badge:'4K PRO',credits:'8 credits',desc:'High-resolution professional imagery and precise edits.',visual:'nanopro',word:'4K'},
+          {name:'Flux 2 Pro',badge:'CREATIVE',credits:'2 credits',desc:'Stylized campaigns with sharp prompt control.',visual:'flux',word:'FLUX',route:'image:flux-2-pro'},
+          {name:'Qwen Image 3 Pro',badge:'TYPOGRAPHY',credits:'3 credits',desc:'Clean text, posters and commercial compositions.',visual:'qwen',word:'QWEN'}
+        ]
+      },
+      Video:{
+        title:'Video models',
+        text:'From fast social clips to cinematic generation and intelligent video editing.',
+        items:[
+          {name:'MiniMax H3',badge:'BUDGET',credits:'10 credits',desc:'Affordable cinematic clips for everyday content.',visual:'minimax',video:'/app/media/samples/vid1.mp4'},
+          {name:'Wan 3.0',badge:'BEST VALUE',credits:'12 credits',desc:'Smooth motion with flexible quality and resolution.',visual:'wan',video:'/app/media/samples/vid2.mp4'},
+          {name:'Grok Imagine',badge:'SOCIAL',credits:'15 credits',desc:'Creative, punchy videos built for fast social ideas.',visual:'grok',video:'/app/media/samples/vid2.mp4',route:'video:grok-imagine-text-to-video'},
+          {name:'Kling 3.0 Standard',badge:'CINEMATIC',credits:'20 credits',desc:'High-control movement and polished cinematic output.',visual:'kling',video:'/app/media/samples/vid4.mp4',route:'video:kling-v3-turbo-standard-text-to-video'},
+          {name:'Seedance 2.5 Turbo',badge:'PRO VIDEO',credits:'48 credits',desc:'Premium movement, camera direction and scene quality.',visual:'seedance',video:'/app/media/samples/vid3.mp4',route:'video:seedance-2-text-to-video'},
+          {name:'Veo 3.1 Fast',badge:'PREMIUM',credits:'60 credits',desc:'High-end visual storytelling with strong prompt fidelity.',visual:'veo',video:'/app/media/samples/vid5.mp4',route:'video:veo3-text-to-video'},
+          {name:'Gemini Omni Flash',badge:'OMNI EDIT',credits:'from 8 credits',desc:'Edit, transform and rework video with multimodal instructions.',visual:'omni',video:'/app/media/samples/vid3.mp4',route:'omni'}
+        ]
+      },
+      Voice:{
+        title:'Voice models',
+        text:'Clone a voice, create natural voiceovers and choose quality by project.',
+        items:[
+          {name:'Qwen3 TTS',badge:'EVERYDAY',credits:'1 credit',desc:'Fast, affordable voice generation for short content.',visual:'voice',bars:true,route:'audio'},
+          {name:'MiniMax Speech 2.6 Turbo',badge:'NATURAL',credits:'3 credits',desc:'Natural voiceovers with expressive everyday delivery.',visual:'voice',bars:true,route:'audio'},
+          {name:'MiniMax Speech 2.6 HD',badge:'PREMIUM',credits:'5 credits',desc:'Higher-fidelity voice for ads, courses and brand work.',visual:'voice',bars:true,route:'audio'},
+          {name:'MiniMax Voice Clone',badge:'VOICE CLONE',credits:'24 credits',desc:'Create a reusable custom voice identity from a sample.',visual:'voice',bars:true,route:'audio'}
+        ]
+      },
+      Twin:{
+        title:'Twin & character models',
+        text:'Build consistent identities, talking twins and reusable character workflows.',
+        items:[
+          {name:'Instant Character',badge:'CONSISTENT',credits:'5 credits',desc:'Keep one identity consistent across outfits, poses and scenes.',visual:'twin',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789528511/fuse-atelier/create/ai-twin-car.jpg',route:'avatar'},
+          {name:'Quick Face Swap',badge:'FAST',credits:'1 credit',desc:'Swap a face cleanly for fast creator and concept work.',visual:'twin',word:'SWAP',route:'omni'},
+          {name:'Face Swap Pro',badge:'PRO',credits:'2 credits',desc:'More controlled face replacement for polished outputs.',visual:'twin',word:'PRO',route:'omni'},
+          {name:'Video Face Swap',badge:'VIDEO',credits:'dynamic',desc:'Carry your selected identity into existing video footage.',visual:'twin',video:'/app/media/samples/vid4.mp4',route:'omni'},
+          {name:'InfiniteTalk',badge:'TALKING TWIN',credits:'dynamic',desc:'Turn one image and audio into a speaking digital human.',visual:'twin',video:'/app/media/samples/vid1.mp4',route:'avatar'},
+          {name:'Wan 3 Reference',badge:'SCENE',credits:'dynamic',desc:'Create character-consistent video scenes from references.',visual:'wan',video:'/app/media/samples/vid2.mp4',route:'avatar'}
+        ]
+      },
+      Content:{
+        title:'Content tools',
+        text:'Turn ideas into hooks, scripts, carousels and repeatable social content.',
+        items:[
+          {name:'Hooks & Captions',badge:'FAST',credits:'1 credit',desc:'Scroll-stopping hooks and captions for daily posting.',visual:'content',word:'HOOKS',route:'studio:generate'},
+          {name:'UGC Script',badge:'SELL',credits:'1 credit',desc:'Short natural scripts built around an offer or product.',visual:'content',word:'UGC',route:'studio:generate'},
+          {name:'Carousel Copy',badge:'SOCIAL',credits:'1 credit',desc:'Structured slides with a clear hook, flow and CTA.',visual:'content',word:'CAROUSEL',route:'studio:generate'},
+          {name:'30-Day Content Plan',badge:'PLAN',credits:'2 credits',desc:'A practical month of ideas organized around your goal.',visual:'content',word:'30 DAYS',route:'studio:generate'},
+          {name:'Deep Strategy',badge:'PRO',credits:'3 credits',desc:'Longer positioning and content strategy for campaigns.',visual:'content',word:'STRATEGY',route:'studio:generate'}
+        ]
+      }
+    };
+
+    const descriptions={
+      All:['Create with Fuse','Choose what you want to make, then open the exact workspace.'],
+      Page:['Build landing pages','Turn an offer into a polished, conversion-focused page.'],
+      Flyer:['AI flyer studio','Build polished campaign flyers, posters and social ads.'],
+      Lipsync:['Lipsync video','Sync dialogue or voice to a face and keep it natural.'],
+      UGC:['UGC video','Create creator-style ads and product videos for brands.']
+    };
+
     let selected=new URLSearchParams(location.search).get('category')||'All';
 
+    function workspace(route){
+      return '/app/workspace.html?go='+encodeURIComponent(route)+'&source=fuse-create';
+    }
+
     function renderTabs(){
-      document.getElementById('createTabs').innerHTML=tabs.map(t=>`<button class="create-tab ${selected===t?'active':''}" data-tab="${t}">${t}</button>`).join('');
-      document.querySelectorAll('[data-tab]').forEach(btn=>{
+      const root=document.getElementById('createTabs');
+      root.innerHTML=tabs.map(t=>`<button class="create-tab ${selected===t?'active':''}" data-tab="${t}">${t}</button>`).join('');
+      root.querySelectorAll('[data-tab]').forEach(btn=>{
         btn.onclick=()=>{
           selected=btn.dataset.tab;
           const url=new URL(location.href);
@@ -119,31 +245,79 @@
         };
       });
     }
+
     function mediaMarkup(tool){
       if(tool.voice)return '<div class="voice-card" aria-hidden="true"><div class="voice-bars"><i></i><i></i><i></i><i></i><i></i></div></div>';
-      if(tool.video)return `<video src="${tool.video}" aria-label="${tool.title}" autoplay muted loop playsinline preload="auto"></video>`;
+      if(tool.video)return `<video src="${tool.video}" aria-label="${tool.title}" autoplay muted loop playsinline preload="metadata"></video>`;
       const fallback=tool.fallback?` onerror="this.onerror=null;this.src='${tool.fallback}'"`:'';
       return `<img src="${tool.img}" alt="${tool.title}" loading="eager" decoding="async"${fallback}>`;
     }
-    function toolMarkup(tool){
-      return `<a class="create-card" href="${tool.href}"><div class="create-media">${mediaMarkup(tool)}</div><h2>${tool.title}</h2></a>`;
+
+    function toolMarkup(tool,pinned=false){
+      const href=tool.href||workspace(tool.route||'studio:generate');
+      return `<a class="create-card" href="${href}">${pinned?'<span class="pin-badge">FUSE TOOL</span>':''}<div class="create-media">${mediaMarkup(tool)}</div><h2>${tool.title}</h2></a>`;
     }
+
+    function modelVisual(m){
+      if(m.img)return `<div class="model-visual visual-${m.visual||'content'}"><img src="${m.img}" alt="" loading="eager" decoding="async"></div>`;
+      if(m.video)return `<div class="model-visual visual-${m.visual||'content'}"><video src="${m.video}" muted autoplay loop playsinline preload="metadata" aria-hidden="true"></video></div>`;
+      if(m.bars)return '<div class="model-visual visual-voice"><div class="visual-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>';
+      return `<div class="model-visual visual-${m.visual||'content'}"><div class="visual-word">${m.word||m.name.split(' ')[0]}<small>Fuse Atelier</small></div></div>`;
+    }
+
     function modelMarkup(m){
-      return `<article class="model-card"><div class="model-meta"><span class="model-badge">${m[0]}</span><span class="model-credits">${m[1]}</span></div><h2>${m[2]}</h2><p>${m[3]}</p></article>`;
+      const attrs=m.route?` data-route="${m.route}" role="link" tabindex="0"`:'';
+      return `<article class="model-card"${attrs}>
+        ${modelVisual(m)}
+        <span class="model-shine" aria-hidden="true"></span>
+        <div class="model-meta"><span class="model-badge">${m.badge}</span><span class="model-credits">${m.credits}</span></div>
+        <div class="model-copy"><h2>${m.name}</h2><p>${m.desc}</p></div>
+      </article>`;
     }
+
+    function wireModelRoutes(){
+      document.querySelectorAll('.model-card[data-route]').forEach(card=>{
+        const open=()=>location.href=workspace(card.dataset.route);
+        card.onclick=open;
+        card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}};
+      });
+    }
+
+    function setIntro(title,text,count){
+      const intro=document.getElementById('catalogIntro');
+      intro.hidden=false;
+      document.getElementById('catalogTitle').textContent=title;
+      document.getElementById('catalogText').textContent=text;
+      document.getElementById('catalogCount').textContent=count?count+' tools':'';
+    }
+
     function render(){
       renderTabs();
       const grid=document.getElementById('createGrid');
-      if(selected==='Image'){
+      const catalog=catalogs[selected];
+
+      if(catalog){
         grid.className='create-grid model-grid';
-        const imageTool=tools.find(t=>t.cat==='Image');
-        grid.innerHTML=toolMarkup(imageTool)+models.map(modelMarkup).join('');
+        const tool=tools.find(t=>t.cat===selected);
+        grid.innerHTML=(tool?toolMarkup(tool,true):'')+catalog.items.map(modelMarkup).join('');
+        setIntro(catalog.title,catalog.text,catalog.items.length+(tool?1:0));
+        wireModelRoutes();
         return;
       }
+
       grid.className='create-grid';
-      const list=selected==='All'?tools:tools.filter(t=>t.cat===selected);
-      grid.innerHTML=list.length?list.map(toolMarkup).join(''):'<p class="empty-state">More Create tools are coming soon.</p>';
+      if(selected==='All'){
+        grid.innerHTML=tools.map(t=>toolMarkup(t,false)).join('');
+        setIntro(descriptions.All[0],descriptions.All[1],tools.length);
+        return;
+      }
+
+      const list=tools.filter(t=>t.cat===selected);
+      grid.innerHTML=list.length?list.map(t=>toolMarkup(t,true)).join(''):'<p class="empty-state">More Create tools are coming soon.</p>';
+      const d=descriptions[selected]||[selected,'Open the matching Fuse workspace.'];
+      setIntro(d[0],d[1],list.length);
     }
+
     document.getElementById('closeCreate').onclick=()=>location.href='home.html';
     render();
   </script>
