@@ -116,6 +116,10 @@
       background:rgba(0,25,27,.80);color:#b9cac8;font-size:12px;font-weight:300
     }
     .quick.active{background:var(--chrome);color:#001012;border-color:transparent;font-weight:400}
+    .asset-note{
+      margin:9px 4px 0;text-align:center;color:#829997;font-size:12px;line-height:1.45;font-weight:300
+    }
+    .asset-note strong{color:#DFFF4E;font-weight:400}
     .section-head{
       display:flex;align-items:end;justify-content:space-between;gap:14px;margin:25px 2px 12px
     }
@@ -230,6 +234,7 @@
         <button class="quick" data-experience="3d" type="button">3D Interactive</button>
         <button class="quick" data-assets="generate" type="button">Generate assets with Fuse</button>
       </div>
+      <p class="asset-note" id="assetNote">AI page planning is included in V1. Turn on <strong>Generate assets with Fuse</strong> to create a hero image using normal Image credits; Cinematic can also create a short video using normal Video credits.</p>
     </section>
 
     <div class="section-head">
@@ -317,6 +322,9 @@
     assetMode.onclick=()=>{
       generateAssets=!generateAssets;
       assetMode.classList.toggle('active',generateAssets);
+      document.getElementById('assetNote').innerHTML=generateAssets
+        ? '<strong>AI assets ON.</strong> Fuse will generate the missing website media after the page draft. Hero image starts at 2 credits; cinematic video uses its normal Video model credits.'
+        : 'AI page planning is included in V1. Turn on <strong>Generate assets with Fuse</strong> to create a hero image using normal Image credits; Cinematic can also create a short video using normal Video credits.';
     };
 
     attachBtn.onclick=()=>assetInput.click();
