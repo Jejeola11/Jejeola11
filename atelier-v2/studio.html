@@ -39,14 +39,14 @@
     .create-wrap{
       width:min(920px,calc(100% - 32px));
       margin:0 auto;
-      padding:34px 0 26px;
+      padding:18px 0 24px;
     }
     .create-top{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:20px;
-      margin-bottom:34px;
+      margin-bottom:20px;
     }
     .create-title{
       margin:0;
@@ -72,7 +72,7 @@
       box-shadow:0 10px 24px rgba(223,255,78,.15);
     }
     .create-close span{
-      font-size:36px;
+      font-size:28px;
       line-height:.8;
       font-weight:300;
       transform:translateY(-1px);
@@ -239,14 +239,14 @@
       .model-card.featured{min-height:420px}
     }
     @media(max-width:560px){
-      .create-wrap{width:calc(100% - 32px);padding-top:28px}
-      .create-top{margin-bottom:30px}
-      .create-close{width:50px;height:50px}
-      .create-tab{min-width:110px;height:52px;padding:0 22px;font-size:17px}
-      .create-tabs{gap:12px;margin-bottom:34px}
+      .create-wrap{width:calc(100% - 32px);padding-top:16px}
+      .create-top{margin-bottom:18px}
+      .create-close{width:38px;height:38px}
+      .create-tab{min-width:84px;height:40px;padding:0 16px;font-size:14px}
+      .create-tabs{gap:9px;margin-bottom:26px}
       .create-grid{gap:24px 22px}
       .create-media{border-radius:22px}
-      .create-card h2{font-size:17px;margin-top:12px}
+      .create-card h2{font-size:15px;margin-top:10px}
       .model-card{min-height:355px;padding:22px 18px 20px;border-radius:22px}
       .model-card.featured{min-height:470px}
       .model-card h2{font-size:20px}
@@ -257,10 +257,10 @@
     @media(max-width:390px){
       .create-wrap{width:calc(100% - 24px)}
       .create-tabs{padding-left:12px;padding-right:12px}
-      .create-tab{min-width:102px;padding:0 19px;font-size:16px}
+      .create-tab{min-width:80px;padding:0 14px;font-size:13px}
       .create-grid{gap:22px 18px}
       .create-media{border-radius:20px}
-      .create-card h2{font-size:16px}
+      .create-card h2{font-size:14px}
       .model-card{padding:20px 16px;min-height:340px}
       .model-card.featured{min-height:450px}
       .model-card h2{font-size:19px}
@@ -285,15 +285,15 @@
     const tabs=['All','Image','Video','Twin','Page','Voice','Flyer','Content','Lipsync','UGC'];
 
     const tools=[
-      {cat:'Image',title:'Create Image',img:'still-03.jpg',href:'studio.html?type=image'},
-      {cat:'Video',title:'Create Video',img:'work-20-poster.jpg',href:'studio.html?type=video'},
-      {cat:'Page',title:'Build Landing Page',img:'ai-campaign-flyer.jpg',href:'../pitchpilot/site-builder.html'},
-      {cat:'Twin',title:'Create Your AI Twin',img:'still-01.jpg',href:'studio.html?type=image'},
+      {cat:'Image',title:'Create Image',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1788626963/4870020.png',href:'studio.html?type=image'},
+      {cat:'Video',title:'Create Video',video:'/atelier-site/assets/course-ai-ugc.mp4',href:'studio.html?type=video'},
+      {cat:'Page',title:'Build Landing Page',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789492222/fuse-atelier/academy/landing-card.webp',href:'../pitchpilot/site-builder.html'},
+      {cat:'Twin',title:'Create Your AI Twin',img:'/atelier-site/assets/work/still-01.jpg',href:'studio.html?type=image'},
       {cat:'Voice',title:'Clone Your Voice',voice:true,href:'studio.html?type=audio'},
-      {cat:'Flyer',title:'AI Flyer',img:'ai-campaign-flyer.jpg',href:'studio.html?type=image'},
-      {cat:'Lipsync',title:'Lipsync Video',img:'work-11-poster.jpg',href:'studio.html?type=video'},
-      {cat:'UGC',title:'UGC Video',img:'work-10-poster.jpg',href:'studio.html?type=video'},
-      {cat:'Content',title:'Instagram Content',img:'work-03-poster.jpg',href:'studio.html?type=image'}
+      {cat:'Flyer',title:'AI Flyer',img:'/atelier-site/assets/work/ai-campaign-flyer.jpg',href:'studio.html?type=image'},
+      {cat:'Lipsync',title:'Lipsync Video',video:'/atelier-site/assets/work/work-11.mp4',href:'studio.html?type=video'},
+      {cat:'UGC',title:'UGC Video',video:'/atelier-site/assets/work/work-10.mp4',href:'studio.html?type=video'},
+      {cat:'Content',title:'Instagram Content',video:'/atelier-site/assets/work/work-03.mp4',href:'studio.html?type=image'}
     ];
 
     const models=[
@@ -329,7 +329,11 @@
       if(tool.voice){
         return '<div class="voice-card" aria-hidden="true"><div class="voice-bars"><i></i><i></i><i></i><i></i><i></i></div></div>';
       }
-      return '<img src="'+media+tool.img+'" alt="'+tool.title+'" loading="lazy">';
+      if(tool.video){
+        return '<video src="'+tool.video+'" aria-label="'+tool.title+'" autoplay muted loop playsinline preload="metadata"></video>';
+      }
+      const src=tool.img && /^https?:|^\//.test(tool.img) ? tool.img : media+tool.img;
+      return '<img src="'+src+'" alt="'+tool.title+'" loading="lazy">';
     }
 
     function toolMarkup(tool){
