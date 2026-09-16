@@ -21,10 +21,10 @@
       <img src="media/fuse-mark-login-exact.png" alt="">
       <span>Fuse Atelier</span>
     </a>
-    <a class="academy-pricing" href="/pricing.html">
+    <a class="academy-pricing" href="pricing.html">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 11 3h7l3 3v7l-8 8L3 11Z"/><circle cx="16.5" cy="7.5" r="1"/></svg>
       <span>Pricing</span>
-      <span class="academy-pricing-badge">50% OFF</span>
+      <span class="academy-pricing-badge">23% OFF</span>
     </a>
   </header>
 
@@ -33,6 +33,18 @@
     <h1 class="academy-title">My courses</h1>
     <p class="academy-lead">Pick up where you left off. Your next skill is ready.</p>
     <p id="courseStatus" class="academy-status" role="status">Checking your course access…</p>
+
+    <section id="academyBundle" class="academy-bundle" hidden>
+      <div class="academy-bundle-copy">
+        <span class="academy-bundle-eyebrow">FUSE CORE VALUE</span>
+        <h2>Unlock all remaining courses</h2>
+        <p id="academyBundleCopy">Get every course still locked on your account in one purchase.</p>
+      </div>
+      <button id="academyBundleButton" class="academy-bundle-button" type="button">
+        <span>Unlock remaining</span>
+        <strong id="academyBundlePrice">280 credits</strong>
+      </button>
+    </section>
 
     <section class="academy-cards" aria-label="My courses">
       <a class="academy-course design" data-course="design" href="academy-v2.html?course=design">
@@ -80,5 +92,22 @@
       </a>
     </section>
   </main>
+
+  <div id="courseUnlockModal" class="course-unlock-modal" hidden>
+    <button id="courseUnlockBackdrop" class="course-unlock-backdrop" type="button" aria-label="Close course purchase"></button>
+    <section class="course-unlock-panel" role="dialog" aria-modal="true" aria-labelledby="courseUnlockTitle">
+      <button id="courseUnlockClose" class="course-unlock-close" type="button" aria-label="Close">×</button>
+      <span class="course-unlock-kicker">COURSE UNLOCK</span>
+      <h2 id="courseUnlockTitle">Unlock course</h2>
+      <p id="courseUnlockCopy">Use your Fuse credits to get permanent access to this course.</p>
+      <div class="course-unlock-summary">
+        <div><span>Unlock price</span><strong id="courseUnlockPrice">0 credits</strong></div>
+        <div><span>Your balance</span><strong id="courseUnlockBalance">0 credits</strong></div>
+      </div>
+      <p id="courseUnlockNote" class="course-unlock-note"></p>
+      <button id="courseUnlockConfirm" class="course-unlock-confirm" type="button">Unlock course</button>
+      <a id="courseUnlockTopup" class="course-unlock-topup" href="pricing.html" hidden>Top up credits</a>
+    </section>
+  </div>
 </body>
 </html>
