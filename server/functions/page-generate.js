@@ -15,6 +15,12 @@ const ALLOWED_EXPERIENCES = new Set(['clean','animated','cinematic','3d']);
 function cleanText(v, max=5000) {
   return typeof v === 'string' ? v.trim().slice(0,max) : '';
 }
+function safeUrl(v='') {
+  try {
+    const u=new URL(String(v));
+    return u.protocol==='https:' ? u.toString() : '';
+  } catch { return ''; }
+}
 function titleCase(s='') {
   return s.replace(/[-_]+/g,' ').replace(/\b\w/g,m=>m.toUpperCase()).trim();
 }
@@ -78,6 +84,8 @@ function fallbackSpec(brief) {
   const brand=inferBrand(brief.prompt);
   const lead=shortLead(brief.prompt);
   const experience=brief.experience||'clean';
+  const uploadedImage=(brief.attachments||[]).find(x=>x&&String(x.type||'').startsWith('image/')&&x.url);
+  const uploadedVideo=(brief.attachments||[]).find(x=>x&&String(x.type||'').startsWith('video/')&&x.url);
   const headline=lead || (
     brief.type==='portfolio' ? 'Make the work impossible to overlook.' :
     brief.type==='business' ? 'A premium digital home for '+brand+'.' :
@@ -113,7 +121,9 @@ function fallbackSpec(brief) {
       secondary_cta:'See more',
       visual:{
         type: brief.type==='3d' || experience==='3d' ? 'orb-3d' : experience==='cinematic' ? 'cinematic-gradient' : 'editorial-gradient',
-        prompt:'Premium brand hero visual for '+brand+', clean composition, commercial art direction'
+        prompt:'Premium brand hero visual for '+brand+', clean composition, commercial art direction',
+        image_url:uploadedImage?uploadedImage.url:'',
+        video_url:uploadedVideo?uploadedVideo.url:''
       }
     },
     sections:defaultSections(brief.type,brand),
@@ -200,7 +210,11 @@ exports.handler=async(event)=>{
       type:ALLOWED_TYPES.has(String(b.type||'').toLowerCase())?String(b.type).toLowerCase():'landing',
       experience:ALLOWED_EXPERIENCES.has(String(b.experience||'').toLowerCase())?String(b.experience).toLowerCase():'clean',
       generateAssets:b.generateAssets===true,
-      attachments:Array.isArray(b.attachments)?b.attachments.slice(0,8).map(x=>({name:cleanText(x&&x.name,120),type:cleanText(x&&x.type,80)})):[]
+      attachments:Array.isArray(b.attachments)?b.attachments.slice(0,8).map(x=>({
+        name:cleanText(x&&x.name,120),
+        type:cleanText(x&&x.type,80),
+        url:safeUrl(x&&x.url)
+      })).filter(x=>x.name||x.url):[]
     };
     if(!brief.prompt)return json(400,{error:'Describe the website you want to build first.'});
 
