@@ -211,6 +211,7 @@ const VIDEO_COST = {        // real $ cost, WaveSpeed-first (see _providers.js) 
   // Official WaveSpeed base price: $0.90 per 5s @480p.
   // Actual duration + resolution pricing is calculated below.
   'seedance-2.5-image-to-video': 0.90,
+  'seedance-2.5-text-to-video': 0.90,
   'veo3-text-to-video': 1.20,                  'veo3-image-to-video': 1.20,
   // Omni Studio (verified live against MuAPI's catalog + validation endpoints)
   'gemini-omni-video-edit': 2.40,              // needs a Pro/Business MuAPI plan — see omni-video-edit.js
@@ -268,12 +269,23 @@ const VIDEO_DYNAMIC_RATES = {
   // WaveSpeed Seedance 2.5 Image-to-Video official USD / generated second.
   // 480p $0.18/s · 720p $0.36/s · 1080p $0.90/s · 4K $1.80/s.
   'seedance-2.5-image-to-video': { '480p': 0.18, '720p': 0.36, '1080p': 0.90, '4k': 1.80 },
+  'seedance-2.5-text-to-video': { '480p': 0.18, '720p': 0.36, '1080p': 0.90, '4k': 1.80 },
 };
+const SEEDANCE25_REF_VIDEO_RATES = { '480p': 0.11, '720p': 0.22, '1080p': 0.55, '4k': 1.10 };
 function videoCreditsForRequest(model, duration, resolution, pricingContext = {}) {
   const rates = VIDEO_DYNAMIC_RATES[model];
   if (rates) {
     const keys = Object.keys(rates);
     const outputSecs = Math.max(1, Math.ceil(parseFloat(duration) || 5));
+    if (model === 'seedance-2.5-text-to-video' && Number(pricingContext.referenceVideoCount || 0) > 0) {
+      const rate = SEEDANCE25_REF_VIDEO_RATES[resolution] != null
+        ? SEEDANCE25_REF_VIDEO_RATES[resolution]
+        : SEEDANCE25_REF_VIDEO_RATES['720p'];
+      const count = Math.min(6, Math.max(0, Math.floor(Number(pricingContext.referenceVideoCount) || 0)));
+      const supplied = Math.max(0, Math.ceil(Number(pricingContext.referenceVideoSeconds) || 0));
+      const referenceSecs = Math.min(30, Math.max(count * 2, supplied));
+      return creditsFor(rate * (outputSecs + referenceSecs), VIDEO_MARGIN);
+    }
     const rate = rates[resolution] != null ? rates[resolution] : rates[keys[0]];
     return creditsFor(rate * outputSecs, VIDEO_MARGIN);
   }
