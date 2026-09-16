@@ -662,35 +662,55 @@ async function submitFlyerImage(model, { prompt, aspect, images }) {
 // Image 2 both really do accept up to 10-16 images, they just were never
 // being sent.
 const IMAGE_ROUTES = {
+  'gpt-image-2.5-sunburst':     { t2i: 'openai/gpt-image-2.5-sunburst/text-to-image', i2i: 'openai/gpt-image-2.5-sunburst/edit', maxImages: 16, resolutionParam: true, qualityParam: true },
+  'gpt-image-2.5-flare':        { t2i: 'openai/gpt-image-2.5-flare/text-to-image', i2i: 'openai/gpt-image-2.5-flare/edit', maxImages: 16, resolutionParam: true, qualityParam: true },
+  'minimax-h3-image':           { t2i: 'wavespeed-ai/minimax-h3/text-to-image', i2i: 'wavespeed-ai/minimax-h3/image-edit', maxImages: 9, resolutionParam: true, maxResolution: '2k' },
   'flux-schnell-image':        { t2i: 'wavespeed-ai/flux-schnell', sizeParam: true },
   'flux-dev-image':            { t2i: 'wavespeed-ai/flux-dev', sizeParam: true, i2i: 'wavespeed-ai/flux-dev', singleImage: true, imageField: 'image' },
   'qwen-image':                { t2i: 'wavespeed-ai/qwen-image/text-to-image-2512', i2i: 'wavespeed-ai/qwen-image/edit-2511', sizeParam: true, maxImages: 3 },
   'flux-2-pro':                { t2i: 'wavespeed-ai/flux-2-pro/text-to-image', i2i: 'wavespeed-ai/flux-2-pro/edit', sizeParam: true, maxImages: 3 },
-  'seedream-5.0':               { t2i: 'bytedance/seedream-v5.0-pro', i2i: 'bytedance/seedream-v5.0-pro/edit', maxImages: 10 },
+  'seedream-5.0':               { t2i: 'bytedance/seedream-v5.0-pro', i2i: 'bytedance/seedream-v5.0-pro/edit', maxImages: 10, resolutionParam: true, maxResolution: '2k' },
   'hunyuan-image-3.0':          { t2i: 'wavespeed-ai/hunyuan-image-3-instruct/text-to-image', i2i: 'wavespeed-ai/hunyuan-image-3-instruct/edit', sizeParam: true, maxImages: 2 },
   'hunyuan-image-2.1':          { t2i: 'wavespeed-ai/hunyuan-image-2.1', sizeParam: true },
   'hidream_i1_full_image':      { t2i: 'wavespeed-ai/hidream-i1-full', i2i: 'wavespeed-ai/hidream-e1-full', sizeParam: true, singleImage: true, imageField: 'image' },
   'nano-banana':                { t2i: 'google/nano-banana/text-to-image', i2i: 'google/nano-banana/edit', maxImages: 10 },
-  'nano-banana-2':              { t2i: 'google/nano-banana-2/text-to-image', i2i: 'google/nano-banana-2/edit', maxImages: 14 },
+  'nano-banana-2':              { t2i: 'google/nano-banana-2/text-to-image', i2i: 'google/nano-banana-2/edit', maxImages: 14, resolutionParam: true },
   'gpt-image-2-text-to-image':  { t2i: 'openai/gpt-image-2/text-to-image', i2i: 'openai/gpt-image-2/edit', maxImages: 16 },
 };
 // These 5 models have no native aspect_ratio param — this app's own 5
 // aspect options mapped to a reasonable "W*H" pixel size for each.
-const ASPECT_TO_SIZE = {
-  '1:1': '1024*1024', '4:5': '1024*1280', '3:4': '1024*1366', '9:16': '832*1472', '16:9': '1472*832',
+const ASPECT_TO_SIZE_1K = {
+  '1:1': '1024*1024', '4:5': '1024*1280', '3:4': '1024*1366', '2:3': '1024*1536',
+  '3:2': '1536*1024', '4:3': '1366*1024', '9:16': '832*1472', '16:9': '1472*832', '21:9': '1536*658',
 };
-// Returns null (never throws) when this model has no WaveSpeed route or the
-// key isn't set, so callers fall back to their existing MuAPI path exactly
-// like submitImageGoogle/submitFlyerImage already do.
-async function submitImageWS(model, { prompt, aspect, images }) {
+const ASPECT_TO_SIZE_2K = {
+  '1:1': '2048*2048', '4:5': '1638*2048', '3:4': '1536*2048', '2:3': '1366*2048',
+  '3:2': '2048*1366', '4:3': '2048*1536', '9:16': '1152*2048', '16:9': '2048*1152', '21:9': '2048*878',
+};
+function wsImageSize(aspect, resolution) {
+  const hi = resolution === '2k' || resolution === '4k';
+  const map = hi ? ASPECT_TO_SIZE_2K : ASPECT_TO_SIZE_1K;
+  return map[aspect] || (hi ? '2048*2048' : '1024*1024');
+}
+function wsResolution(route, resolution) {
+  if (!resolution) return undefined;
+  if (route.maxResolution === '2k' && resolution === '4k') return '2k';
+  return resolution;
+}
+// Returns null when this model has no WaveSpeed route or the key isn't set.
+// The dedicated Fuse Atelier creator can request WaveSpeed-only mode at the
+// API layer; older callers still retain their normal fallback behavior.
+async function submitImageWS(model, { prompt, aspect, images, resolution, quality }) {
   const route = IMAGE_ROUTES[model];
   if (!route || !hasWaveSpeed()) return null;
   const hasRefs = Array.isArray(images) && images.length > 0;
-  if (hasRefs && !route.i2i) return null; // no edit variant on this model — caller's MuAPI fallback handles it
+  if (hasRefs && !route.i2i) return null;
   const wsModel = hasRefs ? route.i2i : route.t2i;
   const body = { prompt };
-  if (route.sizeParam) body.size = ASPECT_TO_SIZE[aspect] || '1024*1024';
+  if (route.sizeParam) body.size = wsImageSize(aspect, resolution);
   else body.aspect_ratio = aspect || '1:1';
+  if (route.resolutionParam && resolution) body.resolution = wsResolution(route, resolution);
+  if (route.qualityParam) body.quality = quality || 'medium';
   if (hasRefs) {
     if (route.singleImage) body[route.imageField || 'image'] = images[0];
     else body.images = images.slice(0, route.maxImages || 3);
