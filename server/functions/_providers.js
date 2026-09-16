@@ -182,6 +182,14 @@ const VIDEO_ROUTES = {
     noAspect: true,
     waveSpeedOnly: true,
   },
+  'seedance-2.5-text-to-video': {
+    kind: 'seedance25refs',
+    pick: () => 'bytedance/seedance-2.5/text-to-video',
+    durationRange: [4, 30],
+    resolutionParam: true,
+    audioField: 'generate_audio',
+    waveSpeedOnly: true,
+  },
   'seedance-2-mini-text-to-video': { kind: 't2v', pick: (o) => o.resolution === '720p' ? 'bytedance/seedance-v1-lite-t2v-720p' : 'bytedance/seedance-v1-lite-t2v-480p' },
   'seedance-2-mini-image-to-video': { kind: 'i2v', pick: (o) => o.resolution === '720p' ? 'bytedance/seedance-v1-lite-i2v-720p' : 'bytedance/seedance-v1-lite-i2v-480p' },
   'seedance-2-text-to-video': { kind: 't2v', pick: () => 'bytedance/seedance-v1-lite-t2v-720p' },
@@ -375,7 +383,14 @@ function wsVideoBody(route, opts, hosted) {
   // cloned narration on once at the end — asking it to generate audio here
   // would just be wasted compute with no effect on the final video.
   if (route.noGenAudio) body.generate_audio = false;
-  if (route.kind === 'i2v') {
+  if (route.kind === 'seedance25refs') {
+    const images = (Array.isArray(opts.reference_image_urls) ? opts.reference_image_urls : []).filter(Boolean).slice(0, 6);
+    const videos = (Array.isArray(opts.reference_video_urls) ? opts.reference_video_urls : []).filter(Boolean).slice(0, 6);
+    const audios = (Array.isArray(opts.reference_audio_urls) ? opts.reference_audio_urls : []).filter(Boolean).slice(0, 6);
+    body.reference_images = images;
+    body.reference_videos = videos;
+    body.reference_audios = audios;
+  } else if (route.kind === 'i2v') {
     body.image = (hosted && hosted[0]) || opts.image_url;
     if (hosted && hosted[1]) body.last_image = hosted[1];
   }
