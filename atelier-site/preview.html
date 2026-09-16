@@ -1153,6 +1153,39 @@ footer span{
   }
 }
 
+
+/* PAYSTACK CHECKOUT */
+.checkout-modal{
+  position:fixed;inset:0;z-index:9999;display:none;align-items:flex-end;justify-content:center;
+  background:rgba(0,8,9,.78);backdrop-filter:blur(10px);padding:18px;
+}
+.checkout-modal.open{display:flex}
+.checkout-sheet{
+  width:min(520px,100%);background:linear-gradient(180deg,#062125 0%,#00191B 100%);
+  border:1px solid rgba(238,255,224,.18);border-radius:28px;padding:24px 20px 22px;
+  box-shadow:0 30px 80px rgba(0,0,0,.45);position:relative;
+}
+.checkout-close{
+  position:absolute;right:16px;top:14px;width:38px;height:38px;border-radius:50%;
+  border:1px solid rgba(238,255,224,.14);background:#001012;color:#fff;font-size:24px;line-height:1;cursor:pointer;
+}
+.checkout-eyebrow{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#DFFF4E;margin-bottom:9px}
+.checkout-sheet h3{margin:0 44px 8px 0;font-size:24px;line-height:1.08}
+.checkout-price{font-size:17px;font-weight:700;margin-bottom:8px}
+.checkout-note{font-size:14px;line-height:1.5;color:#bad0cd;margin:0 0 18px}
+.checkout-field{display:block;text-align:left;margin:0 0 14px}
+.checkout-field span{display:block;font-size:14px;font-weight:600;margin:0 0 7px;color:#EEFFE0}
+.checkout-field input{
+  width:100%;height:54px;border:1px solid #315456;border-radius:14px;background:#001012;color:#fff;
+  padding:0 15px;font:500 16px/1 Montserrat,Arial,sans-serif;outline:none;
+}
+.checkout-field input:focus{border-color:#DFFF4E;box-shadow:0 0 0 3px rgba(223,255,78,.09)}
+.checkout-submit{width:100%;margin-top:4px}
+.checkout-error{min-height:18px;margin:10px 0 0;color:#ffb7a8;font-size:13px;line-height:1.4}
+.installment-help{display:inline-block;margin-top:8px;font-size:13px;color:#DFFF4E;text-decoration:none;font-weight:700}
+.installment-help:hover{text-decoration:underline}
+@media(min-width:700px){.checkout-modal{align-items:center}}
+
 </style>
 </head>
 <body>
@@ -1420,7 +1453,7 @@ footer span{
           <li>Small Fuse Create starter credit pack</li>
           <li>Access to current course updates</li>
         </ul>
-        <a class="btn" href="#final">Choose Core →</a>
+        <button class="btn paystack-buy" type="button" data-pack="atelier_core" data-plan="Fuse Core" data-price="₦25,000">Choose Core →</button>
         <p class="card-note">“I understand the system. I can execute this myself.”</p>
       </article>
 
@@ -1428,7 +1461,7 @@ footer span{
         <div class="price-kicker">Implementation Offer</div>
         <h3>Fuse Fast Track</h3>
         <div class="price">₦119,000 / $89</div>
-        <div class="installment">or 2 × ₦65,000</div>
+        <div class="installment">or 2 × ₦65,000</div><a class="installment-help" href="https://wa.me/2349044558101?text=Hi%20Ria%2C%20I%27d%20like%20to%20pay%20for%20Fuse%20Fast%20Track%20in%202%20installments." target="_blank" rel="noopener noreferrer">Pay in 2 parts via Ria →</a>
         <p class="best-for"><strong>Best for:</strong> someone who wants to finish one skill and build a sellable portfolio with support.</p>
         <ul class="feature-list">
           <li>Everything in Fuse Core</li>
@@ -1442,7 +1475,7 @@ footer span{
           <li>Money Engine execution workbook</li>
           <li>Pitch + follow-up templates</li>
         </ul>
-        <a class="btn" href="#final">Choose Fast Track →</a>
+        <button class="btn paystack-buy" type="button" data-pack="atelier_fast_track" data-plan="Fuse Fast Track" data-price="₦119,000">Choose Fast Track →</button>
         <p class="card-note">“I want Fuse to help me actually finish one skill, build the proof and package the offer.”</p>
       </article>
 
@@ -1450,7 +1483,7 @@ footer span{
         <div class="price-kicker">Application Only · 6 Spots</div>
         <h3>Fuse VIP — First Client Intensive</h3>
         <div class="price">₦499,000 / $399</div>
-        <div class="installment">or 2 × ₦275,000</div>
+        <div class="installment">or 2 × ₦275,000</div><a class="installment-help" href="https://wa.me/2349044558101?text=Hi%20Ria%2C%20I%27d%20like%20to%20apply%20for%20Fuse%20VIP%20and%20pay%20in%202%20installments." target="_blank" rel="noopener noreferrer">Ask about the 2-part option →</a>
         <p class="best-for"><strong>Best for:</strong> someone who wants direct 1:1 guidance for 30 days while building one skill and taking it to market.</p>
         <ul class="feature-list">
           <li>Everything in Fast Track</li>
@@ -1465,7 +1498,7 @@ footer span{
           <li>Pricing, response and negotiation support</li>
           <li>VIP execution credit allocation for the agreed plan</li>
         </ul>
-        <a class="btn" href="#final">Apply For VIP →</a>
+        <a class="btn" href="https://wa.me/2349044558101?text=Hi%20Ria%2C%20I%27m%20interested%20in%20Fuse%20VIP%20%E2%80%94%20First%20Client%20Intensive.%20I%27d%20like%20to%20apply%20for%20one%20of%20the%206%20spots." target="_blank" rel="noopener noreferrer">Apply For VIP →</a>
         <p class="card-note">“Ria, I do not want to figure this out alone. Work through the first 30 days with me.”</p>
       </article>
     </div>
@@ -1564,6 +1597,23 @@ footer span{
   </div>
 </footer>
 
+
+<div class="checkout-modal" id="checkoutModal" aria-hidden="true">
+  <div class="checkout-sheet" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+    <button class="checkout-close" id="checkoutClose" type="button" aria-label="Close">×</button>
+    <div class="checkout-eyebrow">Secure Paystack checkout</div>
+    <h3 id="checkoutTitle">Fuse Atelier</h3>
+    <div class="checkout-price" id="checkoutPrice"></div>
+    <p class="checkout-note">Enter your name and the email you want to use for Fuse Atelier. After payment, use this same email to log in. Your name can be anything you prefer.</p>
+    <form id="checkoutForm">
+      <label class="checkout-field"><span>Your name</span><input id="checkoutName" name="name" autocomplete="name" required placeholder="Your name"></label>
+      <label class="checkout-field"><span>Purchase email</span><input id="checkoutEmail" name="email" type="email" autocomplete="email" required placeholder="you@email.com"></label>
+      <button class="btn checkout-submit" id="checkoutSubmit" type="submit">Continue to Paystack →</button>
+      <p class="checkout-error" id="checkoutError" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</div>
+
 <div class="sticky">
   <div><b>Fuse Atelier</b><span>3 plans · starts at ₦25,000</span></div>
   <a class="btn" href="#pricing">See Plans</a>
@@ -1580,6 +1630,69 @@ footer span{
   });
   document.addEventListener('visibilitychange',()=>{if(!document.hidden) videos.forEach(play);});
 
+  const modal=document.getElementById('checkoutModal');
+  const closeBtn=document.getElementById('checkoutClose');
+  const form=document.getElementById('checkoutForm');
+  const title=document.getElementById('checkoutTitle');
+  const price=document.getElementById('checkoutPrice');
+  const submit=document.getElementById('checkoutSubmit');
+  const error=document.getElementById('checkoutError');
+  let selectedPack='';
+
+  function openCheckout(pack, plan, planPrice){
+    selectedPack=pack;
+    title.textContent=plan;
+    price.textContent=planPrice;
+    error.textContent='';
+    submit.disabled=false;
+    submit.textContent='Continue to Paystack →';
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+    setTimeout(()=>document.getElementById('checkoutName')?.focus(),80);
+  }
+  function closeCheckout(){
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+    document.body.style.overflow='';
+  }
+
+  document.querySelectorAll('.paystack-buy').forEach(btn=>{
+    btn.addEventListener('click',()=>openCheckout(btn.dataset.pack,btn.dataset.plan,btn.dataset.price));
+  });
+  closeBtn.addEventListener('click',closeCheckout);
+  modal.addEventListener('click',e=>{if(e.target===modal)closeCheckout()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeCheckout()});
+
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const name=document.getElementById('checkoutName').value.trim();
+    const email=document.getElementById('checkoutEmail').value.trim().toLowerCase();
+    if(!selectedPack)return;
+    submit.disabled=true;
+    submit.textContent='Opening Paystack…';
+    error.textContent='';
+    try{
+      const res=await fetch('/api/atelier-paystack-init',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({pack:selectedPack,name,email})
+      });
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok||!data.authorization_url)throw new Error(data.error||'Could not start checkout.');
+      window.location.href=data.authorization_url;
+    }catch(err){
+      error.textContent=err?.message||'Could not start checkout. Please try again.';
+      submit.disabled=false;
+      submit.textContent='Continue to Paystack →';
+    }
+  });
+
+  // Approved VIP applicants can receive this private checkout URL from Ria.
+  const params=new URLSearchParams(location.search);
+  if(params.get('checkout')==='vip'){
+    openCheckout('atelier_vip','Fuse VIP — First Client Intensive','₦499,000');
+  }
 })();
 </script>
 </body>
