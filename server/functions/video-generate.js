@@ -23,13 +23,45 @@ exports.handler = async (event) => {
   const resolution = body.resolution || '480p';
   const generate_audio = body.generate_audio !== false;
   const image_url = (body.image_url || '').trim() || undefined;
-  // Extra reference images (subject / product / style) — up to 4.
-  const extraRefs = (Array.isArray(body.reference_image_urls) ? body.reference_image_urls : []).filter(Boolean).slice(0, 4);
-  // Attaching a start image OR any reference switches to the image-to-video variant.
-  const model = (image_url || extraRefs.length) ? (body.model || '').replace('text-to-video', 'image-to-video') : body.model;
+  // General image references stay capped at 4 for legacy models. Seedance 2.5
+  // exposes its full multimodal reference limits separately below.
+  const requestedModel = body.model || '';
+  const isSeedance25 = requestedModel === 'seedance-2.5-reference-to-video';
+  const extraRefs = (Array.isArray(body.reference_image_urls) ? body.reference_image_urls : [])
+    .filter(Boolean)
+    .slice(0, isSeedance25 ? 30 : 4);
+  const referenceVideoUrls = (Array.isArray(body.reference_video_urls) ? body.reference_video_urls : []).filter(Boolean).slice(0, 10);
+  const referenceAudioUrls = (Array.isArray(body.reference_audio_urls) ? body.reference_audio_urls : []).filter(Boolean).slice(0, 10);
+  const referenceVideoDurations = (Array.isArray(body.reference_video_durations) ? body.reference_video_durations : [])
+    .map(v => Math.max(0, Number(v) || 0))
+    .slice(0, 10);
+  const referenceAudioDurations = (Array.isArray(body.reference_audio_durations) ? body.reference_audio_durations : [])
+    .map(v => Math.max(0, Number(v) || 0))
+    .slice(0, 10);
+  const allSeedanceImages = isSeedance25
+    ? [image_url, ...extraRefs].filter(Boolean).filter((u, i, arr) => arr.indexOf(u) === i).slice(0, 30)
+    : extraRefs;
+  // Legacy models still auto-switch text -> image variants. Seedance 2.5 has
+  // one internal model slug and the WaveSpeed router chooses image-to-video
+  // versus multimodal reference mode based on the uploaded reference mix.
+  const model = isSeedance25
+    ? requestedModel
+    : ((image_url || extraRefs.length) ? requestedModel.replace('text-to-video', 'image-to-video') : requestedModel);
 
   if (!VIDEO_MODELS[model]) return json(400, { error: 'Unknown video model.' });
-  if (!prompt && !image_url) return json(400, { error: 'Add a prompt or a starting image.' });
+  if (isSeedance25) {
+    if (!prompt) return json(400, { error: 'Add a prompt for Seedance 2.5.' });
+    if (!allSeedanceImages.length) return json(400, { error: 'Seedance 2.5 Image to Video needs at least one image reference.' });
+    if (referenceVideoUrls.length > 10 || referenceAudioUrls.length > 10 || allSeedanceImages.length > 30) {
+      return json(400, { error: 'Too many references for Seedance 2.5.' });
+    }
+    const totalVideoRefSeconds = referenceVideoDurations.reduce((s, v) => s + Math.max(2, Math.ceil(v || 0)), 0);
+    const totalAudioRefSeconds = referenceAudioDurations.reduce((s, v) => s + Math.ceil(v || 0), 0);
+    if (totalVideoRefSeconds > 30) return json(400, { error: 'Seedance 2.5 reference videos can total up to 30 seconds.' });
+    if (totalAudioRefSeconds > 30) return json(400, { error: 'Seedance 2.5 reference audio can total up to 30 seconds.' });
+  } else if (!prompt && !image_url) {
+    return json(400, { error: 'Add a prompt or a starting image.' });
+  }
 
   let plan = 'pro', isAdmin = false, hasPurchased = true;
   try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; hasPurchased = p.hasPurchased; } catch (e) {}
@@ -38,7 +70,13 @@ exports.handler = async (event) => {
   }
   // All students can use their available credits; no subscription/trial gate.
 
-  const cost = videoCreditsForRequest(model, duration, resolution);
+  const normalizedReferenceVideoSeconds = isSeedance25
+    ? Math.min(30, referenceVideoDurations.reduce((s, v) => s + Math.max(2, Math.ceil(v || 0)), 0))
+    : 0;
+  const cost = videoCreditsForRequest(model, duration, resolution, {
+    referenceVideoCount: isSeedance25 ? referenceVideoUrls.length : 0,
+    referenceVideoSeconds: normalizedReferenceVideoSeconds,
+  });
   if (!cost) return json(400, { error: 'Could not price this video model.' });
 
   const db = admin();
@@ -52,13 +90,18 @@ exports.handler = async (event) => {
     // (WaveSpeed when its key is set, else MuAPI) and prefixes the request_id
     // so the poller knows who to ask.
     let hosted = [];
-    if (image_url || extraRefs.length) {
+    if (!isSeedance25 && (image_url || extraRefs.length)) {
       const toHost = [];
       if (image_url) toHost.push(image_url);
       extraRefs.forEach((u) => { if (u !== image_url) toHost.push(u); });
       hosted = await Promise.all(toHost.map(muapiHostImage));
     }
-    const { requestId } = await submitVideo(model, { prompt, aspect, duration, resolution, image_url, generate_audio }, hosted);
+    const { requestId } = await submitVideo(model, {
+      prompt, aspect, duration, resolution, image_url, generate_audio,
+      reference_image_urls: isSeedance25 ? allSeedanceImages : extraRefs,
+      reference_video_urls: isSeedance25 ? referenceVideoUrls : [],
+      reference_audio_urls: isSeedance25 ? referenceAudioUrls : [],
+    }, hosted);
 
     await db.from('jobs').insert({ request_id: requestId, user_id: user.id, kind: 'video', model, prompt, aspect, credits: cost, status: 'processing' });
     return json(200, { request_id: requestId, credits: balance });
