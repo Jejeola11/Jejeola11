@@ -131,7 +131,12 @@ exports.handler = async (event) => {
   // WaveSpeed account. Only substitute a known edit-capable default for
   // models that genuinely have no editing variant at all (e.g. flux-schnell).
   const selectedModel = body.model || 'flux-schnell-image';
-  const EDIT_CAPABLE = ['nano-banana', 'nano-banana-2', 'gpt-image-2-text-to-image', 'qwen-image', 'flux-2-pro', 'seedream-5.0', 'hunyuan-image-3.0', 'hidream_i1_full_image', 'flux-dev-image'];
+  const forceWaveSpeed = body.provider === 'wavespeed';
+  const requestedResolution = ['1k','2k','4k'].includes(String(body.resolution || '').toLowerCase())
+    ? String(body.resolution).toLowerCase() : null;
+  const requestedQuality = ['low','medium','high','xhigh','max'].includes(String(body.quality || '').toLowerCase())
+    ? String(body.quality).toLowerCase() : 'medium';
+  const EDIT_CAPABLE = ['nano-banana', 'nano-banana-2', 'nano-banana-pro-ws-text-to-image', 'gpt-image-2-text-to-image', 'gpt-image-2.5-sunburst', 'gpt-image-2.5-flare', 'minimax-h3-image', 'qwen-image', 'flux-2-pro', 'seedream-5.0', 'hunyuan-image-3.0', 'hidream_i1_full_image', 'flux-dev-image'];
   const model = useRef ? (EDIT_CAPABLE.includes(selectedModel) ? selectedModel : 'nano-banana-edit') : selectedModel;
   if (!prompt) return json(400, { error: 'Add a prompt first.' });
   const base = IMAGE_MODELS[model];
@@ -140,8 +145,11 @@ exports.handler = async (event) => {
   // Plan gating — free users only get basic models. Default to 'pro' on any DB error so generation is never blocked by a plan-check crash.
   let plan = 'pro', isAdmin = false, hasPurchased = true;
   try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; hasPurchased = p.hasPurchased; } catch (e) {}
-  if (plan === 'free' && !isAdmin && !canUseFree(model)) {
+  if (!forceWaveSpeed && plan === 'free' && !isAdmin && !canUseFree(model)) {
     return json(403, { error: 'This model requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
+  }
+  if (forceWaveSpeed && !hasWaveSpeed()) {
+    return json(503, { error: 'WaveSpeed is not configured on this deployment yet.' });
   }
   // Trial-tier cap — a free user who has never actually paid Fuse Studio
   // anything can only spend their signup/streak giveaway credits on the
@@ -151,8 +159,11 @@ exports.handler = async (event) => {
   // Reference-image editing (nano-banana-edit) is slow — always a single image, run async.
   const count = useRef ? 1 : Math.min(Math.max(parseInt(body.count, 10) || 1, 1), 4);
   const resMult = useRef ? 1 : Math.min(Math.max(parseInt(body.res, 10) || 1, 1), 3);
-  const resolution = ['1k', '2k', '4k'][resMult - 1];
-  const cost = base * count * resMult;
+  const resolution = requestedResolution || ['1k', '2k', '4k'][resMult - 1];
+  // Dedicated Fuse Atelier creator treats the displayed base credits as the
+  // normal 2K price and doubles only for 4K. Legacy callers keep the old
+  // res-multiplier behavior unchanged.
+  const cost = base * count * (forceWaveSpeed ? (resolution === '4k' ? 2 : 1) : resMult);
 
   const db = admin();
 
@@ -173,7 +184,7 @@ exports.handler = async (event) => {
     // so a billing/quota failure here shouldn't dead-end the request — it
     // just falls through to the normal MuAPI/WaveSpeed submission below
     // (google-imagen4-ultra already has a real, working MuAPI slug).
-    if (model === 'google-imagen4-ultra' && !useRef && count === 1 && resMult === 1 && hasGoogle()) {
+    if (!forceWaveSpeed && model === 'google-imagen4-ultra' && !useRef && count === 1 && resMult === 1 && hasGoogle()) {
       try {
         const g = await submitImageGoogle(model, { prompt, aspect });
         if (g) {
@@ -194,7 +205,7 @@ exports.handler = async (event) => {
       }
     }
 
-    const hostedRefs = useRef ? await Promise.all(refs.map(muapiHostImage)) : undefined;
+    const hostedRefs = useRef ? (forceWaveSpeed ? refs : await Promise.all(refs.map(muapiHostImage))) : undefined;
     const perCredits = Math.max(1, Math.round(cost / count));
     let firstError = null;
     // WaveSpeed first (cheaper, and several models there accept far more
@@ -203,11 +214,23 @@ exports.handler = async (event) => {
     // WaveSpeed — the "generate at 2k/4k" multiplier is a MuAPI-specific
     // per-model resolution convention with no equivalent mapping here yet.
     async function submitOne() {
-      if (resMult === 1 && hasWaveSpeed()) {
+      if ((forceWaveSpeed || resMult === 1) && hasWaveSpeed()) {
         try {
-          const r = await submitImageWS(model, { prompt, aspect, images: hostedRefs });
+          const r = await submitImageWS(model, {
+            prompt, aspect, images: hostedRefs,
+            resolution: forceWaveSpeed ? resolution : undefined,
+            quality: forceWaveSpeed ? requestedQuality : undefined,
+          });
           if (r) return r.requestId;
-        } catch (e) { if (!firstError) firstError = e; }
+          if (forceWaveSpeed) throw new Error('This image model is not available on WaveSpeed.');
+        } catch (e) {
+          if (!firstError) firstError = e;
+          if (forceWaveSpeed) return null;
+        }
+      }
+      if (forceWaveSpeed) {
+        if (!firstError) firstError = new Error('WaveSpeed did not start the generation.');
+        return null;
       }
       return muapiSubmit({ prompt, aspect, model, images_list: hostedRefs, resolution: resMult > 1 ? resolution : undefined })
         .then((id) => id).catch((e) => { if (!firstError) firstError = e; return null; });
