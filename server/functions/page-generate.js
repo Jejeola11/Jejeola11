@@ -21,6 +21,12 @@ function safeUrl(v='') {
     return u.protocol==='https:' ? u.toString() : '';
   } catch { return ''; }
 }
+function contactFromPrompt(prompt=''){
+  const url=(prompt.match(/https?:\/\/[^\s)\]}>,]+/i)||[])[0]||'';
+  const email=(prompt.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)||[])[0]||'';
+  const phone=(prompt.match(/(?:\+?\d[\d\s().-]{7,}\d)/)||[])[0]||'';
+  return {cta_url:safeUrl(url),email,phone:phone.trim()};
+}
 function titleCase(s='') {
   return s.replace(/[-_]+/g,' ').replace(/\b\w/g,m=>m.toUpperCase()).trim();
 }
@@ -86,6 +92,7 @@ function fallbackSpec(brief) {
   const experience=brief.experience||'clean';
   const uploadedImage=(brief.attachments||[]).find(x=>x&&String(x.type||'').startsWith('image/')&&x.url);
   const uploadedVideo=(brief.attachments||[]).find(x=>x&&String(x.type||'').startsWith('video/')&&x.url);
+  const contact=contactFromPrompt(brief.prompt);
   const headline=lead || (
     brief.type==='portfolio' ? 'Make the work impossible to overlook.' :
     brief.type==='business' ? 'A premium digital home for '+brand+'.' :
@@ -113,6 +120,7 @@ function fallbackSpec(brief) {
       density:'airy'
     },
     nav:{brand,items:['About','Proof','FAQ'],cta:'Get started'},
+    contact,
     hero:{
       eyebrow:typeLabel(brief.type).toUpperCase(),
       headline,
@@ -151,6 +159,7 @@ function normalizeSpec(raw, brief) {
   spec.meta={...fallback.meta,...(raw.meta||{}),page_type:brief.type,source_prompt:brief.prompt};
   spec.theme={...fallback.theme,...(raw.theme||{}),experience:brief.experience||fallback.theme.experience};
   spec.nav={...fallback.nav,...(raw.nav||{})};
+  spec.contact={...fallback.contact,...(raw.contact||{})};
   spec.hero={...fallback.hero,...(raw.hero||{}),visual:{...fallback.hero.visual,...((raw.hero&&raw.hero.visual)||{})}};
   spec.sections=Array.isArray(raw.sections)&&raw.sections.length?raw.sections.slice(0,12):fallback.sections;
   spec.motion={...fallback.motion,...(raw.motion||{})};
@@ -167,6 +176,7 @@ The SiteSpec MUST use:
  "meta":{"title":"","objective":"","audience":""},
  "theme":{"mode":"dark|light","accent":"#hex","secondary":"#hex","surface":"#hex","font_style":"modern|editorial|bold","radius":"soft|sharp","density":"airy|compact"},
  "nav":{"brand":"","items":[""],"cta":""},
+ "contact":{"cta_url":"","email":"","phone":""},
  "hero":{"eyebrow":"","headline":"","subheadline":"","primary_cta":"","secondary_cta":"","visual":{"type":"editorial-gradient|cinematic-gradient|orb-3d","prompt":""}},
  "sections":[
    {"type":"trust|problem|features|services|projects|offer|immersive|testimonials|faq|cta","eyebrow":"","title":"","text":"","items":[],"button":""}
