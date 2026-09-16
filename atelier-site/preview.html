@@ -208,6 +208,10 @@ nav{
   display:block;
   white-space:nowrap;
 }
+.hero h1 .lead{
+  font-size:28px;
+  line-height:1.12;
+}
 .hero h1 .result{
   margin-top:3px;
 }
@@ -480,6 +484,37 @@ nav{
 }
 
 /* VISUAL SECTIONS */
+.student-work-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+  align-items:start;
+}
+.student-work-card{
+  overflow:hidden;
+  border-radius:24px;
+  border:1px solid rgba(238,255,224,.18);
+  background:#00191B;
+  box-shadow:0 22px 54px rgba(0,0,0,.26);
+}
+.student-work-card img,
+.student-work-card video{
+  display:block;
+  width:100%;
+  height:auto;
+  object-fit:contain;
+  background:#001012;
+}
+.student-work-card video{
+  max-height:none;
+}
+.student-work-caption{
+  padding:13px 15px 15px;
+  font-size:14px;
+  line-height:1.45;
+  font-weight:600;
+  color:#C5D7D2;
+}
 .visual-section{
   background:
     radial-gradient(circle at 80% 20%,rgba(27,76,82,.20),transparent 28%),
@@ -1054,6 +1089,8 @@ footer span{
   .work-grid{display:grid;grid-template-columns:1fr;grid-template-rows:none}
   .work-placeholder.big{grid-column:auto;min-height:320px}
   .work-placeholder{min-height:220px}
+  .student-work-grid{grid-template-columns:1fr;gap:14px}
+  .student-work-card{border-radius:20px}
   .coach-shell{max-width:none}
   .coach-image{
     border-radius:28px;
@@ -1100,8 +1137,8 @@ footer span{
     <div class="hero-copy-col">
       <div class="pill">Turn AI Skills Into Money Engine</div>
       <h1>
-        <span class="hero-line">Still Learning AI</span>
-        <span class="hero-line">With No Clients?</span>
+        <span class="hero-line lead">Still Learning AI</span>
+        <span class="hero-line lead">With No Clients?</span>
         <span class="hero-line result chrome-text">My Students Are Turning It</span>
         <span class="hero-line result chrome-text">Into $200–$500/Month Client</span>
         <span class="hero-line result chrome-text">Work From Their Phones.</span>
@@ -1131,7 +1168,7 @@ footer span{
         <img src="/atelier-site/assets/sales-preview/rosen-work.webp" alt="ROSEN skincare product creative example">
       </article>
       <article class="visual-card three">
-        <video src="/atelier-site/assets/sales-preview/hero-work.mp4" muted autoplay loop playsinline preload="auto" aria-label="AI creative video example"></video>
+        <video src="https://res.cloudinary.com/bzw55wh2/video/upload/v1789525956/hero-work-hq.mp4" muted autoplay loop playsinline preload="auto" aria-label="AI creative video example"></video>
       </article>
     </div>
   </div>
@@ -1221,50 +1258,35 @@ footer span{
   </div>
 </section>
 
+
 <section class="section visual-section">
   <div class="wrap">
     <div class="section-head left">
       <div class="eyebrow">Student work</div>
       <h2>What people inside Fuse can <span class="chrome-text">learn to create.</span></h2>
-      <p>These are placeholders for the final student-work gallery. We’ll replace each one with the strongest real visuals from the current page and your student submissions.</p>
+      <p>Real examples of the kind of client-ready visuals and content you can learn to build inside Fuse Atelier.</p>
     </div>
 
-    <div class="work-grid">
-      <div class="work-placeholder big">
-        <div class="inner">
-          <div class="icon">▶</div>
-          <strong>AI UGC / Video Placeholder</strong>
-          <span>9:16 student work or product-ad visual</span>
-        </div>
-      </div>
-      <div class="work-placeholder">
-        <div class="inner">
-          <div class="icon">✦</div>
-          <strong>Design Placeholder</strong>
-          <span>Flyer / campaign creative</span>
-        </div>
-      </div>
-      <div class="work-placeholder">
-        <div class="inner">
-          <div class="icon">↗</div>
-          <strong>Landing Page Placeholder</strong>
-          <span>Client-ready page sample</span>
-        </div>
-      </div>
-      <div class="work-placeholder">
-        <div class="inner">
-          <div class="icon">◉</div>
-          <strong>AI Twin Placeholder</strong>
-          <span>Creator / influencer visual</span>
-        </div>
-      </div>
-      <div class="work-placeholder">
-        <div class="inner">
-          <div class="icon">▦</div>
-          <strong>Portfolio Placeholder</strong>
-          <span>Before / after proof sample</span>
-        </div>
-      </div>
+    <div class="student-work-grid">
+      <figure class="student-work-card">
+        <img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1789525912/student-serum.jpg" alt="AI product advertising creative for a vitamin C serum">
+        <figcaption class="student-work-caption">Product advertising creative</figcaption>
+      </figure>
+
+      <figure class="student-work-card">
+        <img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1789525941/student-lv.png" alt="Luxury landing page design concept">
+        <figcaption class="student-work-caption">Landing page design</figcaption>
+      </figure>
+
+      <figure class="student-work-card">
+        <video src="https://res.cloudinary.com/bzw55wh2/video/upload/v1789525965/student-ugc.mp4" muted autoplay loop playsinline preload="metadata" aria-label="UGC-style product video example"></video>
+        <figcaption class="student-work-caption">UGC-style product video</figcaption>
+      </figure>
+
+      <figure class="student-work-card">
+        <video src="https://res.cloudinary.com/bzw55wh2/video/upload/v1789525979/student-content.mp4" muted autoplay loop playsinline preload="metadata" aria-label="Short-form creator content example"></video>
+        <figcaption class="student-work-caption">Short-form creator content</figcaption>
+      </figure>
     </div>
   </div>
 </section>
