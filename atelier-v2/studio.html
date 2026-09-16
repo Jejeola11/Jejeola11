@@ -144,7 +144,7 @@
 
     const tools=[
       {cat:'Image',title:'Create Image',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1788626963/4870020.png',href:'image-create.html'},
-      {cat:'Video',title:'Create Video',video:'/atelier-site/assets/course-ai-ugc.mp4',route:'video-seedance'},
+      {cat:'Video',title:'Create Video',video:'/atelier-site/assets/course-ai-ugc.mp4',href:'video-create.html'},
       {cat:'Page',title:'Build Landing Page',img:'/atelier-site/assets/work/landing-card.jpg',fallback:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789492222/fuse-atelier/academy/landing-card.webp',href:'../pitchpilot/site-builder.html'},
       {cat:'Twin',title:'Create Your AI Twin',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789528511/fuse-atelier/create/ai-twin-car.jpg',route:'avatar'},
       {cat:'Voice',title:'Clone Your Voice',voice:true,route:'audio'},
@@ -173,13 +173,13 @@
         title:'Video models',
         text:'From fast social clips to cinematic generation and intelligent video editing.',
         items:[
-          {name:'MiniMax H3',badge:'BUDGET',credits:'10 credits',desc:'Affordable cinematic clips for everyday content.',visual:'minimax',video:'/app/media/samples/vid1.mp4'},
-          {name:'Wan 3.0',badge:'BEST VALUE',credits:'12 credits',desc:'Smooth motion with flexible quality and resolution.',visual:'wan',video:'/app/media/samples/vid2.mp4'},
-          {name:'Grok Imagine',badge:'SOCIAL',credits:'15 credits',desc:'Creative, punchy videos built for fast social ideas.',visual:'grok',video:'/app/media/samples/vid2.mp4',route:'video:grok-imagine-text-to-video'},
-          {name:'Kling 3.0 Standard',badge:'CINEMATIC',credits:'20 credits',desc:'High-control movement and polished cinematic output.',visual:'kling',video:'/app/media/samples/vid4.mp4',route:'video:kling-v3-turbo-standard-text-to-video'},
-          {name:'Seedance 2.5 Turbo',badge:'PRO VIDEO',credits:'48 credits',desc:'Premium movement, camera direction and scene quality.',visual:'seedance',video:'/app/media/samples/vid3.mp4',route:'video:seedance-2-text-to-video'},
-          {name:'Veo 3.1 Fast',badge:'PREMIUM',credits:'60 credits',desc:'High-end visual storytelling with strong prompt fidelity.',visual:'veo',video:'/app/media/samples/vid5.mp4',route:'video:veo3-text-to-video'},
-          {name:'Gemini Omni Flash',badge:'OMNI EDIT',credits:'from 8 credits',desc:'Edit, transform and rework video with multimodal instructions.',visual:'omni',video:'/app/media/samples/vid3.mp4',route:'omni'}
+          {name:'MiniMax H3',badge:'NATIVE AUDIO',credits:'from 4 credits',desc:'Cinematic clips with flexible quality and native stereo audio.',visual:'minimax',video:'/app/media/samples/vid1.mp4',route:'videopage:minimax-h3'},
+          {name:'Wan 3.0',badge:'BEST VALUE',credits:'from 5 credits',desc:'Flexible 2–30s generation with strong image guidance and native audio.',visual:'wan',video:'/app/media/samples/vid2.mp4',route:'videopage:wan-3'},
+          {name:'Grok Imagine',badge:'FAST',credits:'1 credit',desc:'Creative, punchy videos built for fast social ideas.',visual:'grok',video:'/app/media/samples/vid2.mp4',route:'videopage:grok-imagine'},
+          {name:'Kling 3.0 Standard',badge:'CINEMATIC',credits:'9 credits',desc:'High-control movement and polished cinematic output.',visual:'kling',video:'/app/media/samples/vid4.mp4',route:'videopage:kling-standard'},
+          {name:'Seedance Turbo',badge:'PRO VIDEO',credits:'11 credits',desc:'Premium movement, camera direction and scene quality.',visual:'seedance',video:'/app/media/samples/vid3.mp4',route:'videopage:seedance-turbo'},
+          {name:'Veo 3.1 Fast',badge:'PREMIUM',credits:'22 credits',desc:'High-end visual storytelling with strong prompt fidelity.',visual:'veo',video:'/app/media/samples/vid5.mp4',route:'videopage:veo-fast'},
+          {name:'Gemini Omni Flash 1.1',badge:'OMNI',credits:'from 3 credits',desc:'Fast synchronized-audio generation from text or image, up to 4K.',visual:'omni',video:'/app/media/samples/vid3.mp4',route:'videopage:omni-flash'}
         ]
       },
       Voice:{
@@ -277,7 +277,7 @@
 
     function wireModelRoutes(){
       document.querySelectorAll('.model-card[data-route]').forEach(card=>{
-        const open=()=>{const r=card.dataset.route||'';location.href=r.startsWith('imagepage:')?'image-create.html?model='+encodeURIComponent(r.slice(10)):workspace(r);};
+        const open=()=>{const r=card.dataset.route||'';location.href=r.startsWith('imagepage:')?'image-create.html?model='+encodeURIComponent(r.slice(10)):r.startsWith('videopage:')?'video-create.html?model='+encodeURIComponent(r.slice(10)):workspace(r);};
         card.onclick=open;
         card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}};
       });
