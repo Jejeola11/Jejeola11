@@ -5,7 +5,7 @@
 // polls /job-status until it's done.
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
-const { VIDEO_MODELS, canUseFree, canUseTrial } = require('./_packs');
+const { VIDEO_MODELS, videoCreditsForRequest, canUseFree, canUseTrial } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
 const { submitVideo } = require('./_providers');
 
@@ -21,6 +21,7 @@ exports.handler = async (event) => {
   const aspect = body.aspect || '16:9';
   const duration = body.duration || '5s';
   const resolution = body.resolution || '480p';
+  const generate_audio = body.generate_audio !== false;
   const image_url = (body.image_url || '').trim() || undefined;
   // Extra reference images (subject / product / style) — up to 4.
   const extraRefs = (Array.isArray(body.reference_image_urls) ? body.reference_image_urls : []).filter(Boolean).slice(0, 4);
@@ -37,8 +38,8 @@ exports.handler = async (event) => {
   }
   // All students can use their available credits; no subscription/trial gate.
 
-  const durMult = String(duration).startsWith('10') ? 2 : 1;
-  const cost = VIDEO_MODELS[model] * durMult;
+  const cost = videoCreditsForRequest(model, duration, resolution);
+  if (!cost) return json(400, { error: 'Could not price this video model.' });
 
   const db = admin();
   const { data: balance, error: spendError } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
@@ -57,7 +58,7 @@ exports.handler = async (event) => {
       extraRefs.forEach((u) => { if (u !== image_url) toHost.push(u); });
       hosted = await Promise.all(toHost.map(muapiHostImage));
     }
-    const { requestId } = await submitVideo(model, { prompt, aspect, duration, resolution, image_url }, hosted);
+    const { requestId } = await submitVideo(model, { prompt, aspect, duration, resolution, image_url, generate_audio }, hosted);
 
     await db.from('jobs').insert({ request_id: requestId, user_id: user.id, kind: 'video', model, prompt, aspect, credits: cost, status: 'processing' });
     return json(200, { request_id: requestId, credits: balance });
