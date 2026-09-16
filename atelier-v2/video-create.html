@@ -225,17 +225,19 @@
       {key:'wan-3',name:'Wan 3.0',desc:'Flexible 2–30s video with strong image guidance and native audio.',short:'W3',api:'wan-3-text-to-video',res:['480p','720p','1080p'],dur:[2,5,8,10,15,30],aspects:['16:9','9:16','1:1','4:3','3:4'],preview:'/app/media/samples/vid2.mp4',tag:'BEST VALUE',fresh:true},
       {key:'grok-imagine',name:'Grok Imagine',desc:'Fast, punchy social video generation.',short:'GX',api:'grok-imagine-text-to-video',res:['720p'],dur:[6,10],aspects:['16:9','9:16'],preview:'/app/media/samples/vid2.mp4',base:1,tag:'FAST'},
       {key:'kling-standard',name:'Kling 3.0 Standard',desc:'Polished motion and cinematic control.',short:'K3',api:'kling-v3-turbo-standard-text-to-video',res:['720p'],dur:[5,10],aspects:['16:9','9:16','1:1'],preview:'/app/media/samples/vid4.mp4',base:9,tag:'CINEMATIC'},
-      {key:'seedance-turbo',name:'Seedance Turbo',desc:'Premium movement, camera direction and scene quality.',short:'SD',api:'seedance-2-text-to-video',res:['720p'],dur:[5,10],aspects:['16:9','9:16','1:1'],preview:'/app/media/samples/vid3.mp4',base:11,tag:'PRO'},
+      {key:'seedance-2.5',name:'Seedance 2.5',desc:'Exact WaveSpeed image-to-video model with start image, optional end frame, native audio and 4–30s generation.',short:'S2.5',api:'seedance-2.5-image-to-video',res:['480p','720p','1080p','4k'],dur:[4,5,8,10,15,20,25,30],aspects:['from-image'],preview:'/app/media/samples/vid3.mp4',tag:'CINEMATIC',fresh:true,followsImage:true,requiresImage:true},
       {key:'veo-fast',name:'Veo 3.1 Fast',desc:'High-end cinematic prompting for premium storytelling.',short:'V3',api:'veo3-text-to-video',res:['720p'],dur:[8],aspects:['16:9','9:16'],preview:'/app/media/samples/vid5.mp4',base:22,tag:'PREMIUM'},
       {key:'omni-flash',name:'Gemini Omni Flash 1.1',desc:'Fast synchronized-audio video generation from text or image.',short:'GO',api:'gemini-omni-1.1-flash-text-to-video',res:['360p','720p','1080p','4k'],dur:[3,5,8,10],aspects:['16:9','9:16'],preview:'/app/media/samples/vid3.mp4',tag:'OMNI',fresh:true}
     ];
     const RATES={
       'minimax-h3':{'480p':.04,'540p':.06,'768p':.08,'1080p':.16},
       'wan-3':{'480p':.05,'720p':.10,'1080p':.20},
+      'seedance-2.5':{'480p':.18,'720p':.36,'1080p':.90,'4k':1.80},
       'omni-flash':{'360p':.03,'720p':.10,'1080p':.15,'4k':.30}
     };
     const CREDIT_USD=.11, MARGIN=2;
     let selectedKey=new URLSearchParams(location.search).get('model')||'auto';
+    if(selectedKey==='seedance-turbo')selectedKey='seedance-2.5';
     if(selectedKey!=='auto'&&!MODELS.some(m=>m.key===selectedKey))selectedKey='auto';
     let duration=5,aspect='9:16',quality='720p',audioOn=true,files=[],uploadedUrls=[];
 
@@ -248,7 +250,11 @@
       const m=active();
       if(!m.dur.includes(duration))duration=m.dur.includes(5)?5:m.dur[0];
       if(!m.res.includes(quality))quality=m.res.includes('720p')?'720p':m.res[0];
-      if(!m.aspects.includes(aspect))aspect=m.aspects.includes('9:16')?'9:16':m.aspects[0];
+      if(m.followsImage){
+        aspect='from-image';
+      }else if(!m.aspects.includes(aspect)){
+        aspect=m.aspects.includes('9:16')?'9:16':m.aspects[0];
+      }
     }
     function credits(){
       const m=active(), rates=RATES[m.key];
@@ -259,7 +265,22 @@
       normalizedSettings();
       const m=active();
       $('modelName').textContent=selectedKey==='auto'?'Auto · '+m.name:m.name;
-      $('durationLabel').textContent=duration+'s';$('aspectLabel').textContent=aspect;$('qualityLabel').textContent=quality;
+      $('durationLabel').textContent=duration+'s';
+      $('aspectLabel').textContent=m.followsImage?'From image':aspect;
+      $('qualityLabel').textContent=quality;
+      $('aspectChip').disabled=!!m.followsImage;
+      $('aspectChip').style.opacity=m.followsImage?'.55':'1';
+      $('aspectChip').style.cursor=m.followsImage?'default':'pointer';
+      $('uploadZone').dataset.required=m.requiresImage?'true':'false';
+      const uploadLabel=$('uploadEmpty').querySelector('.upload-label');
+      const uploadSub=$('uploadEmpty').querySelector('.upload-sub');
+      if(m.key==='seedance-2.5'){
+        uploadLabel.innerHTML='Add start image <span style="font-weight:300;color:#DFFF4E">(required)</span>';
+        uploadSub.textContent='Optional second image becomes the ending frame · aspect follows your start image';
+      }else{
+        uploadLabel.innerHTML='Add a start image <span style="font-weight:300;color:#8fa4a3">(optional)</span>';
+        uploadSub.textContent='Text-to-video works without one · add up to 2 frames';
+      }
       $('creditCost').textContent=credits();
       $('previewName').textContent=selectedKey==='auto'?'Create Video':m.name;
       $('previewBadge').textContent=selectedKey==='auto'?'AUTO':m.tag;
@@ -269,10 +290,12 @@
     function renderControls(){
       const m=active();
       $('durationList').innerHTML=m.dur.map(v=>`<button data-dur="${v}" class="${v===duration?'on':''}">${v}s</button>`).join('');
-      $('aspectList').innerHTML=m.aspects.map(v=>`<button data-aspect="${v}" class="${v===aspect?'on':''}">${v}</button>`).join('');
+      $('aspectList').innerHTML=m.followsImage
+        ? '<button class="on" disabled>Aspect follows start image</button>'
+        : m.aspects.map(v=>`<button data-aspect="${v}" class="${v===aspect?'on':''}">${v}</button>`).join('');
       $('qualityList').innerHTML=m.res.map(v=>`<button data-quality="${v}" class="${v===quality?'on':''}">${v}</button>`).join('');
       $('durationList').querySelectorAll('button').forEach(b=>b.onclick=()=>{duration=+b.dataset.dur;closePops();updateUI()});
-      $('aspectList').querySelectorAll('button').forEach(b=>b.onclick=()=>{aspect=b.dataset.aspect;closePops();updateUI()});
+      $('aspectList').querySelectorAll('button[data-aspect]').forEach(b=>b.onclick=()=>{aspect=b.dataset.aspect;closePops();updateUI()});
       $('qualityList').querySelectorAll('button').forEach(b=>b.onclick=()=>{quality=b.dataset.quality;closePops();updateUI()});
     }
     function renderModels(q=''){
@@ -313,14 +336,15 @@
     async function generate(){
       const prompt=$('prompt').value.trim();
       if(!prompt)return note('Describe the video you want to create first.','err');
+      const m=active();
+      if(m.requiresImage&&!files.length)return note('Seedance 2.5 needs a start image. Add one above first.','err');
       const session=await auth();if(!session)return note('Please sign in to Fuse Atelier again before generating.','err');
       const btn=$('generateBtn');btn.disabled=true;btn.textContent='Preparing…';note('');
       try{
         let refs=[];if(files.length){btn.textContent='Uploading frame…';refs=await uploadRefs(session)}
-        const m=active();
         btn.textContent='Submitting…';
         const res=await fetch('/api/video-generate',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({
-          prompt,model:m.api,aspect,duration:duration+'s',resolution:quality,generate_audio:audioOn,
+          prompt,model:m.api,aspect:m.followsImage?'16:9':aspect,duration:duration+'s',resolution:quality,generate_audio:audioOn,
           image_url:refs[0]||undefined,reference_image_urls:refs.length>1?[refs[1]]:undefined
         })});
         const data=await res.json().catch(()=>({}));
@@ -344,7 +368,9 @@
     $('uploadZone').addEventListener('drop',e=>addFiles(e.dataTransfer.files));
 
     const togglePop=(id,e)=>{e.stopPropagation();const p=$(id),was=p.classList.contains('open');closePops();p.classList.toggle('open',!was)};
-    $('durationChip').onclick=e=>togglePop('durationPop',e);$('aspectChip').onclick=e=>togglePop('aspectPop',e);$('qualityChip').onclick=e=>togglePop('qualityPop',e);
+    $('durationChip').onclick=e=>togglePop('durationPop',e);
+    $('aspectChip').onclick=e=>{if(!active().followsImage)togglePop('aspectPop',e)};
+    $('qualityChip').onclick=e=>togglePop('qualityPop',e);
     document.addEventListener('click',e=>{if(!e.target.closest('.popover')&&!e.target.closest('.ctrl'))closePops()});
 
     $('audioToggle').onclick=()=>{audioOn=!audioOn;$('audioToggle').classList.toggle('on',audioOn);$('audioToggle').setAttribute('aria-pressed',audioOn?'true':'false')};
