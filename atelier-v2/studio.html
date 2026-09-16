@@ -145,7 +145,7 @@
     const tools=[
       {cat:'Image',title:'Create Image',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1788626963/4870020.png',href:'image-create.html'},
       {cat:'Video',title:'Create Video',video:'/atelier-site/assets/course-ai-ugc.mp4',href:'video-create.html'},
-      {cat:'Page',title:'Build Landing Page',img:'/atelier-site/assets/work/landing-card.jpg',fallback:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789492222/fuse-atelier/academy/landing-card.webp',href:'../pitchpilot/site-builder.html'},
+      {cat:'Page',title:'Build Website With AI',img:'/atelier-site/assets/work/landing-card.jpg',fallback:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789492222/fuse-atelier/academy/landing-card.webp',href:'page-create.html'},
       {cat:'Twin',title:'Create Your AI Twin',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789528511/fuse-atelier/create/ai-twin-car.jpg',route:'avatar'},
       {cat:'Voice',title:'Clone Your Voice',voice:true,route:'audio'},
       {cat:'Flyer',title:'AI Flyer',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789527907/fuse-atelier/create/ai-flyer-rosen.jpg',route:'flyer'},
@@ -202,6 +202,17 @@
           {name:'Video Face Swap',badge:'VIDEO',credits:'dynamic',desc:'Carry your selected identity into existing video footage.',visual:'twin',video:'/app/media/samples/vid4.mp4',route:'omni'},
           {name:'InfiniteTalk',badge:'TALKING TWIN',credits:'dynamic',desc:'Turn one image and audio into a speaking digital human.',visual:'twin',video:'/app/media/samples/vid1.mp4',route:'avatar'},
           {name:'Wan 3 Reference',badge:'SCENE',credits:'dynamic',desc:'Create character-consistent video scenes from references.',visual:'wan',video:'/app/media/samples/vid2.mp4',route:'avatar'}
+        ]
+      },
+      Page:{
+        title:'Fuse Pages',
+        text:'Build conversion-focused landing pages, business websites, portfolios and immersive 3D experiences with AI.',
+        items:[
+          {name:'AI Landing Page',badge:'CONVERSION',credits:'NEW',desc:'Focused one-page campaigns with strategy, copy, visuals and CTA.',visual:'content',word:'LANDING',route:'page:landing'},
+          {name:'Sales Page',badge:'SELL',credits:'NEW',desc:'Long-form offer pages for launches, courses and products.',visual:'sunburst',word:'SALES',route:'page:sales'},
+          {name:'Business Website',badge:'BUSINESS',credits:'NEW',desc:'Premium service websites with trust, offers and lead capture.',visual:'minimax',word:'BUSINESS',route:'page:business'},
+          {name:'Portfolio',badge:'SHOWCASE',credits:'NEW',desc:'High-value creative portfolios with case studies and proof.',visual:'seedream',word:'PORTFOLIO',route:'page:portfolio'},
+          {name:'3D Interactive Site',badge:'IMMERSIVE',credits:'NEW',desc:'Motion-led interactive experiences with depth and cinematic moments.',visual:'omni',word:'3D',route:'page:3d'}
         ]
       },
       Content:{
@@ -277,7 +288,7 @@
 
     function wireModelRoutes(){
       document.querySelectorAll('.model-card[data-route]').forEach(card=>{
-        const open=()=>{const r=card.dataset.route||'';location.href=r.startsWith('imagepage:')?'image-create.html?model='+encodeURIComponent(r.slice(10)):r.startsWith('videopage:')?'video-create.html?model='+encodeURIComponent(r.slice(10)):workspace(r);};
+        const open=()=>{const r=card.dataset.route||'';location.href=r.startsWith('imagepage:')?'image-create.html?model='+encodeURIComponent(r.slice(10)):r.startsWith('videopage:')?'video-create.html?model='+encodeURIComponent(r.slice(10)):r.startsWith('page:')?'page-create.html?type='+encodeURIComponent(r.slice(5)):workspace(r);};
         card.onclick=open;
         card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}};
       });
@@ -298,7 +309,7 @@
 
       if(catalog){
         grid.className='create-grid model-grid';
-        const tool=tools.find(t=>t.cat===selected);
+        const tool=selected==='Page'?null:tools.find(t=>t.cat===selected);
         grid.innerHTML=(tool?toolMarkup(tool,true):'')+catalog.items.map(modelMarkup).join('');
         setIntro(catalog.title,catalog.text,catalog.items.length+(tool?1:0));
         wireModelRoutes();
