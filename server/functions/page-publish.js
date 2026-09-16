@@ -41,7 +41,7 @@ exports.handler = async (event) => {
     return json(200,{
       ok:true,
       project:upd.data,
-      public_url:proto+'://'+origin+'/api/page-site?slug='+encodeURIComponent(slug)
+      public_url:proto+'://'+origin+'/p/'+encodeURIComponent(slug)
     });
   }catch(e){
     console.error('[page-publish]',e);
