@@ -18,9 +18,9 @@ exports.handler = async (event) => {
   try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
 
   const pack = PACKS[body.pack];
-  if (!pack) return json(400, { error: 'Unknown pack.' });
+  if (!pack || pack.kind !== 'pack') return json(400, { error: 'Unknown credit pack.' });
 
-  const appUrl = (process.env.APP_URL || '').replace(/\/+$/, '');
+  const appUrl = (process.env.APP_URL || 'https://fuse-atelier.vercel.app').replace(/\/+$/, '');
   const res = await fetch('https://api.paystack.co/transaction/initialize', {
     method: 'POST',
     headers: {
@@ -33,17 +33,23 @@ exports.handler = async (event) => {
       currency: 'NGN',
       // Let customers pay by bank transfer (and card/ussd if they prefer).
       channels: ['bank_transfer', 'card', 'bank', 'ussd'],
-      callback_url: `${appUrl}/atelier-v2/profile.html?paid=1&pack=${encodeURIComponent(body.pack)}`,
+      callback_url: `${appUrl}/api/paystack-complete`,
       metadata: {
         user_id: user.id,
         pack: body.pack,
+        kind: 'credit_pack',
         custom_fields: [{ display_name: 'Pack', variable_name: 'pack', value: pack.label }],
       },
     }),
   });
 
   const data = await res.json();
-  if (!data.status) return json(502, { error: data.message || 'Could not start payment.' });
+  if (!res.ok || !data.status || !data.data || !data.data.authorization_url) {
+    return json(502, { error: data.message || 'Could not start payment.' });
+  }
 
-  return json(200, { authorization_url: data.data.authorization_url });
+  return json(200, {
+    authorization_url: data.data.authorization_url,
+    reference: data.data.reference || null,
+  });
 };
