@@ -9,6 +9,22 @@ function parse(res){
   let body={};try{body=JSON.parse(res&&res.body||'{}')}catch{}
   return {statusCode:(res&&res.statusCode)||500,body};
 }
+async function persistAsset(db,userId,asset,url){
+  try{
+    const r=await fetch(url,{signal:AbortSignal.timeout(30000)});
+    if(!r.ok)return url;
+    const len=Number(r.headers.get('content-length')||0);
+    if(len>40*1024*1024)return url;
+    const buf=Buffer.from(await r.arrayBuffer());
+    if(buf.length>40*1024*1024)return url;
+    const type=(r.headers.get('content-type')||'').split(';')[0] || (asset.kind==='video'?'video/mp4':'image/png');
+    const ext=type.includes('webm')?'webm':type.includes('jpeg')?'jpg':type.includes('webp')?'webp':type.includes('video')?'mp4':'png';
+    const path=userId+'/pages/generated/'+asset.project_id+'/'+asset.role+'-'+Date.now()+'.'+ext;
+    const up=await db.storage.from('landing-assets').upload(path,buf,{contentType:type,upsert:false});
+    if(up.error)return url;
+    return db.storage.from('landing-assets').getPublicUrl(path).data.publicUrl||url;
+  }catch{return url}
+}
 
 exports.handler=async(event)=>{
   try{
@@ -40,8 +56,9 @@ exports.handler=async(event)=>{
         });
         const result=parse(rr).body;
         if(result.status==='completed'&&result.url){
-          await db.from('page_assets').update({status:'completed',url:result.url}).eq('id',asset.id).eq('user_id',user.id);
-          asset.status='completed';asset.url=result.url;changed=true;
+          const durableUrl=await persistAsset(db,user.id,asset,result.url);
+          await db.from('page_assets').update({status:'completed',url:durableUrl}).eq('id',asset.id).eq('user_id',user.id);
+          asset.status='completed';asset.url=durableUrl;changed=true;
         }else if(result.status==='failed'){
           await db.from('page_assets').update({status:'failed'}).eq('id',asset.id).eq('user_id',user.id);
           asset.status='failed';changed=true;
