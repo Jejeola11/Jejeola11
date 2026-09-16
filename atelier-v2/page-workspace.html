@@ -88,6 +88,39 @@
       min-width:82px;border:0;border-radius:12px;background:var(--chrome);color:#001012;font-size:13px;font-weight:500
     }
     .ask-help{margin:7px 2px 0;color:#7f9694;font-size:10px;line-height:1.4;font-weight:300}
+    .section-editor{
+      margin-top:12px;padding:12px;border:1px solid rgba(223,255,78,.24);border-radius:17px;
+      background:linear-gradient(145deg,rgba(223,255,78,.055),rgba(0,25,27,.90))
+    }
+    .section-editor[hidden]{display:none!important}
+    .editor-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+    .editor-head strong{font-size:12px;font-weight:500;color:#EEFFE0}
+    .editor-head span{font-size:10px;color:#DFFF4E;text-transform:uppercase}
+    .field{display:grid;gap:5px;margin-top:8px}
+    .field label{font-size:10px;color:#91a6a4;font-weight:400}
+    .field input,.field textarea,.field select{
+      width:100%;border:1px solid var(--line);border-radius:11px;background:#062125;color:#fff;outline:0;
+      padding:9px 10px;font-size:12px;font-weight:300
+    }
+    .field textarea{min-height:70px;resize:vertical;line-height:1.45}
+    .field input:focus,.field textarea:focus,.field select:focus{border-color:#DFFF4E}
+    .editor-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+    .editor-actions button,.media-actions button,.add-row button{
+      min-height:38px;border-radius:11px;border:1px solid var(--line);background:#00191B;color:#dce7e5;
+      font-size:11px;font-weight:400
+    }
+    .editor-actions .save{grid-column:1/-1;background:var(--chrome);border-color:transparent;color:#001012;font-weight:500}
+    .editor-actions .danger{color:#ffb7a8;border-color:rgba(255,120,100,.28)}
+    .media-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+    .media-actions button{font-size:10px;padding:0 6px}
+    .add-section{margin-top:12px;padding-top:11px;border-top:1px solid rgba(49,84,86,.55)}
+    .add-section label{display:block;margin-bottom:6px;color:#9fb0ae;font-size:10px}
+    .add-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}
+    .add-row select{
+      min-width:0;height:38px;border:1px solid var(--line);border-radius:11px;background:#062125;color:#fff;
+      padding:0 9px;font-size:11px;font-weight:300;outline:0
+    }
+    .add-row button{padding:0 11px;background:rgba(223,255,78,.08);color:#DFFF4E;border-color:rgba(223,255,78,.22)}
     .asset-box{
       margin-top:12px;padding:12px;border:1px solid rgba(49,84,86,.72);border-radius:15px;background:#00191B
     }
@@ -124,6 +157,7 @@
       width:min(420px,100%);height:540px;border-radius:20px;overflow:hidden;border:1px solid rgba(238,255,224,.14);
       background:#061416;box-shadow:0 25px 55px rgba(0,0,0,.32);transition:width .25s ease,height .25s ease
     }
+    .site-shell.tablet{width:min(620px,100%);height:500px}
     .site-shell.desktop{width:min(760px,100%);height:480px}
     .site-frame{width:100%;height:100%;display:block;border:0;background:#fff}
     .placeholder{
@@ -146,6 +180,7 @@
       .preview{min-height:560px}
       .canvas{min-height:505px;padding:16px}
       .site-shell{height:475px}
+      .site-shell.tablet{height:410px}
       .site-shell.desktop{height:360px}
     }
     @media(max-width:390px){
@@ -158,6 +193,7 @@
       .preview{min-height:535px}
       .canvas{min-height:480px;padding:12px}
       .site-shell{height:455px}
+      .site-shell.tablet{height:390px}
       .site-shell.desktop{height:330px}
     }
   </style>
@@ -199,7 +235,45 @@
             <input id="askInput" type="text" maxlength="1800" placeholder="Make the hero darker and more cinematic…">
             <button id="askButton" type="button">Update</button>
           </div>
-          <p class="ask-help">Text/layout revisions create a saved version. Use Regenerate visuals below when you want new AI media.</p>
+          <p class="ask-help">Text/layout revisions create a saved version. You can also tap any section in the preview to edit it directly.</p>
+        </div>
+
+        <div class="section-editor" id="sectionEditor" hidden>
+          <div class="editor-head"><strong id="editorTitle">Edit section</strong><span id="editorType">SECTION</span></div>
+          <div class="field"><label id="eyebrowLabel" for="editEyebrow">Eyebrow</label><input id="editEyebrow" type="text" maxlength="160"></div>
+          <div class="field"><label id="titleLabel" for="editTitle">Heading</label><input id="editTitle" type="text" maxlength="220"></div>
+          <div class="field"><label id="bodyLabel" for="editBody">Supporting copy</label><textarea id="editBody" maxlength="1200"></textarea></div>
+          <div class="field" id="buttonField"><label for="editButton">Button text</label><input id="editButton" type="text" maxlength="100"></div>
+          <div class="editor-actions">
+            <button class="save" id="saveSection" type="button">Save section</button>
+            <button id="moveUp" type="button">↑ Move up</button>
+            <button id="moveDown" type="button">↓ Move down</button>
+            <button id="duplicateSection" type="button">Duplicate</button>
+            <button class="danger" id="deleteSection" type="button">Delete</button>
+          </div>
+          <div class="media-actions">
+            <button id="replaceMedia" type="button">Replace media</button>
+            <button id="genSectionImage" type="button">AI image</button>
+            <button id="genSectionVideo" type="button">AI video</button>
+            <input id="sectionMediaInput" type="file" accept="image/*,video/*" hidden>
+          </div>
+          <div class="add-section">
+            <label>Add another section</label>
+            <div class="add-row">
+              <select id="addSectionType">
+                <option value="features">Features</option>
+                <option value="services">Services</option>
+                <option value="projects">Projects</option>
+                <option value="problem">Problem</option>
+                <option value="offer">Offer</option>
+                <option value="testimonials">Testimonials</option>
+                <option value="faq">FAQ</option>
+                <option value="cta">CTA</option>
+                <option value="immersive">3D / immersive</option>
+              </select>
+              <button id="addSection" type="button">+ Add</button>
+            </div>
+          </div>
         </div>
 
         <div class="asset-box" id="assetBox" hidden>
@@ -223,6 +297,7 @@
           </div>
           <div class="modes">
             <button class="mode active" data-mode="mobile" type="button">Mobile</button>
+            <button class="mode" data-mode="tablet" type="button">Tablet</button>
             <button class="mode" data-mode="desktop" type="button">Desktop</button>
           </div>
         </div>
@@ -253,6 +328,7 @@
     let busy=false;
     let assetPollTimer=null;
     let lastCompletedAssets=0;
+    let selectedTarget=null;
 
     const labels={landing:'AI LANDING PAGE',sales:'SALES PAGE',business:'BUSINESS WEBSITE',portfolio:'PORTFOLIO','3d':'3D INTERACTIVE WEBSITE'};
     const typeLabel=document.getElementById('typeLabel');
@@ -275,6 +351,25 @@
     const askInput=document.getElementById('askInput');
     const askButton=document.getElementById('askButton');
     const regenerateAssets=document.getElementById('regenerateAssets');
+    const sectionEditor=document.getElementById('sectionEditor');
+    const editorTitle=document.getElementById('editorTitle');
+    const editorType=document.getElementById('editorType');
+    const editEyebrow=document.getElementById('editEyebrow');
+    const editTitle=document.getElementById('editTitle');
+    const editBody=document.getElementById('editBody');
+    const editButton=document.getElementById('editButton');
+    const buttonField=document.getElementById('buttonField');
+    const saveSection=document.getElementById('saveSection');
+    const moveUp=document.getElementById('moveUp');
+    const moveDown=document.getElementById('moveDown');
+    const duplicateSection=document.getElementById('duplicateSection');
+    const deleteSection=document.getElementById('deleteSection');
+    const replaceMedia=document.getElementById('replaceMedia');
+    const genSectionImage=document.getElementById('genSectionImage');
+    const genSectionVideo=document.getElementById('genSectionVideo');
+    const sectionMediaInput=document.getElementById('sectionMediaInput');
+    const addSectionType=document.getElementById('addSectionType');
+    const addSection=document.getElementById('addSection');
 
     function showBrief(){
       typeLabel.textContent=labels[brief.type]||'FUSE PAGE';
@@ -306,6 +401,9 @@
         publicLink.href='/p/'+encodeURIComponent(out.project.slug);
         publicLink.classList.add('on');
       }
+      frame.onload=()=>{
+        if(selectedTarget)frame.contentWindow?.postMessage({type:'fuse-page-highlight',target:selectedTarget},'*');
+      };
     }
 
     function renderAssets(assets=[]){
@@ -317,7 +415,8 @@
       const failed=assets.filter(a=>a.status==='failed').length;
       assetSummary.textContent=processing?processing+' generating':completed+' ready'+(failed?' · '+failed+' failed':'');
       assetList.innerHTML=assets.map(a=>{
-        const label=labels[a.role]||a.role||a.kind||'Asset';
+        const sectionRole=String(a.role||'').startsWith('section:');
+        const label=labels[a.role]||(sectionRole?('Section '+(a.kind==='video'?'video':'image')):a.role)||a.kind||'Asset';
         const state=a.status==='processing'?'Generating…':a.status==='completed'?'Ready':'Failed';
         return '<div class="asset-row" data-status="'+String(a.status||'')+'"><i class="asset-dot"></i><b>'+String(label).replace(/[<>]/g,'')+'</b><em>'+state+'</em></div>';
       }).join('');
@@ -435,6 +534,105 @@
         generateBtn.textContent=projectId?'Generate new version':'Generate first draft';
       }
     }
+    function currentSelection(){
+      if(!project||!project.site_spec||!selectedTarget)return null;
+      if(selectedTarget==='hero')return {kind:'hero',data:project.site_spec.hero||{}};
+      const sections=Array.isArray(project.site_spec.sections)?project.site_spec.sections:[];
+      const index=sections.findIndex(s=>String(s&&s.id||'')===selectedTarget);
+      return index>=0?{kind:'section',data:sections[index],index}:null;
+    }
+
+    function openEditor(target){
+      selectedTarget=target;
+      const selected=currentSelection();
+      if(!selected){sectionEditor.hidden=true;return}
+      sectionEditor.hidden=false;
+      if(selected.kind==='hero'){
+        editorTitle.textContent='Edit hero';
+        editorType.textContent='HERO';
+        editEyebrow.value=selected.data.eyebrow||'';
+        editTitle.value=selected.data.headline||'';
+        editBody.value=selected.data.subheadline||'';
+        editButton.value=selected.data.primary_cta||'';
+        buttonField.hidden=false;
+        moveUp.hidden=moveDown.hidden=duplicateSection.hidden=deleteSection.hidden=true;
+        genSectionImage.textContent='AI image';
+        genSectionVideo.textContent='AI video';
+      }else{
+        editorTitle.textContent=selected.data.title||'Edit section';
+        editorType.textContent=String(selected.data.type||'section').toUpperCase();
+        editEyebrow.value=selected.data.eyebrow||'';
+        editTitle.value=selected.data.title||'';
+        editBody.value=selected.data.text||'';
+        editButton.value=selected.data.button||'';
+        buttonField.hidden=selected.data.type!=='cta';
+        moveUp.hidden=moveDown.hidden=duplicateSection.hidden=deleteSection.hidden=false;
+        moveUp.disabled=selected.index===0;
+        moveDown.disabled=selected.index===(project.site_spec.sections.length-1);
+      }
+      frame.contentWindow?.postMessage({type:'fuse-page-highlight',target:selectedTarget},'*');
+      if(innerWidth<761)sectionEditor.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
+
+    async function sectionMutation(payload,message='Updating section…'){
+      if(!projectId||busy)return;
+      setBusy(true);
+      setStatus(message);
+      try{
+        await Fuse.api('page-section-update',{project_id:projectId,...payload});
+        setStatus('Saved as a new version.','success');
+        await loadProject();
+        if(selectedTarget)openEditor(selectedTarget);
+      }catch(e){
+        setStatus(e.message||'Could not update this section.','error');
+      }finally{setBusy(false)}
+    }
+
+    async function saveSelectedSection(){
+      const selected=currentSelection();
+      if(!selected)return;
+      const patch=selected.kind==='hero'
+        ? {eyebrow:editEyebrow.value,headline:editTitle.value,subheadline:editBody.value,primary_cta:editButton.value}
+        : {eyebrow:editEyebrow.value,title:editTitle.value,text:editBody.value,button:editButton.value};
+      await sectionMutation({target:selectedTarget,operation:'update',patch},'Saving this section…');
+    }
+
+    async function uploadSectionMedia(file){
+      if(!file||!selectedTarget)return;
+      try{
+        setStatus('Uploading replacement media…');
+        const sb=await Fuse.client();
+        const session=await Fuse.session();
+        if(file.size>25*1024*1024)throw Error('Choose a file under 25 MB.');
+        const safe=String(file.name||'media').toLowerCase().replace(/[^a-z0-9._-]+/g,'-').slice(0,90);
+        const path=session.user.id+'/pages/sections/'+Date.now()+'-'+safe;
+        const up=await sb.storage.from('landing-assets').upload(path,file,{upsert:false,contentType:file.type||undefined});
+        if(up.error)throw up.error;
+        const url=sb.storage.from('landing-assets').getPublicUrl(path).data.publicUrl;
+        const patch=file.type.startsWith('video/')?{video_url:url}:{image_url:url};
+        await sectionMutation({target:selectedTarget,operation:'update',patch},'Placing replacement media…');
+      }catch(e){setStatus(e.message||'Could not upload that media.','error')}
+    }
+
+    async function generateSectionMedia(kind){
+      const selected=currentSelection();
+      if(!selected)return;
+      if(selected.kind==='hero'){
+        brief.generateAssets=true;
+        setStatus('Generating a fresh hero '+kind+'. Normal '+(kind==='video'?'Video':'Image')+' credits apply…');
+        if(kind==='image')await startAssets(true);
+        else await startAssets(true);
+        return;
+      }
+      try{
+        setStatus('Generating a new '+kind+' for this section. Normal '+(kind==='video'?'Video':'Image')+' credits apply…');
+        await Fuse.api('page-section-asset-start',{project_id:projectId,section_id:selectedTarget,kind});
+        assetBox.hidden=false;
+        await syncAssets({quiet:true});
+        if(window.Fuse)Fuse.balance().catch(()=>{});
+      }catch(e){setStatus(e.message||'Could not start this section visual.','error')}
+    }
+
     async function revise(){
       if(!projectId||busy)return;
       const instruction=askInput.value.trim();
@@ -504,8 +702,30 @@
     askButton.onclick=revise;
     askInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();revise()}});
     regenerateAssets.onclick=regenerateVisuals;
+    saveSection.onclick=saveSelectedSection;
+    moveUp.onclick=()=>sectionMutation({target:selectedTarget,operation:'move',direction:'up'},'Moving section…');
+    moveDown.onclick=()=>sectionMutation({target:selectedTarget,operation:'move',direction:'down'},'Moving section…');
+    duplicateSection.onclick=()=>sectionMutation({target:selectedTarget,operation:'duplicate'},'Duplicating section…');
+    deleteSection.onclick=async()=>{
+      const selected=currentSelection();
+      if(!selected||selected.kind==='hero')return;
+      await sectionMutation({target:selectedTarget,operation:'delete'},'Deleting section…');
+      selectedTarget=null;sectionEditor.hidden=true;
+    };
+    replaceMedia.onclick=()=>sectionMediaInput.click();
+    sectionMediaInput.onchange=()=>{const file=sectionMediaInput.files&&sectionMediaInput.files[0];sectionMediaInput.value='';if(file)uploadSectionMedia(file)};
+    genSectionImage.onclick=()=>generateSectionMedia('image');
+    genSectionVideo.onclick=()=>generateSectionMedia('video');
+    addSection.onclick=async()=>{
+      await sectionMutation({operation:'add',section_type:addSectionType.value,index:(project?.site_spec?.sections||[]).length},'Adding section…');
+    };
+    window.addEventListener('message',e=>{
+      const d=e.data||{};
+      if(d.type==='fuse-page-select'&&d.target)openEditor(String(d.target));
+    });
     document.querySelectorAll('[data-mode]').forEach(btn=>btn.onclick=()=>{
       document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('active',x===btn));
+      shell.classList.toggle('tablet',btn.dataset.mode==='tablet');
       shell.classList.toggle('desktop',btn.dataset.mode==='desktop');
     });
 
