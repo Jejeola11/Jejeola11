@@ -41,13 +41,15 @@
     button,a{font:inherit}
     button{-webkit-tap-highlight-color:transparent}
     .pricing-page{width:min(760px,calc(100% - 28px));margin:0 auto;padding:14px 0 44px}
-    .pricing-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}
+    .pricing-head{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:10px;margin-bottom:14px}
     .close-btn{
       width:38px;height:38px;flex:none;border:1px solid rgba(238,255,224,.12);border-radius:50%;
       display:grid;place-items:center;background:rgba(6,33,37,.86);color:#fff;text-decoration:none;
       box-shadow:0 8px 22px rgba(0,0,0,.18)
     }
     .close-btn span{font-size:25px;line-height:.8;font-weight:300;transform:translateY(-1px)}
+    .brand-wrap{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0}
+    .brand-logo{width:30px;height:30px;display:block;object-fit:contain;border-radius:9px;flex:none}
     .brand{
       margin:0;
       font-size:25px;
@@ -56,6 +58,7 @@
       letter-spacing:-.8px;
       background:var(--chrome);
       -webkit-background-clip:text;background-clip:text;color:transparent;
+      white-space:nowrap;
     }
     .balance-pill{
       min-height:36px;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;
@@ -65,88 +68,129 @@
 
     .promo{
       position:relative;isolation:isolate;overflow:hidden;
-      min-height:230px;border:1px solid rgba(223,255,78,.34);border-radius:28px;
+      min-height:236px;border:1px solid rgba(223,255,78,.22);border-radius:28px;
       background:
-        radial-gradient(circle at 15% 18%,rgba(255,230,106,.32),transparent 22%),
-        radial-gradient(circle at 82% 24%,rgba(223,255,78,.22),transparent 24%),
-        linear-gradient(150deg,#082224 0%,#123f3c 50%,#071819 100%);
-      padding:28px 22px 24px;display:flex;flex-direction:column;justify-content:flex-end;
-      box-shadow:0 24px 64px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.05)
+        radial-gradient(circle at 18% 18%,rgba(27,76,82,.42),transparent 28%),
+        radial-gradient(circle at 84% 22%,rgba(223,255,78,.08),transparent 24%),
+        radial-gradient(circle at 48% 100%,rgba(238,255,224,.04),transparent 30%),
+        linear-gradient(145deg,#020708 0%,#001012 37%,#062125 72%,#0d3236 100%);
+      padding:25px 20px 23px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+      box-shadow:0 24px 64px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.035)
     }
     .promo:before,.promo:after{
-      content:"";position:absolute;border-radius:999px;z-index:-1;filter:blur(.2px);
-      border:1px solid rgba(238,255,224,.16);background:rgba(238,255,224,.04)
+      content:"";position:absolute;border-radius:999px;z-index:-1;
+      border:1px solid rgba(238,255,224,.10);background:rgba(238,255,224,.018);pointer-events:none
     }
-    .promo:before{width:170px;height:170px;right:-42px;top:-54px;animation:floatOne 8s ease-in-out infinite}
-    .promo:after{width:92px;height:92px;left:-24px;top:52px;animation:floatTwo 6s ease-in-out infinite}
-    @keyframes floatOne{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(-12px,18px) rotate(8deg)}}
-    @keyframes floatTwo{0%,100%{transform:translate(0,0)}50%{transform:translate(15px,-8px)}}
+    .promo:before{width:178px;height:178px;right:-46px;top:-48px;animation:floatOne 8s ease-in-out infinite}
+    .promo:after{width:116px;height:116px;left:-34px;top:46px;animation:floatTwo 6s ease-in-out infinite}
+    @keyframes floatOne{0%,100%{transform:translate(0,0)}50%{transform:translate(-10px,15px)}}
+    @keyframes floatTwo{0%,100%{transform:translate(0,0)}50%{transform:translate(13px,-7px)}}
     .promo-kicker{
-      width:max-content;max-width:100%;display:inline-flex;align-items:center;gap:7px;
-      padding:7px 10px;border-radius:999px;background:var(--chrome);color:#001012;
-      font-size:13px;font-weight:500;margin-bottom:12px
+      width:max-content;max-width:100%;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+      padding:7px 12px;border-radius:999px;background:var(--chrome);color:#001012;
+      font-size:13px;font-weight:500;margin:0 auto 13px
     }
-    .promo h1{margin:0;font-size:26px;line-height:1.02;font-weight:500;letter-spacing:-1.15px}
+    .promo h1{margin:0;font-size:21px;line-height:1.02;font-weight:500;letter-spacing:-.7px;text-align:center}
     .promo h1 strong{
-      display:block;font-weight:500;font-size:clamp(44px,12vw,62px);letter-spacing:-2.6px;
+      display:block;font-weight:500;font-size:clamp(50px,14vw,66px);line-height:.94;letter-spacing:-2.2px;
       background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent
     }
-    .promo p{margin:11px 0 0;max-width:520px;color:#d5e3e1;font-size:14px;line-height:1.52;font-weight:300}
+    .promo p{margin:11px auto 0;max-width:500px;color:#c9d9d7;font-size:14px;line-height:1.5;font-weight:300;text-align:center}
 
-    .intro{padding:24px 2px 14px}
-    .intro h2{margin:0;font-size:26px;line-height:1.08;font-weight:500;letter-spacing:-.9px}
-    .intro p{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.52;font-weight:300}
+    .intro{padding:22px 8px 14px;text-align:center;max-width:560px;margin:0 auto}
+    .intro h2{margin:0;font-size:22px;line-height:1.12;font-weight:500;letter-spacing:-.6px;text-align:center}
+    .intro p{margin:7px auto 0;max-width:440px;color:var(--muted);font-size:13px;line-height:1.48;font-weight:300;text-align:center}
 
-    .packs{display:grid;grid-template-columns:1fr;gap:12px}
+    .packs{display:grid;grid-template-columns:1fr;gap:14px}
     .pack-card{
-      width:100%;position:relative;overflow:hidden;text-align:left;color:#fff;
-      border:1.5px solid rgba(49,84,86,.95);border-radius:22px;background:rgba(6,33,37,.92);
-      padding:16px;cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease
+      width:100%;position:relative;overflow:hidden;text-align:center;color:#fff;
+      border:1.5px solid rgba(49,84,86,.82);border-radius:24px;
+      padding:20px 16px 17px;cursor:pointer;
+      transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+      box-shadow:0 15px 34px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.035)
     }
     .pack-card:active{transform:scale(.992)}
     .pack-card[aria-pressed="true"]{
       border-color:#DFFF4E;
-      box-shadow:0 0 0 1px rgba(223,255,78,.16),0 14px 34px rgba(0,0,0,.22);
+      box-shadow:0 0 0 1px rgba(223,255,78,.18),0 18px 40px rgba(0,0,0,.24)
+    }
+    .pack-card.starter{
       background:
-        radial-gradient(circle at 92% 8%,rgba(223,255,78,.12),transparent 25%),
-        linear-gradient(145deg,#0a2a2d,#062125)
+        radial-gradient(circle at 20% 18%,rgba(255,230,106,.10),transparent 27%),
+        linear-gradient(145deg,#031011 0%,#062125 58%,#12383c 100%)
     }
-    .pack-top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:11px}
-    .radio{
-      width:23px;height:23px;border:2px solid #547174;border-radius:50%;display:grid;place-items:center;flex:none
+    .pack-card.mini{
+      background:
+        radial-gradient(circle at 82% 18%,rgba(238,255,224,.14),transparent 28%),
+        linear-gradient(145deg,#07191b 0%,#11383d 54%,#1B4C52 100%)
     }
+    .pack-card.creator{
+      color:#001012;border-color:rgba(238,255,224,.56);
+      background:linear-gradient(112deg,#FFE66A 0%,#DFFF4E 48%,#EEFFE0 100%);
+      box-shadow:0 18px 42px rgba(179,205,45,.12),inset 0 1px 0 rgba(255,255,255,.8)
+    }
+    .pack-card.creator[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 2px rgba(238,255,224,.35),0 20px 44px rgba(0,0,0,.22)}
+    .pack-card.pro{
+      background:
+        radial-gradient(circle at 18% 18%,rgba(223,255,78,.15),transparent 27%),
+        radial-gradient(circle at 86% 78%,rgba(255,230,106,.08),transparent 28%),
+        linear-gradient(145deg,#041112 0%,#0a2b2f 48%,#14454a 100%)
+    }
+    .pack-card.studio{
+      background:
+        radial-gradient(circle at 78% 20%,rgba(238,255,224,.22),transparent 28%),
+        linear-gradient(145deg,#092125 0%,#1B4C52 52%,#38737a 100%)
+    }
+    .pack-card.power{
+      color:#001012;border-color:rgba(238,255,224,.50);
+      background:
+        radial-gradient(circle at 86% 10%,rgba(255,255,255,.48),transparent 27%),
+        linear-gradient(128deg,#FFE66A 0%,#DFFF4E 28%,#a9e8b2 55%,#77b9be 78%,#EEFFE0 100%)
+    }
+    .pack-card.creator .pack-name p,.pack-card.creator .value,.pack-card.creator .price-box small,
+    .pack-card.power .pack-name p,.pack-card.power .value,.pack-card.power .price-box small{color:rgba(0,16,18,.68)}
+    .pack-card.creator .price-box,.pack-card.power .price-box{background:rgba(255,255,255,.30);border-color:rgba(0,16,18,.10)}
+    .pack-card.creator .pack-rule,.pack-card.power .pack-rule{background:rgba(0,16,18,.14)}
+    .pack-top{display:grid;grid-template-columns:1fr;justify-items:center;align-items:center;gap:9px;padding-top:2px}
+    .radio{width:23px;height:23px;border:2px solid rgba(238,255,224,.36);border-radius:50%;display:grid;place-items:center;flex:none}
+    .creator .radio,.power .radio{border-color:rgba(0,16,18,.34)}
     .pack-card[aria-pressed="true"] .radio{border-color:#DFFF4E;background:var(--chrome)}
     .pack-card[aria-pressed="true"] .radio:after{content:"✓";font-size:13px;color:#001012;font-weight:500}
-    .pack-name{min-width:0}
-    .pack-name h3{margin:0;font-size:19px;line-height:1.15;font-weight:500;letter-spacing:-.45px}
-    .pack-name p{margin:4px 0 0;color:var(--muted);font-size:13px;font-weight:300}
+    .pack-name{min-width:0;text-align:center}
+    .pack-name h3{margin:0;font-size:19px;line-height:1.14;font-weight:500;letter-spacing:-.45px;text-align:center}
+    .pack-name p{margin:4px 0 0;color:#b5c8c6;font-size:13px;font-weight:300;text-align:center}
     .price-box{
-      min-width:98px;padding:11px 12px;border-radius:17px;text-align:right;
-      background:linear-gradient(145deg,rgba(49,84,86,.72),rgba(0,16,18,.86));
-      border:1px solid rgba(238,255,224,.08)
+      min-width:128px;padding:12px 14px 11px;border-radius:18px;text-align:center;
+      background:linear-gradient(145deg,rgba(49,84,86,.58),rgba(0,16,18,.55));
+      border:1px solid rgba(238,255,224,.09);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)
     }
     .price-box strong{display:block;font-size:20px;line-height:1;font-weight:500;letter-spacing:-.55px}
-    .price-box small{display:block;margin-top:6px;color:#c7d8d6;font-size:12px;font-weight:300}
-    .pack-rule{height:1px;background:rgba(49,84,86,.7);margin:14px 0 12px}
-    .pack-details{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-    .credits{font-size:16px;font-weight:400}
-    .value{color:var(--muted);font-size:13px;font-weight:300}
+    .price-box small{display:block;margin-top:6px;color:#d0dedd;font-size:12px;font-weight:300}
+    .pack-rule{height:1px;background:rgba(238,255,224,.13);margin:14px 0 12px}
+    .pack-details{display:grid;gap:5px;justify-items:center;text-align:center}
+    .credits{font-size:15px;font-weight:400;text-align:center}
+    .value{color:#afc1bf;font-size:13px;font-weight:300;text-align:center}
+    .save{color:#DFFF4E}
+    .creator .save,.power .save{color:#0b3a38;font-weight:500}
     .tag{
-      position:absolute;right:14px;top:0;transform:translateY(-1px);
-      display:inline-flex;align-items:center;min-height:26px;padding:0 9px;border-radius:0 0 10px 10px;
-      background:var(--chrome);color:#001012;font-size:10px;font-weight:500;letter-spacing:.03em
+      position:absolute;left:50%;top:0;transform:translate(-50%,-1px);
+      display:inline-flex;align-items:center;justify-content:center;min-height:27px;padding:0 11px;
+      border-radius:0 0 11px 11px;background:#001012;color:#EEFFE0;
+      font-size:10px;font-weight:500;letter-spacing:.04em;white-space:nowrap
     }
-    .tag.alt{background:#0f4541;color:#DFFF4E;border:1px solid rgba(223,255,78,.22);border-top:0}
+    .tag.alt{background:rgba(0,16,18,.78);color:#DFFF4E;border:1px solid rgba(223,255,78,.22);border-top:0}
+    .pack-card.creator .tag{background:#001012;color:#DFFF4E}
+    .pack-card.power .tag{background:#001012;color:#EEFFE0}
 
-    .why{margin-top:24px;padding:20px;border:1px solid rgba(49,84,86,.85);border-radius:24px;background:rgba(6,33,37,.72)}
-    .why h2{margin:0 0 13px;font-size:25px;line-height:1.08;font-weight:500;letter-spacing:-.75px}
+    .why{margin-top:24px;padding:20px;border:1px solid rgba(49,84,86,.85);border-radius:24px;background:rgba(6,33,37,.72);text-align:center}
+    .why h2{margin:0 0 13px;font-size:23px;line-height:1.08;font-weight:500;letter-spacing:-.7px;text-align:center}
     .why-grid{display:grid;grid-template-columns:1fr;gap:10px}
-    .why-card{padding:14px;border:1px solid rgba(49,84,86,.66);border-radius:16px;background:rgba(0,16,18,.34)}
-    .why-card strong{display:block;font-size:15px;font-weight:400}
-    .why-card p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.45;font-weight:300}
+    .why-card{padding:14px;border:1px solid rgba(49,84,86,.66);border-radius:16px;background:rgba(0,16,18,.34);text-align:center}
+    .why-card strong{display:block;font-size:15px;font-weight:400;text-align:center}
+    .why-card p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.45;font-weight:300;text-align:center}
 
-    .comparison{margin-top:24px}
-    .comparison h2{margin:0 0 12px;font-size:25px;font-weight:500;letter-spacing:-.75px}
+    .comparison{margin-top:24px;text-align:center}
+    .comparison h2{margin:0 0 12px;font-size:23px;font-weight:500;letter-spacing:-.7px;text-align:center}
     .compare-box{overflow:hidden;border:1px solid rgba(49,84,86,.8);border-radius:20px;background:rgba(6,33,37,.62)}
     .compare-row{display:grid;grid-template-columns:1.1fr .8fr .8fr;gap:8px;padding:12px 14px;border-bottom:1px solid rgba(49,84,86,.6);align-items:center}
     .compare-row:last-child{border-bottom:0}
@@ -155,26 +199,26 @@
     .compare-row span:nth-child(2),.compare-row span:nth-child(3){text-align:right}
     .save{color:#DFFF4E}
 
-    .faq{margin-top:28px}
-    .faq h2{margin:0 0 12px;font-size:26px;line-height:1.05;font-weight:500;letter-spacing:-.9px}
+    .faq{margin-top:28px;text-align:center}
+    .faq h2{margin:0 0 12px;font-size:24px;line-height:1.08;font-weight:500;letter-spacing:-.8px;text-align:center}
     .faq details{border:1px solid rgba(49,84,86,.82);border-radius:16px;background:rgba(6,33,37,.76);margin-bottom:9px;overflow:hidden}
-    .faq summary{list-style:none;padding:15px 16px;cursor:pointer;font-size:15px;font-weight:400;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .faq summary{list-style:none;padding:15px 16px;cursor:pointer;font-size:15px;font-weight:400;display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;text-align:center}
     .faq summary::-webkit-details-marker{display:none}
     .faq summary:after{content:"⌄";font-size:17px;color:#DFFF4E}
     .faq details[open] summary:after{transform:rotate(180deg)}
-    .faq p{margin:0;padding:0 16px 15px;color:var(--muted);font-size:13px;line-height:1.55;font-weight:300}
+    .faq p{margin:0;padding:0 16px 15px;color:var(--muted);font-size:13px;line-height:1.55;font-weight:300;text-align:center}
 
-    .notice{margin:14px 2px 0;color:#91a7a5;font-size:13px;line-height:1.5;font-weight:300}
-    .checkout-status{min-height:19px;margin:10px 2px 0;color:#c3d3d1;font-size:13px;font-weight:300}
+    .notice{margin:14px auto 0;max-width:560px;color:#91a7a5;font-size:13px;line-height:1.5;font-weight:300;text-align:center}
+    .checkout-status{min-height:19px;margin:10px auto 0;color:#c3d3d1;font-size:13px;font-weight:300;text-align:center}
     .checkout-status.error{color:#ffd0bf}
 
     .sticky-buy{
       position:fixed;left:50%;transform:translateX(-50%);bottom:calc(91px + env(safe-area-inset-bottom));
-      z-index:990;width:min(732px,calc(100% - 28px));min-height:62px;border:0;border-radius:20px;
+      z-index:990;width:min(732px,calc(100% - 24px));min-height:56px;border:0;border-radius:22px;
       background:var(--chrome);color:#001012;font-size:16px;font-weight:500;
       display:flex;align-items:center;justify-content:center;gap:8px;
-      box-shadow:0 10px 0 rgba(110,130,34,.48),0 22px 44px rgba(0,0,0,.3);
-      padding:12px 18px
+      box-shadow:0 8px 0 rgba(110,130,34,.40),0 20px 40px rgba(0,0,0,.28);
+      padding:11px 16px
     }
     .sticky-buy small{font-size:12px;font-weight:400;opacity:.72}
     .sticky-buy:disabled{opacity:.55;cursor:not-allowed}
@@ -185,15 +229,21 @@
     }
     @media(max-width:390px){
       .pricing-page{width:calc(100% - 22px)}
-      .brand{font-size:23px}
-      .balance-pill{font-size:12px;padding:0 10px}
-      .promo{padding:23px 17px 20px;border-radius:24px;min-height:220px}
-      .promo h1{font-size:24px}
-      .pack-card{padding:14px;border-radius:19px}
-      .pack-name h3{font-size:17px}
-      .price-box{min-width:89px;padding:10px}
+      .pricing-head{grid-template-columns:38px minmax(0,1fr) auto;gap:7px}
+      .brand-wrap{gap:6px}
+      .brand-logo{width:26px;height:26px;border-radius:8px}
+      .brand{font-size:21px}
+      .balance-pill{font-size:11px;padding:0 9px;max-width:126px;overflow:hidden;text-overflow:ellipsis}
+      .promo{padding:22px 16px 20px;border-radius:24px;min-height:220px}
+      .promo h1{font-size:20px}
+      .promo h1 strong{font-size:52px}
+      .intro h2{font-size:20px}
+      .intro p{font-size:13px}
+      .pack-card{padding:19px 13px 15px;border-radius:20px}
+      .pack-name h3{font-size:18px}
+      .price-box{min-width:118px;padding:11px 10px}
       .price-box strong{font-size:18px}
-      .credits{font-size:15px}
+      .credits{font-size:14px}
       .sticky-buy{width:calc(100% - 22px)}
     }
     @media(prefers-reduced-motion:reduce){
@@ -205,14 +255,14 @@
   <main class="pricing-page">
     <header class="pricing-head">
       <a class="close-btn" href="home.html" aria-label="Close pricing"><span>×</span></a>
-      <h1 class="brand">Fuse Atelier</h1>
+      <div class="brand-wrap"><img class="brand-logo" src="media/fuse-mark-palette.webp" alt="" width="30" height="30"><h1 class="brand">Fuse Atelier</h1></div>
       <span class="balance-pill" data-balance>My credits</span>
     </header>
 
     <section class="promo" aria-labelledby="promoTitle">
       <span class="promo-kicker">✦ Credit packs · One-time top-up</span>
       <h1 id="promoTitle"><strong>23% OFF</strong>PER CREDIT</h1>
-      <p>Go bigger, pay less per credit. The Power pack brings your credit cost down by about 23% compared with Starter.</p>
+      <p>Go bigger, pay less per credit. Save up to 23% on credit value with Power.</p>
     </section>
 
     <section class="intro">
