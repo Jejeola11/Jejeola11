@@ -538,7 +538,11 @@
       if(!project||!project.site_spec||!selectedTarget)return null;
       if(selectedTarget==='hero')return {kind:'hero',data:project.site_spec.hero||{}};
       const sections=Array.isArray(project.site_spec.sections)?project.site_spec.sections:[];
-      const index=sections.findIndex(s=>String(s&&s.id||'')===selectedTarget);
+      let index=sections.findIndex(s=>String(s&&s.id||'')===selectedTarget);
+      if(index<0 && /^\d+$/.test(String(selectedTarget))){
+        const numeric=Number(selectedTarget);
+        if(numeric>=0&&numeric<sections.length)index=numeric;
+      }
       return index>=0?{kind:'section',data:sections[index],index}:null;
     }
 
@@ -546,6 +550,7 @@
       selectedTarget=target;
       const selected=currentSelection();
       if(!selected){sectionEditor.hidden=true;return}
+      if(selected.kind==='section'&&selected.data.id)selectedTarget=String(selected.data.id);
       sectionEditor.hidden=false;
       if(selected.kind==='hero'){
         editorTitle.textContent='Edit hero';
