@@ -15,6 +15,15 @@ function safeUrl(v=''){
     return (u.protocol==='https:'||u.protocol==='http:')?u.toString():'';
   }catch{return ''}
 }
+function actionHref(contact={}){
+  const direct=safeUrl(contact.cta_url||'');
+  if(direct)return direct;
+  const email=String(contact.email||'').trim();
+  if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return 'mailto:'+email;
+  const phone=String(contact.phone||'').replace(/[^\d+]/g,'');
+  if(phone.length>=8)return 'tel:'+phone;
+  return '#content';
+}
 
 function itemCards(items){
   return arr(items).slice(0,6).map((it,i)=>{
@@ -54,6 +63,7 @@ function renderSite(spec={},opts={}){
   const meta=spec.meta||{};
   const theme=spec.theme||{};
   const nav=spec.nav||{};
+  const contact=spec.contact||{};
   const hero=spec.hero||{};
   const motion=spec.motion||{};
   const brand=text(nav.brand,text(meta.title,'Your Brand'));
@@ -73,6 +83,8 @@ function renderSite(spec={},opts={}){
   const sections=arr(spec.sections).slice(0,12);
   const interactive=heroVisual==='orb-3d'||motion.three_d===true||exp==='3d';
   const reveal=motion.reveal===true||['animated','cinematic','3d'].includes(exp);
+  const finalHref=actionHref(contact);
+  const finalTarget=/^https?:\/\//.test(finalHref)?' target="_blank" rel="noopener"':'';
 
   return '<!doctype html>'+
 '<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'+
@@ -110,7 +122,7 @@ function renderSite(spec={},opts={}){
 ((interactive&&(heroImage||heroVideo))?'<div class="orb" data-orb></div>':'')+
 '</div></section>'+
 '<div id="content" class="wrap">'+sections.map((s,i)=>'<div class="'+(reveal?'reveal':'')+'" style="--i:'+i+'">'+renderSection(s)+'</div>').join('')+'</div>'+
-'<section id="contact" class="wrap section"><div class="cta-block"><span>LET’S BUILD</span><h2>'+esc(text(meta.objective,'Ready for the next step?'))+'</h2><p>'+esc(text(meta.audience,'Make the next action easy and clear.'))+'</p><a href="mailto:hello@example.com">Get started →</a></div></section></main>'+
+'<section id="contact" class="wrap section"><div class="cta-block"><span>LET’S BUILD</span><h2>'+esc(text(meta.objective,'Ready for the next step?'))+'</h2><p>'+esc(text(meta.audience,'Make the next action easy and clear.'))+'</p><a href="'+esc(finalHref)+'"'+finalTarget+'>'+esc(text(nav.cta,'Get started'))+' →</a></div></section></main>'+
 '<footer><div class="wrap"><b>'+esc(brand)+'</b><br>Built with Fuse Pages.</div></footer>'+
 (reveal?'<script>const els=[...document.querySelectorAll(".reveal")];if("IntersectionObserver"in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.12});els.forEach(el=>io.observe(el))}else els.forEach(el=>el.classList.add("in"));<\/script>':'')+
 (interactive?'<script>const orb=document.querySelector("[data-orb]");if(orb&&!matchMedia("(prefers-reduced-motion: reduce)").matches){addEventListener("pointermove",function(e){var x=(e.clientX/innerWidth-.5)*18;var y=(e.clientY/innerHeight-.5)*-18;orb.style.transform="rotateX("+y+"deg) rotateY("+x+"deg)";},{passive:true});}<\/script><script type="module">const canvas=document.querySelector("[data-three]");if(canvas){try{const THREE=await import("/atelier-site/assets/immersive/three.module.min.js");const stage=canvas.closest("[data-three-stage]");const renderer=new THREE.WebGLRenderer({canvas:canvas,alpha:true,antialias:true,powerPreference:"high-performance"});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(34,1,.1,100);camera.position.z=4.6;const geometry=new THREE.TorusKnotGeometry(1.05,.34,96,14);const material=new THREE.MeshPhysicalMaterial({color:new THREE.Color("'+esc(accent)+'"),metalness:.72,roughness:.18,clearcoat:1,clearcoatRoughness:.12});const mesh=new THREE.Mesh(geometry,material);scene.add(mesh);const key=new THREE.DirectionalLight(0xffffff,3.1);key.position.set(3,3,5);scene.add(key);const fill=new THREE.PointLight(new THREE.Color("'+esc(secondary)+'"),2.4,10);fill.position.set(-3,-1,3);scene.add(fill);scene.add(new THREE.AmbientLight(0xffffff,.55));let px=0,py=0;function resize(){const r=stage.getBoundingClientRect();renderer.setSize(Math.max(1,r.width),Math.max(1,r.height),false);camera.aspect=r.width/Math.max(1,r.height);camera.updateProjectionMatrix()}resize();new ResizeObserver(resize).observe(stage);const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;addEventListener("pointermove",e=>{px=(e.clientX/innerWidth-.5)*.7;py=(e.clientY/innerHeight-.5)*.45},{passive:true});function draw(t){if(!reduce){mesh.rotation.y=t*.00035+px;mesh.rotation.x=.45+py;mesh.rotation.z=t*.00012}renderer.render(scene,camera);if(!reduce)requestAnimationFrame(draw)}stage.classList.add("ready");draw(0)}catch(e){}}<\/script>':'')+
