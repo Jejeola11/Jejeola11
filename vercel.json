@@ -31,6 +31,10 @@
       "dest": "/atelier-site/index.html"
     },
     {
+      "src": "/atelier-preview/?",
+      "dest": "/atelier-site/preview.html"
+    },
+    {
       "handle": "filesystem"
     }
   ]
