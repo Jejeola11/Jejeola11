@@ -37,8 +37,8 @@
       color:currentColor!important;background:none!important;-webkit-background-clip:border-box!important;
       background-clip:border-box!important;font-weight:400!important;white-space:nowrap!important;
     }
-    body .fuse-nav .nav-create{color:#a8b8b7!important}
-    body .fuse-nav .nav-create svg{
+    body .fuse-nav a.nav-create{color:#a8b8b7!important}
+    body .fuse-nav a.nav-create svg{
       width:52px!important;height:50px!important;padding:12px!important;border-radius:15px!important;
       background:var(--fuse-nav-chrome)!important;color:#001012!important;
       box-shadow:0 7px 18px rgba(223,255,78,.13),inset 0 1px 0 rgba(255,255,255,.7)!important;
@@ -50,13 +50,13 @@
       background:transparent!important;color:#DFFF4E!important;box-shadow:none!important;
     }
     body .fuse-nav a[aria-current="page"]:not(.nav-create) span,
-    body .fuse-nav .nav-create[aria-current="page"] span{
+    body .fuse-nav a.nav-create[aria-current="page"] span{
       background:var(--fuse-nav-chrome)!important;-webkit-background-clip:text!important;background-clip:text!important;
       color:transparent!important;font-weight:500!important;
     }
     @media(max-width:430px){
       body .fuse-nav{height:calc(80px + env(safe-area-inset-bottom))!important}
-      body .fuse-nav .nav-create svg{width:50px!important;height:48px!important;padding:11px!important;border-radius:14px!important}
+      body .fuse-nav a.nav-create svg{width:50px!important;height:48px!important;padding:11px!important;border-radius:14px!important}
     }
   `;
   document.head.append(navStyles);
