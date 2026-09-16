@@ -69,7 +69,12 @@ function normalize(candidate,base,instruction){
   next.hero={...(base.hero||{}),...(candidate.hero||{}),visual:{...(base.hero?.visual||{}),...(candidate.hero?.visual||{})}};
   next.motion={...(base.motion||{}),...(candidate.motion||{})};
   next.assets={...(base.assets||{}),...(candidate.assets||{})};
-  next.sections=Array.isArray(candidate.sections)&&candidate.sections.length?candidate.sections.slice(0,12):(base.sections||[]);
+  const baseSections=Array.isArray(base.sections)?base.sections:[];
+  const candidateSections=Array.isArray(candidate.sections)&&candidate.sections.length?candidate.sections.slice(0,12):baseSections;
+  next.sections=candidateSections.map((s,i)=>({
+    ...s,
+    id: clean(s&&s.id,80) || clean(baseSections[i]&&baseSections[i].id,80) || ('sec-'+Date.now().toString(36)+'-'+(i+1)+'-'+Math.random().toString(36).slice(2,7))
+  }));
   return next;
 }
 
