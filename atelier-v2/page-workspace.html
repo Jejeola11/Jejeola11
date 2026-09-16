@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#001012">
+  <title>Fuse Pages Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
+  <style>
+    :root{
+      --deep:#001012;--mid:#00191B;--light:#1B4C52;--surface:#062125;--line:#315456;
+      --yellow:#FFE66A;--lime:#DFFF4E;--white:#EEFFE0;--muted:#a9bcba;
+      --chrome:linear-gradient(105deg,#FFE66A 0%,#DFFF4E 52%,#EEFFE0 100%);
+    }
+    *{box-sizing:border-box}
+    html{background:var(--deep)}
+    body{
+      margin:0;min-height:100svh;color:#fff;font-family:Montserrat,Arial,sans-serif;
+      padding-bottom:calc(96px + env(safe-area-inset-bottom));
+      background:linear-gradient(145deg,#001012,#00191B 62%,#12383d);
+    }
+    button,a{font:inherit}
+    .wrap{width:min(1050px,calc(100% - 28px));margin:0 auto;padding:14px 0 32px}
+    .top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px}
+    .back{
+      width:40px;height:40px;border:1px solid var(--line);border-radius:14px;display:grid;place-items:center;
+      color:#fff;text-decoration:none;background:#00191B;font-size:22px
+    }
+    .brand{text-align:center;font-size:25px;font-weight:500;letter-spacing:-.7px;background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .wallet{padding:10px 12px;border:1px solid rgba(223,255,78,.25);border-radius:999px;text-decoration:none;color:#d5e3e1;font-size:13px;font-weight:300}
+    .workspace-head{display:flex;align-items:end;justify-content:space-between;gap:14px;margin:28px 2px 14px}
+    .workspace-head h1{margin:0;font-size:26px;line-height:1.08;font-weight:500;letter-spacing:-.85px}
+    .workspace-head p{margin:7px 0 0;color:var(--muted);font-size:14px;line-height:1.5;font-weight:300;max-width:640px}
+    .status{padding:8px 10px;border-radius:999px;background:rgba(223,255,78,.08);border:1px solid rgba(223,255,78,.18);color:#DFFF4E;font-size:12px;white-space:nowrap}
+    .grid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:13px}
+    .panel{border:1px solid var(--line);border-radius:22px;background:rgba(6,33,37,.78);box-shadow:0 18px 48px rgba(0,0,0,.18)}
+    .brief{padding:17px}
+    .kicker{font-size:11px;color:#DFFF4E;letter-spacing:.06em;font-weight:400}
+    .brief h2{margin:8px 0 8px;font-size:18px;font-weight:500}
+    .brief p{margin:0;color:#c0d0ce;font-size:14px;line-height:1.55;font-weight:300;white-space:pre-line}
+    .chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+    .chip{padding:7px 9px;border:1px solid rgba(49,84,86,.9);border-radius:999px;background:#00191B;color:#c4d3d1;font-size:11px}
+    .actions{display:grid;gap:8px;margin-top:16px}
+    .primary,.secondary{
+      min-height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;text-decoration:none;
+      font-size:16px;font-weight:500
+    }
+    .primary{border:0;background:var(--chrome);color:#001012}
+    .secondary{border:1px solid var(--line);background:#00191B;color:#fff}
+    .preview{overflow:hidden;min-height:580px;position:relative}
+    .preview-bar{height:54px;padding:0 14px;border-bottom:1px solid rgba(49,84,86,.75);display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .preview-bar span{font-size:13px;color:#bacbc9}
+    .modes{display:flex;gap:6px}
+    .mode{height:31px;padding:0 10px;border:1px solid var(--line);border-radius:999px;background:#00191B;color:#a9bcba;font-size:11px}
+    .mode.active{background:var(--chrome);color:#001012;border-color:transparent}
+    .canvas{min-height:526px;display:grid;place-items:center;padding:24px;background:
+      radial-gradient(circle at 50% 25%,rgba(223,255,78,.08),transparent 28%),
+      linear-gradient(160deg,#001012,#0a292c)}
+    .site-frame{width:min(470px,100%);aspect-ratio:9/12;border-radius:20px;overflow:hidden;border:1px solid rgba(238,255,224,.14);background:#e9ece8;color:#111;box-shadow:0 25px 55px rgba(0,0,0,.32)}
+    .fake-nav{height:34px;background:#fff;border-bottom:1px solid #dcdedc;display:flex;align-items:center;justify-content:space-between;padding:0 13px;font-size:8px}
+    .fake-hero{height:46%;padding:25px 22px;background:
+      radial-gradient(circle at 76% 22%,rgba(223,255,78,.72),transparent 23%),
+      linear-gradient(145deg,#0b1314,#28464a);color:#fff}
+    .fake-kicker{font-size:7px;letter-spacing:.12em;color:#DFFF4E}
+    .fake-hero h3{max-width:280px;margin:9px 0 8px;font-size:27px;line-height:.96;font-weight:500;letter-spacing:-1.4px}
+    .fake-hero p{max-width:260px;margin:0;color:#d3ddda;font-size:8px;line-height:1.5}
+    .fake-btn{display:inline-block;margin-top:13px;padding:7px 11px;border-radius:999px;background:var(--chrome);color:#001012;font-size:7px;font-weight:500}
+    .fake-sections{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px;background:#eef1ee}
+    .fake-card{height:78px;border-radius:11px;background:#fff;border:1px solid #dde1de}
+    .next{
+      margin-top:13px;padding:15px 16px;border:1px dashed rgba(49,84,86,.85);border-radius:18px;color:#99adab;
+      font-size:13px;line-height:1.5;font-weight:300;text-align:center
+    }
+    @media(max-width:760px){
+      .grid{grid-template-columns:1fr}
+      .workspace-head{align-items:flex-start;flex-direction:column}
+      .preview{min-height:520px}
+      .canvas{min-height:466px}
+    }
+    @media(max-width:390px){
+      .wrap{width:calc(100% - 22px)}
+      .brand{font-size:21px}
+      .wallet{font-size:11px;padding:9px}
+      .workspace-head h1{font-size:26px}
+      .preview{min-height:490px}
+      .canvas{min-height:436px;padding:16px}
+    }
+  </style>
+</head>
+<body data-page="create">
+  <main class="wrap">
+    <header class="top">
+      <a class="back" href="page-create.html" aria-label="Back">←</a>
+      <div class="brand">Fuse Pages</div>
+      <a class="wallet" href="pricing.html" data-balance>My credits</a>
+    </header>
+
+    <section class="workspace-head">
+      <div>
+        <h1>Your website workspace</h1>
+        <p>Fuse will turn the brief into strategy, copy, assets, layout, motion and a publishable site.</p>
+      </div>
+      <span class="status">V1 WORKSPACE</span>
+    </section>
+
+    <section class="grid">
+      <aside class="panel brief">
+        <span class="kicker" id="typeLabel">AI LANDING PAGE</span>
+        <h2>Creative brief</h2>
+        <p id="briefText">Your prompt will appear here.</p>
+        <div class="chips" id="chips"></div>
+        <div class="actions">
+          <button class="primary" id="generateBtn" type="button">Generate first draft</button>
+          <a class="secondary" href="page-create.html">Edit brief</a>
+        </div>
+        <div class="next" id="engineStatus">Next build phase: connect SiteSpec generation, AI assets, revisions and publishing.</div>
+      </aside>
+
+      <section class="panel preview">
+        <div class="preview-bar">
+          <span>Live preview</span>
+          <div class="modes">
+            <button class="mode active" type="button">Mobile</button>
+            <button class="mode" type="button">Desktop</button>
+          </div>
+        </div>
+        <div class="canvas">
+          <div class="site-frame">
+            <div class="fake-nav"><b>BRAND</b><span>Menu · Contact</span></div>
+            <div class="fake-hero">
+              <span class="fake-kicker">PREMIUM EXPERIENCE</span>
+              <h3 id="previewTitle">Your AI-built website starts here.</h3>
+              <p>Fuse will use your brief to create the page strategy, visual system, copy and media direction.</p>
+              <span class="fake-btn">Primary CTA →</span>
+            </div>
+            <div class="fake-sections"><div class="fake-card"></div><div class="fake-card"></div><div class="fake-card"></div></div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const raw=sessionStorage.getItem('fuse_page_brief');
+    let brief={prompt:'',type:new URLSearchParams(location.search).get('type')||'landing',experience:'clean',generateAssets:false,attachments:[]};
+    try{if(raw)brief={...brief,...JSON.parse(raw)}}catch{}
+    const labels={landing:'AI LANDING PAGE',sales:'SALES PAGE',business:'BUSINESS WEBSITE',portfolio:'PORTFOLIO','3d':'3D INTERACTIVE WEBSITE'};
+    document.getElementById('typeLabel').textContent=labels[brief.type]||'FUSE PAGE';
+    document.getElementById('briefText').textContent=brief.prompt||'Describe the website from Fuse Pages to start.';
+    const chips=document.getElementById('chips');
+    const chipData=[brief.experience,brief.generateAssets?'AI assets on':'Use my assets',...(brief.attachments||[]).slice(0,3).map(x=>x.name)];
+    chips.innerHTML=chipData.filter(Boolean).map(x=>'<span class="chip">'+x.replace(/[<>]/g,'')+'</span>').join('');
+    const first=(brief.prompt||'').split(/[.!?\n]/)[0].trim();
+    if(first) document.getElementById('previewTitle').textContent=first.length>62?first.slice(0,59)+'…':first;
+
+    document.getElementById('generateBtn').onclick=()=>{
+      const btn=document.getElementById('generateBtn');
+      const status=document.getElementById('engineStatus');
+      btn.disabled=true;btn.textContent='Preparing SiteSpec…';
+      status.textContent='The workspace shell is ready. Next we are connecting the actual AI generation engine, assets, saved versions and publish pipeline.';
+      setTimeout(()=>{btn.disabled=false;btn.textContent='Generate first draft'},1200);
+    };
+
+    document.querySelectorAll('.mode').forEach(btn=>btn.onclick=()=>{
+      document.querySelectorAll('.mode').forEach(x=>x.classList.toggle('active',x===btn));
+      const frame=document.querySelector('.site-frame');
+      frame.style.aspectRatio=btn.textContent.trim()==='Desktop'?'16 / 10':'9 / 12';
+      frame.style.width=btn.textContent.trim()==='Desktop'?'min(690px,100%)':'min(470px,100%)';
+    });
+  </script>
+  <script src="fuse-shell.js?v=pages-v1"></script>
+</body>
+</html>
