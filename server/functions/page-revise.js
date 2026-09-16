@@ -65,6 +65,7 @@ function normalize(candidate,base,instruction){
   next.meta={...(base.meta||{}),...(candidate.meta||{}),last_revision_instruction:instruction};
   next.theme={...(base.theme||{}),...(candidate.theme||{})};
   next.nav={...(base.nav||{}),...(candidate.nav||{})};
+  next.contact={...(base.contact||{}),...(candidate.contact||{})};
   next.hero={...(base.hero||{}),...(candidate.hero||{}),visual:{...(base.hero?.visual||{}),...(candidate.hero?.visual||{})}};
   next.motion={...(base.motion||{}),...(candidate.motion||{})};
   next.assets={...(base.assets||{}),...(candidate.assets||{})};
