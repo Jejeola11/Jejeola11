@@ -157,7 +157,9 @@ exports.handler = async (event) => {
   // All students can use their available credits; no subscription/trial gate.
 
   // Reference-image editing (nano-banana-edit) is slow — always a single image, run async.
-  const count = useRef ? 1 : Math.min(Math.max(parseInt(body.count, 10) || 1, 1), 4);
+  const count = forceWaveSpeed
+    ? Math.min(Math.max(parseInt(body.count, 10) || 1, 1), 4)
+    : (useRef ? 1 : Math.min(Math.max(parseInt(body.count, 10) || 1, 1), 4));
   const resMult = useRef ? 1 : Math.min(Math.max(parseInt(body.res, 10) || 1, 1), 3);
   const resolution = requestedResolution || ['1k', '2k', '4k'][resMult - 1];
   // Dedicated Fuse Atelier creator treats the displayed base credits as the
