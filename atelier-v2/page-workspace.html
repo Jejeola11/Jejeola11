@@ -339,8 +339,12 @@
     showBrief();
     window.addEventListener('load',async()=>{
       try{
-        if(projectId)await loadProject();
-        else if(window.Fuse)Fuse.balance().catch(()=>{});
+        if(projectId){
+          await loadProject();
+        }else{
+          if(window.Fuse)Fuse.balance().catch(()=>{});
+          if(brief.prompt.trim()) await generate();
+        }
       }catch(e){setStatus(e.message||'Could not load this workspace.','error')}
     });
   </script>
