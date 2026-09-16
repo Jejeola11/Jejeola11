@@ -121,10 +121,16 @@ const USD_RATE = 1400;
 //   Credit price = ceil(cost / 0.11 * MARGIN). Change MARGIN once to reprice all.
 // Update the cost_usd numbers below with MuAPI's/WaveSpeed's exact prices anytime.
 // ============================================================
-const CREDIT_USD = 0.11;    // revenue we get per credit sold (was 0.016)
-const IMAGE_MARGIN = 2.5;   // profit multiple on images & tools (unchanged)
-const VIDEO_MARGIN = 2.0;   // raised from 1.5 (10 Aug 2026 — was kept thin to drive adoption; margin sweep raised every 1.5x/1.6x tier to 2x)
+const CREDIT_USD = 0.11;    // legacy nominal credit value used by older model pricing
+const IMAGE_MARGIN = 2.5;
+const VIDEO_MARGIN = 2.0;
+// Seedance is expensive enough that the nominal $0.11/credit assumption is
+// unsafe against the largest top-up packs. Use a conservative realized-value
+// floor of $0.05/credit so even Power-pack credits still leave >2x revenue vs
+// WaveSpeed provider cost at the current pack pricing / FX assumptions.
+const SEEDANCE_REALIZED_CREDIT_USD = 0.05;
 const creditsFor = (cost_usd, margin) => Math.max(1, Math.ceil((cost_usd / CREDIT_USD) * margin));
+const seedanceCreditsFor = (cost_usd) => Math.max(1, Math.ceil((cost_usd / SEEDANCE_REALIZED_CREDIT_USD) * VIDEO_MARGIN));
 // Image credits are additionally clamped to a tight, easy-to-understand
 // 2-6 range regardless of the exact formula output (10 Aug 2026 pricing
 // call) — cheap models would otherwise round to 1 credit, expensive ones
@@ -284,9 +290,12 @@ function videoCreditsForRequest(model, duration, resolution, pricingContext = {}
       const count = Math.min(6, Math.max(0, Math.floor(Number(pricingContext.referenceVideoCount) || 0)));
       const supplied = Math.max(0, Math.ceil(Number(pricingContext.referenceVideoSeconds) || 0));
       const referenceSecs = Math.min(30, Math.max(count * 2, supplied));
-      return creditsFor(rate * (outputSecs + referenceSecs), VIDEO_MARGIN);
+      return seedanceCreditsFor(rate * (outputSecs + referenceSecs));
     }
     const rate = rates[resolution] != null ? rates[resolution] : rates[keys[0]];
+    if (model === 'seedance-2.5-image-to-video' || model === 'seedance-2.5-text-to-video') {
+      return seedanceCreditsFor(rate * outputSecs);
+    }
     return creditsFor(rate * outputSecs, VIDEO_MARGIN);
   }
   const base = VIDEO_MODELS[model];
