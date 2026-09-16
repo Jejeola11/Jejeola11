@@ -74,6 +74,22 @@
     .engine.error{border-style:solid;border-color:rgba(255,140,120,.35);color:#ffd3cb;background:rgba(255,120,100,.05)}
     .public-link{display:none;margin-top:9px;color:#DFFF4E;font-size:12px;line-height:1.45;word-break:break-all}
     .public-link.on{display:block}
+    .asset-box{
+      margin-top:12px;padding:12px;border:1px solid rgba(49,84,86,.72);border-radius:15px;background:#00191B
+    }
+    .asset-box[hidden]{display:none!important}
+    .asset-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .asset-head strong{font-size:12px;font-weight:500}
+    .asset-head span{font-size:10px;color:#DFFF4E}
+    .asset-list{display:grid;gap:7px;margin-top:9px}
+    .asset-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px}
+    .asset-dot{width:8px;height:8px;border-radius:50%;background:#607775;box-shadow:0 0 0 4px rgba(96,119,117,.10)}
+    .asset-row[data-status="processing"] .asset-dot{background:#FFE66A;animation:assetPulse 1.1s ease-in-out infinite}
+    .asset-row[data-status="completed"] .asset-dot{background:#DFFF4E}
+    .asset-row[data-status="failed"] .asset-dot{background:#ff9f8b}
+    .asset-row b{font-size:11px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .asset-row em{font-style:normal;color:#90a6a4;font-size:10px}
+    @keyframes assetPulse{0%,100%{opacity:.45}50%{opacity:1}}
     .preview{overflow:hidden;min-height:640px;position:relative}
     .preview-bar{
       min-height:54px;padding:9px 13px;border-bottom:1px solid rgba(49,84,86,.75);
@@ -161,6 +177,10 @@
         </div>
 
         <div class="engine" id="engineStatus">Fuse will turn this brief into a structured SiteSpec, page copy and a safe rendered website.</div>
+        <div class="asset-box" id="assetBox" hidden>
+          <div class="asset-head"><strong>AI website assets</strong><span id="assetSummary">Preparing</span></div>
+          <div class="asset-list" id="assetList"></div>
+        </div>
         <a class="public-link" id="publicLink" target="_blank" rel="noopener">Open published website ↗</a>
 
         <div class="versions" id="versions" hidden>
@@ -205,6 +225,8 @@
     let project=null;
     let versions=[];
     let busy=false;
+    let assetPollTimer=null;
+    let lastCompletedAssets=0;
 
     const labels={landing:'AI LANDING PAGE',sales:'SALES PAGE',business:'BUSINESS WEBSITE',portfolio:'PORTFOLIO','3d':'3D INTERACTIVE WEBSITE'};
     const typeLabel=document.getElementById('typeLabel');
@@ -220,6 +242,9 @@
     const previewMeta=document.getElementById('previewMeta');
     const publicLink=document.getElementById('publicLink');
     const workspaceState=document.getElementById('workspaceState');
+    const assetBox=document.getElementById('assetBox');
+    const assetList=document.getElementById('assetList');
+    const assetSummary=document.getElementById('assetSummary');
 
     function showBrief(){
       typeLabel.textContent=labels[brief.type]||'FUSE PAGE';
@@ -251,6 +276,73 @@
         publicLink.classList.add('on');
       }
     }
+
+    function renderAssets(assets=[]){
+      if(!assets.length){assetBox.hidden=true;return}
+      assetBox.hidden=false;
+      const labels={hero:'Hero image','hero-loop':'Cinematic hero loop'};
+      const completed=assets.filter(a=>a.status==='completed').length;
+      const processing=assets.filter(a=>a.status==='processing').length;
+      const failed=assets.filter(a=>a.status==='failed').length;
+      assetSummary.textContent=processing?processing+' generating':completed+' ready'+(failed?' · '+failed+' failed':'');
+      assetList.innerHTML=assets.map(a=>{
+        const label=labels[a.role]||a.role||a.kind||'Asset';
+        const state=a.status==='processing'?'Generating…':a.status==='completed'?'Ready':'Failed';
+        return '<div class="asset-row" data-status="'+String(a.status||'')+'"><i class="asset-dot"></i><b>'+String(label).replace(/[<>]/g,'')+'</b><em>'+state+'</em></div>';
+      }).join('');
+    }
+
+    async function syncAssets({quiet=false}={}){
+      if(!projectId)return null;
+      try{
+        const out=await Fuse.api('page-assets-sync',{project_id:projectId});
+        renderAssets(out.assets||[]);
+        if(out.completed>lastCompletedAssets){
+          lastCompletedAssets=out.completed;
+          await renderProject();
+        }
+        if(out.processing>0){
+          if(!quiet)setStatus('Your website is ready. Fuse is still generating the visual assets in the background…','success');
+          clearTimeout(assetPollTimer);
+          assetPollTimer=setTimeout(()=>syncAssets({quiet:true}),6000);
+        }else{
+          clearTimeout(assetPollTimer);
+          assetPollTimer=null;
+          if((out.assets||[]).length){
+            if(out.failed&&out.completed)setStatus('Website assets are ready. One asset could not finish and its credits were handled by the generation engine.','success');
+            else if(out.failed&&!out.completed)setStatus('The website is ready, but the requested AI assets could not be completed.','error');
+            else setStatus('Website and AI assets are ready. Review the live preview and publish when you are happy.','success');
+          }
+          if(window.Fuse)Fuse.balance().catch(()=>{});
+        }
+        return out;
+      }catch(e){
+        if(!quiet)setStatus(e.message||'Could not check website assets.','error');
+        return null;
+      }
+    }
+
+    async function startAssets(){
+      if(!projectId||!brief.generateAssets)return;
+      assetBox.hidden=false;
+      assetSummary.textContent='Starting';
+      assetList.innerHTML='<div class="asset-row" data-status="processing"><i class="asset-dot"></i><b>Preparing website visuals</b><em>Starting…</em></div>';
+      try{
+        const out=await Fuse.api('page-assets-start',{project_id:projectId});
+        if(out.errors&&out.errors.length&&!out.started?.length){
+          setStatus(out.errors[0],'error');
+        }else if(out.errors&&out.errors.length){
+          setStatus('The website draft is ready. Some AI assets started, but one asset could not start: '+out.errors[0],'success');
+        }else{
+          setStatus('The website draft is ready. Fuse is now generating the visual assets using your normal Image/Video credits…','success');
+        }
+        if(window.Fuse)Fuse.balance().catch(()=>{});
+        await syncAssets({quiet:true});
+      }catch(e){
+        setStatus(e.message||'The page generated, but the AI assets could not start.','error');
+      }
+    }
+
     function showVersions(){
       const root=document.getElementById('versions');
       const list=document.getElementById('versionList');
@@ -283,6 +375,7 @@
       }
       showBrief();showVersions();
       await renderProject();
+      await syncAssets({quiet:true});
     }
     async function generate(){
       if(busy)return;
@@ -298,8 +391,10 @@
         projectId=out.project.id;
         project=out.project;
         const url=new URL(location.href);url.searchParams.set('id',projectId);url.searchParams.set('type',brief.type);history.replaceState(null,'',url);
-        setStatus(out.ai_used?'Draft generated with Fuse AI. Review it live and create another version whenever you want.':'Draft generated with the Fuse fallback planner. Review it live and refine the brief for the next version.','success');
+        setStatus(out.ai_used?'Draft generated with Fuse AI. Building the live preview now…':'Draft generated with the Fuse fallback planner. Building the live preview now…','success');
         await loadProject();
+        if(brief.generateAssets) await startAssets();
+        else setStatus('Website draft is ready. Review the live preview and create another version whenever you want.','success');
         if(window.Fuse)Fuse.balance().catch(()=>{});
       }catch(e){
         setStatus(e.message||'Could not generate this website.','error');
