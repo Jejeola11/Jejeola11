@@ -5,11 +5,18 @@
 // ============================================================
 const { admin, getUser, json } = require('./_supabase');
 
+const PAGE_FONTS=new Set([
+  'Montserrat','Inter','Poppins','Manrope','DM Sans','Space Grotesk',
+  'Playfair Display','Cormorant Garamond','Lora','Bebas Neue','Oswald'
+]);
 function clean(v,max=1800){return typeof v==='string'?v.trim().slice(0,max):''}
 function clone(v){return JSON.parse(JSON.stringify(v||{}))}
 function safeUrl(v=''){
   try{const u=new URL(String(v));return u.protocol==='https:'?u.toString():''}catch{return ''}
 }
+function color(v){return typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v)?v:''}
+function cleanFont(v,fallback='Montserrat'){const f=clean(v,80);return PAGE_FONTS.has(f)?f:fallback}
+function clampNum(v,min,max,fallback){const n=Number(v);return Number.isFinite(n)?Math.max(min,Math.min(max,n)):fallback}
 function newId(type='section'){return 'sec-'+clean(type,24).toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7)}
 function ensureIds(spec){
   spec.sections=(Array.isArray(spec.sections)?spec.sections:[]).map((s,i)=>({...s,id:clean(s&&s.id,80)||newId((s&&s.type)||('section-'+i))}));
@@ -99,6 +106,10 @@ exports.handler=async(event)=>{
       spec.nav=spec.nav||{};
       spec.contact=spec.contact||{};
       spec.theme=spec.theme||{};
+      spec.design=spec.design||{};
+      spec.design.colors=spec.design.colors||{};
+      spec.design.typography=spec.design.typography||{};
+      spec.design.buttons=spec.design.buttons||{};
       if(patch.brand!==undefined){
         const brand=clean(patch.brand,100);
         spec.nav.brand=brand;
@@ -111,9 +122,35 @@ exports.handler=async(event)=>{
       if(patch.email!==undefined)spec.contact.email=clean(patch.email,180);
       if(patch.phone!==undefined)spec.contact.phone=clean(patch.phone,80);
       if(patch.mode==='dark'||patch.mode==='light')spec.theme.mode=patch.mode;
-      if(typeof patch.accent==='string'&&/^#[0-9a-f]{6}$/i.test(patch.accent))spec.theme.accent=patch.accent;
-      if(typeof patch.secondary==='string'&&/^#[0-9a-f]{6}$/i.test(patch.secondary))spec.theme.secondary=patch.secondary;
-      note='Updated site settings';
+
+      const accent=color(patch.accent);
+      const secondary=color(patch.secondary);
+      if(accent){spec.theme.accent=accent;spec.design.colors.accent=accent}
+      if(secondary){spec.theme.secondary=secondary;spec.design.colors.secondary_accent=secondary}
+      for(const [patchKey,designKey] of [
+        ['background','background'],['surface','surface'],['primary_text','primary_text'],
+        ['secondary_text','secondary_text'],['button_bg','button_bg'],['button_text','button_text']
+      ]){
+        const value=color(patch[patchKey]);if(value)spec.design.colors[designKey]=value;
+      }
+
+      const currentType=spec.design.typography;
+      if(patch.primary_font!==undefined)currentType.primary_font=cleanFont(patch.primary_font,currentType.primary_font||'Montserrat');
+      if(patch.secondary_font!==undefined)currentType.secondary_font=cleanFont(patch.secondary_font,currentType.secondary_font||currentType.primary_font||'Montserrat');
+      if(patch.body_font!==undefined)currentType.body_font=cleanFont(patch.body_font,currentType.body_font||'Montserrat');
+      if(patch.button_font!==undefined)currentType.button_font=cleanFont(patch.button_font,currentType.button_font||currentType.body_font||'Montserrat');
+      if(patch.primary_size!==undefined)currentType.primary_size=clampNum(patch.primary_size,30,110,currentType.primary_size||72);
+      if(patch.secondary_size!==undefined)currentType.secondary_size=clampNum(patch.secondary_size,22,72,currentType.secondary_size||48);
+      if(patch.body_size!==undefined)currentType.body_size=clampNum(patch.body_size,12,24,currentType.body_size||16);
+      if(patch.button_size!==undefined)currentType.button_size=clampNum(patch.button_size,11,22,currentType.button_size||14);
+      if(patch.primary_weight!==undefined)currentType.primary_weight=clampNum(patch.primary_weight,300,800,currentType.primary_weight||500);
+      if(patch.secondary_weight!==undefined)currentType.secondary_weight=clampNum(patch.secondary_weight,300,800,currentType.secondary_weight||500);
+      if(patch.body_weight!==undefined)currentType.body_weight=clampNum(patch.body_weight,300,700,currentType.body_weight||300);
+      if(patch.button_weight!==undefined)currentType.button_weight=clampNum(patch.button_weight,300,800,currentType.button_weight||500);
+      if(patch.button_radius!==undefined)spec.design.buttons.radius=clampNum(patch.button_radius,0,48,spec.design.buttons.radius??999);
+      if(patch.button_padding_x!==undefined)spec.design.buttons.padding_x=clampNum(patch.button_padding_x,10,40,spec.design.buttons.padding_x||19);
+      if(patch.button_padding_y!==undefined)spec.design.buttons.padding_y=clampNum(patch.button_padding_y,8,24,spec.design.buttons.padding_y||13);
+      note='Updated site design';
     }else if(target==='hero'){
       if(operation!=='update')return json(400,{error:'Hero supports direct edits only.'});
       spec.hero=spec.hero||{};
