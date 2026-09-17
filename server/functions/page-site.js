@@ -2,6 +2,7 @@
 // Public published Fuse Pages website.
 const { admin } = require('./_supabase');
 const { renderSite } = require('./_page-render');
+const { applyPageDesign } = require('./_page-design');
 
 exports.handler = async (event) => {
   if(event.httpMethod!=='GET')return {statusCode:405,body:'Method not allowed'};
@@ -14,6 +15,7 @@ exports.handler = async (event) => {
       .eq('slug',slug).eq('status','published').maybeSingle();
     if(q.error)throw q.error;
     if(!q.data||!q.data.published_spec)return {statusCode:404,body:'Website not found'};
+    const spec=q.data.published_spec||{};
     return {
       statusCode:200,
       headers:{
@@ -21,7 +23,7 @@ exports.handler = async (event) => {
         'Cache-Control':'public, max-age=60, s-maxage=300',
         'X-Content-Type-Options':'nosniff'
       },
-      body:renderSite(q.data.published_spec,{published:true})
+      body:applyPageDesign(renderSite(spec,{published:true}),spec)
     };
   }catch(e){
     console.error('[page-site]',e);
