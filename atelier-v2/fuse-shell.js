@@ -144,5 +144,11 @@
       return data.credits;
     }
   };
+  if(currentFile==='page-workspace.html'){
+    const pageControls=document.createElement('script');
+    pageControls.src='/atelier-v2/page-workspace-controls.js?v=design-v3';
+    pageControls.async=false;
+    document.body.append(pageControls);
+  }
   if(window.supabase)Fuse.balance().catch(()=>{});
 })();
