@@ -177,7 +177,7 @@
           {name:'Wan 3.0',badge:'BEST VALUE',credits:'from 5 credits',desc:'Flexible 2–30s generation with strong image guidance and native audio.',visual:'wan',video:'/app/media/samples/vid2.mp4',route:'videopage:wan-3'},
           {name:'Grok Imagine',badge:'FAST',credits:'1 credit',desc:'Creative, punchy videos built for fast social ideas.',visual:'grok',video:'/app/media/samples/vid2.mp4',route:'videopage:grok-imagine'},
           {name:'Kling 3.0 Standard',badge:'CINEMATIC',credits:'9 credits',desc:'High-control movement and polished cinematic output.',visual:'kling',video:'/app/media/samples/vid4.mp4',route:'videopage:kling-standard'},
-          {name:'Seedance Turbo',badge:'PRO VIDEO',credits:'11 credits',desc:'Premium movement, camera direction and scene quality.',visual:'seedance',video:'/app/media/samples/vid3.mp4',route:'videopage:seedance-turbo'},
+          {name:'Seedance 2.5',badge:'6 REFS',credits:'dynamic',desc:'Reference-guided cinematic video with images, video, audio and custom duration.',visual:'seedance',video:'/app/media/samples/vid3.mp4',route:'videopage:seedance-2.5'},
           {name:'Veo 3.1 Fast',badge:'PREMIUM',credits:'22 credits',desc:'High-end visual storytelling with strong prompt fidelity.',visual:'veo',video:'/app/media/samples/vid5.mp4',route:'videopage:veo-fast'},
           {name:'Gemini Omni Flash 1.1',badge:'OMNI',credits:'from 3 credits',desc:'Fast synchronized-audio generation from text or image, up to 4K.',visual:'omni',video:'/app/media/samples/vid3.mp4',route:'videopage:omni-flash'}
         ]
@@ -239,7 +239,15 @@
     let selected=new URLSearchParams(location.search).get('category')||'All';
 
     function workspace(route){
-      return '/app/workspace.html?go='+encodeURIComponent(route)+'&source=fuse-create';
+      const map={
+        avatar:'studio.html?category=Twin',
+        audio:'studio.html?category=Voice',
+        flyer:'studio.html?category=Flyer',
+        omni:'studio.html?category=Lipsync',
+        'video-seedance':'video-create.html?model=seedance-2.5',
+        'studio:generate':'studio.html?category=Content'
+      };
+      return map[route]||'studio.html';
     }
 
     function renderTabs(){
