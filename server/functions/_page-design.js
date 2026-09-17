@@ -17,11 +17,18 @@ const FONT_MAP={
 };
 
 function hex(v,fallback){return typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v)?v:fallback}
-function font(v,fallback='Montserrat'){return FONT_MAP[v]?v:fallback}
+function font(v,fallback='Montserrat'){
+  const value=typeof v==='string'?v.trim():'';
+  return /^[A-Za-z0-9 ]{2,60}$/.test(value)?value:fallback;
+}
 function num(v,min,max,fallback){const n=Number(v);return Number.isFinite(n)?Math.max(min,Math.min(max,n)):fallback}
 function cssFont(v){return `'${String(v).replace(/'/g,'')}',Arial,sans-serif`}
+function googleFamily(v){
+  if(FONT_MAP[v])return FONT_MAP[v];
+  return encodeURIComponent(v).replace(/%20/g,'+');
+}
 function googleHref(fonts){
-  const families=[...new Set(fonts)].filter(f=>FONT_MAP[f]).map(f=>'family='+FONT_MAP[f]);
+  const families=[...new Set(fonts)].filter(Boolean).map(f=>'family='+googleFamily(f));
   return families.length?'https://fonts.googleapis.com/css2?'+families.join('&')+'&display=swap':'';
 }
 
