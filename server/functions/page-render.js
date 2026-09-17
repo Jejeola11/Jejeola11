@@ -2,6 +2,7 @@
 // Authenticated JSON wrapper returning safe HTML for iframe srcdoc preview.
 const { admin, getUser, json } = require('./_supabase');
 const { renderSite } = require('./_page-render');
+const { applyPageDesign } = require('./_page-design');
 
 exports.handler = async (event) => {
   try{
@@ -15,7 +16,9 @@ exports.handler = async (event) => {
     const q=await db.from('page_projects').select('id,title,site_spec,status,slug').eq('id',id).eq('user_id',user.id).maybeSingle();
     if(q.error)throw q.error;
     if(!q.data)return json(404,{error:'Website project not found.'});
-    return json(200,{ok:true,html:renderSite(q.data.site_spec||{}, {preview:true,editor:true}),project:{id:q.data.id,title:q.data.title,status:q.data.status,slug:q.data.slug}});
+    const spec=q.data.site_spec||{};
+    const html=applyPageDesign(renderSite(spec,{preview:true,editor:true}),spec);
+    return json(200,{ok:true,html,project:{id:q.data.id,title:q.data.title,status:q.data.status,slug:q.data.slug}});
   }catch(e){
     console.error('[page-render]',e);
     return json(500,{error:(e&&e.message)||'Could not render this website.'});
