@@ -23,8 +23,12 @@
   const cleanModel=(s)=>{
     if(!s)return '—';
     const known={
-      'seedance-2.5':'Seedance 2.5','gpt-image-2-ws-edit':'GPT Image 2',
-      'resemble':'Resemble','avatar-video':'AI Twin Video'
+      'seedance-2.5':'Seedance 2.5',
+      'seedance-2.5-text-to-video':'Seedance 2.5',
+      'seedance-2.5-image-to-video':'Seedance 2.5',
+      'gpt-image-2-ws-edit':'GPT Image 2',
+      'resemble':'Resemble',
+      'avatar-video':'AI Twin Video'
     };
     if(known[s])return known[s];
     return String(s).replace(/[-_]+/g,' ').replace(/\b\w/g,m=>m.toUpperCase());
@@ -43,21 +47,16 @@
   };
   const formatDate=(v)=>new Date(v).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
   const formatCreated=(v)=>new Date(v).toLocaleString('en-US',{month:'long',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+
   const storagePending=()=>{
     try{
       const rows=JSON.parse(localStorage.getItem(PENDING_KEY)||'[]');
       return Array.isArray(rows)?rows:[];
     }catch{return[]}
   };
-  const saveStoragePending=(rows)=>{
-    try{localStorage.setItem(PENDING_KEY,JSON.stringify(rows))}catch(_){}
-  };
-  const removePending=(id)=>{
-    saveStoragePending(storagePending().filter(x=>String(x.request_id)!==String(id)));
-  };
-  const favs=()=>{
-    try{return new Set(JSON.parse(localStorage.getItem(FAV_KEY)||'[]'))}catch{return new Set()}
-  };
+  const saveStoragePending=(rows)=>{try{localStorage.setItem(PENDING_KEY,JSON.stringify(rows))}catch(_){}};
+  const removePending=(id)=>saveStoragePending(storagePending().filter(x=>String(x.request_id)!==String(id)));
+  const favs=()=>{try{return new Set(JSON.parse(localStorage.getItem(FAV_KEY)||'[]'))}catch{return new Set()}};
   const setFav=(id,on)=>{
     const s=favs();if(on)s.add(String(id));else s.delete(String(id));
     try{localStorage.setItem(FAV_KEY,JSON.stringify([...s]))}catch(_){}
@@ -101,9 +100,15 @@
         .limit(40);
       if(error)return[];
       return(data||[]).filter(x=>isMediaJob(x.kind)).map(x=>({
-        request_id:x.request_id,endpoint:'job-status',mediaType:classify(x.kind,x.model),
-        label:x.prompt||x.kind||'Creation',model:x.model,aspect:x.aspect,credits:x.credits,
-        started_at:new Date(x.created_at).getTime()||Date.now(),pending:true
+        request_id:x.request_id,
+        endpoint:'job-status',
+        mediaType:classify(x.kind,x.model),
+        label:x.prompt||x.kind||'Creation',
+        model:x.model,
+        aspect:x.aspect,
+        credits:x.credits,
+        started_at:new Date(x.created_at).getTime()||Date.now(),
+        pending:true
       }));
     }catch{return[]}
   }
@@ -127,15 +132,10 @@
     return[...map.values()].sort((a,b)=>b.started_at-a.started_at);
   }
 
-  function matchesFilter(item){
-    if(currentFilter==='all')return true;
-    return item.kind===currentFilter;
-  }
+  function matchesFilter(item){return currentFilter==='all'||item.kind===currentFilter}
 
   function mediaMarkup(item){
-    if(item.pending){
-      return '<div class="processing-inner"><span class="spinner"></span><small>Creating…</small></div>';
-    }
+    if(item.pending)return '<div class="processing-inner"><span class="spinner"></span><small>Creating…</small></div>';
     const u=validUrl(item.output_url);
     if(item.kind==='video')return '<video src="'+u+'" muted loop playsinline preload="metadata"></video>';
     if(item.kind==='audio')return '<div class="audio-art"><svg viewBox="0 0 24 24"><path d="M5 12v4M9 8v8M13 5v14M17 9v6M21 11v2"/></svg></div>';
@@ -184,20 +184,18 @@
       const item=all[i];
       if(!item||item.pending)return;
       btn.onclick=()=>openDetail(item);
-      const v=btn.querySelector('video');if(v){v.play().catch(()=>{})}
+      const v=btn.querySelector('video');if(v)v.play().catch(()=>{});
     });
   }
 
   async function load(){
     status.textContent='Loading your library…';
     try{
-      await Promise.all([fetchFinished()]);
+      await fetchFinished();
       const serverPending=await fetchServerPending();
       pendingState=mergePending(storagePending(),serverPending);
       render();
-    }catch(e){
-      status.textContent=e.message||'Could not load your library.';
-    }
+    }catch(e){status.textContent=e.message||'Could not load your library.'}
   }
 
   async function pollPending(){
@@ -212,10 +210,7 @@
         const d=await res.json();
         const done=endpoint==='avatar-video-status'?(d.stage==='complete'||d.status==='completed'):d.status==='completed';
         const failed=endpoint==='avatar-video-status'?(d.stage==='failed'||d.status==='failed'):d.status==='failed';
-        if(done||failed){
-          removePending(job.request_id);
-          changed=true;
-        }
+        if(done||failed){removePending(job.request_id);changed=true}
       }catch(_){}
     }
     pollBusy=false;
@@ -223,14 +218,110 @@
   }
 
   function routeFor(item){
-    if(item.kind==='video')return 'video-create.html'+(item.model?'?model='+encodeURIComponent(item.model):'');
+    if(item.kind==='video'){
+      const model=String(item.model||'').includes('seedance-2.5')?'seedance-2.5':item.model;
+      return 'video-create.html'+(model?'?model='+encodeURIComponent(model):'');
+    }
     if(item.kind==='audio')return 'studio.html?category=Voice';
     if(item.kind==='twin')return 'studio.html?category=Twin';
     return 'image-create.html'+(item.model?'?model='+encodeURIComponent(item.model):'');
   }
 
+  function injectMoreMenu(){
+    if($('libraryMoreMenu'))return;
+    const style=document.createElement('style');
+    style.textContent=`
+      .library-more-menu{
+        position:fixed;z-index:140;width:min(250px,calc(100vw - 28px));display:none;
+        overflow:hidden;border-radius:18px;background:#062125;border:1px solid #315456;
+        box-shadow:0 20px 55px rgba(0,0,0,.45);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)
+      }
+      .library-more-menu.open{display:block}
+      .library-more-menu button{
+        width:100%;height:62px;border:0;background:transparent;color:#EEFFE0;
+        display:flex;align-items:center;gap:14px;padding:0 20px;text-align:left;
+        font-family:Montserrat,Arial,sans-serif;font-size:16px;font-weight:700
+      }
+      .library-more-menu button+button{border-top:1px solid rgba(49,84,86,.75)}
+      .library-more-menu svg{width:25px;height:25px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+      .library-more-menu .danger{color:#ff3b45}
+      .library-more-menu button:active{background:#00191B}
+    `;
+    document.head.appendChild(style);
+
+    const menu=document.createElement('div');
+    menu.id='libraryMoreMenu';
+    menu.className='library-more-menu';
+    menu.setAttribute('role','menu');
+    menu.innerHTML=`
+      <button id="libraryShareAction" type="button" role="menuitem" aria-label="Share creation">
+        <svg viewBox="0 0 24 24"><path d="M8 12 17 4M12 4h5v5"/><path d="M17 13v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg>
+        <span>Share</span>
+      </button>
+      <button id="libraryDeleteAction" class="danger" type="button" role="menuitem" aria-label="Delete creation">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>
+        <span>Delete</span>
+      </button>`;
+    document.body.appendChild(menu);
+
+    $('libraryShareAction').onclick=shareSelected;
+    $('libraryDeleteAction').onclick=deleteSelected;
+  }
+
+  function closeMoreMenu(){
+    const menu=$('libraryMoreMenu');if(menu)menu.classList.remove('open');
+  }
+
+  function openMoreMenu(){
+    if(!selected)return;
+    injectMoreMenu();
+    const menu=$('libraryMoreMenu');
+    const btn=$('moreAction');
+    const r=btn.getBoundingClientRect();
+    const width=Math.min(250,window.innerWidth-28);
+    const left=Math.max(14,Math.min(window.innerWidth-width-14,r.right-width));
+    let top=r.top-134;
+    if(top<14)top=Math.min(window.innerHeight-140,r.bottom+8);
+    menu.style.left=left+'px';
+    menu.style.top=top+'px';
+    menu.classList.add('open');
+  }
+
+  async function shareSelected(){
+    if(!selected)return;
+    closeMoreMenu();
+    const payload={title:'Fuse Atelier creation',text:selected.prompt||'Created with Fuse Atelier',url:selected.output_url};
+    try{
+      if(navigator.share){await navigator.share(payload);return}
+      await navigator.clipboard.writeText(selected.output_url||'');
+      alert('Creation link copied.');
+    }catch(e){
+      if(e&&e.name==='AbortError')return;
+      try{await navigator.clipboard.writeText(selected.output_url||'');alert('Creation link copied.')}catch(_){}
+    }
+  }
+
+  async function deleteSelected(){
+    if(!selected)return;
+    closeMoreMenu();
+    if(!confirm('Delete this creation permanently from your Library?'))return;
+    const deleting=selected;
+    try{
+      const res=await fetch('/api/delete-generation',{
+        method:'POST',
+        headers:{'Content-Type':'application/json',...(await authHeader())},
+        body:JSON.stringify({id:deleting.id})
+      });
+      const d=await res.json().catch(()=>({}));
+      if(!res.ok)throw new Error(d.error||'Could not delete this creation.');
+      closeDetail();
+      await load();
+    }catch(e){alert(e.message||'Could not delete this creation.')}
+  }
+
   function openDetail(item){
     selected=item;
+    closeMoreMenu();
     const u=validUrl(item.output_url);
     if(item.kind==='video'){
       $('detailMedia').innerHTML='<video src="'+u+'" controls autoplay loop playsinline></video>';
@@ -251,7 +342,6 @@
 
     const f=favs();
     $('favAction').querySelector('span').textContent=f.has(String(item.id))?'Favourited':'Favourite';
-
     const editLabel=item.kind==='image'||item.kind==='twin'?'Edit Image':item.kind==='video'?'Edit Video':'Open Audio';
     $('editAction').querySelector('span').textContent=editLabel;
     $('videoAction').style.display=(item.kind==='image'||item.kind==='twin')?'flex':'none';
@@ -262,6 +352,7 @@
   }
 
   function closeDetail(){
+    closeMoreMenu();
     $('detail').classList.remove('open');
     $('detail').setAttribute('aria-hidden','true');
     document.body.style.overflow='';
@@ -271,9 +362,20 @@
 
   $('detailClose').onclick=closeDetail;
   $('detail').addEventListener('click',(e)=>{if(e.target===$('detail'))closeDetail()});
+  document.addEventListener('click',(e)=>{
+    const menu=$('libraryMoreMenu');
+    if(menu&&menu.classList.contains('open')&&!menu.contains(e.target)&&!$('moreAction').contains(e.target))closeMoreMenu();
+  });
+  window.addEventListener('resize',closeMoreMenu);
+  window.addEventListener('scroll',closeMoreMenu,true);
+
   $('copyPrompt').onclick=async()=>{
     if(!selected)return;
-    try{await navigator.clipboard.writeText(selected.prompt||'');$('copyPrompt').textContent='Copied';setTimeout(()=>$('copyPrompt').textContent='Copy',1200)}catch(_){}
+    try{
+      await navigator.clipboard.writeText(selected.prompt||'');
+      $('copyPrompt').textContent='Copied';
+      setTimeout(()=>$('copyPrompt').textContent='Copy',1200);
+    }catch(_){}
   };
   $('seePrompt').onclick=()=>{
     const box=$('detailPrompt');box.classList.toggle('collapsed');
@@ -292,25 +394,22 @@
   };
   $('downloadAction').onclick=()=>{
     if(!selected)return;
-    const a=document.createElement('a');a.href=selected.output_url;a.download='fuse-atelier-creation';a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();
+    const a=document.createElement('a');
+    a.href=selected.output_url;
+    a.download='fuse-atelier-creation';
+    a.target='_blank';
+    a.rel='noopener';
+    document.body.appendChild(a);a.click();a.remove();
   };
   $('favAction').onclick=()=>{
     if(!selected)return;
     const id=String(selected.id),isOn=favs().has(id);setFav(id,!isOn);
     $('favAction').querySelector('span').textContent=!isOn?'Favourited':'Favourite';
   };
-  $('moreAction').onclick=async()=>{
-    if(!selected)return;
-    if(!confirm('Delete this creation from your Library?'))return;
-    try{
-      const res=await fetch('/api/delete-generation',{
-        method:'POST',headers:{'Content-Type':'application/json',...(await authHeader())},
-        body:JSON.stringify({id:selected.id})
-      });
-      const d=await res.json().catch(()=>({}));
-      if(!res.ok)throw new Error(d.error||'Could not delete this creation.');
-      closeDetail();await load();
-    }catch(e){alert(e.message||'Could not delete this creation.')}
+  $('moreAction').onclick=(e)=>{
+    e.stopPropagation();
+    const menu=$('libraryMoreMenu');
+    if(menu&&menu.classList.contains('open'))closeMoreMenu();else openMoreMenu();
   };
 
   document.querySelectorAll('.filter').forEach(btn=>{
@@ -331,6 +430,7 @@
   if(layout==='list'){$('listView').classList.add('on');$('gridView').classList.remove('on')}
 
   async function boot(){
+    injectMoreMenu();
     if(!await getSession())return;
     await load();
     setInterval(pollPending,6000);
