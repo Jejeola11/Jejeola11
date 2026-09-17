@@ -224,8 +224,8 @@
 
   function routeFor(item){
     if(item.kind==='video')return 'video-create.html'+(item.model?'?model='+encodeURIComponent(item.model):'');
-    if(item.kind==='audio')return '/app/workspace.html?go=audio&source=fuse-library';
-    if(item.kind==='twin')return '/app/workspace.html?go=avatar&source=fuse-library';
+    if(item.kind==='audio')return 'studio.html?category=Voice';
+    if(item.kind==='twin')return 'studio.html?category=Twin';
     return 'image-create.html'+(item.model?'?model='+encodeURIComponent(item.model):'');
   }
 
