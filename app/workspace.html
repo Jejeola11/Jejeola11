@@ -2,6 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>
+(function(){
+  var q=new URLSearchParams(location.search),view=q.get('view')||'',go=q.get('go')||'';
+  var dest='/atelier-v2/home.html';
+  if(view==='library') dest='/atelier-v2/library.html';
+  else if(view==='profile') dest='/atelier-v2/profile.html';
+  else if(go.indexOf('video')===0) dest='/atelier-v2/video-create.html'+(go==='video-seedance'?'?model=seedance-2.5':'');
+  else if(go==='avatar') dest='/atelier-v2/studio.html?category=Twin';
+  else if(go==='audio') dest='/atelier-v2/studio.html?category=Voice';
+  else if(go==='flyer') dest='/atelier-v2/studio.html?category=Flyer';
+  else if(go==='omni') dest='/atelier-v2/studio.html?category=Lipsync';
+  else if(go==='studio:generate') dest='/atelier-v2/studio.html?category=Content';
+  else if(go) dest='/atelier-v2/studio.html';
+  location.replace(dest);
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fuse Studio</title>
 <meta name="theme-color" content="#090909">
