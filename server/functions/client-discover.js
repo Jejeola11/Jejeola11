@@ -85,7 +85,7 @@ function extractEmails(html){
   return [...out].slice(0,4);
 }
 function hrefMatches(html,host){
-  const re=new RegExp('https?:\\/\\/(?:www\\.)?'+host.replace(/\./g,'\\.')+'\\/[^"\\'<>\\s]*','ig');
+  const re=new RegExp("https?:\\/\\/(?:www\\.)?"+host.replace(/\./g,'\\.')+"\\/[^\"'<>\\s]*",'ig');
   return [...String(html||'').matchAll(re)].map(m=>clean(m[0],900));
 }
 async function websiteContact(url){
