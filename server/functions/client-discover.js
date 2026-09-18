@@ -58,7 +58,7 @@ async function hunter(domain,key){
   const emails=Array.isArray(d&&d.data&&d.data.emails)?d.data.emails:[];
   const ranked=[...emails].sort((a,b)=>{const ta=String(a.position||'').toLowerCase(),tb=String(b.position||'').toLowerCase();const f=x=>/(founder|owner|ceo|chief|marketing|growth|brand)/.test(x)?2:0;return f(tb)-f(ta)});
   const p=ranked[0]||null;if(!p)return {email:'',name:'',title:'',linkedin:''};
-  return {email:clean(p.value,320),name:clean([p.first_name,p.last_name].filter(Boolean).join(' '),220),title:clean(p.position,220),linkedin:clean(p.linkedin||'',700)};
+  return {email:clean(p.value,320),name:clean([p.first_name,p.last_name].filter(Boolean).join(' '),220),title:clean(p.position,220),linkedin:clean(p.linkedin_url||p.linkedin||'',700),phone:clean(p.phone_number||'',120),sources:Array.isArray(p.sources)?p.sources.map(s=>({label:'Email source',url:clean(s.uri||'',1200)})).filter(x=>x.url):[]};
 }
 async function pageSpeed(url,key){
   if(!url||!key)return null;
@@ -83,6 +83,7 @@ async function enrich(place,skill,location,keys){
   if(place.googleMapsUri)sources.push({label:'Google Business Profile',url:place.googleMapsUri});
   if(signal&&signal.url)sources.push({label:'Current activity',url:signal.url});
   if(place.websiteUri)sources.push({label:'Website',url:place.websiteUri});
+  if(contact&&Array.isArray(contact.sources))sources.push(...contact.sources.slice(0,4));
   return {place,name,domain,signal,contact,page,gap,whyNow,qualifies,score,sources};
 }
 exports.handler=async(event)=>{
@@ -110,7 +111,7 @@ exports.handler=async(event)=>{
     const seen=new Set(existing.map(x=>x.google_place_id));
     const rows=qualified.filter(x=>!seen.has(x.place.id)).map((x,idx)=>({
       user_id:user.id,brand_name:x.name,niche:niche,location:clean(x.place.formattedAddress,240)||location,
-      founder_name:x.contact&&x.contact.name||null,founder_title:x.contact&&x.contact.title||null,founder_linkedin:x.contact&&x.contact.linkedin||null,founder_email:x.contact&&x.contact.email||null,
+      founder_name:x.contact&&x.contact.name||null,founder_title:x.contact&&x.contact.title||null,founder_linkedin:x.contact&&x.contact.linkedin||null,founder_email:x.contact&&x.contact.email||null,founder_phone:x.contact&&x.contact.phone||null,
       contact_name:x.contact&&x.contact.name||null,email:x.contact&&x.contact.email||null,whatsapp:clean(x.place.nationalPhoneNumber,80)||null,website:clean(x.place.websiteUri,700)||null,
       google_place_id:clean(x.place.id,220),maps_url:clean(x.place.googleMapsUri,900)||null,rating:Number.isFinite(Number(x.place.rating))?Number(x.place.rating):null,review_count:Number.isFinite(Number(x.place.userRatingCount))?Number(x.place.userRatingCount):null,business_status:clean(x.place.businessStatus,80)||null,
       opportunity_score:x.score,current_activity:x.whyNow||null,current_activity_url:x.signal&&x.signal.url||null,visible_problem:x.gap||('Current activity verified: '+x.whyNow),service:skill,status:'new',source:'Fuse verified research',research_request_id:request.data.id,
