@@ -5,21 +5,26 @@ const SUPABASE_KEY='sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const $=id=>document.getElementById(id);
 const STAGES=[
-  {key:'new',label:'New'},
-  {key:'qualified',label:'Audited'},
-  {key:'contacted',label:'Contacted'},
+  {key:'new',label:'Found'},
+  {key:'audited',label:'Audited'},
+  {key:'asked',label:'Asked'},
   {key:'replied',label:'Replied'},
-  {key:'loom_sent',label:'Loom sent'},
+  {key:'sample_ready',label:'Sample ready'},
+  {key:'sample_sent',label:'Sample sent'},
+  {key:'agreed',label:'Agreed'},
   {key:'proposal_sent',label:'Proposal'},
-  {key:'won',label:'Won'},
+  {key:'deal_locked',label:'Locked'},
+  {key:'contract_sent',label:'Contract'},
+  {key:'contract_signed',label:'Signed'},
+  {key:'won',label:'Retainer'},
   {key:'lost',label:'Lost'}
 ];
-const state={session:null,prospects:[],proposals:[],looms:[],retainers:[],jobs:[],activities:[],view:'overview',pipeline:'all',search:'',selected:null,agentOutput:null,retainerProspect:null,busy:false};
+const state={session:null,prospects:[],proposals:[],contracts:[],retainers:[],jobs:[],activities:[],view:'overview',pipeline:'all',search:'',selected:null,agentOutput:null,retainerProspect:null,busy:false};
 let toastTimer;
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function toast(msg,bad=false){const el=$('toast');el.textContent=msg;el.className='toast show'+(bad?' bad':'');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.className='toast',3000)}
 function normalizeStatus(s='new'){
-  const map={sample_ready:'qualified',pitched:'contacted',follow_up:'contacted',proposal_ready:'qualified',loom_ready:'qualified',audit_ready:'qualified'};
+  const map={qualified:'audited',contacted:'asked',pitched:'asked',follow_up:'asked',proposal_ready:'agreed',audit_ready:'audited',loom_ready:'replied',loom_sent:'sample_sent'};
   return map[s]||s||'new';
 }
 function stageLabel(s){const k=normalizeStatus(s);return STAGES.find(x=>x.key===k)?.label||k}
@@ -43,16 +48,16 @@ async function boot(){
 }
 async function loadAll(){
   const uid=state.session.user.id;
-  const [p,pr,l,r,j,a]=await Promise.all([
+  const [p,pr,ct,r,j,a]=await Promise.all([
     sb.from('client_prospects').select('*').eq('user_id',uid).order('updated_at',{ascending:false}),
     sb.from('client_proposals').select('*').eq('user_id',uid).order('created_at',{ascending:false}),
-    sb.from('client_loom_scripts').select('*').eq('user_id',uid).order('created_at',{ascending:false}),
+    sb.from('client_contracts').select('*').eq('user_id',uid).order('created_at',{ascending:false}),
     sb.from('client_retainers').select('*').eq('user_id',uid).order('updated_at',{ascending:false}),
     sb.from('client_automation_jobs').select('*').eq('user_id',uid).order('next_run_at',{ascending:true}),
-    sb.from('client_activities').select('*').eq('user_id',uid).order('created_at',{ascending:false}).limit(20)
+    sb.from('client_activities').select('*').eq('user_id',uid).order('created_at',{ascending:false}).limit(30)
   ]);
-  for(const x of [p,pr,l,r,j,a])if(x.error)throw x.error;
-  state.prospects=p.data||[];state.proposals=pr.data||[];state.looms=l.data||[];state.retainers=r.data||[];state.jobs=j.data||[];state.activities=a.data||[];
+  for(const x of [p,pr,ct,r,j,a])if(x.error)throw x.error;
+  state.prospects=p.data||[];state.proposals=pr.data||[];state.contracts=ct.data||[];state.retainers=r.data||[];state.jobs=j.data||[];state.activities=a.data||[];
   renderAll();
   window.Fuse?.balance?.().catch(()=>{});
 }
@@ -76,13 +81,18 @@ function renderStats(){
 }
 function nextAction(p){
   const s=normalizeStatus(p.status);
-  if(s==='new')return {label:'Run audit',note:'Qualify the visible opportunity',action:'audit'};
-  if(s==='qualified'&&!p.pitch_email&&!p.pitch_instagram)return {label:'Write outreach',note:'Create the ask-first opener',action:'outreach'};
-  if(s==='qualified')return {label:'Mark contacted',note:'Send your first message',status:'contacted'};
-  if(s==='contacted')return {label:'Follow up',note:p.next_follow_up?'Due '+fmtDate(p.next_follow_up,true):'Set / send follow-up',status:'contacted'};
-  if(s==='replied')return {label:'Build Loom',note:'Make the personalised 60–90s walkthrough',action:'loom'};
-  if(s==='loom_sent')return {label:'Create proposal',note:'Turn the audit into a monthly scope',action:'proposal'};
-  if(s==='proposal_sent')return {label:'Close retainer',note:'Convert the accepted deal to monthly',retainer:true};
+  if(s==='new')return {label:'Run audit',note:'Verify why this business is worth approaching now',action:'audit'};
+  if(s==='audited'&&!p.pitch_email&&!p.pitch_instagram)return {label:'Write ask-first',note:'Ask permission to show the idea',action:'outreach'};
+  if(s==='audited')return {label:'Send ask-first',note:'Only move forward after you actually send it',status:'asked'};
+  if(s==='asked')return {label:'Follow up',note:p.next_follow_up?'Due '+fmtDate(p.next_follow_up,true):'Wait for a reply or follow up',status:'asked'};
+  if(s==='replied')return {label:'Create sample',note:'One focused concept, not free full delivery',action:'sample'};
+  if(s==='sample_ready')return {label:'Finish sample',note:'Create it in Fuse, then save the sample link'};
+  if(s==='sample_sent')return {label:'Wait for agreement',note:'Move forward only when the client wants the full version'};
+  if(s==='agreed')return {label:'Prepare proposal',note:'Turn the approved direction into scope and price',action:'proposal'};
+  if(s==='proposal_sent')return {label:'Lock the deal',note:'Confirm they accepted the proposal',status:'deal_locked'};
+  if(s==='deal_locked')return {label:'Prepare contract',note:'Send the agreement for signature'};
+  if(s==='contract_sent')return {label:'Await signature',note:'The signing link stays live until completed'};
+  if(s==='contract_signed')return {label:'Start retainer',note:'Activate billing and recurring delivery',retainer:true};
   if(s==='won')return {label:'Client active',note:'Delivery is tracked in Clients'};
   return {label:'Open',note:'Review this prospect'};
 }
@@ -98,7 +108,7 @@ function renderToday(){
 }
 function renderActivities(){
   const root=$('activities');
-  if(!state.activities.length){root.innerHTML='<div class="empty"><b>No agent activity yet.</b>Your audits, outreach, proposals and automation runs will appear here.</div>';return}
+  if(!state.activities.length){root.innerHTML='<div class="empty"><b>No agent activity yet.</b>Your audits, ask-first messages, samples, proposals, contracts and automation runs will appear here.</div>';return}
   root.innerHTML=state.activities.slice(0,6).map(a=>`<div class="activity-card"><i class="activity-dot"></i><div><b>${esc(a.title)}</b><p>${esc(a.body||a.activity_type)} · ${esc(fmtDate(a.created_at,true))}</p></div></div>`).join('');
 }
 function prospectCard(p){
@@ -215,9 +225,16 @@ async function markStatus(id,status){
 }
 
 async function runFind(){
-  const niche=$('findNiche').value.trim(),location=$('findLocation').value.trim(),limit=Number($('findLimit').value||10);if(!niche||!location)return toast('Enter a niche and location.',true);
-  const btn=$('runFind'),notice=$('findNotice');btn.disabled=true;btn.textContent='Searching Google…';notice.textContent='Fuse is checking public Google Business Profile data and removing duplicates.';
-  try{const d=await api('client-discover',{niche,location,limit});notice.innerHTML=`<strong>${d.added} new prospect${d.added===1?'':'s'}</strong> added · ${d.duplicates} already in your pipeline.`;await loadAll();setTimeout(()=>{closeOverlay('findOverlay');setView('prospects')},650)}catch(e){if(e.code==='GOOGLE_PLACES_NOT_CONFIGURED')notice.innerHTML='<strong>Google connection needed.</strong> The prospect agent is built, but the Fuse owner still needs to add the Google Places API key in Vercel before live searches can run.';else notice.textContent=e.message;toast(e.message,true)}finally{btn.disabled=false;btn.textContent='Find prospects'}
+  const skill=$('findSkill').value,niche=$('findNiche').value.trim(),location=$('findLocation').value.trim();if(!skill||!niche||!location)return toast('Choose your skill, niche and city + country.',true);
+  const btn=$('runFind'),notice=$('findNotice');btn.disabled=true;btn.textContent='Researching…';notice.textContent='Fuse is researching more businesses than it returns, verifying current reasons, contacts and source links, then ranking the strongest 5.';
+  try{
+    const d=await api('client-discover',{skill,niche,location,limit:5});
+    notice.innerHTML='<strong>'+d.added+' strong prospect'+(d.added===1?'':'s')+'</strong> added'+(d.skipped?' · '+d.skipped+' candidates skipped because the evidence was weaker.':'')+'.';
+    await loadAll();setTimeout(()=>{closeOverlay('findOverlay');setView('prospects')},850)
+  }catch(e){
+    if(e.code==='GOOGLE_PLACES_NOT_CONFIGURED')notice.innerHTML='<strong>Google Places connection needed.</strong> Add the Google Places API key before live discovery can run.';
+    else notice.textContent=e.message;toast(e.message,true)
+  }finally{btn.disabled=false;btn.textContent='Research strongest 5'}
 }
 async function saveManual(){
   const brand=$('mBrand').value.trim();if(!brand)return toast('Enter the business name.',true);
