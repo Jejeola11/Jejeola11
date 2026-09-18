@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#001012">
+<title>Sign Agreement · Fuse Atelier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--deep:#001012;--mid:#00191B;--light:#1B4C52;--surface:#062125;--line:#315456;--yellow:#FFE66A;--lime:#DFFF4E;--white:#EEFFE0;--muted:#9db2b1;--chrome:linear-gradient(105deg,#FFE66A,#DFFF4E,#EEFFE0)}
+*{box-sizing:border-box}body{margin:0;min-height:100svh;background:radial-gradient(circle at 90% 0%,rgba(27,76,82,.4),transparent 28%),linear-gradient(180deg,var(--deep),var(--mid));color:var(--white);font-family:Montserrat,Arial,sans-serif;font-weight:500}.wrap{width:min(760px,calc(100% - 28px));margin:auto;padding:24px 0 60px}.brand{font-size:25px;font-weight:700;background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}.card{margin-top:20px;border:1px solid var(--line);border-radius:20px;background:var(--surface);padding:18px}.card h1{font-size:26px;line-height:1.12;margin:0 0 8px;font-weight:700}.sub{font-size:14px;line-height:1.55;color:var(--muted)}.body{margin-top:18px;white-space:pre-wrap;background:var(--mid);border:1px solid rgba(49,84,86,.7);border-radius:16px;padding:16px;font-size:14px;line-height:1.65;color:#dfe9e7}.field{display:grid;gap:6px;margin-top:12px}.field label{font-size:15px;font-weight:500}.field input{height:48px;border:1px solid var(--line);border-radius:13px;background:var(--mid);color:var(--white);padding:0 12px;font-size:16px;font-weight:500;outline:0}.field input:focus{border-color:var(--lime)}.agree{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-size:13px;line-height:1.45;color:#c7d6d4}.agree input{margin-top:3px}.btn{width:100%;height:52px;margin-top:16px;border:0;border-radius:15px;background:var(--chrome);color:var(--deep);font-size:16px;font-weight:700}.btn:disabled{opacity:.55}.notice{font-size:13px;color:var(--muted);line-height:1.45;margin-top:10px}.success{text-align:center;padding:34px 18px}.success b{display:block;font-size:22px;margin-bottom:8px;color:var(--lime)}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="brand">Fuse Atelier</div>
+  <section class="card" id="shell">
+    <div class="sub" id="status">Loading agreement…</div>
+  </section>
+</main>
+<script>
+(async()=>{
+  const shell=document.getElementById('shell'),status=document.getElementById('status');
+  const token=new URLSearchParams(location.search).get('token')||'';
+  const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  if(!token){status.textContent='This signing link is incomplete.';return}
+  try{
+    const r=await fetch('/api/client-contract-public?token='+encodeURIComponent(token));
+    const d=await r.json(); if(!r.ok)throw new Error(d.error||'Could not load agreement.');
+    if(d.contract.status==='signed'){
+      shell.innerHTML='<div class="success"><b>Agreement signed</b><div class="sub">This agreement was completed on '+esc(new Date(d.contract.signed_at).toLocaleString())+'.</div></div>';return;
+    }
+    shell.innerHTML='<h1>'+esc(d.contract.title)+'</h1><div class="sub">Please review the agreement below. Signing confirms acceptance of the terms shown on this page.</div><div class="body">'+esc(d.contract.body)+'</div><div class="field"><label>Your full name</label><input id="name" value="'+esc(d.contract.signer_name||'')+'" autocomplete="name"></div><div class="field"><label>Your email</label><input id="email" type="email" value="'+esc(d.contract.signer_email||'')+'" autocomplete="email"></div><div class="field"><label>Type your signature</label><input id="sig" placeholder="Type your full legal name"></div><label class="agree"><input id="agree" type="checkbox"><span>I have read this agreement and intend my typed signature to confirm my acceptance of the terms above.</span></label><button class="btn" id="sign">Sign agreement</button><div class="notice" id="notice">You will receive confirmation on this page immediately after signing.</div>';
+    document.getElementById('sign').onclick=async()=>{
+      const btn=document.getElementById('sign');btn.disabled=true;btn.textContent='Signing…';
+      try{
+        const res=await fetch('/api/client-contract-public',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,signer_name:document.getElementById('name').value.trim(),signer_email:document.getElementById('email').value.trim(),signature_text:document.getElementById('sig').value.trim(),agree:document.getElementById('agree').checked})});
+        const out=await res.json();if(!res.ok)throw new Error(out.error||'Could not sign agreement.');
+        shell.innerHTML='<div class="success"><b>Agreement signed</b><div class="sub">Thank you. The Fuse Client workspace has been updated for the service provider.</div></div>';
+      }catch(e){document.getElementById('notice').textContent=e.message;btn.disabled=false;btn.textContent='Sign agreement'}
+    };
+  }catch(e){status.textContent=e.message}
+})();
+</script>
+</body>
+</html>
