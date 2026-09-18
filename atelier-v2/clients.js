@@ -352,7 +352,22 @@ async function startRetainer(){const id=state.retainerProspect;if(!id)return;con
 async function runJob(id,btn){if(state.busy)return;state.busy=true;const old=btn.textContent;btn.disabled=true;btn.textContent='Running…';try{const d=await api('client-automation',{action:'run',job_id:id});const i=state.jobs.findIndex(x=>x.id===id);if(i>=0)state.jobs[i]=d.job;renderJobs();renderActivities();toast('Automation draft ready')}catch(e){toast(e.message,true);btn.disabled=false;btn.textContent=old}finally{state.busy=false}}
 async function toggleJob(id,btn){btn.disabled=true;try{const d=await api('client-automation',{action:'toggle',job_id:id});const i=state.jobs.findIndex(x=>x.id===id);if(i>=0)state.jobs[i]=d.job;renderJobs();toast(d.job.status==='active'?'Automation resumed':'Automation paused')}catch(e){toast(e.message,true)}finally{btn.disabled=false}}
 
+function syncClientViewport(){
+  const vv=window.visualViewport;
+  const h=Math.max(320,Math.round(vv?.height||window.innerHeight));
+  document.documentElement.style.setProperty('--client-vvh',h+'px');
+}
+function keepFieldVisible(e){
+  const el=e.target;
+  if(!el?.matches?.('#findOverlay input,#findOverlay select,#manualOverlay input,#manualOverlay select,#manualOverlay textarea'))return;
+  setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'}),180);
+}
 function bind(){
+  syncClientViewport();
+  window.visualViewport?.addEventListener('resize',syncClientViewport);
+  window.visualViewport?.addEventListener('scroll',syncClientViewport);
+  window.addEventListener('resize',syncClientViewport);
+  document.addEventListener('focusin',keepFieldVisible);
   document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>setView(b.dataset.view));
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>setView(b.dataset.go));
   $('findBtn').onclick=$('findBtn2').onclick=()=>openOverlay('findOverlay');
