@@ -186,7 +186,7 @@ function renderContact(p){
 function renderAudit(p){const a=state.agentOutput?.action==='audit'?state.agentOutput.output:(p.audit_json&&Object.keys(p.audit_json).length?p.audit_json:null);if(!a)return'';const findings=Array.isArray(a.findings)?a.findings:[];return `<div class="output"><h3>Audit · ${Number(a.score||p.opportunity_score||0)}/100</h3><p>${esc(a.summary||p.audit_summary||'')}</p>${findings.map(f=>`<div class="finding"><b>${esc(f.title)}</b><small>${esc(f.evidence||'')}</small><small>${esc(f.impact||'')}</small></div>`).join('')}${a.offer_angle?`<div class="finding"><b>Offer angle</b><small>${esc(a.offer_angle)}</small></div>`:''}</div>`}
 function renderOutreach(p){
   const o=state.agentOutput?.action==='outreach'?state.agentOutput.output:null;
-  const data=o||{email:p.pitch_email,instagram:p.pitch_instagram,linkedin:'',whatsapp:p.pitch_whatsapp};
+  const data=o||{email:p.pitch_email,instagram:p.pitch_instagram,linkedin:p.pitch_linkedin,whatsapp:p.pitch_whatsapp};
   if(!data.email&&!data.instagram&&!data.linkedin&&!data.whatsapp)return'';
   const channels=[['email','Email'],['instagram','Instagram'],['linkedin','LinkedIn'],['whatsapp','WhatsApp'],['follow_up','Follow-up']].filter(([k])=>data[k]);
   const first=channels[0]?.[0];
@@ -270,7 +270,7 @@ function bindDetail(p){
   $('detailBody').querySelector('[data-copy-proposal]')?.addEventListener('click',()=>{const x=state.agentOutput?.action==='proposal'?state.agentOutput.output:latestProposal(p.id);copyText(x?.proposal_copy||'')});
   $('detailBody').querySelector('[data-copy-contract]')?.addEventListener('click',()=>{const x=latestContract(p.id);if(x)copyText(location.origin+'/atelier-v2/client-sign.html?token='+x.public_token)});
   $('detailBody').querySelector('[data-send-contract]')?.addEventListener('click',()=>sendContract(p.id));
-  const out=state.agentOutput?.action==='outreach'?state.agentOutput.output:{email:p.pitch_email,instagram:p.pitch_instagram,linkedin:'',whatsapp:p.pitch_whatsapp};
+  const out=state.agentOutput?.action==='outreach'?state.agentOutput.output:{email:p.pitch_email,instagram:p.pitch_instagram,linkedin:p.pitch_linkedin,whatsapp:p.pitch_whatsapp};
   const channels=$('detailBody').querySelectorAll('[data-channel]');
   channels.forEach(btn=>btn.onclick=()=>{channels.forEach(x=>x.classList.toggle('active',x===btn));const el=$('channelCopy');if(el)el.textContent=out?.[btn.dataset.channel]||''});
   $('copyChannel')?.addEventListener('click',()=>copyText($('channelCopy')?.textContent||''));
