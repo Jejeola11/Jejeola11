@@ -8,10 +8,12 @@ function clean(v,max=5000){return typeof v==='string'?v.trim().slice(0,max):''}
 function money(v,fallback=0){const n=Number(v);return Number.isFinite(n)&&n>=0?n:fallback}
 function prospectContext(p={}){
   return {
-    business_name:p.brand_name||'',niche:p.niche||'',location:p.location||'',contact_name:p.contact_name||'',\n    founder_name:p.founder_name||'',founder_title:p.founder_title||'',founder_linkedin:p.founder_linkedin||'',founder_email:p.founder_email||'',founder_phone:p.founder_phone||'',founder_instagram:p.founder_instagram||'',
+    business_name:p.brand_name||'',niche:p.niche||'',location:p.location||'',contact_name:p.contact_name||'',
+    founder_name:p.founder_name||'',founder_title:p.founder_title||'',founder_linkedin:p.founder_linkedin||'',founder_email:p.founder_email||'',founder_phone:p.founder_phone||'',founder_instagram:p.founder_instagram||'',
     website:p.website||'',google_maps:p.maps_url||'',rating:p.rating??null,review_count:p.review_count??null,
     visible_problem:p.visible_problem||'',service:p.service||'',offer_price:p.offer_price??null,offer_currency:p.offer_currency||'USD',
-    notes:p.notes||'',current_activity:p.current_activity||'',current_activity_url:p.current_activity_url||'',funding_total_usd:p.funding_total_usd??null,funding_source_url:p.funding_source_url||'',\n    signals:Array.isArray(p.signals)?p.signals:[],evidence:Array.isArray(p.evidence)?p.evidence:[],source_links:Array.isArray(p.source_links)?p.source_links:[],qualification:p.qualification_json||{},ad_signal:p.ad_signal_json||{},
+    notes:p.notes||'',current_activity:p.current_activity||'',current_activity_url:p.current_activity_url||'',funding_total_usd:p.funding_total_usd??null,funding_source_url:p.funding_source_url||'',
+    signals:Array.isArray(p.signals)?p.signals:[],evidence:Array.isArray(p.evidence)?p.evidence:[],source_links:Array.isArray(p.source_links)?p.source_links:[],qualification:p.qualification_json||{},ad_signal:p.ad_signal_json||{},
     existing_audit:p.audit_json||{},existing_summary:p.audit_summary||'',research_summary:p.research_summary||''
   };
 }
@@ -84,8 +86,8 @@ async function gemini(action,p,extra={}){
   const system=`You are Fuse Client, a careful client-acquisition strategist for freelancers and small agencies.\nYour job is ${action}.\nReturn valid JSON only, no markdown.\nNever invent website defects, ad activity, founder names, funding, revenue, rankings, customer behaviour, reviews or campaign facts that are not present in the supplied context. Separate verified evidence from recommendations. Use concise natural language, not hype. The acquisition order is find -> audit -> ask-first -> create one sample only after a positive reply -> submit sample -> proposal -> contract -> retainer -> automation. The first outreach must ask whether they want to see the idea and must never claim a sample already exists. A proposal must be commercially clear and suitable for a monthly retainer.`;
   const schemas={
     audit:`Return {"score":0,"top_opportunity":"","summary":"","findings":[{"title":"","evidence":"","impact":""}],"offer_angle":"","first_move":""}. Score 0-100 based only on strength of the visible opportunity and contactability.`,
-    outreach:`Return {"subject":"","email":"","instagram":"","whatsapp":"","follow_up":""}. Keep the first touch permission-based; ask whether they want the Loom instead of dumping a full pitch.`,
-    loom:`Return {"hook":"","duration_seconds":75,"sections":[{"time":"0-10s","title":"","script":"","onscreen":""}],"cta":""}. Give exact screen-recording guidance so a beginner knows what to show and say.`,
+    outreach:`Return {"subject":"","email":"","instagram":"","linkedin":"","whatsapp":"","follow_up":""}. Keep the first touch permission-based; end by asking whether they want to see a quick concept. Do not say the concept already exists.`,
+    sample:`Return {"sample_type":"","create_route":"","objective":"","what_to_make":"","prompt":"","proof_points":[""],"constraints":[""],"next_steps":[""],"submission_message":""}. Make ONE useful sample only after a positive reply, not a full free project.`,
     proposal:`Return {"title":"","summary":"","scope":[{"title":"","text":""}],"monthly_price":0,"setup_fee":0,"currency":"USD","proposal_copy":""}. Keep 3-5 clear deliverables and position it as a monthly outcome-focused service.`
   };
   const payload={system_instruction:{parts:[{text:system+'\n'+schemas[action]}]},contents:[{role:'user',parts:[{text:JSON.stringify({context,extra})}]}],generationConfig:{temperature:.45,response_mime_type:'application/json',maxOutputTokens:4500}};
@@ -118,7 +120,7 @@ exports.handler=async(event)=>{
       output=output||fallbackAudit(p);
       const score=Math.max(0,Math.min(100,Math.round(Number(output.score)||Number(p.opportunity_score)||55)));
       const summary=clean(output.summary,3000),angle=clean(output.offer_angle,300);
-      const upd=await db.from('client_prospects').update({audit_json:output,audit_summary:summary,offer_angle:angle,opportunity_score:score,status:p.status==='new'?'qualified':p.status,last_activity_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',p.id).eq('user_id',user.id).select('*').single();
+      const upd=await db.from('client_prospects').update({audit_json:output,audit_summary:summary,offer_angle:angle,opportunity_score:score,status:p.status==='new'?'audited':p.status,last_activity_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',p.id).eq('user_id',user.id).select('*').single();
       if(upd.error)throw upd.error;
       await activity(db,user.id,p.id,'audit','Audit created',summary,{score,ai_used:aiUsed});
       return json(200,{ok:true,action,ai_used:aiUsed,output,prospect:upd.data});
