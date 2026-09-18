@@ -155,11 +155,49 @@ function renderJobs(){
 }
 
 function latestProposal(id){return state.proposals.find(x=>x.prospect_id===id)||null}
-function latestLoom(id){return state.looms.find(x=>x.prospect_id===id)||null}
-function linkButtons(p){const links=[];if(cleanUrl(p.maps_url))links.push(`<a class="mini" href="${esc(cleanUrl(p.maps_url))}" target="_blank" rel="noopener">Google Maps</a>`);if(cleanUrl(p.website))links.push(`<a class="mini" href="${esc(cleanUrl(p.website))}" target="_blank" rel="noopener">Website</a>`);if(p.email)links.push(`<a class="mini" href="mailto:${esc(p.email)}">Email</a>`);if(phoneUrl(p.whatsapp))links.push(`<a class="mini" href="${esc(phoneUrl(p.whatsapp))}" target="_blank" rel="noopener">WhatsApp</a>`);return links.join('')}
+function latestContract(id){return state.contracts.find(x=>x.prospect_id===id)||null}
+function linkButtons(p){
+  const links=[];
+  if(cleanUrl(p.maps_url))links.push(`<a class="mini" href="${esc(cleanUrl(p.maps_url))}" target="_blank" rel="noopener">Google Maps</a>`);
+  if(cleanUrl(p.website))links.push(`<a class="mini" href="${esc(cleanUrl(p.website))}" target="_blank" rel="noopener">Website</a>`);
+  if(p.founder_linkedin)links.push(`<a class="mini" href="${esc(cleanUrl(p.founder_linkedin)||p.founder_linkedin)}" target="_blank" rel="noopener">LinkedIn</a>`);
+  if(p.founder_instagram||p.instagram)links.push(`<a class="mini" href="${esc(cleanUrl(p.founder_instagram||p.instagram)||p.founder_instagram||p.instagram)}" target="_blank" rel="noopener">Instagram</a>`);
+  if(p.founder_email||p.email)links.push(`<a class="mini" href="mailto:${esc(p.founder_email||p.email)}">Email</a>`);
+  if(phoneUrl(p.founder_phone||p.whatsapp))links.push(`<a class="mini" href="${esc(phoneUrl(p.founder_phone||p.whatsapp))}" target="_blank" rel="noopener">Phone / WhatsApp</a>`);
+  return links.join('')
+}
+function renderContact(p){
+  const name=p.founder_name||p.contact_name||'Not found';
+  const title=p.founder_title||'Founder / decision-maker';
+  const funding=Number(p.funding_total_usd||0);
+  const sourceLinks=Array.isArray(p.source_links)?p.source_links:[];
+  return `<div class="output"><h3>Decision-maker & evidence</h3><div class="finding"><b>${esc(name)}</b><small>${esc(title)}</small></div>
+  <div class="finding"><b>Current reason to contact</b><small>${esc(p.current_activity||'Not found')}</small>${p.current_activity_url?`<small><a href="${esc(p.current_activity_url)}" target="_blank" rel="noopener">Open source ↗</a></small>`:''}</div>
+  ${funding?`<div class="finding"><b>Funding</b><small>${esc(fmtMoney(funding,'USD'))} reported funding</small>${p.funding_source_url?`<small><a href="${esc(p.funding_source_url)}" target="_blank" rel="noopener">Funding source ↗</a></small>`:''}</div>`:''}
+  ${sourceLinks.length?`<div class="finding"><b>Sources</b>${sourceLinks.slice(0,8).map(x=>{const u=typeof x==='string'?x:(x.url||'');const label=typeof x==='string'?'Source':(x.label||x.source||'Source');return u?`<small><a href="${esc(u)}" target="_blank" rel="noopener">${esc(label)} ↗</a></small>`:''}).join('')}</div>`:''}</div>`;
+}
 function renderAudit(p){const a=state.agentOutput?.action==='audit'?state.agentOutput.output:(p.audit_json&&Object.keys(p.audit_json).length?p.audit_json:null);if(!a)return'';const findings=Array.isArray(a.findings)?a.findings:[];return `<div class="output"><h3>Audit · ${Number(a.score||p.opportunity_score||0)}/100</h3><p>${esc(a.summary||p.audit_summary||'')}</p>${findings.map(f=>`<div class="finding"><b>${esc(f.title)}</b><small>${esc(f.evidence||'')}</small><small>${esc(f.impact||'')}</small></div>`).join('')}${a.offer_angle?`<div class="finding"><b>Offer angle</b><small>${esc(a.offer_angle)}</small></div>`:''}</div>`}
-function renderOutreach(p){const o=state.agentOutput?.action==='outreach'?state.agentOutput.output:null;const data=o||{email:p.pitch_email,instagram:p.pitch_instagram,whatsapp:p.pitch_whatsapp};if(!data.email&&!data.instagram&&!data.whatsapp)return'';const channels=[['email','Email'],['instagram','Instagram'],['whatsapp','WhatsApp'],['follow_up','Follow-up']].filter(([k])=>data[k]);const first=channels[0]?.[0];return `<div class="output" id="outreachOutput"><h3>Ask-first outreach</h3><div class="channel-tabs">${channels.map(([k,l],i)=>`<button class="channel ${i===0?'active':''}" data-channel="${k}">${l}</button>`).join('')}</div><p id="channelCopy">${esc(data[first]||'')}</p><div class="copy-row"><button class="copy-btn" id="copyChannel">Copy</button></div></div>`}
-function renderLoom(p){const l=state.agentOutput?.action==='loom'?state.agentOutput.output:latestLoom(p.id);if(!l)return'';const sections=Array.isArray(l.sections)?l.sections:[];return `<div class="output"><h3>Loom guide · ${Number(l.duration_seconds||75)} sec</h3><p>${esc(l.hook||'')}</p><div class="timeline" style="margin-top:10px">${sections.map(s=>`<div class="timeline-item"><time>${esc(s.time||'')}</time><div><b>${esc(s.title||'')}</b><p>${esc(s.script||'')}</p>${s.onscreen?`<small>${esc('Show: '+s.onscreen)}</small>`:''}</div></div>`).join('')}</div>${l.cta?`<div class="finding"><b>Close the Loom with</b><small>${esc(l.cta)}</small></div>`:''}<div class="field"><label>Loom URL after recording</label><input id="loomUrlInput" value="${esc(p.loom_url||l.loom_url||'')}" placeholder="https://www.loom.com/share/..."></div><div class="copy-row"><button class="copy-btn" id="saveLoomUrl">Save URL</button></div></div>`}
+function renderOutreach(p){
+  const o=state.agentOutput?.action==='outreach'?state.agentOutput.output:null;
+  const data=o||{email:p.pitch_email,instagram:p.pitch_instagram,linkedin:'',whatsapp:p.pitch_whatsapp};
+  if(!data.email&&!data.instagram&&!data.linkedin&&!data.whatsapp)return'';
+  const channels=[['email','Email'],['instagram','Instagram'],['linkedin','LinkedIn'],['whatsapp','WhatsApp'],['follow_up','Follow-up']].filter(([k])=>data[k]);
+  const first=channels[0]?.[0];
+  return `<div class="output" id="outreachOutput"><h3>Ask-first outreach</h3><div class="channel-tabs">${channels.map(([k,l],i)=>`<button class="channel ${i===0?'active':''}" data-channel="${k}">${l}</button>`).join('')}</div><p id="channelCopy">${esc(data[first]||'')}</p><div class="copy-row"><button class="copy-btn" id="copyChannel">Copy</button></div></div>`;
+}
+function renderSample(p){
+  const s=state.agentOutput?.action==='sample'?state.agentOutput.output:(p.sample_brief?{...p.sample_brief,submission_message:p.sample_submission_copy||''}:null);
+  if(!s)return'';
+  const route=s.create_route||p.sample_brief?.create_route||'/atelier-v2/studio.html';
+  return `<div class="output"><h3>Sample · ${esc(s.sample_type||p.sample_type||'Quick concept')}</h3><p>${esc(s.objective||'Create one focused concept only after the prospect replied positively.')}</p>
+  ${s.what_to_make?`<div class="finding"><b>What to make</b><small>${esc(s.what_to_make)}</small></div>`:''}
+  ${s.prompt?`<div class="finding"><b>Fuse prompt</b><small style="white-space:pre-wrap">${esc(s.prompt)}</small></div>`:''}
+  <div class="job-actions"><button class="mini hot" data-create-sample="${esc(route)}">Create sample in Fuse</button></div>
+  <div class="field"><label>Sample link</label><input id="sampleUrlInput" value="${esc(p.sample_url||'')}" placeholder="Paste the finished Fuse Library / page link"></div>
+  <div class="copy-row"><button class="copy-btn" id="saveSampleUrl">Save sample</button></div>
+  ${s.submission_message||p.sample_submission_copy?`<div class="finding"><b>Send with the sample</b><small style="white-space:pre-wrap">${esc(s.submission_message||p.sample_submission_copy)}</small></div><div class="copy-row"><button class="copy-btn" id="copySampleMessage">Copy message</button></div>`:''}
+  </div>`;
+}
 function renderProposal(p){const x=state.agentOutput?.action==='proposal'?state.agentOutput.output:latestProposal(p.id);if(!x)return'';const scope=Array.isArray(x.scope)?x.scope:[];return `<div class="output"><h3>${esc(x.title||'Proposal')}</h3><p>${esc(x.summary||'')}</p>${scope.map(s=>`<div class="finding"><b>${esc(s.title||'Deliverable')}</b><small>${esc(s.text||'')}</small></div>`).join('')}<div class="finding"><b>Monthly investment</b><small>${esc(fmtMoney(x.monthly_price||p.offer_price,x.currency||p.offer_currency||'USD'))}</small></div>${x.proposal_copy?`<div class="finding"><b>Send with proposal</b><small style="white-space:pre-wrap">${esc(x.proposal_copy)}</small></div><div class="copy-row"><button class="copy-btn" data-copy-proposal>Copy proposal message</button></div>`:''}</div>`}
 function openDetail(id){
   const p=state.prospects.find(x=>x.id===id);if(!p)return;state.selected=id;state.agentOutput=null;
