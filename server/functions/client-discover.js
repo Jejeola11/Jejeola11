@@ -1,124 +1,106 @@
 // POST /api/client-discover
-// Finds public local-business prospects with Google Places API (New), scores visible
-// opportunities, de-duplicates by Place ID and saves them into Fuse Client.
+// Researches broadly, verifies a current reason to reach out, enriches public contact data,
+// ranks the strongest five and stores the evidence used for every recommendation.
 const { admin, getUser, json } = require('./_supabase');
-
-function clean(v,max=300){return typeof v==='string'?v.trim().slice(0,max):''}
-function integer(v,min,max,fallback){const n=Math.round(Number(v));return Number.isFinite(n)?Math.max(min,Math.min(max,n)):fallback}
-function scorePlace(p={}){
-  let score=18;
-  if(!p.websiteUri)score+=30;
-  if(Number.isFinite(Number(p.rating))){
-    const r=Number(p.rating);
-    if(r<4)score+=20; else if(r<4.4)score+=12;
+function clean(v,max=1000){return typeof v==='string'?v.trim().slice(0,max):''}
+function domainFrom(url){try{return new URL(url).hostname.replace(/^www\./,'')}catch{return''}}
+function scoreBase(p){
+  let s=20;
+  if(p.websiteUri)s+=10;
+  if(p.nationalPhoneNumber)s+=10;
+  if(Number(p.userRatingCount||0)>=20)s+=5;
+  if(Number(p.userRatingCount||0)>=100)s+=5;
+  return s;
+}
+function serviceGap(skill,p,page){
+  const k=String(skill||'').toLowerCase();
+  if((k.includes('landing')||k.includes('page')||k.includes('website'))&&!p.websiteUri)return 'No website is listed on the Google Business Profile.';
+  if((k.includes('landing')||k.includes('page')||k.includes('website'))&&page&&page.performance!=null&&page.performance<60)return 'The saved website scored '+page.performance+'/100 on the mobile performance check.';
+  if(k.includes('google business')||k.includes('profile')){
+    if(Number.isFinite(Number(p.rating))&&Number(p.rating)<4.4)return 'Google rating is '+Number(p.rating).toFixed(1)+' with '+Number(p.userRatingCount||0)+' reviews.';
+    if(Number(p.userRatingCount||0)<50)return 'Google profile has '+Number(p.userRatingCount||0)+' reviews, creating a factual reputation-growth opportunity.';
   }
-  const reviews=Number(p.userRatingCount||0);
-  if(reviews<15)score+=18; else if(reviews<50)score+=12; else if(reviews<100)score+=6;
-  if(p.nationalPhoneNumber)score+=6;
-  return Math.max(1,Math.min(100,score));
+  return '';
 }
-function problemFor(p={}){
-  const bits=[];
-  if(!p.websiteUri)bits.push('No website is listed on the Google Business Profile');
-  const reviews=Number(p.userRatingCount||0);
-  if(Number.isFinite(Number(p.rating))&&Number(p.rating)<4.4)bits.push(`Google rating is ${Number(p.rating).toFixed(1)}`);
-  if(reviews<50)bits.push(`review volume is ${reviews} review${reviews===1?'':'s'}`);
-  return bits.length?bits.join('; ')+'.':'Google profile found. Run the Fuse audit to identify the strongest pitchable opportunity.';
+async function currentSignal(name,location,key){
+  const q='"'+name+'" '+location+' (launch OR launching OR new OR opening OR hiring OR event OR campaign OR offer OR sale OR partnership OR expansion)';
+  const u=new URL('https://serpapi.com/search');u.searchParams.set('engine','google');u.searchParams.set('q',q);u.searchParams.set('api_key',key);u.searchParams.set('num','6');u.searchParams.set('tbs','qdr:m6');u.searchParams.set('location',location);
+  const r=await fetch(u);const d=await r.json().catch(()=>({}));if(!r.ok)return null;
+  const rows=Array.isArray(d.organic_results)?d.organic_results:[];
+  const hit=rows.find(x=>x&&x.link&&x.title&&String(x.snippet||'').length>20);
+  if(!hit)return null;
+  return {title:clean(hit.title,300),snippet:clean(hit.snippet,900),url:clean(hit.link,1200),date:clean(hit.date,120)};
 }
-function bestService(p={}){
-  if(!p.websiteUri)return 'Landing Page Design';
-  const r=Number(p.rating||0),reviews=Number(p.userRatingCount||0);
-  if((r&&r<4.4)||reviews<50)return 'Google Business Profile Growth';
-  return 'Brand Creative';
+async function hunter(domain,key){
+  if(!domain||!key)return null;
+  const u=new URL('https://api.hunter.io/v2/domain-search');u.searchParams.set('domain',domain);u.searchParams.set('api_key',key);u.searchParams.set('limit','10');
+  const r=await fetch(u);const d=await r.json().catch(()=>({}));if(!r.ok)return null;
+  const emails=Array.isArray(d&&d.data&&d.data.emails)?d.data.emails:[];
+  const ranked=[...emails].sort((a,b)=>{const ta=String(a.position||'').toLowerCase(),tb=String(b.position||'').toLowerCase();const f=x=>/(founder|owner|ceo|chief|marketing|growth|brand)/.test(x)?2:0;return f(tb)-f(ta)});
+  const p=ranked[0]||null;if(!p)return {email:'',name:'',title:'',linkedin:''};
+  return {email:clean(p.value,320),name:clean([p.first_name,p.last_name].filter(Boolean).join(' '),220),title:clean(p.position,220),linkedin:clean(p.linkedin||'',700)};
 }
-
+async function pageSpeed(url,key){
+  if(!url||!key)return null;
+  const u=new URL('https://www.googleapis.com/pagespeedonline/v5/runPagespeed');u.searchParams.set('url',url);u.searchParams.set('strategy','mobile');u.searchParams.set('category','performance');u.searchParams.set('key',key);
+  const r=await fetch(u);const d=await r.json().catch(()=>({}));if(!r.ok)return null;
+  const score=d&&d.lighthouseResult&&d.lighthouseResult.categories&&d.lighthouseResult.categories.performance&&d.lighthouseResult.categories.performance.score;
+  const lcp=d&&d.lighthouseResult&&d.lighthouseResult.audits&&d.lighthouseResult.audits['largest-contentful-paint']&&d.lighthouseResult.audits['largest-contentful-paint'].numericValue;
+  return {performance:Number.isFinite(Number(score))?Math.round(Number(score)*100):null,lcp_ms:Number.isFinite(Number(lcp))?Math.round(Number(lcp)):null};
+}
+async function enrich(place,skill,location,keys){
+  const name=clean(place.displayName&&place.displayName.text,180)||'Business';
+  const domain=domainFrom(place.websiteUri||'');
+  const results=await Promise.all([currentSignal(name,location,keys.serp).catch(()=>null),hunter(domain,keys.hunter).catch(()=>null),pageSpeed(place.websiteUri||'',keys.pagespeed).catch(()=>null)]);
+  const signal=results[0],contact=results[1],page=results[2];
+  const gap=serviceGap(skill,place,page);
+  const hasContact=!!(place.nationalPhoneNumber||(contact&&contact.email)||place.websiteUri);
+  const whyNow=signal?(signal.title+(signal.snippet?' — '+signal.snippet:'')):'';
+  const qualifies=!!signal&&hasContact;
+  let score=scoreBase(place)+(signal?25:0)+(contact&&contact.email?12:0)+(contact&&contact.name?8:0)+(gap?15:0);
+  score=Math.max(1,Math.min(100,score));
+  const sources=[];
+  if(place.googleMapsUri)sources.push({label:'Google Business Profile',url:place.googleMapsUri});
+  if(signal&&signal.url)sources.push({label:'Current activity',url:signal.url});
+  if(place.websiteUri)sources.push({label:'Website',url:place.websiteUri});
+  return {place,name,domain,signal,contact,page,gap,whyNow,qualifies,score,sources};
+}
 exports.handler=async(event)=>{
   try{
     if(event.httpMethod!=='POST')return json(405,{error:'Method not allowed'});
-    const user=await getUser(event);
-    if(!user)return json(401,{error:'Please sign in again.'});
+    const user=await getUser(event);if(!user)return json(401,{error:'Please sign in again.'});
     let body={};try{body=JSON.parse(event.body||'{}')}catch{return json(400,{error:'Bad request.'})}
-    const niche=clean(body.niche,120),location=clean(body.location,180);
-    const limit=integer(body.limit,2,20,10);
-    if(!niche||!location)return json(400,{error:'Choose a niche and location first.'});
-
+    const skill=clean(body.skill,180),niche=clean(body.niche,140),location=clean(body.location,180);
+    if(!skill||!niche||!location)return json(400,{error:'Choose your skill, niche and city + country.'});
+    const google=(process.env.GOOGLE_PLACES_API_KEY||process.env.GOOGLE_MAPS_API_KEY||'').trim();
+    const serp=(process.env.SERPAPI_API_KEY||'').trim();
+    if(!google)return json(503,{error:'Google Places API key is not configured.',code:'GOOGLE_PLACES_NOT_CONFIGURED'});
+    if(!serp)return json(503,{error:'Fuse needs a live web-research API before it can verify current reasons for outreach. Add SERPAPI_API_KEY.',code:'CURRENT_RESEARCH_NOT_CONFIGURED'});
+    const keys={serp:serp,hunter:(process.env.HUNTER_API_KEY||'').trim(),pagespeed:(process.env.PAGESPEED_API_KEY||google).trim()};
     const db=admin();
-    const request=await db.from('client_research_requests').insert({
-      user_id:user.id,source:'google_places',niche,location,
-      criteria:{limit},status:'processing',requested_at:new Date().toISOString()
-    }).select('id').single();
+    const request=await db.from('client_research_requests').insert({user_id:user.id,source:'places+web',niche:niche,location:location,criteria:{skill:skill,return_count:5,candidate_count:20},status:'processing',requested_at:new Date().toISOString()}).select('id').single();
     if(request.error)throw request.error;
-
-    const key=(process.env.GOOGLE_PLACES_API_KEY||process.env.GOOGLE_MAPS_API_KEY||'').trim();
-    if(!key){
-      await db.from('client_research_requests').update({status:'configuration_required',error:'Google Places API key is not configured.',processed_at:new Date().toISOString()}).eq('id',request.data.id);
-      return json(503,{error:'Google prospect discovery is ready, but the Google Places connection still needs to be added by the Fuse owner.',code:'GOOGLE_PLACES_NOT_CONFIGURED',request_id:request.data.id});
-    }
-
-    const res=await fetch('https://places.googleapis.com/v1/places:searchText',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'X-Goog-Api-Key':key,
-        'X-Goog-FieldMask':'places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.websiteUri,places.rating,places.userRatingCount,places.googleMapsUri,places.businessStatus,places.types'
-      },
-      body:JSON.stringify({textQuery:`${niche} in ${location}`,maxResultCount:limit})
-    });
-    const raw=await res.json().catch(()=>({}));
-    if(!res.ok){
-      const message=raw?.error?.message||'Google Places could not complete this search.';
-      await db.from('client_research_requests').update({status:'failed',error:message,processed_at:new Date().toISOString()}).eq('id',request.data.id);
-      return json(res.status>=500?502:400,{error:message});
-    }
-
-    const places=Array.isArray(raw.places)?raw.places.slice(0,limit):[];
-    const ids=places.map(p=>clean(p.id,200)).filter(Boolean);
-    let existing=[];
-    if(ids.length){
-      const ex=await db.from('client_prospects').select('id,google_place_id').eq('user_id',user.id).in('google_place_id',ids);
-      if(ex.error)throw ex.error;existing=ex.data||[];
-    }
+    const res=await fetch('https://places.googleapis.com/v1/places:searchText',{method:'POST',headers:{'Content-Type':'application/json','X-Goog-Api-Key':google,'X-Goog-FieldMask':'places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.websiteUri,places.rating,places.userRatingCount,places.googleMapsUri,places.businessStatus,places.types'},body:JSON.stringify({textQuery:niche+' in '+location,maxResultCount:20})});
+    const raw=await res.json().catch(()=>({}));if(!res.ok)throw new Error(raw&&raw.error&&raw.error.message||'Google Places search failed.');
+    const places=(Array.isArray(raw.places)?raw.places:[]).sort((a,b)=>scoreBase(b)-scoreBase(a)).slice(0,10);
+    const enriched=await Promise.all(places.map(p=>enrich(p,skill,location,keys)));
+    const qualified=enriched.filter(x=>x.qualifies).sort((a,b)=>b.score-a.score).slice(0,5);
+    const ids=qualified.map(x=>clean(x.place.id,220)).filter(Boolean);
+    let existing=[];if(ids.length){const ex=await db.from('client_prospects').select('google_place_id').eq('user_id',user.id).in('google_place_id',ids);if(ex.error)throw ex.error;existing=ex.data||[]}
     const seen=new Set(existing.map(x=>x.google_place_id));
-    const rows=places.filter(p=>p.id&&!seen.has(p.id)).map(p=>({
-      user_id:user.id,
-      brand_name:clean(p.displayName?.text,180)||'Local business',
-      niche,
-      location:clean(p.formattedAddress,240)||location,
-      whatsapp:clean(p.nationalPhoneNumber,80)||null,
-      website:clean(p.websiteUri,500)||null,
-      google_place_id:clean(p.id,220),
-      maps_url:clean(p.googleMapsUri,700)||null,
-      rating:Number.isFinite(Number(p.rating))?Number(p.rating):null,
-      review_count:Number.isFinite(Number(p.userRatingCount))?Number(p.userRatingCount):null,
-      business_status:clean(p.businessStatus,80)||null,
-      opportunity_score:scorePlace(p),
-      visible_problem:problemFor(p),
-      service:bestService(p),
-      status:'new',
-      source:'Google Business Profile',
-      research_request_id:request.data.id,
-      signals:[
-        ...(!p.websiteUri?['missing_website']:[]),
-        ...(Number(p.userRatingCount||0)<50?['low_review_volume']:[]),
-        ...(Number(p.rating||5)<4.4?['rating_opportunity']:[])
-      ],
-      evidence:[{source:'Google Places',rating:p.rating??null,review_count:p.userRatingCount??null,address:p.formattedAddress||'',maps_url:p.googleMapsUri||''}]
+    const rows=qualified.filter(x=>!seen.has(x.place.id)).map((x,idx)=>({
+      user_id:user.id,brand_name:x.name,niche:niche,location:clean(x.place.formattedAddress,240)||location,
+      founder_name:x.contact&&x.contact.name||null,founder_title:x.contact&&x.contact.title||null,founder_linkedin:x.contact&&x.contact.linkedin||null,founder_email:x.contact&&x.contact.email||null,
+      contact_name:x.contact&&x.contact.name||null,email:x.contact&&x.contact.email||null,whatsapp:clean(x.place.nationalPhoneNumber,80)||null,website:clean(x.place.websiteUri,700)||null,
+      google_place_id:clean(x.place.id,220),maps_url:clean(x.place.googleMapsUri,900)||null,rating:Number.isFinite(Number(x.place.rating))?Number(x.place.rating):null,review_count:Number.isFinite(Number(x.place.userRatingCount))?Number(x.place.userRatingCount):null,business_status:clean(x.place.businessStatus,80)||null,
+      opportunity_score:x.score,current_activity:x.whyNow||null,current_activity_url:x.signal&&x.signal.url||null,visible_problem:x.gap||('Current activity verified: '+x.whyNow),service:skill,status:'new',source:'Fuse verified research',research_request_id:request.data.id,
+      source_links:x.sources,qualification_json:{rank:idx+1,why_now:x.whyNow||'Not found',gap:x.gap||'No separate gap verified; relevance comes from the current activity.',contactable:!!(x.place.nationalPhoneNumber||(x.contact&&x.contact.email)||x.place.websiteUri),verified_current_reason:!!x.signal,page_speed:x.page||null},
+      signals:[x.signal?'current_activity_verified':null,x.gap?'skill_gap_verified':null,x.contact&&x.contact.email?'verified_email_found':null].filter(Boolean),
+      evidence:x.sources.map(s=>({source:s.label,url:s.url}))
     }));
-
-    let inserted=[];
-    if(rows.length){
-      const ins=await db.from('client_prospects').insert(rows).select('*');
-      if(ins.error)throw ins.error;inserted=ins.data||[];
-    }
+    let inserted=[];if(rows.length){const ins=await db.from('client_prospects').insert(rows).select('*');if(ins.error)throw ins.error;inserted=ins.data||[]}
     await db.from('client_research_requests').update({status:'completed',result_count:inserted.length,processed_at:new Date().toISOString()}).eq('id',request.data.id);
-    await db.from('client_activities').insert({
-      user_id:user.id,activity_type:'discovery',title:`Found ${places.length} ${niche} businesses`,
-      body:`${inserted.length} new prospect${inserted.length===1?' was':'s were'} added from ${location}.`,
-      metadata:{request_id:request.data.id,niche,location,returned:places.length,inserted:inserted.length,duplicates:places.length-inserted.length}
-    });
-    return json(200,{ok:true,request_id:request.data.id,returned:places.length,added:inserted.length,duplicates:places.length-inserted.length,prospects:inserted});
-  }catch(e){
-    console.error('[client-discover]',e);
-    return json(500,{error:e?.message||'Could not find prospects right now.'});
-  }
+    await db.from('client_activities').insert({user_id:user.id,activity_type:'discovery',title:'Researched '+places.length+' '+niche+' businesses',body:'Kept the strongest '+qualified.length+' with a verified current reason to contact.',metadata:{request_id:request.data.id,skill:skill,niche:niche,location:location,candidates:places.length,qualified:qualified.length,inserted:inserted.length}});
+    return json(200,{ok:true,request_id:request.data.id,candidates:places.length,qualified:qualified.length,added:inserted.length,duplicates:qualified.length-inserted.length,skipped:Math.max(0,places.length-qualified.length),prospects:inserted});
+  }catch(e){console.error('[client-discover]',e);return json(500,{error:e&&e.message||'Could not research prospects right now.'})}
 };
