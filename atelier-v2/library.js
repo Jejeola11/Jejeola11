@@ -145,9 +145,48 @@
 
   function injectMoreMenu(){
     if($('libraryMoreMenu'))return;
-    const style=document.createElement('style');style.textContent='.library-more-menu{position:fixed;z-index:140;width:min(220px,calc(100vw - 28px));display:none;overflow:hidden;border-radius:16px;background:#062125;border:1px solid #315456;box-shadow:0 20px 55px rgba(0,0,0,.45)}.library-more-menu.open{display:block}.library-more-menu button{width:100%;height:54px;border:0;background:transparent;color:#EEFFE0;display:flex;align-items:center;gap:12px;padding:0 17px;text-align:left;font-family:Montserrat,Arial,sans-serif;font-size:13px;font-weight:700}.library-more-menu button+button{border-top:1px solid rgba(49,84,86,.75)}.library-more-menu svg{width:21px;height:21px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.library-more-menu .danger{color:#ff3b45}.library-more-menu button:active{background:#00191B}';document.head.appendChild(style);
+    const style=document.createElement('style');style.textContent='.library-more-menu{position:fixed;z-index:140;width:min(220px,calc(100vw - 28px));display:none;overflow:hidden;border-radius:16px;background:#062125;border:1px solid #315456;box-shadow:0 20px 55px rgba(0,0,0,.45)}.library-more-menu.open{display:block}.library-more-menu button{width:100%;height:54px;border:0;background:transparent;color:#EEFFE0;display:flex;align-items:center;gap:12px;padding:0 17px;text-align:left;font-family:Montserrat,Arial,sans-serif;font-size:13px;font-weight:700}.library-more-menu button+button{border-top:1px solid rgba(49,84,86,.75)}.library-more-menu svg{width:21px;height:21px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.library-more-menu .danger{color:#ff3b45}.library-more-menu button:active{background:#00191B}.library-toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,18px);z-index:180;opacity:0;pointer-events:none;min-width:190px;max-width:calc(100vw - 28px);padding:12px 16px;border:1px solid #315456;border-radius:14px;background:#062125;color:#EEFFE0;box-shadow:0 16px 45px rgba(0,0,0,.42);font-family:Montserrat,Arial,sans-serif;font-size:13px;font-weight:700;text-align:center;transition:.2s ease}.library-toast.show{opacity:1;transform:translate(-50%,0)}.library-toast.good{color:#DFFF4E}';document.head.appendChild(style);
     const menu=document.createElement('div');menu.id='libraryMoreMenu';menu.className='library-more-menu';menu.innerHTML='<button id="libraryShareAction" type="button"><svg viewBox="0 0 24 24"><path d="M8 12 17 4M12 4h5v5"/><path d="M17 13v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg><span>Share</span></button><button id="libraryDeleteAction" class="danger" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg><span>Delete</span></button>';document.body.appendChild(menu);
     $('libraryShareAction').onclick=shareSelected;$('libraryDeleteAction').onclick=deleteSelected;
+  }
+  let toastTimer=null;
+  function libraryToast(message,good=false){
+    let el=$('libraryToast');
+    if(!el){el=document.createElement('div');el.id='libraryToast';el.className='library-toast';document.body.appendChild(el)}
+    clearTimeout(toastTimer);el.textContent=message;el.className='library-toast show'+(good?' good':'');
+    toastTimer=setTimeout(()=>{el.classList.remove('show')},1800);
+  }
+  function downloadExtension(type,kind){
+    const t=String(type||'').toLowerCase();
+    if(t.includes('mp4'))return'mp4';if(t.includes('webm'))return'webm';if(t.includes('quicktime'))return'mov';
+    if(t.includes('png'))return'png';if(t.includes('webp'))return'webp';if(t.includes('gif'))return'gif';if(t.includes('jpeg')||t.includes('jpg'))return'jpg';
+    if(t.includes('mpeg'))return'mp3';if(t.includes('wav'))return'wav';if(t.includes('ogg'))return'ogg';
+    return kind==='video'?'mp4':kind==='audio'?'mp3':'png';
+  }
+  async function downloadSelected(){
+    if(!selected)return;
+    const btn=$('downloadAction'),label=btn?.querySelector('span');
+    if(btn?.disabled)return;
+    const original=label?.textContent||'Download';
+    try{
+      if(btn)btn.disabled=true;if(label)label.textContent='Downloading…';libraryToast('Downloading…');
+      const response=await fetch(selected.output_url,{mode:'cors',credentials:'omit',cache:'no-store'});
+      if(!response.ok)throw new Error('Download failed.');
+      const blob=await response.blob();
+      if(!blob.size)throw new Error('The file was empty.');
+      const ext=downloadExtension(blob.type,selected.kind);
+      const filename='fuse-atelier-'+selected.kind+'-'+new Date().toISOString().slice(0,10)+'.'+ext;
+      const objectUrl=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=objectUrl;a.download=filename;a.style.display='none';
+      document.body.appendChild(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(objectUrl),15000);
+      if(label)label.textContent='Downloaded ✓';libraryToast('Downloaded ✓',true);
+      setTimeout(()=>{if(label)label.textContent=original;if(btn)btn.disabled=false},1400);
+    }catch(e){
+      console.warn('[library] download',e);
+      if(label)label.textContent='Try again';libraryToast('Could not download. Try again.');
+      setTimeout(()=>{if(label)label.textContent=original;if(btn)btn.disabled=false},1500);
+    }
   }
   function closeMoreMenu(){const m=$('libraryMoreMenu');if(m)m.classList.remove('open')}
   function openMoreMenu(){if(!selected)return;injectMoreMenu();const menu=$('libraryMoreMenu'),btn=$('moreAction'),r=btn.getBoundingClientRect(),width=Math.min(220,innerWidth-28),left=Math.max(14,Math.min(innerWidth-width-14,r.right-width));let top=r.top-116;if(top<14)top=Math.min(innerHeight-122,r.bottom+8);menu.style.left=left+'px';menu.style.top=top+'px';menu.classList.add('open')}
@@ -165,7 +204,7 @@
   $('copyPrompt').onclick=async()=>{if(!selected)return;try{await navigator.clipboard.writeText(selected.prompt||'');$('copyPrompt').textContent='Copied';setTimeout(()=>$('copyPrompt').textContent='Copy',1200)}catch(_){}};
   $('seePrompt').onclick=()=>{const box=$('detailPrompt');box.classList.toggle('collapsed');$('seePrompt').textContent=box.classList.contains('collapsed')?'See all⌄':'Show less⌃'};
   $('editAction').onclick=()=>{if(selected)location.href=routeFor(selected)};$('recreateAction').onclick=()=>{if(!selected)return;try{sessionStorage.setItem('fuse_recreate_prompt',selected.prompt||'')}catch(_){}location.href=routeFor(selected)};$('videoAction').onclick=()=>{if(!selected)return;try{sessionStorage.setItem('fuse_video_reference',selected.output_url||'')}catch(_){}location.href='video-create.html'};
-  $('downloadAction').onclick=()=>{if(!selected)return;const a=document.createElement('a');a.href=selected.output_url;a.download='fuse-atelier-creation';a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove()};
+  $('downloadAction').onclick=downloadSelected;
   $('favAction').onclick=()=>{if(!selected)return;const id=String(selected.id),on=favs().has(id);setFav(id,!on);$('favAction').querySelector('span').textContent=!on?'Favourited':'Favourite'};$('moreAction').onclick=e=>{e.stopPropagation();const m=$('libraryMoreMenu');m&&m.classList.contains('open')?closeMoreMenu():openMoreMenu()};
 
   document.querySelectorAll('.filter').forEach(btn=>btn.onclick=()=>{currentFilter=btn.dataset.filter;document.querySelectorAll('.filter').forEach(x=>x.classList.toggle('on',x===btn));render()});
