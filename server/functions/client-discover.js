@@ -12,6 +12,26 @@ function scoreBase(p){
   if(Number(p.userRatingCount||0)>=100)s+=5;
   return s;
 }
+function starterPrice(skill){
+  const s=String(skill||'').toLowerCase();
+  if(s.includes('landing')||s.includes('page')||s.includes('website'))return {currency:'USD',amount:250};
+  if(s.includes('video')||s.includes('ugc')||s.includes('ad'))return {currency:'USD',amount:150};
+  if(s.includes('brand'))return {currency:'USD',amount:300};
+  if(s.includes('google business')||s.includes('profile'))return {currency:'USD',amount:200};
+  return {currency:'USD',amount:100};
+}
+function bestContact(x){
+  if(x.contact&&x.contact.email)return 'Email';
+  if(x.contact&&x.contact.linkedin)return 'LinkedIn';
+  if(x.place&&x.place.nationalPhoneNumber)return 'WhatsApp / phone';
+  return x.place&&x.place.websiteUri?'Website contact route':'Not found';
+}
+function askFirstFor(x,skill){
+  const who=x.contact&&x.contact.name?x.contact.name:x.name;
+  const now=x.whyNow||'your current campaign';
+  const gap=x.gap||('a focused '+skill+' idea that fits what you are promoting now');
+  return 'Hi '+who+', I came across '+now+'. I noticed '+gap.charAt(0).toLowerCase()+gap.slice(1)+' I have an idea for '+skill+' that could make that campaign/customer journey clearer. Would you be open to seeing a quick concept?';
+}
 function serviceGap(skill,p,page){
   const k=String(skill||'').toLowerCase();
   if((k.includes('landing')||k.includes('page')||k.includes('website'))&&!p.websiteUri)return 'No website is listed on the Google Business Profile.';
@@ -94,7 +114,7 @@ exports.handler=async(event)=>{
       contact_name:x.contact&&x.contact.name||null,email:x.contact&&x.contact.email||null,whatsapp:clean(x.place.nationalPhoneNumber,80)||null,website:clean(x.place.websiteUri,700)||null,
       google_place_id:clean(x.place.id,220),maps_url:clean(x.place.googleMapsUri,900)||null,rating:Number.isFinite(Number(x.place.rating))?Number(x.place.rating):null,review_count:Number.isFinite(Number(x.place.userRatingCount))?Number(x.place.userRatingCount):null,business_status:clean(x.place.businessStatus,80)||null,
       opportunity_score:x.score,current_activity:x.whyNow||null,current_activity_url:x.signal&&x.signal.url||null,visible_problem:x.gap||('Current activity verified: '+x.whyNow),service:skill,status:'new',source:'Fuse verified research',research_request_id:request.data.id,
-      source_links:x.sources,qualification_json:{rank:idx+1,why_now:x.whyNow||'Not found',gap:x.gap||'No separate gap verified; relevance comes from the current activity.',contactable:!!(x.place.nationalPhoneNumber||(x.contact&&x.contact.email)||x.place.websiteUri),verified_current_reason:!!x.signal,page_speed:x.page||null},
+      source_links:x.sources,qualification_json:{rank:idx+1,why_now:x.whyNow||'Not found',gap:x.gap||'No separate gap verified; relevance comes from the current activity.',why_skill_relevant:skill+' is relevant because the business has a verified current activity and a matching visible opportunity.',offer:skill,starter_price:starterPrice(skill),best_contact_method:bestContact(x),ask_first:askFirstFor(x,skill),contactable:!!(x.place.nationalPhoneNumber||(x.contact&&x.contact.email)||x.place.websiteUri),verified_current_reason:!!x.signal,page_speed:x.page||null},
       signals:[x.signal?'current_activity_verified':null,x.gap?'skill_gap_verified':null,x.contact&&x.contact.email?'verified_email_found':null].filter(Boolean),
       evidence:x.sources.map(s=>({source:s.label,url:s.url}))
     }));
