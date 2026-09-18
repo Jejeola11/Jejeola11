@@ -167,12 +167,19 @@ function linkButtons(p){
   return links.join('')
 }
 function renderContact(p){
+  const q=p.qualification_json||{};
   const name=p.founder_name||p.contact_name||'Not found';
-  const title=p.founder_title||'Founder / decision-maker';
+  const title=p.founder_title||'Not found';
   const funding=Number(p.funding_total_usd||0);
   const sourceLinks=Array.isArray(p.source_links)?p.source_links:[];
-  return `<div class="output"><h3>Decision-maker & evidence</h3><div class="finding"><b>${esc(name)}</b><small>${esc(title)}</small></div>
-  <div class="finding"><b>Current reason to contact</b><small>${esc(p.current_activity||'Not found')}</small>${p.current_activity_url?`<small><a href="${esc(p.current_activity_url)}" target="_blank" rel="noopener">Open source ↗</a></small>`:''}</div>
+  const price=q.starter_price&&q.starter_price.amount?fmtMoney(q.starter_price.amount,q.starter_price.currency||'USD'):'Not found';
+  return `<div class="output"><h3>Decision-maker & evidence</h3>
+  ${q.rank?`<div class="finding"><b>Priority</b><small>#${esc(q.rank)} strongest opportunity from this research run</small></div>`:''}
+  <div class="finding"><b>Founder / contact</b><small>${esc(name)} · ${esc(title)}</small><small>Email: ${esc(p.founder_email||p.email||'Not found')}</small><small>Phone: ${esc(p.founder_phone||p.whatsapp||'Not found')}</small><small>LinkedIn: ${esc(p.founder_linkedin||'Not found')}</small><small>Instagram: ${esc(p.founder_instagram||p.instagram||'Not found')}</small></div>
+  <div class="finding"><b>Why now</b><small>${esc(q.why_now||p.current_activity||'Not found')}</small>${p.current_activity_url?`<small><a href="${esc(p.current_activity_url)}" target="_blank" rel="noopener">Open source ↗</a></small>`:''}</div>
+  <div class="finding"><b>What to offer</b><small>${esc(q.offer||p.service||'Not found')} · starter price ${esc(price)}</small><small>${esc(q.gap||p.visible_problem||'Not found')}</small></div>
+  <div class="finding"><b>Best contact method</b><small>${esc(q.best_contact_method||'Not found')}</small></div>
+  ${q.ask_first?`<div class="finding"><b>Ask-first opener</b><small style="white-space:pre-wrap">${esc(q.ask_first)}</small><div class="copy-row"><button class="copy-btn" data-copy-qualified-ask>Copy</button></div></div>`:''}
   ${funding?`<div class="finding"><b>Funding</b><small>${esc(fmtMoney(funding,'USD'))} reported funding</small>${p.funding_source_url?`<small><a href="${esc(p.funding_source_url)}" target="_blank" rel="noopener">Funding source ↗</a></small>`:''}</div>`:''}
   ${sourceLinks.length?`<div class="finding"><b>Sources</b>${sourceLinks.slice(0,8).map(x=>{const u=typeof x==='string'?x:(x.url||'');const label=typeof x==='string'?'Source':(x.label||x.source||'Source');return u?`<small><a href="${esc(u)}" target="_blank" rel="noopener">${esc(label)} ↗</a></small>`:''}).join('')}</div>`:''}</div>`;
 }
@@ -267,6 +274,7 @@ function bindDetail(p){
   const channels=$('detailBody').querySelectorAll('[data-channel]');
   channels.forEach(btn=>btn.onclick=()=>{channels.forEach(x=>x.classList.toggle('active',x===btn));const el=$('channelCopy');if(el)el.textContent=out?.[btn.dataset.channel]||''});
   $('copyChannel')?.addEventListener('click',()=>copyText($('channelCopy')?.textContent||''));
+  $('detailBody').querySelector('[data-copy-qualified-ask]')?.addEventListener('click',()=>copyText(p.qualification_json?.ask_first||''));
 }
 async function saveNotes(id){
   const notes=$('detailNotes').value.trim();
