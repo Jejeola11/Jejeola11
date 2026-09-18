@@ -204,30 +204,40 @@ function openDetail(id){
   $('dTitle').textContent=p.brand_name;$('dMeta').textContent=[p.niche,p.location,stageLabel(p.status)].filter(Boolean).join(' · ');
   renderDetail(p);openOverlay('detailOverlay');
 }
+function renderContract(p){
+  const x=latestContract(p.id);if(!x)return'';
+  const signUrl=location.origin+'/atelier-v2/client-sign.html?token='+encodeURIComponent(x.public_token);
+  return `<div class="output"><h3>${esc(x.title||'Service Agreement')}</h3><p style="white-space:pre-wrap;max-height:260px;overflow:auto">${esc(x.body||'')}</p><div class="badges"><span class="badge ${x.status==='signed'?'hot':''}">${esc(x.status)}</span></div><div class="job-actions"><a class="mini" href="${esc(signUrl)}" target="_blank" rel="noopener">Open signing page</a><button class="mini" data-copy-contract>Copy signing link</button>${x.status==='draft'?'<button class="mini hot" data-send-contract>Mark sent</button>':''}</div></div>`;
+}
 function renderDetail(p){
   const s=normalizeStatus(p.status),score=Number(p.opportunity_score||0),rating=p.rating!=null?`${Number(p.rating).toFixed(1)} ★ · ${p.review_count??0} reviews`:'No Google rating saved';
+  const contract=latestContract(p.id);
   $('detailBody').innerHTML=`
     <div class="detail-score"><div><b>Opportunity score</b><div class="meta">${esc(rating)}</div></div><strong>${score}/100</strong></div>
     <div class="badges" style="margin-top:10px"><span class="badge hot">${esc(stageLabel(s))}</span>${p.service?`<span class="badge">${esc(p.service)}</span>`:''}${p.source?`<span class="badge">${esc(p.source)}</span>`:''}</div>
     ${p.visible_problem?`<div class="problem">${esc(p.visible_problem)}</div>`:''}
     <div class="job-actions">${linkButtons(p)}</div>
+    ${renderContact(p)}
     <div class="divider"></div>
     <div class="detail-actions">
-      <button class="agent-btn hot" data-agent="audit"><b>✦ Audit</b><span>Find the strongest grounded opportunity</span></button>
-      <button class="agent-btn" data-agent="outreach"><b>Ask-first outreach</b><span>Email, IG, WhatsApp + follow-up</span></button>
-      <button class="agent-btn" data-agent="loom"><b>Loom guide</b><span>What to show and say in 60–90 sec</span></button>
-      <button class="agent-btn" data-agent="proposal"><b>Proposal</b><span>Scope + monthly retainer price</span></button>
+      <button class="agent-btn hot" data-agent="audit"><b>✦ Audit</b><span>Verify the strongest factual opportunity</span></button>
+      <button class="agent-btn" data-agent="outreach"><b>Ask-first</b><span>Permission-based email, IG, LinkedIn or WhatsApp</span></button>
+      <button class="agent-btn" data-agent="sample"><b>Create sample</b><span>Only after they reply positively</span></button>
+      <button class="agent-btn" data-agent="proposal"><b>Proposal</b><span>Scope + monthly price after they like the sample</span></button>
     </div>
     <div id="agentLoading"></div>
-    ${renderAudit(p)}${renderOutreach(p)}${renderLoom(p)}${renderProposal(p)}
+    ${renderAudit(p)}${renderOutreach(p)}${renderSample(p)}${renderProposal(p)}${renderContract(p)}
     <div class="divider"></div>
-    <div class="section-head"><div><h2 style="font-size:16px">Move deal</h2><p>Only mark an action after it actually happened.</p></div></div>
+    <div class="section-head"><div><h2 style="font-size:16px">Move deal</h2><p>Only mark a step after it actually happened.</p></div></div>
     <div class="job-actions">
-      ${!['contacted','replied','loom_sent','proposal_sent','won','lost'].includes(s)?`<button class="mini hot" data-status="contacted">Mark contacted</button>`:''}
-      ${s==='contacted'?`<button class="mini hot" data-status="replied">They replied</button>`:''}
-      ${['replied','qualified'].includes(s)&&latestLoom(p.id)?`<button class="mini hot" data-status="loom_sent">Loom sent</button>`:''}
-      ${['loom_sent','replied','qualified'].includes(s)&&latestProposal(p.id)?`<button class="mini hot" data-status="proposal_sent">Proposal sent</button>`:''}
-      ${s==='proposal_sent'?`<button class="mini hot" id="winBtn">Start retainer</button>`:''}
+      ${s==='audited'?`<button class="mini hot" data-status="asked">Ask-first sent</button>`:''}
+      ${s==='asked'?`<button class="mini hot" data-status="replied">They replied yes</button>`:''}
+      ${s==='sample_ready'&&p.sample_url?`<button class="mini hot" data-status="sample_sent">Sample sent</button>`:''}
+      ${s==='sample_sent'?`<button class="mini hot" data-status="agreed">Client wants the full version</button>`:''}
+      ${s==='agreed'&&latestProposal(p.id)?`<button class="mini hot" data-status="proposal_sent">Proposal sent</button>`:''}
+      ${s==='proposal_sent'?`<button class="mini hot" data-status="deal_locked">Proposal accepted · lock deal</button>`:''}
+      ${s==='deal_locked'&&!contract?`<button class="mini hot" id="prepareContract">Prepare contract</button>`:''}
+      ${s==='contract_signed'?`<button class="mini hot" id="winBtn">Start retainer</button>`:''}
       ${!['won','lost'].includes(s)?`<button class="mini" data-status="lost">Mark lost</button>`:''}
       ${s==='won'?`<button class="mini hot" data-open-clients>Open client delivery</button>`:''}
     </div>
@@ -238,25 +248,73 @@ function bindDetail(p){
   $('detailBody').querySelectorAll('[data-agent]').forEach(b=>b.onclick=()=>runAgent(p.id,b.dataset.agent,b));
   $('detailBody').querySelectorAll('[data-status]').forEach(b=>b.onclick=()=>markStatus(p.id,b.dataset.status));
   $('winBtn')?.addEventListener('click',()=>openRetainer(p.id));
+  $('prepareContract')?.addEventListener('click',()=>prepareContract(p.id));
   $('detailBody').querySelector('[data-open-clients]')?.addEventListener('click',()=>{closeOverlay('detailOverlay');setView('clients')});
   $('saveNotes')?.addEventListener('click',()=>saveNotes(p.id));
-  $('saveLoomUrl')?.addEventListener('click',()=>saveLoomUrl(p.id));
+  $('saveSampleUrl')?.addEventListener('click',()=>saveSampleUrl(p.id));
+  $('copySampleMessage')?.addEventListener('click',()=>copyText(p.sample_submission_copy||state.agentOutput?.output?.submission_message||''));
+  $('detailBody').querySelector('[data-create-sample]')?.addEventListener('click',e=>{
+    const route=e.currentTarget.dataset.createSample||'/atelier-v2/studio.html';
+    const brief=state.agentOutput?.action==='sample'?state.agentOutput.output:p.sample_brief||{};
+    try{sessionStorage.setItem('fuse_sample_prompt',brief.prompt||'');sessionStorage.setItem('fuse_sample_prospect',p.id)}catch(_){}
+    copyText(brief.prompt||'');
+    location.href=route;
+  });
   $('detailBody').querySelector('[data-copy-proposal]')?.addEventListener('click',()=>{const x=state.agentOutput?.action==='proposal'?state.agentOutput.output:latestProposal(p.id);copyText(x?.proposal_copy||'')});
-  const out=state.agentOutput?.action==='outreach'?state.agentOutput.output:{email:p.pitch_email,instagram:p.pitch_instagram,whatsapp:p.pitch_whatsapp};
+  $('detailBody').querySelector('[data-copy-contract]')?.addEventListener('click',()=>{const x=latestContract(p.id);if(x)copyText(location.origin+'/atelier-v2/client-sign.html?token='+x.public_token)});
+  $('detailBody').querySelector('[data-send-contract]')?.addEventListener('click',()=>sendContract(p.id));
+  const out=state.agentOutput?.action==='outreach'?state.agentOutput.output:{email:p.pitch_email,instagram:p.pitch_instagram,linkedin:'',whatsapp:p.pitch_whatsapp};
   const channels=$('detailBody').querySelectorAll('[data-channel]');
   channels.forEach(btn=>btn.onclick=()=>{channels.forEach(x=>x.classList.toggle('active',x===btn));const el=$('channelCopy');if(el)el.textContent=out?.[btn.dataset.channel]||''});
   $('copyChannel')?.addEventListener('click',()=>copyText($('channelCopy')?.textContent||''));
 }
-async function saveNotes(id){const notes=$('detailNotes').value.trim();const {error}=await sb.from('client_prospects').update({notes,updated_at:new Date().toISOString()}).eq('id',id).eq('user_id',state.session.user.id);if(error)return toast(error.message,true);const p=state.prospects.find(x=>x.id===id);if(p)p.notes=notes;toast('Notes saved')}
-async function saveLoomUrl(id){const url=$('loomUrlInput')?.value.trim()||'';if(url&&!cleanUrl(url))return toast('Enter a valid Loom URL.',true);const {error}=await sb.from('client_prospects').update({loom_url:url||null,updated_at:new Date().toISOString()}).eq('id',id).eq('user_id',state.session.user.id);if(error)return toast(error.message,true);const p=state.prospects.find(x=>x.id===id);if(p)p.loom_url=url;toast('Loom URL saved')}
+async function saveNotes(id){
+  const notes=$('detailNotes').value.trim();
+  const {error}=await sb.from('client_prospects').update({notes,updated_at:new Date().toISOString()}).eq('id',id).eq('user_id',state.session.user.id);
+  if(error)return toast(error.message,true);
+  const p=state.prospects.find(x=>x.id===id);if(p)p.notes=notes;toast('Notes saved')
+}
+async function saveSampleUrl(id){
+  const url=$('sampleUrlInput')?.value.trim()||'';
+  if(url&&!cleanUrl(url))return toast('Enter a valid sample URL.',true);
+  const {error}=await sb.from('client_prospects').update({sample_url:url||null,sample_status:url?'created':'brief_ready',updated_at:new Date().toISOString()}).eq('id',id).eq('user_id',state.session.user.id);
+  if(error)return toast(error.message,true);
+  await loadAll();const p=state.prospects.find(x=>x.id===id);if(p)renderDetail(p);toast('Sample saved')
+}
+async function prepareContract(id){
+  if(state.busy)return;state.busy=true;
+  try{
+    const d=await api('client-contract',{action:'prepare',prospect_id:id});
+    await loadAll();const p=state.prospects.find(x=>x.id===id);if(p)renderDetail(p);
+    toast('Contract ready · copy the signing link when you are ready')
+  }catch(e){toast(e.message,true)}finally{state.busy=false}
+}
+async function sendContract(id){
+  const x=latestContract(id);if(!x)return toast('Prepare the contract first.',true);
+  try{
+    const d=await api('client-contract',{action:'send',prospect_id:id,contract_id:x.id});
+    copyText(location.origin+d.sign_url);await loadAll();const p=state.prospects.find(x=>x.id===id);if(p)renderDetail(p);
+    toast('Signing link copied · send it to the client')
+  }catch(e){toast(e.message,true)}
+}
 async function runAgent(id,action,btn){
   if(state.busy)return;state.busy=true;const old=btn.innerHTML;btn.disabled=true;btn.innerHTML='<b>Working…</b><span>Fuse is preparing this step</span>';
-  try{const d=await api('client-ai',{prospect_id:id,action});state.agentOutput={action,output:d.output};await loadAll();const p=state.prospects.find(x=>x.id===id);state.agentOutput={action,output:d.output};renderDetail(p);toast(action==='audit'?'Audit ready':action==='outreach'?'Outreach ready':action==='loom'?'Loom guide ready':'Proposal ready')}catch(e){toast(e.message,true);btn.disabled=false;btn.innerHTML=old}finally{state.busy=false}
+  try{
+    const d=await api('client-ai',{prospect_id:id,action});
+    state.agentOutput={action,output:d.output};await loadAll();const p=state.prospects.find(x=>x.id===id);state.agentOutput={action,output:d.output};renderDetail(p);
+    toast(action==='audit'?'Audit ready':action==='outreach'?'Ask-first message ready':action==='sample'?'Sample brief ready':'Proposal ready')
+  }catch(e){toast(e.message,true);btn.disabled=false;btn.innerHTML=old}finally{state.busy=false}
 }
 async function markStatus(id,status){
-  const patch={status,updated_at:new Date().toISOString(),last_activity_at:new Date().toISOString()};
-  if(status==='contacted'){patch.last_contacted_at=new Date().toISOString();const d=new Date();d.setDate(d.getDate()+3);patch.next_follow_up=d.toISOString()}
-  if(['replied','loom_sent','proposal_sent','won','lost'].includes(status))patch.next_follow_up=null;
+  const now=new Date().toISOString();
+  const patch={status,updated_at:now,last_activity_at:now};
+  if(status==='asked'){patch.last_contacted_at=now;const d=new Date();d.setDate(d.getDate()+3);patch.next_follow_up=d.toISOString()}
+  if(status==='replied')patch.replied_at=now;
+  if(status==='sample_sent'){patch.sample_sent_at=now;patch.sample_status='sent'}
+  if(status==='agreed')patch.client_agreed_at=now;
+  if(status==='proposal_sent')patch.proposal_sent_at=now;
+  if(status==='deal_locked')patch.deal_locked_at=now;
+  if(['replied','sample_sent','agreed','proposal_sent','deal_locked','contract_signed','won','lost'].includes(status))patch.next_follow_up=null;
   const {error}=await sb.from('client_prospects').update(patch).eq('id',id).eq('user_id',state.session.user.id);if(error)return toast(error.message,true);
   await sb.from('client_activities').insert({user_id:state.session.user.id,prospect_id:id,activity_type:'stage_change',title:'Deal moved to '+stageLabel(status),metadata:{status}});
   await loadAll();const p=state.prospects.find(x=>x.id===id);if(p)renderDetail(p);toast('Pipeline updated')
