@@ -94,16 +94,46 @@ exports.handler=async(event)=>{
     const skill=clean(body.skill,180),niche=clean(body.niche,140),location=clean(body.location,180);
     if(!skill||!niche||!location)return json(400,{error:'Choose your skill, niche and city + country.'});
     const google=(process.env.GOOGLE_PLACES_API_KEY||process.env.GOOGLE_MAPS_API_KEY||'').trim();
-    const serp=(process.env.SERPAPI_API_KEY||'').trim();
-    if(!google)return json(503,{error:'Google Places API key is not configured.',code:'GOOGLE_PLACES_NOT_CONFIGURED'});
-    if(!serp)return json(503,{error:'Fuse needs a live web-research API before it can verify current reasons for outreach. Add SERPAPI_API_KEY.',code:'CURRENT_RESEARCH_NOT_CONFIGURED'});
-    const keys={serp:serp,hunter:(process.env.HUNTER_API_KEY||'').trim(),pagespeed:(process.env.PAGESPEED_API_KEY||google).trim()};
+    const serp=(process.env.SERPAPI_API_KEY||process.env.SERP_API_KEY||'').trim();
+    if(!serp)return json(503,{error:'Fuse needs SerpApi before live prospect research can run. Add SERPAPI_API_KEY in Vercel.',code:'SERPAPI_NOT_CONFIGURED'});
+    const keys={serp:serp,hunter:(process.env.HUNTER_API_KEY||'').trim(),pagespeed:(process.env.PAGESPEED_API_KEY||google||'').trim()};
     const db=admin();
-    const request=await db.from('client_research_requests').insert({user_id:user.id,source:'places+web',niche:niche,location:location,criteria:{skill:skill,return_count:5,candidate_count:20},status:'processing',requested_at:new Date().toISOString()}).select('id').single();
+    const request=await db.from('client_research_requests').insert({user_id:user.id,source:google?'google_places+serp_web':'serp_maps+serp_web',niche:niche,location:location,criteria:{skill:skill,return_count:5,candidate_count:20},status:'processing',requested_at:new Date().toISOString()}).select('id').single();
     if(request.error)throw request.error;
-    const res=await fetch('https://places.googleapis.com/v1/places:searchText',{method:'POST',headers:{'Content-Type':'application/json','X-Goog-Api-Key':google,'X-Goog-FieldMask':'places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.websiteUri,places.rating,places.userRatingCount,places.googleMapsUri,places.businessStatus,places.types'},body:JSON.stringify({textQuery:niche+' in '+location,maxResultCount:20})});
-    const raw=await res.json().catch(()=>({}));if(!res.ok)throw new Error(raw&&raw.error&&raw.error.message||'Google Places search failed.');
-    const places=(Array.isArray(raw.places)?raw.places:[]).sort((a,b)=>scoreBase(b)-scoreBase(a)).slice(0,10);
+    let places=[],mapsProvider='SerpApi Google Maps';
+    if(google){
+      const res=await fetch('https://places.googleapis.com/v1/places:searchText',{method:'POST',headers:{'Content-Type':'application/json','X-Goog-Api-Key':google,'X-Goog-FieldMask':'places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.websiteUri,places.rating,places.userRatingCount,places.googleMapsUri,places.businessStatus,places.types'},body:JSON.stringify({textQuery:niche+' in '+location,maxResultCount:20})});
+      const raw=await res.json().catch(()=>({}));
+      if(res.ok&&Array.isArray(raw.places)&&raw.places.length){
+        places=raw.places;
+        mapsProvider='Google Places';
+      }
+    }
+    if(!places.length){
+      const u=new URL('https://serpapi.com/search');
+      u.searchParams.set('engine','google_maps');
+      u.searchParams.set('type','search');
+      u.searchParams.set('q',niche+' in '+location);
+      u.searchParams.set('hl','en');
+      u.searchParams.set('api_key',serp);
+      const res=await fetch(u);
+      const raw=await res.json().catch(()=>({}));
+      if(!res.ok||raw.error)throw new Error(raw.error||'SerpApi Google Maps search failed.');
+      places=(Array.isArray(raw.local_results)?raw.local_results:[]).map(x=>({
+        id:clean(x.place_id||x.data_id,220),
+        displayName:{text:clean(x.title,180)},
+        formattedAddress:clean(x.address,240),
+        nationalPhoneNumber:clean(x.phone,80),
+        websiteUri:clean(x.website,700),
+        rating:Number.isFinite(Number(x.rating))?Number(x.rating):null,
+        userRatingCount:Number.isFinite(Number(x.reviews))?Number(x.reviews):null,
+        googleMapsUri:x.place_id?'https://www.google.com/maps/search/?api=1&query_place_id='+encodeURIComponent(x.place_id):'',
+        businessStatus:clean(x.open_state,80),
+        types:[clean(x.type,120)].filter(Boolean)
+      }));
+      mapsProvider='SerpApi Google Maps';
+    }
+    places=places.sort((a,b)=>scoreBase(b)-scoreBase(a)).slice(0,10);
     const enriched=await Promise.all(places.map(p=>enrich(p,skill,location,keys)));
     const qualified=enriched.filter(x=>x.qualifies).sort((a,b)=>b.score-a.score).slice(0,5);
     const ids=qualified.map(x=>clean(x.place.id,220)).filter(Boolean);
@@ -121,7 +151,7 @@ exports.handler=async(event)=>{
     }));
     let inserted=[];if(rows.length){const ins=await db.from('client_prospects').insert(rows).select('*');if(ins.error)throw ins.error;inserted=ins.data||[]}
     await db.from('client_research_requests').update({status:'completed',result_count:inserted.length,processed_at:new Date().toISOString()}).eq('id',request.data.id);
-    await db.from('client_activities').insert({user_id:user.id,activity_type:'discovery',title:'Researched '+places.length+' '+niche+' businesses',body:'Kept the strongest '+qualified.length+' with a verified current reason to contact.',metadata:{request_id:request.data.id,skill:skill,niche:niche,location:location,candidates:places.length,qualified:qualified.length,inserted:inserted.length}});
-    return json(200,{ok:true,request_id:request.data.id,candidates:places.length,qualified:qualified.length,added:inserted.length,duplicates:qualified.length-inserted.length,skipped:Math.max(0,places.length-qualified.length),prospects:inserted});
+    await db.from('client_activities').insert({user_id:user.id,activity_type:'discovery',title:'Researched '+places.length+' '+niche+' businesses',body:'Kept the strongest '+qualified.length+' with a verified current reason to contact.',metadata:{request_id:request.data.id,skill:skill,niche:niche,location:location,candidates:places.length,qualified:qualified.length,inserted:inserted.length,maps_provider:mapsProvider,hunter_enabled:!!keys.hunter}});
+    return json(200,{ok:true,request_id:request.data.id,candidates:places.length,qualified:qualified.length,added:inserted.length,duplicates:qualified.length-inserted.length,skipped:Math.max(0,places.length-qualified.length),maps_provider:mapsProvider,hunter_enabled:!!keys.hunter,prospects:inserted});
   }catch(e){console.error('[client-discover]',e);return json(500,{error:e&&e.message||'Could not research prospects right now.'})}
 };
