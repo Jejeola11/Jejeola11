@@ -129,7 +129,7 @@ exports.handler=async(event)=>{
     const audit=(p.audit_json&&Object.keys(p.audit_json).length)?p.audit_json:fallbackAudit(p);
     if(action==='outreach'){
       output=output||fallbackOutreach(p,audit);
-      const upd=await db.from('client_prospects').update({pitch_email:clean(output.email,5000),pitch_instagram:clean(output.instagram,3000),pitch_whatsapp:clean(output.whatsapp,3000),last_activity_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',p.id).eq('user_id',user.id).select('*').single();
+      const upd=await db.from('client_prospects').update({pitch_email:clean(output.email,5000),pitch_instagram:clean(output.instagram,3000),pitch_linkedin:clean(output.linkedin,3000),pitch_whatsapp:clean(output.whatsapp,3000),last_activity_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',p.id).eq('user_id',user.id).select('*').single();
       if(upd.error)throw upd.error;
       await activity(db,user.id,p.id,'outreach_ready','Outreach ready',clean(output.subject,300),{ai_used:aiUsed,follow_up:clean(output.follow_up,2000)});
       return json(200,{ok:true,action,ai_used:aiUsed,output,prospect:upd.data});
