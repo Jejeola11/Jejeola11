@@ -1,17 +1,17 @@
 // POST /api/client-ai
-// AI copilot for one prospect: audit -> outreach -> Loom -> proposal.
+// AI copilot for one prospect: audit -> ask-first -> sample -> proposal.
 // Every claim must be grounded in prospect data already saved in Fuse.
 const { admin, getUser, json } = require('./_supabase');
 
-const ACTIONS=new Set(['audit','outreach','loom','proposal']);
+const ACTIONS=new Set(['audit','outreach','sample','proposal']);
 function clean(v,max=5000){return typeof v==='string'?v.trim().slice(0,max):''}
 function money(v,fallback=0){const n=Number(v);return Number.isFinite(n)&&n>=0?n:fallback}
 function prospectContext(p={}){
   return {
-    business_name:p.brand_name||'',niche:p.niche||'',location:p.location||'',contact_name:p.contact_name||'',
+    business_name:p.brand_name||'',niche:p.niche||'',location:p.location||'',contact_name:p.contact_name||'',\n    founder_name:p.founder_name||'',founder_title:p.founder_title||'',founder_linkedin:p.founder_linkedin||'',founder_email:p.founder_email||'',founder_phone:p.founder_phone||'',founder_instagram:p.founder_instagram||'',
     website:p.website||'',google_maps:p.maps_url||'',rating:p.rating??null,review_count:p.review_count??null,
     visible_problem:p.visible_problem||'',service:p.service||'',offer_price:p.offer_price??null,offer_currency:p.offer_currency||'USD',
-    notes:p.notes||'',signals:Array.isArray(p.signals)?p.signals:[],evidence:Array.isArray(p.evidence)?p.evidence:[],
+    notes:p.notes||'',current_activity:p.current_activity||'',current_activity_url:p.current_activity_url||'',funding_total_usd:p.funding_total_usd??null,funding_source_url:p.funding_source_url||'',\n    signals:Array.isArray(p.signals)?p.signals:[],evidence:Array.isArray(p.evidence)?p.evidence:[],source_links:Array.isArray(p.source_links)?p.source_links:[],qualification:p.qualification_json||{},ad_signal:p.ad_signal_json||{},
     existing_audit:p.audit_json||{},existing_summary:p.audit_summary||'',research_summary:p.research_summary||''
   };
 }
@@ -24,30 +24,47 @@ function fallbackAudit(p){
   if(!findings.length)findings.push({title:'Needs a manual visual check',evidence:'Fuse has the business record but not enough verified marketing evidence yet.',impact:'Open the website and Google profile before sending a claim-heavy pitch.'});
   const score=Math.max(35,Math.min(95,Number(p.opportunity_score)||55));
   const top=findings[0];
-  return {score,top_opportunity:top.title,summary:`${p.brand_name} has a pitchable opportunity around ${top.title.toLowerCase()}. Lead with the verified evidence, then ask permission to show the fix.`,findings,offer_angle:p.service||(!p.website?'Landing Page Design':'Google Business Profile Growth'),first_move:'Send an ask-first message and offer a short personalised Loom after they respond.'};
+  return {score,top_opportunity:top.title,summary:`${p.brand_name} has a pitchable opportunity around ${top.title.toLowerCase()}. Lead with the verified evidence, then ask permission to show the fix.`,findings,offer_angle:p.service||(!p.website?'Landing Page Design':'Google Business Profile Growth'),first_move:'Send an ask-first message. Only create one focused sample after they respond positively.'};
 }
 function fallbackOutreach(p,audit){
   const first=(audit?.findings||[])[0];
-  const evidence=first?.evidence||p.visible_problem||'I noticed an opportunity on your online presence';
-  const name=p.contact_name?` ${p.contact_name}`:'';
-  const service=audit?.offer_angle||p.service||'online presence';
+  const evidence=first?.evidence||p.current_activity||p.visible_problem||'I noticed a specific opportunity in your current marketing';
+  const name=p.founder_name||p.contact_name||'';
+  const hello=name?'Hi '+name:'Hi';
+  const service=audit?.offer_angle||p.service||'a focused creative improvement';
+  const line=hello+', I came across '+p.brand_name+' and noticed '+evidence.charAt(0).toLowerCase()+evidence.slice(1)+' I have one idea for '+service+' that could make that campaign/customer journey clearer. Would you be open to seeing a quick concept?';
   return {
-    subject:`Quick idea for ${p.brand_name}`,
-    email:`Hi${name},\n\nI came across ${p.brand_name} and noticed ${evidence.charAt(0).toLowerCase()+evidence.slice(1)} I have one practical idea around ${service} that could make the next step clearer for potential customers.\n\nWould you like me to record a quick 60–90 second Loom showing exactly what I mean?\n\nNo pressure — happy to send it over if useful.`,
-    instagram:`Hi${name} — I found ${p.brand_name} and noticed ${evidence.charAt(0).toLowerCase()+evidence.slice(1)} I have a quick idea that may help. Want me to send a short Loom showing it?`,
-    whatsapp:`Hi${name}, I came across ${p.brand_name}. ${evidence} I have one quick improvement idea — can I send you a 60–90 sec Loom showing it?`,
-    follow_up:`Hi${name}, just bumping this in case it got buried. Happy to send the quick Loom for ${p.brand_name} if you'd like to see the idea.`
+    subject:'Quick idea for '+p.brand_name,
+    email:line,
+    instagram:line,
+    linkedin:line,
+    whatsapp:line,
+    follow_up:hello+', just following up in case this got buried. I still have the quick concept idea for '+p.brand_name+' if you would like to see it.'
   };
 }
-function fallbackLoom(p,audit){
-  const top=audit?.top_opportunity||p.visible_problem||'one improvement opportunity';
-  const service=audit?.offer_angle||p.service||'your online presence';
-  return {hook:`Hey — I made this specifically for ${p.brand_name}. I’ll keep it under 90 seconds.`,duration_seconds:75,sections:[
-    {time:'0–10s',title:'Personal opener',script:`Show their Google profile or website and say why ${p.brand_name} caught your attention.`,onscreen:'Their profile/site'},
-    {time:'10–30s',title:'Show the evidence',script:`Point to the verified issue: ${top}. Do not exaggerate it.`,onscreen:'Exact evidence'},
-    {time:'30–55s',title:'Show the fix',script:`Explain one simple ${service} improvement and what a stronger customer journey would look like.`,onscreen:'Simple mockup / example'},
-    {time:'55–75s',title:'Ask-first CTA',script:'Invite them to reply if they want you to handle it. Do not force a call.',onscreen:'Your contact / next step'}
-  ],cta:`If you'd like, I can take care of this for ${p.brand_name} and keep it maintained monthly. Want me to send the simple scope and price?`};
+function sampleRoute(service=''){
+  const s=String(service).toLowerCase();
+  if(s.includes('landing')||s.includes('page')||s.includes('website'))return {type:'Landing page concept',route:'/atelier-v2/page-create.html'};
+  if(s.includes('video')||s.includes('ugc')||s.includes('ad'))return {type:'Short video / ad concept',route:'/atelier-v2/video-create.html'};
+  if(s.includes('flyer')||s.includes('design')||s.includes('brand')||s.includes('creative'))return {type:'Visual creative concept',route:'/atelier-v2/image-create.html'};
+  if(s.includes('google business')||s.includes('profile'))return {type:'Google Business Profile content concept',route:'/atelier-v2/image-create.html'};
+  return {type:'Creative sample',route:'/atelier-v2/studio.html'};
+}
+function fallbackSample(p,audit){
+  const offer=audit?.offer_angle||p.service||'creative improvement';
+  const evidence=p.current_activity||p.visible_problem||audit?.top_opportunity||'the verified opportunity in the audit';
+  const route=sampleRoute(offer);
+  return {
+    sample_type:route.type,
+    create_route:route.route,
+    objective:'Show '+p.brand_name+' one concrete version of the idea they gave permission to see.',
+    what_to_make:'One focused sample only — enough to demonstrate the direction, not free full project delivery.',
+    prompt:'Create ONE polished sample for '+p.brand_name+'. Service: '+offer+'. Verified context: '+evidence+'. Solve one narrow visible problem and keep it clearly labelled as a concept. Do not invent performance claims, offers, testimonials, prices or business facts.',
+    proof_points:[evidence],
+    constraints:['Do not claim it is live or approved.','Do not invent business facts.','Keep the scope intentionally small.'],
+    next_steps:['Send the sample with a short explanation.','Ask if they want the full implementation.','If they agree, prepare the proposal.'],
+    submission_message:'Hi '+(p.founder_name||p.contact_name||'')+((p.founder_name||p.contact_name)?', ':'')+'here is the quick concept I mentioned for '+p.brand_name+'. I kept it focused so you can see the direction without overcomplicating it. If this feels aligned, the next step is for me to turn it into the complete version and manage the agreed work. Want me to send the scope and price?'
+  };
 }
 function fallbackProposal(p,audit){
   const cur=p.offer_currency||'USD';
@@ -64,7 +81,7 @@ async function gemini(action,p,extra={}){
   const key=(process.env.GEMINI_API_KEY||'').trim();
   if(!key)return null;
   const context=prospectContext(p);
-  const system=`You are Fuse Client, a careful client-acquisition strategist for freelancers and small agencies.\nYour job is ${action}.\nReturn valid JSON only, no markdown.\nNever invent website defects, ad activity, founder names, revenue, rankings, customer behaviour, reviews or campaign facts that are not present in the supplied context. Separate verified evidence from recommendations. Use concise natural language, not hype. The outreach must be ask-first and non-spammy. The Loom should be 60–90 seconds unless the user supplied another duration. A proposal must be commercially clear and suitable for a monthly retainer.`;
+  const system=`You are Fuse Client, a careful client-acquisition strategist for freelancers and small agencies.\nYour job is ${action}.\nReturn valid JSON only, no markdown.\nNever invent website defects, ad activity, founder names, funding, revenue, rankings, customer behaviour, reviews or campaign facts that are not present in the supplied context. Separate verified evidence from recommendations. Use concise natural language, not hype. The acquisition order is find -> audit -> ask-first -> create one sample only after a positive reply -> submit sample -> proposal -> contract -> retainer -> automation. The first outreach must ask whether they want to see the idea and must never claim a sample already exists. A proposal must be commercially clear and suitable for a monthly retainer.`;
   const schemas={
     audit:`Return {"score":0,"top_opportunity":"","summary":"","findings":[{"title":"","evidence":"","impact":""}],"offer_angle":"","first_move":""}. Score 0-100 based only on strength of the visible opportunity and contactability.`,
     outreach:`Return {"subject":"","email":"","instagram":"","whatsapp":"","follow_up":""}. Keep the first touch permission-based; ask whether they want the Loom instead of dumping a full pitch.`,
@@ -115,12 +132,31 @@ exports.handler=async(event)=>{
       await activity(db,user.id,p.id,'outreach_ready','Outreach ready',clean(output.subject,300),{ai_used:aiUsed,follow_up:clean(output.follow_up,2000)});
       return json(200,{ok:true,action,ai_used:aiUsed,output,prospect:upd.data});
     }
-    if(action==='loom'){
-      output=output||fallbackLoom(p,audit);
-      const ins=await db.from('client_loom_scripts').insert({user_id:user.id,prospect_id:p.id,hook:clean(output.hook,1500),sections:Array.isArray(output.sections)?output.sections.slice(0,8):[],cta:clean(output.cta,1500),duration_seconds:Math.max(30,Math.min(180,Math.round(Number(output.duration_seconds)||75))) }).select('*').single();
-      if(ins.error)throw ins.error;
-      await activity(db,user.id,p.id,'loom_ready','Loom script ready',clean(output.hook,500),{loom_script_id:ins.data.id,ai_used:aiUsed});
-      return json(200,{ok:true,action,ai_used:aiUsed,output:{...output,id:ins.data.id}});
+    if(action==='sample'){
+      output=output||fallbackSample(p,audit);
+      const brief={
+        sample_type:clean(output.sample_type,180),
+        create_route:clean(output.create_route,500),
+        objective:clean(output.objective,1200),
+        what_to_make:clean(output.what_to_make,1200),
+        prompt:clean(output.prompt,6000),
+        proof_points:Array.isArray(output.proof_points)?output.proof_points.slice(0,8):[],
+        constraints:Array.isArray(output.constraints)?output.constraints.slice(0,8):[],
+        next_steps:Array.isArray(output.next_steps)?output.next_steps.slice(0,8):[]
+      };
+      const upd=await db.from('client_prospects').update({
+        sample_brief:brief,
+        sample_type:brief.sample_type||null,
+        sample_status:'brief_ready',
+        sample_submission_copy:clean(output.submission_message,5000),
+        sample_created_at:new Date().toISOString(),
+        status:p.status==='replied'?'sample_ready':p.status,
+        last_activity_at:new Date().toISOString(),
+        updated_at:new Date().toISOString()
+      }).eq('id',p.id).eq('user_id',user.id).select('*').single();
+      if(upd.error)throw upd.error;
+      await activity(db,user.id,p.id,'sample_ready','Sample brief ready',brief.what_to_make,{ai_used:aiUsed,sample_type:brief.sample_type});
+      return json(200,{ok:true,action,ai_used:aiUsed,output:{...output,...brief},prospect:upd.data});
     }
     if(action==='proposal'){
       output=output||fallbackProposal(p,audit);
