@@ -333,7 +333,7 @@ async function runFind(){
   const btn=$('runFind'),notice=$('findNotice');btn.disabled=true;btn.textContent='Researching…';notice.textContent='Fuse is researching more businesses than it returns, verifying current reasons, contacts and source links, then ranking the strongest 5.';
   try{
     const d=await api('client-discover',{skill,niche,location,limit:5});
-    notice.innerHTML='<strong>'+d.added+' strong prospect'+(d.added===1?'':'s')+'</strong> added'+(d.skipped?' · '+d.skipped+' candidates skipped because the evidence was weaker.':'')+'.<br><small>Maps source: '+esc(d.maps_provider||'live research')+(d.hunter_enabled?' · Hunter enrichment on':' · Hunter enrichment pending')+'</small>';
+    notice.innerHTML='<strong>'+d.added+' strong prospect'+(d.added===1?'':'s')+'</strong> added'+(d.skipped?' · '+d.skipped+' candidates skipped because the evidence was weaker.':'')+'.<br><small>'+esc(d.maps_provider||'SerpApi')+' · '+esc(d.contact_provider||'SerpApi + public website')+'</small>';
     await loadAll();setTimeout(()=>{closeOverlay('findOverlay');setView('prospects')},850)
   }catch(e){
     if(e.code==='SERPAPI_NOT_CONFIGURED')notice.innerHTML='<strong>SerpApi connection needed.</strong> Add SERPAPI_API_KEY in Vercel and redeploy.';
