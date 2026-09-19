@@ -4,7 +4,7 @@
     "api/[fn].js": { "includeFiles": "server/functions/**", "maxDuration": 60 }
   },
   "routes": [
-    { "src": "/", "status": 307, "headers": { "Location": "/app/studio.html" } },
+    { "src": "/", "status": 307, "headers": { "Location": "/atelier-site/phone-to-client.html" } },
     { "src": "/studio/?", "dest": "/app/studio.html" },
     { "src": "/app/?", "dest": "/app/index.html" },
     { "src": "/app/studio/?", "dest": "/app/studio.html" },
