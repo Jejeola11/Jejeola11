@@ -201,7 +201,7 @@
           const response = await fetch('/api/phone-to-client-register', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
           const result = await response.json();
           if (!response.ok) throw new Error(result.error || 'Registration failed. Please try again.');
-          window.location.href = 'https://chat.whatsapp.com/GjPxGJhroxVBJ6Fehk3gTF?s=cl&p=a&mlu=4&ilr=4';
+          window.location.href = 'https://chat.whatsapp.com/GCVgutuAz1x9CTLfPsYKwo?s=cl&p=a&mlu=4&ilr=4';
         } catch (error) { status.textContent = error.message; submit.disabled = false; submit.textContent = 'Join the WhatsApp group'; }
       });
     })();
