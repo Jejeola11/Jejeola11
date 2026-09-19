@@ -27,6 +27,10 @@
       "dest": "/app/studio.html"
     },
     {
+      "src": "/pricing/?",
+      "dest": "/class-pricing/index.html"
+    },
+    {
       "src": "/atelier/?",
       "dest": "/atelier-site/final.html"
     },
