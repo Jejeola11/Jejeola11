@@ -11,7 +11,7 @@
       "src": "/",
       "status": 307,
       "headers": {
-        "Location": "/app/studio.html"
+        "Location": "/atelier-site/phone-to-client.html"
       }
     },
     {
