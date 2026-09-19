@@ -18,8 +18,8 @@
     <section class="login" id="login">
       <div class="brand"><img src="/atelier-site/assets/fuse-mark-latest.webp" alt=""> Fuse Atelier</div>
       <p class="eyebrow">Private dashboard</p><h1>Class registrations</h1>
-      <p>Sign in with your Fuse Atelier admin account to see your Phone-to-Client leads.</p>
-      <form id="login-form"><label>Email<input id="email" type="email" value="riadigitals0@gmail.com" autocomplete="email" required></label><label>Password<input id="password" type="password" autocomplete="current-password" required></label><p class="error" id="error"></p><button class="btn" type="submit">Open dashboard</button></form>
+      <p>Enter your email and we’ll send a secure one-tap access link—no password needed.</p>
+      <form id="login-form"><label>Email<input id="email" type="email" autocomplete="email" required></label><p class="error" id="error"></p><button class="btn" type="submit">Email me my access link</button></form>
     </section>
     <section class="hidden" id="dashboard">
       <div class="topline"><div class="brand"><img src="/atelier-site/assets/fuse-mark-latest.webp" alt=""> Fuse Atelier</div><button class="btn signout" id="signout">Sign out</button></div>
@@ -36,14 +36,14 @@
     async function loadDashboard() {
       const {data:{session}} = await supabaseClient.auth.getSession(); if (!session) return;
       const response = await fetch('/api/phone-to-client-admin',{headers:{Authorization:'Bearer '+session.access_token}});
-      const data = await response.json(); if (!response.ok) { error.textContent=data.error || 'Unable to open dashboard.'; await supabaseClient.auth.signOut(); return; }
+      const data = await response.json(); if (!response.ok) { error.textContent=data.error || 'Unable to open dashboard.'; return; }
       login.classList.add('hidden'); dashboard.classList.remove('hidden');
       total.textContent=data.stats.total;today.textContent=data.stats.today;countries.textContent=data.stats.countries;
       rows.innerHTML=data.leads.map(lead=>'<tr><td><strong>'+esc(lead.first_name)+'</strong></td><td>'+esc(lead.whatsapp)+'</td><td>'+esc(lead.email)+'</td><td>'+esc(lead.country)+'</td><td>'+esc(lead.biggest_struggle)+'</td><td>'+new Date(lead.created_at).toLocaleString()+'</td></tr>').join('');
       if (!data.leads.length) empty.classList.remove('hidden');
     }
-    document.getElementById('login-form').addEventListener('submit', async event => {event.preventDefault();error.textContent='';const button=event.currentTarget.querySelector('button');button.disabled=true;button.textContent='Signing in…';const {error:signInError}=await supabaseClient.auth.signInWithPassword({email:email.value,password:password.value});button.disabled=false;button.textContent='Open dashboard';if(signInError){error.textContent=signInError.message;return}loadDashboard();});
-    document.getElementById('signout').addEventListener('click',async()=>{await supabaseClient.auth.signOut();dashboard.classList.add('hidden');login.classList.remove('hidden');});
+    document.getElementById('login-form').addEventListener('submit', async event => {event.preventDefault();error.textContent='';const button=event.currentTarget.querySelector('button');button.disabled=true;button.textContent='Sending link…';const {error:otpError}=await supabaseClient.auth.signInWithOtp({email:email.value,options:{emailRedirectTo:'https://fuse-atelier-class.vercel.app/class-dashboard',shouldCreateUser:false}});button.disabled=false;button.textContent='Email me my access link';if(otpError){error.textContent=otpError.message;return}error.style.color='#216450';error.textContent='Check your email and tap the access link to open your dashboard.';});
+    document.getElementById('signout').addEventListener('click',async()=>{await supabaseClient.auth.signOut();dashboard.classList.add('hidden');login.classList.remove('hidden');document.getElementById('login-form').reset();});
     loadDashboard();
   </script>
 </body>
