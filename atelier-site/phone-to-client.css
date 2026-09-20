@@ -92,7 +92,7 @@ footer small{font-size:.68rem}
 .lead-dialog h2{font-size:clamp(2rem,6vw,3rem);line-height:.95;margin:8px 42px 10px 0}
 .lead-dialog .section-number{margin:0;color:#0b5b4e}.dialog-intro{margin:0 0 15px;color:#56605b;line-height:1.5}
 .dialog-close{position:absolute;right:19px;top:16px;width:38px;height:38px;border:0;border-radius:50%;background:#e9ece4;color:#111;font-size:1.55rem;line-height:1;cursor:pointer}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.phone-row{display:grid;grid-template-columns:145px 1fr;gap:7px}.phone-row select{min-width:0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.phone-row{display:grid;grid-template-columns:92px minmax(0,1fr);gap:7px}.phone-row select{min-width:0}.phone-row input{min-width:0}
 .lead-dialog label{display:block;margin:0 0 9px;font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#26312c}
 .lead-dialog input,.lead-dialog select{display:block;width:100%;margin-top:5px;padding:11px;border:1px solid #cdd4cd;border-radius:11px;background:#fff;color:#111;font:500 1rem "Archivo",sans-serif;outline:none}
 .lead-dialog input:focus,.lead-dialog select:focus{border-color:#308a70;box-shadow:0 0 0 3px rgba(48,138,112,.12)}
@@ -116,7 +116,7 @@ footer small{font-size:.68rem}
   .begin{padding:74px 0}.begin-heading{margin-bottom:28px}.begin-heading h2{font-size:3.4rem}.begin-heading>p:last-child{font-size:.92rem}
   .offer-grid{grid-template-columns:1fr;gap:16px}.offer-card{padding:27px 23px;border-radius:22px}.offer-card h3{font-size:2.35rem}.offer-card>p{font-size:.94rem}.price{font-size:2.25rem}
   .faq-section{padding:66px 0 78px}.faq-section .begin-heading{text-align:left}.faq-section .begin-heading h2{font-size:3rem}.faq-list{margin-top:6px}summary{font-size:.96rem;padding:19px 44px 19px 0}summary:after{top:14px}details p{font-size:.9rem;padding-right:15px}
-  .lead-dialog{width:calc(100% - 24px);padding:20px 16px;border-radius:20px}.form-grid{grid-template-columns:1fr 1fr;gap:0 8px}.lead-dialog h2{font-size:1.8rem}.lead-dialog input,.lead-dialog select{padding:10px;font-size:.92rem}.phone-row{grid-template-columns:112px 1fr;gap:5px}.phone-row select{font-size:.78rem;padding-left:7px;padding-right:3px}.lead-dialog label{font-size:.68rem;margin-bottom:7px}
+  .lead-dialog{width:calc(100% - 24px);padding:20px 16px;border-radius:20px}.form-grid{grid-template-columns:1fr;gap:0}.lead-dialog h2{font-size:1.8rem}.lead-dialog input,.lead-dialog select{padding:10px;font-size:.92rem}.phone-row{grid-template-columns:88px minmax(0,1fr);gap:6px}.phone-row input{min-width:0}.phone-row select{font-size:.78rem;padding-left:7px;padding-right:3px}.lead-dialog label{font-size:.68rem;margin-bottom:7px}
 }
 @media(max-width:390px){
   h1{font-size:6.65vw}
