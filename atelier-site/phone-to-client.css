@@ -92,7 +92,7 @@ footer small{font-size:.68rem}
 .lead-dialog h2{font-size:clamp(2rem,6vw,3rem);line-height:.95;margin:8px 42px 10px 0}
 .lead-dialog .section-number{margin:0;color:#0b5b4e}.dialog-intro{margin:0 0 15px;color:#56605b;line-height:1.5}
 .dialog-close{position:absolute;right:19px;top:16px;width:38px;height:38px;border:0;border-radius:50%;background:#e9ece4;color:#111;font-size:1.55rem;line-height:1;cursor:pointer}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.phone-row{display:grid;grid-template-columns:92px minmax(0,1fr);gap:7px}.phone-row select{min-width:0}.phone-row input{min-width:0}
+.form-grid{display:grid;grid-template-columns:1fr;gap:10px}.phone-row{display:grid;grid-template-columns:92px minmax(0,1fr);gap:7px}.phone-row select{min-width:0}.phone-row input{min-width:0}
 .lead-dialog label{display:block;margin:0 0 9px;font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#26312c}
 .lead-dialog input,.lead-dialog select{display:block;width:100%;margin-top:5px;padding:11px;border:1px solid #cdd4cd;border-radius:11px;background:#fff;color:#111;font:500 1rem "Archivo",sans-serif;outline:none}
 .lead-dialog input:focus,.lead-dialog select:focus{border-color:#308a70;box-shadow:0 0 0 3px rgba(48,138,112,.12)}
