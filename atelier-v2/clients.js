@@ -65,6 +65,9 @@ async function loadAll(){
 function renderAll(){renderClientDashboard();renderAgentMemory();renderStats();renderToday();renderActivities();renderProspects();renderPipeline();renderClients();renderJobs()}
 function renderClientDashboard(){
   const root=$('clientDashboard');if(!root)return;const p=state.agentProfile?.profile_json||{};
+  const onboarding=$('clientOnboarding');
+  if(!p.skill){root.style.display='none';if(onboarding)onboarding.style.display='grid';return}
+  if(onboarding)onboarding.style.display='none';root.style.display='block';
   const active=state.prospects.filter(x=>!['won','lost'].includes(normalizeStatus(x.status))).length;
   const contacted=state.prospects.filter(x=>['asked','replied','sample_ready','sample_sent','agreed','proposal_sent','deal_locked','contract_sent','contract_signed','won'].includes(normalizeStatus(x.status))).length;
   const hasMemory=!!p.skill;
@@ -403,6 +406,9 @@ function bind(){
   $('manualBtn').onclick=$('manualBtn2').onclick=()=>openOverlay('manualOverlay');
   $('runFind').onclick=runFind;$('saveManual').onclick=saveManual;$('startRetainer').onclick=startRetainer;$('saveMemory').onclick=saveMemory;
   $('findCount').onchange=()=>{const n=Number($('findCount').value),c={5:20,10:40,20:80}[n];$('runFind').textContent='Research '+n+' · '+c+' credits'};
+  $('setupAgent').onclick=openMemory;
+  $('closePromo').onclick=()=>{$('clientPromo').style.display='none'};
+  $('clientMenu').onclick=()=>location.href='home.html';
   $('search').oninput=e=>{state.search=e.target.value;renderProspects()};
   document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeOverlay(b.dataset.close));
   document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeOverlay(o.id)}));
