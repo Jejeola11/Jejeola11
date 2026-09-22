@@ -108,3 +108,17 @@ body{background:#FFFFFF}
  .playbook-showcase .art-main strong{max-width:100%;overflow-wrap:normal;word-break:normal}
  .mini-visual{max-width:170px}
 }
+
+/* Correct mobile centring for the layered Playbook card */
+.playbook-showcase .art-main{position:absolute!important;left:50%!important;top:20px!important;transform:translateX(-50%)!important}
+@media(max-width:600px){
+ .hero h1{font-size:31px!important;line-height:1.05!important;display:flex;flex-direction:column;gap:7px}
+ .hero h1 span,.hero h1 strong{display:block!important;white-space:nowrap!important;line-height:1.05!important}
+ .hero h1 span:nth-child(2){font-size:.89em}
+ .hero h1 strong{margin:0!important}
+ .hero-pill{line-height:1.35!important}
+ .playbook-showcase .showcase-art{position:relative!important;width:100%!important;max-width:100%!important;height:490px!important;margin:0 auto!important;overflow:hidden!important}
+ .playbook-showcase .art-main{position:absolute!important;left:50%!important;top:16px!important;transform:translateX(-50%)!important;width:82%!important;max-width:320px!important;height:460px!important;box-sizing:border-box!important}
+ .playbook-showcase .art-back{left:4%!important;width:72%!important}
+ .playbook-showcase .art-side{right:4%!important;width:72%!important}
+}
