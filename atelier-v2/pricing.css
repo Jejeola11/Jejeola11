@@ -97,3 +97,14 @@ body{background:#FFFFFF}
 .hero h1 em,.hero h1 strong{line-height:.9}
 .hero-pill{background:var(--chrome) padding-box,var(--teal) border-box;border:2px solid transparent;color:#001012}
 .brand-logo{outline:2px solid #1B4C52;outline-offset:2px}
+
+.playbook-showcase .showcase-art{width:100%;box-sizing:border-box;overflow:hidden}
+@media(max-width:600px){
+ .playbook-showcase .showcase-art{width:100vw;max-width:none;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);overflow:hidden}
+ .playbook-showcase .art-back,.playbook-showcase .art-side{width:72%;height:78%}
+ .playbook-showcase .art-back{left:1%}
+ .playbook-showcase .art-side{right:1%}
+ .playbook-showcase .art-main{width:calc(100% - 48px);max-width:330px;box-sizing:border-box;left:50%;padding-left:18px;padding-right:18px}
+ .playbook-showcase .art-main strong{max-width:100%;overflow-wrap:normal;word-break:normal}
+ .mini-visual{max-width:170px}
+}
