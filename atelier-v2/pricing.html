@@ -58,7 +58,7 @@
     <h2>Turn your skill into<br><em>your first paid gig.</em></h2>
     <p>Everything you need to stop wondering what to do and start having better client conversations this week.</p>
     <ul><li>Skill and niche direction</li><li>Offer, proof and pricing guide</li><li>Outreach, reply and follow-up templates</li><li>Voice notes + practical action tasks</li></ul>
-    <a class="button lime" href="https://wa.me/2349044558101?text=Hi%20Ria%2C%20I%20want%20to%20get%20the%20First%20Client%20Playbook%20%28%E2%82%A63%2C500%29.%20Please%20send%20your%20account%20details.">Get the Playbook ↗</a>
+    <button class="button lime" type="button" data-checkout="playbook">Get the Playbook ↗</button>
     <small class="cta-note">Tap to request account details on WhatsApp.</small>
   </div>
 </section>
@@ -76,7 +76,7 @@
       <h3>Find better<br><em>clients to pitch.</em></h3>
       <p>For you if you have a skill but do not know how to find serious businesses consistently.</p>
       <ul><li>Set your skill, niche and market</li><li>Find real business opportunities</li><li>See the exact gap you can solve</li><li>Generate ask-first outreach</li></ul>
-      <a class="button dark" href="https://wa.me/2349044558101?text=Hi%20Ria%2C%20I%20want%20to%20get%20Money%20Engine%20%28%E2%82%A612%2C000%29.%20Please%20send%20your%20account%20details.">Get Money Engine ↗</a>
+      <button class="button dark" type="button" data-checkout="engine">Get Money Engine ↗</button>
     </article>
     <article class="upgrade-card pro-card">
       <div class="best-value">BEST VALUE</div>
@@ -86,7 +86,7 @@
       <h3>Let the agent<br><em>help you move faster.</em></h3>
       <p>Money Engine plus 150 credits for Fuse Atelier’s agent-powered research and creation workflow.</p>
       <ul><li>Everything in Money Engine</li><li><strong>150 Fuse Atelier credits</strong></li><li>Agent-powered opportunity research</li><li>More capacity to create useful samples</li></ul>
-      <a class="button lime" href="https://wa.me/2349044558101?text=Hi%20Ria%2C%20I%20want%20to%20get%20Money%20Engine%20Pro%20with%20150%20credits%20%28%E2%82%A620%2C000%29.%20Please%20send%20your%20account%20details.">Get Money Engine Pro ↗</a>
+      <button class="button lime" type="button" data-checkout="pro">Get Money Engine Pro ↗</button>
     </article>
   </div>
 </section>
@@ -119,5 +119,52 @@
   <a class="button lime" href="https://wa.me/2349044558101?text=Hi%20Ria%2C%20I%20want%20to%20get%20the%20First%20Client%20Playbook%20%28%E2%82%A63%2C500%29.%20Please%20send%20your%20account%20details.">Get the First Client Playbook ↗</a>
 </section>
 </main>
+<div class="modal" id="checkout-modal" aria-hidden="true">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+    <button class="close" type="button" aria-label="Close form">×</button>
+    <div class="kicker">ONE QUICK STEP</div>
+    <h2 id="checkout-title">Get the Playbook</h2>
+    <p id="checkout-price"></p>
+    <p>Enter your details so Ria knows exactly which access details to send you.</p>
+    <form id="checkout-form">
+      <label>Your name<input name="name" type="text" autocomplete="name" required placeholder="Enter your name"></label>
+      <label>Your email<input name="email" type="email" autocomplete="email" required placeholder="you@email.com"></label>
+      <button class="button dark" type="submit" id="checkout-submit">Continue to WhatsApp ↗</button>
+      <small>Your details are only used to set up your Fuse access.</small>
+    </form>
+  </div>
+</div>
+<script>
+(() => {
+  const offers = {
+    playbook: { title: 'First Client Playbook', price: '₦3,500 · $3' },
+    engine: { title: 'Money Engine', price: '₦12,000 · $10' },
+    pro: { title: 'Money Engine Pro + 150 credits', price: '₦20,000 · $17' }
+  };
+  const modal = document.getElementById('checkout-modal');
+  const form = document.getElementById('checkout-form');
+  let selected = 'playbook';
+  const open = (key) => {
+    selected = key;
+    const offer = offers[key];
+    document.getElementById('checkout-title').textContent = offer.title;
+    document.getElementById('checkout-price').textContent = offer.price;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    setTimeout(() => form.elements.name.focus(), 40);
+  };
+  document.querySelectorAll('[data-checkout]').forEach(button => button.addEventListener('click', () => open(button.dataset.checkout)));
+  modal.querySelector('.close').addEventListener('click', () => { modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true'); });
+  modal.addEventListener('click', (event) => { if (event.target === modal) { modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true'); } });
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const offer = offers[selected];
+    const name = form.elements.name.value.trim();
+    const email = form.elements.email.value.trim();
+    const message = 'Hi Ria, my name is ' + name + '. I want to get ' + offer.title + ' (' + offer.price + '). My email is ' + email + '. Please send your account details.';
+    window.location.href = 'https://wa.me/2349044558101?text=' + encodeURIComponent(message);
+  });
+})();
+</script>
 <footer><a class="logo" href="#top"><img class="brand-logo" src="/atelier-v2/assets/fuse-logo.png" alt=""><strong>Fuse Atelier</strong></a><p>Learn · Create · Sell</p></footer>
 </body></html>
