@@ -67,13 +67,19 @@ function renderClientDashboard(){
   const root=$('clientDashboard');if(!root)return;const p=state.agentProfile?.profile_json||{};
   const onboarding=$('clientOnboarding');
   if(!p.skill){root.style.display='none';if(onboarding)onboarding.style.display='grid';return}
-  if(onboarding)onboarding.style.display='none';root.style.display='block';
+  if(onboarding){onboarding.style.display='grid';onboarding.classList.remove('setup-open');onboarding.classList.add('saved-open');renderSavedAgent(p)}root.style.display='none';return;
   const active=state.prospects.filter(x=>!['won','lost'].includes(normalizeStatus(x.status))).length;
   const contacted=state.prospects.filter(x=>['asked','replied','sample_ready','sample_sent','agreed','proposal_sent','deal_locked','contract_sent','contract_signed','won'].includes(normalizeStatus(x.status))).length;
   const hasMemory=!!p.skill;
   const next=hasMemory?(active?{label:'Continue your client search',copy:active+' prospect'+(active===1?' is':'s are')+' already in your pipeline.',action:'find',button:'Find more clients'}:{label:'Find your first five',copy:'Fuse will research businesses that fit what you sell.',action:'find',button:'Find clients'}):{label:'Teach Fuse about you',copy:'Save your skill, niche and price once. Fuse uses it for every search.',action:'memory',button:'Set up my agent'};
   root.innerHTML=`<div class="dashboard-kicker">CLIENT ENGINE</div><h1 class="dashboard-title">Your next client<br>starts here.</h1><p class="dashboard-copy">One clear next step. No clutter.</p><button class="primary-search" id="dashFind"><b>Find qualified clients</b><span>5 prospects · 20 credits</span></button><section class="dashboard-section"><div class="dash-head"><h2>Your agent</h2><button id="dashEdit">${hasMemory?'Edit':'Set up'}</button></div><div class="agent-strip"><i class="agent-dot" aria-hidden="true"></i><div><b>${hasMemory?esc(p.skill):'Not set up yet'}</b><span>${hasMemory?esc([p.niche,p.location,p.price].filter(Boolean).join(' · ')||'Your saved client context'):'Save your offer, niche and location once.'}</span></div></div></section><section class="dashboard-section"><div class="dashboard-stats"><div class="dash-stat"><b>${active}</b><span>In progress</span></div><div class="dash-stat"><b>${contacted}</b><span>Contacted</span></div></div></section><section class="dashboard-section next-card"><small>NEXT STEP</small><h2>${next.label}</h2><p>${next.copy}</p><button id="dashNext">${next.button}</button></section>`;
   $('dashFind').onclick=openFind;$('dashEdit').onclick=openMemory;$('dashNext').onclick=next.action==='memory'?openMemory:openFind;
+}
+function renderSavedAgent(p){
+  const root=$('agentSaved');if(!root)return;
+  const rows=[['Skill',p.skill],['Work',p.work],['Niche',p.niche],['Location',p.location],['Portfolio',p.portfolio],['Starter price',p.price],['Experience',p.experience]].filter(([,value])=>value);
+  root.innerHTML=`<div class="saved-inner"><p class="saved-kicker">Your Client Agent memory</p><h2>Fuse knows what you sell.</h2><div class="saved-list">${rows.map(([label,value])=>`<div class="saved-row"><span>${esc(label)}</span><b>${esc(value)}</b></div>`).join('')}</div><div class="saved-actions"><button class="saved-edit" id="savedEdit">Edit memory</button><button class="saved-search" id="savedSearch">Start searching</button></div></div>`;
+  $('savedEdit').onclick=openMemory;$('savedSearch').onclick=openFind;
 }
 function renderAgentMemory(){
   const root=$('agentMemory');if(!root)return;const p=state.agentProfile?.profile_json||{};
@@ -83,7 +89,7 @@ function renderAgentMemory(){
 }
 function openMemory(){
   const p=state.agentProfile?.profile_json||{};
-  $('memorySkill').value=p.skill||'';$('memoryWork').value=p.work||'';$('memoryExperience').value=p.experience||'';$('memoryNiche').value=p.niche||'';$('memoryLocation').value=p.location||'';$('memoryPortfolio').value=p.portfolio||'';$('memoryPrice').value=p.price||'';$('clientOnboarding')?.classList.add('setup-open');
+  $('memorySkill').value=p.skill||'';$('memoryWork').value=p.work||'';$('memoryExperience').value=p.experience||'';$('memoryNiche').value=p.niche||'';$('memoryLocation').value=p.location||'';$('memoryPortfolio').value=p.portfolio||'';$('memoryPrice').value=p.price||'';$('clientOnboarding')?.classList.remove('saved-open');$('clientOnboarding')?.classList.add('setup-open');
 }
 function openFind(){const p=state.agentProfile?.profile_json||{};if(p.skill){const select=$('findSkill');if([...select.options].some(o=>o.value===p.skill))select.value=p.skill}if(p.work)$('findOffer').value=p.work;if(p.niche)$('findNiche').value=p.niche;if(p.location)$('findLocation').value=p.location;if(p.price)$('findPrice').value=p.price;openOverlay('findOverlay')}
 async function saveMemory(){
