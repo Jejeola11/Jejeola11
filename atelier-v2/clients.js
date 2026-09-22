@@ -19,7 +19,7 @@ const STAGES=[
   {key:'won',label:'Retainer'},
   {key:'lost',label:'Lost'}
 ];
-const state={session:null,prospects:[],proposals:[],contracts:[],retainers:[],jobs:[],activities:[],view:'overview',pipeline:'all',search:'',selected:null,agentOutput:null,retainerProspect:null,busy:false};
+const state={session:null,prospects:[],proposals:[],contracts:[],retainers:[],jobs:[],activities:[],agentProfile:null,view:'overview',pipeline:'all',search:'',selected:null,agentOutput:null,retainerProspect:null,busy:false};
 let toastTimer;
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function toast(msg,bad=false){const el=$('toast');el.textContent=msg;el.className='toast show'+(bad?' bad':'');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.className='toast',3000)}
@@ -48,20 +48,39 @@ async function boot(){
 }
 async function loadAll(){
   const uid=state.session.user.id;
-  const [p,pr,ct,r,j,a]=await Promise.all([
+  const [p,pr,ct,r,j,a,ap]=await Promise.all([
     sb.from('client_prospects').select('*').eq('user_id',uid).order('updated_at',{ascending:false}),
     sb.from('client_proposals').select('*').eq('user_id',uid).order('created_at',{ascending:false}),
     sb.from('client_contracts').select('*').eq('user_id',uid).order('created_at',{ascending:false}),
     sb.from('client_retainers').select('*').eq('user_id',uid).order('updated_at',{ascending:false}),
     sb.from('client_automation_jobs').select('*').eq('user_id',uid).order('next_run_at',{ascending:true}),
-    sb.from('client_activities').select('*').eq('user_id',uid).order('created_at',{ascending:false}).limit(30)
+    sb.from('client_activities').select('*').eq('user_id',uid).order('created_at',{ascending:false}).limit(30),
+    sb.from('client_agent_profiles').select('*').eq('user_id',uid).maybeSingle()
   ]);
-  for(const x of [p,pr,ct,r,j,a])if(x.error)throw x.error;
-  state.prospects=p.data||[];state.proposals=pr.data||[];state.contracts=ct.data||[];state.retainers=r.data||[];state.jobs=j.data||[];state.activities=a.data||[];
+  for(const x of [p,pr,ct,r,j,a,ap])if(x.error)throw x.error;
+  state.prospects=p.data||[];state.proposals=pr.data||[];state.contracts=ct.data||[];state.retainers=r.data||[];state.jobs=j.data||[];state.activities=a.data||[];state.agentProfile=ap.data||null;
   renderAll();
   window.Fuse?.balance?.().catch(()=>{});
 }
-function renderAll(){renderStats();renderToday();renderActivities();renderProspects();renderPipeline();renderClients();renderJobs()}
+function renderAll(){renderAgentMemory();renderStats();renderToday();renderActivities();renderProspects();renderPipeline();renderClients();renderJobs()}
+function renderAgentMemory(){
+  const root=$('agentMemory');if(!root)return;const p=state.agentProfile?.profile_json||{};
+  const tags=[p.skill,p.work,p.niche,p.location,p.price].filter(Boolean).slice(0,5);
+  root.innerHTML=`<div class="memory-row"><div class="agent-orb" aria-hidden="true"></div><div class="memory-copy"><div class="eyebrow">AGENT MEMORY</div><h2>${p.skill?'Fuse knows what you sell.':'Give Fuse your working context.'}</h2><p>${p.skill?esc(state.agentProfile.memory_summary||'Fuse will use this context to shape an offer and find the right businesses for you.'):'Tell Fuse your skill, proof, offer, niche, location, portfolio and starting price. You only need to do this once.'}</p></div></div><div class="memory-tags">${tags.length?tags.map((x,i)=>`<span class="memory-tag ${i===0?'hot':''}">${esc(x)}</span>`).join(''):'<span class="memory-tag hot">No memory saved yet</span>'}</div><div class="memory-footer"><span>${p.portfolio?'Portfolio linked':'You can edit this anytime.'}</span><button id="editMemory">${p.skill?'Edit agent memory':'Teach Fuse about you'}</button></div>`;
+  $('editMemory').onclick=openMemory;
+}
+function openMemory(){
+  const p=state.agentProfile?.profile_json||{};
+  $('memorySkill').value=p.skill||'';$('memoryWork').value=p.work||'';$('memoryExperience').value=p.experience||'';$('memoryNiche').value=p.niche||'';$('memoryLocation').value=p.location||'';$('memoryPortfolio').value=p.portfolio||'';$('memoryPrice').value=p.price||'';openOverlay('memoryOverlay');
+}
+async function saveMemory(){
+  const profile_json={skill:$('memorySkill').value.trim(),work:$('memoryWork').value.trim(),experience:$('memoryExperience').value.trim(),niche:$('memoryNiche').value.trim(),location:$('memoryLocation').value.trim(),portfolio:$('memoryPortfolio').value.trim(),price:$('memoryPrice').value.trim()};
+  if(!profile_json.skill||!profile_json.work||!profile_json.niche||!profile_json.location)return toast('Add your skill, work, niche and target location.',true);
+  const memory_summary=[profile_json.skill,'selling '+profile_json.work,'for '+profile_json.niche,'in '+profile_json.location,profile_json.price?'starting at '+profile_json.price:''].filter(Boolean).join(' · ');
+  const row={user_id:state.session.user.id,profile_json,memory_summary,portfolio_urls:profile_json.portfolio?[profile_json.portfolio]:[],updated_at:new Date().toISOString()};
+  const {error}=await sb.from('client_agent_profiles').upsert(row,{onConflict:'user_id'});if(error)return toast(error.message,true);
+  closeOverlay('memoryOverlay');await loadAll();toast('Saved to your Client Agent memory');
+}
 function setView(name){
   state.view=name;
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
@@ -172,7 +191,7 @@ function renderContact(p){
   const title=p.founder_title||'Not found';
   const funding=Number(p.funding_total_usd||0);
   const sourceLinks=Array.isArray(p.source_links)?p.source_links:[];
-  const price=q.starter_price&&q.starter_price.amount?fmtMoney(q.starter_price.amount,q.starter_price.currency||'USD'):'Not found';
+  const price=q.starter_price_label|| (q.starter_price&&q.starter_price.amount?fmtMoney(q.starter_price.amount,q.starter_price.currency||'USD'):'Not found');
   return `<div class="output"><h3>Decision-maker & evidence</h3>
   ${q.rank?`<div class="finding"><b>Priority</b><small>#${esc(q.rank)} strongest opportunity from this research run</small></div>`:''}
   <div class="finding"><b>Founder / contact</b><small>${esc(name)} · ${esc(title)}</small><small>Email: ${esc(p.founder_email||p.email||'Not found')}</small><small>Phone: ${esc(p.founder_phone||p.whatsapp||'Not found')}</small><small>LinkedIn: ${esc(p.founder_linkedin||'Not found')}</small><small>Instagram: ${esc(p.founder_instagram||p.instagram||'Not found')}</small></div>
@@ -329,16 +348,16 @@ async function markStatus(id,status){
 }
 
 async function runFind(){
-  const skill=$('findSkill').value,niche=$('findNiche').value.trim(),location=$('findLocation').value.trim();if(!skill||!niche||!location)return toast('Choose your skill, niche and city + country.',true);
-  const btn=$('runFind'),notice=$('findNotice');btn.disabled=true;btn.textContent='Researching…';notice.textContent='Fuse is researching more businesses than it returns, verifying current reasons, contacts and source links, then ranking the strongest 5.';
+  const skill=$('findSkill').value,niche=$('findNiche').value.trim(),location=$('findLocation').value.trim(),offer=$('findOffer').value.trim(),starter_price=$('findPrice').value.trim(),return_count=Number($('findCount').value);if(!skill||!niche||!location)return toast('Choose your skill, niche and city + country.',true);
+  const btn=$('runFind'),notice=$('findNotice');btn.disabled=true;btn.textContent='Researching…';notice.textContent='Fuse is researching publicly available business and professional contact routes, current signals and source links. It will return up to '+return_count+' strong prospects.';
   try{
-    const d=await api('client-discover',{skill,niche,location,limit:5});
-    notice.innerHTML='<strong>'+d.added+' strong prospect'+(d.added===1?'':'s')+'</strong> added'+(d.skipped?' · '+d.skipped+' candidates skipped because the evidence was weaker.':'')+'.<br><small>'+esc(d.maps_provider||'SerpApi')+' · '+esc(d.contact_provider||'SerpApi + public website')+'</small>';
+    const d=await api('client-discover',{skill,niche,location,offer,starter_price,return_count});
+    notice.innerHTML='<strong>'+d.added+' strong prospect'+(d.added===1?'':'s')+'</strong> added'+(d.skipped?' · '+d.skipped+' candidates skipped because the evidence was weaker.':'')+(d.credits_refunded?' · '+d.credits_refunded+' credits returned for unfilled places.':'')+'.<br><small>'+esc(d.maps_provider||'SerpApi')+' · '+esc(d.contact_provider||'SerpApi + public website')+'</small>';
     await loadAll();setTimeout(()=>{closeOverlay('findOverlay');setView('prospects')},850)
   }catch(e){
     if(e.code==='SERPAPI_NOT_CONFIGURED')notice.innerHTML='<strong>SerpApi connection needed.</strong> Add SERPAPI_API_KEY in Vercel and redeploy.';
     else notice.textContent=e.message;toast(e.message,true)
-  }finally{btn.disabled=false;btn.textContent='Research strongest 5'}
+  }finally{btn.disabled=false;btn.textContent='Research '+return_count+' · '+({5:20,10:40,20:80}[return_count])+' credits'}
 }
 async function saveManual(){
   const brand=$('mBrand').value.trim();if(!brand)return toast('Enter the business name.',true);
@@ -370,9 +389,10 @@ function bind(){
   document.addEventListener('focusin',keepFieldVisible);
   document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>setView(b.dataset.view));
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>setView(b.dataset.go));
-  $('findBtn').onclick=$('findBtn2').onclick=()=>openOverlay('findOverlay');
+  $('findBtn').onclick=$('findBtn2').onclick=()=>{const p=state.agentProfile?.profile_json||{};if(p.skill)$('findSkill').value=p.skill;if(p.work)$('findOffer').value=p.work;if(p.niche)$('findNiche').value=p.niche;if(p.location)$('findLocation').value=p.location;if(p.price)$('findPrice').value=p.price;openOverlay('findOverlay')};
   $('manualBtn').onclick=$('manualBtn2').onclick=()=>openOverlay('manualOverlay');
-  $('runFind').onclick=runFind;$('saveManual').onclick=saveManual;$('startRetainer').onclick=startRetainer;
+  $('runFind').onclick=runFind;$('saveManual').onclick=saveManual;$('startRetainer').onclick=startRetainer;$('saveMemory').onclick=saveMemory;
+  $('findCount').onchange=()=>{const n=Number($('findCount').value),c={5:20,10:40,20:80}[n];$('runFind').textContent='Research '+n+' · '+c+' credits'};
   $('search').oninput=e=>{state.search=e.target.value;renderProspects()};
   document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeOverlay(b.dataset.close));
   document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeOverlay(o.id)}));
