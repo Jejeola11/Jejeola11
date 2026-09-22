@@ -13,3 +13,13 @@ body{background:#f5ffd9;color:#001012}
 .hero-actions{justify-content:center;gap:14px}
 .hero-actions .teal-cta{background:var(--teal);color:#fff;border:0}
 .hero-actions .chrome-cta{background:var(--chrome);color:var(--deep);border:0}
+
+body{background:#FFFFFF}
+.site-header{background:rgba(255,255,255,.94)}
+.site-header .nav-cta{font-size:12px;padding:10px 16px;background:linear-gradient(135deg,#001012,#1B4C52);color:#fff;border:2px solid transparent;background-clip:padding-box;box-shadow:0 0 0 1px #DFFF4E}
+.brand-logo{width:34px;height:34px;border-radius:10px;object-fit:cover;display:block}
+.student-proof{display:flex;align-items:center;justify-content:center;gap:10px;margin:22px auto 0;color:#001012}
+.student-avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;border:3px solid #DFFF4E;box-shadow:0 0 0 2px #00191B}
+.student-proof span{display:flex;flex-direction:column;text-align:left}
+.student-proof strong{font-size:14px}
+.student-proof small{font-size:11px;color:#1B4C52}
