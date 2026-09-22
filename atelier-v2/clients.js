@@ -83,7 +83,7 @@ function renderAgentMemory(){
 }
 function openMemory(){
   const p=state.agentProfile?.profile_json||{};
-  $('memorySkill').value=p.skill||'';$('memoryWork').value=p.work||'';$('memoryExperience').value=p.experience||'';$('memoryNiche').value=p.niche||'';$('memoryLocation').value=p.location||'';$('memoryPortfolio').value=p.portfolio||'';$('memoryPrice').value=p.price||'';document.querySelectorAll('.slide-dots i').forEach((dot,index)=>dot.classList.toggle('active',index===1));openOverlay('memoryOverlay');
+  $('memorySkill').value=p.skill||'';$('memoryWork').value=p.work||'';$('memoryExperience').value=p.experience||'';$('memoryNiche').value=p.niche||'';$('memoryLocation').value=p.location||'';$('memoryPortfolio').value=p.portfolio||'';$('memoryPrice').value=p.price||'';$('clientOnboarding')?.classList.add('setup-open');
 }
 function openFind(){const p=state.agentProfile?.profile_json||{};if(p.skill){const select=$('findSkill');if([...select.options].some(o=>o.value===p.skill))select.value=p.skill}if(p.work)$('findOffer').value=p.work;if(p.niche)$('findNiche').value=p.niche;if(p.location)$('findLocation').value=p.location;if(p.price)$('findPrice').value=p.price;openOverlay('findOverlay')}
 async function saveMemory(){
@@ -92,7 +92,7 @@ async function saveMemory(){
   const memory_summary=[profile_json.skill,'selling '+profile_json.work,'for '+profile_json.niche,'in '+profile_json.location,profile_json.price?'starting at '+profile_json.price:''].filter(Boolean).join(' · ');
   const row={user_id:state.session.user.id,profile_json,memory_summary,portfolio_urls:profile_json.portfolio?[profile_json.portfolio]:[],updated_at:new Date().toISOString()};
   const {error}=await sb.from('client_agent_profiles').upsert(row,{onConflict:'user_id'});if(error)return toast(error.message,true);
-  closeOverlay('memoryOverlay');await loadAll();toast('Saved to your Client Agent memory');
+  $('clientOnboarding')?.classList.remove('setup-open');await loadAll();toast('Saved to your Client Agent memory');
 }
 function setView(name){
   state.view=name;
@@ -407,6 +407,7 @@ function bind(){
   $('runFind').onclick=runFind;$('saveManual').onclick=saveManual;$('startRetainer').onclick=startRetainer;$('saveMemory').onclick=saveMemory;
   $('findCount').onchange=()=>{const n=Number($('findCount').value),c={5:20,10:40,20:80}[n];$('runFind').textContent='Research '+n+' · '+c+' credits'};
   $('setupAgent').onclick=openMemory;
+  $('setupBack').onclick=()=>$('clientOnboarding')?.classList.remove('setup-open');
   let onboardingTouch=null;
   $('clientOnboarding')?.addEventListener('touchstart',event=>{const touch=event.changedTouches[0];onboardingTouch={x:touch.clientX,y:touch.clientY}},{passive:true});
   $('clientOnboarding')?.addEventListener('touchend',event=>{if(!onboardingTouch)return;const touch=event.changedTouches[0],dx=onboardingTouch.x-touch.clientX,dy=Math.abs(onboardingTouch.y-touch.clientY);onboardingTouch=null;if(dx>52&&dy<72)openMemory()},{passive:true});
