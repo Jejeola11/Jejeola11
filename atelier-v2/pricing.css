@@ -92,3 +92,8 @@ body{background:#FFFFFF}
  .mini-visual{width:160px}
  .mini-visual b{font-size:14px}
 }
+
+.hero h1{line-height:.9}
+.hero h1 em,.hero h1 strong{line-height:.9}
+.hero-pill{background:var(--chrome) padding-box,var(--teal) border-box;border:2px solid transparent;color:#001012}
+.brand-logo{outline:2px solid #1B4C52;outline-offset:2px}
