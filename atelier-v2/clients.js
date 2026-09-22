@@ -83,7 +83,7 @@ function renderAgentMemory(){
 }
 function openMemory(){
   const p=state.agentProfile?.profile_json||{};
-  $('memorySkill').value=p.skill||'';$('memoryWork').value=p.work||'';$('memoryExperience').value=p.experience||'';$('memoryNiche').value=p.niche||'';$('memoryLocation').value=p.location||'';$('memoryPortfolio').value=p.portfolio||'';$('memoryPrice').value=p.price||'';openOverlay('memoryOverlay');
+  $('memorySkill').value=p.skill||'';$('memoryWork').value=p.work||'';$('memoryExperience').value=p.experience||'';$('memoryNiche').value=p.niche||'';$('memoryLocation').value=p.location||'';$('memoryPortfolio').value=p.portfolio||'';$('memoryPrice').value=p.price||'';document.querySelectorAll('.slide-dots i').forEach((dot,index)=>dot.classList.toggle('active',index===1));openOverlay('memoryOverlay');
 }
 function openFind(){const p=state.agentProfile?.profile_json||{};if(p.skill){const select=$('findSkill');if([...select.options].some(o=>o.value===p.skill))select.value=p.skill}if(p.work)$('findOffer').value=p.work;if(p.niche)$('findNiche').value=p.niche;if(p.location)$('findLocation').value=p.location;if(p.price)$('findPrice').value=p.price;openOverlay('findOverlay')}
 async function saveMemory(){
@@ -407,6 +407,9 @@ function bind(){
   $('runFind').onclick=runFind;$('saveManual').onclick=saveManual;$('startRetainer').onclick=startRetainer;$('saveMemory').onclick=saveMemory;
   $('findCount').onchange=()=>{const n=Number($('findCount').value),c={5:20,10:40,20:80}[n];$('runFind').textContent='Research '+n+' · '+c+' credits'};
   $('setupAgent').onclick=openMemory;
+  let onboardingTouch=null;
+  $('clientOnboarding')?.addEventListener('touchstart',event=>{const touch=event.changedTouches[0];onboardingTouch={x:touch.clientX,y:touch.clientY}},{passive:true});
+  $('clientOnboarding')?.addEventListener('touchend',event=>{if(!onboardingTouch)return;const touch=event.changedTouches[0],dx=onboardingTouch.x-touch.clientX,dy=Math.abs(onboardingTouch.y-touch.clientY);onboardingTouch=null;if(dx>52&&dy<72)openMemory()},{passive:true});
   $('closePromo').onclick=()=>{$('clientPromo').style.display='none'};
   $('clientMenu').onclick=()=>location.href='home.html';
   $('search').oninput=e=>{state.search=e.target.value;renderProspects()};
