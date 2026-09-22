@@ -28,7 +28,7 @@
     },
     {
       "src": "/pricing/?",
-      "dest": "/class-pricing/index.html"
+      "dest": "/atelier-v2/pricing.html"
     },
     {
       "src": "/atelier/?",
