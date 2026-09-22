@@ -162,3 +162,12 @@ body{background:#FFFFFF}
   paint-order:stroke fill;
   text-shadow:0 .5px .4px rgba(0,16,18,.2);
 }
+
+
+/* Centre CTA labels inside full-width pricing cards */
+.price-card .button,.upgrade-card .button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
