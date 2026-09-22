@@ -122,3 +122,9 @@ body{background:#FFFFFF}
  .playbook-showcase .art-back{left:4%!important;width:72%!important}
  .playbook-showcase .art-side{right:4%!important;width:72%!important}
 }
+
+/* Larger three-line hero hook */
+@media(max-width:600px){
+ .hero h1{width:calc(100% + 16px)!important;margin-left:-8px!important;font-size:36px!important;line-height:.98!important;gap:8px!important;letter-spacing:-.07em!important}
+ .hero h1 span,.hero h1 strong{font-size:1em!important;letter-spacing:-.07em!important;white-space:nowrap!important}
+}
