@@ -4,6 +4,7 @@
 const { admin, getUser, json } = require('./_supabase');
 
 function clean(v,max=1000){return typeof v==='string'?v.trim().slice(0,max):''}
+const DISCOVERY_CREDITS={5:20,10:40,20:80};
 function domainFrom(url){try{return new URL(url).hostname.replace(/^www\./,'').toLowerCase()}catch{return''}}
 function textNorm(v){return String(v||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
 function firstWords(v,n=4){return textNorm(v).split(' ').filter(x=>x.length>2).slice(0,n)}
@@ -43,6 +44,13 @@ function bestContact(x){
   if(x.contact&&x.contact.instagram)return 'Instagram DM';
   if(x.place&&x.place.nationalPhoneNumber)return 'WhatsApp / phone';
   return x.place&&x.place.websiteUri?'Website contact route':'Not found';
+}
+function canonicalKey(x){
+  const place=clean(x.place&&x.place.id,220);
+  if(place)return 'place:'+place;
+  const domain=clean(x.domain,240).toLowerCase();
+  if(domain)return 'domain:'+domain;
+  return 'brand:'+textNorm(x.name)+'|'+textNorm(x.place&&x.place.formattedAddress);
 }
 function askFirstFor(x,skill){
   const who=x.founder&&x.founder.name?x.founder.name:x.name;
@@ -167,48 +175,65 @@ async function finishEnrichment(x,skill,location,key){
   return {...x,founder,score,sources};
 }
 exports.handler=async(event)=>{
+  let charged=false,chargedDb=null,chargedUser=null,chargedCredits=0;
   try{
     if(event.httpMethod!=='POST')return json(405,{error:'Method not allowed'});
     const user=await getUser(event);if(!user)return json(401,{error:'Please sign in again.'});
     let body={};try{body=JSON.parse(event.body||'{}')}catch{return json(400,{error:'Bad request.'})}
     const skill=clean(body.skill,180),niche=clean(body.niche,140),location=clean(body.location,180);
     if(!skill||!niche||!location)return json(400,{error:'Choose your skill, niche and city + country.'});
+    const returnCount=[5,10,20].includes(Number(body.return_count))?Number(body.return_count):5;
+    const credits=DISCOVERY_CREDITS[returnCount];
     const key=(process.env.SERPAPI_API_KEY||process.env.SERP_API_KEY||'').trim();
     if(!key)return json(503,{error:'Fuse needs SerpApi before live prospect research can run. Add SERPAPI_API_KEY in Vercel.',code:'SERPAPI_NOT_CONFIGURED'});
 
     const db=admin();
+    const profileQ=await db.from('client_agent_profiles').select('memory_summary,profile_json,portfolio_urls').eq('user_id',user.id).maybeSingle();
+    if(profileQ.error)throw profileQ.error;
+    const profile=profileQ.data||{memory_summary:'',profile_json:{},portfolio_urls:[]};
+    const agentOffer=clean(body.offer,300)||clean(profile.profile_json&&profile.profile_json.work,300)||skill;
+    const agentPrice=clean(body.starter_price,100)||clean(profile.profile_json&&profile.profile_json.price,100)||'';
+    const {data:balance,error:spendError}=await db.rpc('spend_credits',{uid:user.id,amount:credits});
+    if(spendError)throw spendError;
+    if(balance===null)return json(402,{error:'You need '+credits+' credits to research '+returnCount+' prospects.',code:'NO_CREDITS'});
+    charged=true;chargedDb=db;chargedUser=user.id;chargedCredits=credits;
     const request=await db.from('client_research_requests').insert({
       user_id:user.id,source:'serp_maps+serp_web',niche,location,
-      criteria:{skill,return_count:5,candidate_research_limit:8,provider:'SerpApi'},
+      criteria:{skill,return_count:returnCount,candidate_research_limit:returnCount===5?12:returnCount===10?24:48,provider:'SerpApi'},
+      requested_count:returnCount,credits_charged:credits,
+      offer_json:{offer:agentOffer,starter_price:agentPrice||starterPrice(skill)},
+      profile_snapshot:{memory_summary:profile.memory_summary||'',profile_json:profile.profile_json||{},portfolio_urls:profile.portfolio_urls||[]},
       status:'processing',requested_at:new Date().toISOString()
     }).select('id').single();
-    if(request.error)throw request.error;
+    if(request.error){await db.rpc('add_credits',{uid:user.id,amount:credits,why:'client_discovery_refund'});charged=false;throw request.error}
 
     const mapRows=(await mapSearch(niche,location,key)).sort((a,b)=>scoreBase(b)-scoreBase(a));
-    const candidates=mapRows.slice(0,8);
+    const candidates=mapRows.slice(0,returnCount===5?12:returnCount===10?24:48);
     const stageOne=await Promise.all(candidates.map(p=>enrichStageOne(p,skill,location,niche,key)));
-    const shortlist=stageOne.filter(x=>x.qualifies).sort((a,b)=>b.score-a.score).slice(0,5);
+    const shortlist=stageOne.filter(x=>x.qualifies).sort((a,b)=>b.score-a.score).slice(0,returnCount);
     const qualified=(await Promise.all(shortlist.map(x=>finishEnrichment(x,skill,location,key)))).sort((a,b)=>b.score-a.score);
 
-    const ids=qualified.map(x=>clean(x.place.id,220)).filter(Boolean);
-    let existing=[];
-    if(ids.length){
-      const ex=await db.from('client_prospects').select('google_place_id').eq('user_id',user.id).in('google_place_id',ids);
-      if(ex.error)throw ex.error;existing=ex.data||[];
-    }
-    const seen=new Set(existing.map(x=>x.google_place_id));
-    const rows=qualified.filter(x=>!seen.has(x.place.id)).map((x,idx)=>{
+    const rows=[];let globallyReserved=0;
+    for(const [idx,x] of qualified.entries()){
+      const registry=await db.from('client_prospect_registry').insert({
+        canonical_key:canonicalKey(x),google_place_id:clean(x.place.id,220)||null,domain:x.domain||null,
+        brand_name:x.name,location:clean(x.place.formattedAddress,240)||location,assigned_user_id:user.id
+      }).select('id').maybeSingle();
+      if(registry.error){
+        if(String(registry.error.code||'')==='23505'){globallyReserved++;continue}
+        throw registry.error;
+      }
       const bestEmail=x.contact.email||null;
       const bestPhone=x.place.nationalPhoneNumber||x.contact.phone||null;
       const why=x.whyNow||'Not found';
       const safeGap=x.gap||'No separate technical gap was verified; the opportunity is tied to the current activity above.';
-      return {
+      rows.push({
         user_id:user.id,brand_name:x.name,niche,location:clean(x.place.formattedAddress,240)||location,
         founder_name:x.founder.name||null,founder_title:x.founder.title||null,founder_linkedin:x.founder.linkedin||null,
         founder_email:null,founder_phone:null,founder_instagram:null,
         contact_name:x.founder.name||null,email:bestEmail,whatsapp:bestPhone,
         instagram:x.contact.instagram||null,website:clean(x.place.websiteUri,700)||null,
-        google_place_id:clean(x.place.id,220),maps_url:clean(x.place.googleMapsUri,900)||null,
+        google_place_id:clean(x.place.id,220),registry_id:registry.data.id,research_date:new Date().toISOString(),contact_method:bestContact(x),maps_url:clean(x.place.googleMapsUri,900)||null,
         rating:Number.isFinite(Number(x.place.rating))?Number(x.place.rating):null,
         review_count:Number.isFinite(Number(x.place.userRatingCount))?Number(x.place.userRatingCount):null,
         business_status:clean(x.place.businessStatus,80)||null,
@@ -218,34 +243,40 @@ exports.handler=async(event)=>{
         qualification_json:{
           rank:idx+1,why_now:why,gap:safeGap,
           why_skill_relevant:skill+' is relevant because the business has a verified current activity and a matching reason to approach now.',
-          offer:skill,starter_price:starterPrice(skill),best_contact_method:bestContact(x),ask_first:askFirstFor(x,skill),
+          offer:agentOffer,starter_price:starterPrice(skill),starter_price_label:agentPrice||null,best_contact_method:bestContact(x),ask_first:askFirstFor(x,skill),
           contactable:!!(bestPhone||bestEmail||x.contact.instagram||x.place.websiteUri),
           verified_current_reason:true,provider:'SerpApi'
         },
         signals:['current_activity_verified',x.gap?'skill_gap_verified':null,bestEmail?'public_email_found':null,x.founder.linkedin?'founder_linkedin_found':null].filter(Boolean),
         evidence:x.sources.map(s=>({source:s.label,url:s.url}))
-      };
-    });
+      });
+    }
 
     let inserted=[];
     if(rows.length){
       const ins=await db.from('client_prospects').insert(rows).select('*');
       if(ins.error)throw ins.error;inserted=ins.data||[];
     }
-    await db.from('client_research_requests').update({status:'completed',result_count:inserted.length,processed_at:new Date().toISOString()}).eq('id',request.data.id);
+    const refund=Math.max(0,credits-Math.ceil((inserted.length/returnCount)*credits));
+    if(refund){await db.rpc('add_credits',{uid:user.id,amount:refund,why:'client_discovery_partial_refund'})}
+    charged=false;
+    await db.from('client_research_requests').update({status:'completed',result_count:inserted.length,credits_refunded:refund,processed_at:new Date().toISOString()}).eq('id',request.data.id);
     await db.from('client_activities').insert({
       user_id:user.id,activity_type:'discovery',
       title:'Serp researched '+candidates.length+' '+niche+' businesses',
-      body:'Kept '+qualified.length+' with a verified current reason and usable public contact route.',
-      metadata:{request_id:request.data.id,skill,niche,location,maps_results:mapRows.length,candidates:candidates.length,qualified:qualified.length,inserted:inserted.length,provider:'SerpApi'}
+      body:'Kept '+inserted.length+' with a verified current reason and usable public contact route.',
+      metadata:{request_id:request.data.id,skill,niche,location,maps_results:mapRows.length,candidates:candidates.length,qualified:qualified.length,inserted:inserted.length,globally_reserved:globallyReserved,provider:'SerpApi'}
     });
     return json(200,{
       ok:true,request_id:request.data.id,maps_results:mapRows.length,candidates:candidates.length,
-      qualified:qualified.length,added:inserted.length,duplicates:qualified.length-inserted.length,
+      qualified:qualified.length,added:inserted.length,duplicates:globallyReserved,
       skipped:Math.max(0,candidates.length-qualified.length),maps_provider:'SerpApi Google Maps',
-      contact_provider:'SerpApi + public website',prospects:inserted
+      contact_provider:'SerpApi + public website',credits_charged:credits,credits_refunded:refund,credits_remaining:balance+refund,prospects:inserted
     });
   }catch(e){
+    if(charged&&chargedDb&&chargedUser&&chargedCredits){
+      try{await chargedDb.rpc('add_credits',{uid:chargedUser,amount:chargedCredits,why:'client_discovery_refund'})}catch(_){}
+    }
     console.error('[client-discover]',e);
     return json(500,{error:e&&e.message||'Could not research prospects right now.'});
   }
