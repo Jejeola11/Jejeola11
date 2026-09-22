@@ -154,3 +154,11 @@ body{background:#FFFFFF}
 .meet-copy .button{margin-top:9px}
 @media(min-width:720px){.meet-ria{grid-template-columns:300px 1fr;text-align:left}.meet-photo{height:390px}.meet-copy p{margin-left:0}.meet-copy .kicker{text-align:left}}
 @media(max-width:600px){.sales-story,.sales-map,.sales-inside,.sales-faq,.sales-final{padding-top:78px}.sales-upgrade{margin-top:78px;padding-top:76px}.meet-ria{width:calc(100% - 48px);padding:78px 0 0}.meet-photo{width:240px;height:300px}.meet-copy p{font-size:14px;line-height:1.62}}
+
+
+/* Softer, natural contrast for chrome-gradient lettering */
+.sales-story h2 em,.sales-map h2 em,.sales-inside h2 em,.sales-upgrade h2 em,.sales-faq h2 em,.sales-final h2 em,.method-card h2 em,.price-card h2 em,.upgrade-card h3 em,.meet-copy h2 em{
+  -webkit-text-stroke:.35px rgba(0,16,18,.82);
+  paint-order:stroke fill;
+  text-shadow:0 .5px .4px rgba(0,16,18,.2);
+}
