@@ -62,7 +62,16 @@ async function loadAll(){
   renderAll();
   window.Fuse?.balance?.().catch(()=>{});
 }
-function renderAll(){renderAgentMemory();renderStats();renderToday();renderActivities();renderProspects();renderPipeline();renderClients();renderJobs()}
+function renderAll(){renderClientDashboard();renderAgentMemory();renderStats();renderToday();renderActivities();renderProspects();renderPipeline();renderClients();renderJobs()}
+function renderClientDashboard(){
+  const root=$('clientDashboard');if(!root)return;const p=state.agentProfile?.profile_json||{};
+  const active=state.prospects.filter(x=>!['won','lost'].includes(normalizeStatus(x.status))).length;
+  const contacted=state.prospects.filter(x=>['asked','replied','sample_ready','sample_sent','agreed','proposal_sent','deal_locked','contract_sent','contract_signed','won'].includes(normalizeStatus(x.status))).length;
+  const hasMemory=!!p.skill;
+  const next=hasMemory?(active?{label:'Continue your client search',copy:active+' prospect'+(active===1?' is':'s are')+' already in your pipeline.',action:'find',button:'Find more clients'}:{label:'Find your first five',copy:'Fuse will research businesses that fit what you sell.',action:'find',button:'Find clients'}):{label:'Teach Fuse about you',copy:'Save your skill, niche and price once. Fuse uses it for every search.',action:'memory',button:'Set up my agent'};
+  root.innerHTML=`<div class="dashboard-kicker">CLIENT ENGINE</div><h1 class="dashboard-title">Your next client<br>starts here.</h1><p class="dashboard-copy">One clear next step. No clutter.</p><button class="primary-search" id="dashFind"><b>Find qualified clients</b><span>5 prospects · 20 credits</span></button><section class="dashboard-section"><div class="dash-head"><h2>Your agent</h2><button id="dashEdit">${hasMemory?'Edit':'Set up'}</button></div><div class="agent-strip"><i class="agent-dot" aria-hidden="true"></i><div><b>${hasMemory?esc(p.skill):'Not set up yet'}</b><span>${hasMemory?esc([p.niche,p.location,p.price].filter(Boolean).join(' · ')||'Your saved client context'):'Save your offer, niche and location once.'}</span></div></div></section><section class="dashboard-section"><div class="dashboard-stats"><div class="dash-stat"><b>${active}</b><span>In progress</span></div><div class="dash-stat"><b>${contacted}</b><span>Contacted</span></div></div></section><section class="dashboard-section next-card"><small>NEXT STEP</small><h2>${next.label}</h2><p>${next.copy}</p><button id="dashNext">${next.button}</button></section>`;
+  $('dashFind').onclick=openFind;$('dashEdit').onclick=openMemory;$('dashNext').onclick=next.action==='memory'?openMemory:openFind;
+}
 function renderAgentMemory(){
   const root=$('agentMemory');if(!root)return;const p=state.agentProfile?.profile_json||{};
   const tags=[p.skill,p.work,p.niche,p.location,p.price].filter(Boolean).slice(0,5);
@@ -73,6 +82,7 @@ function openMemory(){
   const p=state.agentProfile?.profile_json||{};
   $('memorySkill').value=p.skill||'';$('memoryWork').value=p.work||'';$('memoryExperience').value=p.experience||'';$('memoryNiche').value=p.niche||'';$('memoryLocation').value=p.location||'';$('memoryPortfolio').value=p.portfolio||'';$('memoryPrice').value=p.price||'';openOverlay('memoryOverlay');
 }
+function openFind(){const p=state.agentProfile?.profile_json||{};if(p.skill){const select=$('findSkill');if([...select.options].some(o=>o.value===p.skill))select.value=p.skill}if(p.work)$('findOffer').value=p.work;if(p.niche)$('findNiche').value=p.niche;if(p.location)$('findLocation').value=p.location;if(p.price)$('findPrice').value=p.price;openOverlay('findOverlay')}
 async function saveMemory(){
   const profile_json={skill:$('memorySkill').value.trim(),work:$('memoryWork').value.trim(),experience:$('memoryExperience').value.trim(),niche:$('memoryNiche').value.trim(),location:$('memoryLocation').value.trim(),portfolio:$('memoryPortfolio').value.trim(),price:$('memoryPrice').value.trim()};
   if(!profile_json.skill||!profile_json.work||!profile_json.niche||!profile_json.location)return toast('Add your skill, work, niche and target location.',true);
@@ -389,7 +399,7 @@ function bind(){
   document.addEventListener('focusin',keepFieldVisible);
   document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>setView(b.dataset.view));
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>setView(b.dataset.go));
-  $('findBtn').onclick=$('findBtn2').onclick=()=>{const p=state.agentProfile?.profile_json||{};if(p.skill)$('findSkill').value=p.skill;if(p.work)$('findOffer').value=p.work;if(p.niche)$('findNiche').value=p.niche;if(p.location)$('findLocation').value=p.location;if(p.price)$('findPrice').value=p.price;openOverlay('findOverlay')};
+  $('findBtn').onclick=$('findBtn2').onclick=openFind;
   $('manualBtn').onclick=$('manualBtn2').onclick=()=>openOverlay('manualOverlay');
   $('runFind').onclick=runFind;$('saveManual').onclick=saveManual;$('startRetainer').onclick=startRetainer;$('saveMemory').onclick=saveMemory;
   $('findCount').onchange=()=>{const n=Number($('findCount').value),c={5:20,10:40,20:80}[n];$('runFind').textContent='Research '+n+' · '+c+' credits'};
