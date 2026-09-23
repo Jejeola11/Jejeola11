@@ -27,8 +27,12 @@
       "dest": "/app/studio.html"
     },
     {
-      "src": "/pricing/?",
+      "src": "/credits/?",
       "dest": "/atelier-v2/pricing.html"
+    },
+    {
+      "src": "/pricing/?",
+      "dest": "/atelier-v2/first-client-playbook.html"
     },
     {
       "src": "/first-client-playbook/?",
