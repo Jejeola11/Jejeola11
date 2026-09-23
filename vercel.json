@@ -31,6 +31,10 @@
       "dest": "/atelier-v2/pricing.html"
     },
     {
+      "src": "/first-client-playbook/?",
+      "dest": "/atelier-v2/first-client-playbook.html"
+    },
+    {
       "src": "/atelier/?",
       "dest": "/atelier-site/final.html"
     },
