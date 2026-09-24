@@ -190,3 +190,16 @@ body{background:#FFFFFF}
   .coach-icon{width:29px;height:29px}
   .coach-icon svg{width:15px;height:15px}
 }
+
+
+/* Coach Ria contact links belong in the Playbook footer */
+footer{flex-direction:row!important;align-items:center!important;gap:20px}
+.footer-brand{display:grid;gap:8px}
+.footer-brand p{margin:0}
+.footer-connect{display:flex;align-items:center;justify-content:flex-end;gap:7px;color:#fff}
+.footer-connect-label{font-size:11px;line-height:1.16;font-weight:800;letter-spacing:-.02em;text-align:right;white-space:nowrap}
+.footer-icon{width:32px;height:32px;display:grid;place-items:center;border-radius:50%;border:1.5px solid #9eb6aa;background:transparent;color:#fff;transition:transform .18s ease,background .18s ease,color .18s ease}
+.footer-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.footer-icon:hover{transform:translateY(-2px);background:var(--lime);border-color:var(--lime);color:var(--deep)}
+.footer-icon:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+@media(max-width:600px){footer{padding:22px 16px!important;gap:10px}.footer-connect{gap:5px}.footer-connect-label{font-size:10px}.footer-icon{width:29px;height:29px}.footer-icon svg{width:15px;height:15px}}
