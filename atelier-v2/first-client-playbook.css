@@ -173,3 +173,20 @@ body{background:#FFFFFF}
 }
 
 /* Production sync checkpoint — latest checkout flow */
+
+/* Coach contact links in the Playbook header */
+.coach-connect{display:flex;align-items:center;justify-content:flex-end;gap:7px;color:var(--deep)}
+.coach-label{font-size:11px;line-height:1.16;font-weight:800;letter-spacing:-.02em;text-align:right;white-space:nowrap}
+.coach-icon{width:32px;height:32px;display:grid;place-items:center;border-radius:50%;border:1.5px solid var(--light);background:#fff;color:var(--deep);transition:transform .18s ease,background .18s ease,color .18s ease}
+.coach-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.coach-icon:hover{transform:translateY(-2px);background:var(--deep);color:var(--lime)}
+.coach-icon:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+@media(max-width:600px){
+  .site-header{height:82px;padding-left:16px;padding-right:16px}
+  .logo{gap:7px;font-size:13px}
+  .logo .brand-logo{width:44px;height:44px;border-radius:14px}
+  .coach-connect{gap:5px}
+  .coach-label{font-size:10px}
+  .coach-icon{width:29px;height:29px}
+  .coach-icon svg{width:15px;height:15px}
+}
