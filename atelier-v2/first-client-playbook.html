@@ -127,4 +127,22 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
 </section>
 </main>
 <footer><a class="logo" href="#top"><img class="brand-logo" src="/atelier-v2/assets/fuse-logo.png" alt=""><strong>Fuse Atelier</strong></a><p>Learn · Create · Sell</p></footer>
-</body></html>
+<script>
+document.addEventListener('click', function (event) {
+  var checkoutLink = event.target.closest('a[href="https://nestuge.com/first-client-playbook"]');
+  if (!checkoutLink || checkoutLink.dataset.checkoutTracked) return;
+  event.preventDefault();
+  checkoutLink.dataset.checkoutTracked = 'true';
+
+  if (typeof fbq === 'function') {
+    fbq('track', 'InitiateCheckout', { value: 3, currency: 'USD' });
+  }
+  if (window.ttq && typeof window.ttq.track === 'function') {
+    window.ttq.track('InitiateCheckout', { value: 3, currency: 'USD' });
+  }
+
+  window.setTimeout(function () {
+    window.location.href = checkoutLink.href;
+  }, 180);
+});
+</script></body></html>
