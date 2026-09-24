@@ -39,6 +39,10 @@
       "dest": "/atelier-v2/first-client-playbook.html"
     },
     {
+      "src": "/playbook/?",
+      "dest": "/atelier-v2/playbook.html"
+    },
+    {
       "src": "/atelier/?",
       "dest": "/atelier-site/final.html"
     },
