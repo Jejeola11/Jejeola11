@@ -98,6 +98,33 @@ main{padding:18px 0 38px}.intro{text-align:center;padding:6px 6px 4px}.intro h1{
 #detailOverlay .agent-btn span{font-size:11px;line-height:1.3}
 #detailOverlay .field textarea{min-height:112px}
 @media(max-width:380px){#detailOverlay .detail-actions{grid-template-columns:1fr}#detailOverlay .agent-btn{min-height:62px}}
+/* Results dashboard must never create sideways scrolling on a phone. */
+html,body,main,.wrap,#clientDashboard{max-width:100%;min-width:0;overflow-x:clip}
+#clientDashboard{width:100%}
+.today-page{width:100%;max-width:100%;min-width:0;margin:0;padding-right:20px;padding-left:20px}
+.today-page *{min-width:0}
+.today-section,.today-leads,.lead-card{max-width:100%}
+.lead-card{overflow:hidden}
+@media(max-width:620px){
+  .today-page{padding:28px 20px calc(28px + env(safe-area-inset-bottom))}
+  .today-title{font-size:29px}
+  .today-action{margin-top:20px;padding:18px}
+  .today-action b{font-size:21px}
+  .scout-strip{align-items:flex-start}
+  .scout-strip>strong{padding-top:3px}
+  .momentum{gap:2px}
+  .momentum span{font-size:9px}
+  .today-leads{gap:10px}
+  .lead-card{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;padding:15px}
+  .lead-card span{width:100%;overflow:hidden}
+  .lead-card b{font-size:16px;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.25}
+  .lead-card em{font-size:12px;line-height:1.4;white-space:normal}
+  .lead-card small{font-size:12px}
+  .lead-card strong{width:100%;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(49,84,86,.55);padding-top:10px;font-size:13px}
+  .today-tools{grid-template-columns:1fr;gap:9px;margin-top:18px}
+  .today-tools button{min-height:76px}
+}
+
 
 </style>
 </head>
@@ -159,6 +186,6 @@ main{padding:18px 0 38px}.intro{text-align:center;padding:6px 6px 4px}.intro h1{
 
 <div class="toast" id="toast"></div>
 <script src="fuse-shell.js?v=client-serp-only-2" defer></script>
-<script src="clients.js?v=client-agent-mobile-2" defer></script>
+<script src="clients.js?v=client-agent-results-3" defer></script>
 </body>
 </html>
