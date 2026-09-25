@@ -151,4 +151,18 @@
     document.body.append(pageControls);
   }
   if(window.supabase)Fuse.balance().catch(()=>{});
-})();
+
+  (async function keepPlaybookOnlyAccountsInThePlaybook(){
+    try{
+      const session=await Fuse.session();
+      const email=String(session.user.email||'').trim().toLowerCase();
+      if(email==='riadigitals0@gmail.com')return;
+      const sb=await Fuse.client();
+      const {data:unlocks,error}=await sb.from('module_unlocks').select('module_key').eq('user_id',session.user.id);
+      if(error)return;
+      const keys=new Set((unlocks||[]).map(row=>row.module_key));
+      const playbookOnly=keys.size===1&&keys.has('first-client-playbook');
+      if(playbookOnly)location.replace('/playbook');
+    }catch{}
+  })();
+});
