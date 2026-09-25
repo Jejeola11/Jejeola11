@@ -250,7 +250,8 @@ function renderContract(p){
 }
 function renderDetail(p){
   const s=normalizeStatus(p.status),score=Number(p.opportunity_score||0),rating=p.rating!=null?`${Number(p.rating).toFixed(1)} ★ · ${p.review_count??0} reviews`:'No Google rating saved';
-  const contract=latestContract(p.id);
+  const contract=latestContract(p.id);const next=nextAction(p);
+  const nextControl=next.action?`<button class="next-step-action" data-agent="${esc(next.action)}">${esc(next.label)} <i>→</i></button>`:next.status&&next.status!=='asked'?`<button class="next-step-action" data-status="${esc(next.status)}">${esc(next.label)} <i>→</i></button>`:'';
   $('detailBody').innerHTML=`
     <div class="detail-score"><div><b>Opportunity score</b><div class="meta">${esc(rating)}</div></div><strong>${score}/100</strong></div>
     <div class="badges" style="margin-top:10px"><span class="badge hot">${esc(stageLabel(s))}</span>${p.service?`<span class="badge">${esc(p.service)}</span>`:''}${p.source?`<span class="badge">${esc(p.source)}</span>`:''}</div>
@@ -258,7 +259,8 @@ function renderDetail(p){
     <div class="job-actions">${linkButtons(p)}</div>
     ${renderContact(p)}
     <div class="divider"></div>
-    <div class="detail-actions">
+    <section class="next-step"><small>YOUR NEXT STEP</small><h3>${esc(next.label)}</h3><p>${esc(next.note)}</p>${nextControl}</section>
+    <div class="section-head" style="margin-top:17px"><div><h2 style="font-size:15px">More tools</h2></div></div><div class="detail-actions">
       <button class="agent-btn hot" data-agent="audit"><b>✦ Audit</b><span>Verify the strongest factual opportunity</span></button>
       <button class="agent-btn" data-agent="outreach"><b>Ask-first</b><span>Permission-based email, IG, LinkedIn or WhatsApp</span></button>
       <button class="agent-btn" data-agent="sample"><b>Create sample</b><span>Only after they reply positively</span></button>
@@ -288,7 +290,7 @@ function bindDetail(p){
   $('detailBody').querySelectorAll('[data-status]').forEach(b=>b.onclick=()=>markStatus(p.id,b.dataset.status));
   $('winBtn')?.addEventListener('click',()=>openRetainer(p.id));
   $('prepareContract')?.addEventListener('click',()=>prepareContract(p.id));
-  $('detailBody').querySelector('[data-open-clients]')?.addEventListener('click',()=>{closeOverlay('detailOverlay');setView('clients')});
+  $('detailBody').querySelector('[data-open-clients]')?.addEventListener('click',()=>{closeOverlay('detailOverlay');renderClientDashboard();window.scrollTo({top:0,behavior:'smooth'})});
   $('saveNotes')?.addEventListener('click',()=>saveNotes(p.id));
   $('saveSampleUrl')?.addEventListener('click',()=>saveSampleUrl(p.id));
   $('copySampleMessage')?.addEventListener('click',()=>copyText(p.sample_submission_copy||state.agentOutput?.output?.submission_message||''));
