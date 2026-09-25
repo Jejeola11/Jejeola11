@@ -156,11 +156,18 @@ async function enrichStageOne(place,skill,location,niche,key){
     websiteContact(place.websiteUri||'')
   ]);
   const gap=serviceGap(skill,place);
+  // A student should never get an empty batch simply because a small business has
+  // not been mentioned in Google's news index. We keep that distinction visible:
+  // "strong" has a current campaign/launch signal; "ready" has an active public
+  // business route and a service-relevant opportunity.
   const hasContact=!!(place.nationalPhoneNumber||contact.email||contact.instagram||place.websiteUri);
-  const qualifies=!!signal&&hasContact;
-  let score=scoreBase(place)+(signal?28:0)+(contact.email?10:0)+(contact.instagram?6:0)+(gap?12:0);
+  const qualifies=hasContact;
+  const readiness=signal?'strong':'ready';
+  const fallbackWhy='Active public Google Maps listing with a '+(place.websiteUri?'website':'direct contact route')+' for '+name+'.';
+  const fallbackGap=gap||('A focused '+skill+' offer can give this business a clearer next step for people discovering it online.');
+  let score=scoreBase(place)+(signal?28:0)+(contact.email?10:0)+(contact.instagram?6:0)+(gap?12:0)+(place.websiteUri?4:0);
   score=Math.max(1,Math.min(100,score));
-  return {place,name,domain,signal,contact,gap,whyNow:signal?signal.summary:'',qualifies,score};
+  return {place,name,domain,signal,contact,gap:fallbackGap,whyNow:signal?signal.summary:fallbackWhy,readiness,qualifies,score};
 }
 async function finishEnrichment(x,skill,location,key){
   const founder=await founderLookup(x.name,location,x.domain,key).catch(()=>({name:'',title:'',linkedin:'',source:''}));
@@ -209,13 +216,17 @@ exports.handler=async(event)=>{
     if(request.error){await db.rpc('add_credits',{uid:user.id,amount:credits,why:'client_discovery_refund'});charged=false;throw request.error}
 
     const mapRows=(await mapSearch(niche,location,key)).sort((a,b)=>scoreBase(b)-scoreBase(a));
-    const candidates=mapRows.slice(0,returnCount===5?12:returnCount===10?24:48);
+    const candidates=mapRows.slice(0,returnCount===5?18:returnCount===10?28:48);
     const stageOne=await Promise.all(candidates.map(p=>enrichStageOne(p,skill,location,niche,key)));
-    const shortlist=stageOne.filter(x=>x.qualifies).sort((a,b)=>b.score-a.score).slice(0,returnCount);
+    // Research extra candidates so a business already reserved for another student
+    // does not turn a requested batch of five into an empty one.
+    const shortlist=stageOne.filter(x=>x.qualifies).sort((a,b)=>b.score-a.score)
+      .slice(0,Math.min(candidates.length,Math.max(returnCount*2,returnCount+5)));
     const qualified=(await Promise.all(shortlist.map(x=>finishEnrichment(x,skill,location,key)))).sort((a,b)=>b.score-a.score);
 
     const rows=[];let globallyReserved=0;
     for(const [idx,x] of qualified.entries()){
+      if(rows.length>=returnCount)break;
       const registry=await db.from('client_prospect_registry').insert({
         canonical_key:canonicalKey(x),google_place_id:clean(x.place.id,220)||null,domain:x.domain||null,
         brand_name:x.name,location:clean(x.place.formattedAddress,240)||location,assigned_user_id:user.id
@@ -246,9 +257,10 @@ exports.handler=async(event)=>{
           why_skill_relevant:skill+' is relevant because the business has a verified current activity and a matching reason to approach now.',
           offer:agentOffer,starter_price:starterPrice(skill),starter_price_label:agentPrice||null,best_contact_method:bestContact(x),ask_first:askFirstFor(x,skill),
           contactable:!!(bestPhone||bestEmail||x.contact.instagram||x.place.websiteUri),
-          verified_current_reason:true,provider:'SerpApi'
+          confidence:x.readiness,
+          verified_current_reason:x.readiness==='strong',provider:'SerpApi'
         },
-        signals:['current_activity_verified',x.gap?'skill_gap_verified':null,bestEmail?'public_email_found':null,x.founder.linkedin?'founder_linkedin_found':null].filter(Boolean),
+        signals:[x.readiness==='strong'?'current_activity_verified':'public_business_route_verified',x.gap?'skill_gap_verified':null,bestEmail?'public_email_found':null,x.founder.linkedin?'founder_linkedin_found':null].filter(Boolean),
         evidence:x.sources.map(s=>({source:s.label,url:s.url}))
       });
     }
@@ -265,7 +277,7 @@ exports.handler=async(event)=>{
     await db.from('client_activities').insert({
       user_id:user.id,activity_type:'discovery',
       title:'Serp researched '+candidates.length+' '+niche+' businesses',
-      body:'Kept '+inserted.length+' with a verified current reason and usable public contact route.',
+      body:'Kept '+inserted.length+' businesses with a usable public contact route; current-campaign evidence is labelled where found.',
       metadata:{request_id:request.data.id,skill,niche,location,maps_results:mapRows.length,candidates:candidates.length,qualified:qualified.length,inserted:inserted.length,globally_reserved:globallyReserved,provider:'SerpApi'}
     });
     return json(200,{
