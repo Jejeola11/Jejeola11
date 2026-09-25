@@ -101,7 +101,7 @@
       <section class="hero">
         <div class="eyebrow">PRIVATE ADMIN VIEW</div>
         <h1>Fuse Operations</h1>
-        <p>Add a student, grant one or more Academy courses, and give creation credits from one place.</p>
+        <p>Add a student, grant Academy courses or the First Client Playbook, and give creation credits from one place.</p>
       </section>
 
       <section class="panel">
@@ -115,11 +115,15 @@
           </div>
 
           <div class="field">
-            <label>Course access</label>
+            <label>What should this student access?</label>
             <div class="course-grid">
               <label class="course-option all-option">
                 <input id="allCourses" type="checkbox" value="all">
-                <span><strong>All four courses</strong><small>Design, UGC, Landing Page + Money Engine</small></span>
+                <span><strong>All four Academy courses</strong><small>Design, UGC, Landing Page + Money Engine</small></span>
+              </label>
+              <label class="course-option playbook-option">
+                <input class="courseCheck" type="checkbox" value="playbook">
+                <span><strong>First Client Playbook</strong><small>3-day offer, proof and outreach implementation guide</small></span>
               </label>
               <label class="course-option">
                 <input class="courseCheck" type="checkbox" value="design">
@@ -192,7 +196,7 @@
 
   function showStudent(data){
     const access=(data.courses||[]).length?(data.courses||[]).join(', '):'No course access yet';
-    $('studentResult').innerHTML='<strong>'+data.email+'</strong><p>Credits: '+Number(data.credits||0).toLocaleString()+'<br>Courses: '+access+'</p>';
+    $('studentResult').innerHTML='<strong>'+data.email+'</strong><p>Credits: '+Number(data.credits||0).toLocaleString()+'<br>Access: '+access+'</p>';
     $('studentResult').classList.remove('hidden');
   }
 
@@ -214,7 +218,7 @@
     const courses=selectedCourses();
     const credits=Math.max(0,parseInt($('credits').value||'0',10)||0);
     if(!courses.length&&credits<=0){
-      $('studentStatus').textContent='Choose at least one course or enter credits to add.';
+      $('studentStatus').textContent='Choose at least one access item or enter credits to add.';
       return;
     }
     $('grantBtn').disabled=true;$('lookupBtn').disabled=true;
