@@ -2,7 +2,8 @@ const { admin, getUser, json } = require('./_supabase');
 
 const OWNER_EMAIL='riadigitals0@gmail.com';
 
-const COURSE_KEYS={
+const ACCESS_KEYS={
+  playbook:['first-client-playbook'],
   design:['flyer-m1','flyer-m2','flyer-m3','flyer-m4','flyer-m5','flyer-m6'],
   video:['aiv-m1','aiv-m2','aiv-m3','aiv-m4','aiv-m5','aiv-m6','aiv-m7','aiv-m8','aiv-m9','aiv-m10','aiv-m11','aiv-m12','aiv-m13','aiv-m14','aiv-m15','aiv-m16'],
   landing:['web-m1','web-m2','web-m3-current','web-m4','web-m5','web-m6','web-m7','web-m8','web-m9','web-m10'],
@@ -51,14 +52,15 @@ async function ensureStudent(db,email){
   return {profile,created};
 }
 
-function summarizeCourses(unlocks){
+function summarizeAccess(unlocks){
   const owned=new Set(unlocks||[]);
-  if(owned.has('atelier-full')||owned.has('atelier-empire'))return ['All four courses'];
+  if(owned.has('atelier-full')||owned.has('atelier-empire'))return ['All four Academy courses'];
   const out=[];
-  if(COURSE_KEYS.design.some(k=>owned.has(k)))out.push('Design & Flyers');
-  if(COURSE_KEYS.video.some(k=>owned.has(k)))out.push('AI UGC & Influencer');
-  if(COURSE_KEYS.landing.some(k=>owned.has(k)))out.push('Landing Page Design');
-  if(COURSE_KEYS.money.some(k=>owned.has(k)))out.push('Money Engine');
+  if(owned.has('first-client-playbook'))out.push('First Client Playbook');
+  if(ACCESS_KEYS.design.some(k=>owned.has(k)))out.push('Design & Flyers');
+  if(ACCESS_KEYS.video.some(k=>owned.has(k)))out.push('AI UGC & Influencer');
+  if(ACCESS_KEYS.landing.some(k=>owned.has(k)))out.push('Landing Page Design');
+  if(ACCESS_KEYS.money.some(k=>owned.has(k)))out.push('Money Engine');
   return out;
 }
 
@@ -70,7 +72,7 @@ async function readStudent(db,target){
   return {
     email:profile?.email||target.email,
     credits:profile?.credits||0,
-    courses:summarizeCourses((unlocks||[]).map(r=>r.module_key))
+    courses:summarizeAccess((unlocks||[]).map(r=>r.module_key))
   };
 }
 
@@ -98,7 +100,7 @@ exports.handler=async event=>{
 
     const courses=Array.isArray(body.courses)?body.courses.map(String):[];
     const credits=Math.max(0,parseInt(body.credits,10)||0);
-    if(!courses.length&&credits<=0)return json(400,{error:'Choose a course or add credits.'});
+    if(!courses.length&&credits<=0)return json(400,{error:'Choose an access item or add credits.'});
 
     const {profile:target,created}=await ensureStudent(db,email);
 
@@ -107,7 +109,7 @@ exports.handler=async event=>{
       keys=['atelier-full'];
     }else{
       for(const course of courses){
-        if(COURSE_KEYS[course])keys.push(...COURSE_KEYS[course]);
+        if(ACCESS_KEYS[course])keys.push(...ACCESS_KEYS[course]);
       }
     }
     keys=[...new Set(keys)];
