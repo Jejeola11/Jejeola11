@@ -92,7 +92,24 @@ function closeMemory(){
   onboarding.classList.remove('setup-open');
   if(state.agentProfile?.profile_json?.skill){onboarding.style.display='none';$('clientDashboard').style.display='block'}
 }
-function openFind(){const p=state.agentProfile?.profile_json||{};if(p.skill){const select=$('findSkill');if([...select.options].some(o=>o.value===p.skill))select.value=p.skill}if(p.work)$('findOffer').value=p.work;if(p.niche)$('findNiche').value=p.niche;if(p.location)$('findLocation').value=p.location;if(p.price)$('findPrice').value=p.price;openOverlay('findOverlay')}
+function setFindCount(value){
+  const n=Number(value)||5,credits={5:20,10:40,20:80}[n]||20;
+  $('findCount').value=n;
+  document.querySelectorAll('.find-count-choice').forEach(button=>button.classList.toggle('active',Number(button.dataset.count)===n));
+  const run=$('runFind');if(run)run.innerHTML='Find my '+n+' client'+(n===1?'':'s')+' <span>→</span>';
+}
+function openFind(){
+  const p=state.agentProfile?.profile_json||{};
+  if(p.skill)$('findSkill').value=p.skill;
+  if(p.work)$('findOffer').value=p.work;
+  if(p.niche)$('findNiche').value=p.niche;
+  if(p.location)$('findLocation').value=p.location;
+  if(p.price)$('findPrice').value=p.price;
+  const title=$('searchOfferTitle'),meta=$('searchOfferMeta');
+  if(title)title.textContent=p.work||p.skill||'Your saved offer';
+  if(meta)meta.textContent=[p.niche,p.location,p.price].filter(Boolean).join(' · ')||'Edit your offer before searching';
+  setFindCount($('findCount').value||5);openOverlay('findOverlay');
+}
 async function saveMemory(){
   const profile_json={skill:$('memorySkill').value.trim(),work:$('memoryWork').value.trim(),experience:$('memoryExperience').value.trim(),niche:$('memoryNiche').value.trim(),location:$('memoryLocation').value.trim(),portfolio:$('memoryPortfolio').value.trim(),price:$('memoryPrice').value.trim()};
   if(!profile_json.skill||!profile_json.work||!profile_json.niche||!profile_json.location)return toast('Add your skill, work, niche and target location.',true);
@@ -414,7 +431,7 @@ function bind(){
   $('findBtn').onclick=$('findBtn2').onclick=openFind;
   $('manualBtn').onclick=$('manualBtn2').onclick=()=>openOverlay('manualOverlay');
   $('runFind').onclick=runFind;$('saveManual').onclick=saveManual;$('startRetainer').onclick=startRetainer;$('saveMemory').onclick=saveMemory;
-  $('findCount').onchange=()=>{const n=Number($('findCount').value),c={5:20,10:40,20:80}[n];$('runFind').textContent='Research '+n+' · '+c+' credits'};
+  document.querySelectorAll('.find-count-choice').forEach(button=>button.onclick=()=>setFindCount(button.dataset.count));$('searchEditOffer').onclick=()=>{closeOverlay('findOverlay');openMemory()};
   $('setupAgent').onclick=openMemory;
   $('setupBack').onclick=closeMemory;
   let onboardingTouch=null;
