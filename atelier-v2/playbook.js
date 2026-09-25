@@ -1,11 +1,26 @@
-let completed = new Set();
-function updateProgress(){const pct=Math.round(completed.size/3*100);document.querySelector('#progress-bar').style.width=pct+'%';document.querySelector('#progress-text').textContent=pct+'%';}
-function startPlaybook(){document.querySelector('#lesson-content').scrollIntoView({behavior:'smooth'});}
-function completeDay(day){completed.add(day);updateProgress();const card=document.querySelector(`[data-day="${day}"]`);if(card){card.style.borderColor='#DFFF4E';card.querySelector('.text-button').innerHTML='Day complete <span>✓</span>';}}
-function markLesson(btn){btn.innerHTML='Lesson complete <span>✓</span>';btn.style.background='linear-gradient(110deg,#DFFF4E,#EEFFE0)';completeDay(1);}
-document.querySelector('.mobile-menu').addEventListener('click',()=>document.querySelector('.sidebar').classList.toggle('open'));
-document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',()=>document.querySelector('.sidebar').classList.remove('open')));
-
+(() => {
+  const body=document.body;
+  const storageKey='fuse-playbook-days';
+  const getDone=()=>new Set(JSON.parse(localStorage.getItem(storageKey)||'[]'));
+  const setDone=done=>localStorage.setItem(storageKey,JSON.stringify([...done]));
+  function renderProgress(){
+    const done=getDone(); const percent=Math.round((done.size/7)*100);
+    document.getElementById('progressBar').style.width=percent+'%';
+    document.getElementById('progressText').textContent=percent+'% complete';
+    document.querySelectorAll('.day-section').forEach(section=>{
+      const day=section.dataset.day; const button=section.querySelector('.complete-day');
+      if(done.has(day)){button.classList.add('done');button.textContent='Day '+day+' complete ✓';}
+    });
+  }
+  document.querySelectorAll('.complete-day').forEach(button=>button.addEventListener('click',()=>{
+    const section=button.closest('.day-section');const day=section.dataset.day;const done=getDone();
+    done.has(day)?done.delete(day):done.add(day);setDone(done);renderProgress();
+  }));
+  const menu=document.querySelector('.menu-toggle');const sidebar=document.querySelector('.sidebar');
+  menu.addEventListener('click',()=>sidebar.classList.toggle('open'));
+  document.querySelectorAll('.day-nav a').forEach(link=>link.addEventListener('click',()=>sidebar.classList.remove('open')));
+  renderProgress();
+})();
 
 (async function guardPlaybookAccess(){
   const body=document.body;
@@ -24,11 +39,7 @@ document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('clic
     const {data:unlocks,error}=await sb.from('module_unlocks').select('module_key').eq('user_id',session.user.id);
     if(error)throw error;
     const owned=new Set((unlocks||[]).map(row=>row.module_key));
-    if(!owned.has('first-client-playbook')&&!owned.has('atelier-full')&&!owned.has('atelier-empire')){
-      return deny('Your Playbook access is not active yet.','If you have purchased, please contact Coach Ria with the purchase email you used so your access can be added.','Back to Fuse Atelier');
-    }
+    if(!owned.has('first-client-playbook')&&!owned.has('atelier-full')&&!owned.has('atelier-empire')) return deny('Your Playbook access is not active yet.','If you have purchased, contact Coach Ria with the purchase email you used so your access can be added.');
     body.classList.remove('checking-access');body.classList.add('access-ready');
-  }catch(error){
-    deny('We could not confirm your access.','Please reload once, or return to Fuse Atelier and sign in again.','Back to Fuse Atelier');
-  }
+  }catch(error){deny('We could not confirm your access.','Please reload once, or return to Fuse Atelier and sign in again.')}
 })();
