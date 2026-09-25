@@ -82,8 +82,15 @@ function renderAgentMemory(){
   $('editMemory').onclick=openMemory;
 }
 function openMemory(){
-  const p=state.agentProfile?.profile_json||{};
-  $('memorySkill').value=p.skill||'';$('memoryWork').value=p.work||'';$('memoryExperience').value=p.experience||'';$('memoryNiche').value=p.niche||'';$('memoryLocation').value=p.location||'';$('memoryPortfolio').value=p.portfolio||'';$('memoryPrice').value=p.price||'';$('clientOnboarding')?.classList.remove('saved-open');$('clientOnboarding')?.classList.add('setup-open');
+  const p=state.agentProfile?.profile_json||{},onboarding=$('clientOnboarding');
+  $('memorySkill').value=p.skill||'';$('memoryWork').value=p.work||'';$('memoryExperience').value=p.experience||'';$('memoryNiche').value=p.niche||'';$('memoryLocation').value=p.location||'';$('memoryPortfolio').value=p.portfolio||'';$('memoryPrice').value=p.price||'';
+  $('clientDashboard').style.display='none';
+  if(onboarding){onboarding.style.display='grid';onboarding.classList.remove('saved-open');onboarding.classList.add('setup-open')}
+}
+function closeMemory(){
+  const onboarding=$('clientOnboarding');if(!onboarding)return;
+  onboarding.classList.remove('setup-open');
+  if(state.agentProfile?.profile_json?.skill){onboarding.style.display='none';$('clientDashboard').style.display='block'}
 }
 function openFind(){const p=state.agentProfile?.profile_json||{};if(p.skill){const select=$('findSkill');if([...select.options].some(o=>o.value===p.skill))select.value=p.skill}if(p.work)$('findOffer').value=p.work;if(p.niche)$('findNiche').value=p.niche;if(p.location)$('findLocation').value=p.location;if(p.price)$('findPrice').value=p.price;openOverlay('findOverlay')}
 async function saveMemory(){
@@ -409,7 +416,7 @@ function bind(){
   $('runFind').onclick=runFind;$('saveManual').onclick=saveManual;$('startRetainer').onclick=startRetainer;$('saveMemory').onclick=saveMemory;
   $('findCount').onchange=()=>{const n=Number($('findCount').value),c={5:20,10:40,20:80}[n];$('runFind').textContent='Research '+n+' · '+c+' credits'};
   $('setupAgent').onclick=openMemory;
-  $('setupBack').onclick=()=>$('clientOnboarding')?.classList.remove('setup-open');
+  $('setupBack').onclick=closeMemory;
   let onboardingTouch=null;
   $('clientOnboarding')?.addEventListener('touchstart',event=>{const touch=event.changedTouches[0];onboardingTouch={x:touch.clientX,y:touch.clientY}},{passive:true});
   $('clientOnboarding')?.addEventListener('touchend',event=>{if(!onboardingTouch)return;const touch=event.changedTouches[0],dx=onboardingTouch.x-touch.clientX,dy=Math.abs(onboardingTouch.y-touch.clientY);onboardingTouch=null;if(dx>52&&dy<72)openMemory()},{passive:true});
