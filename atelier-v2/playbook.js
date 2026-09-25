@@ -39,7 +39,7 @@
     const {data:unlocks,error}=await sb.from('module_unlocks').select('module_key').eq('user_id',session.user.id);
     if(error)throw error;
     const owned=new Set((unlocks||[]).map(row=>row.module_key));
-    if(!owned.has('first-client-playbook')&&!owned.has('atelier-full')&&!owned.has('atelier-empire')) return deny('Your Playbook access is not active yet.','If you have purchased, contact Coach Ria with the purchase email you used so your access can be added.');
+    if(!owned.has('first-client-playbook')&&!owned.has('money')&&!owned.has('atelier-full')&&!owned.has('atelier-empire')) return deny('Your Playbook access is not active yet.','If you have purchased, contact Coach Ria with the purchase email you used so your access can be added.');
     body.classList.remove('checking-access');body.classList.add('access-ready');
   }catch(error){deny('We could not confirm your access.','Please reload once, or return to Fuse Atelier and sign in again.')}
 })();
