@@ -2,6 +2,8 @@ const { admin, getUser, json } = require('./_supabase');
 
 const OWNER_EMAIL='riadigitals0@gmail.com';
 
+const PLAYBOOK_KEY='first-client-playbook';
+
 const ACCESS_KEYS={
   playbook:['first-client-playbook'],
   design:['flyer-m1','flyer-m2','flyer-m3','flyer-m4','flyer-m5','flyer-m6'],
@@ -102,15 +104,35 @@ exports.handler=async event=>{
     const credits=Math.max(0,parseInt(body.credits,10)||0);
     if(!courses.length&&credits<=0)return json(400,{error:'Choose an access item or add credits.'});
 
+    const playbookOnly=courses.includes('playbook');
+    if(playbookOnly&&(courses.length!==1||credits!==0)){
+      return json(400,{error:'Playbook access is separate: select only the Playbook and leave credits at 0.'});
+    }
+
     const {profile:target,created}=await ensureStudent(db,email);
+
+    if(playbookOnly){
+      const {error:removeError}=await db.from('module_unlocks').delete().eq('user_id',target.id).neq('module_key',PLAYBOOK_KEY);
+      if(removeError)throw removeError;
+      const {data:existing,error:existingError}=await db.from('module_unlocks').select('module_key').eq('user_id',target.id);
+      if(existingError)throw existingError;
+      if(!(existing||[]).some(row=>row.module_key===PLAYBOOK_KEY)){
+        const {error:insertError}=await db.from('module_unlocks').insert({user_id:target.id,module_key:PLAYBOOK_KEY});
+        if(insertError)throw insertError;
+      }
+      const {error:creditResetError}=await db.from('profiles').update({credits:0}).eq('id',target.id);
+      if(creditResetError)throw creditResetError;
+      return json(200,{ok:true,created,...await readStudent(db,target)});
+    }
 
     let keys=[];
     if(courses.includes('all')){
-      keys=['atelier-full'];
+      keys=['atelier-full',PLAYBOOK_KEY];
     }else{
       for(const course of courses){
         if(ACCESS_KEYS[course])keys.push(...ACCESS_KEYS[course]);
       }
+      if(courses.includes('money'))keys.push(PLAYBOOK_KEY);
     }
     keys=[...new Set(keys)];
 
