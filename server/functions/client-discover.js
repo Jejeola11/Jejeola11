@@ -198,9 +198,10 @@ exports.handler=async(event)=>{
     if(balance===null)return json(402,{error:'You need '+credits+' credits to research '+returnCount+' prospects.',code:'NO_CREDITS'});
     charged=true;chargedDb=db;chargedUser=user.id;chargedCredits=credits;
     const request=await db.from('client_research_requests').insert({
-      user_id:user.id,source:'serp_maps+serp_web',niche,location,
-      criteria:{skill,return_count:returnCount,candidate_research_limit:returnCount===5?12:returnCount===10?24:48,provider:'SerpApi'},
+      user_id:user.id,source:'serp_maps+serp_web',niche,location,skill,locations:[location],
+      credit_cost:credits,criteria:{skill,return_count:returnCount,candidate_research_limit:returnCount===5?12:returnCount===10?24:48,provider:'SerpApi'},
       requested_count:returnCount,credits_charged:credits,
+      offer:{offer:agentOffer,starter_price:agentPrice||starterPrice(skill)},provider_summary:{provider:'SerpApi',status:'processing'},
       offer_json:{offer:agentOffer,starter_price:agentPrice||starterPrice(skill)},
       profile_snapshot:{memory_summary:profile.memory_summary||'',profile_json:profile.profile_json||{},portfolio_urls:profile.portfolio_urls||[]},
       status:'processing',requested_at:new Date().toISOString()
