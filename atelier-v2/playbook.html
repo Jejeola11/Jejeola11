@@ -1,15 +1,14 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#001012" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#001012">
   <title>First Client Playbook · Fuse Atelier</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23001012'/%3E%3Cpath d='M17 17h30v8H25v7h18v8H25v7h22v8H17z' fill='%23FFE66A'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/atelier-v2/playbook.css" />
+  <link rel="stylesheet" href="/atelier-v2/playbook.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
 <body class="checking-access">
@@ -18,24 +17,132 @@
       <div class="eyebrow">FIRST CLIENT PLAYBOOK</div>
       <h1 id="accessTitle">Checking your access…</h1>
       <p id="accessCopy">Please wait while Fuse Atelier prepares your Playbook.</p>
-      <a id="accessAction" class="access-button hidden" href="/atelier-v2/home.html">Back to Fuse Atelier</a>
+      <a id="accessAction" class="button hidden" href="/atelier-v2/home.html">Back to Fuse Atelier</a>
     </div>
   </section>
+
   <div class="app-shell">
     <aside class="sidebar">
-      <div class="brand-mark"><span>F</span><div><b>Fuse Atelier</b><small>Learn · Create · Sell</small></div></div>
-      <div class="profile-mini"><div class="avatar">R</div><div><b>Welcome, Ria</b><small>First Client Playbook</small></div></div>
-      <nav><a class="nav-item active" href="#top"><span>⌂</span>Playbook</a><a class="nav-item" href="#day-1"><span>1</span>Day 1 · Choose</a><a class="nav-item" href="#day-2"><span>2</span>Day 2 · Prepare</a><a class="nav-item" href="#day-3"><span>3</span>Day 3 · Pitch</a></nav>
-      <div class="sidebar-bottom"><a class="nav-item locked" href="#upgrade"><span>✦</span>Money Engine <em>Locked</em></a><a class="nav-item locked" href="#upgrade"><span>✧</span>Fuse Create <em>Locked</em></a></div>
+      <a class="brand-mark" href="/atelier-v2/home.html"><span>F</span><div><b>Fuse Atelier</b><small>Learn · Create · Sell</small></div></a>
+      <div class="sidebar-copy"><small>FIRST CLIENT PLAYBOOK</small><b>Your 7-day action plan</b></div>
+      <nav class="day-nav" aria-label="Playbook days">
+        <a class="active" href="#day-1"><span>01</span>Choose your lane</a>
+        <a href="#day-2"><span>02</span>Package your offer</a>
+        <a href="#day-3"><span>03</span>Build proof</a>
+        <a href="#day-4"><span>04</span>Make your portfolio</a>
+        <a href="#day-5"><span>05</span>Find businesses</a>
+        <a href="#day-6"><span>06</span>Start conversations</a>
+        <a href="#day-7"><span>07</span>Turn replies into work</a>
+      </nav>
+      <a class="sidebar-back" href="/atelier-v2/home.html">← Back to Fuse Atelier</a>
     </aside>
-    <main class="main" id="top">
-      <header class="topbar"><a class="back-home" href="/atelier-v2/home.html" aria-label="Back to Fuse Atelier">← <span>Back to Fuse</span></a><button class="mobile-menu" aria-label="Open menu">☰</button><div class="crumb">ACADEMY <span>/</span> FIRST CLIENT PLAYBOOK</div><div class="credits"><span class="credit-dot">✦</span> 0 credits <button class="upgrade-small" onclick="document.querySelector('#upgrade').scrollIntoView({behavior:'smooth'})">Upgrade</button></div></header>
-      <section class="hero"><div class="hero-copy"><div class="eyebrow">3-DAY IMPLEMENTATION PLAYBOOK</div><h1>Turn your skill into your <span>first client.</span></h1><p>You do not need ten skills, thousands of followers, or a perfect portfolio. You need one useful offer, proof that you can deliver, and a simple way to reach the right businesses.</p><div class="hero-actions"><button class="primary" onclick="startPlaybook()">Continue playbook <span>→</span></button><div class="mini-progress"><div class="progress-track"><span id="progress-bar"></span></div><small><b id="progress-text">0%</b> complete</small></div></div></div><div class="hero-visual"><div class="glow orb-one"></div><div class="glow orb-two"></div><div class="visual-card"><div class="visual-top"><span class="pill">YOUR 3-DAY PLAN</span><span>✦</span></div><div class="visual-title">Learn.<br><i>Create.</i><br><strong>Sell.</strong></div><div class="visual-line"></div><div class="visual-bottom"><span>01 — Offer</span><span>02 — Proof</span><span>03 — Pitch</span></div></div></div></section>
-      <section class="lesson-grid" id="day-1"><div class="section-heading"><div><div class="eyebrow">YOUR ROADMAP</div><h2>Three days. One clear goal.</h2></div><span class="status"><i></i> Ready to begin</span></div><div class="day-card featured" data-day="1"><div class="day-number">01</div><div class="day-info"><span class="day-tag">DAY ONE</span><h3>Choose what you will sell</h3><p>Turn “I can design” into one simple offer a business can understand and pay for.</p><button class="text-button" onclick="completeDay(1)">Open Day 1 <span>→</span></button></div><div class="day-art"><div class="art-window"><span class="tiny-label">YOUR OFFER</span><b>I help</b><span class="fill-line"></span><b>businesses get</b><span class="fill-line short"></span><span class="check">✓</span></div></div></div><div class="day-card" id="day-2" data-day="2"><div class="day-number">02</div><div class="day-info"><span class="day-tag">DAY TWO</span><h3>Build proof people can trust</h3><p>Create three relevant samples and make your profile ready for a client to say yes.</p><button class="text-button" onclick="completeDay(2)">Open Day 2 <span>→</span></button></div><div class="day-art proof-art"><div class="sample-stack"><span></span><span></span><span></span><b>3 samples</b></div></div></div><div class="day-card" id="day-3" data-day="3"><div class="day-number">03</div><div class="day-info"><span class="day-tag">DAY THREE</span><h3>Find and contact real prospects</h3><p>Learn how to spot businesses that need your help and send a message that starts a conversation.</p><button class="text-button" onclick="completeDay(3)">Open Day 3 <span>→</span></button></div><div class="day-art pitch-art"><div class="message-bubble"><small>ASK-FIRST MESSAGE</small><p>Would you be open to seeing the idea?</p><span>✓ sent</span></div></div></div></section>
-      <section class="lesson-panel" id="lesson-content"><div class="panel-header"><div><span class="day-tag" id="active-day-label">DAY ONE · LESSON 1</span><h2>Skill is not the same as an offer.</h2></div><button class="bookmark" aria-label="Bookmark lesson">☆</button></div><div class="lesson-body"><div class="media-column"><div class="video-card"><div class="video-overlay"><div class="play-button">▶</div><span>VIDEO TUTORIAL · 04:32</span></div><div class="video-caption"><b>Watch: How to choose your first offer</b><small>Ria explains it in plain language.</small></div></div><div class="audio-card"><div class="audio-icon">◉</div><div><span class="audio-label">VOICE NOTE · 02:18</span><b>Listen to Ria explain this lesson</b><div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><button class="audio-play">▶</button></div></div><div class="explanation"><div class="simple-note"><span>💡</span><div><b>Think of it this way</b><p>“I design” tells people your skill. “I create launch graphics for skincare brands” tells a business exactly how you can help.</p></div></div><h3>Do this now</h3><ol><li>Write down the skill you can already use.</li><li>Choose one type of business you understand or want to help.</li><li>Choose one small result your work can help them get.</li></ol><div class="formula"><span>I help</span><strong>[business type]</strong><span>get</span><strong>[result]</strong><span>with</span><strong>[your service]</strong></div><button class="complete-button" onclick="markLesson(this)">Mark lesson complete <span>✓</span></button></div></div></section>
-      <section class="avatar-section"><div class="avatar-video"><div class="avatar-face"><div class="face-hair"></div><div class="face-eyes"><i></i><i></i></div><div class="face-mouth"></div></div><div class="avatar-play">▶</div><span class="avatar-label">AVATAR LESSON</span></div><div><div class="eyebrow">IF YOU PREFER WATCHING</div><h2>Meet your playbook guide.</h2><p>Every important lesson comes with a short visual explanation, a voice note, and a simple action to complete.</p><button class="outline-button">Play introduction <span>→</span></button></div></section>
-      <section class="upgrade-section" id="upgrade"><div class="upgrade-copy"><div class="eyebrow">WHEN YOU ARE READY FOR MORE</div><h2>You know what to sell.<br><span>Now let Fuse find who needs it.</span></h2><p>Money Engine helps you research the right businesses, spot the reason they may need your skill, write your ask-first message, and guide you when they reply.</p><button class="primary">See Money Engine <span>→</span></button></div><div class="locked-preview"><div class="lock-icon">⌁</div><span class="locked-label">UPGRADE PREVIEW</span><h3>Find 5 qualified prospects</h3><p>Available after unlocking Money Engine.</p><div class="blurred-lines"><i></i><i></i><i></i></div><div class="lock-badge">🔒 Locked</div></div></section>
-      <footer><div class="brand-mark"><span>F</span><div><b>Fuse Atelier</b><small>Learn · Create · Sell</small></div></div><small>Built for creators who are ready to be paid.</small></footer>
+
+    <main class="main">
+      <header class="topbar">
+        <a class="back-home" href="/atelier-v2/home.html">← <span>Back to Fuse</span></a>
+        <div class="top-title">FIRST CLIENT PLAYBOOK</div>
+        <button class="menu-toggle" type="button" aria-label="Open Playbook menu">☰</button>
+      </header>
+
+      <section class="hero" id="top">
+        <div class="eyebrow">7-DAY IMPLEMENTATION GUIDE</div>
+        <h1>Turn your skill into your <em>first client.</em></h1>
+        <p>One useful skill. One clear offer. Relevant proof. A respectful way to start conversations with businesses that need your help.</p>
+        <div class="hero-actions">
+          <a class="button" href="#day-1">Start Day 1 <span>↓</span></a>
+          <div class="progress-box"><div class="progress-track"><span id="progressBar"></span></div><b id="progressText">0% complete</b><small>Mark each day when your task is done.</small></div>
+        </div>
+      </section>
+
+      <section class="roadmap section">
+        <div class="section-heading"><div><div class="eyebrow">YOUR ROADMAP</div><h2>Seven days. One simple system.</h2></div><p>Do one day at a time. The action task is the lesson.</p></div>
+        <div class="roadmap-grid">
+          <a href="#day-1"><b>01</b><span>Skill + niche</span></a><a href="#day-2"><b>02</b><span>Offer + price</span></a><a href="#day-3"><b>03</b><span>Three samples</span></a><a href="#day-4"><b>04</b><span>Portfolio</span></a><a href="#day-5"><b>05</b><span>Research</span></a><a href="#day-6"><b>06</b><span>Ask-first DMs</span></a><a href="#day-7"><b>07</b><span>Reply + close</span></a>
+        </div>
+      </section>
+
+      <section class="day-section section" id="day-1" data-day="1">
+        <div class="day-header"><span>DAY 01</span><div><h2>Choose your lane</h2><p><b>Outcome:</b> one AI-assisted skill and one type of business you understand.</p></div></div>
+        <div class="lesson-card">
+          <div class="lesson-copy"><h3>Start useful, not perfect.</h3><p>You do not need to learn everything at once. Choose one skill you can practise consistently: AI flyers and designs, UGC videos, landing pages, product visuals or AI video content. Your first goal is to create one clear result a business can use.</p><p>A niche is simply a group of businesses with something in common. Starting with one makes your samples relevant and your messages personal.</p></div>
+          <div class="media-slot video-slot"><span>SCREEN RECORDING 01</span><b>Choose your skill track inside Fuse Atelier</b><small>Show: skill tracks → first lesson → where to practise in Fuse Create.</small><i>Video goes here</i></div>
+        </div>
+        <div class="notes-grid"><article><b>Choose a skill</b><p>Pick one lane for the next 7 days. Do not choose five.</p></article><article><b>Choose a niche</b><p>Pick businesses that already use visuals, content or a website to attract customers.</p></article></div>
+        <div class="task"><span>YOUR ACTION TASK</span><h3>Write your skill, choose one niche, and list five businesses in that niche.</h3><label><input type="checkbox"> I chose one skill to focus on.</label><label><input type="checkbox"> I chose one niche and five businesses.</label><button class="complete-day">Mark Day 1 complete ✓</button></div>
+      </section>
+
+      <section class="day-section section" id="day-2" data-day="2">
+        <div class="day-header"><span>DAY 02</span><div><h2>Package an offer people understand</h2><p><b>Outcome:</b> a small, clear starter package and beginner price.</p></div></div>
+        <div class="lesson-card">
+          <div class="lesson-copy"><h3>A business buys a result, not your skill.</h3><p>Instead of “I do graphics,” say what you create, who it helps and why it matters. Keep your first offer small enough to deliver well. Your price should state the deliverables, timeline, revision limit and price.</p><div class="formula"><span>I help</span><b>[business type]</b><span>get</span><b>[useful result]</b><span>with</span><b>[specific deliverable]</b></div></div>
+          <div class="media-slot voice-slot"><span>VOICE NOTE 01</span><b>How to turn a skill into an offer - and price it without guessing</b><small>Explain vague vs clear offers, starter pricing and why free work is not the full service.</small><i>Voice note goes here</i></div>
+        </div>
+        <div class="callout"><b>Starter package check:</b> exact deliverables · delivery time · one revision limit · clear price. A concept sample can open a conversation; the complete service should be paid.</div>
+        <div class="task"><span>YOUR ACTION TASK</span><h3>Write one offer using the formula. Then write the deliverables, timeline, revision limit and price.</h3><label><input type="checkbox"> My offer says who I help, what I create and why it matters.</label><label><input type="checkbox"> My starter package has a clear price.</label><button class="complete-day">Mark Day 2 complete ✓</button></div>
+      </section>
+
+      <section class="day-section section" id="day-3" data-day="3">
+        <div class="day-header"><span>DAY 03</span><div><h2>Create proof before clients</h2><p><b>Outcome:</b> three niche-specific samples that show your thinking.</p></div></div>
+        <div class="lesson-card">
+          <div class="lesson-copy"><h3>Proof is not a random gallery.</h3><p>You do not have to wait for a paying client. Create concepts for real types of businesses in your niche and label them as concepts. Each sample should show that you understand a business problem - not only that you can make something beautiful.</p><p>For every sample, write: the problem, what you created, and where the business could use it.</p></div>
+          <div class="media-slot video-slot"><span>SCREEN RECORDING 02</span><b>Create one niche-specific sample in Fuse Create</b><small>Show: brief → reference → prompt → export → save into a portfolio folder.</small><i>Video goes here</i></div>
+        </div>
+        <div class="sample-list"><article><b>Sample 01</b><span>Your niche's most common promotion</span></article><article><b>Sample 02</b><span>A different business problem</span></article><article><b>Sample 03</b><span>Your strongest “this is what I sell” example</span></article></div>
+        <div class="task"><span>YOUR ACTION TASK</span><h3>Create three samples for your niche. Add one sentence explaining the problem and your solution for each.</h3><label><input type="checkbox"> I have three relevant samples.</label><label><input type="checkbox"> Each sample has a short explanation.</label><button class="complete-day">Mark Day 3 complete ✓</button></div>
+      </section>
+
+      <section class="day-section section" id="day-4" data-day="4">
+        <div class="day-header"><span>DAY 04</span><div><h2>Make a simple portfolio</h2><p><b>Outcome:</b> one easy link a prospect can understand in one minute.</p></div></div>
+        <div class="lesson-card">
+          <div class="lesson-copy"><h3>Keep it focused and easy to open.</h3><p>Your portfolio can be a clean folder, a simple page, a PDF or a social-media highlight. Put your strongest sample first. Include your name, what you do, who you help, three samples and a way to contact you.</p><p>Your portfolio is not meant to impress everybody. It should help the right business think: “This person may be able to help me.”</p></div>
+          <div class="media-slot text-slot"><span>CLEAR WRITTEN GUIDE</span><b>Portfolio checklist</b><small>Name · clear offer · strongest sample first · 3 relevant samples · contact route · tested link.</small></div>
+        </div>
+        <div class="task"><span>YOUR ACTION TASK</span><h3>Build your portfolio and open the link on another phone or in an incognito browser.</h3><label><input type="checkbox"> My portfolio opens without asking for permission.</label><label><input type="checkbox"> A client can understand my offer quickly.</label><button class="complete-day">Mark Day 4 complete ✓</button></div>
+      </section>
+
+      <section class="day-section section" id="day-5" data-day="5">
+        <div class="day-header"><span>DAY 05</span><div><h2>Find businesses worth messaging</h2><p><b>Outcome:</b> ten researched businesses and five strong fits.</p></div></div>
+        <div class="lesson-card">
+          <div class="lesson-copy"><h3>Research first. Do not message everybody.</h3><p>Look for businesses in your niche that already care about attracting customers and have a visible reason your service may help: a new service, promotion, event, weak visual, confusing page or active content.</p><p>For each business, record the name, link, what you noticed and the best public contact route.</p></div>
+          <div class="media-slot text-slot"><span>RESEARCH TEMPLATE</span><b>Business · link · observation · opportunity · best contact route</b><small>Start with ten. Select the five businesses where your offer is genuinely relevant.</small></div>
+        </div>
+        <div class="task"><span>YOUR ACTION TASK</span><h3>Research ten businesses. Choose the five strongest fits for your offer.</h3><label><input type="checkbox"> I recorded ten businesses with a real observation.</label><label><input type="checkbox"> I chose my strongest five.</label><button class="complete-day">Mark Day 5 complete ✓</button></div>
+      </section>
+
+      <section class="day-section section" id="day-6" data-day="6">
+        <div class="day-header"><span>DAY 06</span><div><h2>Start respectful conversations</h2><p><b>Outcome:</b> five personal ask-first messages sent.</p></div></div>
+        <div class="lesson-card">
+          <div class="lesson-copy"><h3>Your first message earns permission.</h3><p>Keep it short, personal and easy to answer. Mention one real observation, share one useful idea, then ask if they would like to see it. Do not send a long biography or an unsolicited full sample.</p><div class="script">Hi [name], I came across [business] and noticed [specific observation]. I had an idea for [specific improvement] that could help with [simple result]. Would you be open to seeing the concept?</div></div>
+          <div class="media-slot video-slot"><span>SCREEN RECORDING 03</span><b>Turn research into a personal ask-first message</b><small>Show: observation → draft → replace generic line → send → record in tracker.</small><i>Video goes here</i></div>
+        </div>
+        <div class="task"><span>YOUR ACTION TASK</span><h3>Personalize and send five ask-first messages. Record each business and date in your tracker.</h3><label><input type="checkbox"> Every message contains a real observation.</label><label><input type="checkbox"> I sent five messages and recorded them.</label><button class="complete-day">Mark Day 6 complete ✓</button></div>
+      </section>
+
+      <section class="day-section section" id="day-7" data-day="7">
+        <div class="day-header"><span>DAY 07</span><div><h2>Turn replies into paid work</h2><p><b>Outcome:</b> a calm next-step system for no reply, yes, sample, offer and delivery.</p></div></div>
+        <div class="lesson-card">
+          <div class="lesson-copy"><h3>One conversation at a time.</h3><p>People miss messages. Follow up after two or three days, then send one final close-the-loop message if needed. When someone says yes, thank them and ask what they are promoting, their audience, the desired action and their deadline - before you create anything.</p></div>
+          <div class="media-slot voice-slot"><span>VOICE NOTE 02</span><b>What to say after “yes” - without giving away a full project</b><small>Explain the questions to ask, how to send one relevant sample and when to present the paid offer.</small><i>Voice note goes here</i></div>
+        </div>
+        <div class="reply-flow">
+          <article><span>NO REPLY</span><b>Follow up once after 2–3 days.</b><p>“Would you like me to send the idea over?”</p></article>
+          <article><span>THEY SAY YES</span><b>Ask 1–2 useful questions.</b><p>Promotion, audience, action and deadline.</p></article>
+          <article><span>CREATE SAMPLE</span><b>Make one focused concept.</b><p>Connect it to their real offer; do not make ten unrelated designs.</p></article>
+          <article><span>PAID NEXT STEP</span><b>State the deliverables, timeline, revisions and price.</b><p>Ask if they would like payment details.</p></article>
+          <article><span>DELIVER WELL</span><b>Confirm brief, deadline and payment.</b><p>Deliver clean files, request a testimonial and add the work to your portfolio.</p></article>
+        </div>
+        <div class="task"><span>YOUR ACTION TASK</span><h3>Create your tracker for follow-ups, replies, samples, proposals and paid projects. Review it every week and improve one part of the process.</h3><label><input type="checkbox"> I know my next step for no reply and a positive reply.</label><label><input type="checkbox"> I created a weekly client routine.</label><button class="complete-day">Mark Day 7 complete ✓</button></div>
+      </section>
+
+      <section class="next-step section">
+        <div class="eyebrow">WHAT COMES AFTER</div><h2>When you are ready, let <em>Money Engine</em> make research faster.</h2>
+        <p>The Playbook teaches the foundation manually. Money Engine builds on it with opportunity research, ask-first messages, reply-to-sample briefs and a client pipeline.</p>
+        <a class="button" href="/atelier-v2/clients.html">Explore Money Engine ↗</a>
+      </section>
+
+      <footer><a class="brand-mark" href="/atelier-v2/home.html"><span>F</span><div><b>Fuse Atelier</b><small>Learn · Create · Sell</small></div></a><a href="/atelier-v2/home.html">Back to homepage ↑</a></footer>
     </main>
-  </div><script src="/atelier-v2/playbook.js"></script>
-</body></html>
+  </div>
+  <script src="/atelier-v2/playbook.js"></script>
+</body>
+</html>
