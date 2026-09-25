@@ -388,10 +388,10 @@ async function markStatus(id,status){
 
 async function runFind(){
   const skill=$('findSkill').value,niche=$('findNiche').value.trim(),location=$('findLocation').value.trim(),offer=$('findOffer').value.trim(),starter_price=$('findPrice').value.trim(),return_count=Number($('findCount').value);if(!skill||!niche||!location)return toast('Choose your skill, niche and city + country.',true);
-  const btn=$('runFind'),notice=$('findNotice');btn.disabled=true;btn.textContent='Researching…';notice.textContent='Fuse is researching publicly available business and professional contact routes, current signals and source links. It will return up to '+return_count+' strong prospects.';
+  const btn=$('runFind'),notice=$('findNotice');btn.disabled=true;btn.textContent='Researching…';notice.textContent='Fuse is researching publicly available business and professional contact routes, current signals and source links. It will return up to '+return_count+' qualified businesses with public contact routes.';
   try{
     const d=await api('client-discover',{skill,niche,location,offer,starter_price,return_count});
-    notice.innerHTML='<strong>'+d.added+' strong prospect'+(d.added===1?'':'s')+'</strong> added'+(d.skipped?' · '+d.skipped+' candidates skipped because the evidence was weaker.':'')+(d.credits_refunded?' · '+d.credits_refunded+' credits returned for unfilled places.':'')+'.<br><small>'+esc(d.maps_provider||'SerpApi')+' · '+esc(d.contact_provider||'SerpApi + public website')+'</small>';
+    notice.innerHTML='<strong>'+d.added+' qualified prospect'+(d.added===1?'':'s')+'</strong> added'+(d.credits_refunded?' · '+d.credits_refunded+' credits returned for unfilled places.':'')+'.<br><small>Campaign evidence is marked when found · '+esc(d.maps_provider||'SerpApi')+'</small>';
     await loadAll();setTimeout(()=>{closeOverlay('findOverlay');renderClientDashboard();$('todayLeads')?.scrollIntoView({behavior:'smooth',block:'start'})},850)
   }catch(e){
     if(e.code==='SERPAPI_NOT_CONFIGURED')notice.innerHTML='<strong>SerpApi connection needed.</strong> Add SERPAPI_API_KEY in Vercel and redeploy.';
