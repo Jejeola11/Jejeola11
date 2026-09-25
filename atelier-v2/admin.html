@@ -123,7 +123,7 @@
               </label>
               <label class="course-option playbook-option">
                 <input class="courseCheck" type="checkbox" value="playbook">
-                <span><strong>First Client Playbook</strong><small>3-day offer, proof and outreach implementation guide</small></span>
+                <span><strong>First Client Playbook</strong><small>7-day skill-to-client action guide · Playbook-only access</small></span>
               </label>
               <label class="course-option">
                 <input class="courseCheck" type="checkbox" value="design">
@@ -177,11 +177,24 @@
     if($('allCourses').checked) return ['all'];
     return [...document.querySelectorAll('.courseCheck:checked')].map(el=>el.value);
   }
-  function syncAll(){
-    const on=$('allCourses').checked;
-    document.querySelectorAll('.courseCheck').forEach(el=>{el.disabled=on;if(on)el.checked=false});
+  function syncAccess(){
+    const all=$('allCourses').checked;
+    const playbook=document.querySelector('.courseCheck[value="playbook"]').checked;
+    document.querySelectorAll('.courseCheck').forEach(el=>{
+      const isPlaybook=el.value==='playbook';
+      el.disabled=all||(playbook&&!isPlaybook);
+      if(all||(playbook&&!isPlaybook))el.checked=false;
+    });
+    $('allCourses').disabled=playbook;
+    if(playbook){
+      $('credits').value='0';
+      $('credits').disabled=true;
+    }else{
+      $('credits').disabled=false;
+    }
   }
-  $('allCourses').addEventListener('change',syncAll);
+  $('allCourses').addEventListener('change',syncAccess);
+  document.querySelectorAll('.courseCheck').forEach(el=>el.addEventListener('change',syncAccess));
 
   async function api(body){
     const response=await fetch('/api/owner-student-access',{
