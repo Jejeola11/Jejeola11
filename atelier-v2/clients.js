@@ -240,14 +240,15 @@ function renderJobs(){
 function latestProposal(id){return state.proposals.find(x=>x.prospect_id===id)||null}
 function latestContract(id){return state.contracts.find(x=>x.prospect_id===id)||null}
 function contactRoute(p,type){
+  const text=(value,max)=>String(value||'').trim().slice(0,max);
   const phone=p.founder_phone||p.whatsapp||'';
   const values={
     maps:{label:'Google Maps',value:cleanUrl(p.maps_url),openLabel:'Open Maps'},
     website:{label:'Website',value:cleanUrl(p.website),openLabel:'Open website'},
     linkedin:{label:'LinkedIn',value:cleanUrl(p.founder_linkedin),openLabel:'Open LinkedIn'},
     instagram:{label:'Instagram',value:cleanUrl(p.founder_instagram||p.instagram),openLabel:'Open Instagram'},
-    email:{label:'Email',value:clean(p.founder_email||p.email,320),openLabel:'Send email'},
-    whatsapp:{label:'Phone / WhatsApp',value:clean(phone,100),openLabel:'Open WhatsApp'}
+    email:{label:'Email',value:text(p.founder_email||p.email,320),openLabel:'Send email'},
+    whatsapp:{label:'Phone / WhatsApp',value:text(phone,100),openLabel:'Open WhatsApp'}
   };
   const item=values[type];if(!item||!item.value)return null;
   item.openUrl=type==='email'?'mailto:'+item.value:type==='whatsapp'?phoneUrl(item.value):item.value;
