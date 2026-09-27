@@ -134,6 +134,42 @@ async function founderLookup(name,location,domain,key){
   }
   return {name:'',title:'',linkedin:'',source:''};
 }
+function businessSegment(x){
+  const hay=textNorm([x.name,x.place&&x.place.types,x.place&&x.place.websiteUri].join(' '));
+  if(/skin|beauty|cosmetic|aesthetic|spa|makeup|wellness/.test(hay))return 'skincare';
+  if(/jewel|ring|gold|watch|accessor/.test(hay))return 'jewellery';
+  if(/fashion|cloth|wear|boutique|hijab|apparel|shoe/.test(hay))return 'fashion';
+  return 'business';
+}
+function tailoredOfferFor(x,skill,baseOffer){
+  const segment=businessSegment(x), text=textNorm([skill,baseOffer].join(' ')), brand=x.name;
+  if(/ugc|influencer|twin|avatar|video/.test(text)){
+    if(segment==='skincare')return 'One AI-twin skincare routine or product-benefit reel for '+brand+' — focused on one hero product and a clear Shop Now CTA.';
+    if(segment==='jewellery')return 'One AI-twin jewellery styling reel for '+brand+' — close-up product detail, one occasion and a clear Shop Now CTA.';
+    if(segment==='fashion')return 'One AI-twin fashion styling or try-on reel for '+brand+' — one collection, one look and a clear Shop Now CTA.';
+  }
+  if(/landing|website|page/.test(text))return 'A focused campaign landing page for '+brand+' that matches one active offer and gives visitors one clear next step.';
+  if(/design|flyer|graphic/.test(text)){
+    if(segment==='skincare')return 'A skincare campaign graphic for '+brand+' that explains one concern, one product/service benefit and one clear booking or Shop Now CTA.';
+    if(segment==='jewellery')return 'A jewellery launch or gifting campaign graphic for '+brand+' that makes one collection and its next step instantly clear.';
+    if(segment==='fashion')return 'A fashion collection campaign graphic for '+brand+' that shows one look, one reason to buy and one clear Shop Now CTA.';
+  }
+  return clean(baseOffer,300)||('A focused '+skill+' concept tailored to '+brand+'.');
+}
+function tailoredGapFor(x,skill){
+  const segment=businessSegment(x);
+  if(/ugc|influencer|twin|avatar|video/.test(textNorm(skill))){
+    if(segment==='skincare')return 'A short product-benefit or routine video can make one skincare item easier to understand before someone buys.';
+    if(segment==='jewellery')return 'A close-up styling video can help shoppers picture the jewellery in a real occasion before they buy.';
+    if(segment==='fashion')return 'A styling or try-on video can help shoppers see how one fashion piece fits into a complete look.';
+  }
+  return serviceGap(skill,x.place)||('Fuse will connect the offer to one verified public campaign before recommending outreach.');
+}
+function publicPromotionSignal(text,url){
+  const lines=String(text||'').split(/[\n.!?]/).map(x=>clean(x,360)).filter(Boolean);
+  const hit=lines.find(x=>/(new arrival|new collection|now available|just launched|shop now|limited|sale|offer|discount|book now|pre-?order|launch)/i.test(x)&&x.length>18);
+  return hit?{summary:'Public website promotion: '+hit,url:clean(url,1200)}:null;
+}
 async function mapSearch(niche,location,key){
   const d=await serp({engine:'google_maps',type:'search',q:niche+' in '+location,hl:'en'},key);
   return (Array.isArray(d.local_results)?d.local_results:[]).map(x=>({
@@ -144,7 +180,7 @@ async function mapSearch(niche,location,key){
     websiteUri:clean(x.website,700),
     rating:Number.isFinite(Number(x.rating))?Number(x.rating):null,
     userRatingCount:Number.isFinite(Number(x.reviews))?Number(x.reviews):null,
-    googleMapsUri:x.place_id?'https://www.google.com/maps/search/?api=1&query_place_id='+encodeURIComponent(x.place_id):clean(x.links&&x.links.directions,900),
+    googleMapsUri:x.place_id?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(clean(x.title,180)+' '+clean(x.address,240))+'&query_place_id='+encodeURIComponent(x.place_id):clean(x.links&&x.links.directions,900),
     businessStatus:clean(x.open_state,80),
     types:[clean(x.type,120)].filter(Boolean)
   }));
@@ -168,7 +204,7 @@ async function enrichStageOne(place,skill,location,niche,key){
   const fallbackGap=gap||('A focused '+skill+' offer can give this business a clearer next step for people discovering it online.');
   let score=scoreBase(place)+(signal?28:0)+(contact.email?10:0)+(contact.instagram?6:0)+(gap?12:0)+(place.websiteUri?4:0);
   score=Math.max(1,Math.min(100,score));
-  return {place,name,domain,signal,contact,gap:fallbackGap,whyNow:signal?signal.summary:fallbackWhy,readiness,qualifies,score};
+  return {place,name,domain,signal,contact,gap:fallbackGap,whyNow:signal?signal.summary:fallbackWhy,readiness,qualifies,score,agentOffer:''};
 }
 function extractPhones(text){
   const values=[...String(text||'').matchAll(/(?:\+?\d[\d\s().-]{7,}\d)/g)].map(m=>clean(m[0],80));
@@ -191,10 +227,10 @@ function founderFromText(text,business){
 }
 function sameDomain(url,domain){return !!domain&&domainFrom(url)===domain}
 async function firecrawlWebsiteResearch(x,location){
-  if(!firecrawl.enabled()||!x.place.websiteUri)return {contact:{},founder:{},sources:[]};
+  if(!firecrawl.enabled()||!x.place.websiteUri)return {contact:{},founder:{},signal:null,sources:[]};
   try{
     const home=await firecrawl.scrape(x.place.websiteUri);
-    if(!home)return {contact:{},founder:{},sources:[]};
+    if(!home)return {contact:{},founder:{},signal:null,sources:[]};
     const useful=(home.links||[]).filter(u=>sameDomain(u,x.domain)&&/(about|team|founder|story|contact|our-?people)/i.test(u)).slice(0,2);
     const pages=(await Promise.all(useful.map(u=>firecrawl.scrape(u).catch(()=>null)))).filter(Boolean);
     const all=[home,...pages];
@@ -208,10 +244,10 @@ async function firecrawlWebsiteResearch(x,location){
     };
     const founder=founderFromText(text,x.name);
     const sources=all.map((p,i)=>p.url?{label:i?'Firecrawl: public business page':'Firecrawl: website',url:p.url}:null).filter(Boolean);
-    return {contact,founder,sources};
+    return {contact,founder,signal:publicPromotionSignal(text,home.url||x.place.websiteUri),sources};
   }catch(e){
     console.warn('[firecrawl website]',e&&e.message||e);
-    return {contact:{},founder:{},sources:[]};
+    return {contact:{},founder:{},signal:null,sources:[]};
   }
 }
 async function firecrawlFounderLookup(name,location){
@@ -238,30 +274,23 @@ async function finishEnrichment(x,skill,location,key){
     firecrawlFounderLookup(x.name,location)
   ]);
   const fcContact=webResearch.contact||{};
-  const contact={
-    ...x.contact,
-    email:fcContact.email||x.contact.email||'',
-    phone:fcContact.phone||x.contact.phone||'',
-    instagram:fcContact.instagram||x.contact.instagram||'',
-    linkedin_company:fcContact.linkedin_company||x.contact.linkedin_company||''
-  };
-  const founder={
-    name:webFounder.name||serpFounder.name||webResearch.founder?.name||'',
-    title:webFounder.title||serpFounder.title||webResearch.founder?.title||'',
-    linkedin:webFounder.linkedin||serpFounder.linkedin||'',
-    source:webFounder.source||serpFounder.source||''
-  };
-  let score=x.score+(founder.linkedin?8:0)+(founder.name?5:0)+(fcContact.email?6:0);
+  const contact={...x.contact,email:fcContact.email||x.contact.email||'',phone:fcContact.phone||x.contact.phone||'',instagram:fcContact.instagram||x.contact.instagram||'',linkedin_company:fcContact.linkedin_company||x.contact.linkedin_company||''};
+  const founder={name:webFounder.name||serpFounder.name||webResearch.founder?.name||'',title:webFounder.title||serpFounder.title||webResearch.founder?.title||'',linkedin:webFounder.linkedin||serpFounder.linkedin||'',source:webFounder.source||serpFounder.source||''};
+  const signal=x.signal||webResearch.signal||null;
+  const verified=!!signal;
+  const offer=tailoredOfferFor(x,skill,x.agentOffer||'');
+  const gap=tailoredGapFor(x,skill);
+  let score=x.score+(founder.linkedin?8:0)+(founder.name?5:0)+(fcContact.email?6:0)+(verified?24:-12);
   score=Math.max(1,Math.min(100,score));
   const sources=[];
   if(x.place.googleMapsUri)sources.push({label:'Google Maps',url:x.place.googleMapsUri});
-  if(x.signal&&x.signal.url)sources.push({label:'Current activity',url:x.signal.url});
+  if(signal&&signal.url)sources.push({label:'Current promotion',url:signal.url});
   if(x.place.websiteUri)sources.push({label:'Website',url:x.place.websiteUri});
-  (webResearch.sources||[]).forEach(s=>sources.push(s));
+  (webResearch.sources||[]).forEach(source=>sources.push(source));
   if(founder.source)sources.push({label:'Founder / decision-maker',url:founder.source});
   if(contact.instagram)sources.push({label:'Instagram',url:contact.instagram});
-  const unique=sources.filter((s,i,a)=>s&&s.url&&a.findIndex(x=>x.url===s.url)===i);
-  return {...x,contact,founder,score,sources:unique,firecrawl_used:firecrawl.enabled()};
+  const unique=sources.filter((source,i,all)=>source&&source.url&&all.findIndex(item=>item.url===source.url)===i);
+  return {...x,contact,founder,signal,offer,gap,whyNow:signal?signal.summary:'No verified current campaign was found.',readiness:verified?'strong':'needs_audit',verified,score,sources:unique,firecrawl_used:firecrawl.enabled()};
 }
 exports.handler=async(event)=>{
   let charged=false,chargedDb=null,chargedUser=null,chargedCredits=0;
@@ -300,11 +329,12 @@ exports.handler=async(event)=>{
     const mapRows=(await mapSearch(niche,location,key)).sort((a,b)=>scoreBase(b)-scoreBase(a));
     const candidates=mapRows.slice(0,returnCount===5?18:returnCount===10?28:48);
     const stageOne=await Promise.all(candidates.map(p=>enrichStageOne(p,skill,location,niche,key)));
+    stageOne.forEach(x=>{x.agentOffer=agentOffer});
     // Research extra candidates so a business already reserved for another student
     // does not turn a requested batch of five into an empty one.
     const shortlist=stageOne.filter(x=>x.qualifies).sort((a,b)=>b.score-a.score)
       .slice(0,Math.min(candidates.length,Math.max(returnCount*2,returnCount+5)));
-    const qualified=(await Promise.all(shortlist.map(x=>finishEnrichment(x,skill,location,key)))).sort((a,b)=>b.score-a.score);
+    const qualified=(await Promise.all(shortlist.map(x=>finishEnrichment(x,skill,location,key)))).filter(x=>x.verified).sort((a,b)=>b.score-a.score);
 
     const rows=[];let globallyReserved=0;
     for(const [idx,x] of qualified.entries()){
@@ -320,7 +350,7 @@ exports.handler=async(event)=>{
       const bestEmail=x.contact.email||null;
       const bestPhone=x.place.nationalPhoneNumber||x.contact.phone||null;
       const why=x.whyNow||'Not found';
-      const safeGap=x.gap||'No separate technical gap was verified; the opportunity is tied to the current activity above.';
+      const safeGap=x.gap||'Fuse could not verify a tailored opportunity yet.';
       rows.push({
         user_id:user.id,brand_name:x.name,niche,location:clean(x.place.formattedAddress,240)||location,
         founder_name:x.founder.name||null,founder_title:x.founder.title||null,founder_linkedin:x.founder.linkedin||null,
@@ -336,8 +366,8 @@ exports.handler=async(event)=>{
         source_links:x.sources,
         qualification_json:{
           rank:idx+1,why_now:why,gap:safeGap,
-          why_skill_relevant:skill+' is relevant because the business has a verified current activity and a matching reason to approach now.',
-          offer:agentOffer,starter_price:starterPrice(skill),starter_price_label:agentPrice||null,best_contact_method:bestContact(x),ask_first:askFirstFor(x,skill),
+          why_skill_relevant:(x.offer||skill)+' is relevant because Fuse verified a current public promotion and tailored the offer to the brand category.',
+          offer:x.offer||agentOffer,starter_price:starterPrice(skill),starter_price_label:agentPrice||null,best_contact_method:bestContact(x),ask_first:askFirstFor({...x,gap:safeGap,whyNow:why},x.offer||skill),
           contactable:!!(bestPhone||bestEmail||x.contact.instagram||x.place.websiteUri),
           confidence:x.readiness,
           verified_current_reason:x.readiness==='strong',provider:firecrawl.enabled()?'SerpApi + Firecrawl':'SerpApi'
