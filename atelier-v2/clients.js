@@ -490,10 +490,10 @@ async function markStatus(id,status){
 
 async function runFind(){
   const skill=$('findSkill').value,niche=$('findNiche').value.trim(),location=$('findLocation').value.trim(),offer=$('findOffer').value.trim(),starter_price=$('findPrice').value.trim(),return_count=Number($('findCount').value);if(!skill||!niche||!location)return toast('Choose your skill, niche and city + country.',true);
-  const btn=$('runFind'),notice=$('findNotice');btn.disabled=true;btn.textContent='Researching…';notice.textContent='Fuse is screening for a publicly verified founder or decision-maker plus funding evidence: USD '+(location.toLowerCase().includes('nigeria')?'5,000':'10,000')+' minimum. It will only return leads that pass both checks.';
+  const btn=$('runFind'),notice=$('findNotice');btn.disabled=true;btn.textContent='Researching…';notice.textContent='Fuse is screening each '+niche+' search for a publicly verified founder or decision-maker plus public ability-to-pay evidence of USD 500 or more. It will only return leads that pass both checks.';
   try{
     const d=await api('client-discover',{skill,niche,location,offer,starter_price,return_count});
-    notice.innerHTML='<strong>'+d.added+' premium prospect'+(d.added===1?'':'s')+'</strong> added'+(d.credits_refunded?' · '+d.credits_refunded+' credits returned for unfilled places.':'')+'.<br><small>Every result has a public founder or decision-maker source and funding evidence · '+esc(d.maps_provider||'SerpApi')+'</small>';
+    notice.innerHTML='<strong>'+d.added+' premium prospect'+(d.added===1?'':'s')+'</strong> added'+(d.credits_refunded?' · '+d.credits_refunded+' credits returned for unfilled places.':'')+'.<br><small>Every result has a public founder or decision-maker source and USD 500+ ability-to-pay evidence · '+esc(d.maps_provider||'SerpApi')+'</small>';
     await loadAll();setTimeout(()=>{closeOverlay('findOverlay');renderClientDashboard();$('todayLeads')?.scrollIntoView({behavior:'smooth',block:'start'})},850)
   }catch(e){
     if(e.code==='SERPAPI_NOT_CONFIGURED')notice.innerHTML='<strong>SerpApi connection needed.</strong> Add SERPAPI_API_KEY in Vercel and redeploy.';
