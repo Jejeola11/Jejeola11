@@ -281,6 +281,35 @@ function linkButtons(p){
   if(contactRoute(p,'linkedin'))types.splice(2,0,'linkedin');
   return types.map(type=>{const route=contactRoute(p,type);return route?'<button type="button" class="mini contact-chip" data-contact-route="'+esc(type)+'">'+esc(route.label)+'</button>':''}).join('');
 }
+function prospectCategory(p){
+  const hay=(String(p.brand_name||'')+' '+String(p.niche||'')+' '+String(p.website||'')).toLowerCase();
+  if(/skin|beauty|cosmetic|aesthetic|spa|makeup/.test(hay))return 'skincare';
+  if(/jewel|ring|gold|watch|accessor/.test(hay))return 'jewellery';
+  if(/fashion|cloth|wear|boutique|hijab|apparel|shoe/.test(hay))return 'fashion';
+  return 'business';
+}
+function tailoredOfferForView(p,q){
+  const saved=state.agentProfile?.profile_json||{};
+  const context=(String(saved.work||q.offer||p.service||'')).toLowerCase();
+  const brand=p.brand_name||'this brand', category=prospectCategory(p);
+  if(/ugc|influencer|twin|avatar|video/.test(context)){
+    if(category==='skincare')return 'One AI-twin skincare routine or product-benefit reel for '+brand+' — one hero product and a clear Shop Now CTA.';
+    if(category==='jewellery')return 'One AI-twin jewellery styling reel for '+brand+' — close-up detail, one occasion and a clear Shop Now CTA.';
+    if(category==='fashion')return 'One AI-twin fashion styling or try-on reel for '+brand+' — one look, one collection and a clear Shop Now CTA.';
+  }
+  return q.offer||p.service||'Not found';
+}
+function verifiedWhyNowForView(p,q){
+  const why=q.why_now||p.current_activity||'';
+  if(/^active public google maps listing/i.test(why))return 'This is an older saved lead. A current campaign was not verified, so refresh the research before sending an outreach message.';
+  return why||'No current public promotion was verified yet.';
+}
+function askFirstForView(p,q,offer,why){
+  if(q.ask_first&&!/^active public google maps listing/i.test(q.why_now||p.current_activity||''))return q.ask_first;
+  const category=prospectCategory(p);
+  const focus=category==='skincare'?'skincare products':category==='jewellery'?'jewellery collection':category==='fashion'?'fashion pieces':'brand offer';
+  return 'Hi '+(p.brand_name||'there')+', I came across your '+focus+'. I create '+offer+' Would you be open to seeing a quick concept?';
+}
 function renderContact(p){
   const q=p.qualification_json||{};
   const name=p.founder_name||p.contact_name||'Not found';
@@ -288,13 +317,14 @@ function renderContact(p){
   const funding=Number(p.funding_total_usd||0);
   const sourceLinks=Array.isArray(p.source_links)?p.source_links:[];
   const price=q.starter_price_label|| (q.starter_price&&q.starter_price.amount?fmtMoney(q.starter_price.amount,q.starter_price.currency||'USD'):'Not found');
+  const tailoredOffer=tailoredOfferForView(p,q),verifiedWhy=verifiedWhyNowForView(p,q),askFirst=askFirstForView(p,q,tailoredOffer,verifiedWhy);
   return '<div class="output"><h3>Decision-maker & evidence</h3>'+
   (q.rank?'<div class="finding"><b>Priority</b><small>#'+esc(q.rank)+' strongest opportunity from this research run</small></div>':'')+
   '<div class="finding"><b>Founder / contact</b><small>'+esc(name)+' · '+esc(title)+'</small><small>Use the public contact buttons above to copy or open a route.</small></div>'+
-  '<div class="finding"><b>Why now</b><small>'+esc(q.why_now||p.current_activity||'Not found')+'</small>'+(p.current_activity_url?'<small><a href="'+esc(p.current_activity_url)+'" target="_blank" rel="noopener">Open source ↗</a></small>':'')+'</div>'+
-  '<div class="finding"><b>What to offer</b><small>'+esc(q.offer||p.service||'Not found')+' · starter price '+esc(price)+'</small><small>'+esc(q.gap||p.visible_problem||'Not found')+'</small></div>'+
+  '<div class="finding"><b>Why now</b><small>'+esc(verifiedWhy)+'</small>'+(p.current_activity_url?'<small><a href="'+esc(p.current_activity_url)+'" target="_blank" rel="noopener">Open source ↗</a></small>':'')+'</div>'+
+  '<div class="finding"><b>What to offer</b><small>'+esc(tailoredOffer)+' · starter price '+esc(price)+'</small><small>'+esc(q.gap||p.visible_problem||'Not found')+'</small></div>'+
   '<div class="finding"><b>Best contact method</b><small>'+esc(q.best_contact_method||'Not found')+'</small></div>'+
-  (q.ask_first?'<div class="finding"><b>Ask-first opener</b><small style="white-space:pre-wrap">'+esc(q.ask_first)+'</small><div class="copy-row"><button class="copy-btn" data-copy-qualified-ask>Copy</button></div></div>':'')+
+  (askFirst?'<div class="finding"><b>Ask-first opener</b><small style="white-space:pre-wrap">'+esc(askFirst)+'</small><div class="copy-row"><button class="copy-btn" data-copy-qualified-ask>Copy</button></div></div>':'')+
   (funding?'<div class="finding"><b>Funding</b><small>'+esc(fmtMoney(funding,'USD'))+' reported funding</small>'+(p.funding_source_url?'<small><a href="'+esc(p.funding_source_url)+'" target="_blank" rel="noopener">Funding source ↗</a></small>':'')+'</div>':'')+
   (sourceLinks.length?'<div class="finding"><b>Sources</b>'+sourceLinks.slice(0,8).map(x=>{const u=typeof x==='string'?x:(x.url||'');const label=typeof x==='string'?'Source':(x.label||x.source||'Source');return u?'<small><a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(label)+' ↗</a></small>':''}).join('')+'</div>':'')+'</div>';
 }
@@ -392,7 +422,7 @@ function bindDetail(p){
   const channels=$('detailBody').querySelectorAll('[data-channel]');
   channels.forEach(btn=>btn.onclick=()=>{channels.forEach(x=>x.classList.toggle('active',x===btn));const el=$('channelCopy');if(el)el.textContent=out?.[btn.dataset.channel]||''});
   $('copyChannel')?.addEventListener('click',()=>copyText($('channelCopy')?.textContent||''));
-  $('detailBody').querySelector('[data-copy-qualified-ask]')?.addEventListener('click',()=>copyText(p.qualification_json?.ask_first||''));
+  $('detailBody').querySelector('[data-copy-qualified-ask]')?.addEventListener('click',()=>copyText(askFirstForView(p,p.qualification_json||{},tailoredOfferForView(p,p.qualification_json||{}),verifiedWhyNowForView(p,p.qualification_json||{}))));
 }
 async function saveNotes(id){
   const notes=$('detailNotes').value.trim();
