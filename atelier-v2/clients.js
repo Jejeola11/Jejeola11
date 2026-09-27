@@ -239,11 +239,16 @@ function renderJobs(){
 
 function latestProposal(id){return state.proposals.find(x=>x.prospect_id===id)||null}
 function latestContract(id){return state.contracts.find(x=>x.prospect_id===id)||null}
+function mapLinkFor(p){
+  const query=encodeURIComponent([p.brand_name,p.location].filter(Boolean).join(' '));
+  if(p.google_place_id)return 'https://www.google.com/maps/search/?api=1&query='+query+'&query_place_id='+encodeURIComponent(p.google_place_id);
+  return cleanUrl(p.maps_url);
+}
 function contactRoute(p,type){
   const text=(value,max)=>String(value||'').trim().slice(0,max);
   const phone=p.founder_phone||p.whatsapp||'';
   const values={
-    maps:{label:'Google Maps',value:cleanUrl(p.maps_url),openLabel:'Open Maps'},
+    maps:{label:'Google Maps',value:mapLinkFor(p),openLabel:'Open Maps'},
     website:{label:'Website',value:cleanUrl(p.website),openLabel:'Open website'},
     linkedin:{label:'LinkedIn',value:cleanUrl(p.founder_linkedin),openLabel:'Open LinkedIn'},
     instagram:{label:'Instagram',value:cleanUrl(p.founder_instagram||p.instagram),openLabel:'Open Instagram'},
