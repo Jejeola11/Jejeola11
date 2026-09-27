@@ -42,18 +42,6 @@
     .catalog-count{flex:none;color:var(--muted);font-size:12px;font-weight:400}
 
     .create-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 22px;align-items:start}
-    .studio-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
-    .studio-card{display:flex;min-width:0;min-height:234px;position:relative;overflow:hidden;border:1px solid rgba(223,255,78,.43);border-radius:22px;padding:16px;text-decoration:none;color:#fff;background:#062125;isolation:isolate;box-shadow:0 16px 36px rgba(0,0,0,.17)}
-    .studio-card:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 20%,rgba(0,16,18,.82) 100%);z-index:-1}
-    .studio-card:before{content:"";position:absolute;width:160px;height:160px;right:-42px;top:-45px;border-radius:50%;background:radial-gradient(circle,rgba(223,255,78,.55),rgba(255,230,106,.18) 38%,transparent 70%);filter:blur(4px);z-index:-2}
-    .studio-card.video:before{background:radial-gradient(circle,rgba(89,170,255,.40),rgba(223,255,78,.17) 42%,transparent 70%)}
-    .studio-card.lipsync:before{background:radial-gradient(circle,rgba(238,255,224,.35),rgba(27,76,82,.58) 44%,transparent 72%)}
-    .studio-card.cinema:before{background:radial-gradient(circle,rgba(255,230,106,.65),rgba(89,80,25,.45) 36%,transparent 70%)}
-    .studio-card:active{transform:scale(.985)}
-    .studio-kicker{align-self:flex-start;display:inline-flex;padding:6px 8px;border:1px solid rgba(238,255,224,.17);border-radius:999px;background:rgba(0,16,18,.38);font-size:9px;font-weight:600;letter-spacing:.08em;color:#DFFF4E}
-    .studio-copy{margin-top:auto}.studio-copy h2{margin:0;font-size:19px;letter-spacing:-.7px;font-weight:600}.studio-copy p{margin:6px 32px 0 0;font-size:11px;line-height:1.4;color:#c2d2d0;font-weight:400}.studio-arrow{position:absolute;right:15px;bottom:16px;color:#DFFF4E;font-size:24px;line-height:1}
-    @media(min-width:760px){.studio-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.studio-card{min-height:270px}}
-    @media(max-width:390px){.studio-grid{gap:12px}.studio-card{min-height:210px;padding:13px;border-radius:18px}.studio-copy h2{font-size:16px}.studio-copy p{font-size:10px}.studio-kicker{font-size:8px;padding:5px 6px}}
     .create-card{min-width:0;display:block;text-decoration:none;color:inherit;position:relative}
     .create-media{width:100%;aspect-ratio:3/4;overflow:hidden;border:2px solid transparent;border-radius:22px;background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--chrome) border-box}
     .create-media img,.create-media video{width:100%;height:100%;display:block;object-fit:cover;background:var(--surface)}
@@ -152,7 +140,7 @@
   </main>
 
   <script>
-    const tabs=['All','Image','Video','Lipsync','Cinema','Twin','Page','Voice','Flyer','Content','UGC'];
+    const tabs=['All','Image','Video','Twin','Page','Voice','Flyer','Content','Lipsync','UGC'];
 
     const tools=[
       {cat:'Image',title:'Create Image',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1788626963/4870020.png',href:'image-create.html'},
@@ -161,8 +149,7 @@
       {cat:'Twin',title:'Create Your AI Twin',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789528511/fuse-atelier/create/ai-twin-car.jpg',route:'avatar'},
       {cat:'Voice',title:'Clone Your Voice',voice:true,route:'audio'},
       {cat:'Flyer',title:'AI Flyer',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789527907/fuse-atelier/create/ai-flyer-rosen.jpg',route:'flyer'},
-      {cat:'Lipsync',title:'Lipsync Video',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789529143/fuse-atelier/create/lipsync-video.mp4',href:'motion-studio.html?mode=lipsync'},
-      {cat:'Cinema',title:'Cinema Studio',video:'/app/media/samples/vid4.mp4',href:'motion-studio.html?mode=cinema'},
+      {cat:'Lipsync',title:'Lipsync Video',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789529143/fuse-atelier/create/lipsync-video.mp4',route:'omni'},
       {cat:'UGC',title:'UGC Video',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789528540/fuse-atelier/create/ugc-video.mp4',route:'video-seedance'},
       {cat:'Content',title:'Instagram Content',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789525979/student-content.mp4',route:'studio:generate'}
     ];
@@ -245,8 +232,7 @@
       All:['Create with Fuse','Choose what you want to make, then open the exact workspace.'],
       Page:['Build landing pages','Turn an offer into a polished, conversion-focused page.'],
       Flyer:['AI flyer studio','Build polished campaign flyers, posters and social ads.'],
-      Lipsync:['Lip Sync studio','Give a portrait a voice with clean, natural mouth movement.'],
-      Cinema:['Cinema studio','Direct lens, camera and light before your video starts.'],
+      Lipsync:['Lipsync video','Sync dialogue or voice to a face and keep it natural.'],
       UGC:['UGC video','Create creator-style ads and product videos for brands.']
     };
 
@@ -286,8 +272,6 @@
       return `<img src="${tool.img}" alt="${tool.title}" loading="eager" decoding="async"${fallback}>`;
     }
 
-    function studioMarkup({kind,title,copy,href}){return `<a class="studio-card ${kind}" href="${href}"><span class="studio-kicker">${kind==='cinema'?'DIRECT A SCENE':kind==='lipsync'?'PORTRAIT + AUDIO':kind==='video'?'MOTION + SOUND':'PROMPT + REFERENCE'}</span><div class="studio-copy"><h2>${title}</h2><p>${copy}</p></div><span class="studio-arrow">→</span></a>`;}
-    
     function toolMarkup(tool,pinned=false){
       const href=tool.href||workspace(tool.route||'studio:generate');
       return `<a class="create-card" href="${href}">${pinned?'<span class="pin-badge">FUSE TOOL</span>':''}<div class="create-media">${mediaMarkup(tool)}</div><h2>${tool.title}</h2></a>`;
@@ -342,19 +326,11 @@
 
       grid.className='create-grid';
       if(selected==='All'){
-        grid.className='studio-grid';
-        const studios=[
-          {kind:'image',title:'Image Studio',copy:'Create, edit and keep characters consistent.',href:'image-create.html'},
-          {kind:'video',title:'Video Studio',copy:'Turn an idea or frame into moving content.',href:'video-create.html'},
-          {kind:'lipsync',title:'Lip Sync',copy:'Give a portrait a natural speaking voice.',href:'motion-studio.html?mode=lipsync'},
-          {kind:'cinema',title:'Cinema',copy:'Direct the lens, movement and lighting.',href:'motion-studio.html?mode=cinema'}
-        ];
-        grid.innerHTML=studios.map(studioMarkup).join('');
-        setIntro('Choose a studio','Four simple workspaces. Pick one and Fuse opens only the controls you need.',studios.length);
+        grid.innerHTML=tools.map(t=>toolMarkup(t,false)).join('');
+        setIntro(descriptions.All[0],descriptions.All[1],tools.length);
         return;
       }
 
-      if(selected==='Cinema'){location.href='motion-studio.html?mode=cinema';return;}
       const list=tools.filter(t=>t.cat===selected);
       grid.innerHTML=list.length?list.map(t=>toolMarkup(t,true)).join(''):'<p class="empty-state">More Create tools are coming soon.</p>';
       const d=descriptions[selected]||[selected,'Open the matching Fuse workspace.'];
