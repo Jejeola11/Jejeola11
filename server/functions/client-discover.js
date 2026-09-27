@@ -53,6 +53,12 @@ function canonicalKey(x){
   if(domain)return 'domain:'+domain;
   return 'brand:'+textNorm(x.name)+'|'+textNorm(x.place&&x.place.formattedAddress);
 }
+function savedProspectKey(p){
+  if(clean(p&&p.google_place_id,220))return 'place:'+clean(p.google_place_id,220);
+  const domain=domainFrom(p&&p.website||'');
+  if(domain)return 'domain:'+domain;
+  return 'brand:'+textNorm(p&&p.brand_name)+'|'+textNorm(p&&p.location);
+}
 function askFirstFor(x,skill){
   const who=x.founder&&x.founder.name?x.founder.name:x.name;
   const observed=x.signal&&x.signal.summary?x.signal.summary:(x.whyNow||'what you are currently promoting');
@@ -171,19 +177,31 @@ function publicPromotionSignal(text,url){
   return hit?{summary:'Public website promotion: '+hit,url:clean(url,1200)}:null;
 }
 async function mapSearch(niche,location,key){
-  const d=await serp({engine:'google_maps',type:'search',q:niche+' in '+location,hl:'en'},key);
-  return (Array.isArray(d.local_results)?d.local_results:[]).map(x=>({
-    id:clean(x.place_id||x.data_id,220),
-    displayName:{text:clean(x.title,180)},
-    formattedAddress:clean(x.address,240),
-    nationalPhoneNumber:clean(x.phone,80),
-    websiteUri:clean(x.website,700),
-    rating:Number.isFinite(Number(x.rating))?Number(x.rating):null,
-    userRatingCount:Number.isFinite(Number(x.reviews))?Number(x.reviews):null,
-    googleMapsUri:x.place_id?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(clean(x.title,180)+' '+clean(x.address,240))+'&query_place_id='+encodeURIComponent(x.place_id):clean(x.links&&x.links.directions,900),
-    businessStatus:clean(x.open_state,80),
-    types:[clean(x.type,120)].filter(Boolean)
-  }));
+  // One Maps query can be very narrow. Search nearby wording too so "find 5 more"
+  // keeps looking for new businesses rather than stopping at the same first few.
+  const terms=[niche,niche+' shop',niche+' store'].filter((v,i,a)=>v&&a.indexOf(v)===i);
+  const responses=await Promise.all(terms.map(q=>serp({engine:'google_maps',type:'search',q:q+' in '+location,hl:'en'},key).catch(()=>({}))));
+  const seen=new Set(),rows=[];
+  for(const d of responses){
+    for(const x of (Array.isArray(d.local_results)?d.local_results:[])){
+      const id=clean(x.place_id||x.data_id,220);
+      const key=id||('brand:'+textNorm(x.title)+'|'+textNorm(x.address));
+      if(!key||seen.has(key))continue;seen.add(key);
+      rows.push({
+        id,
+        displayName:{text:clean(x.title,180)},
+        formattedAddress:clean(x.address,240),
+        nationalPhoneNumber:clean(x.phone,80),
+        websiteUri:clean(x.website,700),
+        rating:Number.isFinite(Number(x.rating))?Number(x.rating):null,
+        userRatingCount:Number.isFinite(Number(x.reviews))?Number(x.reviews):null,
+        googleMapsUri:x.place_id?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(clean(x.title,180)+' '+clean(x.address,240))+'&query_place_id='+encodeURIComponent(x.place_id):clean(x.links&&x.links.directions,900),
+        businessStatus:clean(x.open_state,80),
+        types:[clean(x.type,120)].filter(Boolean)
+      });
+    }
+  }
+  return rows;
 }
 async function enrichStageOne(place,skill,location,niche,key){
   const name=clean(place.displayName&&place.displayName.text,180)||'Business';
@@ -309,6 +327,9 @@ exports.handler=async(event)=>{
     const profileQ=await db.from('client_agent_profiles').select('memory_summary,profile_json,portfolio_urls').eq('user_id',user.id).maybeSingle();
     if(profileQ.error)throw profileQ.error;
     const profile=profileQ.data||{memory_summary:'',profile_json:{},portfolio_urls:[]};
+    const existingQ=await db.from('client_prospects').select('google_place_id,website,brand_name,location').eq('user_id',user.id);
+    if(existingQ.error)throw existingQ.error;
+    const existingKeys=new Set((existingQ.data||[]).map(savedProspectKey));
     const agentOffer=clean(body.offer,300)||clean(profile.profile_json&&profile.profile_json.work,300)||skill;
     const agentPrice=clean(body.starter_price,100)||clean(profile.profile_json&&profile.profile_json.price,100)||'';
     const {data:balance,error:spendError}=await db.rpc('spend_credits',{uid:user.id,amount:credits});
@@ -327,14 +348,20 @@ exports.handler=async(event)=>{
     if(request.error){await db.rpc('add_credits',{uid:user.id,amount:credits,why:'client_discovery_refund'});charged=false;throw request.error}
 
     const mapRows=(await mapSearch(niche,location,key)).sort((a,b)=>scoreBase(b)-scoreBase(a));
-    const candidates=mapRows.slice(0,returnCount===5?18:returnCount===10?28:48);
+    // Never spend a new search on a lead already saved in this student's workspace.
+    const freshMapRows=mapRows.filter(place=>!existingKeys.has(canonicalKey({place,name:clean(place.displayName&&place.displayName.text,180),domain:domainFrom(place.websiteUri||'')})));
+    const candidates=freshMapRows.slice(0,returnCount===5?24:returnCount===10?40:60);
     const stageOne=await Promise.all(candidates.map(p=>enrichStageOne(p,skill,location,niche,key)));
     stageOne.forEach(x=>{x.agentOffer=agentOffer});
     // Research extra candidates so a business already reserved for another student
     // does not turn a requested batch of five into an empty one.
     const shortlist=stageOne.filter(x=>x.qualifies).sort((a,b)=>b.score-a.score)
       .slice(0,Math.min(candidates.length,Math.max(returnCount*2,returnCount+5)));
-    const qualified=(await Promise.all(shortlist.map(x=>finishEnrichment(x,skill,location,key)))).filter(x=>x.verified).sort((a,b)=>b.score-a.score);
+    const enriched=(await Promise.all(shortlist.map(x=>finishEnrichment(x,skill,location,key)))).sort((a,b)=>b.score-a.score);
+    // A verified promotion ranks first. If fewer than the requested number have one,
+    // include contactable businesses clearly marked "needs audit" rather than showing
+    // the old leads again or returning an empty batch.
+    const qualified=[...enriched.filter(x=>x.verified),...enriched.filter(x=>!x.verified)];
 
     const rows=[];let globallyReserved=0;
     for(const [idx,x] of qualified.entries()){
