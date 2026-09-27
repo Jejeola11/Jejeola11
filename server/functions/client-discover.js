@@ -171,20 +171,20 @@ async function enrichStageOne(place,skill,location,niche,key){
   return {place,name,domain,signal,contact,gap:fallbackGap,whyNow:signal?signal.summary:fallbackWhy,readiness,qualifies,score};
 }
 function extractPhones(text){
-  const values=[...String(text||'').matchAll(/(?:\\+?\d[\d\s().-]{7,}\d)/g)].map(m=>clean(m[0],80));
+  const values=[...String(text||'').matchAll(/(?:\+?\d[\d\s().-]{7,}\d)/g)].map(m=>clean(m[0],80));
   return values.find(x=>x.replace(/\D/g,'').length>=8)||'';
 }
 function socialLink(text,network){
-  const re=network==='instagram'?/https?:\\/\\/(?:www\\.)?instagram\\.com\\/[^\\s)"'<>]+/ig:/https?:\\/\\/(?:[a-z]{2,3}\\.)?linkedin\\.com\\\/(?:in|company)\\/[^\\s)"'<>]+/ig;
+  const re=network==='instagram'?/https?:\/\/(?:www\.)?instagram\.com\/[^\s)"'<>]+/ig:/https?:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/(?:in|company)\/[^\s)"'<>]+/ig;
   const hit=[...String(text||'').matchAll(re)][0];
   return hit?clean(hit[0].replace(/[.,;]+$/,''),900):'';
 }
 function founderFromText(text,business){
-  const lines=String(text||'').split(/[\\n.!?]/).map(x=>clean(x,500)).filter(Boolean);
+  const lines=String(text||'').split(/[\n.!?]/).map(x=>clean(x,500)).filter(Boolean);
   for(const line of lines){
     if(!/(founder|co-founder|owner|ceo|chief executive)/i.test(line))continue;
     if(line.length>300)continue;
-    const named=(line.match(/(?:founded by|founder(?: and ceo)?(?: is|:|-)?|co-founder(?: is|:|-)?|owner(?: is|:|-)?|ceo(?: is|:|-)?)[\\s]*([A-Z][a-z]+(?:\\s+[A-Z][a-z.'-]+){1,3})/i)||[])[1]||'';
+    const named=(line.match(/(?:founded by|founder(?: and ceo)?(?: is|:|-)?|co-founder(?: is|:|-)?|owner(?: is|:|-)?|ceo(?: is|:|-)?)[\s]*([A-Z][a-z]+(?:\s+[A-Z][a-z.'-]+){1,3})/i)||[])[1]||'';
     if(named&&textNorm(named)!==textNorm(business))return {name:clean(named,180),title:(line.match(/(founder|co-founder|owner|ceo|chief executive[^,.;]*)/i)||[])[1]||''};
   }
   return {name:'',title:''};
@@ -198,13 +198,13 @@ async function firecrawlWebsiteResearch(x,location){
     const useful=(home.links||[]).filter(u=>sameDomain(u,x.domain)&&/(about|team|founder|story|contact|our-?people)/i.test(u)).slice(0,2);
     const pages=(await Promise.all(useful.map(u=>firecrawl.scrape(u).catch(()=>null)))).filter(Boolean);
     const all=[home,...pages];
-    const text=all.map(p=>[p.title,p.description,p.markdown,(p.links||[]).join(' ')].filter(Boolean).join('\\n')).join('\\n');
+    const text=all.map(p=>[p.title,p.description,p.markdown,(p.links||[]).join(' ')].filter(Boolean).join('\n')).join('\n');
     const emails=extractEmails(text);
     const contact={
       email:emails[0]||'',
       phone:extractPhones(text),
       instagram:socialLink(text,'instagram'),
-      linkedin_company:(socialLink(text,'linkedin').match(/linkedin\\.com\\/company\\//i)?socialLink(text,'linkedin'):'')
+      linkedin_company:(socialLink(text,'linkedin').match(/linkedin\.com\/company\//i)?socialLink(text,'linkedin'):'')
     };
     const founder=founderFromText(text,x.name);
     const sources=all.map((p,i)=>p.url?{label:i?'Firecrawl: public business page':'Firecrawl: website',url:p.url}:null).filter(Boolean);
@@ -223,7 +223,7 @@ async function firecrawlFounderLookup(name,location){
       if(!mentionsBusiness(name,text))continue;
       const linked=socialLink([row.url,text].join(' '),'linkedin');
       const found=founderFromText(text,name);
-      if(found.name||linked)return {name:found.name||'',title:clean(found.title,180),linkedin:linked&&/linkedin\\.com\\/in\\//i.test(linked)?linked:'',source:row.url||linked||''};
+      if(found.name||linked)return {name:found.name||'',title:clean(found.title,180),linkedin:linked&&/linkedin\.com\/in\//i.test(linked)?linked:'',source:row.url||linked||''};
     }
     return {name:'',title:'',linkedin:'',source:''};
   }catch(e){
