@@ -239,15 +239,46 @@ function renderJobs(){
 
 function latestProposal(id){return state.proposals.find(x=>x.prospect_id===id)||null}
 function latestContract(id){return state.contracts.find(x=>x.prospect_id===id)||null}
+function contactRoute(p,type){
+  const phone=p.founder_phone||p.whatsapp||'';
+  const values={
+    maps:{label:'Google Maps',value:cleanUrl(p.maps_url),openLabel:'Open Maps'},
+    website:{label:'Website',value:cleanUrl(p.website),openLabel:'Open website'},
+    linkedin:{label:'LinkedIn',value:cleanUrl(p.founder_linkedin),openLabel:'Open LinkedIn'},
+    instagram:{label:'Instagram',value:cleanUrl(p.founder_instagram||p.instagram),openLabel:'Open Instagram'},
+    email:{label:'Email',value:clean(p.founder_email||p.email,320),openLabel:'Send email'},
+    whatsapp:{label:'Phone / WhatsApp',value:clean(phone,100),openLabel:'Open WhatsApp'}
+  };
+  const item=values[type];if(!item||!item.value)return null;
+  item.openUrl=type==='email'?'mailto:'+item.value:type==='whatsapp'?phoneUrl(item.value):item.value;
+  item.copyLabel=type==='email'?'Copy email':type==='whatsapp'?'Copy number':'Copy link';
+  return item;
+}
+function ensureContactSheet(){
+  if($('contactOverlay'))return;
+  const overlay=document.createElement('div');
+  overlay.className='overlay contact-overlay';overlay.id='contactOverlay';overlay.setAttribute('aria-hidden','true');
+  overlay.innerHTML='<section class="contact-sheet" role="dialog" aria-modal="true" aria-labelledby="contactSheetTitle"><button class="contact-close" type="button" aria-label="Close">×</button><span class="eyebrow">PUBLIC BUSINESS ROUTE</span><h2 id="contactSheetTitle">Contact</h2><p id="contactSheetValue" class="contact-value"></p><p id="contactSheetEvidence" class="contact-evidence"></p><div class="contact-actions"><button id="contactCopy" class="copy-btn" type="button">Copy</button><a id="contactOpen" class="copy-btn hot" target="_blank" rel="noopener">Open</a></div></section>';
+  document.body.appendChild(overlay);
+  const style=document.createElement('style');
+  style.textContent='.contact-overlay{align-items:flex-end;padding:14px;z-index:12000}.contact-overlay.open{display:flex}.contact-sheet{position:relative;width:min(100%,560px);margin:0 auto;padding:25px 20px calc(24px + env(safe-area-inset-bottom));border:1px solid #3d6f72;border-radius:26px 26px 18px 18px;background:#052b2d;color:#fff;box-shadow:0 -20px 55px rgba(0,0,0,.46)}.contact-close{position:absolute;right:15px;top:15px;width:42px;height:42px;border:1px solid #315c60;border-radius:50%;background:#032224;color:#fff;font-size:30px;line-height:36px}.contact-sheet h2{margin:6px 50px 8px 0;font-size:26px}.contact-value{margin:0;overflow-wrap:anywhere;color:#fff;font-size:16px;line-height:1.45}.contact-evidence{margin:10px 0 17px;color:#adc5c6;font-size:12px}.contact-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:10px}.contact-actions .copy-btn{display:flex;align-items:center;justify-content:center;min-height:47px;text-decoration:none}.contact-chip{border-color:#486f70!important;background:linear-gradient(135deg,#ffe66a,#dfff4e 50%,#eeffe0)!important;color:#062527!important;font-weight:800!important;white-space:nowrap}.contact-chip:hover{filter:brightness(1.05)}';
+  document.head.appendChild(style);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)closeContactSheet()});
+  overlay.querySelector('.contact-close').onclick=closeContactSheet;
+}
+function closeContactSheet(){const el=$('contactOverlay');if(el){el.classList.remove('open');el.setAttribute('aria-hidden','true')}}
+function openContactSheet(route,p){
+  ensureContactSheet();
+  const overlay=$('contactOverlay');$('contactSheetTitle').textContent=route.label;$('contactSheetValue').textContent=route.value;
+  $('contactSheetEvidence').textContent='Public business contact route · researched '+(p.research_date?new Date(p.research_date).toLocaleDateString():'recently')+'.';
+  const open=$('contactOpen');open.href=route.openUrl;open.textContent=route.openLabel;
+  $('contactCopy').textContent=route.copyLabel;$('contactCopy').onclick=()=>copyText(route.value);
+  overlay.classList.add('open');overlay.setAttribute('aria-hidden','false');
+}
 function linkButtons(p){
-  const links=[];
-  if(cleanUrl(p.maps_url))links.push(`<a class="mini" href="${esc(cleanUrl(p.maps_url))}" target="_blank" rel="noopener">Google Maps</a>`);
-  if(cleanUrl(p.website))links.push(`<a class="mini" href="${esc(cleanUrl(p.website))}" target="_blank" rel="noopener">Website</a>`);
-  if(p.founder_linkedin)links.push(`<a class="mini" href="${esc(cleanUrl(p.founder_linkedin)||p.founder_linkedin)}" target="_blank" rel="noopener">LinkedIn</a>`);
-  if(p.founder_instagram||p.instagram)links.push(`<a class="mini" href="${esc(cleanUrl(p.founder_instagram||p.instagram)||p.founder_instagram||p.instagram)}" target="_blank" rel="noopener">Instagram</a>`);
-  if(p.founder_email||p.email)links.push(`<a class="mini" href="mailto:${esc(p.founder_email||p.email)}">Email</a>`);
-  if(phoneUrl(p.founder_phone||p.whatsapp))links.push(`<a class="mini" href="${esc(phoneUrl(p.founder_phone||p.whatsapp))}" target="_blank" rel="noopener">Phone / WhatsApp</a>`);
-  return links.join('')
+  const types=['maps','website','instagram','email','whatsapp'];
+  if(contactRoute(p,'linkedin'))types.splice(2,0,'linkedin');
+  return types.map(type=>{const route=contactRoute(p,type);return route?'<button type="button" class="mini contact-chip" data-contact-route="'+esc(type)+'">'+esc(route.label)+'</button>':''}).join('');
 }
 function renderContact(p){
   const q=p.qualification_json||{};
@@ -256,15 +287,15 @@ function renderContact(p){
   const funding=Number(p.funding_total_usd||0);
   const sourceLinks=Array.isArray(p.source_links)?p.source_links:[];
   const price=q.starter_price_label|| (q.starter_price&&q.starter_price.amount?fmtMoney(q.starter_price.amount,q.starter_price.currency||'USD'):'Not found');
-  return `<div class="output"><h3>Decision-maker & evidence</h3>
-  ${q.rank?`<div class="finding"><b>Priority</b><small>#${esc(q.rank)} strongest opportunity from this research run</small></div>`:''}
-  <div class="finding"><b>Founder / contact</b><small>${esc(name)} · ${esc(title)}</small><small>Email: ${esc(p.founder_email||p.email||'Not found')}</small><small>Phone: ${esc(p.founder_phone||p.whatsapp||'Not found')}</small><small>LinkedIn: ${esc(p.founder_linkedin||'Not found')}</small><small>Instagram: ${esc(p.founder_instagram||p.instagram||'Not found')}</small></div>
-  <div class="finding"><b>Why now</b><small>${esc(q.why_now||p.current_activity||'Not found')}</small>${p.current_activity_url?`<small><a href="${esc(p.current_activity_url)}" target="_blank" rel="noopener">Open source ↗</a></small>`:''}</div>
-  <div class="finding"><b>What to offer</b><small>${esc(q.offer||p.service||'Not found')} · starter price ${esc(price)}</small><small>${esc(q.gap||p.visible_problem||'Not found')}</small></div>
-  <div class="finding"><b>Best contact method</b><small>${esc(q.best_contact_method||'Not found')}</small></div>
-  ${q.ask_first?`<div class="finding"><b>Ask-first opener</b><small style="white-space:pre-wrap">${esc(q.ask_first)}</small><div class="copy-row"><button class="copy-btn" data-copy-qualified-ask>Copy</button></div></div>`:''}
-  ${funding?`<div class="finding"><b>Funding</b><small>${esc(fmtMoney(funding,'USD'))} reported funding</small>${p.funding_source_url?`<small><a href="${esc(p.funding_source_url)}" target="_blank" rel="noopener">Funding source ↗</a></small>`:''}</div>`:''}
-  ${sourceLinks.length?`<div class="finding"><b>Sources</b>${sourceLinks.slice(0,8).map(x=>{const u=typeof x==='string'?x:(x.url||'');const label=typeof x==='string'?'Source':(x.label||x.source||'Source');return u?`<small><a href="${esc(u)}" target="_blank" rel="noopener">${esc(label)} ↗</a></small>`:''}).join('')}</div>`:''}</div>`;
+  return '<div class="output"><h3>Decision-maker & evidence</h3>'+
+  (q.rank?'<div class="finding"><b>Priority</b><small>#'+esc(q.rank)+' strongest opportunity from this research run</small></div>':'')+
+  '<div class="finding"><b>Founder / contact</b><small>'+esc(name)+' · '+esc(title)+'</small><small>Use the public contact buttons above to copy or open a route.</small></div>'+
+  '<div class="finding"><b>Why now</b><small>'+esc(q.why_now||p.current_activity||'Not found')+'</small>'+(p.current_activity_url?'<small><a href="'+esc(p.current_activity_url)+'" target="_blank" rel="noopener">Open source ↗</a></small>':'')+'</div>'+
+  '<div class="finding"><b>What to offer</b><small>'+esc(q.offer||p.service||'Not found')+' · starter price '+esc(price)+'</small><small>'+esc(q.gap||p.visible_problem||'Not found')+'</small></div>'+
+  '<div class="finding"><b>Best contact method</b><small>'+esc(q.best_contact_method||'Not found')+'</small></div>'+
+  (q.ask_first?'<div class="finding"><b>Ask-first opener</b><small style="white-space:pre-wrap">'+esc(q.ask_first)+'</small><div class="copy-row"><button class="copy-btn" data-copy-qualified-ask>Copy</button></div></div>':'')+
+  (funding?'<div class="finding"><b>Funding</b><small>'+esc(fmtMoney(funding,'USD'))+' reported funding</small>'+(p.funding_source_url?'<small><a href="'+esc(p.funding_source_url)+'" target="_blank" rel="noopener">Funding source ↗</a></small>':'')+'</div>':'')+
+  (sourceLinks.length?'<div class="finding"><b>Sources</b>'+sourceLinks.slice(0,8).map(x=>{const u=typeof x==='string'?x:(x.url||'');const label=typeof x==='string'?'Source':(x.label||x.source||'Source');return u?'<small><a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(label)+' ↗</a></small>':''}).join('')+'</div>':'')+'</div>';
 }
 function renderAudit(p){const a=state.agentOutput?.action==='audit'?state.agentOutput.output:(p.audit_json&&Object.keys(p.audit_json).length?p.audit_json:null);if(!a)return'';const findings=Array.isArray(a.findings)?a.findings:[];return `<div class="output"><h3>Audit · ${Number(a.score||p.opportunity_score||0)}/100</h3><p>${esc(a.summary||p.audit_summary||'')}</p>${findings.map(f=>`<div class="finding"><b>${esc(f.title)}</b><small>${esc(f.evidence||'')}</small><small>${esc(f.impact||'')}</small></div>`).join('')}${a.offer_angle?`<div class="finding"><b>Offer angle</b><small>${esc(a.offer_angle)}</small></div>`:''}</div>`}
 function renderOutreach(p){
@@ -338,6 +369,7 @@ function renderDetail(p){
 }
 function bindDetail(p){
   $('detailBody').querySelectorAll('[data-agent]').forEach(b=>b.onclick=()=>runAgent(p.id,b.dataset.agent,b));
+  $('detailBody').querySelectorAll('[data-contact-route]').forEach(b=>b.onclick=()=>{const route=contactRoute(p,b.dataset.contactRoute);if(route)openContactSheet(route,p)});
   $('detailBody').querySelectorAll('[data-status]').forEach(b=>b.onclick=()=>markStatus(p.id,b.dataset.status));
   $('winBtn')?.addEventListener('click',()=>openRetainer(p.id));
   $('prepareContract')?.addEventListener('click',()=>prepareContract(p.id));
