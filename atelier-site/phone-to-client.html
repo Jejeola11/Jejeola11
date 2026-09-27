@@ -218,6 +218,10 @@
         if (match) codeSelect.value = match[1];
       });
       dialog.addEventListener('cancel', event => event.preventDefault());
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      const startAtTop = () => window.scrollTo({top: 0, left: 0, behavior: 'auto'});
+      startAtTop();
+      requestAnimationFrame(startAtTop);
       if (!localStorage.getItem(storageKey)) setTimeout(() => dialog.showModal(), 120);
       form.addEventListener('submit', async event => {
         event.preventDefault();
@@ -244,7 +248,9 @@
           const result = await response.json();
           if (!response.ok) throw new Error(result.error || 'We could not save your details. Please try again.');
           localStorage.setItem(storageKey, result.browser_token || data.browser_token);
+          startAtTop();
           dialog.close();
+          requestAnimationFrame(startAtTop);
         } catch (error) {
           status.textContent = error.message;
           submit.disabled = false;
