@@ -27,6 +27,13 @@ function normalizeStatus(s='new'){
   const map={qualified:'audited',contacted:'asked',pitched:'asked',follow_up:'asked',proposal_ready:'agreed',audit_ready:'audited',loom_ready:'replied',loom_sent:'sample_sent'};
   return map[s]||s||'new';
 }
+function isDisplayableProspect(p){
+  const automated=/^Fuse (public web|Serp verified) research$/i.test(String(p&&p.source||''));
+  const verified=!!(p&&p.qualification_json&&p.qualification_json.funding_verified&&p.qualification_json.decision_maker_verified);
+  const progressed=!['new','audited'].includes(normalizeStatus(p&&p.status));
+  return !automated||verified||progressed;
+}
+function visibleProspects(){return state.prospects.filter(isDisplayableProspect)}
 function stageLabel(s){const k=normalizeStatus(s);return STAGES.find(x=>x.key===k)?.label||k}
 function fmtDate(v,withTime=false){if(!v)return'';const d=new Date(v);if(Number.isNaN(d.getTime()))return'';return d.toLocaleString([],withTime?{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}:{month:'short',day:'numeric',year:'numeric'})}
 function fmtMoney(value,currency='USD'){const n=Number(value||0);try{return new Intl.NumberFormat(currency==='NGN'?'en-NG':'en-US',{style:'currency',currency,maximumFractionDigits:0}).format(n)}catch{return `${currency} ${n.toLocaleString()}`}}
@@ -95,7 +102,7 @@ function renderClientDashboard(){
   const p=state.agentProfile?.profile_json||{};const onboarding=$('clientOnboarding');
   if(!p.skill){root.style.display='none';if(onboarding){onboarding.style.display='grid';onboarding.classList.remove('saved-open')}return;}
   if(onboarding)onboarding.style.display='none';root.style.display='block';
-  const prospects=state.prospects.filter(x=>!['lost','won'].includes(normalizeStatus(x.status)));
+  const prospects=visibleProspects().filter(x=>!['lost','won'].includes(normalizeStatus(x.status)));
   const active=prospects.length,ready=prospects.filter(x=>['new','audited'].includes(normalizeStatus(x.status))).length,contacted=prospects.filter(x=>['asked','replied','sample_ready','sample_sent','agreed','proposal_sent','deal_locked','contract_sent','contract_signed'].includes(normalizeStatus(x.status))).length;
   const offer=[p.work,p.niche,p.location].filter(Boolean).join(' · ')||'your saved offer';
   const leads=prospects.slice(0,5).map(x=>`<button type="button" class="lead-card" data-lead="${esc(x.id)}" aria-label="Open ${esc(x.brand_name)} lead"><span><b>${esc(x.brand_name)}</b><em>${esc(x.location||x.niche||'Saved prospect')}</em><small>${esc(x.visible_problem||'Open to see Fuse’s research and next action.')}</small></span><strong>${normalizeStatus(x.status)==='new'?'Why now':'Continue'} <i>›</i></strong></button>`).join('');
@@ -154,13 +161,13 @@ function setView(name){
 function applyQuery(){const q=new URLSearchParams(location.search);const v=q.get('view');if(['overview','prospects','pipeline','clients','automation'].includes(v))setView(v);const open=q.get('open');if(open&&state.prospects.some(x=>x.id===open))openDetail(open)}
 
 function renderStats(){
-  const won=state.prospects.filter(x=>normalizeStatus(x.status)==='won').length;
+  const won=visibleProspects().filter(x=>normalizeStatus(x.status)==='won').length;
   const active=state.retainers.filter(x=>x.status==='active');
-  const ready=state.prospects.filter(x=>['new','qualified'].includes(normalizeStatus(x.status))).length;
-  const proposals=state.prospects.filter(x=>normalizeStatus(x.status)==='proposal_sent').length;
+  const ready=visibleProspects().filter(x=>['new','qualified'].includes(normalizeStatus(x.status))).length;
+  const proposals=visibleProspects().filter(x=>normalizeStatus(x.status)==='proposal_sent').length;
   let mrr='—';
   if(active.length){const groups={};active.forEach(x=>groups[x.currency||'USD']=(groups[x.currency||'USD']||0)+Number(x.monthly_fee||0));const entries=Object.entries(groups);mrr=entries.length===1?fmtMoney(entries[0][1],entries[0][0]):active.length+' clients'}
-  $('stats').innerHTML=`<div class="stat"><b>${state.prospects.length}</b><span>Prospects</span></div><div class="stat"><b>${ready}</b><span>Ready to work</span></div><div class="stat"><b>${proposals}</b><span>Proposal stage</span></div><div class="stat mrr"><b>${esc(mrr)}</b><span>Tracked MRR · ${won} won</span></div>`;
+  $('stats').innerHTML=`<div class="stat"><b>${visibleProspects().length}</b><span>Prospects</span></div><div class="stat"><b>${ready}</b><span>Ready to work</span></div><div class="stat"><b>${proposals}</b><span>Proposal stage</span></div><div class="stat mrr"><b>${esc(mrr)}</b><span>Tracked MRR · ${won} won</span></div>`;
 }
 function nextAction(p){
   const s=normalizeStatus(p.status);
@@ -180,7 +187,7 @@ function nextAction(p){
   return {label:'Open',note:'Review this prospect'};
 }
 function renderToday(){
-  const priority=[...state.prospects].filter(p=>!['won','lost'].includes(normalizeStatus(p.status))).sort((a,b)=>{
+  const priority=[...visibleProspects()].filter(p=>!['won','lost'].includes(normalizeStatus(p.status))).sort((a,b)=>{
     const ar=a.next_follow_up&&new Date(a.next_follow_up)<=new Date()?1000:0,br=b.next_follow_up&&new Date(b.next_follow_up)<=new Date()?1000:0;
     return (br+Number(b.opportunity_score||0))-(ar+Number(a.opportunity_score||0));
   }).slice(0,4);
@@ -201,18 +208,18 @@ function prospectCard(p){
   return `<article class="prospect"><div><h3>${esc(p.brand_name)}</h3><div class="meta">${esc([p.niche,p.location].filter(Boolean).join(' · ')||'Prospect')}</div><div class="badges"><span class="badge hot">${esc(stageLabel(s))}</span>${rating?`<span class="badge">${esc(rating)}</span>`:''}${reviews?`<span class="badge">${esc(reviews)}</span>`:''}${p.website?'':`<span class="badge warn">No website listed</span>`}</div>${p.visible_problem?`<div class="problem">${esc(p.visible_problem)}</div>`:''}</div><div class="prospect-side"><div class="score">${Number(p.opportunity_score||0)}<small>/100</small></div><button class="open-btn" data-open="${p.id}">Open</button></div></article>`;
 }
 function renderProspects(){
-  const q=state.search.trim().toLowerCase();let rows=state.prospects;
+  const q=state.search.trim().toLowerCase();let rows=visibleProspects();
   if(q)rows=rows.filter(p=>[p.brand_name,p.niche,p.location,p.contact_name,p.visible_problem,p.service].some(v=>String(v||'').toLowerCase().includes(q)));
   const root=$('prospectList');
   root.innerHTML=rows.length?rows.map(prospectCard).join(''):'<div class="empty"><b>No prospects yet.</b>Find businesses from Google or add one manually.</div>';
   root.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openDetail(b.dataset.open));
 }
-function stageCounts(){const out={};STAGES.forEach(s=>out[s.key]=0);state.prospects.forEach(p=>{const s=normalizeStatus(p.status);out[s]=(out[s]||0)+1});return out}
+function stageCounts(){const out={};STAGES.forEach(s=>out[s.key]=0);visibleProspects().forEach(p=>{const s=normalizeStatus(p.status);out[s]=(out[s]||0)+1});return out}
 function renderPipeline(){
   const counts=stageCounts();
   $('pipelineStages').innerHTML=STAGES.map(s=>`<button class="stage ${state.pipeline===s.key?'active':''}" data-stage="${s.key}"><i></i><b>${counts[s.key]||0}</b><span>${esc(s.label)}</span></button>`).join('');
   $('pipelineStages').querySelectorAll('[data-stage]').forEach(b=>b.onclick=()=>{state.pipeline=state.pipeline===b.dataset.stage?'all':b.dataset.stage;renderPipeline()});
-  const rows=state.pipeline==='all'?state.prospects:state.prospects.filter(p=>normalizeStatus(p.status)===state.pipeline);
+  const rows=state.pipeline==='all'?visibleProspects():visibleProspects().filter(p=>normalizeStatus(p.status)===state.pipeline);
   const root=$('pipelineList');root.innerHTML=rows.length?rows.map(prospectCard).join(''):'<div class="empty"><b>No deals in this stage.</b>Move prospects forward from their detail page.</div>';
   root.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openDetail(b.dataset.open));
 }
@@ -483,10 +490,10 @@ async function markStatus(id,status){
 
 async function runFind(){
   const skill=$('findSkill').value,niche=$('findNiche').value.trim(),location=$('findLocation').value.trim(),offer=$('findOffer').value.trim(),starter_price=$('findPrice').value.trim(),return_count=Number($('findCount').value);if(!skill||!niche||!location)return toast('Choose your skill, niche and city + country.',true);
-  const btn=$('runFind'),notice=$('findNotice');btn.disabled=true;btn.textContent='Researching…';notice.textContent='Fuse is researching publicly available business and professional contact routes, current signals and source links. It will return up to '+return_count+' qualified businesses with public contact routes.';
+  const btn=$('runFind'),notice=$('findNotice');btn.disabled=true;btn.textContent='Researching…';notice.textContent='Fuse is screening for a publicly verified founder or decision-maker plus funding evidence: USD '+(location.toLowerCase().includes('nigeria')?'5,000':'10,000')+' minimum. It will only return leads that pass both checks.';
   try{
     const d=await api('client-discover',{skill,niche,location,offer,starter_price,return_count});
-    notice.innerHTML='<strong>'+d.added+' qualified prospect'+(d.added===1?'':'s')+'</strong> added'+(d.credits_refunded?' · '+d.credits_refunded+' credits returned for unfilled places.':'')+'.<br><small>Campaign evidence is marked when found · '+esc(d.maps_provider||'SerpApi')+'</small>';
+    notice.innerHTML='<strong>'+d.added+' premium prospect'+(d.added===1?'':'s')+'</strong> added'+(d.credits_refunded?' · '+d.credits_refunded+' credits returned for unfilled places.':'')+'.<br><small>Every result has a public founder or decision-maker source and funding evidence · '+esc(d.maps_provider||'SerpApi')+'</small>';
     await loadAll();setTimeout(()=>{closeOverlay('findOverlay');renderClientDashboard();$('todayLeads')?.scrollIntoView({behavior:'smooth',block:'start'})},850)
   }catch(e){
     if(e.code==='SERPAPI_NOT_CONFIGURED')notice.innerHTML='<strong>SerpApi connection needed.</strong> Add SERPAPI_API_KEY in Vercel and redeploy.';
