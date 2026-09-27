@@ -9,6 +9,16 @@
   "routes": [
     {
       "src": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "fuse-atelier-guide.vercel.app"
+        }
+      ],
+      "dest": "/atelier-site/phone-to-client.html"
+    },
+    {
+      "src": "/",
       "status": 307,
       "headers": {
         "Location": "/app/studio.html"
