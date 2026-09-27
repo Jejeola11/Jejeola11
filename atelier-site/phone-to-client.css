@@ -67,6 +67,9 @@ h1 em{font-style:normal;background:var(--chrome);-webkit-background-clip:text;ba
 .offer-card{display:flex;flex-direction:column;padding:34px;border:1px solid var(--line);border-radius:28px;background:#f9faf5;color:#111;box-shadow:0 30px 80px rgba(0,0,0,.28)}
 .offer-card h3{margin:13px 0 12px;font-size:2.6rem;line-height:.9}
 .offer-card>p{margin:0 0 28px;color:#343936;line-height:1.55}
+.playbook-includes{display:grid;gap:10px;margin:0 0 26px;padding:0;list-style:none;color:#173f3d;font-size:.88rem;font-weight:700;line-height:1.35}
+.playbook-includes li{position:relative;padding-left:22px}
+.playbook-includes li:before{content:"✓";position:absolute;left:0;color:#2d7a39;font-weight:900}
 .offer-tag{align-self:flex-start;color:#0b322c;font-size:.72rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
 .price{margin-top:auto;font-family:"Bricolage Grotesque";font-size:2.45rem;font-weight:800;line-height:1}
 .price b{font-size:1.25rem}
