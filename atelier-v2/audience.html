@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#001012">
+  <title>Fuse Audience — Private Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <style>
+    :root{--deep:#001012;--mid:#00191B;--light:#1B4C52;--surface:#062125;--line:#315456;--lime:#DFFF4E;--yellow:#FFE66A;--white:#EEFFE0;--chrome:linear-gradient(105deg,#FFE66A,#DFFF4E 52%,#EEFFE0)}
+    *{box-sizing:border-box}body{margin:0;min-height:100svh;background:radial-gradient(circle at 85% 0,#1B4C5270,transparent 35%),var(--deep);color:white;font:500 14px/1.45 Montserrat,Arial,sans-serif}
+    button,input,select{font:inherit}.hidden{display:none!important}.top{position:sticky;top:0;z-index:4;border-bottom:1px solid var(--line);background:#001012ed;backdrop-filter:blur(14px)}.topin,main{width:min(1180px,calc(100% - 32px));margin:auto}.topin{height:72px;display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font-size:20px;font-weight:800}.brand span{background:var(--chrome);background-clip:text;-webkit-background-clip:text;color:transparent}.btn{border:1px solid var(--line);border-radius:12px;min-height:42px;padding:0 14px;background:var(--surface);color:white;text-decoration:none;font-weight:700;cursor:pointer}.btn.primary{background:var(--chrome);color:var(--deep);border:0}.btn:disabled{opacity:.6;cursor:wait}
+    main{padding:30px 0 60px}.gate{min-height:62vh;display:grid;place-items:center}.gate-card,.panel,.stat{border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,#062125,#00191B)}.gate-card{width:min(480px,100%);padding:26px}.eyebrow{color:var(--lime);font-weight:800;letter-spacing:.15em;font-size:11px;text-transform:uppercase}.hero{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:22px}.hero h1{margin:8px 0 7px;font-size:clamp(30px,5vw,48px);letter-spacing:-.07em;line-height:.95}.hero p{margin:0;color:#b9ceca;max-width:600px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}.stat{padding:16px}.stat span{display:block;font-size:10px;letter-spacing:.1em;color:#b9ceca;text-transform:uppercase}.stat b{display:block;font-size:29px;margin-top:7px;color:var(--white)}
+    .panel{padding:19px;margin-top:16px}.panel-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:14px}.panel h2{font-size:19px;margin:0}.panel small{color:#b9ceca}.filters{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:9px}.filters input,.filters select{width:100%;height:44px;border:1px solid var(--line);border-radius:11px;background:#041b1e;color:#fff;padding:0 12px;outline:none}.filters input:focus,.filters select:focus{border-color:var(--lime)}.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{padding:8px 10px;border:1px solid #315456;border-radius:999px;background:#041b1e;color:#d7e9e5;font-size:11px}.chip b{color:var(--lime);margin-left:4px}.table-wrap{overflow:auto;border:1px solid #315456;border-radius:14px}.leads{border-collapse:collapse;width:100%;min-width:760px}.leads th,.leads td{text-align:left;padding:13px 14px;border-bottom:1px solid #315456;vertical-align:top}.leads th{font-size:10px;letter-spacing:.1em;color:#b9ceca;text-transform:uppercase;background:#061b16}.leads td{font-size:12px}.leads tr:last-child td{border-bottom:0}.name{font-weight:800}.muted{display:block;color:#b9ceca;font-size:10px;margin-top:3px}.tag{display:inline-block;padding:4px 7px;background:#dfff4e1f;border:1px solid #dfff4e55;color:#dfffad;border-radius:999px;font-size:9px;font-weight:800}.empty{padding:25px;color:#b9ceca;text-align:center}.status{min-height:22px;color:#b9ceca}.status.bad{color:#ffb9b9}@media(max-width:650px){.topin,main{width:min(100% - 24px,1180px)}main{padding-top:21px}.hero{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:1fr 1fr}.filters{grid-template-columns:1fr}.panel{padding:15px}.topin{height:64px}.brand{font-size:17px}} 
+  </style>
+</head>
+<body>
+<header class="top"><div class="topin"><a class="btn" href="/atelier-v2/admin.html">← Operations</a><div class="brand">FUSE <span>AUDIENCE</span></div><button id="refresh" class="btn primary">Refresh</button></div></header>
+<main>
+  <section id="gate" class="gate"><div class="gate-card"><div class="eyebrow">Private admin</div><h1>Checking access…</h1><p id="gate-copy">Only the Fuse Atelier owner can view contact details.</p></div></section>
+  <div id="app" class="hidden">
+    <section class="hero"><div><div class="eyebrow">Contacts and demand</div><h1>Your Fuse audience.</h1><p>One private view for class registrations, guide-page visitors and Playbook sales-page leads.</p></div></section>
+    <section class="stats"><article class="stat"><span>Total contacts</span><b id="total">—</b></article><article class="stat"><span>Countries reached</span><b id="country-total">—</b></article><article class="stat"><span>Lead sources</span><b id="source-total">—</b></article></section>
+    <section class="panel"><div class="panel-head"><div><h2>Audience filters</h2><small>Search by name, email, WhatsApp or country.</small></div></div><div class="filters"><input id="search" placeholder="Search contacts…"><select id="country"><option value="">All countries</option></select><select id="source"><option value="">All sources</option></select></div></section>
+    <section class="panel"><div class="panel-head"><div><h2>Where they came from</h2><small id="source-note"></small></div></div><div id="source-chips" class="chips"></div></section>
+    <section class="panel"><div class="panel-head"><div><h2>Contacts</h2><small id="visible-count"></small></div></div><div class="table-wrap"><table class="leads"><thead><tr><th>Contact</th><th>WhatsApp</th><th>Country</th><th>Source</th><th>Captured</th></tr></thead><tbody id="lead-rows"></tbody></table></div></section>
+  </div>
+</main>
+<script>
+(() => {
+  const URL='https://rgbweaimkcndjznlazho.supabase.co';
+  const KEY='sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3';
+  const sb=supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  const $=id=>document.getElementById(id);
+  let leads=[], countries=[], sources=[];
+  const safe=value=>String(value||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const label=value=>String(value||'').replace(/[-_]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  function selectOptions(id, values, text){ $(id).innerHTML='<option value="">'+text+'</option>'+values.map(value=>'<option value="'+safe(value)+'">'+safe(label(value))+'</option>').join(''); }
+  function getFiltered(){
+    const q=$('search').value.trim().toLowerCase(), country=$('country').value, source=$('source').value;
+    return leads.filter(row=>{
+      const hay=[row.first_name,row.email,row.phone_e164||row.whatsapp,row.country,row.source,row.lead_type].join(' ').toLowerCase();
+      return (!q||hay.includes(q))&&(!country||row.country===country)&&(!source||row.source===source);
+    });
+  }
+  function render(){
+    const rows=getFiltered();$('visible-count').textContent=rows.length+' contact'+(rows.length===1?'':'s')+' shown';
+    $('lead-rows').innerHTML=rows.length?rows.map(row=>'<tr><td><span class="name">'+safe(row.first_name||'Unknown')+'</span><span class="muted">'+safe(row.email||'No email')+'</span></td><td>'+safe(row.phone_e164||row.whatsapp||'—')+'</td><td>'+safe(row.country||'Unknown')+'</td><td><span class="tag">'+safe(label(row.source||row.lead_type||'unknown'))+'</span></td><td>'+new Date(row.created_at||row.updated_at).toLocaleDateString()+'</td></tr>').join(''):'<tr><td colspan="5" class="empty">No contacts match these filters.</td></tr>';
+  }
+  async function load(){
+    $('refresh').disabled=true;$('refresh').textContent='Loading…';
+    try{
+      const {data:{session}}=await sb.auth.getSession();
+      if(!session) throw Error('Sign in through Fuse Operations first to view the audience.');
+      const response=await fetch('/api/audience-leads',{headers:{authorization:'Bearer '+session.access_token}});
+      const data=await response.json();if(!response.ok)throw Error(data.error||'Could not load contacts.');
+      leads=data.leads||[];countries=(data.countries||[]).map(([value])=>value).filter(value=>value!=='Unknown');sources=(data.sources||[]).map(([value])=>value).filter(value=>value!=='Unknown');
+      $('total').textContent=data.total||0;$('country-total').textContent=countries.length;$('source-total').textContent=sources.length;
+      selectOptions('country',countries,'All countries');selectOptions('source',sources,'All sources');
+      $('source-chips').innerHTML=(data.sources||[]).map(([value,count])=>'<span class="chip">'+safe(label(value))+'<b>'+count+'</b></span>').join('')||'<span class="muted">No source data yet.</span>';
+      $('source-note').textContent=(data.sources||[]).reduce((sum,[,count])=>sum+count,0)+' saved entries';
+      $('gate').classList.add('hidden');$('app').classList.remove('hidden');render();
+    }catch(error){$('gate-copy').textContent=error.message;$('gate').classList.remove('hidden');$('app').classList.add('hidden');}
+    finally{$('refresh').disabled=false;$('refresh').textContent='Refresh';}
+  }
+  ['search','country','source'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',render));
+  $('refresh').addEventListener('click',load);load();
+})();
+</script>
+</body></html>
