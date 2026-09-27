@@ -38,11 +38,38 @@ function openOverlay(id){const el=$(id);el.classList.add('open');el.setAttribute
 function closeOverlay(id){const el=$(id);el.classList.remove('open');el.setAttribute('aria-hidden','true');if(!document.querySelector('.overlay.open'))document.body.style.overflow=''}
 function copyText(text){if(!text)return;navigator.clipboard?.writeText(text).then(()=>toast('Copied')).catch(()=>toast('Could not copy.',true))}
 
+function isFutureJwtError(error){
+  return /jwt issued at future|issued at future/i.test(String(error?.message||error||''));
+}
+function showSessionRecovery(message){
+  const onboarding=$('clientOnboarding'),root=$('clientDashboard');
+  if(onboarding)onboarding.style.display='none';
+  if(!root)return;
+  root.style.display='block';
+  root.innerHTML='<div class="session-recovery"><p>FUSE CLIENT</p><h1>Refreshing your access</h1><span>'+esc(message||'Your saved Client Agent is safe. Fuse just needs a fresh secure session.')+'</span><button id="repairSession">Refresh access</button></div>';
+  $('repairSession')?.addEventListener('click',async()=>{
+    const button=$('repairSession');button.disabled=true;button.textContent='Refreshing…';
+    const {data,error}=await sb.auth.refreshSession();
+    if(error||!data.session){await sb.auth.signOut({scope:'local'});location.href='login.html';return}
+    location.reload();
+  });
+}
 async function boot(){
   const {data,error}=await sb.auth.getSession();
   if(error||!data.session){location.href='login.html';return}
   state.session=data.session;
-  await loadAll();
+  try{
+    await loadAll();
+  }catch(loadError){
+    if(!isFutureJwtError(loadError))throw loadError;
+    // A token can be a few seconds ahead of the database clock after a device/network
+    // time change. Refresh once, then retry before showing a recovery option.
+    await new Promise(resolve=>setTimeout(resolve,1800));
+    const refreshed=await sb.auth.refreshSession();
+    if(refreshed.error||!refreshed.data.session){showSessionRecovery('Your secure session needs to be refreshed.');return}
+    state.session=refreshed.data.session;
+    try{await loadAll()}catch(retryError){showSessionRecovery('Fuse could not refresh this session yet. Tap once to try again.');return}
+  }
   bind();
   applyQuery();
 }
@@ -444,5 +471,5 @@ function bind(){
   document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeOverlay(o.id)}));
   document.addEventListener('keydown',e=>{if(e.key==='Escape'){const o=document.querySelector('.overlay.open');if(o)closeOverlay(o.id)}});
 }
-boot().catch(e=>{console.error(e);toast(e.message||'Could not start Fuse Client.',true)});
+boot().catch(e=>{console.error(e);showSessionRecovery(e.message||'Fuse could not open this session yet.')});
 })();
