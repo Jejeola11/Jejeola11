@@ -60,7 +60,7 @@ function savedProspectKey(p){
   return 'brand:'+textNorm(p&&p.brand_name)+'|'+textNorm(p&&p.location);
 }
 function isNigeriaLocation(location){return /\bnigeria\b|\blagos\b|\babuja\b|\bport harcourt\b|\bibenin\b|\bibadan\b/i.test(String(location||''))}
-function fundingFloor(location){return isNigeriaLocation(location)?5000:10000}
+function fundingFloor(location){return 500}
 function moneyAmount(raw){
   const s=String(raw||'').replace(/,/g,'').trim();
   const m=s.match(/(?:US\$|USD|\$|£|€|₦)?\s*(\d+(?:\.\d+)?)\s*([kKmMbB])?/);
@@ -94,21 +94,25 @@ function founderEvidence(text,business){
   return {name:'',title:''};
 }
 async function fundingLookup(name,location){
+  // "Ability to pay" is not restricted to venture-backed tech. We accept a public
+  // funding, investment, revenue, package/pricing or commercial-contract signal of
+  // USD 500+ (or equivalent) for every niche and country.
   const minimum=fundingFloor(location);
   if(!firecrawl.enabled())return {qualifies:false,minimum,amount:0,summary:'',url:'',source:''};
   try{
-    const rows=await firecrawl.search('"'+name+'" (raised funding OR funding OR investment OR seed round OR venture capital)',{location,limit:8});
+    const query='"'+name+'" (raised funding OR investment OR revenue OR pricing OR package OR contract OR "starting at" OR "from USD")';
+    const rows=await firecrawl.search(query,{location,limit:8});
     for(const row of rows){
       const text=[row.title,row.description,row.markdown].filter(Boolean).join(' ');
       if(!mentionsBusiness(name,text))continue;
-      const hit=(String(text).match(/(?:raised|funding|investment|seed round|venture capital)[^.]{0,180}?((?:US\$|USD|\$|£|€|₦)?\s*\d+(?:[,.]\d+)?\s*[kKmMbB]?)/i)||[])[1]||'';
+      const hit=(String(text).match(/(?:raised|funding|investment|revenue|pricing|package|contract|starting at|from)[^.]{0,180}?((?:US\$|USD|\$|£|€|₦)?\s*\d+(?:[,.]\d+)?\s*[kKmMbB]?)/i)||[])[1]||'';
       const amount=moneyAmount(hit);
       if(amount>=minimum){
         const amountLabel=clean(hit,80);
-        return {qualifies:true,minimum,amount,summary:'Public funding evidence: '+name+' has a reported '+amountLabel+' funding/investment signal.',url:clean(row.url,1200),source:clean(row.title,260)};
+        return {qualifies:true,minimum,amount,summary:'Public ability-to-pay evidence: '+name+' has a reported commercial, pricing or investment signal of '+amountLabel+' or more.',url:clean(row.url,1200),source:clean(row.title,260)};
       }
     }
-  }catch(e){console.warn('[firecrawl funding]',e&&e.message||e)}
+  }catch(e){console.warn('[firecrawl ability-to-pay]',e&&e.message||e)}
   return {qualifies:false,minimum,amount:0,summary:'',url:'',source:''};
 }
 function askFirstFor(x,skill){
@@ -339,8 +343,8 @@ async function finishEnrichment(x,skill,location,key){
   const contact={...x.contact,email:fcContact.email||x.contact.email||'',phone:fcContact.phone||x.contact.phone||'',instagram:fcContact.instagram||x.contact.instagram||'',linkedin_company:fcContact.linkedin_company||x.contact.linkedin_company||''};
   const founder={name:webFounder.name||serpFounder.name||webResearch.founder?.name||'',title:webFounder.title||serpFounder.title||webResearch.founder?.title||'',linkedin:webFounder.linkedin||serpFounder.linkedin||'',source:webFounder.source||serpFounder.source||''};
   const signal=x.signal||webResearch.signal||null;
-  // A premium lead must have both a real decision-maker and public proof it can
-  // meet the selected market's minimum funding/ability-to-pay floor.
+  // A premium lead must have both a real decision-maker and public proof of at
+  // least USD 500 commercial ability to pay, whatever the country or niche.
   const decisionMakerVerified=!!(founder.name&&(founder.linkedin||founder.source));
   const verified=decisionMakerVerified&&!!funding.qualifies;
   const offer=tailoredOfferFor(x,skill,x.agentOffer||'');
@@ -349,7 +353,7 @@ async function finishEnrichment(x,skill,location,key){
   score=Math.max(1,Math.min(100,score));
   const sources=[];
   if(x.place.googleMapsUri)sources.push({label:'Google Maps',url:x.place.googleMapsUri});
-  if(funding&&funding.url)sources.push({label:'Funding / ability to pay',url:funding.url});
+  if(funding&&funding.url)sources.push({label:'Ability to pay evidence',url:funding.url});
   if(signal&&signal.url)sources.push({label:'Current promotion',url:signal.url});
   if(x.place.websiteUri)sources.push({label:'Website',url:x.place.websiteUri});
   (webResearch.sources||[]).forEach(source=>sources.push(source));
@@ -408,7 +412,7 @@ exports.handler=async(event)=>{
       .slice(0,Math.min(candidates.length,Math.max(returnCount*2,returnCount+5)));
     const enriched=(await Promise.all(shortlist.map(x=>finishEnrichment(x,skill,location,key)))).sort((a,b)=>b.score-a.score);
     // High-quality mode: never fill a batch with an unverified business. A lead must
-    // have a real public founder/decision-maker source and pass the funding floor.
+    // have a real public founder/decision-maker source and USD 500+ ability-to-pay evidence.
     const qualified=enriched.filter(x=>x.verified);
 
     const rows=[];let globallyReserved=0;
@@ -447,7 +451,8 @@ exports.handler=async(event)=>{
           confidence:x.readiness,
           decision_maker_verified:!!x.founder.name,
           funding_verified:!!(x.funding&&x.funding.qualifies),
-          funding_floor_usd:x.funding&&x.funding.minimum||fundingFloor(location),
+          ability_to_pay_verified:!!(x.funding&&x.funding.qualifies),
+          funding_floor_usd:500,
           funding_amount_usd:x.funding&&x.funding.amount||0,
           verified_current_reason:x.readiness==='strong',provider:firecrawl.enabled()?'SerpApi + Firecrawl':'SerpApi'
         },
