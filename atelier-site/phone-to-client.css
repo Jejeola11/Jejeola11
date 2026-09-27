@@ -25,13 +25,13 @@ a{color:inherit;text-decoration:none}
 .kicker,.section-number{color:var(--lime);font-size:.75rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase}
 .kicker{display:inline-flex;margin:0 0 22px;padding:8px 14px;border:1px solid rgba(169,255,105,.24);border-radius:999px;background:rgba(169,255,105,.055)}
 h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif;text-transform:uppercase;letter-spacing:-.045em}
-h1{margin:0;font-size:clamp(2.55rem,5.6vw,4rem);line-height:.94;font-weight:800}
+h1{margin:0;font-size:clamp(2.55rem,5.6vw,4rem);line-height:1.04;font-weight:800}
 h1 span{display:block}
 h1 em{font-style:normal;background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}
 .starting{margin:26px 0 16px;color:var(--yellow);font-size:.82rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase}
 .primary-btn,.offer-btn{font-family:"Archivo",sans-serif;display:inline-flex;min-height:58px;align-items:center;justify-content:center;padding:16px 36px;border:0;border-radius:14px;background:var(--chrome);color:#04110e;font-weight:800;text-transform:uppercase;letter-spacing:.05em;box-shadow:0 18px 44px rgba(169,255,105,.15);transition:transform .2s ease,box-shadow .2s ease;cursor:pointer}
 .primary-btn:hover,.offer-btn:hover{transform:translateY(-2px);box-shadow:0 22px 55px rgba(169,255,105,.25)}
-.button-note{margin:11px 0 0;color:#7f958c;font-size:.72rem}
+.hero .primary-btn{margin-top:30px}.button-note{margin:14px 0 0;color:#7f958c;font-size:.72rem}
 .giveaway-wrap{padding-bottom:68px}
 .giveaway{position:relative;overflow:hidden;padding:32px 36px;border:1px solid rgba(255,255,255,.3);border-radius:var(--radius);background:var(--chrome);color:#04110e;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.3)}
 .giveaway:after{content:"$2K";position:absolute;right:-10px;bottom:-48px;font-family:"Bricolage Grotesque";font-size:9rem;font-weight:800;color:rgba(0,0,0,.055);line-height:1}
@@ -105,10 +105,10 @@ footer small{font-size:.68rem}
   .brand img{width:42px;height:42px}.mini-cta{padding:8px 12px;font-size:.62rem}
   .hero{padding:46px 0 40px}
   .kicker{font-size:.62rem;margin-bottom:18px}
-  h1{font-size:clamp(1.64rem,6.75vw,2.7rem);line-height:1.05;letter-spacing:-.045em}
+  h1{font-size:clamp(1.64rem,6.75vw,2.7rem);line-height:1.13;letter-spacing:-.045em}
   h1 span{white-space:nowrap}
   .starting{margin-top:22px}
-  .primary-btn{width:100%;min-height:55px;padding:15px 20px}
+  .primary-btn{width:100%;min-height:55px;padding:15px 20px}.hero .primary-btn{margin-top:26px}
   .giveaway-wrap{padding-bottom:50px}.giveaway{padding:27px 17px;border-radius:22px}.giveaway p{font-size:2.15rem}.giveaway small{font-size:.61rem;line-height:1.45}
   .story{padding-bottom:65px}.copy-card{border-radius:22px}.copy-card p{font-size:.96rem;line-height:1.67}.copy-card .copy-close{font-size:2rem;line-height:.98}
   .mission{padding:66px 0}.mission h2{font-size:clamp(2.25rem,10.2vw,3.75rem)}.mission-sub{font-size:.93rem}
