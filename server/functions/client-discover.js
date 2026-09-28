@@ -4,6 +4,87 @@
 const { admin, getUser, json } = require('./_supabase');
 const firecrawl = require('./_firecrawl');
 
+// OpenAI is the evidence-led research layer. It searches the live web once per
+// research run, while Maps remains the source for the actual business location.
+function safeUrl(v){try{const u=new URL(String(v||''));return /^https?:$/.test(u.protocol)?u.toString():''}catch{return ''}}
+function extractJson(text){
+  const value=String(text||'').trim();
+  try{return JSON.parse(value)}catch{}
+  const match=value.match(/\{[\s\S]*\}/);
+  try{return match?JSON.parse(match[0]):null}catch{return null}
+}
+async function openAIResearchBatch({skill,niche,location,offer,candidates}){
+  const apiKey=String(process.env.OPENAI_API_KEY||'').trim();
+  if(!apiKey)return {enabled:false,leads:[],error:'OPENAI_API_KEY is not configured'};
+  const shortlist=(candidates||[]).slice(0,24).map(p=>({
+    business_name:clean(p.displayName&&p.displayName.text,180),
+    address:clean(p.formattedAddress,240),
+    website:safeUrl(p.websiteUri),
+    maps_url:safeUrl(p.googleMapsUri)
+  })).filter(p=>p.business_name);
+  const prompt=[
+    'You are Fuse Atelier\\'s public-web lead researcher. Use live web search now.',
+    'Find and verify up to 12 real businesses that precisely match this student brief:',
+    'Skill: '+skill,
+    'Offer: '+offer,
+    'Exact target niche: '+niche,
+    'Target markets: '+location,
+    '',
+    'A business must be excluded when its own official website, public profile, or reputable independent source does not prove the requested niche. Do not substitute a broadly related business.',
+    'For every returned lead, verify the exact business identity, its official website or public Maps route, a named founder/owner/marketing decision-maker only when a source explicitly ties that person to the business, at least one public contact/social route, and a specific current reason to approach it.',
+    'Never infer a founder from a search snippet. Never use a year as money or mention ability-to-pay in outreach. If a fact is unavailable, return an empty string. Return no filler, no invented facts, and no generic explanation such as “the store explains”.',
+    'The “why_now” must name a concrete observed promotion, launch, active collection, campaign, or conversion gap with its source URL. The offer must be tailored to this one brand and this student\\'s actual offer.',
+    shortlist.length?'Cross-check these Maps candidates where relevant, but you may discover stronger exact matches:\\n'+JSON.stringify(shortlist):'Discover the strongest exact matches yourself.',
+    '',
+    'Return strict JSON only in this exact shape:',
+    '{"leads":[{"business_name":"","location":"","website":"","maps_url":"","founder_name":"","founder_title":"","founder_source":"","email":"","phone":"","instagram":"","linkedin":"","niche_proof":"","niche_source":"","why_now":"","why_now_source":"","tailored_offer":"","best_contact_method":"","sources":[{"label":"","url":""}]}]}'
+  ].join('\\n');
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),90000);
+  try{
+    const r=await fetch('https://api.openai.com/v1/responses',{
+      method:'POST',
+      signal:controller.signal,
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
+      body:JSON.stringify({
+        model:process.env.OPENAI_CLIENT_RESEARCH_MODEL||'gpt-4.1-mini',
+        tools:[{type:'web_search',external_web_access:true}],
+        tool_choice:'required',
+        input:prompt,
+        text:{format:{type:'json_object'}}
+      })
+    });
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(data&&data.error&&data.error.message||'OpenAI research request failed');
+    const parsed=extractJson(data.output_text||'');
+    const leads=Array.isArray(parsed&&parsed.leads)?parsed.leads:[];
+    return {enabled:true,leads:leads.slice(0,16),response_id:clean(data.id,160),error:''};
+  }catch(error){
+    console.warn('[openai client research]',error&&error.message||error);
+    return {enabled:true,leads:[],error:clean(error&&error.message,300)};
+  }finally{clearTimeout(timer)}
+}
+function aiPlace(lead,niche){
+  const name=clean(lead&&lead.business_name,180);
+  if(!name)return null;
+  const website=safeUrl(lead.website);
+  const map=safeUrl(lead.maps_url);
+  return {
+    id:'openai:'+textNorm(name)+'|'+domainFrom(website||map||''),
+    displayName:{text:name},formattedAddress:clean(lead.location,240),
+    nationalPhoneNumber:clean(lead.phone,80),websiteUri:website,
+    rating:null,userRatingCount:null,googleMapsUri:map,businessStatus:'',
+    types:[niche,clean(lead.niche_proof,420)].filter(Boolean),_openai:lead
+  };
+}
+function researchForPlace(place,research){
+  if(place&&place._openai)return place._openai;
+  const name=textNorm(place&&place.displayName&&place.displayName.text),domain=domainFrom(place&&place.websiteUri||'');
+  return (research&&research.leads||[]).find(item=>{
+    const itemName=textNorm(item&&item.business_name);
+    return (name&&itemName&&(name===itemName||name.includes(itemName)||itemName.includes(name))) || (domain&&domain===domainFrom(item&&item.website));
+  })||null;
+}
+
 function clean(v,max=1000){return typeof v==='string'?v.trim().slice(0,max):''}
 const DISCOVERY_CREDITS={5:20,10:40,20:80};
 function domainFrom(url){try{return new URL(url).hostname.replace(/^www\./,'').toLowerCase()}catch{return''}}
@@ -130,10 +211,11 @@ async function fundingLookup(name,location){
   return {qualifies:false,minimum,amount:0,summary:'',url:'',source:''};
 }
 function askFirstFor(x,skill){
-  const who=x.founder&&x.founder.name?x.founder.name:x.name;
-  const observed=x.signal&&x.signal.summary?x.signal.summary:'a current update from '+x.name;
-  const gap=x.gap||('a focused '+skill+' idea connected to that activity');
-  return 'Hi '+who+', I came across '+observed+'. I noticed '+gap.charAt(0).toLowerCase()+gap.slice(1)+' I have an idea for '+skill+' that could make that campaign/customer journey clearer. Would you be open to seeing a quick concept?';
+  const who=clean(x.founder&&x.founder.name||x.name,180);
+  const observed=clean(x.whyNow||x.signal&&x.signal.summary||'',340);
+  const offer=clean(x.offer||skill,360);
+  if(!observed)return 'Hi '+who+', I came across '+x.name+' and had an idea that could support your current content and customer journey. Would you be open to seeing a quick concept?';
+  return 'Hi '+who+', I came across '+observed+'. I have a specific idea for '+offer+' that fits that activity. Would you be open to seeing a quick concept?';
 }
 async function serp(params,key){
   const u=new URL('https://serpapi.com/search');
@@ -345,7 +427,7 @@ async function firecrawlFounderLookup(name,location){
     return {name:'',title:'',linkedin:'',source:''};
   }
 }
-async function finishEnrichment(x,skill,location,niche,key){
+async function finishEnrichment(x,skill,location,niche,key,ai){
   const [serpFounder,webResearch,webFounder,funding]=await Promise.all([
     founderLookup(x.name,location,x.domain,key).catch(()=>({name:'',title:'',linkedin:'',source:''})),
     firecrawlWebsiteResearch(x,location),
@@ -353,14 +435,17 @@ async function finishEnrichment(x,skill,location,niche,key){
     fundingLookup(x.name,location)
   ]);
   const fcContact=webResearch.contact||{};
-  const contact={...x.contact,email:fcContact.email||x.contact.email||'',phone:fcContact.phone||x.contact.phone||'',instagram:fcContact.instagram||x.contact.instagram||'',linkedin_company:fcContact.linkedin_company||x.contact.linkedin_company||''};
-  const founder={name:webFounder.name||serpFounder.name||webResearch.founder?.name||'',title:webFounder.title||serpFounder.title||webResearch.founder?.title||'',linkedin:webFounder.linkedin||serpFounder.linkedin||'',source:webFounder.source||serpFounder.source||''};
-  const signal=x.signal||webResearch.signal||null;
-  const nicheVerified=nicheMatches([x.name,x.place.types,x.place.websiteUri,webResearch.nicheText||''].join(' '),niche);
+  const aiFounderName=isLikelyPersonName(clean(ai&&ai.founder_name,180),x.name)?clean(ai.founder_name,180):'';
+  const aiFounderSource=safeUrl(ai&&ai.founder_source);
+  const contact={...x.contact,email:clean(ai&&ai.email,320)||fcContact.email||x.contact.email||'',phone:clean(ai&&ai.phone,120)||fcContact.phone||x.contact.phone||'',instagram:safeUrl(ai&&ai.instagram)||fcContact.instagram||x.contact.instagram||'',linkedin_company:fcContact.linkedin_company||x.contact.linkedin_company||''};
+  const founder={name:aiFounderName||webFounder.name||serpFounder.name||webResearch.founder?.name||'',title:clean(ai&&ai.founder_title,180)||webFounder.title||serpFounder.title||webResearch.founder?.title||'',linkedin:safeUrl(ai&&ai.linkedin)||webFounder.linkedin||serpFounder.linkedin||'',source:aiFounderSource||webFounder.source||serpFounder.source||''};
+  const aiWhy=clean(ai&&ai.why_now,700),aiWhySource=safeUrl(ai&&ai.why_now_source);
+  const signal=x.signal||webResearch.signal||(aiWhy&&aiWhySource?{summary:aiWhy,url:aiWhySource}:null);
+  const nicheVerified=nicheMatches([x.name,x.place.types,x.place.websiteUri,webResearch.nicheText||'',clean(ai&&ai.niche_proof,1000)].join(' '),niche)&&!!(safeUrl(ai&&ai.niche_source)||webResearch.nicheText||x.place.websiteUri);
   const decisionMakerVerified=!!(founder.name&&(founder.linkedin||founder.source));
   // Ability-to-pay proof improves ranking; it does not erase a genuine match.
   const verified=decisionMakerVerified&&nicheVerified&&!!signal;
-  const offer=tailoredOfferFor(x,skill,x.agentOffer||'');
+  const offer=clean(ai&&ai.tailored_offer,500)||tailoredOfferFor(x,skill,x.agentOffer||'');
   const gap=tailoredGapFor(x,skill);
   let score=x.score+(founder.linkedin?12:0)+(founder.name?10:0)+(fcContact.email?6:0)+(funding.qualifies?25:0)+(signal?20:-25)+(nicheVerified?20:-70);
   score=Math.max(1,Math.min(100,score));
@@ -371,9 +456,12 @@ async function finishEnrichment(x,skill,location,niche,key){
   if(x.place.websiteUri)sources.push({label:'Website',url:x.place.websiteUri});
   (webResearch.sources||[]).forEach(source=>sources.push(source));
   if(founder.source)sources.push({label:'Founder / decision-maker',url:founder.source});
+  if(ai&&safeUrl(ai.niche_source))sources.push({label:'Niche evidence',url:safeUrl(ai.niche_source)});
+  if(aiWhySource)sources.push({label:'Why now evidence',url:aiWhySource});
+  (ai&&Array.isArray(ai.sources)?ai.sources:[]).forEach(source=>{const url=safeUrl(source&&source.url);if(url)sources.push({label:clean(source&&source.label,120)||'Web research',url})});
   if(contact.instagram)sources.push({label:'Instagram',url:contact.instagram});
   const unique=sources.filter((source,i,all)=>source&&source.url&&all.findIndex(item=>item.url===source.url)===i);
-  const whyNow=[signal&&signal.summary,funding&&funding.summary].filter(Boolean).join(' · ')||'No verified current commercial signal was found.';
+  const whyNow=aiWhy&&aiWhySource?aiWhy:([signal&&signal.summary,funding&&funding.summary].filter(Boolean).join(' · ')||'No verified current commercial signal was found.');
   return {...x,contact,founder,signal,funding,niche_verified:nicheVerified,decision_maker_verified:decisionMakerVerified,offer,gap,whyNow,readiness:verified?(funding.qualifies?'strong':'research_verified'):'rejected',verified,score,sources:unique,firecrawl_used:firecrawl.enabled()};
 }
 exports.handler=async(event)=>{
@@ -403,17 +491,20 @@ exports.handler=async(event)=>{
     if(balance===null)return json(402,{error:'You need '+credits+' credits to research '+returnCount+' prospects.',code:'NO_CREDITS'});
     charged=true;chargedDb=db;chargedUser=user.id;chargedCredits=credits;
     const request=await db.from('client_research_requests').insert({
-      user_id:user.id,source:'serp_maps+firecrawl_web',niche,location,skill,locations:[location],
-      credit_cost:credits,criteria:{skill,return_count:returnCount,candidate_research_limit:returnCount===5?12:returnCount===10?24:48,provider:firecrawl.enabled()?'SerpApi + Firecrawl':'SerpApi'},
+      user_id:user.id,source:'serp_maps+firecrawl+openai_web',niche,location,skill,locations:[location],
+      credit_cost:credits,criteria:{skill,return_count:returnCount,candidate_research_limit:returnCount===5?12:returnCount===10?24:48,provider:firecrawl.enabled()?'SerpApi + Firecrawl + OpenAI web search':'SerpApi + OpenAI web search'},
       requested_count:returnCount,credits_charged:credits,
-      offer:{offer:agentOffer,starter_price:agentPrice||starterPrice(skill)},provider_summary:{provider:firecrawl.enabled()?'SerpApi + Firecrawl':'SerpApi',status:'processing'},
+      offer:{offer:agentOffer,starter_price:agentPrice||starterPrice(skill)},provider_summary:{provider:firecrawl.enabled()?'SerpApi + Firecrawl + OpenAI web search':'SerpApi + OpenAI web search',status:'processing'},
       offer_json:{offer:agentOffer,starter_price:agentPrice||starterPrice(skill)},
       profile_snapshot:{memory_summary:profile.memory_summary||'',profile_json:profile.profile_json||{},portfolio_urls:profile.portfolio_urls||[]},
       status:'processing',requested_at:new Date().toISOString()
     }).select('id').single();
     if(request.error){await db.rpc('add_credits',{uid:user.id,amount:credits,why:'client_discovery_refund'});charged=false;throw request.error}
 
-    const mapRows=[...(await mapSearch(niche,location,key)),...(await webSearchCandidates(niche,location))];
+    const baseMapRows=[...(await mapSearch(niche,location,key)),...(await webSearchCandidates(niche,location))];
+    const aiResearch=await openAIResearchBatch({skill,niche,location,offer:agentOffer,candidates:baseMapRows});
+    const aiRows=(aiResearch.leads||[]).map(lead=>aiPlace(lead,niche)).filter(Boolean);
+    const mapRows=[...baseMapRows,...aiRows];
     const uniqueMapRows=mapRows.filter((place,index,all)=>all.findIndex(other=>(place.id&&other.id===place.id)||(!place.id&&domainFrom(place.websiteUri||'')&&domainFrom(other.websiteUri||'')===domainFrom(place.websiteUri||'')))===index).sort((a,b)=>scoreBase(b)-scoreBase(a));
     const freshMapRows=uniqueMapRows.filter(place=>!existingKeys.has(canonicalKey({place,name:clean(place.displayName&&place.displayName.text,180),domain:domainFrom(place.websiteUri||'')})));
     const candidates=freshMapRows.slice(0,returnCount===5?36:returnCount===10?60:90);
@@ -423,7 +514,7 @@ exports.handler=async(event)=>{
     // does not turn a requested batch of five into an empty one.
     const shortlist=stageOne.filter(x=>x.qualifies).sort((a,b)=>b.score-a.score)
       .slice(0,Math.min(candidates.length,Math.max(returnCount*5,returnCount+15)));
-    const enriched=(await Promise.all(shortlist.map(x=>finishEnrichment(x,skill,location,niche,key)))).sort((a,b)=>b.score-a.score);
+    const enriched=(await Promise.all(shortlist.map(x=>finishEnrichment(x,skill,location,niche,key,researchForPlace(x.place,aiResearch))))).sort((a,b)=>b.score-a.score);
     const primary=enriched.filter(x=>x.verified);
     const fallback=enriched.filter(x=>!x.verified&&x.niche_verified&&x.decision_maker_verified&&!!(x.contact.email||x.contact.instagram||x.place.nationalPhoneNumber||x.place.websiteUri));
     const qualified=[...primary,...fallback];
@@ -494,7 +585,7 @@ exports.handler=async(event)=>{
       ok:true,request_id:request.data.id,maps_results:mapRows.length,candidates:candidates.length,
       qualified:qualified.length,added:inserted.length,duplicates:globallyReserved,
       skipped:Math.max(0,candidates.length-qualified.length),maps_provider:'SerpApi Google Maps',
-      contact_provider:firecrawl.enabled()?'Firecrawl public web + SerpApi':'SerpApi + public website',credits_charged:credits,credits_refunded:refund,credits_remaining:balance+refund,prospects:inserted
+      contact_provider:firecrawl.enabled()?'OpenAI live web + Firecrawl + SerpApi':'OpenAI live web + SerpApi',credits_charged:credits,credits_refunded:refund,credits_remaining:balance+refund,prospects:inserted
     });
   }catch(e){
     if(charged&&chargedDb&&chargedUser&&chargedCredits){
