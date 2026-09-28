@@ -29,7 +29,7 @@ function normalizeStatus(s='new'){
 }
 function isDisplayableProspect(p){
   const automated=/^Fuse (public web|Serp verified) research$/i.test(String(p&&p.source||''));
-  const verified=!!(p&&p.qualification_json&&p.qualification_json.funding_verified&&p.qualification_json.decision_maker_verified);
+  const verified=!!(p&&p.qualification_json&&p.qualification_json.niche_verified&&p.qualification_json.decision_maker_verified);
   const progressed=!['new','audited'].includes(normalizeStatus(p&&p.status));
   return !automated||verified||progressed;
 }
@@ -490,10 +490,10 @@ async function markStatus(id,status){
 
 async function runFind(){
   const skill=$('findSkill').value,niche=$('findNiche').value.trim(),location=$('findLocation').value.trim(),offer=$('findOffer').value.trim(),starter_price=$('findPrice').value.trim(),return_count=Number($('findCount').value);if(!skill||!niche||!location)return toast('Choose your skill, niche and city + country.',true);
-  const btn=$('runFind'),notice=$('findNotice');btn.disabled=true;btn.textContent='Researching…';notice.textContent='Fuse is screening each '+niche+' search for a publicly verified founder or decision-maker plus public ability-to-pay evidence of USD 500 or more. It will only return leads that pass both checks.';
+  const btn=$('runFind'),notice=$('findNotice');btn.disabled=true;btn.textContent='Researching…';notice.textContent='Fuse is searching each country separately for exact '+niche+' matches, with a public founder or decision-maker source. Ability-to-pay evidence ranks the strongest leads first.';
   try{
     const d=await api('client-discover',{skill,niche,location,offer,starter_price,return_count});
-    notice.innerHTML='<strong>'+d.added+' premium prospect'+(d.added===1?'':'s')+'</strong> added'+(d.credits_refunded?' · '+d.credits_refunded+' credits returned for unfilled places.':'')+'.<br><small>Every result has a public founder or decision-maker source and USD 500+ ability-to-pay evidence · '+esc(d.maps_provider||'SerpApi')+'</small>';
+    notice.innerHTML='<strong>'+d.added+' premium prospect'+(d.added===1?'':'s')+'</strong> added'+(d.credits_refunded?' · '+d.credits_refunded+' credits returned for unfilled places.':'')+'.<br><small>Exact-niche founder matches are ranked first · more public sources are available inside each lead · '+esc(d.maps_provider||'SerpApi')+'</small>';
     await loadAll();setTimeout(()=>{closeOverlay('findOverlay');renderClientDashboard();$('todayLeads')?.scrollIntoView({behavior:'smooth',block:'start'})},850)
   }catch(e){
     if(e.code==='SERPAPI_NOT_CONFIGURED')notice.innerHTML='<strong>SerpApi connection needed.</strong> Add SERPAPI_API_KEY in Vercel and redeploy.';
