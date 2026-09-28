@@ -332,6 +332,7 @@ function locationParts(location){
   return String(location||'').split(/[,;/]|\band\b/ig).map(x=>clean(x,120)).filter(Boolean).slice(0,5);
 }
 async function mapSearch(niche,location,key){
+  if(!key)return [];
   const markets=locationParts(location),terms=[niche,niche+' shop',niche+' store'].filter((v,i,a)=>v&&a.indexOf(v)===i);
   const requests=[];for(const market of markets.length?markets:[location])for(const term of terms)requests.push(serp({engine:'google_maps',type:'search',q:term+' in '+market,hl:'en'},key).catch(()=>({})));
   const responses=await Promise.all(requests),seen=new Set(),rows=[];
@@ -475,7 +476,7 @@ exports.handler=async(event)=>{
     const returnCount=[5,10,20].includes(Number(body.return_count))?Number(body.return_count):5;
     const credits=DISCOVERY_CREDITS[returnCount];
     const key=(process.env.SERPAPI_API_KEY||process.env.SERP_API_KEY||'').trim();
-    if(!key)return json(503,{error:'Fuse needs SerpApi before live prospect research can run. Add SERPAPI_API_KEY in Vercel.',code:'SERPAPI_NOT_CONFIGURED'});
+    if(!String(process.env.OPENAI_API_KEY||'').trim())return json(503,{error:'Fuse needs OPENAI_API_KEY before quality lead research can run. Add it to the Fuse Atelier Studio Vercel project.',code:'OPENAI_NOT_CONFIGURED'});
 
     const db=admin();
     const profileQ=await db.from('client_agent_profiles').select('memory_summary,profile_json,portfolio_urls').eq('user_id',user.id).maybeSingle();
@@ -503,6 +504,7 @@ exports.handler=async(event)=>{
 
     const baseMapRows=[...(await mapSearch(niche,location,key)),...(await webSearchCandidates(niche,location))];
     const aiResearch=await openAIResearchBatch({skill,niche,location,offer:agentOffer,candidates:baseMapRows});
+    if(aiResearch.error)throw new Error('OpenAI web research could not run: '+aiResearch.error);
     const aiRows=(aiResearch.leads||[]).map(lead=>aiPlace(lead,niche)).filter(Boolean);
     const mapRows=[...baseMapRows,...aiRows];
     const uniqueMapRows=mapRows.filter((place,index,all)=>all.findIndex(other=>(place.id&&other.id===place.id)||(!place.id&&domainFrom(place.websiteUri||'')&&domainFrom(other.websiteUri||'')===domainFrom(place.websiteUri||'')))===index).sort((a,b)=>scoreBase(b)-scoreBase(a));
