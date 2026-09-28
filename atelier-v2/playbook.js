@@ -24,30 +24,60 @@
 
 (async function guardPlaybookAccess(){
   const body=document.body;
-  const deadline=window.setTimeout(()=>{
-    if(body.classList.contains('checking-access')) deny('Your Playbook needs a quick refresh.','Your saved session took too long to respond. Reload the page to open your Playbook.','Reload Playbook');
-  },8000);
   const title=document.getElementById('accessTitle');
   const copy=document.getElementById('accessCopy');
   const action=document.getElementById('accessAction');
-  function deny(head,message,buttonText){
-    window.clearTimeout(deadline);
-    title.textContent=head;copy.textContent=message;action.textContent=buttonText||'Back to Fuse Atelier';
-    if(buttonText==='Reload Playbook'){action.href=window.location.href}else{action.href='/atelier-v2/home.html'}
-    action.classList.remove('hidden');body.classList.remove('checking-access');body.classList.add('access-denied');
-  }
+  let resolved=false;
+  const finish=(state,head,message,buttonText,href)=>{
+    if(resolved) return;
+    resolved=true;
+    window.clearTimeout(failsafe);
+    body.classList.remove('checking-access');
+    if(state==='ready'){
+      body.classList.add('access-ready');
+      return;
+    }
+    body.classList.add('access-denied');
+    title.textContent=head;
+    copy.textContent=message;
+    action.textContent=buttonText;
+    action.href=href;
+    action.classList.remove('hidden');
+  };
+  const deny=(head,message,buttonText='Back to Fuse Atelier',href='/atelier-v2/home.html')=>finish('denied',head,message,buttonText,href);
+  const failsafe=window.setTimeout(()=>{
+    deny('We could not finish the access check.','Your session did not respond in time. Please try once more; you will not be left waiting here.','Try again',window.location.href);
+  },5000);
   try{
-    const sb=supabase.createClient('https://rgbweaimkcndjznlazho.supabase.co','sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3');
-    const {data:{session},error:sessionError}=await sb.auth.getSession();
-    if(sessionError||!session)return deny('Sign in to open your Playbook.','Use the same email address you used when completing your purchase.','Go to Fuse Atelier');
+    if(!window.supabase||typeof window.supabase.createClient!=='function'){
+      throw new Error('Supabase did not load');
+    }
+    const sb=window.supabase.createClient('https://rgbweaimkcndjznlazho.supabase.co','sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3');
+    const sessionResult=await Promise.race([
+      sb.auth.getSession(),
+      new Promise((_,reject)=>window.setTimeout(()=>reject(new Error('Session check timed out')),3500))
+    ]);
+    const session=sessionResult&&sessionResult.data&&sessionResult.data.session;
+    if(sessionResult.error||!session){
+      return deny('Sign in to open your Playbook.','Use the same email address you used when completing your purchase.','Go to Fuse Atelier');
+    }
     const email=(session.user.email||'').trim().toLowerCase();
-    if(email==='riadigitals0@gmail.com'){window.clearTimeout(deadline);body.classList.remove('checking-access');body.classList.add('access-ready');return}
-    const {data:unlocks,error}=await sb.from('module_unlocks').select('module_key').eq('user_id',session.user.id);
-    if(error)throw error;
-    const owned=new Set((unlocks||[]).map(row=>row.module_key));
-    if(!owned.has('first-client-playbook')&&!owned.has('money')&&!owned.has('atelier-full')&&!owned.has('atelier-empire')) return deny('Your Playbook access is not active yet.','If you have purchased, contact Coach Ria with the purchase email you used so your access can be added.');
-    window.clearTimeout(deadline);body.classList.remove('checking-access');body.classList.add('access-ready');
-  }catch(error){deny('We could not confirm your access.','Please reload once, or return to Fuse Atelier and sign in again.')}
+    if(email==='riadigitals0@gmail.com'){
+      return finish('ready');
+    }
+    const unlockResult=await Promise.race([
+      sb.from('module_unlocks').select('module_key').eq('user_id',session.user.id),
+      new Promise((_,reject)=>window.setTimeout(()=>reject(new Error('Access check timed out')),3500))
+    ]);
+    if(unlockResult.error) throw unlockResult.error;
+    const owned=new Set((unlockResult.data||[]).map(row=>row.module_key));
+    if(!owned.has('first-client-playbook')&&!owned.has('money')&&!owned.has('atelier-full')&&!owned.has('atelier-empire')){
+      return deny('Your Playbook access is not active yet.','If you have purchased, contact Coach Ria with the purchase email you used so your access can be added.');
+    }
+    finish('ready');
+  }catch(error){
+    deny('We could not confirm your access.','Please try again. If it still does not open, return to Fuse Atelier and sign in again.','Try again',window.location.href);
+  }
 })();
 
 // Day 2 WhatsApp-style voice note
