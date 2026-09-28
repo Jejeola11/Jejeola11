@@ -98,5 +98,5 @@ document.querySelectorAll('[data-audio-player]').forEach(player=>{
   };
   play.addEventListener('click',async()=>{if(audio.paused){try{await audio.play()}catch(e){}}else audio.pause();});
   audio.addEventListener('play',()=>setState(true));audio.addEventListener('pause',()=>setState(false));audio.addEventListener('ended',()=>{setState(false);render();});audio.addEventListener('timeupdate',render);audio.addEventListener('loadedmetadata',render);
-  wave.addEventListener('click',event=>{if(!audio.duration)return;const box=wave.getBoundingClientRect();audio.currentTime=Math.max(0,Math.min(audio.duration,((event.clientX-box.left)/box.width)*audio.duration);render();});
+  wave.addEventListener('click',event=>{if(!audio.duration)return;const box=wave.getBoundingClientRect();audio.currentTime=Math.max(0,Math.min(audio.duration,((event.clientX-box.left)/box.width)*audio.duration));render();});
 });
