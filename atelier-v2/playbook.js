@@ -43,3 +43,22 @@
     body.classList.remove('checking-access');body.classList.add('access-ready');
   }catch(error){deny('We could not confirm your access.','Please reload once, or return to Fuse Atelier and sign in again.')}
 })();
+
+// Day 2 WhatsApp-style voice note
+document.querySelectorAll('[data-audio-player]').forEach(player=>{
+  const audio=player.querySelector('audio'), play=player.querySelector('.voice-play'), wave=player.querySelector('.voice-wave'), time=player.querySelector('.voice-time'), bars=[...wave.querySelectorAll('i')];
+  const format=seconds=>{ if(!Number.isFinite(seconds)) return '0:00'; const mins=Math.floor(seconds/60); return mins+':'+String(Math.floor(seconds%60)).padStart(2,'0'); };
+  const render=()=>{
+    const ratio=audio.duration?audio.currentTime/audio.duration:0;
+    bars.forEach((bar,index)=>bar.classList.toggle('played',index<(ratio*bars.length)));
+    wave.setAttribute('aria-valuenow',String(Math.round(ratio*100)));
+    time.textContent=format(audio.currentTime);
+  };
+  const setState=playing=>{
+    play.classList.toggle('is-playing',playing);wave.classList.toggle('is-playing',playing);
+    play.setAttribute('aria-label',playing?'Pause Day 2 voice note':'Play Day 2 voice note');
+  };
+  play.addEventListener('click',async()=>{if(audio.paused){try{await audio.play()}catch(e){}}else audio.pause();});
+  audio.addEventListener('play',()=>setState(true));audio.addEventListener('pause',()=>setState(false));audio.addEventListener('ended',()=>{setState(false);render();});audio.addEventListener('timeupdate',render);audio.addEventListener('loadedmetadata',render);
+  wave.addEventListener('click',event=>{if(!audio.duration)return;const box=wave.getBoundingClientRect();audio.currentTime=Math.max(0,Math.min(audio.duration,((event.clientX-box.left)/box.width)*audio.duration);render();});
+});
