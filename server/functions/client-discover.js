@@ -62,11 +62,23 @@ function savedProspectKey(p){
 function isNigeriaLocation(location){return /\bnigeria\b|\blagos\b|\babuja\b|\bport harcourt\b|\bibenin\b|\bibadan\b/i.test(String(location||''))}
 function fundingFloor(location){return 500}
 function moneyAmount(raw){
-  const s=String(raw||'').replace(/,/g,'').trim();
-  const m=s.match(/(?:US\$|USD|\$|£|€|₦)?\s*(\d+(?:\.\d+)?)\s*([kKmMbB])?/);
+  const s=String(raw||'').replace(/,/g,' ').trim();
+  // A year such as "2020" is never money. Accept only an explicit currency or
+  // shorthand such as 2k/1.5m.
+  const m=s.match(/(?:US\$|USD|\$|£|€|₦)\s*(\d+(?:\.\d+)?)\s*([kKmMbB])?\b|\b(\d+(?:\.\d+)?)\s*([kKmMbB])\b/i);
   if(!m)return 0;
-  const n=Number(m[1]||0),unit=(m[2]||'').toLowerCase();
+  const n=Number(m[1]||m[3]||0),unit=String(m[2]||m[4]||'').toLowerCase();
   return n*(unit==='k'?1000:unit==='m'?1000000:unit==='b'?1000000000:1);
+}
+function nicheMatches(text,niche){
+  const hay=textNorm(text),want=textNorm(niche);
+  const groups=[];
+  if(/muslim|islamic|modest|hijab|abaya|niqab/.test(want))groups.push(/\b(muslim|islamic|modest|hijab|abaya|niqab)\b/);
+  if(/female|women|woman|ladies|girl/.test(want))groups.push(/\b(women|woman|female|ladies|lady|girls|girl)\b/);
+  if(/fashion|cloth|apparel|wear|boutique|dress|garment/.test(want))groups.push(/\b(fashion|clothing|apparel|wear|boutique|dress|garment|abaya|hijab)\b/);
+  // If the student entered a specific audience, every requested concept must be
+  // visible in the brand's public website or public business description.
+  return groups.length?groups.every(re=>re.test(hay)):true;
 }
 function isLikelyPersonName(name,business){
   const value=clean(name,180).replace(/\s+/g,' ');
@@ -84,8 +96,10 @@ function founderEvidence(text,business){
     /([A-Z][a-z.'-]+(?:\s+[A-Z][a-z.'-]+){1,3})\s*(?:,|—|-|\|)\s*(?:[Cc]o-?[Ff]ounder|[Ff]ounder|[Oo]wner|CEO|Chief Executive)/,
     /(?:[Ff]ounded by|[Ff]ounder(?: and CEO)?(?: is|:|-)?|[Cc]o-?[Ff]ounder(?: is|:|-)?|[Oo]wner(?: is|:|-)?|CEO(?: is|:|-)?|Chief Executive(?: Officer)?(?: is|:|-)?)\s*([A-Z][a-z.'-]+(?:\s+[A-Z][a-z.'-]+){1,3})/
   ];
-  for(const line of lines){
-    if(!role.test(line)||line.length>360)continue;
+  for(let index=0;index<lines.length;index++){
+    const line=lines[index],context=lines.slice(Math.max(0,index-1),index+2).join(' ');
+    // Do not attach a founder mentioned elsewhere on a search-result page to this brand.
+    if(!mentionsBusiness(business,context)||!role.test(line)||line.length>360)continue;
     for(const pattern of patterns){
       const name=(line.match(pattern)||[])[1]||'';
       if(isLikelyPersonName(name,business))return {name:clean(name,180),title:(line.match(role)||[])[1]||''};
@@ -117,7 +131,7 @@ async function fundingLookup(name,location){
 }
 function askFirstFor(x,skill){
   const who=x.founder&&x.founder.name?x.founder.name:x.name;
-  const observed=x.signal&&x.signal.summary?x.signal.summary:(x.whyNow||'what you are currently promoting');
+  const observed=x.signal&&x.signal.summary?x.signal.summary:'a current update from '+x.name;
   const gap=x.gap||('a focused '+skill+' idea connected to that activity');
   return 'Hi '+who+', I came across '+observed+'. I noticed '+gap.charAt(0).toLowerCase()+gap.slice(1)+' I have an idea for '+skill+' that could make that campaign/customer journey clearer. Would you be open to seeing a quick concept?';
 }
@@ -309,7 +323,7 @@ async function firecrawlWebsiteResearch(x,location){
     };
     const founder=founderFromText(text,x.name);
     const sources=all.map((p,i)=>p.url?{label:i?'Firecrawl: public business page':'Firecrawl: website',url:p.url}:null).filter(Boolean);
-    return {contact,founder,signal:publicPromotionSignal(text,home.url||x.place.websiteUri),sources};
+    return {contact,founder,signal:publicPromotionSignal(text,home.url||x.place.websiteUri),nicheText:clean(text,24000),sources};
   }catch(e){
     console.warn('[firecrawl website]',e&&e.message||e);
     return {contact:{},founder:{},signal:null,sources:[]};
@@ -324,7 +338,8 @@ async function firecrawlFounderLookup(name,location){
       if(!mentionsBusiness(name,text))continue;
       const linked=socialLink([row.url,text].join(' '),'linkedin');
       const found=founderFromText(text,name);
-      if(found.name||linked)return {name:found.name||'',title:clean(found.title,180),linkedin:linked&&/linkedin\.com\/in\//i.test(linked)?linked:'',source:row.url||linked||''};
+      // A social-link result without an explicitly named founder is not evidence.
+      if(found.name)return {name:found.name,title:clean(found.title,180),linkedin:linked&&/linkedin\.com\/in\//i.test(linked)?linked:'',source:row.url||linked||''};
     }
     return {name:'',title:'',linkedin:'',source:''};
   }catch(e){
@@ -332,7 +347,7 @@ async function firecrawlFounderLookup(name,location){
     return {name:'',title:'',linkedin:'',source:''};
   }
 }
-async function finishEnrichment(x,skill,location,key){
+async function finishEnrichment(x,skill,location,niche,key){
   const [serpFounder,webResearch,webFounder,funding]=await Promise.all([
     founderLookup(x.name,location,x.domain,key).catch(()=>({name:'',title:'',linkedin:'',source:''})),
     firecrawlWebsiteResearch(x,location),
@@ -343,13 +358,14 @@ async function finishEnrichment(x,skill,location,key){
   const contact={...x.contact,email:fcContact.email||x.contact.email||'',phone:fcContact.phone||x.contact.phone||'',instagram:fcContact.instagram||x.contact.instagram||'',linkedin_company:fcContact.linkedin_company||x.contact.linkedin_company||''};
   const founder={name:webFounder.name||serpFounder.name||webResearch.founder?.name||'',title:webFounder.title||serpFounder.title||webResearch.founder?.title||'',linkedin:webFounder.linkedin||serpFounder.linkedin||'',source:webFounder.source||serpFounder.source||''};
   const signal=x.signal||webResearch.signal||null;
-  // A premium lead must have both a real decision-maker and public proof of at
-  // least USD 500 commercial ability to pay, whatever the country or niche.
+  const nicheVerified=nicheMatches([x.name,x.place.types,x.place.websiteUri,webResearch.nicheText||''].join(' '),niche);
+  // A premium lead must meet the student’s exact niche, have a genuine public
+  // founder source, a USD 500+ commercial signal and a current reason to approach.
   const decisionMakerVerified=!!(founder.name&&(founder.linkedin||founder.source));
-  const verified=decisionMakerVerified&&!!funding.qualifies;
+  const verified=decisionMakerVerified&&nicheVerified&&!!funding.qualifies&&!!signal;
   const offer=tailoredOfferFor(x,skill,x.agentOffer||'');
   const gap=tailoredGapFor(x,skill);
-  let score=x.score+(founder.linkedin?12:0)+(founder.name?10:0)+(fcContact.email?6:0)+(funding.qualifies?35:-35)+(signal?12:0);
+  let score=x.score+(founder.linkedin?12:0)+(founder.name?10:0)+(fcContact.email?6:0)+(funding.qualifies?35:-35)+(signal?16:-35)+(nicheVerified?16:-45);
   score=Math.max(1,Math.min(100,score));
   const sources=[];
   if(x.place.googleMapsUri)sources.push({label:'Google Maps',url:x.place.googleMapsUri});
@@ -360,8 +376,8 @@ async function finishEnrichment(x,skill,location,key){
   if(founder.source)sources.push({label:'Founder / decision-maker',url:founder.source});
   if(contact.instagram)sources.push({label:'Instagram',url:contact.instagram});
   const unique=sources.filter((source,i,all)=>source&&source.url&&all.findIndex(item=>item.url===source.url)===i);
-  const whyNow=[funding&&funding.summary,signal&&signal.summary].filter(Boolean).join(' · ')||'No verified current commercial signal was found.';
-  return {...x,contact,founder,signal,funding,offer,gap,whyNow,readiness:verified?'strong':'rejected',verified,score,sources:unique,firecrawl_used:firecrawl.enabled()};
+  const whyNow=[signal&&signal.summary,funding&&funding.summary].filter(Boolean).join(' · ')||'No verified current commercial signal was found.';
+  return {...x,contact,founder,signal,funding,niche_verified:nicheVerified,offer,gap,whyNow,readiness:verified?'strong':'rejected',verified,score,sources:unique,firecrawl_used:firecrawl.enabled()};
 }
 exports.handler=async(event)=>{
   let charged=false,chargedDb=null,chargedUser=null,chargedCredits=0;
@@ -410,7 +426,7 @@ exports.handler=async(event)=>{
     // does not turn a requested batch of five into an empty one.
     const shortlist=stageOne.filter(x=>x.qualifies).sort((a,b)=>b.score-a.score)
       .slice(0,Math.min(candidates.length,Math.max(returnCount*2,returnCount+5)));
-    const enriched=(await Promise.all(shortlist.map(x=>finishEnrichment(x,skill,location,key)))).sort((a,b)=>b.score-a.score);
+    const enriched=(await Promise.all(shortlist.map(x=>finishEnrichment(x,skill,location,niche,key)))).sort((a,b)=>b.score-a.score);
     // High-quality mode: never fill a batch with an unverified business. A lead must
     // have a real public founder/decision-maker source and USD 500+ ability-to-pay evidence.
     const qualified=enriched.filter(x=>x.verified);
@@ -452,6 +468,7 @@ exports.handler=async(event)=>{
           decision_maker_verified:!!x.founder.name,
           funding_verified:!!(x.funding&&x.funding.qualifies),
           ability_to_pay_verified:!!(x.funding&&x.funding.qualifies),
+          niche_verified:!!x.niche_verified,
           funding_floor_usd:500,
           funding_amount_usd:x.funding&&x.funding.amount||0,
           verified_current_reason:x.readiness==='strong',provider:firecrawl.enabled()?'SerpApi + Firecrawl':'SerpApi'
