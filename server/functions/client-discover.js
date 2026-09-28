@@ -246,30 +246,28 @@ function publicPromotionSignal(text,url){
   const hit=lines.find(x=>/(new arrival|new collection|now available|just launched|shop now|limited|sale|offer|discount|book now|pre-?order|launch)/i.test(x)&&x.length>18);
   return hit?{summary:'Public website promotion: '+hit,url:clean(url,1200)}:null;
 }
+function locationParts(location){
+  return String(location||'').split(/[,;/]|\band\b/ig).map(x=>clean(x,120)).filter(Boolean).slice(0,5);
+}
 async function mapSearch(niche,location,key){
-  // One Maps query can be very narrow. Search nearby wording too so "find 5 more"
-  // keeps looking for new businesses rather than stopping at the same first few.
-  const terms=[niche,niche+' shop',niche+' store'].filter((v,i,a)=>v&&a.indexOf(v)===i);
-  const responses=await Promise.all(terms.map(q=>serp({engine:'google_maps',type:'search',q:q+' in '+location,hl:'en'},key).catch(()=>({}))));
+  const markets=locationParts(location),terms=[niche,niche+' shop',niche+' store'].filter((v,i,a)=>v&&a.indexOf(v)===i);
+  const requests=[];for(const market of markets.length?markets:[location])for(const term of terms)requests.push(serp({engine:'google_maps',type:'search',q:term+' in '+market,hl:'en'},key).catch(()=>({})));
+  const responses=await Promise.all(requests),seen=new Set(),rows=[];
+  for(const d of responses)for(const x of (Array.isArray(d.local_results)?d.local_results:[])){
+    const id=clean(x.place_id||x.data_id,220),rowKey=id||('brand:'+textNorm(x.title)+'|'+textNorm(x.address));
+    if(!rowKey||seen.has(rowKey))continue;seen.add(rowKey);
+    rows.push({id,displayName:{text:clean(x.title,180)},formattedAddress:clean(x.address,240),nationalPhoneNumber:clean(x.phone,80),websiteUri:clean(x.website,700),rating:Number.isFinite(Number(x.rating))?Number(x.rating):null,userRatingCount:Number.isFinite(Number(x.reviews))?Number(x.reviews):null,googleMapsUri:x.place_id?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(clean(x.title,180)+' '+clean(x.address,240))+'&query_place_id='+encodeURIComponent(x.place_id):clean(x.links&&x.links.directions,900),businessStatus:clean(x.open_state,80),types:[clean(x.type,120)].filter(Boolean)});
+  }
+  return rows;
+}
+async function webSearchCandidates(niche,location){
+  if(!firecrawl.enabled())return [];
+  const markets=locationParts(location),all=await Promise.all((markets.length?markets:[location]).map(m=>firecrawl.search(niche+' '+m+' official website',{location:m,limit:10}).catch(()=>[])));
   const seen=new Set(),rows=[];
-  for(const d of responses){
-    for(const x of (Array.isArray(d.local_results)?d.local_results:[])){
-      const id=clean(x.place_id||x.data_id,220);
-      const key=id||('brand:'+textNorm(x.title)+'|'+textNorm(x.address));
-      if(!key||seen.has(key))continue;seen.add(key);
-      rows.push({
-        id,
-        displayName:{text:clean(x.title,180)},
-        formattedAddress:clean(x.address,240),
-        nationalPhoneNumber:clean(x.phone,80),
-        websiteUri:clean(x.website,700),
-        rating:Number.isFinite(Number(x.rating))?Number(x.rating):null,
-        userRatingCount:Number.isFinite(Number(x.reviews))?Number(x.reviews):null,
-        googleMapsUri:x.place_id?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(clean(x.title,180)+' '+clean(x.address,240))+'&query_place_id='+encodeURIComponent(x.place_id):clean(x.links&&x.links.directions,900),
-        businessStatus:clean(x.open_state,80),
-        types:[clean(x.type,120)].filter(Boolean)
-      });
-    }
+  for(const list of all.flat())for(const row of list||[]){
+    const url=clean(row&&row.url,1000),domain=domainFrom(url),title=clean(row&&row.title,220),name=clean(title.split(/[|—–-]/)[0],180);
+    if(!url||!domain||!name||seen.has(domain))continue;seen.add(domain);
+    rows.push({id:'web:'+domain,displayName:{text:name},formattedAddress:'',nationalPhoneNumber:'',websiteUri:url,rating:null,userRatingCount:null,googleMapsUri:'',businessStatus:'',types:[niche,clean(row.description,420)].filter(Boolean)});
   }
   return rows;
 }
@@ -359,13 +357,12 @@ async function finishEnrichment(x,skill,location,niche,key){
   const founder={name:webFounder.name||serpFounder.name||webResearch.founder?.name||'',title:webFounder.title||serpFounder.title||webResearch.founder?.title||'',linkedin:webFounder.linkedin||serpFounder.linkedin||'',source:webFounder.source||serpFounder.source||''};
   const signal=x.signal||webResearch.signal||null;
   const nicheVerified=nicheMatches([x.name,x.place.types,x.place.websiteUri,webResearch.nicheText||''].join(' '),niche);
-  // A premium lead must meet the student’s exact niche, have a genuine public
-  // founder source, a USD 500+ commercial signal and a current reason to approach.
   const decisionMakerVerified=!!(founder.name&&(founder.linkedin||founder.source));
-  const verified=decisionMakerVerified&&nicheVerified&&!!funding.qualifies&&!!signal;
+  // Ability-to-pay proof improves ranking; it does not erase a genuine match.
+  const verified=decisionMakerVerified&&nicheVerified&&!!signal;
   const offer=tailoredOfferFor(x,skill,x.agentOffer||'');
   const gap=tailoredGapFor(x,skill);
-  let score=x.score+(founder.linkedin?12:0)+(founder.name?10:0)+(fcContact.email?6:0)+(funding.qualifies?35:-35)+(signal?16:-35)+(nicheVerified?16:-45);
+  let score=x.score+(founder.linkedin?12:0)+(founder.name?10:0)+(fcContact.email?6:0)+(funding.qualifies?25:0)+(signal?20:-25)+(nicheVerified?20:-70);
   score=Math.max(1,Math.min(100,score));
   const sources=[];
   if(x.place.googleMapsUri)sources.push({label:'Google Maps',url:x.place.googleMapsUri});
@@ -377,7 +374,7 @@ async function finishEnrichment(x,skill,location,niche,key){
   if(contact.instagram)sources.push({label:'Instagram',url:contact.instagram});
   const unique=sources.filter((source,i,all)=>source&&source.url&&all.findIndex(item=>item.url===source.url)===i);
   const whyNow=[signal&&signal.summary,funding&&funding.summary].filter(Boolean).join(' · ')||'No verified current commercial signal was found.';
-  return {...x,contact,founder,signal,funding,niche_verified:nicheVerified,offer,gap,whyNow,readiness:verified?'strong':'rejected',verified,score,sources:unique,firecrawl_used:firecrawl.enabled()};
+  return {...x,contact,founder,signal,funding,niche_verified:nicheVerified,decision_maker_verified:decisionMakerVerified,offer,gap,whyNow,readiness:verified?(funding.qualifies?'strong':'research_verified'):'rejected',verified,score,sources:unique,firecrawl_used:firecrawl.enabled()};
 }
 exports.handler=async(event)=>{
   let charged=false,chargedDb=null,chargedUser=null,chargedCredits=0;
@@ -416,20 +413,20 @@ exports.handler=async(event)=>{
     }).select('id').single();
     if(request.error){await db.rpc('add_credits',{uid:user.id,amount:credits,why:'client_discovery_refund'});charged=false;throw request.error}
 
-    const mapRows=(await mapSearch(niche,location,key)).sort((a,b)=>scoreBase(b)-scoreBase(a));
-    // Never spend a new search on a lead already saved in this student's workspace.
-    const freshMapRows=mapRows.filter(place=>!existingKeys.has(canonicalKey({place,name:clean(place.displayName&&place.displayName.text,180),domain:domainFrom(place.websiteUri||'')})));
-    const candidates=freshMapRows.slice(0,returnCount===5?24:returnCount===10?40:60);
+    const mapRows=[...(await mapSearch(niche,location,key)),...(await webSearchCandidates(niche,location))];
+    const uniqueMapRows=mapRows.filter((place,index,all)=>all.findIndex(other=>(place.id&&other.id===place.id)||(!place.id&&domainFrom(place.websiteUri||'')&&domainFrom(other.websiteUri||'')===domainFrom(place.websiteUri||'')))===index).sort((a,b)=>scoreBase(b)-scoreBase(a));
+    const freshMapRows=uniqueMapRows.filter(place=>!existingKeys.has(canonicalKey({place,name:clean(place.displayName&&place.displayName.text,180),domain:domainFrom(place.websiteUri||'')})));
+    const candidates=freshMapRows.slice(0,returnCount===5?36:returnCount===10?60:90);
     const stageOne=await Promise.all(candidates.map(p=>enrichStageOne(p,skill,location,niche,key)));
     stageOne.forEach(x=>{x.agentOffer=agentOffer});
     // Research extra candidates so a business already reserved for another student
     // does not turn a requested batch of five into an empty one.
     const shortlist=stageOne.filter(x=>x.qualifies).sort((a,b)=>b.score-a.score)
-      .slice(0,Math.min(candidates.length,Math.max(returnCount*2,returnCount+5)));
+      .slice(0,Math.min(candidates.length,Math.max(returnCount*5,returnCount+15)));
     const enriched=(await Promise.all(shortlist.map(x=>finishEnrichment(x,skill,location,niche,key)))).sort((a,b)=>b.score-a.score);
-    // High-quality mode: never fill a batch with an unverified business. A lead must
-    // have a real public founder/decision-maker source and USD 500+ ability-to-pay evidence.
-    const qualified=enriched.filter(x=>x.verified);
+    const primary=enriched.filter(x=>x.verified);
+    const fallback=enriched.filter(x=>!x.verified&&x.niche_verified&&x.decision_maker_verified&&!!(x.contact.email||x.contact.instagram||x.place.nationalPhoneNumber||x.place.websiteUri));
+    const qualified=[...primary,...fallback];
 
     const rows=[];let globallyReserved=0;
     for(const [idx,x] of qualified.entries()){
