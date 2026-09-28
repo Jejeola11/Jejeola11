@@ -45,11 +45,16 @@ exports.handler = async (event) => {
   const country = clean(body.country, 100);
   const phone_e164 = normalizePhone(body.phone_e164);
   const browser_token = clean(body.browser_token, 120);
+  const requested_lead_type = clean(body.lead_type, 40);
+  const lead_type = 'playbook';
   const source = clean(body.source, 500);
   const utm_campaign = clean(body.utm_campaign, 160);
-  const lead_type = ['playbook', 'code-vault'].includes(clean(body.lead_type, 40))
-    ? clean(body.lead_type, 40)
-    : 'playbook';
+  const biggest_struggle = clean(
+    body.biggest_struggle || (requested_lead_type === 'code-vault'
+      ? 'Accessing Director Ria code vault resources'
+      : 'Accessing the First Client Playbook'),
+    160
+  );
 
   if (!first_name || !country || !phone_e164 || !browser_token || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email_normalized)) {
     return response(event, 400, { error: 'Please enter your name, a valid email, country and WhatsApp number.' });
@@ -60,13 +65,12 @@ exports.handler = async (event) => {
     .from('phone_to_client_leads')
     .select('id, browser_token')
     .eq('email_normalized', email_normalized)
-    .eq('lead_type', lead_type)
     .maybeSingle();
   if (lookupError) return response(event, 500, { error: 'We could not save your details right now. Please try again.' });
 
   const lead = {
     first_name, email, email_normalized, whatsapp: phone_e164, phone_e164, country,
-    lead_type, browser_token, source, utm_campaign, updated_at: new Date().toISOString()
+    biggest_struggle, lead_type, browser_token, source, utm_campaign, updated_at: new Date().toISOString()
   };
   const write = existing
     ? db.from('phone_to_client_leads').update(lead).eq('id', existing.id)
