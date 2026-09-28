@@ -24,6 +24,8 @@
 
 (async function guardPlaybookAccess(){
   const body=document.body;
+  // The Playbook itself must remain usable even when an auth service is slow or unavailable.
+  if(!body.classList.contains('checking-access')) return;
   const title=document.getElementById('accessTitle');
   const copy=document.getElementById('accessCopy');
   const action=document.getElementById('accessAction');
