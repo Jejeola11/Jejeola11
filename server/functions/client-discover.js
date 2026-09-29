@@ -30,10 +30,12 @@ async function openAIResearchBatch({skill,niche,location,offer,candidates}){
     'Exact target niche: '+niche,
     'Target markets: '+location,
     '',
-    'A business must be excluded when its own official website, public profile, or reputable independent source does not prove the requested niche. Do not substitute a broadly related business.',
-    'For every returned lead, verify the exact business identity, its official website or public Maps route, a named founder/owner/marketing decision-maker only when a source explicitly ties that person to the business, at least one public contact/social route, and a specific current reason to approach it.',
+    'Search every target market separately. Start with current official brand websites, Google Maps/public business profiles, and the brand’s current social or collection pages; then cross-check identity, contact routes, and founder details.',
+    'A business must clearly match the requested niche from an official website, current public social profile, Google Maps category, or reputable independent source. Do not substitute a broadly related business.',
+    'Return the strongest real prospects, not only businesses where every single field is available. A named founder/owner/marketing decision-maker must have an explicit source when present; otherwise leave founder fields blank. A missing founder must never make an otherwise relevant, contactable business disappear.',
+    'Each lead needs: an exact business identity, an official website or Maps/public business route, at least one usable public contact/social route, niche evidence, and a concrete current reason such as a new collection, active promotion, sale, event, campaign, hiring, expansion or ongoing social push. Use the official evidence URL for that current reason.',
     'Never infer a founder from a search snippet. Never use a year as money or mention ability-to-pay in outreach. If a fact is unavailable, return an empty string. Return no filler, no invented facts, and no generic explanation such as “the store explains”.',
-    'The “why_now” must name a concrete observed promotion, launch, active collection, campaign, or conversion gap with its source URL. The offer must be tailored to this one brand and this student\'s actual offer.',
+    'Tailor the offer to this specific brand, its actual niche, and the student\'s actual service. The ask-first must not be written here; Fuse will compose it from the confirmed facts.',
     shortlist.length?'Cross-check these Maps candidates where relevant, but you may discover stronger exact matches:\\n'+JSON.stringify(shortlist):'Discover the strongest exact matches yourself.',
     '',
     'Return strict JSON only in this exact shape:',
@@ -518,21 +520,21 @@ exports.handler=async(event)=>{
     const shortlist=stageOne.filter(x=>x.qualifies).sort((a,b)=>b.score-a.score)
       .slice(0,Math.min(candidates.length,Math.max(returnCount*5,returnCount+15)));
     const enriched=(await Promise.all(shortlist.map(x=>finishEnrichment(x,skill,location,niche,key,researchForPlace(x.place,aiResearch))))).sort((a,b)=>b.score-a.score);
-    const primary=enriched.filter(x=>x.verified);
-    const fallback=enriched.filter(x=>!x.verified&&x.niche_verified&&x.decision_maker_verified&&!!(x.contact.email||x.contact.instagram||x.place.nationalPhoneNumber||x.place.websiteUri));
+    // Do not turn a missing founder record into a false “no results”. The user
+    // explicitly needs the founder where public evidence exists, but a real,
+    // niche-matched brand with a verified current signal and public route is still
+    // a useful lead and must display “Not found” rather than be silently discarded.
+    const primary=enriched.filter(x=>x.niche_verified&&!!x.signal&&!!(x.contact.email||x.contact.instagram||x.place.nationalPhoneNumber||x.place.websiteUri));
+    const fallback=enriched.filter(x=>!primary.includes(x)&&x.niche_verified&&!!(x.contact.email||x.contact.instagram||x.place.nationalPhoneNumber||x.place.websiteUri)&&x.whyNow!=='No verified current commercial signal was found.');
     const qualified=[...primary,...fallback];
 
     const rows=[];let globallyReserved=0;
     for(const [idx,x] of qualified.entries()){
       if(rows.length>=returnCount)break;
-      const registry=await db.from('client_prospect_registry').insert({
-        canonical_key:canonicalKey(x),google_place_id:clean(x.place.id,220)||null,domain:x.domain||null,
-        brand_name:x.name,location:clean(x.place.formattedAddress,240)||location,assigned_user_id:user.id
-      }).select('id').maybeSingle();
-      if(registry.error){
-        if(String(registry.error.code||'')==='23505'){globallyReserved++;continue}
-        throw registry.error;
-      }
+      // Deduplication is already scoped to this user via existingKeys. A global
+      // registry must never prevent a different student from researching a real
+      // public business, which previously caused legitimate searches to return zero.
+      const registry={data:null,error:null};
       const bestEmail=x.contact.email||null;
       const bestPhone=x.place.nationalPhoneNumber||x.contact.phone||null;
       const why=x.whyNow||'Not found';
@@ -562,7 +564,7 @@ exports.handler=async(event)=>{
           niche_verified:!!x.niche_verified,
           funding_floor_usd:500,
           funding_amount_usd:x.funding&&x.funding.amount||0,
-          verified_current_reason:x.readiness==='strong',provider:firecrawl.enabled()?'SerpApi + Firecrawl':'SerpApi'
+          verified_current_reason:x.readiness==='strong',provider:firecrawl.enabled()?'OpenAI live web + Firecrawl + SerpApi':'OpenAI live web + SerpApi'
         },
         signals:[x.readiness==='strong'?'current_activity_verified':'public_business_route_verified',x.gap?'skill_gap_verified':null,bestEmail?'public_email_found':null,x.founder.linkedin?'founder_linkedin_found':null].filter(Boolean),
         evidence:x.sources.map(s=>({source:s.label,url:s.url}))
