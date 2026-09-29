@@ -23,7 +23,7 @@ async function openAIResearchBatch({skill,niche,location,offer,candidates}){
     maps_url:safeUrl(p.googleMapsUri)
   })).filter(p=>p.business_name);
   const prompt=[
-    'You are Fuse Atelier\\'s public-web lead researcher. Use live web search now.',
+    'You are Fuse Atelier\'s public-web lead researcher. Use live web search now.',
     'Find and verify up to 12 real businesses that precisely match this student brief:',
     'Skill: '+skill,
     'Offer: '+offer,
@@ -33,7 +33,7 @@ async function openAIResearchBatch({skill,niche,location,offer,candidates}){
     'A business must be excluded when its own official website, public profile, or reputable independent source does not prove the requested niche. Do not substitute a broadly related business.',
     'For every returned lead, verify the exact business identity, its official website or public Maps route, a named founder/owner/marketing decision-maker only when a source explicitly ties that person to the business, at least one public contact/social route, and a specific current reason to approach it.',
     'Never infer a founder from a search snippet. Never use a year as money or mention ability-to-pay in outreach. If a fact is unavailable, return an empty string. Return no filler, no invented facts, and no generic explanation such as “the store explains”.',
-    'The “why_now” must name a concrete observed promotion, launch, active collection, campaign, or conversion gap with its source URL. The offer must be tailored to this one brand and this student\\'s actual offer.',
+    'The “why_now” must name a concrete observed promotion, launch, active collection, campaign, or conversion gap with its source URL. The offer must be tailored to this one brand and this student\'s actual offer.',
     shortlist.length?'Cross-check these Maps candidates where relevant, but you may discover stronger exact matches:\\n'+JSON.stringify(shortlist):'Discover the strongest exact matches yourself.',
     '',
     'Return strict JSON only in this exact shape:',
