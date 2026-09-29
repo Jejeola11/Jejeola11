@@ -57,7 +57,8 @@ module.exports = async function vercelHandler(req, res) {
     res.statusCode = 500;
     res.setHeader('content-type','application/json; charset=utf-8');
     return res.end(JSON.stringify({
-      error: 'We could not verify your access right now. Please use the same email address you used when purchasing Fuse Atelier, then try again.'
+      error: 'Fuse could not start this request. Please try again in a moment.',
+      code: 'API_RUNTIME_ERROR'
     }));
   }
 };
