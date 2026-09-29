@@ -63,7 +63,7 @@ function fmtMoney(value,currency='USD'){const n=Number(value||0);try{return new 
 function cleanUrl(v){try{const u=new URL(String(v||''));return /^https?:$/.test(u.protocol)?u.href:''}catch{return''}}
 function phoneUrl(v){const n=String(v||'').replace(/[^\d+]/g,'').replace(/^\+/,'');return n?'https://wa.me/'+n:''}
 function apiHeaders(){return state.session?{Authorization:'Bearer '+state.session.access_token,'Content-Type':'application/json'}:{'Content-Type':'application/json'}}
-async function api(name,body){const r=await fetch('/api/'+name,{method:'POST',headers:apiHeaders(),body:JSON.stringify(body||{}),signal:AbortSignal.timeout(60000)});let d={};try{d=await r.json()}catch{}if(!r.ok){const e=new Error(d.error||'Request failed.');e.code=d.code;e.data=d;throw e}return d}
+async function api(name,body,timeoutMs=60000){const r=await fetch('/api/'+name,{method:'POST',headers:apiHeaders(),body:JSON.stringify(body||{}),signal:AbortSignal.timeout(timeoutMs)});let d={};try{d=await r.json()}catch{}if(!r.ok){const e=new Error(d.error||'Request failed.');e.code=d.code;e.data=d;throw e}return d}
 function openOverlay(id){const el=$(id);el.classList.add('open');el.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'}
 function closeOverlay(id){const el=$(id);el.classList.remove('open');el.setAttribute('aria-hidden','true');if(!document.querySelector('.overlay.open'))document.body.style.overflow=''}
 function copyText(text){if(!text)return;navigator.clipboard?.writeText(text).then(()=>toast('Copied')).catch(()=>toast('Could not copy.',true))}
@@ -551,7 +551,7 @@ async function runFind(){
 }
 async function completeResearch(payload,job){
   try{
-    const d=await api('client-discover',payload);
+    const d=await api('client-discover',payload,180000);
     const added=Number(d.added||0);
     setResearchJob({...job,status:'ready',added,credits_refunded:Number(d.credits_refunded||0),finished_at:new Date().toISOString()});
     await loadAll();
