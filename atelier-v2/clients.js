@@ -19,10 +19,33 @@ const STAGES=[
   {key:'won',label:'Retainer'},
   {key:'lost',label:'Lost'}
 ];
-const state={session:null,prospects:[],proposals:[],contracts:[],retainers:[],jobs:[],activities:[],agentProfile:null,view:'overview',pipeline:'all',search:'',selected:null,agentOutput:null,retainerProspect:null,busy:false};
+const state={session:null,prospects:[],proposals:[],contracts:[],retainers:[],jobs:[],activities:[],agentProfile:null,view:'overview',pipeline:'all',search:'',selected:null,agentOutput:null,retainerProspect:null,busy:false,researchJob:null};
 let toastTimer;
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function toast(msg,bad=false){const el=$('toast');el.textContent=msg;el.className='toast show'+(bad?' bad':'');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.className='toast',3000)}
+const RESEARCH_JOB_KEY='fuse_client_research_job';
+function readResearchJob(){
+  try{
+    const job=JSON.parse(localStorage.getItem(RESEARCH_JOB_KEY)||'null');
+    if(!job||typeof job!=='object')return null;
+    if(job.status==='researching'&&Date.now()-Date.parse(job.started_at||0)>180000)return {...job,status:'error',error:'This search did not finish in this session. Tap to search again.'};
+    return job;
+  }catch{return null}
+}
+function setResearchJob(job){
+  state.researchJob=job||null;
+  try{if(job)localStorage.setItem(RESEARCH_JOB_KEY,JSON.stringify(job));else localStorage.removeItem(RESEARCH_JOB_KEY)}catch{}
+}
+function researchJobCard(){
+  const job=state.researchJob;if(!job)return'';
+  const count=Number(job.count)||5,unit='lead'+(count===1?'':'s');
+  if(job.status==='ready'){
+    if(Number(job.added||0)>0)return '<button type="button" class="research-status ready" id="researchStatusCard"><span class="research-mark">✓</span><span><small>RESEARCH READY</small><b>'+Number(job.added)+' tailored '+unit+' are ready to review</b><em>Tap to view the results Fuse saved for you.</em></span><strong>View results <i>→</i></strong></button>';
+    return '<button type="button" class="research-status error" id="researchStatusCard"><span class="research-mark">!</span><span><small>RESEARCH COMPLETE</small><b>No verified matches were added this time</b><em>Tap to refine the search and try again.</em></span><strong>Search again <i>→</i></strong></button>';
+  }
+  if(job.status==='error')return '<button type="button" class="research-status error" id="researchStatusCard"><span class="research-mark">!</span><span><small>RESEARCH PAUSED</small><b>Fuse could not finish this research</b><em>'+esc(job.error||'Tap to try this search again.')+'</em></span><strong>Try again <i>→</i></strong></button>';
+  return '<div class="research-status researching"><span class="research-mark spinner" aria-hidden="true"></span><span><small>FUSE IS RESEARCHING</small><b>Finding '+count+' tailored '+unit+'</b><em>Checking official websites, founder sources and current activity. You can keep using Fuse while this runs.</em></span><strong>Working</strong></div>';
+}
 function normalizeStatus(s='new'){
   const map={qualified:'audited',contacted:'asked',pitched:'asked',follow_up:'asked',proposal_ready:'agreed',audit_ready:'audited',loom_ready:'replied',loom_sent:'sample_sent'};
   return map[s]||s||'new';
@@ -65,6 +88,7 @@ async function boot(){
   const {data,error}=await sb.auth.getSession();
   if(error||!data.session){location.href='login.html';return}
   state.session=data.session;
+  state.researchJob=readResearchJob();
   try{
     await loadAll();
   }catch(loadError){
@@ -99,15 +123,15 @@ async function loadAll(){
 function renderAll(){renderClientDashboard();renderAgentMemory();renderStats();renderToday();renderActivities();renderProspects();renderPipeline();renderClients();renderJobs()}
 function renderClientDashboard(){
   const root=$('clientDashboard');if(!root)return;
-  const p=state.agentProfile?.profile_json||{};const onboarding=$('clientOnboarding');
+  const p=state.agentProfile?.profile_json||{};const onboarding=$('clientOnboarding');const researchCard=researchJobCard();
   if(!p.skill){root.style.display='none';if(onboarding){onboarding.style.display='grid';onboarding.classList.remove('saved-open')}return;}
   if(onboarding)onboarding.style.display='none';root.style.display='block';
   const prospects=visibleProspects().filter(x=>!['lost','won'].includes(normalizeStatus(x.status)));
   const active=prospects.length,ready=prospects.filter(x=>['new','audited'].includes(normalizeStatus(x.status))).length,contacted=prospects.filter(x=>['asked','replied','sample_ready','sample_sent','agreed','proposal_sent','deal_locked','contract_sent','contract_signed'].includes(normalizeStatus(x.status))).length;
   const offer=[p.work,p.niche,p.location].filter(Boolean).join(' · ')||'your saved offer';
   const leads=prospects.slice(0,5).map(x=>`<button type="button" class="lead-card" data-lead="${esc(x.id)}" aria-label="Open ${esc(x.brand_name)} lead"><span><b>${esc(x.brand_name)}</b><em>${esc(x.location||x.niche||'Saved prospect')}</em><small>${esc(x.visible_problem||'Open to see Fuse’s research and next action.')}</small></span><strong>${normalizeStatus(x.status)==='new'?'Why now':'Continue'} <i>›</i></strong></button>`).join('');
-  root.innerHTML=`<div class="today-page"><p class="today-kicker">YOUR PERSONAL CLIENT ENGINE AGENT</p><h1 class="today-title">Your next client<br><span>starts here.</span></h1><button class="today-action" id="dashFind"><small>TODAY’S FOCUS</small><b>${active?'Keep your client list fresh':'Find 5 qualified clients'}</b><em>${active?'Fuse will only add businesses with a real reason to contact them.':'Based on '+esc(offer)}</em><strong>${active?'Find 5 more':'Find 5'} <i>→</i></strong></button><section class="today-section"><div class="today-head"><h2>Your offer</h2><button id="dashEdit">Edit</button></div><button class="scout-strip" id="dashEdit2"><i aria-hidden="true"></i><span><b>${esc(p.work||p.skill||'Your saved offer')}</b><em>For ${esc(p.niche||'your target market')} · ${esc(p.location||'target location')}${p.price?' · '+esc(p.price):''}</em></span><strong>›</strong></button></section><section class="today-section"><div class="today-head"><h2>Client momentum</h2><button id="dashLeads">View leads</button></div><div class="momentum"><div><i></i><b>${active}</b><span>Found</span></div><div class="${ready?'active':''}"><i></i><b>${ready}</b><span>Ready</span></div><div><i></i><b>${contacted}</b><span>Pitched</span></div><div><i></i><b>${prospects.filter(x=>normalizeStatus(x.status)==='replied').length}</b><span>Replied</span></div><div><i></i><b>${state.prospects.filter(x=>normalizeStatus(x.status)==='won').length}</b><span>Won</span></div></div></section><section class="today-section" id="todayLeads"><div class="today-head"><h2>${active?'Your best next leads':'Your leads will appear here'}</h2>${active?'<button id="dashFindSmall">Find more</button>':''}</div><div class="today-leads">${leads||'<div class="today-empty"><b>Start with five.</b><span>Fuse will find the strongest businesses, their public contact route and why now.</span></div>'}</div></section><section class="today-tools"><button id="dashLeads2"><i>♧</i><span>Saved leads</span><b>${String(active).padStart(2,'0')}</b><strong>›</strong></button><button id="dashReply"><i>◌</i><span>Reply helper</span><b>Ask Fuse</b><strong>›</strong></button></section></div>`;
-  $('dashFind').onclick=openFind;$('dashEdit').onclick=$('dashEdit2').onclick=openMemory;$('dashLeads').onclick=$('dashLeads2').onclick=()=>$('todayLeads')?.scrollIntoView({behavior:'smooth',block:'start'});$('dashFindSmall')?.addEventListener('click',openFind);$('dashReply').onclick=()=>{if(prospects[0])openDetail(prospects[0].id);else openFind()};root.onclick=e=>{const card=e.target.closest('[data-lead]');if(card&&root.contains(card)){e.preventDefault();openDetail(card.dataset.lead)}};
+  root.innerHTML=`<div class="today-page"><p class="today-kicker">YOUR PERSONAL CLIENT ENGINE AGENT</p><h1 class="today-title">Your next client<br><span>starts here.</span></h1><button class="today-action" id="dashFind"><small>TODAY’S FOCUS</small><b>${active?'Keep your client list fresh':'Find 5 qualified clients'}</b><em>${active?'Fuse will only add businesses with a real reason to contact them.':'Based on '+esc(offer)}</em><strong>${active?'Find 5 more':'Find 5'} <i>→</i></strong></button>${researchCard}<section class="today-section"><div class="today-head"><h2>Your offer</h2><button id="dashEdit">Edit</button></div><button class="scout-strip" id="dashEdit2"><i aria-hidden="true"></i><span><b>${esc(p.work||p.skill||'Your saved offer')}</b><em>For ${esc(p.niche||'your target market')} · ${esc(p.location||'target location')}${p.price?' · '+esc(p.price):''}</em></span><strong>›</strong></button></section><section class="today-section"><div class="today-head"><h2>Client momentum</h2><button id="dashLeads">View leads</button></div><div class="momentum"><div><i></i><b>${active}</b><span>Found</span></div><div class="${ready?'active':''}"><i></i><b>${ready}</b><span>Ready</span></div><div><i></i><b>${contacted}</b><span>Pitched</span></div><div><i></i><b>${prospects.filter(x=>normalizeStatus(x.status)==='replied').length}</b><span>Replied</span></div><div><i></i><b>${state.prospects.filter(x=>normalizeStatus(x.status)==='won').length}</b><span>Won</span></div></div></section><section class="today-section" id="todayLeads"><div class="today-head"><h2>${active?'Your best next leads':'Your leads will appear here'}</h2>${active?'<button id="dashFindSmall">Find more</button>':''}</div><div class="today-leads">${leads||'<div class="today-empty"><b>Start with five.</b><span>Fuse will find the strongest businesses, their public contact route and why now.</span></div>'}</div></section><section class="today-tools"><button id="dashLeads2"><i>♧</i><span>Saved leads</span><b>${String(active).padStart(2,'0')}</b><strong>›</strong></button><button id="dashReply"><i>◌</i><span>Reply helper</span><b>Ask Fuse</b><strong>›</strong></button></section></div>`;
+  $('dashFind').onclick=openFind;$('dashEdit').onclick=$('dashEdit2').onclick=openMemory;$('researchStatusCard')?.addEventListener('click',()=>{const job=state.researchJob;if(job?.status==='ready'&&Number(job.added||0)>0){setResearchJob(null);renderClientDashboard();$('todayLeads')?.scrollIntoView({behavior:'smooth',block:'start'})}else if(job?.status!=='researching'){openFind()}});$('dashLeads').onclick=$('dashLeads2').onclick=()=>$('todayLeads')?.scrollIntoView({behavior:'smooth',block:'start'});$('dashFindSmall')?.addEventListener('click',openFind);$('dashReply').onclick=()=>{if(prospects[0])openDetail(prospects[0].id);else openFind()};root.onclick=e=>{const card=e.target.closest('[data-lead]');if(card&&root.contains(card)){e.preventDefault();openDetail(card.dataset.lead)}};
 }
 function renderAgentMemory(){
   const root=$('agentMemory');if(!root)return;const p=state.agentProfile?.profile_json||{};
@@ -133,6 +157,7 @@ function setFindCount(value){
   const run=$('runFind');if(run)run.innerHTML='Find my '+n+' client'+(n===1?'':'s')+' <span>→</span>';
 }
 function openFind(){
+  if(state.researchJob?.status==='researching'){toast('Fuse is already researching your leads. Check the research card on this page for progress.');return}
   const p=state.agentProfile?.profile_json||{};
   if(p.skill)$('findSkill').value=p.skill;
   if(p.work)$('findOffer').value=p.work;
@@ -489,16 +514,30 @@ async function markStatus(id,status){
 }
 
 async function runFind(){
-  const skill=$('findSkill').value,niche=$('findNiche').value.trim(),location=$('findLocation').value.trim(),offer=$('findOffer').value.trim(),starter_price=$('findPrice').value.trim(),return_count=Number($('findCount').value);if(!skill||!niche||!location)return toast('Choose your skill, niche and city + country.',true);
-  const btn=$('runFind'),notice=$('findNotice');btn.disabled=true;btn.textContent='Researching…';notice.textContent='Fuse is searching each country separately for exact '+niche+' matches, with a public founder or decision-maker source. Ability-to-pay evidence ranks the strongest leads first.';
+  if(state.researchJob?.status==='researching')return toast('Fuse is already researching your leads.');
+  const skill=$('findSkill').value,niche=$('findNiche').value.trim(),location=$('findLocation').value.trim(),offer=$('findOffer').value.trim(),starter_price=$('findPrice').value.trim(),return_count=Number($('findCount').value);
+  if(!skill||!niche||!location)return toast('Choose your skill, niche and city + country.',true);
+  const payload={skill,niche,location,offer,starter_price,return_count};
+  const job={status:'researching',count:return_count,niche,location,started_at:new Date().toISOString()};
+  setResearchJob(job);
+  closeOverlay('findOverlay');
+  renderClientDashboard();
+  window.scrollTo({top:0,behavior:'smooth'});
+  toast('Research started · Fuse will add the results here when they are ready.');
+  void completeResearch(payload,job);
+}
+async function completeResearch(payload,job){
   try{
-    const d=await api('client-discover',{skill,niche,location,offer,starter_price,return_count});
-    notice.innerHTML='<strong>'+d.added+' premium prospect'+(d.added===1?'':'s')+'</strong> added'+(d.credits_refunded?' · '+d.credits_refunded+' credits returned for unfilled places.':'')+'.<br><small>Exact-niche founder matches are ranked first · more public sources are available inside each lead · '+esc(d.maps_provider||'SerpApi')+'</small>';
-    await loadAll();setTimeout(()=>{closeOverlay('findOverlay');renderClientDashboard();$('todayLeads')?.scrollIntoView({behavior:'smooth',block:'start'})},850)
+    const d=await api('client-discover',payload);
+    const added=Number(d.added||0);
+    setResearchJob({...job,status:'ready',added,credits_refunded:Number(d.credits_refunded||0),finished_at:new Date().toISOString()});
+    await loadAll();
+    toast(added?added+' researched lead'+(added===1?' is':'s are')+' ready to review.':'Research finished without a verified match. Refine the search and try again.');
   }catch(e){
-    if(e.code==='SERPAPI_NOT_CONFIGURED')notice.innerHTML='<strong>SerpApi connection needed.</strong> Add SERPAPI_API_KEY in Vercel and redeploy.';
-    else notice.textContent=e.message;toast(e.message,true)
-  }finally{btn.disabled=false;btn.textContent='Research '+return_count+' · '+({5:20,10:40,20:80}[return_count])+' credits'}
+    setResearchJob({...job,status:'error',error:String(e?.message||'Research could not finish.'),finished_at:new Date().toISOString()});
+    renderClientDashboard();
+    toast(e.message||'Research could not finish.',true);
+  }
 }
 async function saveManual(){
   const brand=$('mBrand').value.trim();if(!brand)return toast('Enter the business name.',true);
