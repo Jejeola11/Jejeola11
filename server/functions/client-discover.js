@@ -49,8 +49,9 @@ async function openAIResearchBatch({skill,niche,location,offer,candidates}){
         model:process.env.OPENAI_CLIENT_RESEARCH_MODEL||'gpt-4.1-mini',
         tools:[{type:'web_search',external_web_access:true}],
         tool_choice:'required',
-        input:prompt,
-        text:{format:{type:'json_object'}}
+        // OpenAI web search cannot be combined with JSON mode. The prompt
+        // requires JSON and extractJson below validates the returned shape.
+        input:prompt
       })
     });
     const data=await r.json().catch(()=>({}));
