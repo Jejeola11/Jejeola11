@@ -556,7 +556,7 @@ exports.handler=async(event)=>{
         founder_email:null,founder_phone:null,founder_instagram:null,
         contact_name:x.founder.name||null,email:bestEmail,whatsapp:bestPhone,
         instagram:x.contact.instagram||null,website:clean(x.place.websiteUri,700)||null,
-        google_place_id:clean(x.place.id,220),registry_id:registry.data.id,research_date:new Date().toISOString(),contact_method:bestContact(x),maps_url:clean(x.place.googleMapsUri,900)||null,
+        google_place_id:clean(x.place.id,220),registry_id:registry.data&&registry.data.id||null,research_date:new Date().toISOString(),contact_method:bestContact(x),maps_url:clean(x.place.googleMapsUri,900)||null,
         rating:Number.isFinite(Number(x.place.rating))?Number(x.place.rating):null,
         review_count:Number.isFinite(Number(x.place.userRatingCount))?Number(x.place.userRatingCount):null,
         business_status:clean(x.place.businessStatus,80)||null,
