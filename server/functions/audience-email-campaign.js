@@ -6,15 +6,20 @@ function configured() {
 }
 
 function mailHtml(campaign, contact, unsubscribeUrl, subscribeUrl) {
-  const greeting = contact.first_name ? `Hi ${escapeHtml(contact.first_name)},` : 'Hi,';
-  const body = escapeHtml(campaign.body || '').replace(/\n/g, '<br>');
+  // The author controls the greeting in the draft.  Merge fields must be
+  // resolved here (not only in the subject/preview) so no recipient ever sees
+  // the literal {{first_name}} placeholder.
+  const firstName = clean(contact.first_name, 80) || 'there';
+  const mergedBody = String(campaign.body || '')
+    .replace(/{{\s*first_name\s*}}/gi, firstName);
+  const body = escapeHtml(mergedBody).replace(/\n/g, '<br>');
   const action = campaign.action_url
     ? `<p style="margin:28px 0"><a href="${escapeHtml(campaign.action_url)}" style="display:inline-block;background:#dfff4e;color:#001012;border-radius:8px;padding:13px 18px;font-weight:800;text-decoration:none">${escapeHtml(campaign.action_label || 'Open Fuse Atelier')}</a></p>`
     : '';
   const permission = campaign.campaign_kind === 'repermission' && subscribeUrl
     ? `<p style="margin:24px 0"><a href="${escapeHtml(subscribeUrl)}" style="display:inline-block;background:#001012;color:#fff;border-radius:8px;padding:12px 16px;font-weight:800;text-decoration:none">Yes, keep me updated</a></p>`
     : '';
-  return `<!doctype html><html><body style="margin:0;background:#f5f7f5;color:#10221e;font-family:Arial,sans-serif"><div style="max-width:640px;margin:0 auto;padding:32px 20px"><div style="background:#001012;color:#fff;padding:28px;border-radius:20px 20px 0 0"><strong style="letter-spacing:.1em">FUSE ATELIER</strong></div><main style="background:#fff;padding:30px;border:1px solid #dce4df;border-top:0;border-radius:0 0 20px 20px;font-size:16px;line-height:1.6"><p>${greeting}</p><p>${body}</p>${action}${permission}<hr style="border:0;border-top:1px solid #e6ece8;margin:30px 0 18px"><p style="font-size:12px;color:#63736b">You’re receiving this because you registered for Ria’s Phone-to-Client class or requested a Fuse Atelier resource. <a href="${escapeHtml(unsubscribeUrl)}" style="color:#1b4c52">Unsubscribe from Fuse emails</a>.</p></main></div></body></html>`;
+  return `<!doctype html><html><body style="margin:0;background:#f5f7f5;color:#10221e;font-family:Arial,sans-serif"><div style="max-width:640px;margin:0 auto;padding:32px 20px"><div style="background:#001012;color:#fff;padding:28px;border-radius:20px 20px 0 0"><strong style="letter-spacing:.1em">FUSE ATELIER</strong></div><main style="background:#fff;padding:30px;border:1px solid #dce4df;border-top:0;border-radius:0 0 20px 20px;font-size:16px;line-height:1.6"><p>${body}</p>${action}${permission}<hr style="border:0;border-top:1px solid #e6ece8;margin:30px 0 18px"><p style="font-size:12px;color:#63736b">You’re receiving this because you registered for Ria’s Phone-to-Client class or requested a Fuse Atelier resource. <a href="${escapeHtml(unsubscribeUrl)}" style="color:#1b4c52">Unsubscribe from Fuse emails</a>.</p></main></div></body></html>`;
 }
 
 async function createUnsubscribeTokens(db, contacts) {
@@ -83,7 +88,7 @@ exports.handler = async event => {
   if (input.action === 'send_test') {
     const email = clean(input.email, 320).toLowerCase();
     if (!/^\S+@\S+\.\S+$/.test(email)) return json(400, { error: 'Enter a valid test email.' });
-    const html = mailHtml(campaign, { first_name: 'Ria' }, `${publicAppUrl()}/api/audience-unsubscribe?token=test`, `${publicAppUrl()}/api/audience-subscribe?token=test`);
+    const html = mailHtml(campaign, { first_name: 'Ria' }, `${publicAppUrl()}/api/audience-unsubscribe?test=1`, `${publicAppUrl()}/api/audience-subscribe?test=1`);
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST', headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ from: process.env.FUSE_EMAIL_FROM, to: [email], subject: `[TEST] ${campaign.subject}`, html, reply_to: process.env.FUSE_EMAIL_REPLY_TO || undefined })
