@@ -84,11 +84,11 @@
 
 // Day 2 WhatsApp-style voice note
 document.querySelectorAll('[data-audio-player]').forEach(player=>{
-  const audio=player.querySelector('audio'), play=player.querySelector('.voice-play'), wave=player.querySelector('.voice-wave'), time=player.querySelector('.voice-time'), bars=[...wave.querySelectorAll('i')];
+  const audio=player.querySelector('audio'), play=player.querySelector('.voice-play'), wave=player.querySelector('.voice-wave'), time=player.querySelector('.voice-time');
   const format=seconds=>{ if(!Number.isFinite(seconds)) return '0:00'; const mins=Math.floor(seconds/60); return mins+':'+String(Math.floor(seconds%60)).padStart(2,'0'); };
   const render=()=>{
     const ratio=audio.duration?audio.currentTime/audio.duration:0;
-    bars.forEach((bar,index)=>bar.classList.toggle('played',index<(ratio*bars.length)));
+    wave.style.setProperty('--voice-progress',String(Math.round(ratio*100))+'%');
     wave.setAttribute('aria-valuenow',String(Math.round(ratio*100)));
     time.textContent=format(audio.currentTime);
   };
