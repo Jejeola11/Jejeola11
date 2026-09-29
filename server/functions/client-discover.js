@@ -347,7 +347,7 @@ async function webSearchCandidates(niche,location){
   if(!firecrawl.enabled())return [];
   const markets=locationParts(location),all=await Promise.all((markets.length?markets:[location]).map(m=>firecrawl.search(niche+' '+m+' official website',{location:m,limit:10}).catch(()=>[])));
   const seen=new Set(),rows=[];
-  for(const list of all.flat())for(const row of list||[]){
+  for(const list of all)for(const row of Array.isArray(list)?list:[]){
     const url=clean(row&&row.url,1000),domain=domainFrom(url),title=clean(row&&row.title,220),name=clean(title.split(/[|—–-]/)[0],180);
     if(!url||!domain||!name||seen.has(domain))continue;seen.add(domain);
     rows.push({id:'web:'+domain,displayName:{text:name},formattedAddress:'',nationalPhoneNumber:'',websiteUri:url,rating:null,userRatingCount:null,googleMapsUri:'',businessStatus:'',types:[niche,clean(row.description,420)].filter(Boolean)});
