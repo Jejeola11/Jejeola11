@@ -178,11 +178,11 @@ async function saveMemory(){
   const row={user_id:state.session.user.id,profile_json,memory_summary,portfolio_urls:profile_json.portfolio?[profile_json.portfolio]:[],updated_at:new Date().toISOString()};
   if(button){button.disabled=true;button.textContent='Saving…'}
   try{
-    const existing=await sb.from('client_agent_profiles').select('id').eq('user_id',state.session.user.id).maybeSingle();
+    const existing=await sb.from('client_agent_profiles').select('user_id').eq('user_id',state.session.user.id).maybeSingle();
     if(existing.error)throw existing.error;
     let saved;
-    if(existing.data?.id){
-      const result=await sb.from('client_agent_profiles').update(row).eq('id',existing.data.id).eq('user_id',state.session.user.id).select('*').single();
+    if(existing.data?.user_id){
+      const result=await sb.from('client_agent_profiles').update(row).eq('user_id',state.session.user.id).select('*').single();
       if(result.error)throw result.error;saved=result.data;
     }else{
       const result=await sb.from('client_agent_profiles').insert(row).select('*').single();
