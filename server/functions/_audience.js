@@ -33,7 +33,9 @@ function token() {
 }
 
 function publicAppUrl() {
-  return clean(process.env.FUSE_PUBLIC_URL || process.env.APP_URL || 'https://fuse-atelier.vercel.app').replace(/\/$/, '');
+  // The custom domain is the safe production fallback. FUSE_PUBLIC_URL can
+  // still override this for an intentionally configured environment.
+  return clean(process.env.FUSE_PUBLIC_URL || process.env.APP_URL || 'https://fuseatelier.com').replace(/\/$/, '');
 }
 
 module.exports = { requireAdmin, parseBody, clean, escapeHtml, token, publicAppUrl };
