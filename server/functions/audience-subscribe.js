@@ -7,6 +7,11 @@ function page(title, copy) {
 
 exports.handler = async event => {
   if (event.httpMethod !== 'GET') return { statusCode: 405, body: 'Method not allowed.' };
+  // A test email is not attached to a real contact, so it must never attempt
+  // to look up a made-up token or change anyone's consent status.
+  if (event.queryStringParameters && event.queryStringParameters.test === '1') {
+    return page('Test link works.', 'In a real email, this button will safely add that recipient to Fuse updates. This test did not change any subscription.');
+  }
   const value = clean(event.queryStringParameters && event.queryStringParameters.token, 200);
   if (!value) return page('That link is incomplete.', 'Please use the link from the email you received.');
   const db = admin();
