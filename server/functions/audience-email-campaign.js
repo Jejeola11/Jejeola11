@@ -102,7 +102,10 @@ exports.handler = async event => {
   if (contactsError) return json(500, { error: 'Could not prepare recipients.' });
   const { data: suppressed } = await db.from('audience_suppressions').select('identifier').eq('channel', 'email');
   const suppressedSet = new Set((suppressed || []).map(row => String(row.identifier).toLowerCase()));
-  const recipients = (contacts || []).filter(row => !suppressedSet.has(String(row.email_normalized).toLowerCase()));
+  const eligibleByConsent = campaign.campaign_kind === 'repermission'
+    ? (contacts || [])
+    : (contacts || []).filter(row => row.email_marketing_status === 'subscribed');
+  const recipients = eligibleByConsent.filter(row => !suppressedSet.has(String(row.email_normalized).toLowerCase()));
   if (!recipients.length) return json(409, { error: 'There are no eligible email contacts.' });
 
   const { error: recipientError } = await db.from('audience_campaign_recipients').upsert(
