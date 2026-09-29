@@ -170,12 +170,35 @@ function openFind(){
   setFindCount($('findCount').value||5);openOverlay('findOverlay');
 }
 async function saveMemory(){
+  const button=$('saveMemory'),original=button?.textContent||'Save to agent memory';
   const profile_json={skill:$('memorySkill').value.trim(),work:$('memoryWork').value.trim(),experience:$('memoryExperience').value.trim(),niche:$('memoryNiche').value.trim(),location:$('memoryLocation').value.trim(),portfolio:$('memoryPortfolio').value.trim(),price:$('memoryPrice').value.trim()};
   if(!profile_json.skill||!profile_json.work||!profile_json.niche||!profile_json.location)return toast('Add your skill, work, niche and target location.',true);
+  if(!state.session?.user?.id)return toast('Your session needs refreshing before Fuse can save this. Refresh once and try again.',true);
   const memory_summary=[profile_json.skill,'selling '+profile_json.work,'for '+profile_json.niche,'in '+profile_json.location,profile_json.price?'starting at '+profile_json.price:''].filter(Boolean).join(' · ');
   const row={user_id:state.session.user.id,profile_json,memory_summary,portfolio_urls:profile_json.portfolio?[profile_json.portfolio]:[],updated_at:new Date().toISOString()};
-  const {error}=await sb.from('client_agent_profiles').upsert(row,{onConflict:'user_id'});if(error)return toast(error.message,true);
-  $('clientOnboarding')?.classList.remove('setup-open');await loadAll();toast('Saved to your Client Agent memory');
+  if(button){button.disabled=true;button.textContent='Saving…'}
+  try{
+    const existing=await sb.from('client_agent_profiles').select('id').eq('user_id',state.session.user.id).maybeSingle();
+    if(existing.error)throw existing.error;
+    let saved;
+    if(existing.data?.id){
+      const result=await sb.from('client_agent_profiles').update(row).eq('id',existing.data.id).eq('user_id',state.session.user.id).select('*').single();
+      if(result.error)throw result.error;saved=result.data;
+    }else{
+      const result=await sb.from('client_agent_profiles').insert(row).select('*').single();
+      if(result.error)throw result.error;saved=result.data;
+    }
+    state.agentProfile=saved||{...(state.agentProfile||{}),...row};
+    $('clientOnboarding')?.classList.remove('setup-open');
+    closeMemory();
+    renderAll();
+    toast('Saved to your Client Agent memory');
+  }catch(error){
+    console.error('Could not save Client Agent memory',error);
+    toast(error?.message||'Fuse could not save your agent memory. Please try again.',true);
+  }finally{
+    if(button){button.disabled=false;button.textContent=original}
+  }
 }
 function setView(name){
   state.view=name;
