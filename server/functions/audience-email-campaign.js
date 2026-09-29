@@ -12,14 +12,23 @@ function mailHtml(campaign, contact, unsubscribeUrl, subscribeUrl) {
   const firstName = clean(contact.first_name, 80) || 'there';
   const mergedBody = String(campaign.body || '')
     .replace(/{{\s*first_name\s*}}/gi, firstName);
-  const body = escapeHtml(mergedBody).replace(/\n/g, '<br>');
-  const action = campaign.action_url
-    ? `<p style="margin:28px 0"><a href="${escapeHtml(campaign.action_url)}" style="display:inline-block;background:#dfff4e;color:#001012;border-radius:8px;padding:13px 18px;font-weight:800;text-decoration:none">${escapeHtml(campaign.action_label || 'Open Fuse Atelier')}</a></p>`
+  // Gmail can collapse content after a conventional name/company sign-off as
+  // quoted text. Keep the buttons above that sign-off so they remain visible
+  // and tappable on mobile.
+  const signatureMatch = mergedBody.match(/^(.*?)(\n\n(?:Ria|Ria Jejeola)\nFuse Atelier\s*)$/is);
+  const message = signatureMatch ? signatureMatch[1] : mergedBody;
+  const signature = signatureMatch ? signatureMatch[2].trim() : '';
+  const body = escapeHtml(message).replace(/\n/g, '<br>');
+  const fallbackPlaybook = campaign.campaign_kind === 'repermission' ? 'https://fuse-atelier-guide.vercel.app' : '';
+  const actionUrl = campaign.action_url || fallbackPlaybook;
+  const action = actionUrl
+    ? `<p style="margin:28px 0"><a href="${escapeHtml(actionUrl)}" style="display:inline-block;background:#dfff4e;color:#001012;border-radius:8px;padding:13px 18px;font-weight:800;text-decoration:none">${escapeHtml(campaign.action_label || (fallbackPlaybook ? 'Get the First Client Playbook' : 'Open Fuse Atelier'))}</a></p>`
     : '';
   const permission = campaign.campaign_kind === 'repermission' && subscribeUrl
     ? `<p style="margin:24px 0"><a href="${escapeHtml(subscribeUrl)}" style="display:inline-block;background:#001012;color:#fff;border-radius:8px;padding:12px 16px;font-weight:800;text-decoration:none">Yes, keep me updated</a></p>`
     : '';
-  return `<!doctype html><html><body style="margin:0;background:#f5f7f5;color:#10221e;font-family:Arial,sans-serif"><div style="max-width:640px;margin:0 auto;padding:32px 20px"><div style="background:#001012;color:#fff;padding:28px;border-radius:20px 20px 0 0"><strong style="letter-spacing:.1em">FUSE ATELIER</strong></div><main style="background:#fff;padding:30px;border:1px solid #dce4df;border-top:0;border-radius:0 0 20px 20px;font-size:16px;line-height:1.6"><p>${body}</p>${action}${permission}<hr style="border:0;border-top:1px solid #e6ece8;margin:30px 0 18px"><p style="font-size:12px;color:#63736b">You’re receiving this because you registered for Ria’s Phone-to-Client class or requested a Fuse Atelier resource. <a href="${escapeHtml(unsubscribeUrl)}" style="color:#1b4c52">Unsubscribe from Fuse emails</a>.</p></main></div></body></html>`;
+  const signed = signature ? `<p style="margin:26px 0 0">${escapeHtml(signature).replace(/\n/g, '<br>')}</p>` : '';
+  return `<!doctype html><html><body style="margin:0;background:#f5f7f5;color:#10221e;font-family:Arial,sans-serif"><div style="max-width:640px;margin:0 auto;padding:32px 20px"><div style="background:#001012;color:#fff;padding:28px;border-radius:20px 20px 0 0"><strong style="letter-spacing:.1em">FUSE ATELIER</strong></div><main style="background:#fff;padding:30px;border:1px solid #dce4df;border-top:0;border-radius:0 0 20px 20px;font-size:16px;line-height:1.6"><p>${body}</p>${action}${permission}${signed}<hr style="border:0;border-top:1px solid #e6ece8;margin:30px 0 18px"><p style="font-size:12px;color:#63736b">You’re receiving this because you registered for Ria’s Phone-to-Client class or requested a Fuse Atelier resource. <a href="${escapeHtml(unsubscribeUrl)}" style="color:#1b4c52">Unsubscribe from Fuse emails</a>.</p></main></div></body></html>`;
 }
 
 async function createUnsubscribeTokens(db, contacts) {
