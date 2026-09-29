@@ -7,6 +7,9 @@ function page(title, copy) {
 
 exports.handler = async event => {
   if (event.httpMethod !== 'GET') return { statusCode: 405, body: 'Method not allowed.' };
+  if (event.queryStringParameters && event.queryStringParameters.test === '1') {
+    return page('Test link works.', 'In a real email, this button will immediately stop future Fuse marketing emails. This test did not change any subscription.');
+  }
   const value = clean(event.queryStringParameters && event.queryStringParameters.token, 200);
   if (!value) return page('That link is incomplete.', 'Please use the unsubscribe link from the email you received.');
   const db = admin();
