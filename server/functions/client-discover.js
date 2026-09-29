@@ -8,10 +8,21 @@ const firecrawl = require('./_firecrawl');
 // research run, while Maps remains the source for the actual business location.
 function safeUrl(v){try{const u=new URL(String(v||''));return /^https?:$/.test(u.protocol)?u.toString():''}catch{return ''}}
 function extractJson(text){
-  const value=String(text||'').trim();
+  const value=String(text||'').trim().replace(/^\`\`\`(?:json)?\s*/i,'').replace(/\s*\`\`\`$/,'');
   try{return JSON.parse(value)}catch{}
   const match=value.match(/\{[\s\S]*\}/);
   try{return match?JSON.parse(match[0]):null}catch{return null}
+}
+function responseText(data){
+  if(clean(data&&data.output_text,200000))return clean(data.output_text,200000);
+  const parts=[];
+  for(const item of Array.isArray(data&&data.output)?data.output:[]){
+    for(const content of Array.isArray(item&&item.content)?item.content:[]){
+      if(typeof content&&content.text==='string')parts.push(content.text);
+      else if(typeof content&&content.value==='string')parts.push(content.value);
+    }
+  }
+  return parts.join('\n');
 }
 async function openAIResearchBatch({skill,niche,location,offer,candidates}){
   const apiKey=String(process.env.OPENAI_API_KEY||'').trim();
@@ -58,7 +69,7 @@ async function openAIResearchBatch({skill,niche,location,offer,candidates}){
     });
     const data=await r.json().catch(()=>({}));
     if(!r.ok)throw new Error(data&&data.error&&data.error.message||'OpenAI research request failed');
-    const parsed=extractJson(data.output_text||'');
+    const parsed=extractJson(responseText(data));
     const leads=Array.isArray(parsed&&parsed.leads)?parsed.leads:[];
     return {enabled:true,leads:leads.slice(0,16),response_id:clean(data.id,160),error:''};
   }catch(error){
