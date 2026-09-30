@@ -43,14 +43,14 @@ async function openAIResearchBatch({skill,niche,location,offer,candidates}){
     '',
     'Search every target market separately. Start with current official brand websites, Google Maps/public business profiles, and the brand’s current social or collection pages; then cross-check identity, contact routes, and founder details.',
     'A business must clearly match the requested niche from an official website, current public social profile, Google Maps category, or reputable independent source. Do not substitute a broadly related business.',
-    'Return the strongest real prospects, not only businesses where every single field is available. A named founder/owner/marketing decision-maker must have an explicit source when present; otherwise leave founder fields blank. A missing founder must never make an otherwise relevant, contactable business disappear.',
+    'Return the strongest real prospects, not only businesses where every single field is available. A named founder/owner/marketing decision-maker must have an explicit source that connects the person to the business; otherwise leave founder fields blank. Do a second founder-specific search for every shortlisted business before deciding it is not found. A missing founder must never make an otherwise relevant, contactable business disappear.',
     'Each lead needs: an exact business identity, an official website or Maps/public business route, at least one usable public contact/social route, niche evidence, and a concrete current reason such as a new collection, active promotion, sale, event, campaign, hiring, expansion or ongoing social push. Use the official evidence URL for that current reason.',
-    'Never infer a founder from a search snippet. Never use a year as money or mention ability-to-pay in outreach. If a fact is unavailable, return an empty string. Return no filler, no invented facts, and no generic explanation such as “the store explains”.',
+    'Never infer a founder from a search snippet. Only include public professional/contact details; never invent or guess a personal email or private phone. Never use a year as money or mention ability-to-pay in outreach. If a fact is unavailable, return an empty string. Return no filler, no invented facts, and no generic explanation such as “the store explains”.',
     'Tailor the offer to this specific brand, its actual niche, and the student\'s actual service. The ask-first must not be written here; Fuse will compose it from the confirmed facts.',
     shortlist.length?'Cross-check these Maps candidates where relevant, but you may discover stronger exact matches:\\n'+JSON.stringify(shortlist):'Discover the strongest exact matches yourself.',
     '',
     'Return strict JSON only in this exact shape:',
-    '{"leads":[{"business_name":"","location":"","website":"","maps_url":"","founder_name":"","founder_title":"","founder_source":"","email":"","phone":"","instagram":"","linkedin":"","niche_proof":"","niche_source":"","why_now":"","why_now_source":"","tailored_offer":"","best_contact_method":"","sources":[{"label":"","url":""}]}]}'
+    '{"leads":[{"business_name":"","location":"","website":"","maps_url":"","founder_name":"","founder_title":"","founder_source":"","founder_linkedin":"","founder_instagram":"","founder_facebook":"","founder_youtube":"","founder_public_email":"","founder_public_phone":"","email":"","phone":"","instagram":"","linkedin":"","niche_proof":"","niche_source":"","why_now":"","why_now_source":"","tailored_offer":"","best_contact_method":"","sources":[{"label":"","url":""}]}]}'
   ].join('\\n');
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),90000);
   try{
@@ -453,7 +453,7 @@ async function finishEnrichment(x,skill,location,niche,key,ai){
   const aiFounderName=isLikelyPersonName(clean(ai&&ai.founder_name,180),x.name)?clean(ai.founder_name,180):'';
   const aiFounderSource=safeUrl(ai&&ai.founder_source);
   const contact={...x.contact,email:clean(ai&&ai.email,320)||fcContact.email||x.contact.email||'',phone:clean(ai&&ai.phone,120)||fcContact.phone||x.contact.phone||'',instagram:safeUrl(ai&&ai.instagram)||fcContact.instagram||x.contact.instagram||'',linkedin_company:fcContact.linkedin_company||x.contact.linkedin_company||''};
-  const founder={name:aiFounderName||webFounder.name||serpFounder.name||webResearch.founder?.name||'',title:clean(ai&&ai.founder_title,180)||webFounder.title||serpFounder.title||webResearch.founder?.title||'',linkedin:safeUrl(ai&&ai.linkedin)||webFounder.linkedin||serpFounder.linkedin||'',source:aiFounderSource||webFounder.source||serpFounder.source||''};
+  const founder={name:aiFounderName||webFounder.name||serpFounder.name||webResearch.founder?.name||'',title:clean(ai&&ai.founder_title,180)||webFounder.title||serpFounder.title||webResearch.founder?.title||'',linkedin:safeUrl(ai&&ai.founder_linkedin)||safeUrl(ai&&ai.linkedin)||webFounder.linkedin||serpFounder.linkedin||'',instagram:safeUrl(ai&&ai.founder_instagram),facebook:safeUrl(ai&&ai.founder_facebook),youtube:safeUrl(ai&&ai.founder_youtube),email:clean(ai&&ai.founder_public_email,320),phone:clean(ai&&ai.founder_public_phone,120),source:aiFounderSource||webFounder.source||serpFounder.source||''};
   const aiWhy=clean(ai&&ai.why_now,700),aiWhySource=safeUrl(ai&&ai.why_now_source);
   const signal=x.signal||webResearch.signal||(aiWhy&&aiWhySource?{summary:aiWhy,url:aiWhySource}:null);
   const nicheVerified=nicheMatches([x.name,x.place.types,x.place.websiteUri,webResearch.nicheText||'',clean(ai&&ai.niche_proof,1000)].join(' '),niche)&&!!(safeUrl(ai&&ai.niche_source)||webResearch.nicheText||x.place.websiteUri);
@@ -553,8 +553,8 @@ exports.handler=async(event)=>{
       rows.push({
         user_id:user.id,brand_name:x.name,niche,location:clean(x.place.formattedAddress,240)||location,
         founder_name:x.founder.name||null,founder_title:x.founder.title||null,founder_linkedin:x.founder.linkedin||null,
-        founder_email:null,founder_phone:null,founder_instagram:null,
-        contact_name:x.founder.name||null,email:bestEmail,whatsapp:bestPhone,
+        founder_email:x.founder.email||null,founder_phone:x.founder.phone||null,founder_instagram:x.founder.instagram||null,
+        contact_name:x.founder.name||null,email:bestEmail,whatsapp:bestPhone,contact_details:[{type:'founder',name:x.founder.name||'',title:x.founder.title||'',linkedin:x.founder.linkedin||'',instagram:x.founder.instagram||'',facebook:x.founder.facebook||'',youtube:x.founder.youtube||'',source:x.founder.source||''}],
         instagram:x.contact.instagram||null,website:clean(x.place.websiteUri,700)||null,
         google_place_id:clean(x.place.id,220),registry_id:registry.data&&registry.data.id||null,research_date:new Date().toISOString(),contact_method:bestContact(x),maps_url:clean(x.place.googleMapsUri,900)||null,
         rating:Number.isFinite(Number(x.place.rating))?Number(x.place.rating):null,
@@ -569,7 +569,7 @@ exports.handler=async(event)=>{
           offer:x.offer||agentOffer,starter_price:starterPrice(skill),starter_price_label:agentPrice||null,best_contact_method:bestContact(x),ask_first:askFirstFor({...x,gap:safeGap,whyNow:why},x.offer||skill),
           contactable:!!(bestPhone||bestEmail||x.contact.instagram||x.place.websiteUri),
           confidence:x.readiness,
-          decision_maker_verified:!!x.founder.name,
+          decision_maker_verified:!!x.founder.name,founder:{name:x.founder.name||'',title:x.founder.title||'',linkedin:x.founder.linkedin||'',instagram:x.founder.instagram||'',facebook:x.founder.facebook||'',youtube:x.founder.youtube||'',email:x.founder.email||'',phone:x.founder.phone||'',source:x.founder.source||''},
           funding_verified:!!(x.funding&&x.funding.qualifies),
           ability_to_pay_verified:!!(x.funding&&x.funding.qualifies),
           niche_verified:!!x.niche_verified,
