@@ -100,7 +100,7 @@ function researchForPlace(place,research){
 }
 
 function clean(v,max=1000){return typeof v==='string'?v.trim().slice(0,max):''}
-const DISCOVERY_CREDITS={5:20,10:40,20:80};
+// Qualified research includes niche matching, current-signal verification, a second founder pass, and source-backed public contact routes.\nconst DISCOVERY_CREDITS={5:50,10:90,20:160};
 function domainFrom(url){try{return new URL(url).hostname.replace(/^www\./,'').toLowerCase()}catch{return''}}
 function textNorm(v){return String(v||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
 function firstWords(v,n=4){return textNorm(v).split(' ').filter(x=>x.length>2).slice(0,n)}
