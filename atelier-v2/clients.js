@@ -373,6 +373,27 @@ function askFirstForView(p,q,offer,why){
   const focus=category==='skincare'?'skincare products':category==='jewellery'?'jewellery collection':category==='fashion'?'fashion pieces':'brand offer';
   return 'Hi '+(p.brand_name||'there')+', I came across your '+focus+'. I create '+offer+' Would you be open to seeing a quick concept?';
 }
+function founderPanel(p,q){
+  const social=q.founder||((Array.isArray(p.contact_details)?p.contact_details.find(x=>x&&x.type==='founder'):null)||{});
+  const name=p.founder_name||social.name||p.contact_name||'Not found';
+  const title=p.founder_title||social.title||'Founder / owner not verified';
+  const links=[['LinkedIn',p.founder_linkedin||social.linkedin],['Instagram',p.founder_instagram||social.instagram],['Facebook',social.facebook],['YouTube',social.youtube]]
+    .filter(([,url])=>/^https?:\/\//i.test(String(url||'')));
+  const publicRoutes=[['Email',p.founder_email||social.email],['Phone',p.founder_phone||social.phone]].filter(([,value])=>String(value||'').trim());
+  const source=social.source||'';
+  return '<div class="finding founder-panel"><b>Founder research</b><small>'+esc(name)+' · '+esc(title)+'</small>'+
+    (source?'<small><a href="'+esc(source)+'" target="_blank" rel="noopener">Founder source ↗</a></small>':'')+
+    (links.length?'<div class="job-actions">'+links.map(([label,url])=>'<a class="mini" href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(label)+'</a>').join('')+'</div>':'')+
+    (publicRoutes.length?'<small>Public professional route: '+esc(publicRoutes.map(([label,value])=>label+': '+value).join(' · '))+'</small>':'')+
+    (!links.length&&!publicRoutes.length&&name==='Not found'?'<small>Fuse did a separate founder search. No source-backed founder profile was found yet.</small>':'')+
+  '</div>';
+}
+function followUpPanel(p){
+  const count=Math.max(0,Number(p.follow_up_count||0)),due=p.next_follow_up&&new Date(p.next_follow_up),dueNow=due&&due<=new Date();
+  if(normalizeStatus(p.status)!=='asked')return '';
+  if(count>=3)return '<div class="finding"><b>Follow-up plan</b><small>All 3 planned follow-ups have been sent. Wait for a reply or mark the lead lost.</small></div>';
+  return '<div class="finding"><b>Follow-up '+(count+1)+' of 3</b><small>'+(!due?'First follow-up schedules after you send your ask-first message.':dueNow?'Due now — send a short, helpful follow-up.':'Due '+esc(fmtDate(p.next_follow_up,true))+' · every follow-up is 3 days apart.')+'</small>'+ (dueNow?'<div class="copy-row"><button class="copy-btn" data-send-followup>Mark follow-up sent</button></div>':'')+'</div>';
+}
 function renderContact(p){
   const q=p.qualification_json||{};
   const name=p.founder_name||p.contact_name||'Not found';
@@ -384,10 +405,12 @@ function renderContact(p){
   return '<div class="output"><h3>Decision-maker & evidence</h3>'+
   (q.rank?'<div class="finding"><b>Priority</b><small>#'+esc(q.rank)+' strongest opportunity from this research run</small></div>':'')+
   '<div class="finding"><b>Founder / contact</b><small>'+esc(name)+' · '+esc(title)+'</small><small>Use the public contact buttons above to copy or open a route.</small></div>'+
+  founderPanel(p,q)+
   '<div class="finding"><b>Why now</b><small>'+esc(verifiedWhy)+'</small>'+(p.current_activity_url?'<small><a href="'+esc(p.current_activity_url)+'" target="_blank" rel="noopener">Open source ↗</a></small>':'')+'</div>'+
   '<div class="finding"><b>What to offer</b><small>'+esc(tailoredOffer)+' · starter price '+esc(price)+'</small><small>'+esc(q.gap||p.visible_problem||'Not found')+'</small></div>'+
   '<div class="finding"><b>Best contact method</b><small>'+esc(q.best_contact_method||'Not found')+'</small></div>'+
   (askFirst?'<div class="finding"><b>Ask-first opener</b><small style="white-space:pre-wrap">'+esc(askFirst)+'</small><div class="copy-row"><button class="copy-btn" data-copy-qualified-ask>Copy</button></div></div>':'')+
+  followUpPanel(p)+
   (funding?'<div class="finding"><b>Funding</b><small>'+esc(fmtMoney(funding,'USD'))+' reported funding</small>'+(p.funding_source_url?'<small><a href="'+esc(p.funding_source_url)+'" target="_blank" rel="noopener">Funding source ↗</a></small>':'')+'</div>':'')+
   (sourceLinks.length?'<div class="finding"><b>Sources</b>'+sourceLinks.slice(0,8).map(x=>{const u=typeof x==='string'?x:(x.url||'');const label=typeof x==='string'?'Source':(x.label||x.source||'Source');return u?'<small><a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(label)+' ↗</a></small>':''}).join('')+'</div>':'')+'</div>';
 }
@@ -465,6 +488,7 @@ function bindDetail(p){
   $('detailBody').querySelectorAll('[data-agent]').forEach(b=>b.onclick=()=>runAgent(p.id,b.dataset.agent,b));
   $('detailBody').querySelectorAll('[data-contact-route]').forEach(b=>b.onclick=()=>{const route=contactRoute(p,b.dataset.contactRoute);if(route)openContactSheet(route,p)});
   $('detailBody').querySelectorAll('[data-status]').forEach(b=>b.onclick=()=>markStatus(p.id,b.dataset.status));
+  $('detailBody').querySelector('[data-send-followup]')?.addEventListener('click',()=>markFollowUpSent(p.id));
   $('winBtn')?.addEventListener('click',()=>openRetainer(p.id));
   $('prepareContract')?.addEventListener('click',()=>prepareContract(p.id));
   $('detailBody').querySelector('[data-open-clients]')?.addEventListener('click',()=>{closeOverlay('detailOverlay');renderClientDashboard();window.scrollTo({top:0,behavior:'smooth'})});
@@ -527,7 +551,7 @@ async function runAgent(id,action,btn){
 async function markStatus(id,status){
   const now=new Date().toISOString();
   const patch={status,updated_at:now,last_activity_at:now};
-  if(status==='asked'){patch.last_contacted_at=now;const d=new Date();d.setDate(d.getDate()+3);patch.next_follow_up=d.toISOString()}
+  if(status==='asked'){patch.last_contacted_at=now;patch.follow_up_count=0;const d=new Date();d.setDate(d.getDate()+3);patch.next_follow_up=d.toISOString()}
   if(status==='replied')patch.replied_at=now;
   if(status==='sample_sent'){patch.sample_sent_at=now;patch.sample_status='sent'}
   if(status==='agreed')patch.client_agreed_at=now;
@@ -539,7 +563,18 @@ async function markStatus(id,status){
   await loadAll();const p=state.prospects.find(x=>x.id===id);if(p)renderDetail(p);toast('Pipeline updated')
 }
 
-async function runFind(){
+async function markFollowUpSent(id){
+  const p=state.prospects.find(x=>x.id===id);if(!p)return;
+  const sent=Math.max(0,Number(p.follow_up_count||0))+1;
+  if(sent>3)return toast('All 3 follow-ups are already complete.');
+  const patch={follow_up_count:sent,last_activity_at:new Date().toISOString(),updated_at:new Date().toISOString()};
+  if(sent<3){const d=new Date();d.setDate(d.getDate()+3);patch.next_follow_up=d.toISOString()}else patch.next_follow_up=null;
+  const {error}=await sb.from('client_prospects').update(patch).eq('id',id).eq('user_id',state.session.user.id);
+  if(error)return toast(error.message,true);
+  await sb.from('client_activities').insert({user_id:state.session.user.id,prospect_id:id,activity_type:'follow_up_sent',title:'Follow-up '+sent+' of 3 sent',body:'Next reminder is scheduled in 3 days.',metadata:{follow_up_count:sent}});
+  await loadAll();const updated=state.prospects.find(x=>x.id===id);if(updated)renderDetail(updated);toast(sent<3?'Follow-up sent · next reminder in 3 days.':'All 3 follow-ups are complete.');
+}
+\nasync function runFind(){
   if(state.researchJob?.status==='researching')return toast('Fuse is already researching your leads.');
   const skill=$('findSkill').value,niche=$('findNiche').value.trim(),location=$('findLocation').value.trim(),offer=$('findOffer').value.trim(),starter_price=$('findPrice').value.trim(),return_count=Number($('findCount').value);
   if(!skill||!niche||!location)return toast('Choose your skill, niche and city + country.',true);
