@@ -7,6 +7,7 @@ const { createClient } = require('@supabase/supabase-js');
 const LESSON_ACCESS = require('./_lesson-access');
 
 const MONEY_ACCESS = {
+  'money-client-agent-tutorial': { tier: 1, module: 'money' },
   'money-start': { tier: 1, module: 'money' },
   'money-m1': { tier: 1, module: 'money' },
   'money-m2': { tier: 1, module: 'money' },
