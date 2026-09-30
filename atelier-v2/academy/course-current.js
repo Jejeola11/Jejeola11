@@ -103,6 +103,14 @@ window.FUSE_ACADEMY_MONEY={
   key:'money',name:'The Money Engine System',sub:'Turn your skill into clients',
   resources:[{title:'Resources',desc:'Money Engine resources and supporting files.'}],
   modules:[
+    {key:'money-client-agent-launch',title:'WATCH NOW · Fuse Client Agent',kicker:'Start here · New',isNew:true,watchNow:true,lessons:[
+      Object.assign(simpleLesson('money-client-agent-tutorial','WATCH NOW: Find qualified clients with Fuse Client Agent'),{
+        isNew:true,
+        watchNow:true,
+        learnText:'This is your complete step-by-step walkthrough for finding businesses that genuinely match your skill, understanding why they are worth contacting, and using Fuse to prepare a tailored first message.',
+        actionText:'Watch the tutorial first. Then open Client, save your offer details and run your first qualified lead search.'
+      })
+    ]},
     {key:'money-new-chatgpt-module',title:'New Chatgpt Hack to Money Engine',kicker:'New Module',isNew:true,watchNow:true,lessons:[
       Object.assign(simpleLesson('money-chatgpt-hack','New Chatgpt Hack to Money Engine'),{
         videoUrl:'https://youtu.be/xUYxx7vZNxc?si=I0VHqxSAEL2sfh3V',
