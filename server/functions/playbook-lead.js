@@ -5,6 +5,7 @@ const ALLOWED_ORIGINS = new Set([
   'https://fuse-atelier-guide.vercel.app',
   'https://ai-image-codes.vercel.app',
   'https://prompt-image-drop.vercel.app',
+  'https://ai-creative-stack.vercel.app',
 ]);
 function cors(event) {
   const origin = event.headers.origin || event.headers.Origin || '';
