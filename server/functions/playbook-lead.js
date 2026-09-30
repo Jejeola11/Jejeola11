@@ -4,6 +4,7 @@ const ALLOWED_ORIGINS = new Set([
   'https://fuse-atelier.vercel.app',
   'https://fuse-atelier-guide.vercel.app',
   'https://ai-image-codes.vercel.app',
+  'https://prompt-image-drop.vercel.app',
 ]);
 function cors(event) {
   const origin = event.headers.origin || event.headers.Origin || '';
@@ -77,6 +78,45 @@ exports.handler = async (event) => {
     : db.from('phone_to_client_leads').insert(lead);
   const { error: writeError } = await write;
   if (writeError) return response(event, 500, { error: 'We could not save your details right now. Please try again.' });
+
+  // Keep the private Fuse Audience dashboard in sync with every public lead form.
+  const audiencePayload = {
+    first_name,
+    email_normalized,
+    phone_e164,
+    phone_raw: phone_e164,
+    country,
+    biggest_struggle,
+    whatsapp_marketing_status: 'opted_in',
+    whatsapp_opted_in_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+  let { data: audienceContact, error: audienceLookupError } = await db
+    .from('audience_contacts')
+    .select('id')
+    .eq('email_normalized', email_normalized)
+    .maybeSingle();
+  if (audienceLookupError) return response(event, 500, { error: 'We could not sync your details to the audience dashboard.' });
+  if (!audienceContact && phone_e164) {
+    const phoneLookup = await db.from('audience_contacts').select('id').eq('phone_e164', phone_e164).maybeSingle();
+    if (phoneLookup.error) return response(event, 500, { error: 'We could not sync your details to the audience dashboard.' });
+    audienceContact = phoneLookup.data;
+  }
+  if (audienceContact) {
+    const { error } = await db.from('audience_contacts').update(audiencePayload).eq('id', audienceContact.id);
+    if (error) return response(event, 500, { error: 'We could not sync your details to the audience dashboard.' });
+  } else {
+    const inserted = await db.from('audience_contacts').insert(audiencePayload).select('id').single();
+    if (inserted.error) return response(event, 500, { error: 'We could not sync your details to the audience dashboard.' });
+    audienceContact = inserted.data;
+  }
+  const audienceSource = source || 'direct';
+  const sourceLookup = await db.from('audience_contact_sources').select('id').eq('contact_id', audienceContact.id).eq('source', audienceSource).maybeSingle();
+  if (sourceLookup.error) return response(event, 500, { error: 'We could not sync your source to the audience dashboard.' });
+  if (!sourceLookup.data) {
+    const { error } = await db.from('audience_contact_sources').insert({ contact_id: audienceContact.id, source: audienceSource });
+    if (error) return response(event, 500, { error: 'We could not sync your source to the audience dashboard.' });
+  }
 
   return response(event, 200, { ok: true, browser_token });
 };
