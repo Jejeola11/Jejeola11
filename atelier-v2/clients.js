@@ -154,7 +154,7 @@ function closeMemory(){
   if(state.agentProfile?.profile_json?.skill){onboarding.style.display='none';$('clientDashboard').style.display='block'}
 }
 function setFindCount(value){
-  const n=Number(value)||5,credits={5:20,10:40,20:80}[n]||20;
+  const n=Number(value)||5,credits={5:50,10:90,20:160}[n]||50;
   $('findCount').value=n;
   document.querySelectorAll('.find-count-choice').forEach(button=>button.classList.toggle('active',Number(button.dataset.count)===n));
   const run=$('runFind');if(run)run.innerHTML='Find my '+n+' client'+(n===1?'':'s')+' <span>→</span>';
