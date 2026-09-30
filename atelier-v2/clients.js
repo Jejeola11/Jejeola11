@@ -574,7 +574,8 @@ async function markFollowUpSent(id){
   await sb.from('client_activities').insert({user_id:state.session.user.id,prospect_id:id,activity_type:'follow_up_sent',title:'Follow-up '+sent+' of 3 sent',body:'Next reminder is scheduled in 3 days.',metadata:{follow_up_count:sent}});
   await loadAll();const updated=state.prospects.find(x=>x.id===id);if(updated)renderDetail(updated);toast(sent<3?'Follow-up sent · next reminder in 3 days.':'All 3 follow-ups are complete.');
 }
-\nasync function runFind(){
+
+async function runFind(){
   if(state.researchJob?.status==='researching')return toast('Fuse is already researching your leads.');
   const skill=$('findSkill').value,niche=$('findNiche').value.trim(),location=$('findLocation').value.trim(),offer=$('findOffer').value.trim(),starter_price=$('findPrice').value.trim(),return_count=Number($('findCount').value);
   if(!skill||!niche||!location)return toast('Choose your skill, niche and city + country.',true);
