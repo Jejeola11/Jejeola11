@@ -18,11 +18,13 @@ exports.handler = async event => {
   if (!item || item.channel !== 'email') return page('That link has expired.', 'Please use a more recent Fuse Atelier email.');
   const { data: contact } = await db.from('audience_contacts').select('id, first_name, email_normalized, email_marketing_status').eq('id', item.contact_id).maybeSingle();
   if (!contact || !contact.email_normalized) return page('That link has expired.', 'Please use a more recent Fuse Atelier email.');
-  const isNewOptIn = contact.email_marketing_status !== 'subscribed';
-  const { error } = await db.from('audience_contacts').update({ email_marketing_status: 'subscribed', email_opted_in_at: new Date().toISOString(), email_opted_out_at: null }).eq('id', contact.id);
+  const { data: newlyOptedIn, error } = await db.from('audience_contacts')
+    .update({ email_marketing_status: 'subscribed', email_opted_in_at: new Date().toISOString(), email_opted_out_at: null })
+    .eq('id', contact.id).neq('email_marketing_status', 'subscribed')
+    .select('id, first_name, email_normalized').maybeSingle();
   if (error) return page('Something went wrong.', 'Please try the link again in a moment.');
-  if (isNewOptIn) {
-    try { await sendWelcome(db, contact); } catch (welcomeError) { console.error('Fuse welcome email failed', welcomeError.message); }
+  if (newlyOptedIn) {
+    try { await sendWelcome(db, newlyOptedIn); } catch (welcomeError) { console.error('Fuse welcome email failed', welcomeError.message); }
   }
   return page('You’re on the Fuse list.', 'You’ll receive future Fuse Atelier updates, resources and offers. You can unsubscribe at any time from an email footer.');
 };
