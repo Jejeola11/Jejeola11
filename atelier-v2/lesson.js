@@ -136,7 +136,10 @@ function renderDrawer(){
     const left=document.createElement('div');
     const title=document.createElement('div');title.className='drawer-module-title';title.textContent=m.title;
     left.appendChild(title);
-    if(m.isNew||m.watchNow){
+    if(m.updateLabel){
+      const update=document.createElement('div');update.className='drawer-update-label';update.textContent=m.updateLabel;
+      left.appendChild(update);
+    }else if(m.isNew||m.watchNow){
       const tags=document.createElement('div');tags.className='drawer-feature-tags';
       if(m.isNew){const t=document.createElement('span');t.className='drawer-feature-tag';t.textContent='New';tags.appendChild(t)}
       if(m.watchNow){const t=document.createElement('span');t.className='drawer-feature-tag watch';t.textContent='Watch now';tags.appendChild(t)}
