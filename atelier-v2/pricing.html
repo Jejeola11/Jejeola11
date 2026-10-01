@@ -45,50 +45,16 @@
     function whatsapp(p){
       const credits=p.credits+(launchActive?Number(p.bonus||0):0);
       const bonus=launchActive&&p.bonus?' including the 24-hour Client Agent launch bonus':'';
-      const message='Hi Fuse Atelier, I want to get the '+p.name+' pack ('+money(p.naira)+' / 
+      const message='Hi Fuse Atelier, I want to get the '+p.name+' pack ('+money(p.naira)+' / $'+p.usd+', '+credits+' credits'+bonus+'). Please send me payment details.';
       return 'https://wa.me/2349044558101?text='+encodeURIComponent(message);
     }
     function card(p){
       const benefits=p.uses.map(use=>'<li>'+use+'</li>').join('');
-      const tag=p.tag?'<span class="badge">'+p.tag+'</span>':'';
-      const credits=p.credits+(launchActive?Number(p.bonus||0):0);const tag=launchActive&&p.bonus?'LAUNCH +'+p.bonus:' '+(p.tag||'');
-      return '<article class="pack '+p.id+'"><span class="pack-inner"><span class="pack-head"><strong class="name">'+p.name+'</strong><span class="price"><strong><ul class="uses">'+benefits+'</ul><a class="pack-action" href="'+whatsapp(p)+'" target="_blank" rel="noopener">Get '+p.name+'</a></span>'+(tag?'<span class="badge">'+tag+'</span>':'')+'</article>';
+      const credits=p.credits+(launchActive?Number(p.bonus||0):0);
+      const badge=launchActive&&p.bonus?'LAUNCH +'+p.bonus:(p.tag||'');
+      return '<article class="pack '+p.id+'"><span class="pack-inner"><span class="pack-head"><strong class="name">'+p.name+'</strong><span class="price"><strong>$'+p.usd+'</strong><small>'+money(p.naira)+'</small></span></span><strong class="credits">'+credits+' credits'+(launchActive&&p.bonus?' <small>('+p.bonus+' bonus)</small>':'')+'</strong><ul class="uses">'+benefits+'</ul><a class="pack-action" href="'+whatsapp(p)+'" target="_blank" rel="noopener">Get '+p.name+'</a></span>'+(badge?'<span class="badge">'+badge+'</span>':'')+'</article>';
     }
     document.getElementById('packs').innerHTML=PACKS.map(card).join('');
-  </script>
-  </script>
-</body>
-</html>
-+p.usd+', '+credits+' credits'+bonus+'). Please send me payment details.';
-      return 'https://wa.me/2349044558101?text='+encodeURIComponent(message);
-    }
-    function card(p){
-      const benefits=p.uses.map(use=>'<li>'+use+'</li>').join('');
-      const tag=p.tag?'<span class="badge">'+p.tag+'</span>':'';
-      return '<article class="pack '+p.id+'"><span class="pack-inner"><span class="pack-head"><strong class="name">'+p.name+'</strong><span class="price"><strong>$'+p.usd+'</strong><small>'+money(p.naira)+'</small></span></span><strong class="credits">'+p.credits+' credits</strong><ul class="uses">'+benefits+'</ul><a class="pack-action" href="'+whatsapp(p)+'" target="_blank" rel="noopener">Get '+p.name+'</a></span>'+tag+'</article>';
-    }
-    document.getElementById('packs').innerHTML=PACKS.map(card).join('');
-  </script>
-  </script>
-</body>
-</html>
-+p.usd+'</strong><small>'+money(p.naira)+'</small></span></span><strong class="credits">'+credits+' credits'+(launchActive&&p.bonus?' <small>('+p.bonus+' bonus)</small>':'')+'</strong><ul class="uses">'+benefits+'</ul><a class="pack-action" href="'+whatsapp(p)+'" target="_blank" rel="noopener">Get '+p.name+'</a></span>'+tag+'</article>';
-    }
-    document.getElementById('packs').innerHTML=PACKS.map(card).join('');
-  </script>
-  </script>
-</body>
-</html>
-+p.usd+', '+credits+' credits'+bonus+'). Please send me payment details.';
-      return 'https://wa.me/2349044558101?text='+encodeURIComponent(message);
-    }
-    function card(p){
-      const benefits=p.uses.map(use=>'<li>'+use+'</li>').join('');
-      const tag=p.tag?'<span class="badge">'+p.tag+'</span>':'';
-      return '<article class="pack '+p.id+'"><span class="pack-inner"><span class="pack-head"><strong class="name">'+p.name+'</strong><span class="price"><strong>$'+p.usd+'</strong><small>'+money(p.naira)+'</small></span></span><strong class="credits">'+p.credits+' credits</strong><ul class="uses">'+benefits+'</ul><a class="pack-action" href="'+whatsapp(p)+'" target="_blank" rel="noopener">Get '+p.name+'</a></span>'+tag+'</article>';
-    }
-    document.getElementById('packs').innerHTML=PACKS.map(card).join('');
-  </script>
   </script>
 </body>
 </html>
