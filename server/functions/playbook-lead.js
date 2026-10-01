@@ -2,6 +2,8 @@ const { admin, json } = require('./_supabase');
 
 const ALLOWED_ORIGINS = new Set([
   'https://fuse-atelier.vercel.app',
+  'https://fuseatelier.com',
+  'https://www.fuseatelier.com',
   'https://fuse-atelier-guide.vercel.app',
   'https://ai-image-codes.vercel.app',
   'https://prompt-image-drop.vercel.app',
@@ -68,7 +70,10 @@ exports.handler = async (event) => {
     .select('id, browser_token')
     .eq('email_normalized', email_normalized)
     .maybeSingle();
-  if (lookupError) return response(event, 500, { error: 'We could not save your details right now. Please try again.' });
+  if (lookupError) {
+    console.error('[playbook-lead] lead lookup failed', { code: lookupError.code, message: lookupError.message });
+    return response(event, 500, { error: 'We could not save your details right now. Please try again.' });
+  }
 
   const lead = {
     first_name, email, email_normalized, whatsapp: phone_e164, phone_e164, country,
@@ -78,7 +83,10 @@ exports.handler = async (event) => {
     ? db.from('phone_to_client_leads').update(lead).eq('id', existing.id)
     : db.from('phone_to_client_leads').insert(lead);
   const { error: writeError } = await write;
-  if (writeError) return response(event, 500, { error: 'We could not save your details right now. Please try again.' });
+  if (writeError) {
+    console.error('[playbook-lead] lead write failed', { code: writeError.code, message: writeError.message });
+    return response(event, 500, { error: 'We could not save your details right now. Please try again.' });
+  }
 
   // Keep the private Fuse Audience dashboard in sync with every public lead form.
   const audiencePayload = {
