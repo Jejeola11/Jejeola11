@@ -19,7 +19,7 @@ const STAGES=[
   {key:'won',label:'Retainer'},
   {key:'lost',label:'Lost'}
 ];
-const state={session:null,prospects:[],proposals:[],contracts:[],retainers:[],jobs:[],activities:[],agentProfile:null,view:'overview',pipeline:'all',search:'',selected:null,agentOutput:null,retainerProspect:null,busy:false,researchJob:null};
+const state={session:null,prospects:[],proposals:[],contracts:[],retainers:[],jobs:[],activities:[],agentProfile:null,view:'overview',pipeline:'all',search:'',selected:null,agentOutput:null,retainerProspect:null,busy:false,researchJob:null,credits:0};
 let toastTimer;
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function toast(msg,bad=false){const el=$('toast');el.textContent=msg;el.className='toast show'+(bad?' bad':'');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.className='toast',3000)}
@@ -116,10 +116,11 @@ async function loadAll(){
     sb.from('client_retainers').select('*').eq('user_id',uid).order('updated_at',{ascending:false}),
     sb.from('client_automation_jobs').select('*').eq('user_id',uid).order('next_run_at',{ascending:true}),
     sb.from('client_activities').select('*').eq('user_id',uid).order('created_at',{ascending:false}).limit(30),
-    sb.from('client_agent_profiles').select('*').eq('user_id',uid).maybeSingle()
+    sb.from('client_agent_profiles').select('*').eq('user_id',uid).maybeSingle(),
+    sb.from('profiles').select('credits').eq('id',uid).maybeSingle()
   ]);
-  for(const x of [p,pr,ct,r,j,a,ap])if(x.error)throw x.error;
-  state.prospects=p.data||[];state.proposals=pr.data||[];state.contracts=ct.data||[];state.retainers=r.data||[];state.jobs=j.data||[];state.activities=a.data||[];state.agentProfile=ap.data||null;
+  for(const x of [p,pr,ct,r,j,a,ap,balance])if(x.error)throw x.error;
+  state.prospects=p.data||[];state.proposals=pr.data||[];state.contracts=ct.data||[];state.retainers=r.data||[];state.jobs=j.data||[];state.activities=a.data||[];state.agentProfile=ap.data||null;state.credits=Number(balance.data?.credits||0);
   renderAll();
   window.Fuse?.balance?.().catch(()=>{});
 }
@@ -158,6 +159,7 @@ function setFindCount(value){
   $('findCount').value=n;
   document.querySelectorAll('.find-count-choice').forEach(button=>button.classList.toggle('active',Number(button.dataset.count)===n));
   const run=$('runFind');if(run)run.innerHTML='Find my '+n+' client'+(n===1?'':'s')+' <span>→</span>';
+  const cost=$('findCreditCost');if(cost){const available=Number(state.credits||0),enough=available>=credits;cost.className='research-cost '+(enough?'':'short');cost.innerHTML='<strong>'+credits+' CREDITS</strong><span>Required for this search · You have '+available+' credit'+(available===1?'':'s')+'</span>'+(!enough?'<a href="/credits">Top up credits →</a>':'');}
 }
 function openFind(){
   if(state.researchJob?.status==='researching'){toast('Fuse is already researching your leads. Check the research card on this page for progress.');return}
@@ -579,6 +581,11 @@ async function runFind(){
   if(state.researchJob?.status==='researching')return toast('Fuse is already researching your leads.');
   const skill=$('findSkill').value,niche=$('findNiche').value.trim(),location=$('findLocation').value.trim(),offer=$('findOffer').value.trim(),starter_price=$('findPrice').value.trim(),return_count=Number($('findCount').value);
   if(!skill||!niche||!location)return toast('Choose your skill, niche and city + country.',true);
+  const credits={5:50,10:90,20:160}[return_count]||50;
+  if(Number(state.credits||0)<credits){
+    const notice=$('findNotice');if(notice){notice.innerHTML='<strong>Not enough credits.</strong> This search needs <b>'+credits+' credits</b>, but you have <b>'+Number(state.credits||0)+'</b>. <a href="/credits">Top up credits →</a>';notice.classList.add('insufficient')}
+    return toast('You need '+credits+' credits to start this research.',true);
+  }
   const payload={skill,niche,location,offer,starter_price,return_count};
   const job={status:'researching',count:return_count,niche,location,started_at:new Date().toISOString()};
   setResearchJob(job);
@@ -592,7 +599,7 @@ async function completeResearch(payload,job){
   try{
     const d=await api('client-discover',payload,180000);
     const added=Number(d.added||0);
-    setResearchJob({...job,status:'ready',added,credits_refunded:Number(d.credits_refunded||0),finished_at:new Date().toISOString()});
+    state.credits=Number(d.credits_remaining??state.credits);setResearchJob({...job,status:'ready',added,credits_refunded:Number(d.credits_refunded||0),finished_at:new Date().toISOString()});
     await loadAll();
     toast(added?added+' researched lead'+(added===1?' is':'s are')+' ready to review.':'Research finished without a verified match. Refine the search and try again.');
   }catch(e){
