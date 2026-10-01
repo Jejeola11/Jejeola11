@@ -1,60 +1,12 @@
 const { json } = require('./_supabase');
-const { requireAdmin, parseBody, clean, escapeHtml, token, publicAppUrl } = require('./_audience');
+const { requireAdmin, parseBody, clean, publicAppUrl } = require('./_audience');
+const { configured, mailHtml, deliverCampaign } = require('./_audience-email');
 
-function configured() {
-  return !!(process.env.RESEND_API_KEY && process.env.FUSE_EMAIL_FROM);
-}
-
-function mailHtml(campaign, contact, unsubscribeUrl, subscribeUrl) {
-  // The author controls the greeting in the draft.  Merge fields must be
-  // resolved here (not only in the subject/preview) so no recipient ever sees
-  // the literal {{first_name}} placeholder.
-  const firstName = clean(contact.first_name, 80) || 'there';
-  const mergedBody = String(campaign.body || '')
-    .replace(/{{\s*first_name\s*}}/gi, firstName);
-  // Gmail can collapse content after a conventional name/company sign-off as
-  // quoted text. Keep the buttons above that sign-off so they remain visible
-  // and tappable on mobile.
-  const signatureMatch = mergedBody.match(/^(.*?)(\n\n(?:Ria|Ria Jejeola)\nFuse Atelier\s*)$/is);
-  const message = signatureMatch ? signatureMatch[1] : mergedBody;
-  const signature = signatureMatch ? signatureMatch[2].trim() : '';
-  const body = escapeHtml(message).replace(/\n/g, '<br>');
-  const fallbackPlaybook = campaign.campaign_kind === 'repermission' ? 'https://fuse-atelier-guide.vercel.app' : '';
-  const actionUrl = campaign.action_url || fallbackPlaybook;
-  const action = actionUrl
-    ? `<p style="margin:28px 0"><a href="${escapeHtml(actionUrl)}" style="display:inline-block;background:#dfff4e;color:#001012;border-radius:8px;padding:13px 18px;font-weight:800;text-decoration:none">${escapeHtml(campaign.action_label || (fallbackPlaybook ? 'Get the First Client Playbook' : 'Open Fuse Atelier'))}</a></p>`
-    : '';
-  const permission = campaign.campaign_kind === 'repermission' && subscribeUrl
-    ? `<p style="margin:24px 0"><a href="${escapeHtml(subscribeUrl)}" style="display:inline-block;background:#001012;color:#fff;border-radius:8px;padding:12px 16px;font-weight:800;text-decoration:none">Yes, keep me updated</a></p>`
-    : '';
-  const signed = signature ? `<p style="margin:26px 0 0">${escapeHtml(signature).replace(/\n/g, '<br>')}</p>` : '';
-  return `<!doctype html><html><body style="margin:0;background:#f5f7f5;color:#10221e;font-family:Arial,sans-serif"><div style="max-width:640px;margin:0 auto;padding:32px 20px"><div style="background:#001012;color:#fff;padding:28px;border-radius:20px 20px 0 0"><strong style="letter-spacing:.1em">FUSE ATELIER</strong></div><main style="background:#fff;padding:30px;border:1px solid #dce4df;border-top:0;border-radius:0 0 20px 20px;font-size:16px;line-height:1.6"><p>${body}</p>${action}${permission}${signed}<hr style="border:0;border-top:1px solid #e6ece8;margin:30px 0 18px"><p style="font-size:12px;color:#63736b">You’re receiving this because you registered for Ria’s Phone-to-Client class or requested a Fuse Atelier resource. <a href="${escapeHtml(unsubscribeUrl)}" style="color:#1b4c52">Unsubscribe from Fuse emails</a>.</p></main></div></body></html>`;
-}
-
-async function createUnsubscribeTokens(db, contacts) {
-  const ids = contacts.map(row => row.id);
-  const { data: existing, error } = await db.from('audience_unsubscribe_tokens')
-    .select('contact_id, token').eq('channel', 'email').is('used_at', null).in('contact_id', ids);
-  if (error) throw error;
-  const byContact = new Map((existing || []).map(row => [row.contact_id, row.token]));
-  const missing = contacts.filter(row => !byContact.has(row.id)).map(row => ({ contact_id: row.id, channel: 'email', token: token() }));
-  if (missing.length) {
-    const { data: created, error: createError } = await db.from('audience_unsubscribe_tokens').insert(missing).select('contact_id, token');
-    if (createError) throw createError;
-    for (const row of created || []) byContact.set(row.contact_id, row.token);
-  }
-  return byContact;
-}
-
-async function resendBatch(items, key) {
-  const response = await fetch('https://api.resend.com/emails/batch', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', 'Idempotency-Key': `fuse-audience/${items[0].campaignId}/${items[0].batch}` },
-    body: JSON.stringify(items.map(item => ({ from: item.from, to: [item.email], subject: item.subject, html: item.html, reply_to: item.replyTo || undefined, tags: [{ name: 'campaign_id', value: item.campaignId }, { name: 'recipient_id', value: item.recipientId }] })))
-  });
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.message || payload.error || 'Resend could not send this batch.');
-  return payload;
+function parseScheduledFor(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime()) || date.getTime() <= Date.now()) return null;
+  return date.toISOString();
 }
 
 exports.handler = async event => {
@@ -78,15 +30,17 @@ exports.handler = async event => {
     const body = clean(input.body, 9000);
     const actionUrl = clean(input.actionUrl, 2000);
     const kind = ['marketing', 'repermission', 'transactional'].includes(input.kind) ? input.kind : 'marketing';
+    const scheduledFor = parseScheduledFor(input.scheduledFor);
     if (!name || !subject || !body) return json(400, { error: 'Campaign name, subject and message are required.' });
+    if (input.scheduledFor && !scheduledFor) return json(400, { error: 'Choose a future date and time to schedule this email.' });
     if (actionUrl && !/^https:\/\//i.test(actionUrl)) return json(400, { error: 'Your action link must start with https://.' });
     const { data, error } = await db.from('audience_campaigns').insert({
-      name, channel: 'email', campaign_kind: kind, status: 'draft', subject, body,
-      action_url: actionUrl || null, sender_name: clean(input.senderName, 100) || null,
+      name, channel: 'email', campaign_kind: kind, status: scheduledFor ? 'scheduled' : 'draft', subject, body,
+      action_url: actionUrl || null, scheduled_for: scheduledFor, sender_name: clean(input.senderName, 100) || null,
       sender_email: process.env.FUSE_EMAIL_FROM || null
     }).select().single();
     if (error) return json(500, { error: 'Could not create this draft.' });
-    return json(201, { ok: true, campaign: data });
+    return json(201, { ok: true, campaign: data, message: scheduledFor ? 'Email scheduled.' : 'Draft saved.' });
   }
 
   const campaignId = clean(input.campaignId, 100);
@@ -107,52 +61,26 @@ exports.handler = async event => {
     return json(200, { ok: true, message: 'Test email sent.' });
   }
 
+  if (input.action === 'cancel_schedule') {
+    if (campaign.status !== 'scheduled') return json(409, { error: 'Only scheduled emails can be cancelled.' });
+    const { error } = await db.from('audience_campaigns').update({ status: 'cancelled', updated_at: new Date().toISOString() }).eq('id', campaign.id).eq('status', 'scheduled');
+    if (error) return json(500, { error: 'Could not cancel this scheduled email.' });
+    return json(200, { ok: true, message: 'Scheduled email cancelled.' });
+  }
+
   if (input.action !== 'send') return json(400, { error: 'Unknown campaign action.' });
   if (input.confirmation !== `SEND ${campaign.id}`) return json(400, { error: `Type SEND ${campaign.id} exactly to launch this campaign.` });
-  if (campaign.status !== 'draft') return json(409, { error: 'This campaign has already been sent or is no longer a draft.' });
+  if (campaign.status !== 'draft') return json(409, { error: 'This campaign is no longer a draft.' });
 
-  const { data: contacts, error: contactsError } = await db.from('audience_contacts')
-    .select('id, first_name, email_normalized, email_marketing_status')
-    .not('email_normalized', 'is', null)
-    .neq('email_marketing_status', 'unsubscribed')
-    .limit(1000);
-  if (contactsError) return json(500, { error: 'Could not prepare recipients.' });
-  const { data: suppressed } = await db.from('audience_suppressions').select('identifier').eq('channel', 'email');
-  const suppressedSet = new Set((suppressed || []).map(row => String(row.identifier).toLowerCase()));
-  const eligibleByConsent = campaign.campaign_kind === 'repermission'
-    ? (contacts || [])
-    : (contacts || []).filter(row => row.email_marketing_status === 'subscribed');
-  const recipients = eligibleByConsent.filter(row => !suppressedSet.has(String(row.email_normalized).toLowerCase()));
-  if (!recipients.length) return json(409, { error: 'There are no eligible email contacts.' });
-
-  const { error: recipientError } = await db.from('audience_campaign_recipients').upsert(
-    recipients.map(row => ({ campaign_id: campaign.id, contact_id: row.id, status: 'pending' })),
-    { onConflict: 'campaign_id,contact_id', ignoreDuplicates: true }
-  );
-  if (recipientError) return json(500, { error: 'Could not prepare the campaign recipients.' });
-  const { data: prepared } = await db.from('audience_campaign_recipients').select('id, contact_id')
-    .eq('campaign_id', campaign.id).in('contact_id', recipients.map(row => row.id));
-  const recipientIdByContact = new Map((prepared || []).map(row => [row.contact_id, row.id]));
-  const tokens = await createUnsubscribeTokens(db, recipients);
-  const from = campaign.sender_email || process.env.FUSE_EMAIL_FROM;
-  const batches = [];
-  for (let i = 0; i < recipients.length; i += 100) batches.push(recipients.slice(i, i + 100));
-  const sentIds = [];
-  const failed = [];
-  for (let index = 0; index < batches.length; index += 1) {
-    const batch = batches[index];
-    try {
-      await resendBatch(batch.map(contact => ({
-        campaignId: campaign.id, batch: index + 1, recipientId: recipientIdByContact.get(contact.id), email: contact.email_normalized,
-        from, replyTo: process.env.FUSE_EMAIL_REPLY_TO, subject: campaign.subject,
-        html: mailHtml(campaign, contact, `${publicAppUrl()}/api/audience-unsubscribe?token=${tokens.get(contact.id)}`, `${publicAppUrl()}/api/audience-subscribe?token=${tokens.get(contact.id)}`)
-      })), process.env.RESEND_API_KEY);
-      sentIds.push(...batch.map(row => recipientIdByContact.get(row.id)));
-    } catch (error) {
-      failed.push({ index: index + 1, message: error.message });
-    }
+  const { data: claimed, error: claimError } = await db.from('audience_campaigns')
+    .update({ status: 'sending', updated_at: new Date().toISOString() })
+    .eq('id', campaign.id).eq('status', 'draft').select().maybeSingle();
+  if (claimError || !claimed) return json(409, { error: 'This campaign is already being processed.' });
+  try {
+    const result = await deliverCampaign(db, claimed);
+    return json(200, { ok: true, ...result });
+  } catch (error) {
+    await db.from('audience_campaigns').update({ status: 'paused', updated_at: new Date().toISOString() }).eq('id', campaign.id);
+    return json(500, { error: error.message || 'Could not launch this campaign.' });
   }
-  if (sentIds.length) await db.from('audience_campaign_recipients').update({ status: 'sent', sent_at: new Date().toISOString() }).in('id', sentIds);
-  await db.from('audience_campaigns').update({ status: failed.length ? 'partially_sent' : 'sent', updated_at: new Date().toISOString() }).eq('id', campaign.id);
-  return json(200, { ok: true, sent: sentIds.length, failed });
 };
