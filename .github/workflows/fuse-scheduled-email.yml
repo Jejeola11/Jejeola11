@@ -1,0 +1,30 @@
+name: Run Fuse scheduled emails
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  send-due-emails:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get a signed GitHub identity token
+        id: token
+        shell: bash
+        run: |
+          response="$(curl --fail --silent --show-error \
+            -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=fuse-audience-scheduler")"
+          token="$(echo "$response" | python -c "import json,sys; print(json.load(sys.stdin)['value'])")"
+          echo "::add-mask::$token"
+          echo "value=$token" >> "$GITHUB_OUTPUT"
+      - name: Deliver due Fuse emails
+        run: |
+          curl --fail --silent --show-error \
+            -H "Authorization: Bearer ${{ steps.token.outputs.value }}" \
+            https://fuseatelier.com/api/audience-scheduled-email
