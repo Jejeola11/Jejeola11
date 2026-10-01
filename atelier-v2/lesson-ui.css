@@ -152,6 +152,7 @@ body.drawer-open .module-drawer{transform:translateX(0);visibility:visible;trans
 .drawer-module-count{font-size:17px;font-weight:500;color:#eef7f4;white-space:nowrap}
 .drawer-module-toggle{font-size:31px;line-height:1;color:var(--course-lime);font-weight:500}
 .drawer-feature-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.drawer-update-label{margin-top:8px;color:var(--course-lime);font-size:11px;font-weight:600;letter-spacing:1.1px;text-transform:uppercase}
 .drawer-feature-tag{
   min-height:24px;padding:0 8px;border-radius:999px;display:inline-flex;align-items:center;
   border:1px solid rgba(223,255,78,.34);color:var(--course-lime);font-size:10px;font-weight:500;text-transform:uppercase
