@@ -81,16 +81,22 @@ async function deliverCampaign(db, campaign) {
     { onConflict: 'campaign_id,contact_id', ignoreDuplicates: true }
   );
   if (recipientError) throw recipientError;
-  const { data: prepared, error: preparedError } = await db.from('audience_campaign_recipients').select('id, contact_id')
+  const { data: prepared, error: preparedError } = await db.from('audience_campaign_recipients').select('id, contact_id, status')
     .eq('campaign_id', campaign.id).in('contact_id', recipients.map(row => row.id));
   if (preparedError) throw preparedError;
+  const pendingContactIds = new Set((prepared || []).filter(row => row.status !== 'sent').map(row => row.contact_id));
+  const remaining = recipients.filter(row => pendingContactIds.has(row.id));
+  if (!remaining.length) {
+    await db.from('audience_campaigns').update({ status: 'sent', updated_at: new Date().toISOString() }).eq('id', campaign.id);
+    return { sent: 0, failed: [], status: 'sent', retried: true };
+  }
   const recipientIdByContact = new Map((prepared || []).map(row => [row.contact_id, row.id]));
-  const tokens = await createUnsubscribeTokens(db, recipients);
+  const tokens = await createUnsubscribeTokens(db, remaining);
   const from = campaign.sender_email || process.env.FUSE_EMAIL_FROM;
   const sentIds = [];
   const failed = [];
-  for (let i = 0; i < recipients.length; i += 100) {
-    const batch = recipients.slice(i, i + 100);
+  for (let i = 0; i < remaining.length; i += 100) {
+    const batch = remaining.slice(i, i + 100);
     try {
       await resendBatch(batch.map(contact => ({
         campaignId: campaign.id, batch: (i / 100) + 1, recipientId: recipientIdByContact.get(contact.id), email: contact.email_normalized,
