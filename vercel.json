@@ -67,11 +67,5 @@
     {
       "handle": "filesystem"
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/audience-scheduled-email",
-      "schedule": "*/5 * * * *"
-    }
   ]
 }
