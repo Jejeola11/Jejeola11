@@ -18,7 +18,8 @@ async function authorized(event) {
   try {
     const header = decodeSegment(parts[0]);
     const claims = decodeSegment(parts[1]);
-    if (header.alg !== 'RS256' || !header.kid || claims.iss !== OIDC_ISSUER || claims.aud !== OIDC_AUDIENCE || claims.repository !== REPOSITORY || claims.event_name !== 'schedule') return false;
+    const allowedEvent = claims.event_name === 'schedule' || claims.event_name === 'workflow_dispatch';
+    if (header.alg !== 'RS256' || !header.kid || claims.iss !== OIDC_ISSUER || claims.aud !== OIDC_AUDIENCE || claims.repository !== REPOSITORY || !allowedEvent) return false;
     if (!claims.exp || (claims.exp * 1000) < Date.now()) return false;
     const configResponse = await fetch(OIDC_ISSUER + '/.well-known/openid-configuration');
     const config = await configResponse.json();
