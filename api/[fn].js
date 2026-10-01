@@ -4,8 +4,13 @@
 const path = require('path');
 const { pathToFileURL } = require('url');
 
-function eventFromRequest(req, fn) {
+async function eventFromRequest(req, fn) {
   let body = req.body;
+  if (body == null && ['POST', 'PUT', 'PATCH'].includes(req.method)) {
+    const chunks = [];
+    for await (const chunk of req) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    body = Buffer.concat(chunks).toString('utf8');
+  }
   if (body == null) body = '';
   else if (Buffer.isBuffer(body)) body = body.toString('utf8');
   else if (typeof body !== 'string') body = JSON.stringify(body);
@@ -40,7 +45,7 @@ module.exports = async function vercelHandler(req, res) {
       res.statusCode = 404;
       return res.end(JSON.stringify({ error: 'Function not found' }));
     }
-    const out = await handler(eventFromRequest(req, fn), {});
+    const out = await handler(await eventFromRequest(req, fn), {});
     const status = (out && out.statusCode) || 200;
     res.statusCode = status;
     if (out && out.headers) {
@@ -62,3 +67,6 @@ module.exports = async function vercelHandler(req, res) {
     }));
   }
 };
+
+// Preserve the exact POST body for signed Resend webhooks.
+module.exports.config = { api: { bodyParser: false } };
