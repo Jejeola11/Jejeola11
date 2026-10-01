@@ -25,23 +25,61 @@
   <main class="page">
     <header class="top"><div class="brandline"><a class="close" href="/atelier-v2/home.html" aria-label="Back to Fuse Atelier home">×</a><img class="mark" src="/atelier-v2/media/fuse-mark-login-exact.png" alt=""><p class="brand">Fuse Atelier</p></div><span class="balance" data-balance>My credits</span></header>
     <section class="offer-video" aria-label="Power credit offer"><video autoplay muted loop playsinline preload="auto"><source src="https://res.cloudinary.com/bzw55wh2/video/upload/v1790042320/fuse-pricing-power-23-off.mp4" type="video/mp4"></video><div class="offer-copy"><h1 class="offer-title">23% OFF<br><em>PER CREDIT</em></h1></div></section>
-    <section class="value-note"><p>Go bigger, pay less per credit.<span>Save up to 23% on credit value with Power.</span></p></section>
+    <section class="value-note"><p><b>CLIENT AGENT LAUNCH · 24 HOURS ONLY</b><span>Top up now and get bonus credits automatically—up to 20% extra—before the launch offer ends.</span></p></section>
     <section class="packs" id="packs" aria-label="Credit packs"></section>
     <section class="section"><h2>Made for your creative flow</h2><div class="benefits"><article class="benefit"><strong>One-time top-up</strong><p>No subscription here. Buy only when you need new credits.</p></article><article class="benefit"><strong>Create across Fuse</strong><p>Use your balance for supported image, video, voice and design tools.</p></article><article class="benefit"><strong>More value at scale</strong><p>Every larger pack gives you a lower cost per credit.</p></article></div></section>
     <section class="faq"><h2>Quick answers</h2><details><summary>How do Fuse credits work?</summary><p>Each generation has a clear credit cost. Credits are removed only when you run a supported creation.</p></details><details><summary>How do I pay?</summary><p>Tap the button inside the pack you want. It opens WhatsApp so we can confirm your payment and add your credits.</p></details><details><summary>Why does Power save 23%?</summary><p>Starter is ₦100 per credit, while Power is about ₦76.92 per credit—roughly 23% lower.</p></details></section>
   </main>
   <script>
     const PACKS=[
-      {id:'starter',name:'Starter',naira:1000,usd:1,credits:10,uses:['Up to 5 Economy images','Up to 3 Premium images','Up to 2 Advanced images']},
-      {id:'mini',name:'Mini',naira:2500,usd:2,credits:26,uses:['Up to 13 Economy images','Up to 8 Premium images','Up to 6 Advanced images']},
-      {id:'creator',name:'Creator',naira:5000,usd:4,credits:55,tag:'MOST POPULAR',uses:['Up to 27 Economy images','Up to 18 Premium images','Up to 13 Advanced images']},
-      {id:'pro',name:'Pro',naira:10000,usd:8,credits:115,uses:['Up to 57 Economy images','Up to 38 Premium images','Up to 28 Advanced images']},
-      {id:'studio',name:'Studio',naira:20000,usd:15,credits:240,uses:['Up to 120 Economy images','Up to 80 Premium images','Up to 60 Advanced images']},
-      {id:'power',name:'Power',naira:50000,usd:38,credits:650,tag:'SAVE 23%',uses:['Up to 325 Economy images','Up to 216 Premium images','Up to 162 Advanced images']}
+      {id:'starter',name:'Starter',naira:1000,usd:1,credits:10,bonus:2,uses:['Up to 5 Economy images','Up to 3 Premium images','Up to 2 Advanced images']},
+      {id:'mini',name:'Mini',naira:2500,usd:2,credits:26,bonus:4,uses:['Up to 13 Economy images','Up to 8 Premium images','Up to 6 Advanced images']},
+      {id:'creator',name:'Creator',naira:5000,usd:4,credits:55,bonus:8,tag:'MOST POPULAR',uses:['Up to 27 Economy images','Up to 18 Premium images','Up to 13 Advanced images']},
+      {id:'pro',name:'Pro',naira:10000,usd:8,credits:115,bonus:17,uses:['Up to 57 Economy images','Up to 38 Premium images','Up to 28 Advanced images']},
+      {id:'studio',name:'Studio',naira:20000,usd:15,credits:240,bonus:36,uses:['Up to 120 Economy images','Up to 80 Premium images','Up to 60 Advanced images']},
+      {id:'power',name:'Power',naira:50000,usd:38,credits:650,bonus:65,tag:'SAVE 23%',uses:['Up to 325 Economy images','Up to 216 Premium images','Up to 162 Advanced images']}
     ];
+    const LAUNCH_END=Date.parse('2026-10-02T06:30:00Z');
+    const launchActive=Date.now()<LAUNCH_END;
     const money=n=>'₦'+n.toLocaleString('en-NG');
     function whatsapp(p){
-      const message='Hi Fuse Atelier, I want to get the '+p.name+' pack ('+money(p.naira)+' / $'+p.usd+', '+p.credits+' credits). Please send me payment details.';
+      const credits=p.credits+(launchActive?Number(p.bonus||0):0);
+      const bonus=launchActive&&p.bonus?' including the 24-hour Client Agent launch bonus':'';
+      const message='Hi Fuse Atelier, I want to get the '+p.name+' pack ('+money(p.naira)+' / 
+      return 'https://wa.me/2349044558101?text='+encodeURIComponent(message);
+    }
+    function card(p){
+      const benefits=p.uses.map(use=>'<li>'+use+'</li>').join('');
+      const tag=p.tag?'<span class="badge">'+p.tag+'</span>':'';
+      const credits=p.credits+(launchActive?Number(p.bonus||0):0);const tag=launchActive&&p.bonus?'LAUNCH +'+p.bonus:' '+(p.tag||'');
+      return '<article class="pack '+p.id+'"><span class="pack-inner"><span class="pack-head"><strong class="name">'+p.name+'</strong><span class="price"><strong><ul class="uses">'+benefits+'</ul><a class="pack-action" href="'+whatsapp(p)+'" target="_blank" rel="noopener">Get '+p.name+'</a></span>'+(tag?'<span class="badge">'+tag+'</span>':'')+'</article>';
+    }
+    document.getElementById('packs').innerHTML=PACKS.map(card).join('');
+  </script>
+  </script>
+</body>
+</html>
++p.usd+', '+credits+' credits'+bonus+'). Please send me payment details.';
+      return 'https://wa.me/2349044558101?text='+encodeURIComponent(message);
+    }
+    function card(p){
+      const benefits=p.uses.map(use=>'<li>'+use+'</li>').join('');
+      const tag=p.tag?'<span class="badge">'+p.tag+'</span>':'';
+      return '<article class="pack '+p.id+'"><span class="pack-inner"><span class="pack-head"><strong class="name">'+p.name+'</strong><span class="price"><strong>$'+p.usd+'</strong><small>'+money(p.naira)+'</small></span></span><strong class="credits">'+p.credits+' credits</strong><ul class="uses">'+benefits+'</ul><a class="pack-action" href="'+whatsapp(p)+'" target="_blank" rel="noopener">Get '+p.name+'</a></span>'+tag+'</article>';
+    }
+    document.getElementById('packs').innerHTML=PACKS.map(card).join('');
+  </script>
+  </script>
+</body>
+</html>
++p.usd+'</strong><small>'+money(p.naira)+'</small></span></span><strong class="credits">'+credits+' credits'+(launchActive&&p.bonus?' <small>('+p.bonus+' bonus)</small>':'')+'</strong><ul class="uses">'+benefits+'</ul><a class="pack-action" href="'+whatsapp(p)+'" target="_blank" rel="noopener">Get '+p.name+'</a></span>'+tag+'</article>';
+    }
+    document.getElementById('packs').innerHTML=PACKS.map(card).join('');
+  </script>
+  </script>
+</body>
+</html>
++p.usd+', '+credits+' credits'+bonus+'). Please send me payment details.';
       return 'https://wa.me/2349044558101?text='+encodeURIComponent(message);
     }
     function card(p){
