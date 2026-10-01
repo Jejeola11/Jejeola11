@@ -13,7 +13,7 @@ async function recentDeliveryLog(db, campaigns) {
   const ids = campaigns.map(item => item.id);
   if (!ids.length) return [];
   const { data, error } = await db.from('audience_campaign_recipients')
-    .select('id, campaign_id, status, sent_at, contact_id, audience_contacts(first_name, email_normalized)')
+    .select('id, campaign_id, status, sent_at, delivered_at, failure_reason, provider_message_id, contact_id, audience_contacts(first_name, email_normalized)')
     .in('campaign_id', ids).order('sent_at', { ascending: false, nullsFirst: false }).limit(500);
   if (error) throw error;
   return data || [];
