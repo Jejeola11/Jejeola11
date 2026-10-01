@@ -52,8 +52,13 @@ async function resendBatch(items) {
     body: JSON.stringify(items.map(item => ({ from: item.from, to: [item.email], subject: item.subject, html: item.html, reply_to: item.replyTo || undefined, tags: [{ name: 'campaign_id', value: item.campaignId }, { name: 'recipient_id', value: item.recipientId }] })))
   });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.message || payload.error || 'Resend could not send this batch.');
-  return payload;
+  if (!response.ok) {
+    console.error('[Audience email] Resend batch rejected', { status: response.status, batch: items[0]?.batch, campaignId: items[0]?.campaignId, error: payload.message || payload.error || 'unknown' });
+    throw new Error(payload.message || payload.error || 'Resend could not send this batch.');
+  }
+  const accepted = Array.isArray(payload.data) ? payload.data : [];
+  console.info('[Audience email] Resend batch accepted', { campaignId: items[0]?.campaignId, batch: items[0]?.batch, requested: items.length, providerIds: accepted.filter(row => row && row.id).length });
+  return { payload, accepted };
 }
 
 async function eligibleRecipients(db, campaign) {
@@ -84,34 +89,46 @@ async function deliverCampaign(db, campaign) {
   const { data: prepared, error: preparedError } = await db.from('audience_campaign_recipients').select('id, contact_id, status')
     .eq('campaign_id', campaign.id).in('contact_id', recipients.map(row => row.id));
   if (preparedError) throw preparedError;
-  const pendingContactIds = new Set((prepared || []).filter(row => row.status !== 'sent').map(row => row.contact_id));
+  // Only a webhook can prove final delivery. A queued request may still bounce,
+  // be suppressed or be delayed, so do not treat it as sent on a retry.
+  const pendingContactIds = new Set((prepared || []).filter(row => ['pending', 'failed'].includes(row.status)).map(row => row.contact_id));
   const remaining = recipients.filter(row => pendingContactIds.has(row.id));
   if (!remaining.length) {
-    await db.from('audience_campaigns').update({ status: 'sent', updated_at: new Date().toISOString() }).eq('id', campaign.id);
-    return { sent: 0, failed: [], status: 'sent', retried: true };
+    return { sent: 0, failed: [], status: campaign.status, retried: true };
   }
   const recipientIdByContact = new Map((prepared || []).map(row => [row.contact_id, row.id]));
   const tokens = await createUnsubscribeTokens(db, remaining);
   const from = campaign.sender_email || process.env.FUSE_EMAIL_FROM;
-  const sentIds = [];
+  const queued = [];
   const failed = [];
   for (let i = 0; i < remaining.length; i += 100) {
     const batch = remaining.slice(i, i + 100);
     try {
-      await resendBatch(batch.map(contact => ({
+      const requestItems = batch.map(contact => ({
         campaignId: campaign.id, batch: (i / 100) + 1, recipientId: recipientIdByContact.get(contact.id), email: contact.email_normalized,
         from, replyTo: process.env.FUSE_EMAIL_REPLY_TO, subject: merge(campaign.subject, contact),
         html: mailHtml(campaign, contact, `${publicAppUrl()}/api/audience-unsubscribe?token=${tokens.get(contact.id)}`, `${publicAppUrl()}/api/audience-subscribe?token=${tokens.get(contact.id)}`)
-      })));
-      sentIds.push(...batch.map(row => recipientIdByContact.get(row.id)));
+      }));
+      const result = await resendBatch(requestItems);
+      const now = new Date().toISOString();
+      const providerIdFor = new Map((result.accepted || []).map((row, index) => [requestItems[index]?.recipientId, row && row.id]).filter(([id, providerId]) => id && providerId));
+      const recipientIds = requestItems.map(item => item.recipientId).filter(Boolean);
+      if (recipientIds.length) {
+        const { error: queueError } = await db.from('audience_campaign_recipients').update({ status: 'queued', sent_at: now, failure_reason: null }).in('id', recipientIds);
+        if (queueError) throw queueError;
+      }
+      for (const [recipientId, providerMessageId] of providerIdFor) {
+        const { error: idError } = await db.from('audience_campaign_recipients').update({ provider_message_id: providerMessageId }).eq('id', recipientId);
+        if (idError) throw idError;
+      }
+      queued.push(...recipientIds);
     } catch (error) {
       failed.push({ index: (i / 100) + 1, message: error.message });
     }
   }
-  if (sentIds.length) await db.from('audience_campaign_recipients').update({ status: 'sent', sent_at: new Date().toISOString() }).in('id', sentIds);
-  const status = failed.length ? 'paused' : 'sent';
+  const status = failed.length ? 'paused' : 'sending';
   await db.from('audience_campaigns').update({ status, updated_at: new Date().toISOString() }).eq('id', campaign.id);
-  return { sent: sentIds.length, failed, status };
+  return { queued: queued.length, failed, status };
 }
 
 async function sendWelcome(db, contact) {
