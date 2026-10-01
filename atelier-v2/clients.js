@@ -155,7 +155,7 @@ function closeMemory(){
   if(state.agentProfile?.profile_json?.skill){onboarding.style.display='none';$('clientDashboard').style.display='block'}
 }
 function setFindCount(value){
-  const n=Number(value)||5,credits={5:50,10:90,20:160}[n]||50;
+  const n=Number(value)||5,credits={5:30,10:50,20:90}[n]||30;
   $('findCount').value=n;
   document.querySelectorAll('.find-count-choice').forEach(button=>button.classList.toggle('active',Number(button.dataset.count)===n));
   const run=$('runFind');if(run)run.innerHTML='Find my '+n+' client'+(n===1?'':'s')+' <span>→</span>';
@@ -581,7 +581,7 @@ async function runFind(){
   if(state.researchJob?.status==='researching')return toast('Fuse is already researching your leads.');
   const skill=$('findSkill').value,niche=$('findNiche').value.trim(),location=$('findLocation').value.trim(),offer=$('findOffer').value.trim(),starter_price=$('findPrice').value.trim(),return_count=Number($('findCount').value);
   if(!skill||!niche||!location)return toast('Choose your skill, niche and city + country.',true);
-  const credits={5:50,10:90,20:160}[return_count]||50;
+  const credits={5:30,10:50,20:90}[return_count]||30;
   if(Number(state.credits||0)<credits){
     const notice=$('findNotice');if(notice){notice.innerHTML='<strong>Not enough credits.</strong> This search needs <b>'+credits+' credits</b>, but you have <b>'+Number(state.credits||0)+'</b>. <a href="/credits">Top up credits →</a>';notice.classList.add('insufficient')}
     return toast('You need '+credits+' credits to start this research.',true);
