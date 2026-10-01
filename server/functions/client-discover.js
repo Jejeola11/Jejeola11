@@ -523,13 +523,13 @@ exports.handler=async(event)=>{
     const mapRows=[...baseMapRows,...aiRows];
     const uniqueMapRows=mapRows.filter((place,index,all)=>all.findIndex(other=>(place.id&&other.id===place.id)||(!place.id&&domainFrom(place.websiteUri||'')&&domainFrom(other.websiteUri||'')===domainFrom(place.websiteUri||'')))===index).sort((a,b)=>scoreBase(b)-scoreBase(a));
     const freshMapRows=uniqueMapRows.filter(place=>!existingKeys.has(canonicalKey({place,name:clean(place.displayName&&place.displayName.text,180),domain:domainFrom(place.websiteUri||'')})));
-    const candidates=freshMapRows.slice(0,returnCount===5?36:returnCount===10?60:90);
+    const candidates=freshMapRows.slice(0,returnCount===5?18:returnCount===10?32:54);
     const stageOne=await Promise.all(candidates.map(p=>enrichStageOne(p,skill,location,niche,key)));
     stageOne.forEach(x=>{x.agentOffer=agentOffer});
     // Research extra candidates so a business already reserved for another student
     // does not turn a requested batch of five into an empty one.
     const shortlist=stageOne.filter(x=>x.qualifies).sort((a,b)=>b.score-a.score)
-      .slice(0,Math.min(candidates.length,Math.max(returnCount*5,returnCount+15)));
+      .slice(0,Math.min(candidates.length,Math.max(returnCount*2,returnCount+5)));
     const enriched=(await Promise.all(shortlist.map(x=>finishEnrichment(x,skill,location,niche,key,researchForPlace(x.place,aiResearch))))).sort((a,b)=>b.score-a.score);
     // Do not turn a missing founder record into a false “no results”. The user
     // explicitly needs the founder where public evidence exists, but a real,
