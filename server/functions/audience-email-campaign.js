@@ -9,6 +9,16 @@ function parseScheduledFor(value) {
   return date.toISOString();
 }
 
+async function recentDeliveryLog(db, campaigns) {
+  const ids = campaigns.map(item => item.id);
+  if (!ids.length) return [];
+  const { data, error } = await db.from('audience_campaign_recipients')
+    .select('id, campaign_id, status, sent_at, contact_id, audience_contacts(first_name, email_normalized)')
+    .in('campaign_id', ids).order('sent_at', { ascending: false, nullsFirst: false }).limit(500);
+  if (error) throw error;
+  return data || [];
+}
+
 exports.handler = async event => {
   const access = await requireAdmin(event);
   if (access.error) return access.error;
@@ -19,7 +29,9 @@ exports.handler = async event => {
       .select('id, name, channel, campaign_kind, status, subject, body, action_url, sender_name, sender_email, scheduled_for, created_at')
       .eq('channel', 'email').order('created_at', { ascending: false }).limit(50);
     if (error) return json(500, { error: 'Could not load email campaigns.' });
-    return json(200, { ok: true, configured: configured(), sender: process.env.FUSE_EMAIL_FROM || null, campaigns: data || [] });
+    let deliveries = [];
+    try { deliveries = await recentDeliveryLog(db, data || []); } catch (_) {}
+    return json(200, { ok: true, configured: configured(), sender: process.env.FUSE_EMAIL_FROM || null, campaigns: data || [], deliveries });
   }
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed.' });
 
