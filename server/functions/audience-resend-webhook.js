@@ -50,7 +50,7 @@ exports.handler = async event => {
   if (seen) return json(200, { ok: true, duplicate: true });
 
   const { data: recipients, error } = await db.from('audience_campaign_recipients')
-    .select('id').eq('provider_message_id', emailId);
+.select('id, status').eq('provider_message_id', emailId);
   if (error) throw error;
 
   const now = payload.created_at || new Date().toISOString();
@@ -62,7 +62,9 @@ exports.handler = async event => {
   if (status === 'failed') updates.failure_reason = failureFor(payload) || 'Email provider reported a delivery failure.';
 
   for (const recipient of recipients || []) {
-    await db.from('audience_campaign_recipients').update(updates).eq('id', recipient.id);
+    const recipientUpdates = { ...updates };
+    if (status === 'queued' && ['delivered', 'opened', 'clicked'].includes(recipient.status)) delete recipientUpdates.status;
+    await db.from('audience_campaign_recipients').update(recipientUpdates).eq('id', recipient.id);
     await db.from('audience_message_events').insert({
       campaign_recipient_id: recipient.id,
       event_type: type,
