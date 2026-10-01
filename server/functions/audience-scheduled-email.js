@@ -42,7 +42,7 @@ exports.handler = async event => {
   const db = admin();
   const now = new Date().toISOString();
   const { data: due, error } = await db.from('audience_campaigns')
-    .select('*').eq('channel', 'email').eq('status', 'scheduled')
+    .select('*').eq('channel', 'email').in('status', ['scheduled', 'paused'])
     .lte('scheduled_for', now).order('scheduled_for', { ascending: true }).limit(10);
   if (error) return json(500, { error: 'Could not load scheduled email.' });
 
@@ -50,7 +50,7 @@ exports.handler = async event => {
   for (const campaign of due || []) {
     const { data: claimed, error: claimError } = await db.from('audience_campaigns')
       .update({ status: 'sending', updated_at: new Date().toISOString() })
-      .eq('id', campaign.id).eq('status', 'scheduled').select().maybeSingle();
+      .eq('id', campaign.id).in('status', ['scheduled', 'paused']).select().maybeSingle();
     if (claimError || !claimed) continue;
     try {
       const result = await deliverCampaign(db, claimed);
