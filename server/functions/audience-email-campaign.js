@@ -46,6 +46,27 @@ exports.handler = async event => {
   const campaignId = clean(input.campaignId, 100);
   const { data: campaign, error: campaignError } = await db.from('audience_campaigns').select('*').eq('id', campaignId).eq('channel', 'email').maybeSingle();
   if (campaignError || !campaign) return json(404, { error: 'Email campaign not found.' });
+
+  if (input.action === 'update') {
+    if (!['draft', 'scheduled', 'paused', 'cancelled'].includes(campaign.status)) return json(409, { error: 'Sent or active emails cannot be edited.' });
+    const name = clean(input.name, 140);
+    const subject = clean(input.subject, 220);
+    const body = clean(input.body, 9000);
+    const actionUrl = clean(input.actionUrl, 2000);
+    const kind = ['marketing', 'repermission', 'transactional'].includes(input.kind) ? input.kind : 'marketing';
+    const scheduledFor = parseScheduledFor(input.scheduledFor);
+    if (!name || !subject || !body) return json(400, { error: 'Campaign name, subject and message are required.' });
+    if (input.scheduledFor && !scheduledFor) return json(400, { error: 'Choose a future date and time to schedule this email.' });
+    if (actionUrl && !/^https:\/\//i.test(actionUrl)) return json(400, { error: 'Your action link must start with https://.' });
+    const { data, error } = await db.from('audience_campaigns').update({
+      name, subject, body, action_url: actionUrl || null, campaign_kind: kind,
+      scheduled_for: scheduledFor, status: scheduledFor ? 'scheduled' : 'draft',
+      updated_at: new Date().toISOString()
+    }).eq('id', campaign.id).select().single();
+    if (error) return json(500, { error: 'Could not save your changes.' });
+    return json(200, { ok: true, campaign: data, message: scheduledFor ? 'Scheduled email updated.' : 'Draft updated.' });
+  }
+
   if (!configured()) return json(409, { error: 'Add RESEND_API_KEY and FUSE_EMAIL_FROM in Vercel before sending.' });
 
   if (input.action === 'send_test') {
