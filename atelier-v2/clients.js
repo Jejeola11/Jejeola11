@@ -109,7 +109,7 @@ async function boot(){
 }
 async function loadAll(){
   const uid=state.session.user.id;
-  const [p,pr,ct,r,j,a,ap]=await Promise.all([
+  const [p,pr,ct,r,j,a,ap,balance]=await Promise.all([
     sb.from('client_prospects').select('*').eq('user_id',uid).order('updated_at',{ascending:false}),
     sb.from('client_proposals').select('*').eq('user_id',uid).order('created_at',{ascending:false}),
     sb.from('client_contracts').select('*').eq('user_id',uid).order('created_at',{ascending:false}),
