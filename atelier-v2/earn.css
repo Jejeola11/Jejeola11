@@ -11,3 +11,7 @@
 .hero-portrait::before { content:""; position:absolute; inset:0; width:auto; height:auto; border:0; border-radius:0; transform:none; animation:none; background:linear-gradient(90deg,rgba(0,16,18,.96) 0%,rgba(0,16,18,.80) 44%,rgba(0,16,18,.15) 100%),linear-gradient(180deg,rgba(0,16,18,.08) 0%,rgba(0,16,18,.74) 100%); box-shadow:none; filter:none; z-index:1; }
 .hero-portrait::after { display:none; }
 @media (max-width:430px) { .earn-hero { min-height:430px; } .hero-portrait img { object-position:63% 50%; } }
+
+/* Brighter full-resolution creator photo */
+.hero-portrait img { filter: brightness(1.32) saturate(.98) contrast(1.02); }
+.hero-portrait::before { background:linear-gradient(90deg,rgba(0,16,18,.78) 0%,rgba(0,16,18,.58) 42%,rgba(0,16,18,.08) 100%),linear-gradient(180deg,rgba(0,16,18,.02) 0%,rgba(0,16,18,.58) 100%); }
