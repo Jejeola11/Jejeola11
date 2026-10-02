@@ -67,14 +67,14 @@
     academy:{path:'learn.html',label:'Academy'},
     create:{path:'studio.html',label:'Create'},
     client:{path:'clients.html',label:'Client'},
-    profile:{path:'profile.html',label:'Profile'}
+    earn:{path:'earn.html',label:'Earn'}
   };
   const icons={
     client:'M3 7h18v13H3z M8 7V4h8v3 M3 11h18',
     home:'M3 10 12 3 21 10v11h-6v-7H9v7H3z',
     academy:'m2 9 10-5 10 5-10 5z M5 11v7q7 5 14 0v-7',
     create:'M12 4v16 M4 12h16',
-    profile:'M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M4 22v-3a8 6 0 0 1 16 0v3'
+    earn:'M12 3v18 M5 10h14 M6 21h12'
   };
 
   document.querySelectorAll('[data-fuse-header]').forEach(el=>{
