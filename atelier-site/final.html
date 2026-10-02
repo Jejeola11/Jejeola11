@@ -264,14 +264,14 @@ nav{
 .coach-image img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
 .coach-image:after{content:"";position:absolute;left:0;right:0;bottom:0;height:30%;background:linear-gradient(transparent,rgba(0,12,14,.9))}
 .coach-image figcaption{position:absolute;z-index:2;left:28px;right:28px;bottom:26px;color:#fff;font-size:17px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-.coach-copy{padding:62px 0 0}
+.coach-copy{padding:40px 0 0}
 .coach-copy .eyebrow{font-size:17px;letter-spacing:.16em}
 .coach-name{
   margin:20px 0 10px;font-size:88px;line-height:.92;letter-spacing:-.065em;font-weight:700;
   background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent;
 }
 .coach-title{max-width:620px;margin:0 0 30px;font-size:26px;line-height:1.22;font-weight:700;text-transform:uppercase}
-.coach-copy p{margin:0 0 20px;color:var(--muted);font-size:15px;line-height:1.78}
+.coach-copy p{margin:0 0 20px;color:#fff;font-size:15px;line-height:1.68}
 .coach-copy .btn{margin-top:8px}
 
 /* PRICING */
@@ -770,6 +770,12 @@ body.audience-locked>body>*,body.audience-locked>*:not(#audienceGate){filter:blu
 .skill-card .outcome{background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent!important}
 @media(max-width:700px){.visual-card.three{bottom:-42px}}
 </style>
+<style id="coach-section-fix">
+  .coach-image img{object-fit:cover;object-position:center top}
+  .coach-copy{padding-top:40px!important}
+  .coach-copy p{color:#fff!important;line-height:1.68!important}
+  @media(max-width:720px){.coach-copy{padding-top:34px!important}.coach-copy p{line-height:1.68!important}}
+</style>
 </head>
 <body><div id="audienceGate"><form class="audience-card" id="audienceLeadForm"><div class="audience-eyebrow">Before you enter Fuse Atelier</div><h2>Start building your AI income.</h2><p>Leave your details once to explore Fuse Atelier. You’ll be remembered on this browser.</p><div class="audience-field"><label for="audienceName">Name</label><input id="audienceName" required placeholder="Your name"></div><div class="audience-field"><label for="audienceEmail">Email</label><input id="audienceEmail" type="email" required placeholder="you@email.com"></div><div class="audience-field"><label for="audienceCountry">Country</label><select id="audienceCountry" required><option value="">Choose your country</option><option>Nigeria</option><option>Gambia</option><option>Ghana</option><option>Kenya</option><option>South Africa</option><option>Tanzania</option><option>Uganda</option><option>United Kingdom</option><option>United States</option><option>Other</option></select></div><div class="audience-field"><label>WhatsApp number</label><div class="audience-phone"><select id="audienceCode" required><option value="+234">+234 · Nigeria</option><option value="+220">+220 · Gambia</option><option value="+233">+233 · Ghana</option><option value="+254">+254 · Kenya</option><option value="+27">+27 · South Africa</option><option value="+255">+255 · Tanzania</option><option value="+256">+256 · Uganda</option><option value="+44">+44 · United Kingdom</option><option value="+1">+1 · United States</option></select><input id="audienceNumber" inputmode="tel" required placeholder="801 234 5678"></div></div><div class="audience-error" id="audienceError"></div><button type="submit">VIEW FUSE ATELIER →</button><p class="audience-note">Your details are saved securely so we can keep you connected to Fuse resources.</p></form></div>
 <div class="page-notice" id="pageNotice" role="status" aria-live="polite"></div>
@@ -930,7 +936,7 @@ body.audience-locked>body>*,body.audience-locked>*:not(#audienceGate){filter:blu
   <div class="wrap">
     <div class="coach-shell">
       <figure class="coach-image depth reveal" data-tilt>
-        <img src="https://fuse-atelier-class.vercel.app/assets/ria-phone-to-client.jpg" alt="Ria, coach and founder of Fuse Atelier" loading="lazy">
+        <img src="/atelier-v2/assets/ria-coach.jpg" alt="Ria, coach and founder of Fuse Atelier" loading="eager" fetchpriority="high">
         <figcaption>Ria • Founder, Fuse Atelier</figcaption>
       </figure>
       <div class="coach-copy reveal">
