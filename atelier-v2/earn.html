@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#001012">
+<title>Fuse Earn · Fuse Atelier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
+<link rel="stylesheet" href="fuse.css?v=footer-earn-1">
+<link rel="stylesheet" href="earn.css?v=launch-1">
+<script src="fuse-shell.js?v=footer-earn-1" defer></script>
+<script src="earn.js?v=launch-1" defer></script>
+</head>
+<body data-page="earn">
+<div data-fuse-header></div>
+<main class="earn-wrap">
+  <section class="earn-hero">
+    <p class="kicker">FUSE EARN</p>
+    <h1>Share what you build.<br><span>Get paid for it.</span></h1>
+    <p class="lead">Earn ₦12,500 on every confirmed Fuse Core sale. Create great Fuse demos and unlock extra creator bonuses.</p>
+    <div class="hero-points"><span><b>50%</b> per sale</span><span><b>+</b> creator bonuses</span></div>
+    <a class="chrome-btn" href="#apply">Apply to Earn <span>→</span></a>
+  </section>
+
+  <section class="earn-section">
+    <div class="section-label">HOW IT WORKS</div>
+    <h2>Three clear steps.</h2>
+    <div class="steps">
+      <article><i>01</i><h3>Apply</h3><p>Tell us where you will share Fuse.</p></article>
+      <article><i>02</i><h3>Share</h3><p>Get your personal link and creator brief.</p></article>
+      <article><i>03</i><h3>Earn</h3><p>Track confirmed sales and approved bonuses.</p></article>
+    </div>
+  </section>
+
+  <section class="earn-section">
+    <div class="section-label">WAYS TO EARN</div>
+    <h2>One program. Two earning lanes.</h2>
+    <div class="lanes">
+      <article class="lane"><div class="lane-icon">↗</div><p class="lane-tag">AFFILIATE</p><h3>₦12,500 per sale</h3><p>Earn 50% when someone joins Fuse Core through your personal link.</p></article>
+      <article class="lane"><div class="lane-icon">✦</div><p class="lane-tag">CREATOR</p><h3>Bonus for strong Reels</h3><p>Show a real Fuse feature, tag Fuse, submit the Reel and unlock approved performance rewards.</p></article>
+    </div>
+  </section>
+
+  <section class="rules">
+    <div><p class="section-label">KEEP IT REAL</p><h2>Organic, original, honest.</h2></div>
+    <ul>
+      <li>Use your own content and real Fuse demonstrations.</li>
+      <li>Clearly disclose your affiliate relationship.</li>
+      <li>No paid ads, bought views, self-referrals or misleading promises.</li>
+    </ul>
+  </section>
+
+  <section id="apply" class="application">
+    <div class="section-label">APPLICATION</div>
+    <h2 id="formTitle">Apply to Fuse Earn</h2>
+    <p id="formLead">Your application is reviewed before your link and creator tools are unlocked.</p>
+    <div id="applicationState" class="application-state" hidden></div>
+    <form id="applicationForm">
+      <label>Full name<input id="fullName" name="fullName" autocomplete="name" required maxlength="100" placeholder="Your full name"></label>
+      <label>Email address<input id="email" name="email" type="email" autocomplete="email" required readonly></label>
+      <label>Instagram handle <small>Required for Creator or Both</small><input id="instagram" name="instagram" autocomplete="off" maxlength="80" placeholder="@yourhandle"></label>
+      <label>Your main platform <small>Instagram, TikTok, YouTube, X or community link</small><input id="platformUrl" name="platformUrl" type="url" inputmode="url" maxlength="500" placeholder="https://"></label>
+      <label>Country or region<input id="country" name="country" autocomplete="country-name" required maxlength="100" placeholder="Nigeria"></label>
+      <fieldset><legend>How do you want to earn?</legend><div class="track-grid">
+        <label><input type="radio" name="track" value="affiliate" required><span><b>Affiliate</b>Share my link</span></label>
+        <label><input type="radio" name="track" value="creator"><span><b>Creator</b>Make Fuse demos</span></label>
+        <label><input type="radio" name="track" value="both"><span><b>Both</b>Do both</span></label>
+      </div></fieldset>
+      <label>Why are you a good fit? <small>Optional</small><textarea id="audienceNote" name="audienceNote" maxlength="500" placeholder="Tell us a little about your audience or content style."></textarea></label>
+      <label class="agreement"><input id="agree" type="checkbox" required><span>I will follow the Fuse Earn rules and disclose my affiliate relationship clearly.</span></label>
+      <button class="chrome-btn wide" id="submitApplication" type="submit">Submit application <span>→</span></button>
+      <p id="formMessage" class="form-message" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+</main>
+</body>
+</html>
