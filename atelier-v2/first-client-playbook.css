@@ -221,5 +221,6 @@ body:has(.lead-dialog[open]){overflow:hidden}
 .submit-btn{display:block;width:100%;margin-top:4px;padding:14px}
 .submit-btn:disabled{opacity:.65;cursor:wait;transform:none;box-shadow:none}
 .lead-consent{display:block;margin-top:10px;color:#1B4C52;font-size:10px;line-height:1.45;text-align:center}
+.lead-optin{display:flex!important;align-items:flex-start;gap:8px;margin:14px 0 0!important;color:#143c3b!important;font-size:11px!important;font-weight:700!important;letter-spacing:0!important;text-transform:none!important;line-height:1.4}.lead-optin input{width:16px!important;height:16px;margin:0!important;flex:0 0 16px;accent-color:#0d716c}
 .honey{position:absolute!important;left:-9999px!important;opacity:0!important;pointer-events:none!important}
 @media(max-width:520px){.lead-dialog{padding:25px 19px}.lead-form-grid{grid-template-columns:1fr}.lead-dialog h2{font-size:31px}}
