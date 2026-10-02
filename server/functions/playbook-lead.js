@@ -53,6 +53,7 @@ exports.handler = async (event) => {
   const lead_type = 'playbook';
   const source = clean(body.source, 500);
   const utm_campaign = clean(body.utm_campaign, 160);
+  const whatsapp_opt_in = body.whatsapp_opt_in === true || body.whatsapp_opt_in === 'true' || body.whatsapp_opt_in === 'on';
   const biggest_struggle = clean(
     body.biggest_struggle || (requested_lead_type === 'code-vault'
       ? 'Accessing Director Ria code vault resources'
@@ -96,10 +97,13 @@ exports.handler = async (event) => {
     phone_raw: phone_e164,
     country,
     biggest_struggle,
-    whatsapp_marketing_status: 'opted_in',
-    whatsapp_opted_in_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
+  if (whatsapp_opt_in) {
+    audiencePayload.whatsapp_marketing_status = 'opted_in';
+    audiencePayload.whatsapp_opted_in_at = new Date().toISOString();
+    audiencePayload.whatsapp_opted_out_at = null;
+  }
   let { data: audienceContact, error: audienceLookupError } = await db
     .from('audience_contacts')
     .select('id')
