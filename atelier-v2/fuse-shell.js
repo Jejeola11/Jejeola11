@@ -74,7 +74,7 @@
     home:'M3 10 12 3 21 10v11h-6v-7H9v7H3z',
     academy:'m2 9 10-5 10 5-10 5z M5 11v7q7 5 14 0v-7',
     create:'M12 4v16 M4 12h16',
-    earn:'M12 3v18 M5 10h14 M6 21h12'
+    earn:'M4 20h16 M5 17l4-5 3 3 6-8 M16 7h2v2'
   };
 
   document.querySelectorAll('[data-fuse-header]').forEach(el=>{
