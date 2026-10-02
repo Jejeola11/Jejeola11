@@ -101,6 +101,7 @@ footer small{font-size:.68rem}
 .lead-dialog input:focus,.lead-dialog select:focus{border-color:#308a70;box-shadow:0 0 0 3px rgba(48,138,112,.12)}
 .lead-dialog .submit-btn{width:100%;min-height:50px;margin-top:1px}.form-status{min-height:1.3em;margin:0 0 8px;color:#a42f2f;font-size:.82rem;font-weight:700}
 .consent{display:block;margin:11px auto 0;text-align:center;color:#68726d;font-size:.67rem}.honey{position:absolute!important;left:-9999px!important}
+.lead-dialog .lead-optin{display:flex;align-items:flex-start;gap:8px;margin:14px 0 12px;font-size:.76rem;font-weight:700;letter-spacing:0;text-transform:none;line-height:1.4}.lead-dialog .lead-optin input{width:16px;height:16px;min-width:16px;margin:1px 0 0;padding:0;accent-color:#0b5b4e}
 .submit-btn:disabled{opacity:.65;cursor:wait}
 @media(max-width:720px){
   .section-shell{width:min(100% - 40px,940px)}
