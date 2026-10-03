@@ -238,10 +238,12 @@ nav{
 #student-wins .section-head h2{font-size:26px;line-height:1.18}
 .student-wins-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
 .student-win-card{
-  position:relative;aspect-ratio:3/4;margin:0;overflow:hidden;border-radius:24px;
+  position:relative;margin:0;overflow:hidden;border-radius:24px;
   border:1px solid rgba(238,255,224,.18);background:#00191B;box-shadow:var(--shadow);
 }
-.student-win-card img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.student-win-card img{display:block;width:100%;height:auto;object-fit:contain;object-position:center;background:#001012}
+.student-win-caption{padding:14px 16px 16px;color:#fff;font-size:13px;line-height:1.55;font-weight:500}
+.student-win-caption strong{display:block;margin-bottom:5px;color:var(--white);font-size:15px;font-weight:800}
 
 /* DIFFERENCE */
 .split{display:grid;grid-template-columns:1fr 1fr;gap:18px}
@@ -933,6 +935,8 @@ body.audience-locked>body>*,body.audience-locked>*:not(#audienceGate){filter:blu
       <figure class="student-win-card depth reveal" data-tilt><img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1789544458/Screenshot_20260607-103323_2.jpg" alt="Fuse Atelier student testimonial showing an Upwork client win" loading="lazy"></figure>
       <figure class="student-win-card depth reveal" data-tilt><img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1789544457/Screenshot_20260802-210041_2.jpg" alt="Fuse Atelier student showing a new brand deal and client work" loading="lazy"></figure>
       <figure class="student-win-card depth reveal" data-tilt><img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1789544458/Screenshot_20260803-192451.jpg" alt="Fuse Atelier student outreach response and client opportunity" loading="lazy"></figure>
+      <figure class="student-win-card depth reveal" data-tilt><img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1791007768/IMG-20260919-WA0090.jpg" alt="Marycamella celebrating her first foreign client" loading="lazy"><figcaption class="student-win-caption"><strong>Marycamella — first foreign client</strong>This screenshot genuinely made my whole day. A stay-at-home mum kept learning, creating and posting her work until a brand checked her Instagram proof and moved the conversation forward.</figcaption></figure>
+      <figure class="student-win-card depth reveal" data-tilt><img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1791007767/IMG-20260919-WA0087.jpg" alt="Fuse Atelier student celebrating a major contract win" loading="lazy"><figcaption class="student-win-caption"><strong>One of my biggest contract wins</strong>A real reminder that the right skill, strong proof and a clear pitch can turn consistent effort into serious client work.</figcaption></figure>
     </div>
   </div>
 </section>
