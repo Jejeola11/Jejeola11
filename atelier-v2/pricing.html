@@ -50,7 +50,7 @@
       const benefits=p.uses.map(use=>'<li>'+use+'</li>').join('');
       const credits=p.credits;
       const badge=p.tag||'';
-      return '<article class="pack '+p.id+'"><span class="pack-inner"><span class="pack-head"><strong class="name">'+p.name+'</strong><span class="price"><strong>$'+p.usd+'</strong><small>'+money(p.naira)+'</small></span></span><strong class="credits">'+credits+' credits'++'</strong><ul class="uses">'+benefits+'</ul><a class="pack-action" href="'+whatsapp(p)+'" target="_blank" rel="noopener">Get '+p.name+'</a></span>'+(badge?'<span class="badge">'+badge+'</span>':'')+'</article>';
+      return '<article class="pack '+p.id+'"><span class="pack-inner"><span class="pack-head"><strong class="name">'+p.name+'</strong><span class="price"><strong>$'+p.usd+'</strong><small>'+money(p.naira)+'</small></span></span><strong class="credits">'+credits+' credits</strong><ul class="uses">'+benefits+'</ul><a class="pack-action" href="'+whatsapp(p)+'" target="_blank" rel="noopener">Get '+p.name+'</a></span>'+(badge?'<span class="badge">'+badge+'</span>':'')+'</article>';
     }
     document.getElementById('packs').innerHTML=PACKS.map(card).join('');
   </script>
