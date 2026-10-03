@@ -116,6 +116,7 @@
           </div>
 
           <div class="field">
+            <label class="course-option" style="margin-bottom:10px"><input id="creditsOnly" type="checkbox"><span><strong>Credits only</strong><small>Add credits without changing Academy or Playbook access</small></span></label>
             <label>What should this student access?</label>
             <div class="course-grid">
               <label class="course-option all-option">
@@ -175,6 +176,7 @@
   let session=null;
 
   function selectedCourses(){
+    if($('creditsOnly').checked) return [];
     if($('allCourses').checked) return ['all'];
     return [...document.querySelectorAll('.courseCheck:checked')].map(el=>el.value);
   }
@@ -194,6 +196,7 @@
       $('credits').disabled=false;
     }
   }
+  $('creditsOnly').addEventListener('change',()=>{if($('creditsOnly').checked){$('allCourses').checked=false;document.querySelectorAll('.courseCheck').forEach(el=>el.checked=false)}syncAccess()});
   $('allCourses').addEventListener('change',syncAccess);
   document.querySelectorAll('.courseCheck').forEach(el=>el.addEventListener('change',syncAccess));
 
