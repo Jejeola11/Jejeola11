@@ -60,6 +60,8 @@
     </section>
   </main>
 
+  <div class="build-overlay" id="buildOverlay" aria-live="polite"><div class="build-loader"><img src="media/fuse-mark-palette.webp" alt=""><strong>Fuse Atelier is building</strong><span>Turning your idea into a website</span></div></div>
+
   <script>
     const promptEl=document.getElementById('pagePrompt'),sendBtn=document.getElementById('sendBtn');
     const attachBtn=document.getElementById('attachBtn'),assetInput=document.getElementById('assetInput'),attachments=document.getElementById('attachments'),enhanceBtn=document.getElementById('enhanceBtn'),voiceBtn=document.getElementById('voiceBtn');
@@ -82,7 +84,8 @@
 
     async function launch(){
       const prompt=promptEl.value.trim();if(!prompt){promptEl.focus();return}if(uploadPromise){sendBtn.disabled=true;await uploadPromise}
-      const readyFiles=files.filter(f=>f.status==='ready'&&f.url);const spec={prompt,type:selectedType,experience,generateAssets,attachments:readyFiles.map(f=>({name:f.name,type:f.type,size:f.size,url:f.url})),createdAt:Date.now()};sessionStorage.setItem('fuse_page_brief',JSON.stringify(spec));const u=new URL('page-workspace.html',location.href);u.searchParams.set('type',selectedType);location.href=u.href;
+      sendBtn.disabled=true;document.getElementById('buildOverlay').classList.add('on');
+      const readyFiles=files.filter(f=>f.status==='ready'&&f.url);const spec={prompt,type:selectedType,experience,generateAssets,attachments:readyFiles.map(f=>({name:f.name,type:f.type,size:f.size,url:f.url})),createdAt:Date.now()};sessionStorage.setItem('fuse_page_brief',JSON.stringify(spec));const u=new URL('page-workspace.html',location.href);u.searchParams.set('type',selectedType);setTimeout(()=>location.href=u.href,1450);
     }
     sendBtn.onclick=launch;promptEl.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();launch()}});
 
