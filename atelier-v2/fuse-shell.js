@@ -28,7 +28,7 @@
       font-size:11px!important;font-weight:400!important;line-height:1!important;
     }
     body .fuse-nav svg{
-      width:23px!important;height:23px!important;padding:0!important;border-radius:0!important;
+      width:18px!important;height:18px!important;padding:0!important;border-radius:0!important;
       background:transparent!important;color:currentColor!important;box-shadow:none!important;
       fill:none!important;stroke:currentColor!important;stroke-width:1.7!important;
       stroke-linecap:round!important;stroke-linejoin:round!important;
@@ -59,29 +59,29 @@
       body .fuse-nav a.nav-create svg{width:50px!important;height:48px!important;padding:11px!important;border-radius:14px!important}
     }
     body .fuse-program-top{
-      height:96px!important;min-height:96px!important;padding:14px 32px!important;
+      height:72px!important;min-height:72px!important;padding:9px 28px!important;
       background:#001012!important;border-bottom:1px solid rgba(49,84,86,.45)!important;
       position:relative!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
     }
-    body .fuse-program-top .program-logo{display:grid!important;place-items:center!important;width:70px!important;height:70px!important;border-radius:20px!important;overflow:hidden!important}
-    body .fuse-program-top .program-logo img{display:block!important;width:70px!important;height:70px!important;object-fit:cover!important}
-    body .fuse-program-top .program-actions{display:flex!important;align-items:center!important;gap:32px!important;height:100%!important}
-    body .fuse-program-top .program-instagram{display:grid!important;place-items:center!important;width:48px!important;height:52px!important;color:#f2fffb!important}
-    body .fuse-program-top .program-instagram svg{width:43px!important;height:43px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.7!important}
-    body .fuse-program-top .program-pricing{position:relative!important;display:flex!important;align-items:center!important;gap:12px!important;height:58px!important;padding:0 24px!important;border-radius:18px!important;background:linear-gradient(145deg,#092c2e,#062125)!important;border:1px solid rgba(49,84,86,.36)!important;color:#f4faf9!important;font-size:24px!important;font-weight:500!important}
-    body .fuse-program-top .program-pricing svg{width:28px!important;height:28px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.7!important}
-    body .fuse-program-top .program-pricing small{position:absolute!important;left:50%!important;bottom:-15px!important;transform:translateX(-50%)!important;padding:4px 13px!important;border-radius:10px!important;background:linear-gradient(110deg,#FFE66A,#DFFF4E,#EEFFE0)!important;color:#001012!important;font-size:13px!important;font-weight:700!important;white-space:nowrap!important}
-    body .fuse-program-top .program-close{width:48px!important;height:48px!important;border:0!important;background:transparent!important;color:#f4faf9!important;font-size:48px!important;font-weight:300!important;line-height:1!important;padding:0!important}
+    body .fuse-program-top .program-logo{display:grid!important;place-items:center!important;width:50px!important;height:50px!important;border-radius:14px!important;overflow:hidden!important}
+    body .fuse-program-top .program-logo img{display:block!important;width:50px!important;height:50px!important;object-fit:cover!important}
+    body .fuse-program-top .program-actions{display:flex!important;align-items:center!important;gap:18px!important;height:100%!important}
+    body .fuse-program-top .program-instagram{display:grid!important;place-items:center!important;width:34px!important;height:38px!important;color:#f2fffb!important}
+    body .fuse-program-top .program-instagram svg{width:32px!important;height:32px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.7!important}
+    body .fuse-program-top .program-pricing{position:relative!important;display:flex!important;align-items:center!important;gap:12px!important;height:44px!important;padding:0 17px!important;border-radius:13px!important;background:linear-gradient(145deg,#092c2e,#062125)!important;border:1px solid rgba(49,84,86,.36)!important;color:#f4faf9!important;font-size:18px!important;font-weight:500!important}
+    body .fuse-program-top .program-pricing svg{width:21px!important;height:21px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.7!important}
+    body .fuse-program-top .program-pricing small{position:absolute!important;left:50%!important;bottom:-15px!important;transform:translateX(-50%)!important;padding:4px 13px!important;border-radius:10px!important;background:linear-gradient(110deg,#FFE66A,#DFFF4E,#EEFFE0)!important;color:#001012!important;font-size:10px!important;font-weight:700!important;white-space:nowrap!important}
+    body .fuse-program-top .program-close{width:32px!important;height:36px!important;border:0!important;background:transparent!important;color:#f4faf9!important;font-size:32px!important;font-weight:300!important;line-height:1!important;padding:0!important}
     @media(max-width:560px){
-      body .fuse-program-top{height:82px!important;min-height:82px!important;padding:10px 24px!important}
-      body .fuse-program-top .program-logo,body .fuse-program-top .program-logo img{width:58px!important;height:58px!important;border-radius:17px!important}
+      body .fuse-program-top{height:64px!important;min-height:64px!important;padding:8px 20px!important}
+      body .fuse-program-top .program-logo,body .fuse-program-top .program-logo img{width:44px!important;height:44px!important;border-radius:12px!important}
       body .fuse-program-top .program-actions{gap:18px!important}
-      body .fuse-program-top .program-instagram{width:39px!important}
-      body .fuse-program-top .program-instagram svg{width:37px!important;height:37px!important}
-      body .fuse-program-top .program-pricing{height:50px!important;padding:0 15px!important;gap:8px!important;border-radius:15px!important;font-size:20px!important}
+      body .fuse-program-top .program-instagram{width:30px!important}
+      body .fuse-program-top .program-instagram svg{width:28px!important;height:28px!important}
+      body .fuse-program-top .program-pricing{height:38px!important;padding:0 12px!important;gap:6px!important;border-radius:11px!important;font-size:16px!important}
       body .fuse-program-top .program-pricing svg{width:23px!important;height:23px!important}
-      body .fuse-program-top .program-pricing small{bottom:-13px!important;padding:3px 9px!important;font-size:11px!important;border-radius:8px!important}
-      body .fuse-program-top .program-close{width:36px!important;height:42px!important;font-size:38px!important}
+      body .fuse-program-top .program-pricing small{bottom:-10px!important;padding:2px 7px!important;font-size:9px!important;border-radius:6px!important}
+      body .fuse-program-top .program-close{width:28px!important;height:34px!important;font-size:30px!important}
     }
   `;
   document.head.append(navStyles);
