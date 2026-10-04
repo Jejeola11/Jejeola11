@@ -87,6 +87,7 @@
   document.head.append(navStyles);
 
   const root='/atelier-v2/';
+  const currentFile=(location.pathname.split('/').pop()||'home.html').toLowerCase();
   const paths={
     home:{path:'home.html',label:'Home'},
     academy:{path:'learn.html',label:'Academy'},
@@ -127,7 +128,6 @@
   const nav=document.createElement('nav');
   nav.className='fuse-nav';
   nav.setAttribute('aria-label','Main navigation');
-  const currentFile=(location.pathname.split('/').pop()||'home.html').toLowerCase();
   const matchedKey=Object.entries(paths).find(([,item])=>currentFile===item.path.toLowerCase())?.[0]||null;
   nav.innerHTML=Object.entries(paths).map(([key,item])=>{
     const active=matchedKey?key===matchedKey:document.body.dataset.page===key;
