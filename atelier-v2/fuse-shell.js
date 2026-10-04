@@ -103,7 +103,7 @@
     earn:'M4 20h16 M5 17l4-5 3 3 6-8 M16 7h2v2'
   };
 
-  const programHeader = currentFile==='earn.html' || currentFile==='affiliate-dashboard.html';
+  const programHeader = ['earn.html','affiliate-dashboard.html','creator-submit.html','creator-admin.html','profile.html'].includes(currentFile);
   document.querySelectorAll('[data-fuse-header]').forEach(el=>{
     if(programHeader){
       el.innerHTML=`<header class="fuse-top fuse-program-top">
