@@ -1,3 +1,96 @@
-<script>
-window.addEventListener('load',async()=>{const linkEl=document.getElementById('affiliateLink'),copy=document.getElementById('copyLink');try{const sb=await Fuse.client();const session=await Fuse.session();const user=session.user;const slugify=v=>String(v||'').toLowerCase().normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,32);let row=null;try{const q=await sb.from('affiliate_applications').select('affiliate_code,full_name').eq('user_id',user.id).maybeSingle();if(!q.error)row=q.data;}catch{}const name=row?.full_name||user.user_metadata?.full_name||user.user_metadata?.name||user.email?.split('@')[0]||'creator';const code=row?.affiliate_code||('fuse-'+slugify(name)+'-'+user.id.replace(/-/g,'').slice(-6).toLowerCase());const link='https://fuseatelier.com/atelier-v2/ref.html?ref='+encodeURIComponent(code);linkEl.value=link;const q2=await sb.from('affiliate_referrals').select('status').eq('affiliate_code',code);const refs=q2.error?[]:(q2.data||[]),converted=refs.filter(r=>r.status==='converted').length;document.getElementById('clicks').textContent=refs.length;document.getElementById('referrals').textContent=converted;document.getElementById('conversion').textContent=refs.length?Math.round(converted/refs.length*100)+'%':'0%';copy.onclick=async()=>{try{await navigator.clipboard.writeText(link);copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy',1600)}catch{linkEl.select()}};}catch(e){console.error('affiliate dashboard load',e);linkEl.value='Sign in from Home to view your link';copy.disabled=true;}});
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#001012"><title>Fuse Earn Dashboard</title><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script><link rel="stylesheet" href="fuse.css?v=footer-earn-1"><script src="fuse-shell.js?v=wealth-1" defer></script><style>
+body{font-family:Montserrat,Arial,sans-serif!important;background:linear-gradient(180deg,#001012,#00191b)!important;color:#f4fffc!important}.dash{width:min(690px,calc(100% - 32px));margin:auto;padding:28px 0 120px}.brand{display:flex;justify-content:center;margin:8px 0 28px}.brand-logo{width:92px;height:92px;border-radius:28px;object-fit:cover;display:block;box-shadow:0 12px 28px rgba(223,255,78,.14)}.intro{margin-bottom:18px}.eyebrow{letter-spacing:1.5px;font-size:13px;font-weight:700;background:linear-gradient(110deg,#FFE66A 0%,#DFFF4E 52%,#EEFFE0 100%);-webkit-background-clip:text;background-clip:text;color:transparent}.intro h1{font-size:28px;margin:7px 0;color:#ffffff}.intro p{color:#b7cbc8;font-size:15px;line-height:1.5}.card{background:#062125;border:1px solid #315456;border-radius:22px;padding:22px;margin:14px 0;box-shadow:0 10px 24px rgba(0,25,27,.05)}.link-card{background:#00191b;color:#fff}.link-card h2{margin:0 0 6px;font-size:19px}.link-card p{color:#b6c9c8;font-size:14px}.link-row{display:flex;gap:8px;margin-top:14px}.link-row input{flex:1;min-width:0;border:0;border-radius:12px;background:#062125;color:#eeffe0;padding:13px;font:500 13px Montserrat}.link-row button,.primary{border:0;border-radius:12px;background:linear-gradient(110deg,#FFE66A,#DFFF4E,#EEFFE0);color:#001012;font:700 14px Montserrat;padding:0 15px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{padding:16px 12px;background:#0b2b2e;border-radius:15px}.metric b{display:block;font-size:23px;color:#ffffff}.metric span{color:#b7cbc8;font-size:12px}.section-title{font-size:20px;margin:25px 0 10px;color:#ffffff}.row{display:flex;justify-content:space-between;gap:15px;padding:13px 0;border-bottom:1px solid #315456;color:#b7cbc8}.row strong{color:#ffffff}.empty{color:#b7cbc8;font-size:14px;line-height:1.5}@media(max-width:430px){.metrics{grid-template-columns:1fr 1fr}.metric:last-child{grid-column:span 2}}.dash-tabs{display:flex;gap:7px;overflow:auto;scrollbar-width:none;padding:2px 0 16px;position:sticky;top:0;z-index:3;background:#001012}.dash-tabs a{white-space:nowrap;border:1px solid #315456;border-radius:999px;padding:8px 12px;color:#b7cbc8;font-size:11px}.dash-tabs a.active{background:linear-gradient(110deg,#FFE66A,#DFFF4E,#EEFFE0);color:#001012;border-color:transparent;font-weight:700}.section-kicker{color:#DFFF4E;font-size:11px;letter-spacing:1.4px;font-weight:700;margin-bottom:7px}.metric-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0}.metric{background:#062125;border:1px solid #315456;border-radius:18px;padding:15px}.metric span,.metric small{display:block;color:#b7cbc8;font-size:11px}.metric b{display:block;color:#fff;font-size:21px;margin:5px 0}.metric small{font-size:10px;color:#7f9a9a}.path-card h2,.card h2{color:#fff}.path-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.path-grid article{border:1px solid #315456;border-radius:16px;padding:14px;background:#092b2e}.path-icon{color:#DFFF4E;font-size:24px}.path-grid h3{margin:7px 0 5px;color:#fff;font-size:15px}.path-grid p{color:#b7cbc8;font-size:12px;line-height:1.45}.path-grid strong,.path-grid span{color:#DFFF4E}.path-grid span{font-size:10px}.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mini-stats div{background:#0b2b2e;border-radius:13px;padding:12px}.mini-stats b{display:block;color:#fff;font-size:22px}.mini-stats span,.muted-copy{color:#b7cbc8;font-size:11px;line-height:1.45}.data-row{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #315456;color:#b7cbc8;font-size:13px}.data-row strong{color:#fff}.reward-list{display:grid;gap:0;margin-top:12px}.reward-list div,.creator-status div{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #315456;color:#b7cbc8;font-size:12px}.reward-list strong{color:#DFFF4E}.creator-status{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.creator-status div{display:block;border:1px solid #315456;border-radius:12px;padding:10px}.creator-status strong{display:block;color:#fff;font-size:16px;margin-top:4px}.creator-cta{width:100%;border-radius:12px;justify-content:center}.secondary-btn{margin-top:14px;border:1px solid #315456;background:transparent;color:#EEFFE0;border-radius:12px;padding:11px 14px;font:700 13px Montserrat}.asset-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.asset-grid div{padding:13px;border:1px solid #315456;border-radius:14px;background:#092b2e}.asset-grid b,.asset-grid span{display:block}.asset-grid b{color:#fff;font-size:13px}.asset-grid span{color:#b7cbc8;font-size:11px;margin-top:4px}.tier-card{display:flex;justify-content:space-between;gap:12px;align-items:center}.tier-pill{white-space:nowrap;color:#001012;background:linear-gradient(110deg,#FFE66A,#DFFF4E,#EEFFE0);border-radius:999px;padding:8px 11px;font-size:11px;font-weight:700}@media(max-width:430px){.path-grid{grid-template-columns:1fr}.mini-stats{grid-template-columns:repeat(3,1fr)}.creator-status{grid-template-columns:1fr 1fr}.creator-status div:last-child{grid-column:span 2}.tier-card{display:block}.tier-pill{display:inline-flex;margin-top:8px}}
+</style></head><body data-page="earn"><div data-fuse-header></div><main class="dash">
+  <div class="dash-tabs" role="navigation" aria-label="Dashboard sections">
+    <a href="#overview" class="active">Overview</a><a href="#referrals">Referrals</a><a href="#creator">Creator earnings</a><a href="#payouts">Payouts</a><a href="#assets">Assets</a>
+  </div>
+  <section id="overview" class="intro">
+    <div class="eyebrow">FUSE EARN DASHBOARD</div>
+    <h1>Share Fuse. Track your growth.</h1>
+    <p>Your affiliate sales and creator rewards in one place.</p>
+  </section>
+  <section class="card link-card">
+    <div class="section-kicker">YOUR PERSONAL LINK</div><h2>Your affiliate link</h2>
+    <p>Share this link in your bio, videos, and community posts.</p>
+    <div class="link-row"><input id="affiliateLink" readonly value="Loading your link…" aria-label="Your affiliate link"><button id="copyLink">Copy</button></div>
+  </section>
+  <section class="metric-grid" aria-label="Earnings overview">
+    <div class="metric"><span>Total earnings</span><b id="totalEarnings">₦0</b><small>All approved rewards</small></div>
+    <div class="metric"><span>Pending earnings</span><b id="pending">₦0</b><small>Under review</small></div>
+    <div class="metric"><span>Paid out</span><b id="paid">₦0</b><small>Completed payouts</small></div>
+    <div class="metric"><span>Available payout</span><b id="available">₦0</b><small>₦10,000 minimum</small></div>
+  </section>
+  <section class="card path-card">
+    <div class="section-kicker">TWO WAYS TO EARN</div>
+    <h2>Build attention. Earn from results.</h2>
+    <div class="path-grid">
+      <article><div class="path-icon">↗</div><h3>Affiliate commissions</h3><p>Earn <strong>50%</strong> on every confirmed Fuse Core sale through your personalized link.</p><span>Sales-based</span></article>
+      <article><div class="path-icon">◉</div><h3>Creator view rewards</h3><p>Submit approved Fuse videos and earn from verified public views, even before a sale.</p><span>View-based</span></article>
+    </div>
+  </section>
+  <section id="referrals" class="card">
+    <div class="section-kicker">REFERRALS</div><h2>Your referral performance</h2>
+    <div class="mini-stats"><div><b id="clicks">0</b><span>Clicks</span></div><div><b id="referrals">0</b><span>Confirmed customers</span></div><div><b id="conversion">0%</b><span>Conversion rate</span></div></div>
+    <div class="data-row"><span>Current tier</span><strong>Starter · 50%</strong></div><p class="muted-copy">Refunds, cancellations, self-referrals, and fraudulent purchases never count toward commissions.</p>
+  </section>
+  <section id="creator" class="card">
+    <div class="section-kicker">CREATOR EARNINGS</div><h2>Verified-view reward ladder</h2>
+    <p class="muted-copy">Your video must be approved, public, and live for at least 30 days.</p>
+    <div class="reward-list">
+      <div><span>5,000 verified views</span><strong>₦1,000</strong></div>
+      <div><span>25,000 verified views</span><strong>₦5,000</strong></div>
+      <div><span>100,000 verified views</span><strong>₦20,000</strong></div>
+      <div><span>250,000 verified views</span><strong>₦50,000</strong></div>
+      <div><span>500,000 verified views</span><strong>₦100,000</strong></div>
+      <div><span>1,000,000 verified views</span><strong>₦200,000</strong></div>
+    </div>
+    <div class="creator-status"><div><span>Submitted videos</span><strong>0</strong></div><div><span>Approved views</span><strong>0</strong></div><div><span>Creator rewards</span><strong>₦0</strong></div></div>
+    <a class="primary creator-cta" href="earn.html#apply">Submit a creator video</a>
+  </section>
+  <section id="payouts" class="card">
+    <div class="section-kicker">PAYOUTS</div><h2>Get paid when your balance is ready</h2>
+    <div class="data-row"><span>Available balance</span><strong id="payoutBalance">₦0</strong></div><div class="data-row"><span>Minimum payout</span><strong>₦10,000</strong></div><div class="data-row"><span>Payout method</span><strong>Not set</strong></div>
+    <button class="secondary-btn" type="button">Set payout method</button>
+  </section>
+  <section id="assets" class="card">
+    <div class="section-kicker">CREATOR ASSETS</div><h2>Everything you need to share Fuse</h2>
+    <div class="asset-grid"><div><b>Brand kit</b><span>Logo, colors, and typography</span></div><div><b>Video brief</b><span>Hooks, angles, and examples</span></div><div><b>Content rules</b><span>Disclosure and submission guide</span></div><div><b>Captions</b><span>Ready-to-adapt copy ideas</span></div></div>
+  </section>
+  <section class="card tier-card">
+    <div><div class="section-kicker">CREATOR PROFILE</div><h2>Starter tier</h2><p class="muted-copy">Tier upgrades are based on verified sales, approved views, and content quality.</p></div><div class="tier-pill">50% commission</div>
+  </section>
+</main><script>
+window.addEventListener('load',async()=>{
+  const linkEl=document.getElementById('affiliateLink');
+  const copy=document.getElementById('copyLink');
+  try{
+    const sb=await Fuse.client();
+    const session=await Fuse.session();
+    const user=session.user;
+    const slugify=v=>String(v||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,32);
+    let application=null;
+    try{
+      const result=await sb.from('affiliate_applications').select('affiliate_code,full_name').eq('user_id',user.id).maybeSingle();
+      if(!result.error) application=result.data;
+    }catch{}
+    const name=application?.full_name||user.user_metadata?.full_name||user.user_metadata?.name||user.email?.split('@')[0]||'creator';
+    const code=application?.affiliate_code||('fuse-'+slugify(name)+'-'+user.id.replace(/-/g,'').slice(-6).toLowerCase());
+    const link='https://fuseatelier.com/atelier-v2/ref.html?ref='+encodeURIComponent(code);
+    linkEl.value=link;
+    if(copy) copy.onclick=async()=>{try{await navigator.clipboard.writeText(link);copy.textContent='Copied';setTimeout(()=>copy.textContent='Copy',1600)}catch{linkEl.select()}};
+    try{
+      const result=await sb.from('affiliate_referrals').select('status').eq('affiliate_code',code);
+      const refs=result.error?[]:(result.data||[]);
+      const converted=refs.filter(r=>r.status==='converted').length;
+      const clicks=document.getElementById('clicks'),referrals=document.getElementById('referrals'),conversion=document.getElementById('conversion');
+      if(clicks) clicks.textContent=refs.length;
+      if(referrals) referrals.textContent=converted;
+      if(conversion) conversion.textContent=refs.length?Math.round(converted/refs.length*100)+'%':'0%';
+    }catch{}
+  }catch(error){
+    console.error('Affiliate dashboard load failed',error);
+    if(linkEl) linkEl.value='Sign in from Home to view your link';
+    if(copy) copy.disabled=true;
+  }
+});
 </script></body></html>
