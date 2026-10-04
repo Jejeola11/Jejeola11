@@ -2,7 +2,7 @@
 // POST /api/page-generate
 // Fuse Pages V1: brief -> structured SiteSpec -> saved project + version.
 //
-// Uses Gemini when GEMINI_API_KEY is configured, with a deterministic premium
+// Uses OpenAI when OPENAI_API_KEY is configured, with a deterministic premium
 // fallback so the builder still works if the text model is temporarily
 // unavailable. V1 does NOT deduct credits yet; generation pricing will be
 // attached after the product flow is approved.
@@ -166,44 +166,24 @@ function normalizeSpec(raw, brief) {
   spec.assets={...fallback.assets,...(raw.assets||{}),generate:!!brief.generateAssets};
   return spec;
 }
-async function geminiSpec(brief) {
-  const key=(process.env.GEMINI_API_KEY||'').trim();
-  if(!key) return null;
-  const instruction=`You are Fuse Pages Creative Director. Turn a website brief into a concise JSON SiteSpec for a premium mobile-first website.
-Return JSON only. Never include markdown.
-The SiteSpec MUST use:
-{
- "meta":{"title":"","objective":"","audience":""},
- "theme":{"mode":"dark|light","accent":"#hex","secondary":"#hex","surface":"#hex","font_style":"modern|editorial|bold","radius":"soft|sharp","density":"airy|compact"},
- "nav":{"brand":"","items":[""],"cta":""},
- "contact":{"cta_url":"","email":"","phone":""},
- "hero":{"eyebrow":"","headline":"","subheadline":"","primary_cta":"","secondary_cta":"","visual":{"type":"editorial-gradient|cinematic-gradient|orb-3d","prompt":""}},
- "sections":[
-   {"type":"trust|problem|features|services|projects|offer|immersive|testimonials|faq|cta","eyebrow":"","title":"","text":"","items":[],"button":""}
- ],
- "motion":{"level":"clean|animated|cinematic|3d","parallax":true,"reveal":true,"three_d":false},
- "assets":{"requested":[{"role":"","kind":"image|video|3d-direction","prompt":""}]}
+async function openAiSpec(brief) {
+  const apiKey=(process.env.OPENAI_API_KEY||'').trim();
+  if(!apiKey) return null;
+  const instruction=`You are Fuse Pages Creative Director. Turn a website brief into a concise JSON SiteSpec for a premium, mobile-first website. Return JSON only, never markdown. Include meta, theme, nav, contact, hero, 5-9 sections, motion and assets. Use specific conversion-focused copy based on the actual brief. Never invent statistics or real testimonials. For 3D, use a lightweight orb/product-depth direction with a mobile fallback.`;
+  const response=await fetch('https://api.openai.com/v1/responses',{
+    method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
+    body:JSON.stringify({model:process.env.OPENAI_PAGE_MODEL||'gpt-4.1-mini',input:[
+      {role:'system',content:[{type:'input_text',text:instruction}]},
+      {role:'user',content:[{type:'input_text',text:JSON.stringify({page_type:brief.type,experience:brief.experience,generate_assets:brief.generateAssets,prompt:brief.prompt,attachment_names:(brief.attachments||[]).map(x=>x.name).slice(0,8)})}]}
+    ]})
+  });
+  const body=await response.json();
+  if(!response.ok) throw new Error((body.error&&body.error.message)||'OpenAI website planning request failed.');
+  const output=String(body.output_text||'').trim();
+  if(!output) throw new Error('OpenAI website planner returned no content.');
+  return JSON.parse(output.replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,''));
 }
-Write specific conversion-focused copy based on the user's actual brief. Do not invent unverifiable statistics or real testimonials. Use placeholder-style proof copy when proof is not supplied. Keep section count between 5 and 9. For 3D, use an orb/product-depth direction that has a lightweight mobile fallback.`;
-  const payload={
-    system_instruction:{parts:[{text:instruction}]},
-    contents:[{role:'user',parts:[{text:JSON.stringify({
-      page_type:brief.type,
-      experience:brief.experience,
-      generate_assets:brief.generateAssets,
-      prompt:brief.prompt,
-      attachment_names:(brief.attachments||[]).map(x=>x.name).slice(0,8)
-    })}]}],
-    generationConfig:{temperature:.65,response_mime_type:'application/json',maxOutputTokens:6000}
-  };
-  const url='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key);
-  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-  const body=await res.json();
-  if(!res.ok) throw new Error((body.error&&body.error.message)||'Site planning model failed.');
-  const text=body?.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'';
-  if(!text) throw new Error('Site planning model returned no content.');
-  return JSON.parse(text);
-}
+
 function ensureSectionIds(spec){
   const out={...spec};
   out.sections=(Array.isArray(spec.sections)?spec.sections:[]).map((s,i)=>({
@@ -237,7 +217,7 @@ exports.handler=async(event)=>{
     if(!brief.prompt)return json(400,{error:'Describe the website you want to build first.'});
 
     let aiUsed=false,raw=null;
-    try{raw=await geminiSpec(brief);aiUsed=!!raw}catch(e){console.error('[page-generate] Gemini fallback:',e&&e.message)}
+    try{raw=await openAiSpec(brief);aiUsed=!!raw}catch(e){console.error('[page-generate] OpenAI fallback:',e&&e.message)}
     const spec=ensureSectionIds(normalizeSpec(raw,brief));
     const db=admin();
     const requestedProject=cleanText(body.project_id,80);
