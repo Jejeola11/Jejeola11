@@ -1,4 +1,5 @@
 name: Run Fuse scheduled emails
+# Rebuild after email environment fix.
 
 on:
   schedule:
