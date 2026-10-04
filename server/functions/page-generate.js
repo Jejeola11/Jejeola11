@@ -86,10 +86,19 @@ function defaultSections(type, brand) {
   }
   return common;
 }
+function paletteFromBrief(brief={}) {
+  const p=String(brief.prompt||'').toLowerCase();
+  if(/skincare|beauty|wellness|spa|serum|makeup/.test(p))return {mode:'light',surface:'#F4EEE7',accent:'#A76F45',secondary:'#3A4D3A'};
+  if(/fashion|style|jewell|clothing|boutique/.test(p))return {mode:'light',surface:'#EEE9E0',accent:'#7B2447',secondary:'#5C2A16'};
+  if(/app|saas|tech|software|digital product/.test(p))return {mode:'dark',surface:'#0B1020',accent:'#5568F4',secondary:'#31C5A9'};
+  if(/food|restaurant|coffee|cafe|bakery/.test(p))return {mode:'light',surface:'#F3E7D3',accent:'#A14C2E',secondary:'#315B48'};
+  return {mode:'light',surface:'#F5F4EF',accent:'#B86746',secondary:'#6C7C73'};
+}
 function fallbackSpec(brief) {
   const brand=inferBrand(brief.prompt);
   const lead=shortLead(brief.prompt);
   const experience=brief.experience||'clean';
+  const palette=paletteFromBrief(brief);
   const uploadedImage=(brief.attachments||[]).find(x=>x&&String(x.type||'').startsWith('image/')&&x.url);
   const uploadedVideo=(brief.attachments||[]).find(x=>x&&String(x.type||'').startsWith('video/')&&x.url);
   const contact=contactFromPrompt(brief.prompt);
@@ -110,10 +119,10 @@ function fallbackSpec(brief) {
       source_prompt:brief.prompt
     },
     theme:{
-      mode:'dark',
-      accent:'#DFFF4E',
-      secondary:'#FFE66A',
-      surface:'#062125',
+      mode:palette.mode,
+      accent:palette.accent,
+      secondary:palette.secondary,
+      surface:palette.surface,
       font_style:'modern',
       experience,
       radius:'soft',
@@ -169,7 +178,7 @@ function normalizeSpec(raw, brief) {
 async function openAiSpec(brief) {
   const apiKey=(process.env.OPENAI_API_KEY||'').trim();
   if(!apiKey) return null;
-  const instruction=`You are Fuse Pages Creative Director. Turn a website brief into a concise JSON SiteSpec for a premium, mobile-first website. Return JSON only, never markdown. Include meta, theme, nav, contact, hero, 5-9 sections, motion and assets. Use specific conversion-focused copy based on the actual brief. Never invent statistics or real testimonials. For 3D, use a lightweight orb/product-depth direction with a mobile fallback.`;
+  const instruction=`You are Fuse Pages Creative Director. Turn a website brief into a concise JSON SiteSpec for a premium, mobile-first website. Return JSON only, never markdown. Include meta, theme, nav, contact, hero, 5-9 sections, motion and assets. Use specific conversion-focused copy based on the actual brief. Never invent statistics or real testimonials. For 3D, use a lightweight orb/product-depth direction with a mobile fallback. Always suggest a bespoke brand colour palette from the brief; never use Fuse Atelier colours (#DFFF4E, #FFE66A, #001012, #00191B, #062125) unless the user explicitly requests them.`;
   const response=await fetch('https://api.openai.com/v1/responses',{
     method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
     body:JSON.stringify({model:process.env.OPENAI_PAGE_MODEL||'gpt-4.1-mini',input:[
