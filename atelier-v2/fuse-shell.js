@@ -58,6 +58,31 @@
       body .fuse-nav{height:calc(80px + env(safe-area-inset-bottom))!important}
       body .fuse-nav a.nav-create svg{width:50px!important;height:48px!important;padding:11px!important;border-radius:14px!important}
     }
+    body .fuse-program-top{
+      height:96px!important;min-height:96px!important;padding:14px 32px!important;
+      background:#001012!important;border-bottom:1px solid rgba(49,84,86,.45)!important;
+      position:relative!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    }
+    body .fuse-program-top .program-logo{display:grid!important;place-items:center!important;width:70px!important;height:70px!important;border-radius:20px!important;overflow:hidden!important}
+    body .fuse-program-top .program-logo img{display:block!important;width:70px!important;height:70px!important;object-fit:cover!important}
+    body .fuse-program-top .program-actions{display:flex!important;align-items:center!important;gap:32px!important;height:100%!important}
+    body .fuse-program-top .program-instagram{display:grid!important;place-items:center!important;width:48px!important;height:52px!important;color:#f2fffb!important}
+    body .fuse-program-top .program-instagram svg{width:43px!important;height:43px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.7!important}
+    body .fuse-program-top .program-pricing{position:relative!important;display:flex!important;align-items:center!important;gap:12px!important;height:58px!important;padding:0 24px!important;border-radius:18px!important;background:linear-gradient(145deg,#092c2e,#062125)!important;border:1px solid rgba(49,84,86,.36)!important;color:#f4faf9!important;font-size:24px!important;font-weight:500!important}
+    body .fuse-program-top .program-pricing svg{width:28px!important;height:28px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.7!important}
+    body .fuse-program-top .program-pricing small{position:absolute!important;left:50%!important;bottom:-15px!important;transform:translateX(-50%)!important;padding:4px 13px!important;border-radius:10px!important;background:linear-gradient(110deg,#FFE66A,#DFFF4E,#EEFFE0)!important;color:#001012!important;font-size:13px!important;font-weight:700!important;white-space:nowrap!important}
+    body .fuse-program-top .program-close{width:48px!important;height:48px!important;border:0!important;background:transparent!important;color:#f4faf9!important;font-size:48px!important;font-weight:300!important;line-height:1!important;padding:0!important}
+    @media(max-width:560px){
+      body .fuse-program-top{height:82px!important;min-height:82px!important;padding:10px 24px!important}
+      body .fuse-program-top .program-logo,body .fuse-program-top .program-logo img{width:58px!important;height:58px!important;border-radius:17px!important}
+      body .fuse-program-top .program-actions{gap:18px!important}
+      body .fuse-program-top .program-instagram{width:39px!important}
+      body .fuse-program-top .program-instagram svg{width:37px!important;height:37px!important}
+      body .fuse-program-top .program-pricing{height:50px!important;padding:0 15px!important;gap:8px!important;border-radius:15px!important;font-size:20px!important}
+      body .fuse-program-top .program-pricing svg{width:23px!important;height:23px!important}
+      body .fuse-program-top .program-pricing small{bottom:-13px!important;padding:3px 9px!important;font-size:11px!important;border-radius:8px!important}
+      body .fuse-program-top .program-close{width:36px!important;height:42px!important;font-size:38px!important}
+    }
   `;
   document.head.append(navStyles);
 
@@ -77,8 +102,25 @@
     earn:'M4 20h16 M5 17l4-5 3 3 6-8 M16 7h2v2'
   };
 
+  const programHeader = currentFile==='earn.html' || currentFile==='affiliate-dashboard.html';
   document.querySelectorAll('[data-fuse-header]').forEach(el=>{
-    el.innerHTML=`<header class="fuse-top"><a class="fuse-brand" href="${root}home.html">FUSE <span>ATELIER</span></a><div class="fuse-account"><a class="fuse-wallet" data-balance href="${root}profile.html">My credits</a><a class="fuse-avatar" aria-label="Open profile" href="${root}profile.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22v-3a8 7 0 0 1 16 0v3"/></svg></a></div></header>`;
+    if(programHeader){
+      el.innerHTML=`<header class="fuse-top fuse-program-top">
+        <a class="program-logo" href="${root}home.html" aria-label="Fuse Atelier home"><img src="/atelier-v2/media/fuse-mark-palette.webp" alt="Fuse Atelier"></a>
+        <div class="program-actions">
+          <a class="program-instagram" href="https://www.instagram.com/fuse_studio2?stkn=MWhiOWU5M3pjYjJvcA==" target="_blank" rel="noopener noreferrer" aria-label="Fuse Studio on Instagram">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".7" fill="currentColor"/></svg>
+          </a>
+          <a class="program-pricing" href="/credits" aria-label="Open pricing">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 12 9-9h7l2 2v7l-9 9z"/><circle cx="16.5" cy="7.5" r="1"/></svg><span>Pricing</span><small>23% OFF</small>
+          </a>
+          <button class="program-close" type="button" aria-label="Go back">×</button>
+        </div>
+      </header>`;
+      el.querySelector('.program-close').addEventListener('click',()=>{ if(history.length>1) history.back(); else location.href=root+'home.html'; });
+    }else{
+      el.innerHTML=`<header class="fuse-top"><a class="fuse-brand" href="${root}home.html">FUSE <span>ATELIER</span></a><div class="fuse-account"><a class="fuse-wallet" data-balance href="${root}profile.html">My credits</a><a class="fuse-avatar" aria-label="Open profile" href="${root}profile.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22v-3a8 7 0 0 1 16 0v3"/></svg></a></div></header>`;
+    }
   });
 
   document.querySelectorAll('.fuse-nav').forEach(n=>n.remove());
