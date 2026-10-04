@@ -67,6 +67,12 @@ body{font-family:Montserrat,Arial,sans-serif!important;background:linear-gradien
 const payoutModal=document.getElementById('payoutModal'), payoutForm=document.getElementById('payoutForm'), payoutStatus=document.getElementById('payoutStatus'), methodSelect=payoutForm?.querySelector('[name="method"]');
 function togglePayoutFields(){const paypal=methodSelect?.value==='paypal';document.getElementById('paypalField')?.toggleAttribute('hidden',!paypal);['bankNameField','accountNumberField','accountNameField'].forEach(id=>document.getElementById(id)?.toggleAttribute('hidden',paypal));}
 methodSelect?.addEventListener('change',togglePayoutFields);togglePayoutFields();document.getElementById('setPayout')?.addEventListener('click',async()=>{payoutModal.hidden=false;try{const sb=await Fuse.client(),s=await Fuse.session(),r=await sb.from('affiliate_payout_methods').select('*').eq('user_id',s.user.id).maybeSingle();if(r.data)Object.entries(r.data).forEach(([k,v])=>{const el=payoutForm.elements[k];if(el&&v)el.value=v});togglePayoutFields()}catch{}});document.getElementById('closePayout')?.addEventListener('click',()=>payoutModal.hidden=true);payoutModal?.addEventListener('click',e=>{if(e.target===payoutModal)payoutModal.hidden=true});payoutForm?.addEventListener('submit',async e=>{e.preventDefault();payoutStatus.textContent='Saving…';try{const sb=await Fuse.client(),s=await Fuse.session(),data=Object.fromEntries(new FormData(payoutForm).entries());data.user_id=s.user.id;const r=await sb.from('affiliate_payout_methods').upsert(data,{onConflict:'user_id'});if(r.error)throw r.error;payoutStatus.textContent='Payout method saved securely.';setTimeout(()=>payoutModal.hidden=true,900)}catch(err){payoutStatus.textContent='Could not save yet. Please try again.';console.error(err)}});
+window.addEventListener('load',()=>{
+  // Remove any stale empty card left by earlier dashboard markup or cached layout.
+  document.querySelectorAll('.card,.metric').forEach(el=>{
+    if(el.textContent.trim()==='0' && el.getBoundingClientRect().height>180) el.remove();
+  });
+});
 window.addEventListener('load',async()=>{
   const linkEl=document.getElementById('affiliateLink');
   const copy=document.getElementById('copyLink');
