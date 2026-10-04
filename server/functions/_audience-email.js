@@ -1,5 +1,7 @@
 const { clean, escapeHtml, token, publicAppUrl } = require('./_audience');
 
+const DAILY_SEND_LIMIT = 100;
+
 function configured() {
   return !!(process.env.RESEND_API_KEY && process.env.FUSE_EMAIL_FROM);
 }
@@ -96,16 +98,28 @@ async function deliverCampaign(db, campaign) {
   if (!remaining.length) {
     return { sent: 0, failed: [], status: campaign.status, retried: true };
   }
+  const todayStart = new Date();
+  todayStart.setUTCHours(0, 0, 0, 0);
+  const { count: alreadyQueuedToday, error: limitError } = await db.from('audience_campaign_recipients')
+    .select('id', { count: 'exact', head: true }).gte('sent_at', todayStart.toISOString());
+  if (limitError) throw limitError;
+  const capacity = Math.max(0, DAILY_SEND_LIMIT - (alreadyQueuedToday || 0));
+  if (!capacity) {
+    await db.from('audience_campaigns').update({ status: 'sending', updated_at: new Date().toISOString() }).eq('id', campaign.id);
+    return { queued: 0, failed: [], status: 'sending', waitingForDailyLimit: true };
+  }
+  const toSend = remaining.slice(0, capacity);
   const recipientIdByContact = new Map((prepared || []).map(row => [row.contact_id, row.id]));
-  const tokens = await createUnsubscribeTokens(db, remaining);
+  const tokens = await createUnsubscribeTokens(db, toSend);
   const from = campaign.sender_email || process.env.FUSE_EMAIL_FROM;
   const queued = [];
   const failed = [];
-  for (let i = 0; i < remaining.length; i += 100) {
-    const batch = remaining.slice(i, i + 100);
+  const batchDay = new Date().toISOString().slice(0, 10);
+  for (let i = 0; i < toSend.length; i += 100) {
+    const batch = toSend.slice(i, i + 100);
     try {
       const requestItems = batch.map(contact => ({
-        campaignId: campaign.id, batch: (i / 100) + 1, recipientId: recipientIdByContact.get(contact.id), email: contact.email_normalized,
+        campaignId: campaign.id, batch: `${batchDay}-${(i / 100) + 1}`, recipientId: recipientIdByContact.get(contact.id), email: contact.email_normalized,
         from, replyTo: process.env.FUSE_EMAIL_REPLY_TO, subject: merge(campaign.subject, contact),
         html: mailHtml(campaign, contact, `${publicAppUrl()}/api/audience-unsubscribe?token=${tokens.get(contact.id)}`, `${publicAppUrl()}/api/audience-subscribe?token=${tokens.get(contact.id)}`)
       }));
@@ -126,9 +140,10 @@ async function deliverCampaign(db, campaign) {
       failed.push({ index: (i / 100) + 1, message: error.message });
     }
   }
-  const status = failed.length ? 'paused' : 'sending';
+  const hasMoreToSend = remaining.length > toSend.length;
+  const status = failed.length ? 'paused' : (hasMoreToSend ? 'sending' : 'sent');
   await db.from('audience_campaigns').update({ status, updated_at: new Date().toISOString() }).eq('id', campaign.id);
-  return { queued: queued.length, failed, status };
+  return { queued: queued.length, failed, status, remaining: Math.max(0, remaining.length - toSend.length) };
 }
 
 async function sendWelcome(db, contact) {
