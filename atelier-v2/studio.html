@@ -76,6 +76,13 @@
     .model-copy{position:absolute;z-index:3;left:11px;right:11px;bottom:10px}
     .model-copy h2{margin:0 0 4px;font-size:14px;line-height:1.06;letter-spacing:-.34px;font-weight:500;color:#fff}
     .model-copy p{margin:0;color:#c4d4d2;font-size:10px;line-height:1.28;font-weight:300;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .page-card{aspect-ratio:4/3;min-height:0}
+    .page-card .model-copy{display:none}
+    .page-card .model-visual{background:#082426}
+    .page-card .visual-word{width:100%;padding:0 12px;text-align:center;font-size:clamp(25px,6vw,39px);line-height:1;letter-spacing:-1.2px}
+    .page-card .visual-word small{display:none}
+    .page-card .model-meta{align-items:center}
+    .page-card .model-badge,.page-card .model-credits{font-size:9px}
     .model-card[data-route]{cursor:pointer;text-decoration:none}
     .model-card[data-route]:active{transform:scale(.985)}
     .model-card{transition:transform .2s ease,border-color .2s ease}
@@ -208,11 +215,11 @@
         title:'Fuse Pages',
         text:'Build conversion-focused landing pages, business websites, portfolios and immersive 3D experiences with AI.',
         items:[
-          {name:'AI Landing Page',badge:'CONVERSION',credits:'NEW',desc:'Focused one-page campaigns with strategy, copy, visuals and CTA.',visual:'content',word:'LANDING',route:'page:landing'},
-          {name:'Sales Page',badge:'SELL',credits:'NEW',desc:'Long-form offer pages for launches, courses and products.',visual:'sunburst',word:'SALES',route:'page:sales'},
-          {name:'Business Website',badge:'BUSINESS',credits:'NEW',desc:'Premium service websites with trust, offers and lead capture.',visual:'minimax',word:'BUSINESS',route:'page:business'},
-          {name:'Portfolio',badge:'SHOWCASE',credits:'NEW',desc:'High-value creative portfolios with case studies and proof.',visual:'seedream',word:'PORTFOLIO',route:'page:portfolio'},
-          {name:'3D Interactive Site',badge:'IMMERSIVE',credits:'NEW',desc:'Motion-led interactive experiences with depth and cinematic moments.',visual:'omni',word:'3D',route:'page:3d'}
+          {name:'Landing',badge:'CONVERSION',credits:'NEW',desc:'',visual:'content',word:'LANDING',route:'page:landing',kind:'page'},
+          {name:'Sales',badge:'SELL',credits:'NEW',desc:'',visual:'sunburst',word:'SALES',route:'page:sales',kind:'page'},
+          {name:'Business',badge:'BUSINESS',credits:'NEW',desc:'',visual:'minimax',word:'BUSINESS',route:'page:business',kind:'page'},
+          {name:'Portfolio',badge:'SHOWCASE',credits:'NEW',desc:'',visual:'seedream',word:'PORTFOLIO',route:'page:portfolio',kind:'page'},
+          {name:'3D',badge:'IMMERSIVE',credits:'NEW',desc:'',visual:'omni',word:'3D',route:'page:3d',kind:'page'}
         ]
       },
       Content:{
@@ -285,8 +292,9 @@
     }
 
     function modelMarkup(m){
+      const pageClass=m.kind==='page'?' page-card':'';
       const attrs=m.route?` data-route="${m.route}" role="link" tabindex="0"`:'';
-      return `<article class="model-card"${attrs}>
+      return `<article class="model-card${pageClass}"${attrs}>
         ${modelVisual(m)}
         <span class="model-shine" aria-hidden="true"></span>
         <div class="model-meta"><span class="model-badge">${m.badge}</span><span class="model-credits">${m.credits}</span></div>
@@ -304,6 +312,7 @@
 
     function setIntro(title,text,count){
       const intro=document.getElementById('catalogIntro');
+      if(selected==='Page'){intro.hidden=true;return}
       intro.hidden=false;
       document.getElementById('catalogTitle').textContent=title;
       document.getElementById('catalogText').textContent=text;
