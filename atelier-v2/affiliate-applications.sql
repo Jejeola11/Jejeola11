@@ -15,6 +15,7 @@ create table if not exists public.affiliate_applications (
   updated_at timestamptz not null default now()
 );
 alter table public.affiliate_applications enable row level security;
-grant select, insert on public.affiliate_applications to authenticated;
+grant select, insert, update on public.affiliate_applications to authenticated;
 create policy "Applicants can view their application" on public.affiliate_applications for select to authenticated using ((select auth.uid()) = user_id);
 create policy "Applicants can submit their application" on public.affiliate_applications for insert to authenticated with check ((select auth.uid()) = user_id);
+create policy "Applicants can update their application" on public.affiliate_applications for update to authenticated using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
