@@ -118,7 +118,7 @@
           <button class="program-close" type="button" aria-label="Go back">×</button>
         </div>
       </header>`;
-      el.querySelector('.program-close').addEventListener('click',()=>{ if(currentFile==='affiliate-dashboard.html') location.href=root+'profile.html'; else if(currentFile==='creator-submit.html') location.href=root+'affiliate-dashboard.html'; else if(history.length>1) history.back(); else location.href=root+'home.html'; });
+      el.querySelector('.program-close').addEventListener('click',()=>{ if(currentFile==='affiliate-dashboard.html') location.href=root+'home.html'; else if(currentFile==='creator-submit.html') location.href=root+'affiliate-dashboard.html'; else if(history.length>1) history.back(); else location.href=root+'home.html'; });
     }else{
       el.innerHTML=`<header class="fuse-top"><a class="fuse-brand" href="${root}home.html">FUSE <span>ATELIER</span></a><div class="fuse-account"><a class="fuse-wallet" data-balance href="${root}profile.html">My credits</a><a class="fuse-avatar" aria-label="Open profile" href="${root}profile.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22v-3a8 7 0 0 1 16 0v3"/></svg></a></div></header>`;
     }
