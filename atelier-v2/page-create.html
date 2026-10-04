@@ -56,45 +56,14 @@
         </div>
       </div>
 
-      <div class="option-block">
-        <span class="option-label">Page</span>
-        <div class="chip-row" id="typeRow">
-          <button class="chip active" data-type="landing" type="button">Landing</button>
-          <button class="chip" data-type="sales" type="button">Sales</button>
-          <button class="chip" data-type="business" type="button">Business</button>
-          <button class="chip" data-type="portfolio" type="button">Portfolio</button>
-          <button class="chip" data-type="3d" type="button">3D</button>
-        </div>
-      </div>
-      <div class="option-block">
-        <span class="option-label">Style</span>
-        <div class="chip-row" id="experienceRow">
-          <button class="chip active" data-experience="clean" type="button">Clean</button>
-          <button class="chip" data-experience="animated" type="button">Animated</button>
-          <button class="chip" data-experience="cinematic" type="button">Cinematic</button>
-          <button class="chip" data-assets="generate" type="button">Generate visuals</button>
-        </div>
-      </div>
-      <p class="asset-note" id="assetNote">Uploaded assets are free to use. <strong>Generate visuals</strong> uses normal Image/Video credits.</p>
-    </section>
+      <p class="asset-note" id="assetNote">Add your brand assets, or simply describe the website you want to build.</p>
 
-    <section class="recent">
-      <h2>Your pages</h2>
-      <div id="recentPages"><div class="empty">Your websites will appear here after you create them.</div></div>
-    </section>
   </main>
 
   <script>
     const promptEl=document.getElementById('pagePrompt'),sendBtn=document.getElementById('sendBtn');
-    const typeButtons=[...document.querySelectorAll('[data-type]')],expButtons=[...document.querySelectorAll('[data-experience]')];
-    const assetMode=document.querySelector('[data-assets="generate"]'),attachBtn=document.getElementById('attachBtn'),assetInput=document.getElementById('assetInput'),attachments=document.getElementById('attachments'),enhanceBtn=document.getElementById('enhanceBtn'),voiceBtn=document.getElementById('voiceBtn');
-    const qs=new URLSearchParams(location.search);let selectedType=qs.get('type')||'landing',experience='clean',generateAssets=false,files=[],uploadPromise=null;
-    const typeNames={landing:'Landing Page',sales:'Sales Page',business:'Business Website',portfolio:'Portfolio','3d':'3D Website'};
-
-    function syncType(){typeButtons.forEach(btn=>btn.classList.toggle('active',btn.dataset.type===selectedType))}syncType();
-    typeButtons.forEach(btn=>btn.onclick=()=>{selectedType=btn.dataset.type;if(selectedType==='3d'){experience='3d';expButtons.forEach(x=>x.classList.remove('active'))}else if(experience==='3d'){experience='clean';expButtons.forEach(x=>x.classList.toggle('active',x.dataset.experience==='clean'))}syncType()});
-    expButtons.forEach(btn=>btn.onclick=()=>{experience=btn.dataset.experience;expButtons.forEach(x=>x.classList.toggle('active',x===btn))});
-    assetMode.onclick=()=>{generateAssets=!generateAssets;assetMode.classList.toggle('active',generateAssets);document.getElementById('assetNote').innerHTML=generateAssets?'<strong>Generated visuals ON.</strong> Image and video media will use their normal Fuse credits.':'Uploaded assets are free to use. <strong>Generate visuals</strong> uses normal Image/Video credits.'};
+    const attachBtn=document.getElementById('attachBtn'),assetInput=document.getElementById('assetInput'),attachments=document.getElementById('attachments'),enhanceBtn=document.getElementById('enhanceBtn'),voiceBtn=document.getElementById('voiceBtn');
+    let selectedType='landing',experience='clean',generateAssets=false,files=[],uploadPromise=null;
     attachBtn.onclick=()=>assetInput.click();
 
     function safeFileName(name){return String(name||'asset').toLowerCase().replace(/[^a-z0-9._-]+/g,'-').replace(/-+/g,'-').slice(0,90)}
@@ -109,7 +78,7 @@
     }
     assetInput.onchange=()=>{const selected=[...assetInput.files].slice(0,8);files=selected.map(f=>({name:f.name,type:f.type,size:f.size,url:'',status:'uploading'}));drawAttachments();sendBtn.disabled=true;document.getElementById('assetNote').innerHTML='<strong>Uploading assets…</strong>';uploadPromise=uploadSelectedAssets(selected).finally(()=>uploadPromise=null)};
 
-    enhanceBtn.onclick=()=>{const raw=promptEl.value.trim();promptEl.value=raw?raw+'\n\nCreative direction: premium hierarchy, conversion-focused copy, refined spacing, strong mobile design, useful social proof and one clear CTA. Style: '+experience+'. '+(generateAssets?'Generate missing visuals with Fuse.':'Use uploaded brand assets where available.'):'Create a premium '+typeNames[selectedType]+' for a modern brand. Strong hierarchy, conversion-focused copy, refined spacing, premium visuals, social proof and a clear CTA.';enhanceBtn.classList.add('on');promptEl.focus()};
+    enhanceBtn.onclick=()=>{const raw=promptEl.value.trim();promptEl.value=raw?raw+'\n\nCreative direction: premium hierarchy, conversion-focused copy, refined spacing, strong mobile design, useful social proof and one clear CTA. Use uploaded brand assets where available.':'Create a premium conversion-focused website for a modern brand. Use strong hierarchy, refined spacing, social proof and one clear CTA.';enhanceBtn.classList.add('on');promptEl.focus()};
 
     async function launch(){
       const prompt=promptEl.value.trim();if(!prompt){promptEl.focus();return}if(uploadPromise){sendBtn.disabled=true;await uploadPromise}
@@ -117,14 +86,10 @@
     }
     sendBtn.onclick=launch;promptEl.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();launch()}});
 
-    async function loadRecentPages(){
-      const root=document.getElementById('recentPages');
-      try{const out=await Fuse.api('page-projects'),projects=out.projects||[];if(!projects.length){root.innerHTML='<div class="empty">Your websites will appear here after you create them.</div>';return}const names={landing:'Landing page',sales:'Sales page',business:'Business website',portfolio:'Portfolio','3d':'3D experience'};root.innerHTML='<div class="recent-list">'+projects.slice(0,5).map(p=>{const title=String(p.title||'Untitled website').replace(/[<>]/g,''),type=names[p.page_type]||'Website',st=String(p.status||'draft').replace(/[<>]/g,'');return '<a class="recent-item" href="page-workspace.html?id='+encodeURIComponent(p.id)+'&type='+encodeURIComponent(p.page_type||'landing')+'"><div><strong>'+title+'</strong><span>'+type+' · '+new Date(p.updated_at||p.created_at).toLocaleDateString(undefined,{month:'short',day:'numeric'})+'</span></div><b>'+st+'</b></a>'}).join('')+'</div>'}catch(e){root.innerHTML='<div class="empty">Could not load your pages right now.</div>'}
-    }
 
     const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
     if(SpeechRecognition){voiceBtn.onclick=()=>{const r=new SpeechRecognition();r.lang='en-US';r.interimResults=false;r.maxAlternatives=1;voiceBtn.textContent='●';r.onresult=e=>{const heard=e.results[0][0].transcript;promptEl.value=(promptEl.value.trim()?promptEl.value.trim()+' ':'')+heard};r.onend=()=>voiceBtn.textContent='⌁';r.onerror=()=>voiceBtn.textContent='⌁';r.start()}}else{voiceBtn.onclick=()=>promptEl.focus();voiceBtn.title='Voice input is not supported in this browser'}
-    window.addEventListener('load',()=>{if(window.Fuse){Fuse.balance().catch(()=>{});loadRecentPages()}});
+    window.addEventListener('load',()=>{if(window.Fuse)Fuse.balance().catch(()=>{})});
   </script>
   <script src="fuse-shell.js?v=pages-minimal-1"></script>
 </body>
