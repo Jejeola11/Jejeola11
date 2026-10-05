@@ -171,8 +171,9 @@
       return data.session;
     },
     async api(path,body){
+      const client=await this.client();
       const session=await this.session();
-      const response=await fetch('/api/'+path,{method:body?'POST':'GET',headers:{authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(55000)});
+      const response=await fetch('/api/'+path,{method:body?'POST':'GET',headers:{authorization:'Bearer '+session.access_token,apikey:client.supabaseKey,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(55000)});
       let data;try{data=await response.json()}catch{throw Error('The server did not respond correctly. Please try again.')}
       if(!response.ok)throw Error(data.error||'Request failed.');
       return data;
