@@ -59,9 +59,10 @@ function bearer(event) {
   return raw.replace(/^Bearer\s+/i, '').trim();
 }
 
-function scopedClient(token) {
+function scopedClient(token, requestPublicKey) {
   let url = env('SUPABASE_URL').replace(/\/+$/, '').replace(/\/rest\/v1$/, '').replace(/\/+$/, '');
-  const key = env('SUPABASE_ANON_KEY') || env('SUPABASE_PUBLISHABLE_KEY');
+  const safeRequestKey = String(requestPublicKey || '').trim();
+  const key = env('SUPABASE_ANON_KEY') || env('SUPABASE_PUBLISHABLE_KEY') || (safeRequestKey.startsWith('sb_publishable_') ? safeRequestKey : '');
   if (!url) throw new Error('Supabase URL is not configured.');
   if (!key) throw new Error('Supabase public key is not configured.');
   return createClient(url, key, {
@@ -77,7 +78,7 @@ exports.handler = async (event) => {
     const token = bearer(event);
     if (!token) return json(401, { error: 'Please sign in again.' });
 
-    const db = scopedClient(token);
+    const db = scopedClient(token, event.headers.apikey || event.headers.Apikey);
     const { data: authData, error: authError } = await db.auth.getUser(token);
     const user = authData && authData.user;
     if (authError || !user) return json(401, { error: 'Please sign in again.' });
