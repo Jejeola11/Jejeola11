@@ -19,10 +19,7 @@
     },
     {
       "src": "/",
-      "status": 307,
-      "headers": {
-        "Location": "/app/studio.html"
-      }
+      "dest": "/atelier-site/final.html"
     },
     {
       "src": "/studio/?",
