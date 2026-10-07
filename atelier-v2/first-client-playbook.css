@@ -237,3 +237,33 @@ body:has(.lead-dialog[open]){overflow:hidden}
 /* Chrome-gradient headline and white hero subheading */
 .hero h1{background:linear-gradient(100deg,#FFE66A 0%,#DFFF4E 48%,#EEFFE0 100%);background-clip:text;-webkit-background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent!important}
 .hero .hero-lead{color:#FFFFFF!important}
+
+
+/* High-attention Playbook price */
+.playbook-price .offer-price{
+  display:block;
+  margin-top:22px;
+  line-height:1;
+}
+.playbook-price .offer-price .naira-price{
+  display:block;
+  width:max-content;
+  max-width:100%;
+  font-size:clamp(58px,9vw,92px);
+  line-height:.88;
+  letter-spacing:-.075em;
+  font-weight:800;
+  color:transparent;
+  background:var(--chrome);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-shadow:0 0 28px rgba(223,255,78,.14);
+}
+@media(max-width:640px){
+  .playbook-price .offer-price{margin-top:20px}
+  .playbook-price .offer-price .naira-price{
+    font-size:clamp(64px,18vw,82px);
+    line-height:.86;
+  }
+}
