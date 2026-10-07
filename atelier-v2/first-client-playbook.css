@@ -205,26 +205,6 @@ footer{flex-direction:row!important;align-items:center!important;gap:20px}
 @media(max-width:600px){footer{padding:22px 16px!important;gap:10px}.footer-connect{gap:5px}.footer-connect-label{font-size:10px}.footer-icon{width:29px;height:29px}.footer-icon svg{width:15px;height:15px}}
 
 
-/* Required lead gate for the Playbook sales page */
-body:has(.lead-dialog[open]){overflow:hidden}
-.lead-dialog{width:min(560px,calc(100% - 34px));border:0;border-radius:23px;padding:28px;background:#faffee;color:#001012;box-shadow:0 24px 70px rgba(0,16,18,.4)}
-.lead-dialog::backdrop{background:rgba(0,16,18,.63);backdrop-filter:blur(7px)}
-.lead-dialog h2{margin:4px 0 7px;font-size:clamp(28px,7vw,39px);line-height:1;letter-spacing:-.06em}
-.lead-kicker{margin:0;color:#1B4C52;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
-.lead-intro{margin:0 0 20px;color:#1B4C52;font-size:14px;line-height:1.5}
-.lead-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-.lead-form-grid label{display:grid;gap:6px;font-size:12px;font-weight:800;color:#001012}
-.lead-form-grid input,.lead-form-grid select{width:100%;border:1px solid #315456;border-radius:9px;background:#fff;color:#001012;font:600 14px var(--font);padding:12px;outline:none}
-.lead-form-grid input:focus,.lead-form-grid select:focus{border-color:#001012;box-shadow:0 0 0 3px #DFFF4E}
-.phone-row{display:grid;grid-template-columns:minmax(100px,.8fr) 1.2fr;gap:8px}
-.form-status{min-height:20px;margin:13px 0 0;color:#a21d22;font-size:12px;font-weight:700}
-.submit-btn{display:block;width:100%;margin-top:4px;padding:14px}
-.submit-btn:disabled{opacity:.65;cursor:wait;transform:none;box-shadow:none}
-.lead-consent{display:block;margin-top:10px;color:#1B4C52;font-size:10px;line-height:1.45;text-align:center}
-.lead-optin{display:flex!important;align-items:flex-start;gap:8px;margin:14px 0 0!important;color:#143c3b!important;font-size:11px!important;font-weight:700!important;letter-spacing:0!important;text-transform:none!important;line-height:1.4}.lead-optin input{width:16px!important;height:16px;margin:0!important;flex:0 0 16px;accent-color:#0d716c}
-.honey{position:absolute!important;left:-9999px!important;opacity:0!important;pointer-events:none!important}
-@media(max-width:520px){.lead-dialog{padding:25px 19px}.lead-form-grid{grid-template-columns:1fr}.lead-dialog h2{font-size:31px}}
-
 /* Updated Playbook pricing hero */
 .hero{min-height:auto;padding:clamp(58px,8vw,104px) clamp(20px,7vw,110px) 70px;background:radial-gradient(circle at 50% 0%,rgba(27,76,82,.42),transparent 42%),var(--deep);color:var(--white);text-align:center}.hero-content{width:min(100%,1120px);margin:0 auto}.hero .hero-pill{display:inline-flex;align-items:center;justify-content:center;max-width:100%;margin:0 auto 20px;padding:9px 15px;border:1px solid rgba(223,255,78,.5);border-radius:999px;background:rgba(223,255,78,.07);color:var(--lime);font-size:clamp(10px,1.15vw,13px);font-weight:800;letter-spacing:.08em;line-height:1.35;text-align:center}.hero h1{max-width:1000px;margin:0 auto 18px;background:none;color:var(--white);-webkit-text-fill-color:var(--white);font-size:clamp(36px,5.8vw,70px);line-height:1.04;letter-spacing:-.055em}.hero .hero-lead{max-width:850px;margin:0 auto 26px;color:#c0d0cb;font-size:clamp(15px,1.5vw,18px);line-height:1.65}.hero-visual{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border:1px solid rgba(223,255,78,.42);border-radius:20px;box-shadow:0 22px 65px rgba(0,0,0,.36);margin:0 auto 26px}.hero .hero-actions{display:flex;justify-content:center;margin:0 auto}.hero .hero-main-cta{max-width:100%;padding:17px 26px;border-radius:10px;text-align:center;font-size:clamp(13px,1.6vw,17px);line-height:1.35;box-shadow:0 12px 36px rgba(223,255,78,.16)}.hero .student-proof{justify-content:center;margin-top:22px;color:var(--white)}.hero .student-proof small{color:#a9c0b8}
 @media(max-width:640px){.hero{padding:48px 18px 52px}.hero .hero-pill{font-size:10px;letter-spacing:.045em;padding:8px 11px;margin-bottom:17px}.hero h1{font-size:clamp(33px,9vw,44px);line-height:1.06;letter-spacing:-.05em}.hero .hero-lead{font-size:15px;line-height:1.58;margin-bottom:20px}.hero-visual{border-radius:13px;margin-bottom:20px}.hero .hero-main-cta{width:100%;font-size:14px;padding:15px 13px}.hero .student-proof{margin-top:17px}}
@@ -265,5 +245,76 @@ body:has(.lead-dialog[open]){overflow:hidden}
   .playbook-price .offer-price .naira-price{
     font-size:clamp(64px,18vw,82px);
     line-height:.86;
+  }
+}
+
+
+/* Paid-traffic hero refinement: low-friction, high-contrast hook */
+.hero h1{
+  color:#FFFFFF!important;
+  -webkit-text-fill-color:#FFFFFF!important;
+  background:none!important;
+}
+.hero h1 .hero-chrome-hook{
+  color:transparent!important;
+  -webkit-text-fill-color:transparent!important;
+  background:linear-gradient(100deg,#FFE66A 0%,#DFFF4E 52%,#EEFFE0 100%);
+  background-clip:text;
+  -webkit-background-clip:text;
+  display:inline!important;
+}
+.hero .hero-pill{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:max-content!important;
+  max-width:calc(100vw - 36px)!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  margin:0 auto 18px!important;
+  padding:9px 15px!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:#FFFFFF!important;
+  box-shadow:0 8px 24px rgba(0,16,18,.16);
+}
+.hero .hero-pill span{
+  display:block!important;
+  white-space:nowrap!important;
+  font-size:clamp(9px,1.05vw,12px)!important;
+  line-height:1.1!important;
+  letter-spacing:.055em!important;
+  font-weight:800!important;
+  color:transparent!important;
+  -webkit-text-fill-color:transparent!important;
+  background:linear-gradient(100deg,#00191B 0%,#1B4C52 52%,#4D8587 100%);
+  background-clip:text;
+  -webkit-background-clip:text;
+}
+.hero-divider{
+  width:58px;
+  height:3px;
+  margin:19px auto 22px;
+  border-radius:999px;
+  background:var(--chrome);
+  box-shadow:0 3px 14px rgba(223,255,78,.18);
+}
+@media(max-width:640px){
+  .hero .hero-pill{
+    max-width:calc(100vw - 36px)!important;
+    padding:8px 12px!important;
+    margin-bottom:17px!important;
+  }
+  .hero .hero-pill span{
+    font-size:9px!important;
+    letter-spacing:.035em!important;
+  }
+  .hero h1 .hero-chrome-hook{
+    font-size:1em!important;
+  }
+  .hero-divider{
+    width:48px;
+    height:2px;
+    margin:17px auto 20px;
   }
 }
