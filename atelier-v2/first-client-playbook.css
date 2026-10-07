@@ -229,7 +229,7 @@ footer{flex-direction:row!important;align-items:center!important;gap:20px}
   display:block;
   width:max-content;
   max-width:100%;
-  font-size:clamp(58px,9vw,92px);
+  font-size:clamp(50px,7.5vw,76px);
   line-height:.88;
   letter-spacing:-.075em;
   font-weight:800;
@@ -243,7 +243,7 @@ footer{flex-direction:row!important;align-items:center!important;gap:20px}
 @media(max-width:640px){
   .playbook-price .offer-price{margin-top:20px}
   .playbook-price .offer-price .naira-price{
-    font-size:clamp(64px,18vw,82px);
+    font-size:clamp(56px,15vw,72px);
     line-height:.86;
   }
 }
