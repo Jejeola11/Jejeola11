@@ -233,3 +233,7 @@ body:has(.lead-dialog[open]){overflow:hidden}
 .site-header{display:none!important}
 .hero{padding-top:22px!important}
 @media(max-width:640px){.hero{padding-top:18px!important}}
+
+/* Chrome-gradient headline and white hero subheading */
+.hero h1{background:linear-gradient(100deg,#FFE66A 0%,#DFFF4E 48%,#EEFFE0 100%);background-clip:text;-webkit-background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent!important}
+.hero .hero-lead{color:#FFFFFF!important}
