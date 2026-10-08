@@ -318,3 +318,41 @@ footer{flex-direction:row!important;align-items:center!important;gap:20px}
     margin:17px auto 20px;
   }
 }
+
+
+/* Final hero headline + pill rendering fix */
+.hero h1{
+  font-size:clamp(32px,5.35vw,64px)!important;
+  line-height:1.05!important;
+}
+.hero h1 .hero-chrome-hook{
+  display:inline!important;
+  box-decoration-break:clone;
+  -webkit-box-decoration-break:clone;
+  background:linear-gradient(100deg,#FFE66A 0%,#DFFF4E 52%,#EEFFE0 100%)!important;
+  background-clip:text!important;
+  -webkit-background-clip:text!important;
+  color:transparent!important;
+  -webkit-text-fill-color:transparent!important;
+}
+.hero .hero-pill{
+  background:linear-gradient(100deg,#FFE66A 0%,#DFFF4E 52%,#EEFFE0 100%)!important;
+  border:0!important;
+}
+.hero .hero-pill span{
+  color:#00191B!important;
+  -webkit-text-fill-color:#00191B!important;
+  background:none!important;
+  -webkit-background-clip:initial!important;
+  background-clip:initial!important;
+}
+@media(max-width:640px){
+  .hero h1{
+    font-size:clamp(30px,8.2vw,40px)!important;
+    line-height:1.07!important;
+    letter-spacing:-.045em!important;
+  }
+  .hero .hero-pill span{
+    font-size:9px!important;
+  }
+}
