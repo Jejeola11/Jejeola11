@@ -19,7 +19,7 @@
     },
     {
       "src": "/",
-      "dest": "/atelier-site/final.html"
+      "dest": "/app/index.html"
     },
     {
       "src": "/studio/?",
