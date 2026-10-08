@@ -356,3 +356,19 @@ footer{flex-direction:row!important;align-items:center!important;gap:20px}
     font-size:9px!important;
   }
 }
+
+
+/* Allow the chrome hook to wrap naturally — prevents "Pay For" clipping */
+.hero h1 .hero-chrome-hook{
+  white-space:normal!important;
+  overflow-wrap:normal!important;
+  word-break:normal!important;
+  display:inline!important;
+  max-width:100%!important;
+}
+@media(max-width:640px){
+  .hero h1 .hero-chrome-hook{
+    white-space:normal!important;
+    font-size:1em!important;
+  }
+}
