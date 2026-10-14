@@ -62,6 +62,10 @@
       "dest": "/api/page-site?slug=$1"
     },
     {
+      "src": "/portfolio/?",
+      "dest": "/portfolio/index.html"
+    },
+    {
       "handle": "filesystem"
     }
   ]
