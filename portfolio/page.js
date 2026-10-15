@@ -1,4 +1,6 @@
 const samples=[
+['founder-presenter','presenter','Your founder, on camera','AI DIGITAL TWIN / TALKING HEAD','https://res.cloudinary.com/bzw55wh2/video/upload/v1792024859/lv_0_20261007124714.mp4'],
+['podcast-presenter','presenter','The podcast-style presenter','AI PRESENTER / PODCAST STYLE','https://res.cloudinary.com/bzw55wh2/video/upload/v1792024769/lv_0_20260924031357.mp4'],
 ['blender','commercial','Fresh daily','PRODUCT COMMERCIAL / VFX','https://res.cloudinary.com/bzw55wh2/video/upload/v1791999774/lv_0_20261014155448.mp4'],
 ['womens','story','Seven days. Seven looks.','FASHION / LOOKBOOK','https://res.cloudinary.com/bzw55wh2/video/upload/v1792022472/lv_0_20260817134136.mp4'],
 ['mens','story','A week, styled differently','FASHION / CHARACTER CONTINUITY','https://res.cloudinary.com/bzw55wh2/video/upload/v1792022483/lv_0_20260806153535.mp4'],
