@@ -19,5 +19,3 @@ function update(){
 }
 document.querySelectorAll('input[name="payment"]').forEach(x=>x.addEventListener('change',update));update();setInterval(update,1000);
 })();
-
-(()=>{const dialog=document.getElementById('proof-dialog');const image=document.getElementById('proof-full');const title=document.getElementById('proof-dialog-title');let trigger;document.querySelectorAll('[data-proof]').forEach(button=>button.addEventListener('click',()=>{trigger=button;image.src=button.dataset.proof;image.alt=button.dataset.caption;title.textContent=button.dataset.caption;dialog.showModal();}));document.getElementById('close-proof').addEventListener('click',()=>dialog.close());dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}});dialog.addEventListener('close',()=>{image.removeAttribute('src');if(trigger)trigger.focus();});})();
