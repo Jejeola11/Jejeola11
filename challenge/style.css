@@ -64,3 +64,6 @@
 .curriculum-art img{display:block;width:100%;height:100%;object-fit:cover}
 .curriculum-step{padding-top:42px;padding-bottom:42px}
 @media(max-width:760px){.curriculum-art{width:100%;margin-bottom:22px;border-radius:10px}.curriculum-step{padding-top:28px;padding-bottom:33px}}
+
+/* Detailed 3:4 curriculum image series */
+.curriculum-art{aspect-ratio:3/4;max-width:500px}
