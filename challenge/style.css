@@ -104,3 +104,13 @@
 .market-disclaimer{border-radius:11px;background:#a92033;color:#fff;box-shadow:0 12px 28px #83172c22;padding:20px 22px;font-size:12px;line-height:1.75;max-width:740px}
 .market-disclaimer strong{display:block;font-size:13px;margin-bottom:4px}
 @media(max-width:760px){.market-inner{width:calc(100% - 40px);padding-top:46px;padding-bottom:52px}.market-kicker{font-size:12px;margin-bottom:25px}.market-inner h2{font-size:25px}.market-mission{font-size:20px;margin-bottom:26px}.market-intro{font-size:14px;margin-bottom:20px}.market-list{margin-bottom:32px}.market-list li{font-size:14px;padding:14px 0;gap:12px}.market-disclaimer{font-size:11px;padding:16px 18px}}
+
+/* First cohort resource cards */
+.market-kicker,.market-inner h2,.market-mission{text-align:center;margin-left:auto;margin-right:auto}
+.cohort-includes{background:#dfff4e;color:#08120c;border-top:1px solid #91b146}
+.includes-inner{max-width:950px;padding-top:62px;padding-bottom:68px}
+.includes-kicker{font-size:13px;font-weight:800;letter-spacing:.7px;color:#981b2c;margin:0 0 18px}
+.includes-inner>h2{font-size:27px;line-height:1.35;max-width:720px;margin:0 0 33px}
+.includes-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.includes-card{display:flex;align-items:center;justify-content:center;min-height:108px;padding:19px 22px;text-align:center;font-size:15px;line-height:1.55;font-weight:600;color:#fff;background:linear-gradient(135deg,#001012,#0a3033 65%,#1b4c52);border:1px solid #36645e;border-radius:10px;box-shadow:0 9px 20px #21422730,inset 0 1px 0 #eeffe02e}
+@media(max-width:760px){.includes-inner{width:calc(100% - 40px);padding-top:48px;padding-bottom:54px}.includes-kicker{font-size:12px}.includes-inner>h2{font-size:25px;margin-bottom:26px}.includes-grid{grid-template-columns:1fr;gap:11px}.includes-card{min-height:76px;padding:15px 18px;font-size:14px}}
