@@ -7,7 +7,10 @@ exports.handler = async function (event) {
   if (!user) return json(401, { error: 'Sign in to access your video.' });
   let id;
   try { id = JSON.parse(event.body || '{}').id; } catch (_) { return json(400, { error: 'Invalid request.' }); }
-  if (typeof id !== 'string' || !/^[a-f0-9-]{36}$/i.test(id)) return json(400, { error: 'Invalid video ID.' });
+  // generations.id is a bigint, not a UUID. Keep it as a decimal string
+  // so IDs larger than JavaScript's safe integer range are never rounded.
+  id = typeof id === 'number' && Number.isSafeInteger(id) ? String(id) : id;
+  if (typeof id !== 'string' || !/^[1-9][0-9]{0,18}$/.test(id)) return json(400, { error: 'Invalid video ID.' });
   const db = admin();
   const { data, error } = await db.from('generations').select('id,type,model,output_url').eq('id', id).eq('user_id', user.id).maybeSingle();
   if (error) return json(500, { error: 'Could not open the video.' });

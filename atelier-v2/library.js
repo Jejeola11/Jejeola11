@@ -229,7 +229,7 @@
       setTimeout(()=>{if(label)label.textContent=original;if(btn)btn.disabled=false},1400);
     }catch(e){
       console.warn('[library] download',e);
-      if(label)label.textContent='Try again';libraryToast('Could not download. Try again.');
+      if(label)label.textContent='Try again';libraryToast(e.message||'Could not download. Try again.');
       setTimeout(()=>{if(label)label.textContent=original;if(btn)btn.disabled=false},1500);
     }
   }
