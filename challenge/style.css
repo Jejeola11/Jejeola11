@@ -114,3 +114,19 @@
 .includes-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .includes-card{display:flex;align-items:center;justify-content:center;min-height:108px;padding:19px 22px;text-align:center;font-size:15px;line-height:1.55;font-weight:600;color:#fff;background:linear-gradient(135deg,#001012,#0a3033 65%,#1b4c52);border:1px solid #36645e;border-radius:10px;box-shadow:0 9px 20px #21422730,inset 0 1px 0 #eeffe02e}
 @media(max-width:760px){.includes-inner{width:calc(100% - 40px);padding-top:48px;padding-bottom:54px}.includes-kicker{font-size:12px}.includes-inner>h2{font-size:25px;margin-bottom:26px}.includes-grid{grid-template-columns:1fr;gap:11px}.includes-card{min-height:76px;padding:15px 18px;font-size:14px}}
+
+/* Fit for Nigerian AI video creators with an existing skill */
+.audience-fit{background:#020606;color:#fff;border-top:1px solid #315456}
+.audience-fit-inner{max-width:860px;padding-top:67px;padding-bottom:70px}
+.audience-fit-kicker{font-size:13px;letter-spacing:.9px;font-weight:800;margin:0 0 27px}
+.audience-fit-inner>h2{font-size:27px;line-height:1.38;max-width:690px;margin:0 0 36px}
+.audience-fit-opening{max-width:730px;margin-bottom:43px}
+.audience-fit-opening p,.audience-fit-opening blockquote{font-size:15px;line-height:1.8;margin:0 0 22px}
+.audience-fit-opening blockquote{font-weight:600;margin-left:0;padding-left:19px;border-left:2px solid #dfff4e}
+.audience-fit-list{list-style:none;padding:0;margin:0 0 32px}
+.audience-fit-list li{display:flex;gap:17px;padding:19px 0;border-top:1px solid #315456;font-size:15px;line-height:1.7}
+.audience-fit-list li:last-child{border-bottom:1px solid #315456}
+.audience-fit-list li:before{content:'+';flex:0 0 21px;font-size:24px;font-weight:700;line-height:1.15;background:var(--chrome);background-clip:text;-webkit-background-clip:text;color:transparent}
+.audience-fit-note,.audience-fit-readiness{font-size:12px;line-height:1.8;color:#aac0be;max-width:720px}
+.audience-fit-readiness a{color:#dfff4e;text-underline-offset:4px}
+@media(max-width:760px){.audience-fit-inner{width:calc(100% - 40px);padding-top:50px;padding-bottom:52px}.audience-fit-kicker{font-size:12px}.audience-fit-inner>h2{font-size:25px;margin-bottom:29px}.audience-fit-opening{margin-bottom:33px}.audience-fit-opening p,.audience-fit-opening blockquote{font-size:14px;margin-bottom:18px}.audience-fit-list li{font-size:14px;padding:16px 0;gap:12px}.audience-fit-note,.audience-fit-readiness{font-size:11px}}
