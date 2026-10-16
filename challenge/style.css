@@ -157,3 +157,21 @@
 .coach-about-story p:last-child{margin-bottom:24px}
 .coach-about-link{display:inline-block;font-size:13px;font-weight:800;text-underline-offset:5px;margin-top:5px}
 @media(max-width:760px){.coach-about-inner{width:calc(100% - 40px);padding-top:48px;padding-bottom:55px}.coach-about-photo{margin-bottom:42px;border-radius:11px}.coach-about-kicker{font-size:11px;margin-bottom:27px}.coach-about h2{font-size:30px;margin-bottom:12px}.coach-about-role{font-size:14px;margin-bottom:34px}.coach-about-story p{font-size:14px;line-height:1.75;margin-bottom:24px}.coach-about-story p:last-child{margin-bottom:20px}.coach-about-link{font-size:12px}}
+
+/* First cohort price panel */
+.founding-price{background:#e5d888;color:#10120d}
+.founding-price-inner{max-width:860px;padding-top:66px;padding-bottom:72px}
+.founding-price-kicker{font-size:12px;font-weight:800;letter-spacing:1px;color:#a71e2d;text-align:center;margin:0 0 22px}
+.founding-price h2{text-align:center;font-size:32px;line-height:1.2;margin:0 0 35px}
+.founding-price-card{max-width:690px;margin:auto;padding:39px 45px;border:1px solid #756a3a8c;border-radius:12px;background:#f2e8a5;box-shadow:0 20px 42px #79672b2b,inset 0 1px 0 #fff8c2}
+.founding-regular{color:#5d5c55;font-size:19px;font-weight:600;margin:0 0 12px}
+.founding-regular s{text-decoration-thickness:2px;text-decoration-color:#a71e2d}
+.founding-early{font-size:23px;font-weight:800;line-height:1.35;margin:0 0 33px}
+.founding-early strong{color:#a71e2d;white-space:nowrap}
+.founding-early span{display:block;font-size:15px;margin-top:4px}
+.founding-price-story p{font-size:15px;line-height:1.8;margin:0 0 23px}
+.founding-price-story p:last-child{font-size:19px;margin:0 0 28px}
+.founding-price-cta{background:linear-gradient(115deg,#9e1726,#c52b34 60%,#a71529);color:#fff;border:1px solid #8e1628;box-shadow:0 9px 22px #97172445;width:100%;text-align:center;font-size:15px;padding:15px 18px}
+.founding-price-cta:hover{box-shadow:0 14px 27px #97172460}
+.founding-price-dates{text-align:center;border-top:1px solid #8e8a6980;margin:27px 0 0;padding:24px 0 0;font-size:13px;line-height:1.75}
+@media(max-width:760px){.founding-price-inner{width:calc(100% - 40px);padding-top:49px;padding-bottom:56px}.founding-price-kicker{font-size:11px;line-height:1.55}.founding-price h2{font-size:27px;margin-bottom:26px}.founding-price-card{padding:26px 19px}.founding-regular{font-size:16px}.founding-early{font-size:19px;margin-bottom:27px}.founding-early span{font-size:13px}.founding-price-story p{font-size:14px;line-height:1.75;margin-bottom:20px}.founding-price-story p:last-child{font-size:18px;margin-bottom:25px}.founding-price-cta{font-size:13px;padding:14px 10px;gap:8px}.founding-price-dates{font-size:12px;margin-top:24px;padding-top:21px}}
