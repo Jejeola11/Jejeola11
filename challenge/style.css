@@ -82,3 +82,10 @@
 .implementation-rhythm{font-weight:600;margin-top:30px}
 .implementation-fine{font-size:12px;line-height:1.8;color:#aac0be;max-width:690px;margin:25px 0 0}
 @media(max-width:760px){.implementation-inner{width:calc(100% - 40px);padding-top:54px;padding-bottom:54px}.implementation-kicker{font-size:12px;margin-bottom:32px}.implementation h2{font-size:26px;margin-bottom:27px}.implementation-inner>p:not(.implementation-kicker):not(.implementation-fine){font-size:14px;line-height:1.9}.implementation h3{font-size:18px;margin:50px 0 24px}.implementation-bring li{font-size:14px;padding:15px 0;gap:12px}.implementation-fine{font-size:11px}}
+
+/* Compact implementation rhythm */
+.implementation-inner>p:not(.implementation-kicker):not(.implementation-fine){line-height:1.65;margin-bottom:21px}
+.implementation-bring li{line-height:1.5;padding:13px 0}
+.implementation h3.chrome{background:var(--chrome);background-clip:text;-webkit-background-clip:text;color:transparent;margin-top:43px;margin-bottom:20px}
+.implementation-rhythm{margin-top:21px}
+@media(max-width:760px){.implementation-inner>p:not(.implementation-kicker):not(.implementation-fine){line-height:1.65}.implementation h3.chrome{margin-top:39px;margin-bottom:18px}.implementation-bring li{padding:12px 0}}
