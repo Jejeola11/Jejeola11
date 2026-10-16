@@ -175,3 +175,22 @@
 .founding-price-cta:hover{box-shadow:0 14px 27px #97172460}
 .founding-price-dates{text-align:center;border-top:1px solid #8e8a6980;margin:27px 0 0;padding:24px 0 0;font-size:13px;line-height:1.75}
 @media(max-width:760px){.founding-price-inner{width:calc(100% - 40px);padding-top:49px;padding-bottom:56px}.founding-price-kicker{font-size:11px;line-height:1.55}.founding-price h2{font-size:27px;margin-bottom:26px}.founding-price-card{padding:26px 19px}.founding-regular{font-size:16px}.founding-early{font-size:19px;margin-bottom:27px}.founding-early span{font-size:13px}.founding-price-story p{font-size:14px;line-height:1.75;margin-bottom:20px}.founding-price-story p:last-child{font-size:18px;margin-bottom:25px}.founding-price-cta{font-size:13px;padding:14px 10px;gap:8px}.founding-price-dates{font-size:12px;margin-top:24px;padding-top:21px}}
+
+/* Cohort fee emphasis and interactive FAQ */
+.founding-regular,.founding-early{text-align:center}
+.founding-regular{font-size:25px;line-height:1.4;margin-bottom:20px}
+.founding-early{font-size:28px;line-height:1.4;margin-bottom:39px}
+.founding-early span{font-size:17px}
+.challenge-faq{background:#00191b;color:#fff;border-top:1px solid #315456}
+.challenge-faq-inner{max-width:860px;padding-top:72px;padding-bottom:78px}
+.challenge-faq-kicker{font-size:13px;font-weight:800;letter-spacing:.8px;margin:0 0 18px}
+.challenge-faq h2{font-size:27px;line-height:1.35;margin:0 0 35px}
+.challenge-faq-list{display:grid;gap:14px}
+.challenge-faq details{border:1px solid #496a6b;border-radius:8px;background:#062125;box-shadow:0 8px 20px #0002;overflow:hidden}
+.challenge-faq summary{display:block;padding:19px 55px 19px 20px;font-size:15px;font-weight:600;line-height:1.5;min-height:62px}
+.challenge-faq summary:after{content:'+';right:18px;top:50%;transform:translateY(-50%);font-size:27px;font-weight:600;line-height:1;background:var(--chrome);background-clip:text;-webkit-background-clip:text;color:transparent}
+.challenge-faq details[open]>summary{background:var(--chrome);background-clip:text;-webkit-background-clip:text;color:transparent}
+.challenge-faq details[open]>summary:after{content:'−';top:50%;background:var(--chrome);background-clip:text;-webkit-background-clip:text;color:transparent}
+.challenge-faq details p{font-size:13px;line-height:1.8;color:#d5e5dc;margin:0;padding:0 20px 21px}
+.challenge-faq details p a{color:#dfff4e;text-underline-offset:3px}
+@media(max-width:760px){.founding-regular{font-size:21px;margin-bottom:16px}.founding-early{font-size:23px;margin-bottom:31px}.founding-early span{font-size:15px}.challenge-faq-inner{width:calc(100% - 40px);padding-top:51px;padding-bottom:55px}.challenge-faq-kicker{font-size:12px}.challenge-faq h2{font-size:25px;margin-bottom:26px}.challenge-faq-list{gap:11px}.challenge-faq summary{font-size:14px;padding:16px 48px 16px 16px;min-height:58px}.challenge-faq summary:after{right:15px;font-size:25px}.challenge-faq details p{font-size:12px;padding:0 16px 18px}}
