@@ -13,7 +13,7 @@ function update(){
  const message=closed?'Hi Ria, I saw the 14-Day AI Client Challenge. The October enrolment deadline has passed. Please let me know about the next available cohort.':`Hi Ria, I’d like to join the 14-Day AI Client Challenge starting October 19 and pay ₦15,000 in full. Please confirm availability, payment instructions, the support schedule, access duration and programme terms.`;
  link.href='https://wa.me/2349044558101?text='+encodeURIComponent(message);
  link.textContent=closed?'Ask about the next cohort ↗':'I WANT IN. GET INSTANT ACCESS ↗';
- if(closed){status.textContent='Registration for the October 19 cohort has closed. Ask Ria about the next cohort before making payment.';const mobile=document.querySelector('.mobile-bar .button');if(mobile)mobile.textContent='Next cohort ↗';}
+ if(closed){if(status)status.textContent='Registration for the October 19 cohort has closed. Ask Ria about the next cohort before making payment.';const mobile=document.querySelector('.mobile-bar .button');if(mobile)mobile.textContent='Next cohort ↗';}
 }
 update();setInterval(update,1000);
 })();
