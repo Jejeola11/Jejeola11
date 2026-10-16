@@ -44,6 +44,23 @@
   const removePending=id=>saveStoragePending(storagePending().filter(x=>String(x.request_id)!==String(id)));
   const favs=()=>{try{return new Set(JSON.parse(localStorage.getItem(FAV_KEY)||'[]'))}catch{return new Set()}};
   const setFav=(id,on)=>{const s=favs();on?s.add(String(id)):s.delete(String(id));try{localStorage.setItem(FAV_KEY,JSON.stringify([...s]))}catch(_){}};
+  const unavailableUrls=()=>{try{return new Set(JSON.parse(localStorage.getItem('fuse_unavailable_media_'+session.user.id)||'[]'))}catch{return new Set()}};
+  const checkingMedia=new Set();
+  async function hideUnavailable(item,btn){
+    if(checkingMedia.has(item.output_url))return;
+    checkingMedia.add(item.output_url);
+    btn.style.display='none';
+    try{
+      const r=await fetch('/api/library-media-status',{method:'POST',headers:{'Content-Type':'application/json',...(await authHeader())},body:JSON.stringify({id:item.id})});
+      const d=await r.json();
+      if(r.ok&&d.unavailable===true){
+        const urls=unavailableUrls();urls.add(item.output_url);
+        try{localStorage.setItem('fuse_unavailable_media_'+session.user.id,JSON.stringify([...urls]))}catch(_){}
+        const group=btn.closest('.group');btn.remove();if(group&&!group.querySelector('.tile'))group.remove();
+        if(!groups.querySelector('.tile'))groups.innerHTML='<div class="empty">No available creations here yet.</div>';
+      }
+    }catch(_){}finally{checkingMedia.delete(item.output_url);if(btn.isConnected)btn.style.display=''}
+  }
 
   async function authHeader(){const {data}=await sb.auth.getSession();return data.session?.access_token?{Authorization:'Bearer '+data.session.access_token}:{}}
   async function getSession(){const {data}=await sb.auth.getSession();session=data.session||null;if(!session){location.href='login.html';return false}return true}
@@ -97,16 +114,17 @@
     const u=validUrl(item.output_url);
     if(item.kind==='video')return'<span class="video-art"><video src="'+u+'" muted playsinline preload="auto"></video><span class="video-play" aria-hidden="true">▶</span></span>';
     if(item.kind==='audio')return'<div class="audio-art"><svg viewBox="0 0 24 24"><path d="M5 12v4M9 8v8M13 5v14M17 9v6M21 11v2"/></svg></div>';
-    return'<img src="'+u+'" alt="'+esc(item.prompt||'Fuse creation')+'" loading="lazy">';
+    return'<img src="'+u+'" alt="Fuse creation" loading="lazy">';
   }
   function tileMarkup(item,index){
     const label=item.kind==='page'?(item.title||'Untitled website'):(item.pending?(item.label||'Creating…'):(item.prompt||cleanModel(item.model)));
     const sub=item.kind==='page'?(pageTypeLabel(item.page_type)+' · '+(item.status||'draft')):(item.pending?'Rendering now':cleanModel(item.model));
-    return'<button class="tile '+(item.pending?'processing':'')+'" type="button" data-index="'+index+'">'+mediaMarkup(item)+'<span class="kind-badge">'+esc(item.kind)+'</span><span class="list-copy"><b>'+esc(label)+'</b><span>'+esc(sub)+'</span></span></button>';
+    return'<button class="tile '+(item.pending?'processing':'')+'" type="button" data-index="'+index+'" data-creation-id="'+esc(item.id||'')+'">'+mediaMarkup(item)+'<span class="kind-badge">'+esc(item.kind)+'</span><span class="list-copy"><b>'+esc(label)+'</b><span>'+esc(sub)+'</span></span></button>';
   }
 
   function render(){
-    const all=[...pendingState.map(x=>({...x,sortAt:x.started_at})),...generations,...pageProjects].filter(matchesFilter).sort((a,b)=>(b.sortAt||0)-(a.sortAt||0));
+    const hidden=unavailableUrls();
+    const all=[...pendingState.map(x=>({...x,sortAt:x.started_at})),...generations,...pageProjects].filter(x=>matchesFilter(x)&&!hidden.has(x.output_url)).sort((a,b)=>(b.sortAt||0)-(a.sortAt||0));
     status.textContent=pendingState.length?(pendingState.length===1?'1 creation is rendering — it will appear here automatically.':pendingState.length+' creations are rendering — they will appear here automatically.'):'';
     if(!all.length){groups.innerHTML='<div class="empty">Nothing here yet. Your images, videos, audio, twins and Fuse Pages will appear here.</div>';return}
     const buckets=new Map();
@@ -119,8 +137,9 @@
       if(v){
         v.addEventListener('loadedmetadata',()=>{if(Number.isFinite(v.duration)&&v.duration>.15)try{v.currentTime=Math.min(.25,v.duration/4)}catch(_){}});
         v.addEventListener('loadeddata',()=>btn.classList.add('video-ready'));
-        v.addEventListener('error',()=>{btn.classList.add('video-unavailable');repairVideo(item,v,btn)});
+        v.addEventListener('error',async()=>{await repairVideo(item,v,btn);hideUnavailable(item,btn)});
       }
+      const img=btn.querySelector('img');if(img)img.addEventListener('error',()=>hideUnavailable(item,btn));
     });
   }
 
@@ -140,7 +159,7 @@
       try{
         const old=item.output_url,links=await videoLinks(item);
         if(old!==links.url){
-          const tile=groups.querySelector('.tile[data-index="'+[...pendingState.map(x=>({...x,sortAt:x.started_at})),...generations,...pageProjects].filter(matchesFilter).sort((a,b)=>(b.sortAt||0)-(a.sortAt||0)).indexOf(item)+'"]');
+          const tile=groups.querySelector('.tile[data-creation-id="'+item.id+'"]');
           const video=tile?.querySelector('video');if(video){video.src=links.url;video.load()}
         }
       }catch(e){console.warn('[library] archive',e.message)}
