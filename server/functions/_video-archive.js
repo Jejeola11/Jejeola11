@@ -15,7 +15,7 @@ async function archiveVideo(db, userId, url, key) {
   if (isArchived(url)) return url;
   let parsed;
   try { parsed = new URL(url); } catch (_) { return url; }
-  if (parsed.protocol !== 'https:' || parsed.hostname !== PROVIDER_HOST || !parsed.pathname.startsWith('/output/')) return url;
+  if (parsed.protocol !== 'https:' || parsed.hostname !== PROVIDER_HOST || !/^\/(output|predictions)\//.test(parsed.pathname)) return url;
   try {
     const response = await fetch(url, { signal: AbortSignal.timeout(35000) });
     if (!response.ok) return url;

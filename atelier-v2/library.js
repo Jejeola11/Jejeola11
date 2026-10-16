@@ -129,7 +129,22 @@
     try{
       await Promise.all([fetchFinished(),fetchPages()]);
       const serverPending=await fetchServerPending();pendingState=mergePending(storagePending(),serverPending);render();
+      archiveRecentVideos();
     }catch(e){status.textContent=e.message||'Could not load your library.'}
+  }
+
+  async function archiveRecentVideos(){
+    const cutoff=Date.now()-5*24*60*60*1000;
+    const recent=generations.filter(x=>x.kind==='video'&&x.sortAt>cutoff&&x.output_url.includes('d2h7xmz5gqybh9.cloudfront.net/'));
+    for(const item of recent){
+      try{
+        const old=item.output_url,links=await videoLinks(item);
+        if(old!==links.url){
+          const tile=groups.querySelector('.tile[data-index="'+[...pendingState.map(x=>({...x,sortAt:x.started_at})),...generations,...pageProjects].filter(matchesFilter).sort((a,b)=>(b.sortAt||0)-(a.sortAt||0)).indexOf(item)+'"]');
+          const video=tile?.querySelector('video');if(video){video.src=links.url;video.load()}
+        }
+      }catch(e){console.warn('[library] archive',e.message)}
+    }
   }
 
   async function pollPending(){
