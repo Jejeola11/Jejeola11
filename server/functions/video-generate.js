@@ -5,6 +5,7 @@ const { admin, getUser, json, getPlan } = require('./_supabase');
 const { VIDEO_MODELS, videoCreditsForRequest, canUseFree } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
 const { submitVideo } = require('./_providers');
+const { RATIOS, normalizeReferencePrompt, fitVideoFrames } = require('./_video-inputs');
 
 exports.handler = async (event) => {
   try {
@@ -17,8 +18,9 @@ exports.handler = async (event) => {
     try { body = JSON.parse(event.body || '{}'); }
     catch (e) { return json(400, { error: 'Bad request' }); }
 
-    const prompt = (body.prompt || '').trim();
+    const prompt = typeof body.prompt === 'string' ? body.prompt.trim() : '';
     const aspect = body.aspect || '16:9';
+    if (!RATIOS.includes(aspect)) return json(400,{error:'Choose a supported aspect ratio.'});
     const duration = body.duration || '5s';
     const resolution = body.resolution || '720p';
     const generate_audio = body.generate_audio !== false;
@@ -34,6 +36,8 @@ exports.handler = async (event) => {
       .map(v => Math.max(0, Number(v) || 0));
 
     const isSeedance25 = requestedModel === 'seedance-2.5-image-to-video' || requestedModel === 'seedance-2.5-text-to-video';
+    const referenceMode = body.reference_mode || 'frames';
+    if (!['frames','reference'].includes(referenceMode)) return json(400,{error:'Choose reference images or start/end frames.'});
 
     const allSeedanceImages = isSeedance25
       ? [image_url, ...extraImages].filter(Boolean).filter((u, i, arr) => arr.indexOf(u) === i)
@@ -69,6 +73,7 @@ exports.handler = async (event) => {
       // Switch to Seedance 2.5's official reference-guided T2V route when
       // the user adds 3+ images or any video/audio reference.
       const needsReferenceRoute =
+        referenceMode === 'reference' ||
         referenceVideoUrls.length > 0 ||
         referenceAudioUrls.length > 0 ||
         allSeedanceImages.length > 2 ||
@@ -84,6 +89,13 @@ exports.handler = async (event) => {
     }
 
     if (!VIDEO_MODELS[model]) return json(400, { error: 'Unknown video model.' });
+    const narrowAspects = /veo|gemini-omni|grok/.test(model) ? ['16:9','9:16'] : /kling/.test(model) ? ['16:9','9:16','1:1'] : isSeedance25 ? RATIOS : RATIOS.filter(x=>x!=='21:9');
+    if(!narrowAspects.includes(aspect))return json(400,{error:'This model does not support the selected aspect ratio.'});
+    let submittedPrompt=prompt;
+    if(isSeedance25){
+      try{submittedPrompt=normalizeReferencePrompt(prompt,{image:allSeedanceImages.length,video:referenceVideoUrls.length,audio:referenceAudioUrls.length})}
+      catch(e){return json(400,{error:e.message})}
+    }
 
     if (!isSeedance25 && !prompt && !image_url) {
       return json(400, { error: 'Add a prompt or a starting image.' });
@@ -138,11 +150,19 @@ exports.handler = async (event) => {
         const toHost = [];
         if (image_url) toHost.push(image_url);
         extraImages.slice(0, 4).forEach((u) => { if (u !== image_url) toHost.push(u); });
-        hosted = await Promise.all(toHost.map(muapiHostImage));
+        hosted = toHost;
+      }
+
+      if(model.includes('image-to-video') && hosted.length){
+        // Prepare from our original references rather than an expiring rehost.
+        const originals=isSeedance25?allSeedanceImages.slice(0,2):[image_url,...extraImages].filter(Boolean).filter((u,i,a)=>a.indexOf(u)===i).slice(0,2);
+        hosted=await fitVideoFrames(db,user.id,originals,aspect);
+        if(!process.env.WAVESPEED_KEY)hosted=await Promise.all(hosted.map(muapiHostImage));
       }
 
       const { requestId } = await submitVideo(model, {
-        prompt,
+        prompt: submittedPrompt,
+        strictModel: true,
         aspect,
         duration,
         resolution,

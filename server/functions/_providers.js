@@ -426,7 +426,7 @@ async function submitVideo(model, opts, hosted) {
       const id = await wsSubmit(route.pick(opts), wsVideoBody(route, opts, hosted));
       return { requestId: 'ws:' + id, provider: 'wavespeed' };
     } catch (e) {
-      if (route.waveSpeedOnly) throw e;
+      if (route.waveSpeedOnly || opts.strictModel) throw e;
       // Same idea: a WaveSpeed balance/quota error shouldn't dead-end the
       // user either — fall through to MuAPI below (the same fallback that
       // already runs when WAVESPEED_KEY is simply unset).

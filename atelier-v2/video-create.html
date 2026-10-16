@@ -201,7 +201,15 @@
       </section>
 
       <section class="prompt-card">
+        <div id="referenceModeRow" hidden style="padding:12px 14px;color:#EEFFE0;font-size:12px">
+          <label for="referenceMode">Use images as</label>
+          <select id="referenceMode" style="display:block;width:100%;margin-top:8px;padding:10px;border:1px solid #315456;border-radius:10px;background:#062125;color:#EEFFE0;font:inherit">
+            <option value="reference">Visual references</option>
+            <option value="frames">Start and end frames</option>
+          </select>
+        </div>
         <textarea class="prompt" id="prompt" placeholder="Describe your scene, movement, camera direction, mood and audio..."></textarea>
+        <p id="referenceHelp" hidden style="margin:0;padding:0 14px 12px;font-size:11px;line-height:1.5;color:#9db2b1">Tell the model what each reference is for: @Image 1 for the person, @Image 2 for the outfit, @Video 1 for movement. Starting frames are fitted to your selected shape without stretching.</p>
         <div class="model-row">
           <div class="model-left"><span>Model</span></div>
           <button class="model-select" id="modelTrigger" type="button"><span id="modelName">Auto</span><i class="chev"></i></button>
@@ -276,7 +284,7 @@
       {key:'minimax-h3',name:'MiniMax H3',desc:'Native-audio cinematic generation with flexible 3–15s clips.',short:'H3',api:'minimax-h3-text-to-video',res:['480p','540p','768p','1080p'],dur:[3,5,8,10,15],aspects:['16:9','9:16','1:1','4:3','3:4'],preview:'/app/media/samples/vid1.mp4',tag:'2K',fresh:true},
       {key:'wan-3',name:'Wan 3.0',desc:'Flexible 2–30s video with strong image guidance and native audio.',short:'W3',api:'wan-3-text-to-video',res:['480p','720p','1080p'],dur:[2,5,8,10,15,30],aspects:['16:9','9:16','1:1','4:3','3:4'],preview:'/app/media/samples/vid2.mp4',tag:'BEST VALUE',fresh:true},
       {key:'grok-imagine',name:'Grok Imagine',desc:'Fast, punchy social video generation.',short:'GX',api:'grok-imagine-text-to-video',res:['720p'],dur:[6,10],aspects:['16:9','9:16'],preview:'/app/media/samples/vid2.mp4',base:1,tag:'FAST'},
-      {key:'kling-standard',name:'Kling 3.0 Standard',desc:'Polished motion and cinematic control.',short:'K3',api:'kling-v3-turbo-standard-text-to-video',res:['720p'],dur:[5,10],aspects:['16:9','9:16','1:1'],preview:'/app/media/samples/vid4.mp4',base:9,tag:'CINEMATIC'},
+      {key:'kling-standard',name:'Kling 2.5 Turbo Pro',desc:'Polished motion and cinematic control.',short:'K2.5',api:'kling-v3-turbo-standard-text-to-video',res:['720p'],dur:[5,10],aspects:['16:9','9:16','1:1'],preview:'/app/media/samples/vid4.mp4',base:9,tag:'CINEMATIC'},
       {key:'seedance-2.5',name:'Seedance 2.5',desc:'WaveSpeed Seedance 2.5 with up to six image, video or audio references, native audio and 4–30s generation.',short:'S2.5',api:'seedance-2.5-image-to-video',res:['480p','720p','1080p','4k'],dur:[4,5,8,10,15,20,25,30],customDur:[4,30],aspects:['16:9','9:16','4:3','3:4','1:1','21:9'],preview:'/app/media/samples/vid3.mp4',tag:'6 REFS',fresh:true,mixedRefs:true},
       {key:'veo-fast',name:'Veo 3.1 Fast',desc:'High-end cinematic prompting for premium storytelling.',short:'V3',api:'veo3-text-to-video',res:['720p'],dur:[8],aspects:['16:9','9:16'],preview:'/app/media/samples/vid5.mp4',base:22,tag:'PREMIUM'},
       {key:'omni-flash',name:'Gemini Omni Flash 1.1',desc:'Fast synchronized-audio video generation from text or image.',short:'GO',api:'gemini-omni-1.1-flash-text-to-video',res:['360p','720p','1080p','4k'],dur:[3,5,8,10],aspects:['16:9','9:16'],preview:'/app/media/samples/vid3.mp4',tag:'OMNI',fresh:true}
@@ -306,10 +314,13 @@
       const hasOther=files.some(f=>kindOf(f)!=='image');
       return !hasOther&&images>0&&images<=2;
     };
-    const aspectLocked=()=>active().key==='seedance-2.5'&&seedanceUsesI2V();
+    const aspectLocked=()=>false;
+    const referenceMode=()=>seedanceUsesI2V()?$('referenceMode').value:'reference';
 
     function normalizedSettings(){
       const m=active();
+      $('referenceModeRow').hidden=!seedanceUsesI2V();
+      $('referenceHelp').hidden=m.key!=='seedance-2.5';
       if(m.customDur){
         duration=Math.min(m.customDur[1],Math.max(m.customDur[0],Math.round(Number(duration)||5)));
       }else if(!m.dur.includes(duration)){
@@ -410,7 +421,8 @@
     function refLabel(file,index){
       const type=kindOf(file);
       const same=files.slice(0,index+1).filter(f=>kindOf(f)===type).length;
-      return '@'+type+same;
+      if(type==='image'&&(active().key!=='seedance-2.5'||referenceMode()==='frames'))return same===1?'Start frame':'End frame';
+      return '@'+type[0].toUpperCase()+type.slice(1)+' '+same;
     }
     function thumbMarkup(f,i){
       const type=kindOf(f),url=URL.createObjectURL(f),label=refLabel(f,i);
@@ -459,34 +471,35 @@
       else note('');
     }
     async function auth(){const {data}=await sb.auth.getSession();return data.session||null}
-    async function uploadRefs(session){
-      if(uploadedRefs.length===files.length&&files.length)return uploadedRefs;
-      uploadedRefs=[];
-      for(let i=0;i<files.length;i++){
-        const f=files[i],ext=(f.name.split('.').pop()||'bin').toLowerCase(),p=`${session.user.id}/video-ref-${Date.now()}-${i}.${ext}`;
+    async function uploadRefs(session,requestFiles){
+      const refs=[];
+      for(let i=0;i<requestFiles.length;i++){
+        const f=requestFiles[i],ext=(f.name.split('.').pop()||'bin').toLowerCase(),p=`${session.user.id}/video-ref-${Date.now()}-${i}.${ext}`;
         const {error}=await sb.storage.from('avatars').upload(p,f,{upsert:true,contentType:f.type||undefined});if(error)throw error;
-        uploadedRefs.push({
+        refs.push({
           url:sb.storage.from('avatars').getPublicUrl(p).data.publicUrl,
           type:kindOf(f),
           duration:fileDurations.get(f)||0
         });
       }
-      return uploadedRefs;
+      return refs;
     }
     async function generate(){
       const prompt=$('prompt').value.trim();
       if(!prompt)return note('Describe the video you want to create first.','err');
       const m=active();
+      const settings={aspect,duration:duration+'s',resolution:quality,generate_audio:audioOn,reference_mode:referenceMode()};
+      const requestFiles=[...files];
       const session=await auth();if(!session)return note('Please sign in to Fuse Atelier again before generating.','err');
       const btn=$('generateBtn');btn.disabled=true;btn.textContent='Preparing…';note('');
       try{
-        let refs=[];if(files.length){btn.textContent='Uploading references…';refs=await uploadRefs(session)}
+        let refs=[];if(requestFiles.length){btn.textContent='Uploading references…';refs=await uploadRefs(session,requestFiles)}
         const imageRefs=refs.filter(r=>r.type==='image');
         const videoRefs=refs.filter(r=>r.type==='video');
         const audioRefs=refs.filter(r=>r.type==='audio');
         btn.textContent='Submitting…';
         const res=await fetch('/api/video-generate',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({
-          prompt,model:m.api,aspect:aspectLocked()?'16:9':aspect,duration:duration+'s',resolution:quality,generate_audio:audioOn,
+          prompt,model:m.api,...settings,
           image_url:imageRefs[0]?.url,
           reference_image_urls:imageRefs.slice(1).map(r=>r.url),
           reference_video_urls:videoRefs.map(r=>r.url),
@@ -528,6 +541,7 @@
     $('featureTrigger').onclick=e=>{e.stopPropagation();const m=$('featureMenu');m.classList.toggle('open');$('featureTrigger').setAttribute('aria-expanded',m.classList.contains('open'))};
     document.addEventListener('click',e=>{if(!e.target.closest('#featureMenu')&&!e.target.closest('#featureTrigger')){$('featureMenu').classList.remove('open');$('featureTrigger').setAttribute('aria-expanded','false')}});
     $('generateBtn').onclick=generate;
+    $('referenceMode').onchange=()=>renderThumbs();
 
     renderThumbs();renderModels();updateUI();
   </script>
