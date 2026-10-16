@@ -194,3 +194,27 @@
 .challenge-faq details p{font-size:13px;line-height:1.8;color:#d5e5dc;margin:0;padding:0 20px 21px}
 .challenge-faq details p a{color:#dfff4e;text-underline-offset:3px}
 @media(max-width:760px){.founding-regular{font-size:21px;margin-bottom:16px}.founding-early{font-size:23px;margin-bottom:31px}.founding-early span{font-size:15px}.challenge-faq-inner{width:calc(100% - 40px);padding-top:51px;padding-bottom:55px}.challenge-faq-kicker{font-size:12px}.challenge-faq h2{font-size:25px;margin-bottom:26px}.challenge-faq-list{gap:11px}.challenge-faq summary{font-size:14px;padding:16px 48px 16px 16px;min-height:58px}.challenge-faq summary:after{right:15px;font-size:25px}.challenge-faq details p{font-size:12px;padding:0 16px 18px}}
+
+/* Closing enrollment offer */
+.closing-offer{background:linear-gradient(115deg,#ffe66a,#dfff4e 55%,#eeffe0);color:#001012}
+.closing-offer-inner{max-width:850px;padding-top:70px;padding-bottom:78px;text-align:center}
+.closing-eyebrow{font-size:12px;letter-spacing:1.4px;font-weight:800;color:#a51e2e;margin:0 0 14px;text-transform:uppercase}
+.closing-offer h2{font-size:30px;line-height:1.26;margin:0 0 17px}
+.closing-offer h2 span{color:#a71d2c}
+.closing-intro{font-size:14px;line-height:1.7;max-width:550px;margin:0 auto 26px}
+.closing-cap{max-width:660px;margin:0 auto 20px;padding:12px 18px;border:1px solid #a71d2c5c;border-radius:7px;background:#a71d2c15;color:#701222;font-size:12px;font-weight:700}
+.closing-card{max-width:660px;margin:auto;background:linear-gradient(140deg,#001012,#062125 58%,#1b4c52);color:#fff;border:1px solid #9bb36a;border-radius:12px;box-shadow:0 24px 54px #1c383472,inset 0 1px 0 #eeffe04d;padding:32px 37px 30px;text-align:left}
+.closing-discount{width:max-content;max-width:100%;margin:-49px auto 24px;padding:7px 15px;background:linear-gradient(110deg,#981526,#c02b33);border-radius:5px;color:#fff;font-size:10px;font-weight:800;letter-spacing:.7px;text-align:center}
+.closing-countdown{background:#a51e2d22;border:1px solid #d84a595c;border-radius:7px;padding:13px 18px;display:flex;justify-content:center;align-items:center;gap:16px;text-align:center;margin-bottom:25px}
+.closing-countdown span{font-size:10px;font-weight:800;letter-spacing:.6px;color:#ffe66a}.closing-countdown strong{font-size:20px;white-space:nowrap;font-variant-numeric:tabular-nums;color:#fff}
+.closing-was{text-align:center;color:#b8c7c3;font-size:14px;margin:0}.closing-was s{text-decoration-color:#e65666;text-decoration-thickness:2px}
+.closing-now{text-align:center;font-size:54px;font-weight:800;line-height:1.2;letter-spacing:-2px;margin:3px 0 4px;background:var(--chrome);background-clip:text;-webkit-background-clip:text;color:transparent}
+.closing-save{text-align:center;color:#ffe66a;font-size:12px;font-weight:700;margin:0 0 29px}
+.closing-included{border-top:1px solid #315456;padding-top:22px}.closing-included h3,.closing-bonuses h3{font-size:11px;letter-spacing:1.2px;color:#dfff4e;margin:0 0 17px}
+.closing-included ul,.closing-bonuses ul{list-style:none;margin:0;padding:0}.closing-included li,.closing-bonuses li{font-size:13px;line-height:1.6;padding:5px 0 5px 25px;position:relative}.closing-included li:before,.closing-bonuses li:before{content:'✓';position:absolute;left:0;top:5px;color:#ffe66a;font-weight:800}
+.closing-bonuses{background:#dfff4e10;border:1px solid #dfff4e55;border-radius:7px;margin:23px 0;padding:18px 20px}.closing-bonuses h3{margin-bottom:11px}
+.closing-value{display:flex;justify-content:space-between;gap:15px;align-items:center;border:1px solid #dfff4e66;background:#dfff4e12;border-radius:6px;padding:14px 16px;font-size:12px}.closing-value strong{font-size:22px;color:#ffe66a}
+.closing-options{border:0;padding:0;margin:24px 0 18px;display:grid;gap:9px}.closing-options legend{font-size:11px;font-weight:800;letter-spacing:.5px;margin-bottom:11px;color:#eeffe0}.closing-options .payment{background:#00191b}.closing-options .payment:has(input:checked){background:#1b4c52}
+.closing-cta{width:100%;background:var(--chrome);color:#001012;font-size:15px;text-align:center}.closing-status{font-size:10px;line-height:1.6;color:#bed1ca;text-align:center;margin:12px 0 23px}
+.closing-promise{border:1px solid #dfff4e55;border-radius:7px;padding:16px 18px;background:#dfff4e13}.closing-promise strong{font-size:11px;color:#dfff4e}.closing-promise p{font-size:11px;line-height:1.7;margin:7px 0 0;color:#d9e9dc}.closing-footnote{text-align:center;font-size:10px;color:#c7d8d0;margin:20px 0 0}
+@media(max-width:760px){.closing-offer-inner{width:calc(100% - 40px);padding-top:53px;padding-bottom:57px}.closing-eyebrow{font-size:10px}.closing-offer h2{font-size:25px}.closing-intro{font-size:13px}.closing-cap{font-size:10px}.closing-card{padding:29px 18px 24px}.closing-discount{margin-top:-44px;font-size:9px;padding:7px 10px}.closing-countdown{flex-wrap:wrap;gap:4px 12px;padding:11px 8px}.closing-countdown span{font-size:9px}.closing-countdown strong{font-size:19px}.closing-now{font-size:43px}.closing-included li,.closing-bonuses li{font-size:12px}.closing-bonuses{padding:15px 14px}.closing-value strong{font-size:19px}.closing-cta{font-size:14px}}
