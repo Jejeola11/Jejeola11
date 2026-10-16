@@ -66,6 +66,10 @@
       "dest": "/portfolio/index.html"
     },
     {
+      "src": "/challenge/?",
+      "dest": "/challenge/index.html"
+    },
+    {
       "handle": "filesystem"
     }
   ]
