@@ -164,8 +164,8 @@ const VIDEO_ROUTES = {
   'minimax-h3-text-to-video': { kind: 't2v', pick: () => 'wavespeed-ai/minimax-h3/text-to-video', durationRange: [3, 15], resolutionParam: true },
   'minimax-h3-image-to-video': { kind: 'i2v', pick: () => 'wavespeed-ai/minimax-h3/image-to-video', durationRange: [3, 15], resolutionParam: true, noAspect: true },
   // Wan 3.0: 2-30s with optional native audio.
-  'wan-3-text-to-video': { kind: 't2v', pick: () => 'alibaba/wan-3.0/text-to-video', durationRange: [2, 30], resolutionParam: true, audioField: 'enable_audio' },
-  'wan-3-image-to-video': { kind: 'i2v', pick: () => 'alibaba/wan-3.0/image-to-video', durationRange: [2, 30], resolutionParam: true, audioField: 'enable_audio' },
+  'wan-3-text-to-video': { kind: 't2v', pick: () => 'alibaba/wan-3.0/text-to-video', durationRange: [2, 30], resolutionParam: true, audioField: 'generate_audio', promptExpansion: false },
+  'wan-3-image-to-video': { kind: 'i2v', pick: () => 'alibaba/wan-3.0/image-to-video', durationRange: [2, 30], resolutionParam: true, audioField: 'generate_audio', promptExpansion: false },
   // Gemini Omni 1.1 Flash: 3-10s, synchronized audio, up to 4K.
   'gemini-omni-1.1-flash-text-to-video': { kind: 't2v', pick: () => 'google/gemini-omni-1.1-flash/text-to-video', durationRange: [3, 10], resolutionParam: true },
   'gemini-omni-1.1-flash-image-to-video': { kind: 'i2v', pick: () => 'google/gemini-omni-1.1-flash/image-to-video', durationRange: [3, 10], resolutionParam: true },
@@ -196,10 +196,10 @@ const VIDEO_ROUTES = {
   'seedance-2-image-to-video': { kind: 'i2v', pick: () => 'bytedance/seedance-v1-lite-i2v-720p' },
   'seedance-2-vip-text-to-video': { kind: 't2v', pick: () => 'bytedance/seedance-v1-pro-t2v-1080p' },
   'seedance-2-vip-image-to-video': { kind: 'i2v', pick: () => 'bytedance/seedance-v1-pro-i2v-1080p' },
-  'kling-v3-turbo-standard-text-to-video': { kind: 't2v', pick: () => 'kwaivgi/kling-v2.5-turbo-pro/text-to-video' },
-  'kling-v3-turbo-standard-image-to-video': { kind: 'i2v', pick: () => 'kwaivgi/kling-v2.5-turbo-pro/image-to-video' },
-  'kling-v3-turbo-pro-text-to-video': { kind: 't2v', pick: () => 'kwaivgi/kling-v2.5-turbo-pro/text-to-video' },
-  'kling-v3-turbo-pro-image-to-video': { kind: 'i2v', pick: () => 'kwaivgi/kling-v2.5-turbo-pro/image-to-video' },
+  'kling-v3-turbo-standard-text-to-video': { kind: 't2v', pick: () => 'kwaivgi/kling-v2.5-turbo-pro/text-to-video', guidanceScale: .8 },
+  'kling-v3-turbo-standard-image-to-video': { kind: 'i2v', pick: () => 'kwaivgi/kling-v2.5-turbo-pro/image-to-video', noAspect: true, guidanceScale: .8 },
+  'kling-v3-turbo-pro-text-to-video': { kind: 't2v', pick: () => 'kwaivgi/kling-v2.5-turbo-pro/text-to-video', guidanceScale: .8 },
+  'kling-v3-turbo-pro-image-to-video': { kind: 'i2v', pick: () => 'kwaivgi/kling-v2.5-turbo-pro/image-to-video', noAspect: true, guidanceScale: .8 },
   // grok was previously kept on MuAPI on the (correct, at the time) logic
   // that xAI's OWN direct API costs more than MuAPI's markup on it — but
   // that compared against the wrong baseline. Confirmed live 2026-07-16
@@ -207,7 +207,7 @@ const VIDEO_ROUTES = {
   // at $0.05, cheaper than MuAPI's $0.15 for the same model — this was
   // never actually compared against WaveSpeed before.
   'grok-imagine-text-to-video': { kind: 't2v', pick: () => 'x-ai/grok-imagine-video/text-to-video', durationEnum: [6, 10] },
-  'grok-imagine-image-to-video': { kind: 'i2v', pick: () => 'x-ai/grok-imagine-video/image-to-video', durationEnum: [6, 10] },
+  'grok-imagine-image-to-video': { kind: 'i2v', pick: () => 'x-ai/grok-imagine-video/image-to-video', durationEnum: [6, 10], noAspect: true, noLastImage: true, resolutionParam: true },
   // Real ByteDance Seedance 2.0 (not the "seedance-2-*" slugs above, which
   // are actually the older v1-lite/v1-pro family — the "2" there is just
   // this app's own naming tier, a coincidence against WaveSpeed's real
@@ -254,8 +254,8 @@ const GOOGLE_VIDEO_ROUTES = {
 // priced into VIDEO_COST for veo3-text-to-video), so it's wired here as a
 // genuine fallback rather than leaving Google as the only path.
 const GOOGLE_FALLBACK_WS_ROUTES = {
-  'veo3-text-to-video': { kind: 't2v', pick: () => 'google/veo3.1-fast/text-to-video' },
-  'veo3-image-to-video': { kind: 'i2v', pick: () => 'google/veo3.1-fast/image-to-video' },
+  'veo3-text-to-video': { kind: 't2v', pick: () => 'google/veo3.1-fast/text-to-video', resolutionParam: true, audioField: 'generate_audio' },
+  'veo3-image-to-video': { kind: 'i2v', pick: () => 'google/veo3.1-fast/image-to-video', resolutionParam: true, audioField: 'generate_audio' },
 };
 
 function durInt(duration) { return parseInt(duration, 10) || 5; }
@@ -378,6 +378,8 @@ function wsVideoBody(route, opts, hosted) {
   if (!route.noAspect) body.aspect_ratio = opts.aspect || '9:16';
   if (route.resolutionParam) body.resolution = opts.resolution || '720p';
   if (route.audioField) body[route.audioField] = opts.generate_audio !== false;
+  if (route.guidanceScale != null) body.guidance_scale = route.guidanceScale;
+  if (route.promptExpansion != null) body.enable_prompt_expansion = route.promptExpansion;
   // Seedance 2.0 can generate its own ambient/sound-effect audio track, but
   // the avatar pipeline always mutes+discards per-chunk audio and muxes the
   // cloned narration on once at the end — asking it to generate audio here
@@ -392,7 +394,7 @@ function wsVideoBody(route, opts, hosted) {
     body.reference_audios = audios;
   } else if (route.kind === 'i2v') {
     body.image = (hosted && hosted[0]) || opts.image_url;
-    if (hosted && hosted[1]) body.last_image = hosted[1];
+    if (hosted && hosted[1] && !route.noLastImage) body.last_image = hosted[1];
   }
   return body;
 }
@@ -406,7 +408,7 @@ function wsVideoBody(route, opts, hosted) {
 // against a genuinely separate account (Google Cloud vs WaveSpeed vs MuAPI).
 async function submitVideo(model, opts, hosted) {
   const googleModel = GOOGLE_VIDEO_ROUTES[model];
-  if (googleModel && hasGoogle()) {
+  if (googleModel && hasGoogle() && !opts.strictModel) {
     try {
       const opName = await googleSubmitVideo(googleModel, opts);
       return { requestId: 'g:' + Buffer.from(opName).toString('base64url'), provider: 'google' };
@@ -432,8 +434,8 @@ async function submitVideo(model, opts, hosted) {
       // already runs when WAVESPEED_KEY is simply unset).
       if (!isBalanceError(e)) console.error('[submitVideo] WaveSpeed failed, falling back:', e && e.message);
     }
-  } else if (route && route.waveSpeedOnly) {
-    throw new Error('Seedance 2.5 is temporarily unavailable because the WaveSpeed connection is not configured.');
+  } else if (route && (route.waveSpeedOnly || opts.strictModel)) {
+    throw new Error('The selected video model is temporarily unavailable. Please try again later.');
   }
   // MuAPI (default / fallback) — unchanged behaviour.
   const payload = { prompt: opts.prompt, aspect_ratio: opts.aspect, duration: durInt(opts.duration), resolution: opts.resolution };

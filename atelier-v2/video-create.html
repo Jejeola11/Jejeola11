@@ -303,6 +303,9 @@
 
     const selected=()=>MODELS.find(m=>m.key===selectedKey)||null;
     const active=()=>selected()||MODELS.find(m=>m.key==='wan-3');
+    const maxReferences=()=>active().key==='seedance-2.5'?6:active().key==='grok-imagine'?1:2;
+    const audioMode=()=>active().key==='kling-standard'?'none':['minimax-h3','grok-imagine','omni-flash'].includes(active().key)?'always':'toggle';
+    const effectiveAudio=()=>audioMode()==='none'?false:audioMode()==='always'?true:audioOn;
     const note=(m,k='')=>{$('note').textContent=m||'';$('note').className='note'+(k?' '+k:'')};
     const closePops=()=>document.querySelectorAll('.popover.open').forEach(p=>p.classList.remove('open'));
 
@@ -320,7 +323,6 @@
     function normalizedSettings(){
       const m=active();
       $('referenceModeRow').hidden=!seedanceUsesI2V();
-      $('referenceHelp').hidden=m.key!=='seedance-2.5';
       if(m.customDur){
         duration=Math.min(m.customDur[1],Math.max(m.customDur[0],Math.round(Number(duration)||5)));
       }else if(!m.dur.includes(duration)){
@@ -351,6 +353,13 @@
     function updateUI(){
       normalizedSettings();
       const m=active();
+      const mode=audioMode(),audioBtn=$('audioToggle');
+      audioBtn.disabled=mode!=='toggle';audioBtn.classList.toggle('on',effectiveAudio());audioBtn.setAttribute('aria-pressed',String(effectiveAudio()));audioBtn.style.opacity=mode==='toggle'?'1':'.55';
+      document.querySelector('.audio-copy small').textContent=mode==='none'?'Kling 2.5 creates silent video. Choose Wan, Veo or Seedance for spoken audio.':mode==='always'?'Audio is included by this model; it has no separate on/off setting.':'Turn native audio on or off for this video.';
+      $('fileInput').accept=m.key==='seedance-2.5'?'image/*,video/*,audio/*':'image/*';
+      $('referenceHelp').hidden=!files.length;
+      if(m.key==='seedance-2.5')$('referenceHelp').textContent='Name each reference and its purpose: @Image 1 for the person, @Image 2 for the outfit, @Video 1 for movement.';
+      else $('referenceHelp').textContent=m.key==='grok-imagine'?'Your image is the starting frame. Describe the motion you want. It is fitted to the selected shape without stretching.':'Image 1 is the start frame; image 2 is the end frame. Describe the movement between them. For separate person/outfit references, choose Seedance.';
       $('modelName').textContent=selectedKey==='auto'?'Auto · '+m.name:m.name;
       $('durationLabel').textContent=duration+'s';
       $('aspectLabel').textContent=aspectLocked()?'From image':aspect;
@@ -366,7 +375,7 @@
         uploadSub.textContent='Images, videos or audio · mix them in one generation';
       }else{
         uploadLabel.innerHTML='Add a start image <span style="font-weight:300;color:#8fa4a3">(optional)</span>';
-        uploadSub.textContent='Text-to-video works without one · add up to 2 frames';
+        uploadSub.textContent='Text-to-video works without one · '+(maxReferences()===1?'one start frame':'optional start and end frames');
       }
       $('creditCost').textContent=credits();
       $('previewName').textContent=selectedKey==='auto'?'Create Video':m.name;
@@ -434,7 +443,7 @@
       const g=$('thumbGrid'),e=$('uploadEmpty'),m=active();
       if(!files.length){g.hidden=true;e.hidden=false;g.innerHTML='';updateUI();return}
       e.hidden=true;g.hidden=false;
-      const max=m.key==='seedance-2.5'?6:2;
+      const max=maxReferences();
       g.innerHTML=(files.length<max?'<button class="add-thumb" id="addMore" type="button" aria-label="Add another reference">+</button>':'')+files.map(thumbMarkup).join('');
       g.querySelectorAll('[data-rm]').forEach(b=>b.onclick=x=>{
         x.stopPropagation();
@@ -461,7 +470,7 @@
     function addFiles(incoming){
       const m=active(),all=[...incoming].filter(f=>/^image\//.test(f.type)||/^video\//.test(f.type)||/^audio\//.test(f.type));
       const allowed=m.key==='seedance-2.5'?all:all.filter(f=>kindOf(f)==='image');
-      const max=m.key==='seedance-2.5'?6:2,room=max-files.length;
+      const max=maxReferences(),room=Math.max(0,max-files.length);
       const added=allowed.slice(0,room);
       files.push(...added);uploadedRefs=[];
       added.forEach(f=>readMediaDuration(f).then(d=>{fileDurations.set(f,d);updateUI()}));
@@ -488,7 +497,10 @@
       const prompt=$('prompt').value.trim();
       if(!prompt)return note('Describe the video you want to create first.','err');
       const m=active();
-      const settings={aspect,duration:duration+'s',resolution:quality,generate_audio:audioOn,reference_mode:referenceMode()};
+      if(files.length>maxReferences())return note('This model accepts up to '+maxReferences()+' reference image'+(maxReferences()===1?'':'s')+'. Remove extra files first.','err');
+      if(m.key!=='seedance-2.5'&&files.some(f=>kindOf(f)!=='image'))return note('Remove the video/audio references or choose Seedance. This model accepts image frames only.','err');
+      if(m.key==='kling-standard'&&prompt.length>2500)return note('Kling accepts up to 2,500 prompt characters. Shorten it before generating.','err');
+      const settings={aspect,duration:duration+'s',resolution:quality,generate_audio:effectiveAudio(),reference_mode:referenceMode()};
       const requestFiles=[...files];
       const session=await auth();if(!session)return note('Please sign in to Fuse Atelier again before generating.','err');
       const btn=$('generateBtn');btn.disabled=true;btn.textContent='Preparing…';note('');

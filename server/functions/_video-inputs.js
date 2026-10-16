@@ -1,5 +1,24 @@
 const RATIOS = ['16:9','9:16','1:1','4:3','3:4','21:9'];
 
+function validateModelInputs(model, { duration, resolution, prompt, images, videos, audios }) {
+  const seconds = Number(String(duration).replace(/s$/, ''));
+  const common = { maxImages: 2 };
+  let rules;
+  if(model.startsWith('minimax-h3-')) rules={...common,min:3,max:15,res:['480p','540p','768p','1080p']};
+  else if(model.startsWith('wan-3-')) rules={...common,min:2,max:30,res:['480p','720p','1080p']};
+  else if(model.startsWith('grok-imagine-')) rules={maxImages:1,durations:[6,10],res:['720p']};
+  else if(model.startsWith('kling-v3-turbo-')) rules={...common,durations:[5,10],res:['720p'],maxPrompt:2500};
+  else if(model.startsWith('seedance-2.5-')) rules={maxImages:6,min:4,max:30,res:['480p','720p','1080p','4k'],mixed:true};
+  else if(model.startsWith('veo3-')) rules={...common,durations:[8],res:['720p']};
+  else if(model.startsWith('gemini-omni-1.1-flash-')) rules={...common,min:3,max:10,res:['360p','720p','1080p','4k']};
+  else return;
+  if(!Number.isInteger(seconds)||(rules.durations?!rules.durations.includes(seconds):seconds<rules.min||seconds>rules.max))throw new Error('Choose a supported duration for this model.');
+  if(!rules.res.includes(resolution))throw new Error('Choose a supported quality for this model.');
+  if(images>rules.maxImages)throw new Error(`This model accepts up to ${rules.maxImages} image${rules.maxImages===1?'':'s'}. Remove extra references or choose another model.`);
+  if(!rules.mixed&&(videos||audios))throw new Error('This model accepts image frames only. Remove video/audio references or choose Seedance.');
+  if(rules.maxPrompt&&prompt.length>rules.maxPrompt)throw new Error(`This model supports up to ${rules.maxPrompt} prompt characters. Shorten the prompt; it will not be cut automatically.`);
+}
+
 function normalizeReferencePrompt(prompt, counts) {
   return prompt.replace(/@(image|video|audio)\s*(\d+)/gi, (_, kind, index) => {
     kind = kind.toLowerCase();
@@ -7,6 +26,11 @@ function normalizeReferencePrompt(prompt, counts) {
     if (n < 1 || n > counts[kind]) throw new Error(`@${kind}${index} does not match an uploaded ${kind}.`);
     return '@' + kind[0].toUpperCase() + kind.slice(1) + ' ' + n;
   });
+}
+
+function normalizeFramePrompt(prompt, count) {
+  return normalizeReferencePrompt(prompt,{image:count,video:0,audio:0})
+    .replace(/@Image (\d+)/g,(_,n)=>Number(n)===1?'the starting frame image':'the ending frame image');
 }
 
 // I2V models commonly inherit the image dimensions. Fit the complete image
@@ -42,4 +66,4 @@ async function fitVideoFrames(db, userId, urls, aspect) {
   return out;
 }
 
-module.exports = { RATIOS, normalizeReferencePrompt, fitVideoFrames };
+module.exports = { RATIOS, normalizeReferencePrompt, normalizeFramePrompt, fitVideoFrames, validateModelInputs };

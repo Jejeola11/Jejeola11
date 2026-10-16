@@ -5,7 +5,7 @@ const { admin, getUser, json, getPlan } = require('./_supabase');
 const { VIDEO_MODELS, videoCreditsForRequest, canUseFree } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
 const { submitVideo } = require('./_providers');
-const { RATIOS, normalizeReferencePrompt, fitVideoFrames } = require('./_video-inputs');
+const { RATIOS, normalizeReferencePrompt, normalizeFramePrompt, fitVideoFrames, validateModelInputs } = require('./_video-inputs');
 
 exports.handler = async (event) => {
   try {
@@ -89,13 +89,19 @@ exports.handler = async (event) => {
     }
 
     if (!VIDEO_MODELS[model]) return json(400, { error: 'Unknown video model.' });
+    try { validateModelInputs(model,{duration,resolution,prompt,images:[image_url,...extraImages].filter(Boolean).filter((u,i,a)=>a.indexOf(u)===i).length,videos:referenceVideoUrls.length,audios:referenceAudioUrls.length}); }
+    catch(e){return json(400,{error:e.message})}
     const narrowAspects = /veo|gemini-omni|grok/.test(model) ? ['16:9','9:16'] : /kling/.test(model) ? ['16:9','9:16','1:1'] : isSeedance25 ? RATIOS : RATIOS.filter(x=>x!=='21:9');
     if(!narrowAspects.includes(aspect))return json(400,{error:'This model does not support the selected aspect ratio.'});
     let submittedPrompt=prompt;
     if(isSeedance25){
       try{submittedPrompt=normalizeReferencePrompt(prompt,{image:allSeedanceImages.length,video:referenceVideoUrls.length,audio:referenceAudioUrls.length})}
       catch(e){return json(400,{error:e.message})}
+    }else{
+      try{submittedPrompt=normalizeFramePrompt(prompt,[image_url,...extraImages].filter(Boolean).filter((u,i,a)=>a.indexOf(u)===i).length)}
+      catch(e){return json(400,{error:e.message})}
     }
+    if(model.startsWith('kling-v3-turbo-')&&submittedPrompt.length>2500)return json(400,{error:'Shorten the Kling prompt to fit 2,500 characters including its reference labels.'});
 
     if (!isSeedance25 && !prompt && !image_url) {
       return json(400, { error: 'Add a prompt or a starting image.' });
