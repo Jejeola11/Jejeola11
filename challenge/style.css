@@ -89,3 +89,18 @@
 .implementation h3.chrome{background:var(--chrome);background-clip:text;-webkit-background-clip:text;color:transparent;margin-top:43px;margin-bottom:20px}
 .implementation-rhythm{margin-top:21px}
 @media(max-width:760px){.implementation-inner>p:not(.implementation-kicker):not(.implementation-fine){line-height:1.65}.implementation h3.chrome{margin-top:39px;margin-bottom:18px}.implementation-bring li{padding:12px 0}}
+
+/* Take the offer to market */
+.market-section{background:linear-gradient(115deg,#ffe66a 0%,#dfff4e 55%,#eeffe0 100%);color:#10120d}
+.market-inner{max-width:860px;padding-top:66px;padding-bottom:70px}
+.market-kicker{font-size:13px;line-height:1.55;font-weight:800;letter-spacing:.4px;color:#b51d27;max-width:740px;margin:0 0 29px}
+.market-inner h2{font-size:27px;line-height:1.4;max-width:700px;margin:0 0 15px}
+.market-mission{font-size:22px;font-weight:800;color:#b51d27;line-height:1.45;margin:0 0 31px}
+.market-intro{font-size:15px;line-height:1.85;max-width:680px;margin:0 0 26px}
+.market-list{list-style:none;padding:0;margin:0 0 44px}
+.market-list li{display:flex;align-items:center;gap:16px;border-top:1px solid #51634880;padding:17px 0;font-size:15px;line-height:1.6}
+.market-list li:last-child{border-bottom:1px solid #51634880}
+.market-list li:before{content:'+';flex:0 0 20px;color:#b51d27;font-size:24px;font-weight:700;line-height:1}
+.market-disclaimer{border-radius:11px;background:#a92033;color:#fff;box-shadow:0 12px 28px #83172c22;padding:20px 22px;font-size:12px;line-height:1.75;max-width:740px}
+.market-disclaimer strong{display:block;font-size:13px;margin-bottom:4px}
+@media(max-width:760px){.market-inner{width:calc(100% - 40px);padding-top:46px;padding-bottom:52px}.market-kicker{font-size:12px;margin-bottom:25px}.market-inner h2{font-size:25px}.market-mission{font-size:20px;margin-bottom:26px}.market-intro{font-size:14px;margin-bottom:20px}.market-list{margin-bottom:32px}.market-list li{font-size:14px;padding:14px 0;gap:12px}.market-disclaimer{font-size:11px;padding:16px 18px}}
