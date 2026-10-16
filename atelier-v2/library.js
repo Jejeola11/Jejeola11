@@ -95,7 +95,7 @@
     if(item.pending)return'<div class="processing-inner"><span class="spinner"></span><small>Creating…</small></div>';
     if(item.kind==='page')return pageMarkup(item);
     const u=validUrl(item.output_url);
-    if(item.kind==='video')return'<video src="'+u+'" muted loop playsinline preload="metadata"></video>';
+    if(item.kind==='video')return'<span class="video-art"><video src="'+u+'" muted playsinline preload="auto"></video><span class="video-play" aria-hidden="true">▶</span></span>';
     if(item.kind==='audio')return'<div class="audio-art"><svg viewBox="0 0 24 24"><path d="M5 12v4M9 8v8M13 5v14M17 9v6M21 11v2"/></svg></div>';
     return'<img src="'+u+'" alt="'+esc(item.prompt||'Fuse creation')+'" loading="lazy">';
   }
@@ -115,7 +115,12 @@
     groups.querySelectorAll('.tile[data-index]').forEach(btn=>{
       const item=all[Number(btn.dataset.index)];if(!item||item.pending)return;
       btn.onclick=()=>{if(item.kind==='page'){location.href='page-workspace.html?id='+encodeURIComponent(item.id)+'&type='+encodeURIComponent(item.page_type||'landing');return}openDetail(item)};
-      const v=btn.querySelector('video');if(v)v.play().catch(()=>{});
+      const v=btn.querySelector('video');
+      if(v){
+        v.addEventListener('loadedmetadata',()=>{if(Number.isFinite(v.duration)&&v.duration>.15)try{v.currentTime=Math.min(.25,v.duration/4)}catch(_){}});
+        v.addEventListener('loadeddata',()=>btn.classList.add('video-ready'));
+        v.addEventListener('error',()=>{btn.classList.add('video-unavailable');repairVideo(item,v,btn)});
+      }
     });
   }
 
@@ -163,6 +168,23 @@
     if(t.includes('mpeg'))return'mp3';if(t.includes('wav'))return'wav';if(t.includes('ogg'))return'ogg';
     return kind==='video'?'mp4':kind==='audio'?'mp3':'png';
   }
+  async function videoLinks(item){
+    const response=await fetch('/api/library-video',{method:'POST',headers:{'Content-Type':'application/json',...(await authHeader())},body:JSON.stringify({id:item.id})});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw Error(data.error||'Video is unavailable.');
+    item.output_url=data.url;
+    return data;
+  }
+  async function repairVideo(item,video,container){
+    if(item.repairing||item.repairAttempted)return;
+    item.repairing=true;
+    try{
+      const old=item.output_url,links=await videoLinks(item);
+      if(links.url!==old){video.src=links.url;video.load();container.classList.remove('video-unavailable')}
+      else container.classList.add('video-unavailable');
+    }catch(_){container.classList.add('video-unavailable')}
+    finally{item.repairing=false;item.repairAttempted=true}
+  }
   async function downloadSelected(){
     if(!selected)return;
     const btn=$('downloadAction'),label=btn?.querySelector('span');
@@ -170,6 +192,14 @@
     const original=label?.textContent||'Download';
     try{
       if(btn)btn.disabled=true;if(label)label.textContent='Downloading…';libraryToast('Downloading…');
+      if(selected.kind==='video'){
+        const links=await videoLinks(selected);
+        const a=document.createElement('a');a.href=links.download_url;a.download='fuse-atelier-video.mp4';a.style.display='none';
+        document.body.appendChild(a);a.click();a.remove();
+        if(label)label.textContent='Download started ✓';libraryToast('Download started ✓',true);
+        setTimeout(()=>{if(label)label.textContent=original;if(btn)btn.disabled=false},1400);
+        return;
+      }
       const response=await fetch(selected.output_url,{mode:'cors',credentials:'omit',cache:'no-store'});
       if(!response.ok)throw new Error('Download failed.');
       const blob=await response.blob();
@@ -195,7 +225,12 @@
 
   function openDetail(item){
     selected=item;closeMoreMenu();const u=validUrl(item.output_url);
-    $('detailMedia').innerHTML=item.kind==='video'?'<video src="'+u+'" controls autoplay loop playsinline></video>':item.kind==='audio'?'<audio src="'+u+'" controls autoplay></audio>':'<img src="'+u+'" alt="'+esc(item.prompt||'Fuse creation')+'">';
+    $('detailMedia').innerHTML=item.kind==='video'?'<video src="'+u+'" controls playsinline preload="auto"></video>':item.kind==='audio'?'<audio src="'+u+'" controls autoplay></audio>':'<img src="'+u+'" alt="'+esc(item.prompt||'Fuse creation')+'">';
+    if(item.kind==='video'){
+      const video=$('detailMedia').querySelector('video');
+      video.addEventListener('error',()=>{repairVideo(item,video,$('detailMedia'));if(item.repairAttempted)$('detailMedia').dataset.error='Video unavailable — please contact support.'});
+      video.addEventListener('loadeddata',()=>{delete $('detailMedia').dataset.error});
+    }
     $('detailPrompt').textContent=item.prompt||'No prompt saved for this creation.';$('detailPrompt').classList.add('collapsed');$('seePrompt').textContent='See all⌄';$('detailModel').textContent=cleanModel(item.model);$('detailKind').textContent=item.kind==='twin'?'AI Twin':item.kind.charAt(0).toUpperCase()+item.kind.slice(1);$('detailAspect').textContent=item.aspect||'—';$('detailCredits').textContent=item.credits_spent!=null?item.credits_spent+' credits':'—';$('detailCreated').textContent=formatCreated(item.created_at);
     $('favAction').querySelector('span').textContent=favs().has(String(item.id))?'Favourited':'Favourite';$('editAction').querySelector('span').textContent=item.kind==='video'?'Edit Video':item.kind==='audio'?'Open Audio':'Edit Image';$('videoAction').style.display=(item.kind==='image'||item.kind==='twin')?'flex':'none';$('detail').classList.add('open');$('detail').setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
   }

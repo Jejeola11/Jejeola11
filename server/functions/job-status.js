@@ -19,6 +19,7 @@ const { splitScript, RESEMBLE_BATCH_CHARS } = require('./_speech-batch');
 const { ensureWorkDir, cleanupTmp, concatAudio, uploadToStorage, downloadToFile, ffmpeg } = require('./_ffmpeg');
 const { muapiHostFile } = require('./_muapi');
 const { extractErrorMessage } = require('./_errors');
+const { archiveVideo } = require('./_video-archive');
 const fs = require('fs').promises;
 const path = require('path');
 
@@ -224,6 +225,7 @@ exports.handler = async (event) => {
     if (!url) return json(200, { status: 'processing' });
     if ((job.kind === 'flyer-hero' || job.kind === 'flyer-composite') && job.aspect) url = await fixFlyerAspect(db, user.id, url, job.aspect);
     if (job.kind === 'modelsheet') url = await rehostToStorage(db, user.id, url, 'modelsheet');
+    if (job.kind === 'video') url = await archiveVideo(db, user.id, url, id);
     await db.from('jobs').update({ status: 'completed', output_url: url }).eq('request_id', id);
     // A model sheet isn't a normal gallery item — save it onto the avatar so all
     // future generations use it as the consistent reference. The avatar id is
