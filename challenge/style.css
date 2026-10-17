@@ -296,3 +296,10 @@
 .testimonial-note{font-size:10px;line-height:1.5;text-align:center;margin:18px auto 0;color:#394446}
 @media(max-width:760px){.testimonial-inner{width:calc(100% - 32px);padding-top:48px;padding-bottom:53px}.student-testimonials h2{font-size:22px}.testimonial-kicker{font-size:11px}.testimonial-intro{font-size:12px;margin-bottom:22px}.testimonial-grid{gap:8px}.testimonial-card{min-height:226px;padding:14px 11px}.testimonial-mark{height:25px;font-size:32px}.testimonial-card p{font-size:11px;line-height:1.5;margin:8px 0 15px}.testimonial-meta strong{font-size:10px}.testimonial-meta span{font-size:9px}}
 @media(max-width:375px){.testimonial-card{min-height:246px;padding:12px 9px}.testimonial-card p{font-size:10px}}
+
+/* Final invitation on dull yellow */
+.last-invite{background:#e5d888;color:#001012;border-top:1px solid #b8aa63}
+.last-invite .last-invite-second.chrome{background:linear-gradient(110deg,#001012,#1b4c52 58%,#062125);background-clip:text;-webkit-background-clip:text;color:transparent}
+.last-invite-inner>p:not(.last-invite-deadline),.last-invite-inner>.last-invite-meta{color:#183436}
+.last-invite-cta{background:linear-gradient(115deg,#001012,#1b4c52 58%,#062125);border:1px solid #315456;color:#fff;box-shadow:0 14px 35px #00101238}
+.last-invite-cta:hover{box-shadow:0 16px 35px #00101255}
