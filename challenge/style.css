@@ -303,3 +303,10 @@
 .last-invite-inner>p:not(.last-invite-deadline),.last-invite-inner>.last-invite-meta{color:#183436}
 .last-invite-cta{background:linear-gradient(115deg,#001012,#1b4c52 58%,#062125);border:1px solid #315456;color:#fff;box-shadow:0 14px 35px #00101238}
 .last-invite-cta:hover{box-shadow:0 16px 35px #00101255}
+
+/* Keep student names close to their feedback */
+.testimonial-card{min-height:0}
+.testimonial-card p{margin-bottom:8px}
+.testimonial-meta{margin-top:0;padding-top:8px}
+@media(max-width:760px){.testimonial-card{min-height:0}.testimonial-card p{margin-bottom:7px}.testimonial-meta{padding-top:7px}}
+@media(max-width:375px){.testimonial-card{min-height:0}}
