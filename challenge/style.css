@@ -279,3 +279,20 @@
 .bonus-summary span{display:block;text-transform:uppercase;font-size:10px;letter-spacing:.7px}
 .bonus-summary strong{display:block;font-size:23px;text-align:inherit;background:var(--chrome);background-clip:text;-webkit-background-clip:text;color:transparent}
 @media(max-width:760px){.bonus-notice{font-size:11px;padding:11px 13px}.bonus-price{gap:6px}.bonus-price s{font-size:10px}.bonus-price strong{font-size:9px}.bonus-summary span{font-size:8px}.bonus-summary strong{font-size:19px}}
+
+/* Student feedback following documented results */
+.student-testimonials{background:#e5d888;color:#001012;border-top:1px solid #f3e8ac;border-bottom:1px solid #b7aa61}
+.testimonial-inner{max-width:1060px;padding-top:68px;padding-bottom:75px}
+.testimonial-kicker{color:#a71e2d;font-size:13px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;text-align:center;margin:0 0 12px}
+.student-testimonials h2{max-width:780px;font-size:29px;line-height:1.22;text-align:center;margin:0 auto 12px;font-weight:800}
+.testimonial-intro{max-width:630px;margin:0 auto 32px;text-align:center;font-size:14px;line-height:1.65;font-weight:600}
+.testimonial-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.testimonial-card{display:flex;flex-direction:column;min-width:0;min-height:220px;padding:21px 22px;background:linear-gradient(135deg,#001012,#1b4c52 62%,#062125);border:1px solid #315456;border-radius:9px;color:#eeffe0;box-shadow:0 10px 22px #00101233,inset 0 1px 0 #eeffe026}
+.testimonial-mark{height:32px;color:#e04a54;font-size:42px;font-weight:800;line-height:1}
+.testimonial-card p{font-size:13px;line-height:1.65;margin:10px 0 22px;color:#f2f6e9}
+.testimonial-meta{display:flex;flex-direction:column;gap:3px;margin-top:auto;padding-top:12px;border-top:1px solid #eeffe033}
+.testimonial-meta strong{color:#ffe66a;font-size:12px}
+.testimonial-meta span{color:#c2d3ce;font-size:10px}
+.testimonial-note{font-size:10px;line-height:1.5;text-align:center;margin:18px auto 0;color:#394446}
+@media(max-width:760px){.testimonial-inner{width:calc(100% - 32px);padding-top:48px;padding-bottom:53px}.student-testimonials h2{font-size:22px}.testimonial-kicker{font-size:11px}.testimonial-intro{font-size:12px;margin-bottom:22px}.testimonial-grid{gap:8px}.testimonial-card{min-height:226px;padding:14px 11px}.testimonial-mark{height:25px;font-size:32px}.testimonial-card p{font-size:11px;line-height:1.5;margin:8px 0 15px}.testimonial-meta strong{font-size:10px}.testimonial-meta span{font-size:9px}}
+@media(max-width:375px){.testimonial-card{min-height:246px;padding:12px 9px}.testimonial-card p{font-size:10px}}
