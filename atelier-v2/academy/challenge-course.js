@@ -21,11 +21,6 @@
   ];
   const resources = window.FUSE_CHALLENGE_RESOURCES || [];
   const modules = [{
-    key:'challenge-resources', title:'Resources', kicker:'Read and copy', lessons:resources.map(item=>({
-      key:item.key,title:item.title,kind:'resource',resource:item,
-      learnText:item.intro,actionText:'Use the examples and copyable template below as you work through the daily lessons.'
-    }))
-  },{
     key:'challenge-start', title:'Start here', kicker:'Orientation', lessons:[{
       key:'challenge-start', title:'Welcome to the 14-Day AI Video Client Challenge',
       learnText:'See the daily rhythm: watch the lesson, complete the action, share your work at check-in and bring it to the three review checkpoints.',
@@ -39,6 +34,12 @@
       learnText:`Today's focus: ${title}. Watch the lesson, study the example and apply it to your own AI video service.`,
       actionText:action
     }]});
+  });
+  modules.push({
+    key:'challenge-resources', title:'Resources', kicker:'Read and copy', lessons:resources.map(item=>({
+      key:item.key,title:item.title,kind:'resource',resource:item,
+      learnText:item.intro,actionText:'Use the examples and copyable template below as you work through the daily lessons.'
+    }))
   });
   pillars.push({
     key:'challenge', name:'14-Day AI Video Client Challenge',
