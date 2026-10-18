@@ -126,7 +126,7 @@ function renderBadges(lesson){
 function renderDrawer(){
   const visited=readProgress();
   $('drawerCourseName').textContent=course.name;
-  $('drawerCourseMeta').textContent=lessons.length+' lessons · start at your own pace';
+  $('drawerCourseMeta').textContent=key==='challenge' ? lessons.filter(l=>l.kind!=='resource').length+' lessons · '+lessons.filter(l=>l.kind==='resource').length+' resources' : lessons.length+' lessons · start at your own pace';
   $('drawerProgress').style.width=(lessons.length?Math.round(visited.size/lessons.length*100):0)+'%';
   const nodes=modules.map((m,mi)=>{
     const wrap=document.createElement('section');
@@ -145,7 +145,7 @@ function renderDrawer(){
       if(m.watchNow){const t=document.createElement('span');t.className='drawer-feature-tag watch';t.textContent='Watch now';tags.appendChild(t)}
       left.appendChild(tags);
     }
-    const count=document.createElement('span');count.className='drawer-module-count';count.textContent=moduleLessonCount(m)+' '+(moduleLessonCount(m)===1?'lesson':'lessons');
+    const count=document.createElement('span');count.className='drawer-module-count';count.textContent=moduleLessonCount(m)+' '+(m.key==='challenge-resources'?(moduleLessonCount(m)===1?'guide':'guides'):(moduleLessonCount(m)===1?'lesson':'lessons'));
     const toggle=document.createElement('span');toggle.className='drawer-module-toggle';
     const isOpen=openModules.has(m.key);toggle.textContent=isOpen?'−':'+';
     head.append(left,count,toggle);
@@ -156,7 +156,7 @@ function renderDrawer(){
       if(globalIndex===index)row.classList.add('current');
       if(visited.has(l.key))row.classList.add('done');
       const dot=document.createElement('span');dot.className='drawer-dot';
-      const label=document.createElement('span');label.textContent=l.title;
+      const label=document.createElement('span');label.textContent=(l.kind==='resource'?'▤ ':'')+l.title;
       row.append(dot,label);
       row.onclick=()=>{closeDrawer();open(globalIndex,true)};
       list.appendChild(row);
@@ -239,8 +239,47 @@ async function open(i,scroll=false){
   $('nextLesson').disabled=i>=lessons.length-1;
   history.replaceState(null,'','?course='+encodeURIComponent(key)+'&lesson='+encodeURIComponent(lesson.key));
   renderDrawer();
-  await loadVideo(lesson,version);
+  const resourceReader=$('resourceReader');
+  if(lesson.kind==='resource' && resourceReader){
+    $('lessonPlayer').hidden=true;
+    $('lessonStatus').textContent='';
+    $('retryLesson').hidden=true;
+    resourceReader.hidden=false;
+    renderResource(resourceReader,lesson.resource);
+    $('lessonPrimaryAction').textContent='Copy resource template';
+    $('lessonPrimaryAction').removeAttribute('href');
+    $('lessonPrimaryAction').setAttribute('role','button');
+    $('lessonPrimaryAction').onclick=async e=>{
+      e.preventDefault();
+      try{await copyText(lesson.resource.template);$('lessonPrimaryAction').textContent='Copied ✓'}
+      catch{$('lessonPrimaryAction').textContent='Could not copy'}
+    };
+    $('nextLesson').textContent='Next resource →';
+  }else{
+    $('lessonPlayer').hidden=false;
+    if(resourceReader){resourceReader.hidden=true;resourceReader.replaceChildren()}
+    $('nextLesson').textContent='Next lesson →';
+    await loadVideo(lesson,version);
+  }
   if(scroll)window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderResource(container,resource){
+  container.replaceChildren();
+  const intro=document.createElement('p');intro.className='resource-intro';intro.textContent=resource.intro;
+  container.append(intro);
+  resource.sections.forEach(([heading,copy])=>{
+    const section=document.createElement('article');section.className='resource-section';
+    const h=document.createElement('h2');h.textContent=heading;
+    const p=document.createElement('p');p.textContent=copy;
+    section.append(h,p);container.append(section);
+  });
+  const template=document.createElement('section');template.className='resource-template';
+  const heading=document.createElement('h2');heading.textContent='Copy and make it yours';
+  const pre=document.createElement('pre');pre.textContent=resource.template;
+  const button=document.createElement('button');button.type='button';button.textContent='Copy template';
+  button.onclick=async()=>{try{await copyText(resource.template);button.textContent='Copied ✓'}catch{button.textContent='Could not copy'}};
+  template.append(heading,pre,button);container.append(template);
 }
 
 function openDrawer(){

@@ -19,7 +19,13 @@
     ['Run the pipeline and improve your pitch', 'Review your tracker and improve one weak step.'],
     ['Build your next 30-day plan', 'Submit your tracker, pipeline and next 30-day action plan.']
   ];
+  const resources = window.FUSE_CHALLENGE_RESOURCES || [];
   const modules = [{
+    key:'challenge-resources', title:'Resources', kicker:'Read and copy', lessons:resources.map(item=>({
+      key:item.key,title:item.title,kind:'resource',resource:item,
+      learnText:item.intro,actionText:'Use the examples and copyable template below as you work through the daily lessons.'
+    }))
+  },{
     key:'challenge-start', title:'Start here', kicker:'Orientation', lessons:[{
       key:'challenge-start', title:'Welcome to the 14-Day AI Video Client Challenge',
       learnText:'See the daily rhythm: watch the lesson, complete the action, share your work at check-in and bring it to the three review checkpoints.',
