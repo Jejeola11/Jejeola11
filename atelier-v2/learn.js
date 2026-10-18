@@ -28,29 +28,38 @@
     design:range('flyer-m',6),
     video:range('aiv-m',16),
     landing:range('web-m',10).map(k=>k==='web-m3'?'web-m3-current':k),
-    money:['money']
+    money:['money'],
+    challenge:['ai-video-client-challenge']
   };
 
   const courseMeta={
     design:{name:'Design & Flyers',credits:115,href:'academy-v2.html?course=design'},
     video:{name:'AI UGC & Influencer',credits:115,href:'academy-v2.html?course=video'},
     landing:{name:'Landing Page Design',credits:80,href:'academy-v2.html?course=landing'},
-    money:{name:'Money Engine',credits:80,href:'academy-v2.html?course=money'}
+    money:{name:'Money Engine',credits:80,href:'academy-v2.html?course=money'},
+    challenge:{name:'14-Day AI Video Client Challenge',credits:0,href:'academy-v2.html?course=challenge'}
   };
 
   let currentCredits=0;
   let isFull=false;
   let owned=new Set();
+  let isAdmin=false;
   let activePurchase=null;
 
   function hasCourseAccess(course){
+    if(course==='challenge') return isAdmin || owned.has('ai-video-client-challenge');
     if(isFull) return true;
     const keys=required[course]||[];
     return keys.some(k=>owned.has(k)) || (keys.length>0 && keys.every(k=>owned.has(k)));
   }
 
+  function challengeOnlyAccess(){
+    return hasCourseAccess('challenge')&&!isFull &&
+      !['design','video','landing','money'].some(course=>required[course].some(k=>owned.has(k)));
+  }
+
   function missingCourses(){
-    return Object.keys(courseMeta).filter(k=>!hasCourseAccess(k));
+    return ['design','video','landing','money'].filter(k=>!hasCourseAccess(k));
   }
 
   function bundlePrice(){
@@ -80,8 +89,13 @@
       const course=row.dataset.course;
       const meta=courseMeta[course];
       if(!meta) return;
+      if(course==='challenge'){
+        row.hidden=!hasCourseAccess('challenge');
+        if(!row.hidden){row.href=meta.href;row.classList.remove('is-locked')}
+        return;
+      }
       const allowed=hasCourseAccess(course);
-      row.hidden=false;
+      row.hidden=challengeOnlyAccess();
 
       if(allowed){
         row.classList.remove('is-locked');
@@ -101,7 +115,7 @@
     });
 
     const b=bundlePrice();
-    if(b.missing.length>=2){
+    if(b.missing.length>=2 && !challengeOnlyAccess()){
       bundle.hidden=false;
       bundlePriceEl.textContent=b.price+' credits';
       const names=b.missing.map(k=>courseMeta[k].name);
@@ -131,6 +145,7 @@
     if(p.error||u.error) throw (p.error||u.error);
 
     currentCredits=Number(p.data?.credits||0);
+    isAdmin=!!p.data?.is_admin;
     owned=new Set((u.data||[]).map(r=>r.module_key));
     isFull=!!p.data?.is_admin
       || owned.has('atelier-full')
@@ -246,7 +261,7 @@
     try{
       await loadAccess();
     }catch(error){
-      rows.forEach(row=>row.hidden=false);
+      rows.forEach(row=>row.hidden=row.dataset.course==='challenge');
       status.textContent='Could not check course access. Please reload the page.';
     }
   })();

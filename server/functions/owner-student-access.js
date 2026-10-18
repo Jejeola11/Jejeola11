@@ -3,6 +3,7 @@ const { admin, getUser, json } = require('./_supabase');
 const OWNER_EMAIL='riadigitals0@gmail.com';
 
 const PLAYBOOK_KEY='first-client-playbook';
+const CHALLENGE_KEY='ai-video-client-challenge';
 
 const ACCESS_KEYS={
   playbook:['first-client-playbook'],
@@ -56,9 +57,10 @@ async function ensureStudent(db,email){
 
 function summarizeAccess(unlocks){
   const owned=new Set(unlocks||[]);
-  if(owned.has('atelier-full')||owned.has('atelier-empire'))return ['All four Academy courses'];
+  if(owned.has('atelier-full')||owned.has('atelier-empire'))return ['All four Academy courses',...(owned.has(CHALLENGE_KEY)?['14-Day AI Video Client Challenge']:[])];
   const out=[];
   if(owned.has('first-client-playbook'))out.push('First Client Playbook');
+  if(owned.has(CHALLENGE_KEY))out.push('14-Day AI Video Client Challenge');
   if(ACCESS_KEYS.design.some(k=>owned.has(k)))out.push('Design & Flyers');
   if(ACCESS_KEYS.video.some(k=>owned.has(k)))out.push('AI UGC & Influencer');
   if(ACCESS_KEYS.landing.some(k=>owned.has(k)))out.push('Landing Page Design');
@@ -105,8 +107,12 @@ exports.handler=async event=>{
     if(!courses.length&&credits<=0)return json(400,{error:'Choose an access item or add credits.'});
 
     const playbookOnly=courses.includes('playbook');
+    const challengeOnly=courses.includes('challenge');
     if(playbookOnly&&(courses.length!==1||credits!==0)){
       return json(400,{error:'Playbook access is separate: select only the Playbook and leave credits at 0.'});
+    }
+    if(challengeOnly&&(courses.length!==1||credits!==0)){
+      return json(400,{error:'Challenge access is separate: select only the challenge and leave credits at 0.'});
     }
 
     const {profile:target,created}=await ensureStudent(db,email);
@@ -122,6 +128,17 @@ exports.handler=async event=>{
       }
       const {error:creditResetError}=await db.from('profiles').update({credits:0}).eq('id',target.id);
       if(creditResetError)throw creditResetError;
+      return json(200,{ok:true,created,...await readStudent(db,target)});
+    }
+
+    if(challengeOnly){
+      const {data:existing,error:existingError}=await db.from('module_unlocks').select('module_key').eq('user_id',target.id).eq('module_key',CHALLENGE_KEY);
+      if(existingError)throw existingError;
+      if(!existing?.length){
+        const {error:insertError}=await db.from('module_unlocks').insert({user_id:target.id,module_key:CHALLENGE_KEY});
+        if(insertError)throw insertError;
+      }
+      // Existing purchases are kept; a new challenge student gets only this key.
       return json(200,{ok:true,created,...await readStudent(db,target)});
     }
 

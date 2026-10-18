@@ -4,6 +4,7 @@
 // Protected source of playable lesson-video URLs.
 // ============================================================
 const { createClient } = require('@supabase/supabase-js');
+const { admin } = require('./_supabase');
 const LESSON_ACCESS = require('./_lesson-access');
 
 const MONEY_ACCESS = {
@@ -90,7 +91,10 @@ exports.handler = async (event) => {
     const lessonKey = String(body.lesson_key || '').trim();
     if (!lessonKey) return json(400, { error: 'Missing lesson_key' });
 
-    const access = CURRENT_ACADEMY_ACCESS[lessonKey] || LESSON_ACCESS[lessonKey] || MONEY_ACCESS[lessonKey];
+    const challengeLesson = lessonKey === 'challenge-start' || /^challenge-day-(?:[1-9]|1[0-4])$/.test(lessonKey);
+    const access = challengeLesson
+      ? {tier:1,module:'ai-video-client-challenge'}
+      : CURRENT_ACADEMY_ACCESS[lessonKey] || LESSON_ACCESS[lessonKey] || MONEY_ACCESS[lessonKey];
     if (!access) return json(404, { error: 'Unknown lesson.' });
 
     if (access.tier > 0) {
@@ -113,12 +117,15 @@ exports.handler = async (event) => {
         const tier = (owned.has('atelier-empire') || owned.has('atelier-full')) ? 3
           : owned.has('atelier-creator') ? 2
           : owned.has('atelier-starter') ? 1 : 0;
-        const allowed = tier >= access.tier || owned.has(access.module);
+        // Challenge enrollment is separate from the regular Academy bundle.
+        const allowed = challengeLesson ? owned.has('ai-video-client-challenge') : tier >= access.tier || owned.has(access.module);
         if (!allowed) return json(403, { error: 'Unlock this module first.', code: 'MODULE_LOCKED' });
       }
     }
 
-    const { data: row, error: videoError } = await db
+    // The public client may read lesson metadata, but URL is column-restricted.
+    // Read the protected URL server-side only after the entitlement check.
+    const { data: row, error: videoError } = await admin()
       .from('course_videos')
       .select('url, has_video')
       .eq('lesson_key', lessonKey)

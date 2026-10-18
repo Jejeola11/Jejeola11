@@ -202,7 +202,8 @@ async function loadVideo(lesson,version){
     url=data?.url||'';
   }catch(error){
     if(version!==requestVersion)return;
-    url=lesson.videoUrl||'';
+    // A denied or missing protected lesson must not fall back to a public URL.
+    url='';
     if(!url){
       $('lessonStatus').textContent=error?.message||'This lesson video has not been uploaded yet.';
       $('retryLesson').hidden=false;
@@ -262,5 +263,34 @@ $('nextLesson').onclick=()=>{if(index<lessons.length-1)open(index+1,true)};
 
 let selected=lessons.findIndex(l=>l.key===requestedLesson);
 if(selected<0)selected=0;
-open(selected);
+if(key==='challenge'){
+  // The course shell itself is restricted to the dedicated enrollment key.
+  (async()=>{
+    try{
+      const sb=await Fuse.client();
+      const session=await Fuse.session();
+      const [profile,unlocks]=await Promise.all([
+        sb.from('profiles').select('is_admin').eq('id',session.user.id).maybeSingle(),
+        sb.from('module_unlocks').select('module_key').eq('user_id',session.user.id).eq('module_key','ai-video-client-challenge')
+      ]);
+      if(profile.error||unlocks.error)throw profile.error||unlocks.error;
+      if(!profile.data?.is_admin && !unlocks.data?.length){
+        $('lessonTitle').textContent='Challenge access required';
+        $('lessonKicker').textContent='FUSE ATELIER · ENROLLMENT';
+        setPlayerMessage('This course is for enrolled challenge students.');
+        $('lessonStatus').textContent='Use the same email Ria enrolled in Fuse Operations.';
+        $('openModules').disabled=true;
+        $('nextLesson').disabled=true;
+        $('lessonPrimaryAction').hidden=true;
+        document.querySelector('.learn-card').hidden=true;
+        return;
+      }
+      open(selected);
+    }catch(error){
+      $('lessonTitle').textContent='Could not check enrollment';
+      setPlayerMessage('Please sign in and reload.');
+      $('lessonStatus').textContent=error?.message||'Access check failed.';
+    }
+  })();
+}else open(selected);
 })();

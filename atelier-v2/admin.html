@@ -71,9 +71,11 @@
     .student-result strong{font-size:16px}.student-result p{margin:7px 0 0;color:#b8cdca;font-size:13px;line-height:1.5;font-weight:300}
     .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
     .metric{padding:17px}.metric span{font-size:11px;color:var(--lime);text-transform:uppercase;letter-spacing:.08em}.metric b{display:block;margin-top:10px;font-size:28px;font-weight:500}
+    .challenge-video-list{display:grid;gap:10px}.challenge-video-row{display:grid;grid-template-columns:170px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:14px;background:#041b1e}.challenge-video-row label{font-size:13px}.challenge-video-row input{min-width:0;width:100%;height:44px;border:1px solid var(--line);border-radius:10px;background:#001012;color:#fff;padding:0 11px;font-size:13px}.challenge-video-row button{min-height:44px}.challenge-video-row small{display:block;color:#abc2bc;font-size:10px;margin-top:4px}
     @media(max-width:650px){
       main{margin-top:20px}.ops-topin{height:68px}.ops-brand{font-size:17px}.hero{padding:20px}.hero h1{font-size:31px}
       .panel{padding:18px}.panel h2{font-size:21px}.course-grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}
+      .challenge-video-row{grid-template-columns:1fr auto}.challenge-video-row label{grid-column:1/-1}
     }
     @media(max-width:380px){.metrics{grid-template-columns:1fr}.ops-refresh{display:none}}
   </style>
@@ -127,6 +129,10 @@
                 <input class="courseCheck" type="checkbox" value="playbook">
                 <span><strong>First Client Playbook</strong><small>7-day skill-to-client action guide · Playbook-only access</small></span>
               </label>
+              <label class="course-option challenge-option">
+                <input class="courseCheck" type="checkbox" value="challenge">
+                <span><strong>14-Day AI Video Client Challenge only</strong><small>Dedicated challenge access · no other Academy courses or credits</small></span>
+              </label>
               <label class="course-option">
                 <input class="courseCheck" type="checkbox" value="design">
                 <span><strong>Design &amp; Flyers</strong><small>Full Design course</small></span>
@@ -161,6 +167,14 @@
         <div id="studentResult" class="student-result hidden"></div>
       </section>
 
+      <section class="panel" id="challengeVideosPanel">
+        <h2>Challenge lesson videos</h2>
+        <p>Paste each finished recording here when it is ready. Students see the lesson in their challenge course; missing videos stay marked as coming soon.</p>
+        <div class="form-actions" style="margin-bottom:16px"><a class="btn secondary" href="/atelier-v2/academy-v2.html?course=challenge">Preview challenge course →</a></div>
+        <div id="challengeVideoList" class="challenge-video-list"><p>Loading lessons…</p></div>
+        <p id="challengeVideoStatus" class="status" role="status" aria-live="polite"></p>
+      </section>
+
       <section class="metrics" id="metrics"></section>
     </div>
   </main>
@@ -183,13 +197,14 @@
   function syncAccess(){
     const all=$('allCourses').checked;
     const playbook=document.querySelector('.courseCheck[value="playbook"]').checked;
+    const challenge=document.querySelector('.courseCheck[value="challenge"]').checked;
+    const exclusive=playbook||challenge;
     document.querySelectorAll('.courseCheck').forEach(el=>{
-      const isPlaybook=el.value==='playbook';
-      el.disabled=all||(playbook&&!isPlaybook);
-      if(all||(playbook&&!isPlaybook))el.checked=false;
+      el.disabled=all||(exclusive&&el.value!==(challenge?'challenge':'playbook'));
+      if(el.disabled)el.checked=false;
     });
-    $('allCourses').disabled=playbook;
-    if(playbook){
+    $('allCourses').disabled=exclusive;
+    if(exclusive){
       $('credits').value='0';
       $('credits').disabled=true;
     }else{
@@ -265,6 +280,35 @@
     }catch{}
   }
 
+  async function challengeRequest(method,body){
+    const response=await fetch('/api/owner-challenge-videos',{
+      method,headers:{authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
+      ...(body?{body:JSON.stringify(body)}:{})
+    });
+    const data=await response.json();
+    if(!response.ok)throw Error(data.error||'Could not load challenge videos.');
+    return data;
+  }
+  async function loadChallengeVideos(){
+    try{
+      const data=await challengeRequest('GET');
+      $('challengeVideoList').replaceChildren(...(data.lessons||[]).map((lesson,index)=>{
+        const row=document.createElement('div');row.className='challenge-video-row';
+        const label=document.createElement('label');label.textContent=index?'Day '+index:'Start here';
+        const note=document.createElement('small');note.textContent=lesson.url?'Video connected':'Awaiting recording';label.appendChild(note);
+        const input=document.createElement('input');input.type='url';input.placeholder='Paste YouTube, Cloudinary or Drive video URL';input.value=lesson.url||'';input.setAttribute('aria-label',(index?'Day '+index:'Start here')+' video URL');
+        const button=document.createElement('button');button.className='btn secondary';button.type='button';button.textContent='Save';
+        button.onclick=async()=>{
+          button.disabled=true;$('challengeVideoStatus').textContent='Saving '+(index?'Day '+index:'orientation')+'…';
+          try{const saved=await challengeRequest('POST',{lesson_key:lesson.key,url:input.value.trim()});note.textContent=saved.url?'Video connected':'Awaiting recording';$('challengeVideoStatus').className='status ok';$('challengeVideoStatus').textContent='Saved successfully.'}
+          catch(error){$('challengeVideoStatus').className='status';$('challengeVideoStatus').textContent=error.message}
+          finally{button.disabled=false}
+        };
+        row.append(label,input,button);return row;
+      }));
+    }catch(error){$('challengeVideoList').textContent=error.message}
+  }
+
   async function boot(){
     const {data}=await sb.auth.getSession();
     session=data.session;
@@ -273,6 +317,7 @@
       $('gate').classList.remove('hidden');
       return;
     }
+    loadChallengeVideos();
     $('app').classList.remove('hidden');
     $('refresh').onclick=async()=>{await loadMetrics();await lookup()};
     await loadMetrics();

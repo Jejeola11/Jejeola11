@@ -11,7 +11,8 @@ const META={
  design:{title:'Design & Flyers',short:'Skill 1',desc:'The current Design & Flyers course from your source library.'},
  video:{title:'AI UGC & Influencer',short:'Skill 2',desc:'The current AI UGC & Influencer course from your source library.'},
  landing:{title:'Landing Page Design',short:'Skill 3',desc:'The current Landing Page Design course from your source library.'},
- money:{title:'The Money Engine System',short:'Money Engine',desc:'The current Money Engine client-acquisition system.'}
+ money:{title:'The Money Engine System',short:'Money Engine',desc:'The current Money Engine client-acquisition system.'},
+ challenge:{title:'14-Day AI Video Client Challenge',short:'Challenge',desc:'Fourteen daily action lessons plus orientation with Coach Ria.'}
 };
 const state={session:null,rows:[],rowMap:new Map(),courses:[],course:null,lesson:null,filter:'all',search:'',returnView:'course'};
 let toastTimer;
@@ -27,7 +28,7 @@ function youtube(raw){const value=String(raw??'').trim();if(!value)return{ok:fal
 
 function loadCurriculum(){return new Promise((resolve,reject)=>{if(window.__FUSE_CURRENT_CURRICULUM__)return resolve();const s=document.createElement('script');s.src=COURSE_FIX;s.onload=resolve;s.onerror=()=>reject(new Error('Could not load the current Academy curriculum.'));document.head.appendChild(s)})}
 function flatten(id,c){const meta=META[id],lessons=[];(c.modules||[]).forEach((m,mi)=>(m.lessons||[]).forEach((l,li)=>lessons.push({courseId:id,courseTitle:meta.title,key:l.key,title:l.title||`Lesson ${li+1}`,n:l.n||'',dur:l.dur||'',moduleTitle:m.title||`Module ${mi+1}`,moduleKey:m.key||'',moduleIndex:mi,lessonIndex:li})));return{id,title:meta.title,short:meta.short,desc:meta.desc,source:c,lessons}}
-function buildCourses(){const ps=(window.FUSE_COURSE&&Array.isArray(window.FUSE_COURSE.pillars))?window.FUSE_COURSE.pillars:[],get=k=>ps.find(p=>p.key===k);const missing=['design','video','landing'].filter(k=>!get(k));if(missing.length)throw new Error('Academy course data is missing: '+missing.join(', '));const money=window.FUSE_ACADEMY_MONEY;if(!money)throw new Error('Money Engine course data is missing.');state.courses=[flatten('design',get('design')),flatten('video',get('video')),flatten('landing',get('landing')),flatten('money',money)]}
+function buildCourses(){const ps=(window.FUSE_COURSE&&Array.isArray(window.FUSE_COURSE.pillars))?window.FUSE_COURSE.pillars:[],get=k=>ps.find(p=>p.key===k);const missing=['design','video','landing','challenge'].filter(k=>!get(k));if(missing.length)throw new Error('Academy course data is missing: '+missing.join(', '));const money=window.FUSE_ACADEMY_MONEY;if(!money)throw new Error('Money Engine course data is missing.');state.courses=[flatten('design',get('design')),flatten('video',get('video')),flatten('landing',get('landing')),flatten('money',money),flatten('challenge',get('challenge'))]}
 function allLessons(){return state.courses.flatMap(c=>c.lessons)}
 function stats(c){const total=c.lessons.length,done=c.lessons.filter(l=>connected(rowFor(l.key))).length;return{total,done,missing:total-done,pct:total?Math.round(done/total*100):0}}
 async function session(){const{data,error}=await sb.auth.getSession();if(error)throw error;return data.session||null}
