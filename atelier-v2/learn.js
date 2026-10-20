@@ -39,7 +39,7 @@
     landing:{name:'Landing Page Design',credits:80,href:'academy-v2.html?course=landing'},
     money:{name:'Money Engine',credits:80,href:'academy-v2.html?course=money'},
     challenge:{name:'14-Day AI Video Client Challenge',credits:0,href:'academy-v2.html?course=challenge'},
-    ebook:{name:'Zero To First 10 Million With AI Video',credits:0,href:'ai-video-book.html'}
+    ebook:{name:'Zero To First 10 Million With AI Video',credits:0,href:'ai-video-book-home.html'}
   };
 
   let currentCredits=0;

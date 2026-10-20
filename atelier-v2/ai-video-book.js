@@ -1,15 +1,15 @@
 (() => {
   'use strict';
-  const total=34, key='fuse_ai_video_book_last_page';
+  const total=45, key='fuse_ai_video_book_last_page';
   const $=id=>document.getElementById(id);
   const chapters=[
     ['Cover',1],['A note from Ria',2],['Contents',3],['Start here',5],
-    ['Make your first useful AI Reel',7],['Choose a buyer',9],['Seven income routes',10],
-    ['Build visuals brands can use',13],['Make your portfolio',14],['Package an offer',17],
-    ['Price for margin',18],['Find customers',19],['Ask-first and sample-first',20],
-    ['Turn replies into paid work',23],['Deliver for repeat work',24],
-    ['Personal brand and partnerships',25],['The ₦10 million map',29],
-    ['Your first 30 days',30],['Copy-ready tools',31],['A final word',33],['Sources',34]
+    ['Make your first useful AI Reel',8],['Choose a buyer',11],['Seven income routes',13],
+    ['Build visuals brands can use',17],['Make your portfolio',19],['Package an offer',23],
+    ['Price for margin',24],['Find customers',25],['Ask-first and sample-first',26],
+    ['Turn replies into paid work',30],['Deliver for repeat work',31],
+    ['Personal brand and partnerships',32],['The ₦10 million map',38],
+    ['Your first 30 days',40],['Copy-ready tools',42],['A final word',44],['Sources',45]
   ];
   let page=Number(localStorage.getItem(key))||1;
   if(page<1||page>total)page=1;

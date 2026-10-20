@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const {admin, getUser, json} = require('./_supabase');
 
-const TOTAL = 34;
+const TOTAL = 45;
 const ACCESS_KEY = 'ai-video-business-guide';
 
 exports.handler = async event => {

@@ -1,0 +1,634 @@
+{
+  "title": "50 client-style AI video portfolio briefs",
+  "disclosure": "These are original practice simulations based on common buyer requests. They are not live commissions, client endorsements or permission to use a real brand’s assets.",
+  "briefs": [
+    {
+      "id": 1,
+      "level": "Beginner",
+      "category": "Skincare",
+      "client": "A Nigerian skincare shop",
+      "goal": "Explain one verified product use",
+      "assignment": "Create a simple product Reel with one hook, a clear demonstration and a shop CTA.",
+      "deliverables": "One 15-second vertical video, captions and thumbnail.",
+      "must_keep": "Use the supplied product image; do not invent ingredients or skin results.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 2,
+      "level": "Beginner",
+      "category": "Food",
+      "client": "A neighborhood bakery",
+      "goal": "Show a new pastry range",
+      "assignment": "Turn approved pastry photos into a warm, appetite-led social video.",
+      "deliverables": "One 12-second 9:16 Reel and one square cover.",
+      "must_keep": "Keep packaging and menu prices exactly as supplied.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 3,
+      "level": "Beginner",
+      "category": "Jewelry",
+      "client": "A handmade jewelry seller",
+      "goal": "Make a necklace feel gift-worthy",
+      "assignment": "Build a close-up reveal around product details and a simple gifting line.",
+      "deliverables": "One 15-second Reel, two opening hooks.",
+      "must_keep": "Match the metal, gemstone and clasp to the reference photos.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 4,
+      "level": "Beginner",
+      "category": "Fashion",
+      "client": "A modest-wear boutique",
+      "goal": "Introduce a new abaya",
+      "assignment": "Create a calm outfit showcase with consistent fabric and realistic movement.",
+      "deliverables": "One 20-second vertical video with captions.",
+      "must_keep": "Do not change the actual garment print or shade.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 5,
+      "level": "Beginner",
+      "category": "Hospitality",
+      "client": "A local café",
+      "goal": "Promote a weekday coffee-and-snack offer",
+      "assignment": "Make a three-shot day-in-the-life Reel showing order, service and table moment.",
+      "deliverables": "One 15-second Reel and caption.",
+      "must_keep": "Use the real offer details; no invented customer review.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 6,
+      "level": "Beginner",
+      "category": "Events",
+      "client": "An independent event planner",
+      "goal": "Get enquiries for a bridal styling service",
+      "assignment": "Create a mood-led service introduction ending with a booking prompt.",
+      "deliverables": "One 20-second Reel and thumbnail.",
+      "must_keep": "Use supplied portfolio images with permission; do not present AI guests as actual clients.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 7,
+      "level": "Beginner",
+      "category": "Grooming",
+      "client": "A barbershop",
+      "goal": "Announce available weekend appointments",
+      "assignment": "Make a fast appointment reminder with one service visual and location cue.",
+      "deliverables": "One 10-second video and social caption.",
+      "must_keep": "Only use approved hours, prices and location.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 8,
+      "level": "Beginner",
+      "category": "Property",
+      "client": "A rental agent",
+      "goal": "Explain a property feature clearly",
+      "assignment": "Animate approved interior stills into a short listing tour.",
+      "deliverables": "One 20-second vertical tour with three on-screen feature labels.",
+      "must_keep": "Do not change room dimensions or imply amenities absent from listing.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 9,
+      "level": "Beginner",
+      "category": "Books",
+      "client": "A children’s book author",
+      "goal": "Show the story world without spoiling the book",
+      "assignment": "Turn cover art and approved character art into a gentle teaser.",
+      "deliverables": "One 15-second teaser and caption.",
+      "must_keep": "Preserve the original illustration style and title.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 10,
+      "level": "Beginner",
+      "category": "Pets",
+      "client": "A pet grooming studio",
+      "goal": "Introduce the grooming process",
+      "assignment": "Create a friendly explainer from appointment to pickup.",
+      "deliverables": "One 20-second video and cover frame.",
+      "must_keep": "Do not imply a real pet’s transformation unless footage is supplied.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 11,
+      "level": "Beginner",
+      "category": "Fitness",
+      "client": "A personal trainer",
+      "goal": "Describe an introductory consultation",
+      "assignment": "Make a creator-style Reel answering one common question.",
+      "deliverables": "One 20-second vertical Reel, captions.",
+      "must_keep": "Avoid body-change guarantees or before-and-after claims.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 12,
+      "level": "Beginner",
+      "category": "Restaurant",
+      "client": "A rice-bowl restaurant",
+      "goal": "Promote lunchtime pickup",
+      "assignment": "Create a product-led social ad with the food, timing and ordering CTA.",
+      "deliverables": "One 15-second vertical ad and one alternate hook.",
+      "must_keep": "Menu names and availability must match supplied details.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 13,
+      "level": "Beginner",
+      "category": "Accessories",
+      "client": "A phone-case shop",
+      "goal": "Show three case designs",
+      "assignment": "Build a clean rotating product display with a save-or-shop CTA.",
+      "deliverables": "One 15-second Reel, one square product visual.",
+      "must_keep": "Maintain exact design and camera cutout geometry.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 14,
+      "level": "Beginner",
+      "category": "Beauty",
+      "client": "A makeup artist",
+      "goal": "Introduce a bridal makeup portfolio",
+      "assignment": "Make a tasteful highlight Reel from approved examples.",
+      "deliverables": "One 20-second Reel and caption.",
+      "must_keep": "Do not digitally alter the client’s face or imply fabricated testimonials.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 15,
+      "level": "Beginner",
+      "category": "Education",
+      "client": "A language tutor",
+      "goal": "Explain a trial lesson",
+      "assignment": "Make a friendly talking-head concept answering who it is for and how to book.",
+      "deliverables": "One 20-second video with subtitles.",
+      "must_keep": "Use truthful lesson length and pricing.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 16,
+      "level": "Intermediate",
+      "category": "Kids apparel",
+      "client": "A premium baby sleepwear brand",
+      "goal": "Test product benefits in paid social",
+      "assignment": "Use approved garment photographs in three lifestyle scenes and one moving cut.",
+      "deliverables": "Three 4:5 statics, one 15-second 9:16 ad, two hooks.",
+      "must_keep": "Prints must remain pixel-accurate; never put text over a child’s face.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 17,
+      "level": "Intermediate",
+      "category": "Fintech",
+      "client": "A consumer payment app",
+      "goal": "Encourage app installs",
+      "assignment": "Explain one everyday payment situation with a presenter and real app recording.",
+      "deliverables": "One 30-second Reel, 15-second cutdown and captions.",
+      "must_keep": "Use approved UI footage; never invent product features or fees.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 18,
+      "level": "Intermediate",
+      "category": "Founder content",
+      "client": "A business acquisition founder",
+      "goal": "Turn a founder insight into a weekly Reel",
+      "assignment": "Develop a researched hook, approved script and face-consistent AI presenter video.",
+      "deliverables": "One 30-second Reel, two hooks, editable caption file.",
+      "must_keep": "Secure likeness consent and script sign-off before generation.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 19,
+      "level": "Intermediate",
+      "category": "Entertainment",
+      "client": "A talking-dog creator",
+      "goal": "Launch a recurring pet character",
+      "assignment": "Write a light comedic scene with stable character identity across shots.",
+      "deliverables": "One 25-second vertical episode, cover and subtitle file.",
+      "must_keep": "Keep muzzle, collar, fur markings and voice consistent.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 20,
+      "level": "Intermediate",
+      "category": "Wellness",
+      "client": "A functional drink startup",
+      "goal": "Teach one approved product fact",
+      "assignment": "Create a question-led educational ad that shows the package and buying offer.",
+      "deliverables": "One 45-second 9:16 ad, 15-second cutdown, two hooks.",
+      "must_keep": "No disease, cure or unsupported energy claims.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 21,
+      "level": "Intermediate",
+      "category": "Fragrance",
+      "client": "An online perfume brand",
+      "goal": "Compare two scents by mood",
+      "assignment": "Create two visual worlds using approved notes and bottle photos.",
+      "deliverables": "One 30-second ad, two 15-second cutdowns.",
+      "must_keep": "Keep bottle label and cap shape accurate; avoid false performance claims.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 22,
+      "level": "Intermediate",
+      "category": "AI UGC",
+      "client": "A cosmetics ecommerce store",
+      "goal": "Test a creator-style demo",
+      "assignment": "Build a natural presenter script and product demo with a clear shop CTA.",
+      "deliverables": "One 30-second ad and three alternate opening hooks.",
+      "must_keep": "AI actor must not claim personal product experience or show false results.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 23,
+      "level": "Intermediate",
+      "category": "Property",
+      "client": "A developer selling apartments",
+      "goal": "Explain one buyer objection",
+      "assignment": "Combine approved property footage with a concise on-camera answer.",
+      "deliverables": "One 45-second explainer and one 15-second Reel.",
+      "must_keep": "Use verified property details and approved renders only.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 24,
+      "level": "Intermediate",
+      "category": "SaaS",
+      "client": "A scheduling software startup",
+      "goal": "Explain a feature in under 40 seconds",
+      "assignment": "Pair screen recording with a clear AI presenter and a problem-first script.",
+      "deliverables": "One 35-second video, captions, 9:16 and 1:1 exports.",
+      "must_keep": "Screens must reflect the current product; no fabricated integrations.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 25,
+      "level": "Intermediate",
+      "category": "Hospitality",
+      "client": "A restaurant chain",
+      "goal": "Promote a seasonal menu",
+      "assignment": "Develop three angles for a limited-time meal using approved menu photography.",
+      "deliverables": "One hero 20-second video, three hook exports and cover.",
+      "must_keep": "Confirm dates, locations and stock before delivery.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 26,
+      "level": "Intermediate",
+      "category": "Nonprofit",
+      "client": "A youth skills charity",
+      "goal": "Explain what donor support enables",
+      "assignment": "Make a respectful story-led video using verified program facts.",
+      "deliverables": "One 45-second awareness video and captions.",
+      "must_keep": "Do not depict synthetic beneficiaries as real participants.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 27,
+      "level": "Intermediate",
+      "category": "Music",
+      "client": "An independent singer",
+      "goal": "Create a visualizer for a released song",
+      "assignment": "Develop consistent color, character and motion around a licensed audio excerpt.",
+      "deliverables": "One 30-second vertical visualizer and square artwork.",
+      "must_keep": "Get audio and likeness rights; keep lyrics exactly as approved.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 28,
+      "level": "Intermediate",
+      "category": "Travel",
+      "client": "A local tour operator",
+      "goal": "Sell a weekend itinerary",
+      "assignment": "Build a mini journey across three approved destinations.",
+      "deliverables": "One 30-second Reel, route card and caption.",
+      "must_keep": "Use real locations, inclusions, dates and prices.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 29,
+      "level": "Intermediate",
+      "category": "Fashion",
+      "client": "A women’s clothing brand",
+      "goal": "Turn stills into cinematic motion",
+      "assignment": "Create a five-shot outfit sequence from authentic product photography.",
+      "deliverables": "One 20-second vertical ad and two alternate hooks.",
+      "must_keep": "Maintain garment seams, logos, model identity and print continuity.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 30,
+      "level": "Intermediate",
+      "category": "Skincare",
+      "client": "An ecommerce skincare brand",
+      "goal": "Show correct product application",
+      "assignment": "Write a step-by-step demonstration with product closeups.",
+      "deliverables": "One 25-second 9:16 ad and 1:1 crop.",
+      "must_keep": "Application steps must match brand guidance; avoid treatment claims.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 31,
+      "level": "Intermediate",
+      "category": "Mobile app",
+      "client": "A habit-tracking app",
+      "goal": "Reduce onboarding confusion",
+      "assignment": "Show first-use action from download to first completed task.",
+      "deliverables": "One 40-second tutorial and 15-second social cut.",
+      "must_keep": "Use real current app screens and approved feature names.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 32,
+      "level": "Intermediate",
+      "category": "Ecommerce",
+      "client": "A homewares seller",
+      "goal": "Test three sale angles",
+      "assignment": "Create variations around quality, gifting and ease of use.",
+      "deliverables": "Three 15-second ads with shared approved product shots.",
+      "must_keep": "No false discounts, scarcity or customer quotes.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 33,
+      "level": "Intermediate",
+      "category": "Education",
+      "client": "A creator selling a workshop",
+      "goal": "Increase registrations",
+      "assignment": "Turn a curriculum outline into a clear promise, proof and signup Reel.",
+      "deliverables": "One 30-second ad, captions and one static cover.",
+      "must_keep": "Dates, seats, bonuses and testimonials must be verified.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 34,
+      "level": "Intermediate",
+      "category": "B2B",
+      "client": "A small logistics company",
+      "goal": "Explain delivery tracking",
+      "assignment": "Create a client-facing explainer using real dashboard footage and one scenario.",
+      "deliverables": "One 45-second video, 16:9 and 9:16 exports.",
+      "must_keep": "Do not promise routes or delivery times the company cannot guarantee.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 35,
+      "level": "Intermediate",
+      "category": "Payments",
+      "client": "A merchant payments provider",
+      "goal": "Explain the merchant value proposition",
+      "assignment": "Show a café payment scenario and the verified settlement flow.",
+      "deliverables": "One 30-second video and one merchant-focused CTA card.",
+      "must_keep": "Use approved compliance language and real interface captures.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 36,
+      "level": "Intermediate",
+      "category": "Haircare",
+      "client": "A natural haircare brand",
+      "goal": "Show a simple wash-day routine",
+      "assignment": "Turn approved product steps into a useful routine-led Reel with close-ups and a clear shop CTA.",
+      "deliverables": "One 30-second vertical video, captions and two alternate hooks.",
+      "must_keep": "Use approved directions and packaging; do not invent hair-growth results.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 37,
+      "level": "Professional",
+      "category": "Meta creative",
+      "client": "A multi-brand DTC agency",
+      "goal": "Build a monthly ad testing batch",
+      "assignment": "Develop a concept matrix across three audiences, two offers and four hooks.",
+      "deliverables": "Six 20-second ads, hook files, 9:16 and 4:5, naming sheet.",
+      "must_keep": "Respect each brand’s product accuracy, permissions and claim guide.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 38,
+      "level": "Professional",
+      "category": "Global launch",
+      "client": "A premium cosmetics company",
+      "goal": "Launch across three markets",
+      "assignment": "Build a consistent creative platform with localized hooks and approved bottle footage.",
+      "deliverables": "One 45-second hero, six cutdowns, localized captions, source project.",
+      "must_keep": "Keep product and packaging exact; localize claims and offers accurately.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 39,
+      "level": "Professional",
+      "category": "Regulated services",
+      "client": "An insurance comparison brand",
+      "goal": "Explain a complex purchase step",
+      "assignment": "Create a plain-language scenario with factual disclosure and a safe CTA.",
+      "deliverables": "One 60-second explainer, 30-second cut and three hooks.",
+      "must_keep": "Legal/compliance team approves all copy; no invented coverage guarantees.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 40,
+      "level": "Professional",
+      "category": "Property development",
+      "client": "A mixed-use development",
+      "goal": "Present a pre-launch masterplan",
+      "assignment": "Build a cinematic story using approved architectural renders and location facts.",
+      "deliverables": "One 60-second film, three cutdowns and shot list.",
+      "must_keep": "Clearly mark renders as illustrative; no false completion dates.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 41,
+      "level": "Professional",
+      "category": "Founder AI twin",
+      "client": "A founder-led investment newsletter",
+      "goal": "Produce five weekly thought-leadership clips",
+      "assignment": "Research five topic angles, script them and create a consistent approved likeness.",
+      "deliverables": "Five 30-second vertical videos, captions and review sheet.",
+      "must_keep": "Written likeness consent, script approval and no implied financial return.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 42,
+      "level": "Professional",
+      "category": "Supplement",
+      "client": "A wellness shot brand",
+      "goal": "Improve product understanding after strong CTR",
+      "assignment": "Create a mechanism-led educational test with pain point, product proof and offer.",
+      "deliverables": "One 60-second video, three hooks, three ratios and 15-second cut.",
+      "must_keep": "Only approved supplement claims; no disease names or cure language.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 43,
+      "level": "Professional",
+      "category": "Automotive",
+      "client": "An electric mobility startup",
+      "goal": "Explain charging and ownership",
+      "assignment": "Develop a visually precise story around one verified use case.",
+      "deliverables": "One 60-second hero, two 20-second cuts and sound mix.",
+      "must_keep": "Do not invent range, charging times, safety tests or availability.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 44,
+      "level": "Professional",
+      "category": "Remittance",
+      "client": "A diaspora payments service",
+      "goal": "Clarify sending money home",
+      "assignment": "Show an approved real transaction journey from sender to receiver.",
+      "deliverables": "One 45-second ad, 15-second cut, captions in two languages.",
+      "must_keep": "Use current regulated copy, rates and product screens; no fee invention.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 45,
+      "level": "Professional",
+      "category": "Localization",
+      "client": "A consumer tech company",
+      "goal": "Adapt one campaign for three audiences",
+      "assignment": "Create audience-specific scripts while retaining a unified visual identity.",
+      "deliverables": "Three 30-second localized ads, caption files and translation review notes.",
+      "must_keep": "Native review required; no synthetic endorsement.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 46,
+      "level": "Professional",
+      "category": "VSL editing",
+      "client": "A direct-response agency",
+      "goal": "Edit an approved 3-minute script",
+      "assignment": "Build a retention-first video from supplied script, UGC footage and B-roll.",
+      "deliverables": "One 3-minute 9:16 edit, five hook variants and project file.",
+      "must_keep": "Follow the client’s claims matrix; preserve authentic testimonials.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 47,
+      "level": "Professional",
+      "category": "Luxury jewelry",
+      "client": "A fine-jewelry house",
+      "goal": "Create a cinematic collection reveal",
+      "assignment": "Story-board product macro shots and consistent model styling.",
+      "deliverables": "One 45-second film, three 10-second teasers and stills.",
+      "must_keep": "Stone shape, setting, finish and logo must match approved assets.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 48,
+      "level": "Professional",
+      "category": "Gaming",
+      "client": "An indie game studio",
+      "goal": "Launch a trailer before release",
+      "assignment": "Build a narrative from licensed gameplay footage and approved character art.",
+      "deliverables": "One 60-second trailer, 15-second social cut and thumbnail.",
+      "must_keep": "Do not fabricate gameplay mechanics or launch dates.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 49,
+      "level": "Professional",
+      "category": "Paid social",
+      "client": "An ecommerce growth team",
+      "goal": "Run a four-week learning plan",
+      "assignment": "Build reusable creative templates, audience hypotheses and weekly variants.",
+      "deliverables": "Twelve finished ads, hook matrix, handoff and test log.",
+      "must_keep": "Document what is hypothesis versus actual measured result.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    },
+    {
+      "id": 50,
+      "level": "Professional",
+      "category": "Educational media",
+      "client": "A learning platform",
+      "goal": "Create a five-episode recurring series",
+      "assignment": "Design a presenter character, five lesson scripts and a coherent production system.",
+      "deliverables": "Five 45-second episodes, captions, thumbnails and style guide.",
+      "must_keep": "Verify educational facts; use licensed voices and consistent character identity.",
+      "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
+    }
+  ],
+  "plan": [
+    {
+      "days": "1-3",
+      "focus": "Choose a buyer",
+      "action": "Review the seven income routes, pick one primary buyer, write a one-sentence offer and set a realistic production budget."
+    },
+    {
+      "days": "4-7",
+      "focus": "Make two proofs",
+      "action": "Select two briefs at your level. Create two polished, labeled concept pieces and document your process and limitations."
+    },
+    {
+      "days": "8-10",
+      "focus": "Publish a portfolio",
+      "action": "Build a simple page with the two concepts, what you did, deliverables, process and one contact CTA."
+    },
+    {
+      "days": "11-14",
+      "focus": "Research 15 prospects",
+      "action": "Find suitable businesses through public promotion, listings or platforms. Record a real reason each might need your offer."
+    },
+    {
+      "days": "15-21",
+      "focus": "Start conversations",
+      "action": "Send a manageable number of personalized ask-first messages, track replies and follow up respectfully once."
+    },
+    {
+      "days": "22-25",
+      "focus": "Quote and deliver",
+      "action": "For interested buyers, confirm the brief, rights, deadline, revision scope and deposit before production."
+    },
+    {
+      "days": "26-30",
+      "focus": "Review and repeat",
+      "action": "Measure messages, replies, qualified conversations, proposals, paid projects, production cost and profit. Improve the weakest stage."
+    }
+  ],
+  "sample_method": [
+    "Research the business and identify a specific product or campaign where one short concept could help.",
+    "Ask permission first. Offer one small, clearly scoped 10-15-second concept rather than a full campaign.",
+    "Use only assets you own or have permission to use. Mark speculative work as a concept and never fabricate a testimonial.",
+    "Agree what the sample includes, how long it takes and that further work is paid. Cap your free production cost.",
+    "Send the finished concept with one observation and a question about a paid next step. Stop if they decline."
+  ],
+  "pitches": [
+    {
+      "name": "Ask-first: product ad",
+      "message": "Hi [Name], I saw [specific product or promotion]. The product is clear, and I think a short video showing [real use or benefit] could help shoppers understand it faster. I create AI-assisted product videos using approved brand assets. Would you be open to a 15-second concept direction for [product]? — [Your name]"
+    },
+    {
+      "name": "Ask-first: founder content",
+      "message": "Hi [Name], your point about [specific topic] stood out. I turn founders’ approved ideas into short scripted videos with consistent visuals and captions. Would a 20-second concept for [audience question] be useful to see? — [Your name]"
+    },
+    {
+      "name": "Sample-first with permission",
+      "message": "Hi [Name], I noticed [observable opportunity]. If you’re open to it, I can make one 10-15-second speculative concept from approved assets to show the angle. No obligation to use it. May I send the proposed idea and asset list first? — [Your name]"
+    },
+    {
+      "name": "Portfolio-led pitch",
+      "message": "Hi [Name], I saw your [campaign or launch]. I created a concept for a similar buyer problem here: [portfolio link]. I could adapt that process to your approved product assets and deliver [one specific result]. Is [campaign goal] something you’re testing this month? — [Your name]"
+    },
+    {
+      "name": "Reply after interest",
+      "message": "Thanks, [Name]. To make the idea relevant: who should the video persuade, what one action should they take, and which product claims or visual details must stay exact? Once I have that, I’ll send a clear direction and scope."
+    },
+    {
+      "name": "Respectful follow-up",
+      "message": "Hi [Name], checking once on the [specific idea] I sent. If [current priority] is still on your list, I can outline one short concept and fixed scope. If timing has changed, no worries."
+    },
+    {
+      "name": "Quote transition",
+      "message": "Based on your goal, I propose [deliverable, length and formats] using [approved assets]. It includes [script approvals, revisions and deadline] for [price], with [deposit] to start. Shall I send the short written scope? "
+    },
+    {
+      "name": "Existing client reactivation",
+      "message": "Hi [Name], I enjoyed working on [previous project]. I noticed [current activity] and thought a short [specific format] could support it. I’ve updated my work here: [portfolio]. Would you like me to send one direction for your next campaign?"
+    }
+  ]
+}

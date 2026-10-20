@@ -1,0 +1,1 @@
+(async()=>{const status=document.getElementById('accessStatus');try{await Fuse.api('ai-video-book-resources',{});document.getElementById('bookChoices').hidden=false;status.hidden=true}catch(e){status.textContent=e.message||'Please sign in to access this book.'}})();
