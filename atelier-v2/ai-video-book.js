@@ -1,0 +1,60 @@
+(() => {
+  'use strict';
+  const total=34, key='fuse_ai_video_book_last_page';
+  const $=id=>document.getElementById(id);
+  const chapters=[
+    ['Cover',1],['A note from Ria',2],['Contents',3],['Start here',5],
+    ['Make your first useful AI Reel',7],['Choose a buyer',9],['Seven income routes',10],
+    ['Build visuals brands can use',13],['Make your portfolio',14],['Package an offer',17],
+    ['Price for margin',18],['Find customers',19],['Ask-first and sample-first',20],
+    ['Turn replies into paid work',23],['Deliver for repeat work',24],
+    ['Personal brand and partnerships',25],['The ₦10 million map',29],
+    ['Your first 30 days',30],['Copy-ready tools',31],['A final word',33],['Sources',34]
+  ];
+  let page=Number(localStorage.getItem(key))||1;
+  if(page<1||page>total)page=1;
+  let current=0;
+  async function show(n){
+    if(!Number.isInteger(n)||n<1||n>total)return;
+    const request=++current;
+    page=n;
+    $('bookStatus').textContent='Opening page '+n+'…';
+    $('bookStatus').hidden=false;
+    $('bookPage').hidden=true;
+    $('pageLabel').textContent='Page '+n+' of '+total;
+    $('pageNumber').value=n;
+    $('prevPage').disabled=n===1;
+    $('nextPage').disabled=n===total;
+    $('pageFrame').classList.remove('zoomed');
+    try{
+      const result=await Fuse.api('ai-video-book-page',{page:n});
+      if(request!==current)return;
+      const img=$('bookPage');
+      img.onload=()=>{if(request===current){$('bookStatus').hidden=true;img.hidden=false}};
+      img.onerror=()=>{if(request===current)$('bookStatus').textContent='The page did not load. Try another page and return.'};
+      img.alt='Page '+n+' of Zero To First 10 Million With AI Video';
+      img.src=result.image;
+      try{localStorage.setItem(key,String(n))}catch{}
+      history.replaceState(null,'','#page-'+n);
+    }catch(error){
+      if(request===current)$('bookStatus').textContent=error.message||'This page could not load.';
+    }
+  }
+  $('prevPage').onclick=()=>show(page-1);
+  $('nextPage').onclick=()=>show(page+1);
+  $('pageNumber').onchange=()=>show(Number($('pageNumber').value));
+  $('bookPage').onclick=()=>$('pageFrame').classList.toggle('zoomed');
+  document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||$('contentsDialog').open)return;if(e.key==='ArrowRight')show(page+1);if(e.key==='ArrowLeft')show(page-1)});
+  const dialog=$('contentsDialog');
+  for(const [title,n] of chapters){
+    const button=document.createElement('button');button.type='button';
+    const name=document.createElement('strong');name.textContent=title;
+    const count=document.createElement('span');count.textContent=String(n);
+    button.append(name,count);button.onclick=()=>{dialog.close();show(n)};
+    $('chapterList').append(button);
+  }
+  $('bookContents').onclick=()=>dialog.showModal();
+  $('closeContents').onclick=()=>dialog.close();
+  const hash=Number(location.hash.replace('#page-',''));
+  show(Number.isInteger(hash)&&hash>=1&&hash<=total?hash:page);
+})();

@@ -4,6 +4,7 @@ const OWNER_EMAIL='riadigitals0@gmail.com';
 
 const PLAYBOOK_KEY='first-client-playbook';
 const CHALLENGE_KEY='ai-video-client-challenge';
+const EBOOK_KEY='ai-video-business-guide';
 
 const ACCESS_KEYS={
   playbook:['first-client-playbook'],
@@ -57,10 +58,11 @@ async function ensureStudent(db,email){
 
 function summarizeAccess(unlocks){
   const owned=new Set(unlocks||[]);
-  if(owned.has('atelier-full')||owned.has('atelier-empire'))return ['All four Academy courses',...(owned.has(CHALLENGE_KEY)?['14-Day AI Video Client Challenge']:[])];
+  if(owned.has('atelier-full')||owned.has('atelier-empire'))return ['All four Academy courses',...(owned.has(CHALLENGE_KEY)?['14-Day AI Video Client Challenge']:[]),...(owned.has(EBOOK_KEY)?['Zero To First 10 Million With AI Video']:[])];
   const out=[];
   if(owned.has('first-client-playbook'))out.push('First Client Playbook');
   if(owned.has(CHALLENGE_KEY))out.push('14-Day AI Video Client Challenge');
+  if(owned.has(EBOOK_KEY))out.push('Zero To First 10 Million With AI Video');
   if(ACCESS_KEYS.design.some(k=>owned.has(k)))out.push('Design & Flyers');
   if(ACCESS_KEYS.video.some(k=>owned.has(k)))out.push('AI UGC & Influencer');
   if(ACCESS_KEYS.landing.some(k=>owned.has(k)))out.push('Landing Page Design');
@@ -108,11 +110,15 @@ exports.handler=async event=>{
 
     const playbookOnly=courses.includes('playbook');
     const challengeOnly=courses.includes('challenge');
+    const ebookOnly=courses.includes('ebook');
     if(playbookOnly&&(courses.length!==1||credits!==0)){
       return json(400,{error:'Playbook access is separate: select only the Playbook and leave credits at 0.'});
     }
     if(challengeOnly&&(courses.length!==1||credits!==0)){
       return json(400,{error:'Challenge access is separate: select only the challenge and leave credits at 0.'});
+    }
+    if(ebookOnly&&(courses.length!==1||credits!==0)){
+      return json(400,{error:'Ebook access is separate: select only the ebook and leave credits at 0.'});
     }
 
     const {profile:target,created}=await ensureStudent(db,email);
@@ -131,11 +137,12 @@ exports.handler=async event=>{
       return json(200,{ok:true,created,...await readStudent(db,target)});
     }
 
-    if(challengeOnly){
-      const {data:existing,error:existingError}=await db.from('module_unlocks').select('module_key').eq('user_id',target.id).eq('module_key',CHALLENGE_KEY);
+    if(challengeOnly||ebookOnly){
+      const accessKey=challengeOnly?CHALLENGE_KEY:EBOOK_KEY;
+      const {data:existing,error:existingError}=await db.from('module_unlocks').select('module_key').eq('user_id',target.id).eq('module_key',accessKey);
       if(existingError)throw existingError;
       if(!existing?.length){
-        const {error:insertError}=await db.from('module_unlocks').insert({user_id:target.id,module_key:CHALLENGE_KEY});
+        const {error:insertError}=await db.from('module_unlocks').insert({user_id:target.id,module_key:accessKey});
         if(insertError)throw insertError;
       }
       // Existing purchases are kept; a new challenge student gets only this key.

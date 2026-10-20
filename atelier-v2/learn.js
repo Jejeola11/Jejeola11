@@ -29,7 +29,8 @@
     video:range('aiv-m',16),
     landing:range('web-m',10).map(k=>k==='web-m3'?'web-m3-current':k),
     money:['money'],
-    challenge:['ai-video-client-challenge']
+    challenge:['ai-video-client-challenge'],
+    ebook:['ai-video-business-guide']
   };
 
   const courseMeta={
@@ -37,7 +38,8 @@
     video:{name:'AI UGC & Influencer',credits:115,href:'academy-v2.html?course=video'},
     landing:{name:'Landing Page Design',credits:80,href:'academy-v2.html?course=landing'},
     money:{name:'Money Engine',credits:80,href:'academy-v2.html?course=money'},
-    challenge:{name:'14-Day AI Video Client Challenge',credits:0,href:'academy-v2.html?course=challenge'}
+    challenge:{name:'14-Day AI Video Client Challenge',credits:0,href:'academy-v2.html?course=challenge'},
+    ebook:{name:'Zero To First 10 Million With AI Video',credits:0,href:'ai-video-book.html'}
   };
 
   let currentCredits=0;
@@ -48,6 +50,7 @@
 
   function hasCourseAccess(course){
     if(course==='challenge') return isAdmin || owned.has('ai-video-client-challenge');
+    if(course==='ebook') return isAdmin || owned.has('ai-video-business-guide');
     if(isFull) return true;
     const keys=required[course]||[];
     return keys.some(k=>owned.has(k)) || (keys.length>0 && keys.every(k=>owned.has(k)));
@@ -89,8 +92,8 @@
       const course=row.dataset.course;
       const meta=courseMeta[course];
       if(!meta) return;
-      if(course==='challenge'){
-        row.hidden=!hasCourseAccess('challenge');
+      if(course==='challenge'||course==='ebook'){
+        row.hidden=!hasCourseAccess(course);
         if(!row.hidden){row.href=meta.href;row.classList.remove('is-locked')}
         return;
       }
@@ -261,7 +264,7 @@
     try{
       await loadAccess();
     }catch(error){
-      rows.forEach(row=>row.hidden=row.dataset.course==='challenge');
+      rows.forEach(row=>row.hidden=['challenge','ebook'].includes(row.dataset.course));
       status.textContent='Could not check course access. Please reload the page.';
     }
   })();

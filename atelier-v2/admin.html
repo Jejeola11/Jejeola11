@@ -133,6 +133,10 @@
                 <input class="courseCheck" type="checkbox" value="challenge">
                 <span><strong>14-Day AI Video Client Challenge only</strong><small>Dedicated challenge access · no other Academy courses or credits</small></span>
               </label>
+              <label class="course-option ebook-option">
+                <input class="courseCheck" type="checkbox" value="ebook">
+                <span><strong>Zero To First 10 Million With AI Video only</strong><small>Page-by-page ebook access · no other Academy courses or credits</small></span>
+              </label>
               <label class="course-option">
                 <input class="courseCheck" type="checkbox" value="design">
                 <span><strong>Design &amp; Flyers</strong><small>Full Design course</small></span>
@@ -198,9 +202,10 @@
     const all=$('allCourses').checked;
     const playbook=document.querySelector('.courseCheck[value="playbook"]').checked;
     const challenge=document.querySelector('.courseCheck[value="challenge"]').checked;
-    const exclusive=playbook||challenge;
+    const ebook=document.querySelector('.courseCheck[value="ebook"]').checked;
+    const exclusive=playbook||challenge||ebook;
     document.querySelectorAll('.courseCheck').forEach(el=>{
-      el.disabled=all||(exclusive&&el.value!==(challenge?'challenge':'playbook'));
+      el.disabled=all||(exclusive&&el.value!==(challenge?'challenge':ebook?'ebook':'playbook'));
       if(el.disabled)el.checked=false;
     });
     $('allCourses').disabled=exclusive;
@@ -213,7 +218,13 @@
   }
   $('creditsOnly').addEventListener('change',()=>{if($('creditsOnly').checked){$('allCourses').checked=false;document.querySelectorAll('.courseCheck').forEach(el=>el.checked=false)}syncAccess()});
   $('allCourses').addEventListener('change',syncAccess);
-  document.querySelectorAll('.courseCheck').forEach(el=>el.addEventListener('change',syncAccess));
+  document.querySelectorAll('.courseCheck').forEach(el=>el.addEventListener('change',()=>{
+    if(el.checked&&['playbook','challenge','ebook'].includes(el.value)){
+      document.querySelectorAll('.courseCheck').forEach(other=>{if(other!==el)other.checked=false});
+      $('allCourses').checked=false;
+    }
+    syncAccess();
+  }));
 
   async function api(body){
     const response=await fetch('/api/owner-student-access',{
