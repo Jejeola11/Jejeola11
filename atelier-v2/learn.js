@@ -92,7 +92,26 @@
       const course=row.dataset.course;
       const meta=courseMeta[course];
       if(!meta) return;
-      if(course==='challenge'||course==='ebook'){
+      if(course==='ebook'){
+        row.hidden=false;
+        row.href=meta.href;
+        const allowed=hasCourseAccess(course);
+        row.classList.toggle('is-locked',!allowed);
+        const label=row.querySelector('.academy-lock-label');
+        if(!allowed){
+          if(!label){
+            const note=document.createElement('span');note.className='academy-lock-label';
+            note.textContent='BOOK ACCESS REQUIRED';
+            row.querySelector('.academy-copy').insertBefore(note,row.querySelector('h2'));
+          }
+          row.querySelector('.academy-start').textContent='View the book';
+        }else{
+          label?.remove();
+          row.querySelector('.academy-start').textContent='Read the book';
+        }
+        return;
+      }
+      if(course==='challenge'){
         row.hidden=!hasCourseAccess(course);
         if(!row.hidden){row.href=meta.href;row.classList.remove('is-locked')}
         return;
@@ -264,7 +283,7 @@
     try{
       await loadAccess();
     }catch(error){
-      rows.forEach(row=>row.hidden=['challenge','ebook'].includes(row.dataset.course));
+      rows.forEach(row=>row.hidden=row.dataset.course==='challenge');
       status.textContent='Could not check course access. Please reload the page.';
     }
   })();
