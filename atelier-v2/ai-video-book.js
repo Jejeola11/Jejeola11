@@ -14,6 +14,58 @@
   let page=Number(localStorage.getItem(key))||1;
   if(page<1||page>total)page=1;
   let current=0;
+  const frame=$('pageFrame'), photo=$('bookPage');
+  const pointers=new Map();
+  let zoom=1,offsetX=0,offsetY=0,pinch=null,drag=null;
+  const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+  function paintZoom(){
+    const rect=frame.getBoundingClientRect();
+    offsetX=clamp(offsetX,rect.width*(1-zoom),0);
+    offsetY=clamp(offsetY,rect.height*(1-zoom),0);
+    photo.style.transform=`translate(${offsetX}px,${offsetY}px) scale(${zoom})`;
+  }
+  function resetZoom(){zoom=1;offsetX=0;offsetY=0;pinch=null;drag=null;pointers.clear();paintZoom()}
+  function startPinch(){
+    if(pointers.size!==2)return;
+    const [a,b]=[...pointers.values()],rect=frame.getBoundingClientRect();
+    const cx=(a.x+b.x)/2-rect.left,cy=(a.y+b.y)/2-rect.top;
+    pinch={distance:Math.hypot(a.x-b.x,a.y-b.y)||1,scale:zoom,ax:(cx-offsetX)/zoom,ay:(cy-offsetY)/zoom};
+    drag=null;
+  }
+  frame.addEventListener('pointerdown',e=>{
+    if(e.target!==photo||photo.hidden)return;
+    e.preventDefault();frame.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pointers.size===2)startPinch();
+    else if(zoom>1)drag={x:e.clientX,y:e.clientY};
+  });
+  frame.addEventListener('pointermove',e=>{
+    if(!pointers.has(e.pointerId))return;
+    e.preventDefault();pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pointers.size===2){
+      if(!pinch)startPinch();
+      const [a,b]=[...pointers.values()],rect=frame.getBoundingClientRect();
+      zoom=clamp(pinch.scale*Math.hypot(a.x-b.x,a.y-b.y)/pinch.distance,1,4);
+      offsetX=(a.x+b.x)/2-rect.left-pinch.ax*zoom;
+      offsetY=(a.y+b.y)/2-rect.top-pinch.ay*zoom;
+      paintZoom();
+    }else if(drag&&zoom>1){
+      offsetX+=e.clientX-drag.x;offsetY+=e.clientY-drag.y;
+      drag={x:e.clientX,y:e.clientY};paintZoom();
+    }
+  });
+  function release(e){
+    pointers.delete(e.pointerId);pinch=null;
+    const left=[...pointers.values()][0];drag=left&&zoom>1?{x:left.x,y:left.y}:null;
+  }
+  frame.addEventListener('pointerup',release);
+  frame.addEventListener('pointercancel',release);
+  photo.addEventListener('dblclick',e=>{
+    e.preventDefault();
+    if(zoom>1){resetZoom();return}
+    const rect=frame.getBoundingClientRect();zoom=2;
+    offsetX=-(e.clientX-rect.left);offsetY=-(e.clientY-rect.top);paintZoom();
+  });
   async function show(n){
     if(!Number.isInteger(n)||n<1||n>total)return;
     const request=++current;
@@ -25,7 +77,7 @@
     $('pageNumber').value=n;
     $('prevPage').disabled=n===1;
     $('nextPage').disabled=n===total;
-    $('pageFrame').classList.remove('zoomed');
+    resetZoom();
     try{
       const result=await Fuse.api('ai-video-book-page',{page:n});
       if(request!==current)return;
@@ -43,7 +95,6 @@
   $('prevPage').onclick=()=>show(page-1);
   $('nextPage').onclick=()=>show(page+1);
   $('pageNumber').onchange=()=>show(Number($('pageNumber').value));
-  $('bookPage').onclick=()=>$('pageFrame').classList.toggle('zoomed');
   document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||$('contentsDialog').open)return;if(e.key==='ArrowRight')show(page+1);if(e.key==='ArrowLeft')show(page-1)});
   const dialog=$('contentsDialog');
   for(const [title,n] of chapters){
