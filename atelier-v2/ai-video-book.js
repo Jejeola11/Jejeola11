@@ -14,6 +14,24 @@
   let page=Number(localStorage.getItem(key))||1;
   if(page<1||page>total)page=1;
   let current=0;
+  const pageCache=new Map();
+  const pending=new Map();
+  async function getPage(n){
+    if(pageCache.has(n))return pageCache.get(n);
+    if(pending.has(n))return pending.get(n);
+    const task=Fuse.api('ai-video-book-page',{page:n}).then(result=>{
+      pageCache.set(n,result.image);
+      pending.delete(n);
+      if(pageCache.size>9)pageCache.delete(pageCache.keys().next().value);
+      return result.image;
+    }).catch(error=>{pending.delete(n);throw error});
+    pending.set(n,task);
+    return task;
+  }
+  function warm(n){
+    if(n<1||n>total||pageCache.has(n)||pending.has(n))return;
+    getPage(n).then(src=>{const img=new Image();img.src=src;img.decode?.().catch(()=>{})}).catch(()=>{});
+  }
   const frame=$('pageFrame'), photo=$('bookPage');
   const pointers=new Map();
   let zoom=1,offsetX=0,offsetY=0,pinch=null,drag=null;
@@ -71,25 +89,26 @@
     const request=++current;
     page=n;
     $('bookStatus').textContent='Opening page '+n+'…';
-    $('bookStatus').hidden=false;
-    $('bookPage').hidden=true;
-    $('pageLabel').textContent='Page '+n+' of '+total;
+    $('bookStatus').hidden=pageCache.has(n);
+    frame.classList.toggle('is-loading',!pageCache.has(n));
+    frame.setAttribute('aria-busy','true');
     $('pageNumber').value=n;
     $('prevPage').disabled=n===1;
     $('nextPage').disabled=n===total;
     resetZoom();
     try{
-      const result=await Fuse.api('ai-video-book-page',{page:n});
+      const src=await getPage(n);
       if(request!==current)return;
       const img=$('bookPage');
-      img.onload=()=>{if(request===current){$('bookStatus').hidden=true;img.hidden=false}};
+      img.onload=()=>{if(request===current){$('bookStatus').hidden=true;frame.classList.remove('is-loading');frame.setAttribute('aria-busy','false');img.hidden=false;$('pageLabel').textContent='Page '+n+' of '+total;warm(n+1);warm(n+2);warm(n-1)}};
       img.onerror=()=>{if(request===current)$('bookStatus').textContent='The page did not load. Try another page and return.'};
       img.alt='Page '+n+' of Zero To First 10 Million With AI Video';
-      img.src=result.image;
+      if(img.src===src && img.complete && img.naturalWidth)img.onload();
+      else img.src=src;
       try{localStorage.setItem(key,String(n))}catch{}
       history.replaceState(null,'','#page-'+n);
     }catch(error){
-      if(request===current)$('bookStatus').textContent=error.message||'This page could not load.';
+      if(request===current){$('bookStatus').hidden=false;$('bookStatus').textContent=error.message||'This page could not load.';frame.classList.remove('is-loading');frame.setAttribute('aria-busy','false')}
     }
   }
   $('prevPage').onclick=()=>show(page-1);

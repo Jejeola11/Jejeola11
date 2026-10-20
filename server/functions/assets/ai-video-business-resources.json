@@ -378,12 +378,12 @@
     },
     {
       "id": 35,
-      "level": "Intermediate",
+      "level": "Professional",
       "category": "Payments",
       "client": "A merchant payments provider",
       "goal": "Explain the merchant value proposition",
-      "assignment": "Show a café payment scenario and the verified settlement flow.",
-      "deliverables": "One 30-second video and one merchant-focused CTA card.",
+      "assignment": "Show a café payment scenario, merchant dashboard and the verified settlement flow in a script-led ad.",
+      "deliverables": "One 45-second video, merchant-focused CTA card, 15-second cutdown and approved compliance copy.",
       "must_keep": "Use approved compliance language and real interface captures.",
       "self_review": "Can a buyer identify the offer in three seconds? Is the product or person accurate? Is the CTA truthful and clear?"
     },
