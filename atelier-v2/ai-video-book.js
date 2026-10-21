@@ -4,7 +4,7 @@
   const $=id=>document.getElementById(id);
   const chapters=[
     ['Cover',1],['A note from Ria',2],['Contents',3],['Start here',5],
-    ['Make your first useful AI Reel',8],['Choose a buyer',11],['Seven income routes',13],
+    ['Make Your First Professional AI Video',8],['Choose a buyer',11],['Seven income routes',13],
     ['Build visuals brands can use',17],['Make your portfolio',19],['Package an offer',23],
     ['Price for margin',24],['Find customers',25],['Ask-first and sample-first',26],
     ['Turn replies into paid work',30],['Deliver for repeat work',31],
@@ -16,6 +16,16 @@
   let current=0;
   const pageCache=new Map();
   const pending=new Map();
+  const action=$('bookAction');
+  function updateAction(n){
+    if(n<=7){
+      action.innerHTML='<strong>Keep learning with other AI creators</strong><p>Join Ria’s AI community for ideas and conversations as you work through the guide.</p><a href="https://chat.whatsapp.com/KKbt2aqTSP9D0YgcODf7Sy?s=cl&amp;p=a&amp;mlu=4&amp;ilr=4" target="_blank" rel="noopener noreferrer">Join the AI community ↗</a>';
+      action.hidden=false;
+    }else if(n<=10){
+      action.innerHTML='<strong>Enjoyed your first video exercise?</strong><p>Learn AI UGC and creator-style videos more deeply in the AI UGC &amp; Influencer course for ₦4,900.</p><a href="https://nestuge.com/academy_ugc_offer" target="_blank" rel="noopener noreferrer">Explore the AI UGC course ↗</a>';
+      action.hidden=false;
+    }else{action.hidden=true;action.replaceChildren()}
+  }
   async function getPage(n){
     if(pageCache.has(n))return pageCache.get(n);
     if(pending.has(n))return pending.get(n);
@@ -88,6 +98,7 @@
     if(!Number.isInteger(n)||n<1||n>total)return;
     const request=++current;
     page=n;
+    updateAction(n);
     $('bookStatus').textContent='Opening page '+n+'…';
     $('bookStatus').hidden=pageCache.has(n);
     frame.classList.toggle('is-loading',!pageCache.has(n));
