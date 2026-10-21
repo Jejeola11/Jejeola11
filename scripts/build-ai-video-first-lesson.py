@@ -40,7 +40,6 @@ def base(c, page, label):
     c.setFillColor(HexColor(TEAL)); c.rect(0,H-12,W,12,fill=1,stroke=0)
     c.setFillColor(HexColor(LIME if page%2 else YELLOW)); c.rect(0,0,9,H-12,fill=1,stroke=0)
     c.setFillColor(HexColor(MUTED)); c.setFont('FuseBold',9)
-    c.drawString(55,H-55,'FUSE ATELIER  /  FIRST VIDEO WORKSHOP')
     c.drawRightString(W-55,H-55,f'{page:02} / 45')
     c.setStrokeColor(HexColor('#A7C0A4')); c.line(55,50,W-55,50)
     c.setFont('Fuse',8); c.drawString(55,34,'THE NIGERIAN AI VIDEO BUSINESS GUIDE')
@@ -69,8 +68,8 @@ c=canvas.Canvas(str(OUT),pagesize=(W,H),pageCompression=1)
 
 base(c,8,'THE BRIEF')
 y=H-91
-y=heading(c,'Make Your First Professional',y)
-y=heading(c,'AI Video',y,25)
+y=heading(c,'0. Make Your First',y)
+y=heading(c,'Professional AI Video',y,25)
 y=paragraph(c,'A complete 20-second product video you can make on a phone. No paid video generator is required for this exercise.',y,size=12.4,leading=20)-17
 y=callout(c,'TODAY\'S PRACTICE BRIEF','Imagine a local skincare brand wants a short video showing how its product fits into an everyday routine. Use your own item or a permitted practice photo. Label the finished video "spec concept"; do not imply that the brand hired you.',y)
 y=section(c,'01','Choose one real product','Write down its name, who would use it, one verified fact from its packaging or website, and the action you want viewers to take. Keep the original label unchanged. Do not invent reviews or benefits.',y)

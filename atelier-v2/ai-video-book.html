@@ -8,10 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="ai-video-book.css?v=4">
+  <link rel="stylesheet" href="ai-video-book.css?v=5">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
   <script src="fuse-shell.js?v=footer-unified-6" defer></script>
-  <script src="ai-video-book.js?v=5" defer></script>
+  <script src="ai-video-book.js?v=6" defer></script>
 </head>
 <body data-page="academy">
   <header class="book-top">
@@ -24,15 +24,19 @@
     <div class="page-frame" id="pageFrame" aria-live="polite">
       <p id="bookStatus" role="status">Checking your access…</p>
       <img id="bookPage" alt="" hidden>
+      <div id="pageHotspots" class="page-hotspots" hidden><a id="ugcPageLink" href="https://nestuge.com/academy_ugc_offer" target="_blank" rel="noopener noreferrer" aria-label="View the AI UGC course"></a></div>
     </div>
     <div class="book-controls">
       <button id="prevPage" type="button">← Previous</button>
       <label for="pageNumber"><span>Page</span><input id="pageNumber" type="number" min="1" max="45" value="1" inputmode="numeric" aria-label="Go to page"><span>of 45</span></label>
       <button id="nextPage" type="button">Next →</button>
     </div>
+    <button id="actionCue" class="action-cue" type="button" hidden>↓ See the action note for this page</button>
     <aside id="bookAction" class="book-action" hidden aria-live="polite"></aside>
     <p class="reader-note">Use two fingers to zoom, then drag to read. Double-tap to zoom or reset. Your last page is saved on this device.</p>
   </main>
+  <button id="actionPeek" class="action-peek" type="button" hidden>↓ Action note</button>
+  <div class="reader-progress" aria-hidden="true"><div id="readerProgressFill"></div></div>
   <dialog id="contentsDialog" class="contents-dialog" aria-label="Book contents">
     <div class="contents-head"><strong>Jump to a chapter</strong><button id="closeContents" type="button" aria-label="Close contents">×</button></div>
     <div id="chapterList"></div>

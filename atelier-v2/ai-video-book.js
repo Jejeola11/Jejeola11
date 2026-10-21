@@ -17,6 +17,21 @@
   const pageCache=new Map();
   const pending=new Map();
   const action=$('bookAction');
+  const cue=$('actionCue'),peek=$('actionPeek'),hotspots=$('pageHotspots');
+  let peekTimer;
+  function revealNote(){action.scrollIntoView({behavior:'smooth',block:'center'});peek.hidden=true}
+  cue.onclick=revealNote;peek.onclick=revealNote;
+  function showPeek(){
+    clearTimeout(peekTimer);
+    if(action.hidden)return;
+    peek.hidden=false;
+    peekTimer=setTimeout(()=>{peek.hidden=true},6000);
+  }
+  function updateProgress(){
+    const max=document.documentElement.scrollHeight-innerHeight;
+    $('readerProgressFill').style.height=(max>0?Math.max(8,100*scrollY/max):100)+'%';
+  }
+  addEventListener('scroll',updateProgress,{passive:true});addEventListener('resize',updateProgress);
   function updateAction(n){
     if(n<=7){
       action.innerHTML='<strong>Keep learning with other AI creators</strong><p>Join Ria’s AI community for ideas and conversations as you work through the guide.</p><a href="https://chat.whatsapp.com/KKbt2aqTSP9D0YgcODf7Sy?s=cl&amp;p=a&amp;mlu=4&amp;ilr=4" target="_blank" rel="noopener noreferrer">Join the AI community ↗</a>';
@@ -25,6 +40,7 @@
       action.innerHTML='<strong>Enjoyed your first video exercise?</strong><p>Learn AI UGC and creator-style videos more deeply in the AI UGC &amp; Influencer course for ₦4,900.</p><a href="https://nestuge.com/academy_ugc_offer" target="_blank" rel="noopener noreferrer">Explore the AI UGC course ↗</a>';
       action.hidden=false;
     }else{action.hidden=true;action.replaceChildren()}
+    cue.hidden=action.hidden;peek.hidden=true;
   }
   async function getPage(n){
     if(pageCache.has(n))return pageCache.get(n);
@@ -51,6 +67,7 @@
     offsetX=clamp(offsetX,rect.width*(1-zoom),0);
     offsetY=clamp(offsetY,rect.height*(1-zoom),0);
     photo.style.transform=`translate(${offsetX}px,${offsetY}px) scale(${zoom})`;
+    hotspots.style.transform=photo.style.transform;
   }
   function resetZoom(){zoom=1;offsetX=0;offsetY=0;pinch=null;drag=null;pointers.clear();paintZoom()}
   function startPinch(){
@@ -94,11 +111,12 @@
     const rect=frame.getBoundingClientRect();zoom=2;
     offsetX=-(e.clientX-rect.left);offsetY=-(e.clientY-rect.top);paintZoom();
   });
-  async function show(n){
+  async function show(n,navigated=false){
     if(!Number.isInteger(n)||n<1||n>total)return;
     const request=++current;
     page=n;
     updateAction(n);
+    hotspots.hidden=n!==10;
     $('bookStatus').textContent='Opening page '+n+'…';
     $('bookStatus').hidden=pageCache.has(n);
     frame.classList.toggle('is-loading',!pageCache.has(n));
@@ -111,7 +129,7 @@
       const src=await getPage(n);
       if(request!==current)return;
       const img=$('bookPage');
-      img.onload=()=>{if(request===current){$('bookStatus').hidden=true;frame.classList.remove('is-loading');frame.setAttribute('aria-busy','false');img.hidden=false;$('pageLabel').textContent='Page '+n+' of '+total;warm(n+1);warm(n+2);warm(n-1)}};
+      img.onload=()=>{if(request===current){$('bookStatus').hidden=true;frame.classList.remove('is-loading');frame.setAttribute('aria-busy','false');img.hidden=false;$('pageLabel').textContent='Page '+n+' of '+total;warm(n+1);warm(n+2);warm(n-1);if(navigated)frame.scrollIntoView({behavior:'smooth',block:'start'});showPeek();requestAnimationFrame(updateProgress)}};
       img.onerror=()=>{if(request===current)$('bookStatus').textContent='The page did not load. Try another page and return.'};
       img.alt='Page '+n+' of Zero To First 10 Million With AI Video';
       if(img.src===src && img.complete && img.naturalWidth)img.onload();
@@ -122,16 +140,16 @@
       if(request===current){$('bookStatus').hidden=false;$('bookStatus').textContent=error.message||'This page could not load.';frame.classList.remove('is-loading');frame.setAttribute('aria-busy','false')}
     }
   }
-  $('prevPage').onclick=()=>show(page-1);
-  $('nextPage').onclick=()=>show(page+1);
-  $('pageNumber').onchange=()=>show(Number($('pageNumber').value));
-  document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||$('contentsDialog').open)return;if(e.key==='ArrowRight')show(page+1);if(e.key==='ArrowLeft')show(page-1)});
+  $('prevPage').onclick=()=>show(page-1,true);
+  $('nextPage').onclick=()=>show(page+1,true);
+  $('pageNumber').onchange=()=>show(Number($('pageNumber').value),true);
+  document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||$('contentsDialog').open)return;if(e.key==='ArrowRight')show(page+1,true);if(e.key==='ArrowLeft')show(page-1,true)});
   const dialog=$('contentsDialog');
   for(const [title,n] of chapters){
     const button=document.createElement('button');button.type='button';
     const name=document.createElement('strong');name.textContent=title;
     const count=document.createElement('span');count.textContent=String(n);
-    button.append(name,count);button.onclick=()=>{dialog.close();show(n)};
+    button.append(name,count);button.onclick=()=>{dialog.close();show(n,true)};
     $('chapterList').append(button);
   }
   $('bookContents').onclick=()=>dialog.showModal();
