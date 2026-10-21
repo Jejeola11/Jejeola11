@@ -111,6 +111,7 @@ body.course-page *{font-family:"Montserrat",Arial,sans-serif}
   font-size:18px;line-height:1;font-weight:500;white-space:nowrap
 }
 .course-action.ghost{border:1.5px solid var(--course-line);background:rgba(0,16,18,.25);color:#fff}
+.course-action.ghost.copy-prompt{border:1px solid #eeffe0;background:var(--course-chrome);color:#071411;font-weight:700;cursor:pointer}
 .course-action.primary{border:0;background:var(--course-chrome);color:#071411;min-width:190px}
 .course-action.primary:disabled{opacity:.46}
 

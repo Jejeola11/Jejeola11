@@ -85,6 +85,7 @@ function configurePrimaryAction(lesson){
   const action=$('lessonPrimaryAction');
   if(!action)return;
   action.onclick=null;
+  action.classList.toggle('copy-prompt',Boolean(lesson.copyPrompt));
   if(lesson.copyPrompt){
     action.removeAttribute('href');
     action.setAttribute('role','button');

@@ -20,6 +20,38 @@
     ['Build your next 30-day plan', 'Submit your tracker, pipeline and next 30-day action plan.']
   ];
   const resources = window.FUSE_CHALLENGE_RESOURCES || [];
+  const dayThreePortfolioPrompt = `Act as a portfolio strategist, copywriter and website builder for an AI video creator.
+
+I am attaching my actual work. I will also give you my completed Day 1 and Day 2 assignments below. Use those answers as the source of truth.
+
+DAY 1 — MY CURRENT SKILL AND PROOF
+[PASTE YOUR COMPLETED DAY 1 ANSWERS]
+
+DAY 2 — MY BUYER AND OFFER
+[PASTE YOUR COMPLETED DAY 2 ANSWERS]
+
+MY ATTACHED WORK
+Check the uploaded projects or here are the links to my work 👇
+
+Build a professional, mobile-first portfolio that helps my chosen buyer understand my work and contact me.
+
+First, review my answers and propose:
+1. A clear headline and short introduction.
+2. The best order for my work based on the buyer I chose.
+3. A short case study for each selected video: brief, approach, what I made, and what it demonstrates.
+4. My service section using the exact scope and starting price I provided.
+5. One clear call to action.
+
+Accuracy rules:
+- Do not invent clients, testimonials, views, sales, conversion results or years of experience.
+- Do not imply that a brand commissioned a concept unless I confirm it.
+- Do not change my price, deliverables, turnaround or revision terms.
+- If essential information is missing, mark it for my review instead of guessing.
+- Use my real uploaded videos and approved images. Do not replace them with generated samples.
+
+After I approve the copy, build the responsive portfolio page. Give each video a clear title and short case study. Make playback and the contact button work. If a contact form needs a backend to send messages, tell me that clearly and do not pretend the form is connected. Show me how to preview and publish the finished page.
+
+Search Online and the web for design inspirations`;
   const modules = [{
     key:'challenge-start', title:'Start here', kicker:'Orientation', lessons:[{
       key:'challenge-start', title:'Welcome to the 14-Day AI Video Client Challenge',
@@ -32,7 +64,8 @@
     modules.push({key:`challenge-day-${day}`,title:`Day ${day} · ${title}`,kicker:`Day ${day}`,lessons:[{
       key:`challenge-day-${day}`,title:`Day ${day}: ${title}`,
       learnText:`Today's focus: ${title}. Watch the lesson, study the example and apply it to your own AI video service.`,
-      actionText:action
+      actionText:action,
+      ...(day===3 ? {copyPrompt:dayThreePortfolioPrompt} : {})
     }]});
   });
   modules.push({
