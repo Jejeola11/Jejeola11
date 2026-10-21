@@ -5,7 +5,14 @@
   const status=document.getElementById('courseStatus');
   const nameEl=document.getElementById('academyName');
   // Fill these with the individual Nestuge checkout URLs once Ria provides them.
-  const checkoutUrls={ebook:'',challenge:'',money:'',video:'',landing:'',design:''};
+  const checkoutUrls={
+    ebook:'https://nestuge.com/zero-to-10million',
+    challenge:'https://nestuge.com/challenge_academy_offer',
+    money:'https://nestuge.com/academy_money_engine',
+    video:'', // Awaiting the AI UGC checkout URL; the supplied URL is for Landing Page Design.
+    landing:'https://nestuge.com/academy_landing_page',
+    design:'https://nestuge.com/academy_campain_flyer'
+  };
 
   const storedName=(localStorage.getItem('fuse_display_name')||'').trim();
   if(storedName) nameEl.textContent=storedName;
