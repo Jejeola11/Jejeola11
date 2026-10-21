@@ -61,6 +61,12 @@
       const cta=row.querySelector('.academy-start');
       if(cta) cta.textContent=allowed?'Start':'Unlock · ₦'+(course==='challenge'?'15,000':'4900');
     });
+    const list=document.querySelector('.academy-cards');
+    if(list){
+      // Moving existing nodes keeps their click handlers and their original order within each group.
+      rows.filter(row=>hasCourseAccess(row.dataset.course)).forEach(row=>list.appendChild(row));
+      rows.filter(row=>!hasCourseAccess(row.dataset.course)).forEach(row=>list.appendChild(row));
+    }
   }
 
   async function loadAccess({keepStatus=false}={}){
