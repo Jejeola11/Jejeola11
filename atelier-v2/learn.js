@@ -9,7 +9,7 @@
     ebook:'https://nestuge.com/zero-to-10million',
     challenge:'https://nestuge.com/challenge_academy_offer',
     money:'https://nestuge.com/academy_money_engine',
-    video:'', // Awaiting the AI UGC checkout URL; the supplied URL is for Landing Page Design.
+    video:'https://nestuge.com/academy_ugc_offer',
     landing:'https://nestuge.com/academy_landing_page',
     design:'https://nestuge.com/academy_campain_flyer'
   };
