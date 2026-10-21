@@ -23,3 +23,5 @@
 html{scrollbar-color:#dfff4e #062125;scrollbar-width:auto}
 ::-webkit-scrollbar{width:10px}::-webkit-scrollbar-track{background:#062125}::-webkit-scrollbar-thumb{background:#dfff4e;border-radius:9px}
 @media(prefers-reduced-motion:reduce){.action-peek{animation:none}}
+.book-action a.secondary-action{margin:10px 0 0 9px;border:1px solid #dfff4e;background:transparent;color:#dfff4e}
+@media(max-width:520px){.book-action a.secondary-action{margin-left:0;display:flex;width:max-content;max-width:100%}}

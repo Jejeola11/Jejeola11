@@ -10,6 +10,15 @@
     $('planList').replaceChildren(...data.plan.map(p=>card('DAYS '+p.days,p.focus,[['Your move:',p.action]])));
     $('pitchList').replaceChildren(...data.pitches.map(p=>card('MESSAGE TEMPLATE',p.name,[['Customize:',p.message]])));
     $('sampleList').replaceChildren(...data.sample_method.map(step=>el('li','',step)));
-    document.querySelectorAll('nav button').forEach(button=>button.onclick=()=>{document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('selected',b===button));document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!==button.dataset.tab)});
+    function selectTab(id){
+      document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('selected',b.dataset.tab===id));
+      document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!==id);
+      document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});
+    }
+    document.querySelectorAll('nav button').forEach(button=>button.onclick=()=>selectTab(button.dataset.tab));
+    $('pathProof').onclick=()=>{selectTab('briefs');$('level').value='All';draw();$('level').focus({preventScroll:true})};
+    $('pathClients').onclick=()=>selectTab('plan');
+    const requested=new URLSearchParams(location.search).get('tab');
+    if(['briefs','plan','pitches','sample','community'].includes(requested))selectTab(requested);
   }catch(e){$('status').textContent=e.message||'Could not open the resources.'}
 })();

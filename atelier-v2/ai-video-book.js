@@ -37,7 +37,22 @@
       action.innerHTML='<strong>Keep learning with other AI creators</strong><p>Join Ria’s AI community for ideas and conversations as you work through the guide.</p><a href="https://chat.whatsapp.com/KKbt2aqTSP9D0YgcODf7Sy?s=cl&amp;p=a&amp;mlu=4&amp;ilr=4" target="_blank" rel="noopener noreferrer">Join the AI community ↗</a>';
       action.hidden=false;
     }else if(n<=10){
-      action.innerHTML='<strong>Enjoyed your first video exercise?</strong><p>Learn AI UGC and creator-style videos more deeply in the AI UGC &amp; Influencer course for ₦4,900.</p><a href="https://nestuge.com/academy_ugc_offer" target="_blank" rel="noopener noreferrer">Explore the AI UGC course ↗</a>';
+      action.innerHTML='<strong>Your first win: finish one 20-second spec concept</strong><p>Use the brief, script, edit and quality check on pages 8–10. The book gives you enough to complete this exercise. If creator-style video is the skill you want to develop further, explore the full AI UGC course for ₦4,900.</p><a href="https://nestuge.com/academy_ugc_offer" target="_blank" rel="noopener noreferrer">Explore the AI UGC course ↗</a>';
+      action.hidden=false;
+    }else if(n===16){
+      action.innerHTML='<strong>Choose one route for your next 30 days</strong><p>Client projects, audience partnerships and selling your own products need different proof. Pick a buyer and one small test instead of trying all seven routes at once.</p><a href="ai-video-book-resources.html?tab=plan">Open the 30-day plan →</a>';
+      action.hidden=false;
+    }else if(n===18){
+      action.innerHTML='<strong>Build proof for the buyer you chose</strong><p>Choose one practice brief, create a clearly labelled concept, then check the product details, claims and final export before adding it to your portfolio.</p><a href="ai-video-book-resources.html?tab=briefs">Choose a practice brief →</a>';
+      action.hidden=false;
+    }else if(n===22){
+      action.innerHTML='<strong>Launch a simple, working portfolio</strong><p>Use your real videos and case studies. Test playback and the contact button on another phone. Your first page can be simple; the Landing Page course is available if you want to build more professionally.</p><a href="https://nestuge.com/academy_landing_page" target="_blank" rel="noopener noreferrer">Explore the Landing Page course ↗</a>';
+      action.hidden=false;
+    }else if(n===29){
+      action.innerHTML='<strong>Turn your offer into conversations</strong><p>Use the ask-first and sample-first examples in your included resources. If you want daily tasks and personal review as you practice outreach, the 14-Day AI Client Challenge is the supported next step.</p><a href="ai-video-book-resources.html?tab=pitches">Use the included pitch examples →</a><a class="secondary-action" href="https://nestuge.com/challenge_academy_offer" target="_blank" rel="noopener noreferrer">Explore the 14-Day Challenge ↗</a>';
+      action.hidden=false;
+    }else if(n===41||n===45){
+      action.innerHTML='<strong>Put your next 30 days into motion</strong><p>Choose one buyer, make two relevant proofs, publish a portfolio, research prospects, start conversations and review what happens. A paid client is a goal, not a promised deadline.</p><a href="ai-video-book-resources.html?tab=plan">Open your action plan →</a>';
       action.hidden=false;
     }else{action.hidden=true;action.replaceChildren()}
     cue.hidden=action.hidden;peek.hidden=true;
