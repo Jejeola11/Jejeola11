@@ -107,7 +107,7 @@
           row.querySelector('.academy-start').textContent='View the book';
         }else{
           label?.remove();
-          row.querySelector('.academy-start').textContent='Read the book';
+          row.querySelector('.academy-start').textContent='Start';
         }
         return;
       }
