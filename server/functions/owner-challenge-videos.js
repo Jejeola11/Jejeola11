@@ -1,6 +1,6 @@
 const {admin,getUser,json}=require('./_supabase');
 const OWNER_EMAIL='riadigitals0@gmail.com';
-const KEYS=['challenge-start',...Array.from({length:14},(_,i)=>`challenge-day-${i+1}`)];
+const KEYS=['challenge-start',...Array.from({length:14},(_,i)=>`challenge-day-${i+1}`),'challenge-day-4-part-2'];
 
 exports.handler=async event=>{
   try{
