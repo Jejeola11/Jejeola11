@@ -91,7 +91,7 @@ exports.handler = async (event) => {
     const lessonKey = String(body.lesson_key || '').trim();
     if (!lessonKey) return json(400, { error: 'Missing lesson_key' });
 
-    const challengeLesson = lessonKey === 'challenge-start' || /^challenge-day-(?:[1-9]|1[0-4])$/.test(lessonKey);
+    const challengeLesson = lessonKey === 'challenge-start' || /^challenge-day-(?:[1-9]|1[0-4])$/.test(lessonKey) || lessonKey === 'challenge-day-4-part-2';
     const access = challengeLesson
       ? {tier:1,module:'ai-video-client-challenge'}
       : CURRENT_ACADEMY_ACCESS[lessonKey] || LESSON_ACCESS[lessonKey] || MONEY_ACCESS[lessonKey];
