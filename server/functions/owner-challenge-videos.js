@@ -1,6 +1,6 @@
 const {admin,getUser,json}=require('./_supabase');
 const OWNER_EMAIL='riadigitals0@gmail.com';
-const KEYS=['challenge-start',...Array.from({length:14},(_,i)=>`challenge-day-${i+1}`),'challenge-day-4-part-2'];
+const KEYS=['challenge-start',...Array.from({length:14},(_,i)=>`challenge-day-${i+1}`).flatMap(key=>key==='challenge-day-4'?[key,'challenge-day-4-part-2']:[key])];
 
 exports.handler=async event=>{
   try{
