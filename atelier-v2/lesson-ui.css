@@ -104,6 +104,14 @@ body.course-page *{font-family:"Montserrat",Arial,sans-serif}
 }
 .action-card h3{margin:0 0 11px;font-size:17px;line-height:1.35;font-weight:500;color:#f1f7ef}
 .action-card p{margin:0;color:#edf4f0;font-size:16px;line-height:1.65;font-weight:300}
+.challenge-goal{margin-top:18px;display:grid;gap:10px}
+.challenge-goal[hidden]{display:none!important}
+.challenge-goal label{font-size:14px;font-weight:500;color:#eeffe0}
+.challenge-goal textarea{width:100%;min-height:106px;resize:vertical;border:1px solid #315456;border-radius:14px;background:#062125;color:#fff;padding:13px;font:inherit;font-size:14px;line-height:1.5}
+.challenge-goal textarea:focus{outline:2px solid #dfff4e;outline-offset:2px}
+.challenge-goal-footer{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.challenge-goal-footer button{border:0;border-radius:999px;background:var(--course-chrome);color:#001012;padding:12px 19px;font:inherit;font-size:14px;font-weight:600}
+.challenge-goal-footer span{font-size:12px;color:#dfff4e}
 
 .course-actions{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:36px 0 18px}
 .course-action{
