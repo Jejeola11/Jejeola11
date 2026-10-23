@@ -305,7 +305,7 @@
       const data=await challengeRequest('GET');
       $('challengeVideoList').replaceChildren(...(data.lessons||[]).map(lesson=>{
         const row=document.createElement('div');row.className='challenge-video-row';
-        const title=lesson.key==='challenge-start'?'Start here':lesson.key==='challenge-day-4'?'Day 4 · Part 1':lesson.key==='challenge-day-4-part-2'?'Day 4 · Part 2':'Day '+lesson.key.replace('challenge-day-','');
+        const title=lesson.key==='challenge-start'?'Start here':lesson.key==='challenge-day-4'?'Day 4 · Build your Upwork profile':lesson.key==='challenge-day-5'?'Day 5 · Find jobs, research clients and pitch':'Day '+lesson.key.replace('challenge-day-','');
         const label=document.createElement('label');label.textContent=title;
         const note=document.createElement('small');note.textContent=lesson.url?'Video connected':'Awaiting recording';label.appendChild(note);
         const input=document.createElement('input');input.type='url';input.placeholder='Paste YouTube, Cloudinary or Drive video URL';input.value=lesson.url||'';input.setAttribute('aria-label',title+' video URL');
