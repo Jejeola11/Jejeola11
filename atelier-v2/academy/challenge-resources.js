@@ -4,26 +4,76 @@
   window.FUSE_CHALLENGE_RESOURCES = [
     {
       key:'challenge-resource-roadmap', title:'Your 14-day action map',
-      intro:'This is your map for the challenge. Watch the daily lesson, make the thing it asks for, then submit proof of that action at check-in. A lesson watched without action is still unfinished work.',
+      intro:'Use this as your working checklist. Watch the lesson, complete the task, share your work at check-in, then tick it off here. Your ticks are saved on this device.',
       sections:[
-        ['Days 1–3 · Build something sellable','Choose one AI video service and one buyer. Write a small offer with a clear deliverable, turnaround and starting price. Assemble two examples you can honestly call samples. A sample is your own concept unless a client actually commissioned it.'],
-        ['Days 4–7 · Find and approach real buyers','Research businesses already promoting something, launching, hiring or posting consistently. Record what you observed and where you saw it. Identify a public business contact, choose ask-first or sample-first, then send specific messages that connect your video service to their current goal.'],
+        ['Days 1–5 · The foundation you have actually built','Day 1: review three videos, choose your strongest and name a buyer. Day 2: define one buyer, their concerns, a clear package, costs, price and offer statement. Day 3: turn your best work and those answers into a working mobile portfolio with honest case studies. Day 4: use that proof to write and publish your Upwork profile and draft a suitable proposal. Day 5: finish the profile, verify two jobs that fit and send two tailored proposals. Tick the detailed list below only after doing the work.'],
+        ['Days 6–7 · Find and approach real buyers','Research businesses with a current reason to talk. Record what you saw and its source. Choose ask-first or an existing relevant sample for each prospect, then send specific messages that connect your video service to their goal.'],
         ['Days 8–10 · Turn replies into a brief and quote','Follow up politely. When someone replies, ask about the audience, offer, desired action, usage, assets and deadline. Summarize the brief before promising a deliverable. Send a written quote with price, scope, revisions and payment terms.'],
         ['Days 11–14 · Improve and keep going','Handle questions, deliver agreed work well, review the numbers in your tracker and plan the next 30 days. If you complete the daily tasks and 50 researched pitches but have no paid foreign client by Day 14, the offer includes 14 additional days of support under the programme terms.'],
         ['Your three review checkpoints','Checkpoint 1: offer and portfolio. Checkpoint 2: prospects and first pitches. Checkpoint 3: replies, quotes, pipeline and next step. Bring links or screenshots and one specific question so feedback can be useful.']
       ],
-      template:'MY 14-DAY TARGET\nService I will sell: [one clear AI video service]\nBuyer I will approach: [specific type of business]\nMy two portfolio samples: [links]\nDaily work time: [time block]\nReview checkpoint question: [one problem I need help solving]'
+      checklist:[
+        ['Day 1','I reviewed three videos, chose my strongest, named a buyer and shared my check-in.'],
+        ['Day 2','I wrote one offer with buyer, three concerns, scope, inputs, turnaround, revisions and a price checked against my costs.'],
+        ['Day 3','I published my portfolio, labelled concept work honestly, tested it on my phone and shared its link.'],
+        ['Day 4','I drafted and published my Upwork profile using my real offer and portfolio, then prepared one suitable proposal.'],
+        ['Day 5','I shared my profile link, verified two fitting jobs and sent two tailored proposals.'],
+        ['Day 6','I compared ask-first, existing sample-first and paid-test approaches for specific prospects.'],
+        ['Day 7','I sent researched first messages and logged who I contacted and why.'],
+        ['Day 8','I followed up appropriately and recorded the replies or lack of replies.'],
+        ['Day 9','I asked discovery questions and summarized a real or practice brief.'],
+        ['Day 10','I drafted a written quote with exact scope, price, revisions and payment terms.'],
+        ['Day 11','I practiced responding to the objections I actually received.'],
+        ['Day 12','I confirmed a clear delivery plan or rehearsed one with a practice brief.'],
+        ['Day 13','I reviewed my tracker and improved one weak step in my outreach.'],
+        ['Day 14','I submitted my pipeline and wrote my next 30-day action plan.']
+      ],
+      template:'MY 14-DAY TARGET\nService I will sell: [one clear AI video service]\nBuyer I will approach: [specific type of business]\nStrongest portfolio work: [link]\nPublished portfolio: [link]\nUpwork profile: [link]\nDaily work time: [time block]\nReview checkpoint question: [one problem I need help solving]'
     },
     {
       key:'challenge-resource-offer', title:'Offer and portfolio builder',
-      intro:'A buyer needs to understand what you make, who it is for and what they receive. “I do AI videos” is a skill. A defined offer gives them something to consider buying.',
+      intro:'Build one service a buyer can understand, then show work that proves you can deliver it. Use your completed Day 1 and Day 2 tasks. The portfolio prompt below is the same one used in your Day 3 lesson.',
       sections:[
-        ['Start with one buyer and one use','For example, an independent skincare brand launching a serum might need a 15-second vertical product video for Reels and ads. Your job is to explain that use clearly, not claim that every brand has the same problem.'],
-        ['Define the package','Specify length, aspect ratio, number of concepts, voiceover or captions, files, revision round, turnaround and what the client must supply. Price the whole scope. If extra versions or source files cost more, say so before work begins.'],
-        ['Show honest proof','Choose two relevant pieces. For each, add a short caption: what the brief was, what you made, your role and what a similar brand could use it for. Label self-initiated pieces as concept work. Never invent sales, ad spend or conversion results.'],
-        ['Example · fictional teaching brand','Luma Glow is a fictional skincare brand in this course. Offer: one 15-second vertical launch video, one hook, product supplied by client, captions and one revision round. Example starting quote: $150, subject to the final brief and your costs. This is a practice example, not a price you must copy.']
+        ['1 · Choose a buyer with a reason to spend','Name one type of business you can find and understand. Look for an actual video use: explaining a new product, showing how it works, testing ad hooks or presenting a founder. Do not assume every business has the same problem. Write: “I help [buyer] make [video] for [specific use].”'],
+        ['2 · Map the result and the friction','What does the buyer hope the video helps them do? What makes them doubt it will work? What slows them down: scripting, footage, production, approvals or editing? List at least three concerns from your Day 2 task. Match each concern with a concrete part of your service: an approved script, relevant sample, simple asset checklist, first review point or clear delivery date. The offer should feel easier to start and easier to trust, without promising sales you cannot control.'],
+        ['3 · Turn the solution into a bounded package','State the number and length of videos, aspect ratios, hooks, script, voice, captions, exports, client assets, approval points, revision rounds and delivery time. Pick the pieces that matter to this buyer; extra deliverables add cost and complexity. Say what is excluded and how additional work is priced.'],
+        ['4 · Price it for a healthy margin','Estimate generation and editing costs, your hours, possible rework, platform/payment fees and profit. Your starting price must cover the defined package. Do not paste an example price from somebody else. If the scope changes, show the price change before production.'],
+        ['5 · Reduce buyer risk with proof and process','Choose your strongest relevant work. Describe each as: brief or concept, approach, your contribution, finished deliverable and what it demonstrates. Clearly label practice concepts. Show how the project runs: brief → script approval → production → review → final files. Give a reasonable first milestone the buyer can evaluate.'],
+        ['6 · Write a promise you can deliver','A useful offer says who it is for, what they receive, when and what is required from them. You can commit to agreed files and revision terms; you cannot guarantee views, purchases or a “viral” result. Only offer a bonus, deadline or guarantee if you can really honor it.'],
+        ['Use the Day 3 prompt with ChatGPT or Claude','Copy the portfolio prompt below. Replace both assignment brackets with your completed answers. Upload your real videos or add working links. Ask for the copy first, correct anything inaccurate, then explicitly approve the page build. Open the result on your phone and test each video and contact button before you publish.']
       ],
-      template:'I help [specific buyer] create [specific video] for [specific purpose].\nDeliverables: [length, format, number of versions].\nYou provide: [product photos, logo, facts, permissions].\nI handle: [script, generation, edit, captions].\nTimeline: [number of business days after assets/approval].\nIncludes: [number of revision rounds].\nStarting price: [your justified figure].\nProof: [two honest sample links].'
+      template:`Act as a portfolio strategist, copywriter and website builder for an AI video creator.
+
+I am attaching my actual work. I will also give you my completed Day 1 and Day 2 assignments below. Use those answers as the source of truth.
+
+DAY 1 — MY CURRENT SKILL AND PROOF
+[PASTE YOUR COMPLETED DAY 1 ANSWERS]
+
+DAY 2 — MY BUYER AND OFFER
+[PASTE YOUR COMPLETED DAY 2 ANSWERS]
+
+MY ATTACHED WORK
+Check the uploaded projects or here are the links to my work 👇
+
+Build a professional, mobile-first portfolio that helps my chosen buyer understand my work and contact me.
+
+First, review my answers and propose:
+1. A clear headline and short introduction.
+2. The best order for my work based on the buyer I chose.
+3. A short case study for each selected video: brief, approach, what I made, and what it demonstrates.
+4. My service section using the exact scope and starting price I provided.
+5. One clear call to action.
+
+Accuracy rules:
+- Do not invent clients, testimonials, views, sales, conversion results or years of experience.
+- Do not imply that a brand commissioned a concept unless I confirm it.
+- Do not change my price, deliverables, turnaround or revision terms.
+- If essential information is missing, mark it for my review instead of guessing.
+- Use my real uploaded videos and approved images. Do not replace them with generated samples.
+
+After I approve the copy, build the responsive portfolio page. Give each video a clear title and short case study. Make playback and the contact button work. If a contact form needs a backend to send messages, tell me that clearly and do not pretend the form is connected. Show me how to preview and publish the finished page.
+
+Search Online and the web for design inspirations`
     },
     {
       key:'challenge-resource-prospects', title:'Prospect research and contact guide',
