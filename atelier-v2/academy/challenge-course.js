@@ -150,8 +150,8 @@ ACCURACY RULES
   const modules = [{
     key:'challenge-start', title:'Start here', kicker:'Orientation', lessons:[{
       key:'challenge-start', title:'Welcome to the 14-Day AI Video Client Challenge',
-      learnText:'See the daily rhythm: watch the lesson, complete the action, share your work at check-in and bring it to the three review checkpoints.',
-      actionText:'Set up your prospect tracker, portfolio folder and a daily time block. The teaching deck is your recording and reference guide.'
+      learnText:'Meet Ria, understand where you are now and what you are building over the next 14 days. Learn the daily rhythm: watch, do the task, share your work and use the review checkpoints.',
+      actionText:'Write your personal goal for these 14 days in the box below and save it. Be specific about the skill, offer or client action you want to work toward.'
     }]
   }];
   days.forEach(([title, action], index) => {
@@ -160,8 +160,8 @@ ACCURACY RULES
       modules.push({key:'challenge-day-4',title:'Day 4 · Build your Upwork profile',kicker:'Day 4',lessons:[
         {
           key:'challenge-day-4',title:'Day 4: Build your Upwork profile',
-          learnText:'Use your Day 1 skill audit, Day 2 offer and Day 3 portfolio to write a truthful, buyer-focused Upwork profile.',
-          actionText:'Paste your completed assignments and portfolio into ChatGPT using the prompt below. Review its title, overview, skills and project descriptions before publishing.',
+          learnText:'Use your Day 1 skill, Day 2 offer and Day 3 portfolio to build an Upwork profile that clearly shows what you can do. Learn how to look for relevant jobs and tailor a proposal to the brief.',
+          actionText:'Copy the prompt below. Add your real Day 1 and Day 2 answers and portfolio link. Edit the drafted title, overview and projects before publishing your profile. Find one suitable job and draft one proposal.',
           copyPrompt:dayFourUpworkPrompt
         }
       ]});
@@ -170,15 +170,15 @@ ACCURACY RULES
     if(day===5){
       modules.push({key:'challenge-day-5',title:'Day 5 · Find suitable jobs, research clients and pitch',kicker:'Day 5',lessons:[{
         key:'challenge-day-5',title:'Day 5: Find suitable jobs, research clients and pitch',
-        learnText:'Continue from Day 4. Search for jobs that match your actual service, check the brief and client, and choose an ask-first proposal, an existing sample or a defined paid test. Verify the right contact and channel when researching businesses independently.',
-        actionText:'Find three suitable jobs, record why each fits and what needs clarification, then prepare one tailored proposal using your Day 4 profile and portfolio.'
+        learnText:'Continue the Upwork work from Day 4. Check each job against your skill, portfolio and the client’s requirements, then research enough to write a specific pitch.',
+        actionText:'Finish your Upwork profile and share its link in the group. Find two verified jobs that fit your offer and send two tailored proposals. Share the job links and the approach you used at check-in.'
       }]});
       return;
     }
     modules.push({key:`challenge-day-${day}`,title:`Day ${day} · ${title}`,kicker:`Day ${day}`,lessons:[{
       key:`challenge-day-${day}`,title:`Day ${day}: ${title}`,
-      learnText:`Today's focus: ${title}. Watch the lesson, study the example and apply it to your own AI video service.`,
-      actionText:action,
+      learnText:day===1?'Assess the AI videos you can create now, the businesses they could help and the work you would feel confident showing a client.':day===2?'Turn one AI video skill into a clear service: choose a buyer, understand their concerns, define the deliverables and price it with your costs in mind.':day===3?'Use your strongest work and your Day 1 and Day 2 answers to build a simple portfolio with ChatGPT or Claude, then check that a client can view it on a phone.':`Today's focus: ${title}. Watch the lesson, study the example and apply it to your own AI video service.`,
+      actionText:day===1?'Review three AI videos you made. For each, note what works, what you would improve and which business could use it. Choose your strongest one. In the group, share your video type, target business, strongest video link or upload, and one thing to improve.':day===2?'Choose one business type and what they need your video for. List three hiring concerns and your answers. Define one package: length, format, deliverables, client inputs, turnaround, revisions and starting price after costs. Write a short offer statement and share your draft in the group.':day===3?'Choose up to three strong videos and write a short, honest case study for each. Label practice work as a concept. Use your Day 1 and Day 2 answers to build a portfolio with ChatGPT or Claude. Test it on your phone: videos, readability and contact button. Share the link in the group before 8 PM.':action,
       ...(day===3 ? {copyPrompt:dayThreePortfolioPrompt} : {})
     }]});
   });
