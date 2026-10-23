@@ -74,6 +74,14 @@ body.course-page *{font-family:"Montserrat",Arial,sans-serif}
 .resource-section p{font-size:16px;line-height:1.75;color:#eef8f4;margin:0}
 .resource-template pre{white-space:pre-wrap;overflow-wrap:anywhere;font:500 15px/1.7 Montserrat,Arial,sans-serif;color:#fff;background:#001012;border:1px solid #315456;border-radius:14px;padding:18px;margin:0 0 16px}
 .resource-template button{border:0;border-radius:999px;background:var(--course-chrome);color:#001012;padding:13px 20px;font-size:15px;font-weight:700}
+.resource-checklist{border:1px solid rgba(223,255,78,.42);border-radius:22px;background:linear-gradient(145deg,#062125,#00191b);padding:24px}
+.resource-checklist h2{color:#dfff4e;font-size:19px;margin:0 0 8px}
+.resource-progress{color:#eeffe0;font-size:14px;margin:0 0 16px}
+.resource-checklist-items{display:grid;gap:10px}
+.resource-check-item{display:flex;align-items:flex-start;gap:12px;padding:13px;border:1px solid #315456;border-radius:14px;color:#eeffe0;line-height:1.5;font-size:14px;cursor:pointer}
+.resource-check-item input{flex:none;width:20px;height:20px;margin:2px 0 0;accent-color:#dfff4e}
+.resource-check-item strong{display:block;color:#dfff4e;margin-bottom:3px}
+.resource-check-item:has(input:checked){border-color:#dfff4e;background:rgba(223,255,78,.08)}
 @media(max-width:700px){.resource-intro,.resource-section,.resource-template{padding:19px}.resource-intro{font-size:16px}.resource-section p{font-size:15px}}
 .lesson-player-v2 iframe,.lesson-player-v2 video{
   width:100%;height:100%;display:block;border:0;background:#020807;object-fit:contain
