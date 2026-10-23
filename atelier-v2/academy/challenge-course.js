@@ -7,8 +7,8 @@
     ['Are you ready to sell your skill?', 'Audit your current work and choose one publishable sample.'],
     ['Build a service people can buy', 'Write your buyer, deliverables, scope and starting price.'],
     ['Make your portfolio prove the offer', 'Prepare two honest samples and your portfolio link.'],
-    ['Set up Upwork, find clients and pitch', 'Set up your profile, research suitable jobs and prepare a tailored proposal.'],
-    ['Find the right contact and channel', 'Verify the person, their role and a public contact route.'],
+    ['Build your Upwork profile', 'Set up your profile using your Day 1 skill audit, Day 2 offer and Day 3 portfolio.'],
+    ['Find suitable jobs, research clients and pitch', 'Find three suitable jobs, verify the client and requirements, then prepare one tailored proposal.'],
     ['Choose ask-first or sample-first', 'Match your approach to the prospect and prepare the right concept.'],
     ['Send a first message that starts a conversation', 'Send five researched, personalized first messages.'],
     ['Read replies and follow up', 'Respond to real replies and follow up without inventing urgency.'],
@@ -157,19 +157,22 @@ ACCURACY RULES
   days.forEach(([title, action], index) => {
     const day = index + 1;
     if(day===4){
-      modules.push({key:'challenge-day-4',title:'Day 4 · Set up Upwork, find clients and pitch',kicker:'Day 4',lessons:[
+      modules.push({key:'challenge-day-4',title:'Day 4 · Build your Upwork profile',kicker:'Day 4',lessons:[
         {
-          key:'challenge-day-4',title:'Part 1 · Set up your Upwork profile',
+          key:'challenge-day-4',title:'Day 4: Build your Upwork profile',
           learnText:'Use your Day 1 skill audit, Day 2 offer and Day 3 portfolio to write a truthful, buyer-focused Upwork profile.',
           actionText:'Paste your completed assignments and portfolio into ChatGPT using the prompt below. Review its title, overview, skills and project descriptions before publishing.',
           copyPrompt:dayFourUpworkPrompt
-        },
-        {
-          key:'challenge-day-4-part-2',title:'Part 2 · Find suitable jobs and pitch',
-          learnText:'Search for jobs that match your actual service, research the brief, and choose an ask-first proposal, an existing sample or a defined paid test.',
-          actionText:'Find three suitable jobs, record why each is a fit, and prepare one tailored proposal using the profile and portfolio from Part 1.'
         }
       ]});
+      return;
+    }
+    if(day===5){
+      modules.push({key:'challenge-day-5',title:'Day 5 · Find suitable jobs, research clients and pitch',kicker:'Day 5',lessons:[{
+        key:'challenge-day-5',title:'Day 5: Find suitable jobs, research clients and pitch',
+        learnText:'Continue from Day 4. Search for jobs that match your actual service, check the brief and client, and choose an ask-first proposal, an existing sample or a defined paid test. Verify the right contact and channel when researching businesses independently.',
+        actionText:'Find three suitable jobs, record why each fits and what needs clarification, then prepare one tailored proposal using your Day 4 profile and portfolio.'
+      }]});
       return;
     }
     modules.push({key:`challenge-day-${day}`,title:`Day ${day} · ${title}`,kicker:`Day ${day}`,lessons:[{
