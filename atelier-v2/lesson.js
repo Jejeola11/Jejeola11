@@ -107,11 +107,11 @@ function configurePrimaryAction(lesson){
       if(e.key==='Enter'||e.key===' '){e.preventDefault();action.click()}
     };
   }else{
-    action.href='studio.html';
+    action.href=key==='challenge'?'https://chat.whatsapp.com/GA9gmiqaep4E0pusRxrazP?s=cl&p=a&mlu=4&ilr=4':'studio.html';
     action.removeAttribute('role');
     action.removeAttribute('tabindex');
     action.onkeydown=null;
-    action.textContent='Try it in Create ↗';
+    action.textContent=key==='challenge'?'Submit your task ↗':'Try it in Create ↗';
   }
 }
 
@@ -251,6 +251,14 @@ async function open(i,scroll=false){
   const topic=cleanTopic(lesson.title);
   $('learnCopy').textContent=lesson.learnText||('In this lesson, '+topic+' is broken into a clear, practical workflow you can apply immediately.');
   $('actionCopy').textContent=lesson.actionText||('Pause and apply the key idea from “'+lesson.title+'” before you continue.');
+  $('actionHeading').textContent=key==='challenge'&&lesson.kind!=='resource'?'Do this task today':'Next action step';
+  $('challengeGoal').hidden=!(key==='challenge'&&lesson.key==='challenge-start');
+  if(!$('challengeGoal').hidden){
+    $('challengeGoalStatus').textContent='Loading your saved goal…';
+    Fuse.api('challenge-goals').then(data=>{
+      if(index===i){$('challengeGoalText').value=data.goal||'';$('challengeGoalStatus').textContent=data.goal?'Saved goal loaded.':''}
+    }).catch(error=>{if(index===i)$('challengeGoalStatus').textContent=error.message});
+  }
   $('nextLesson').disabled=i>=lessons.length-1;
   history.replaceState(null,'','?course='+encodeURIComponent(key)+'&lesson='+encodeURIComponent(lesson.key));
   renderDrawer();
@@ -314,6 +322,15 @@ $('drawerBackdrop').onclick=closeDrawer;
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
 $('retryLesson').onclick=()=>index>=0&&loadVideo(lessons[index],++requestVersion);
 $('nextLesson').onclick=()=>{if(index<lessons.length-1)open(index+1,true)};
+$('saveChallengeGoal').onclick=async()=>{
+  const button=$('saveChallengeGoal'),status=$('challengeGoalStatus');
+  const goal=$('challengeGoalText').value.trim();
+  if(!goal){status.textContent='Write your goal first.';return}
+  button.disabled=true;status.textContent='Saving…';
+  try{await Fuse.api('challenge-goals',{goal});status.textContent='Saved. Coach Ria can see your goal.'}
+  catch(error){status.textContent=error.message||'Could not save. Please try again.'}
+  finally{button.disabled=false}
+};
 
 let selected=lessons.findIndex(l=>l.key===requestedLesson);
 if(selected<0)selected=0;
