@@ -467,3 +467,6 @@ body.drawer-open .module-drawer{transform:translateX(0);visibility:visible;trans
 /* Let the lesson title lead every lesson page. */
 .course-kicker{display:none}
 .course-title{margin-top:0}
+
+/* Challenge task action matches the chrome next-lesson button. */
+.course-action.ghost[href^="https://chat.whatsapp.com/"]{border:1px solid #eeffe0;background:var(--course-chrome);color:#071411;font-weight:700}
