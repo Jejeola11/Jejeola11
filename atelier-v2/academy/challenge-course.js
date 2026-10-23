@@ -6,7 +6,7 @@
   const days = [
     ['Are you ready to sell your skill?', 'Audit your current work and choose one publishable sample.'],
     ['Build a service people can buy', 'Write your buyer, deliverables, scope and starting price.'],
-    ['Make your portfolio prove the offer', 'Prepare two honest samples and your portfolio link.'],
+    ['Build a professional portfolio that sells your offer', 'Show your strongest work with honest case studies and publish a working portfolio link.'],
     ['Build your Upwork profile', 'Set up your profile using your Day 1 skill audit, Day 2 offer and Day 3 portfolio.'],
     ['Find suitable jobs, research clients and pitch', 'Find three suitable jobs, verify the client and requirements, then prepare one tailored proposal.'],
     ['Choose ask-first or sample-first', 'Match your approach to the prospect and prepare the right concept.'],
