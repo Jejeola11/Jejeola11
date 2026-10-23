@@ -297,6 +297,29 @@ function renderResource(container,resource){
     const p=document.createElement('p');p.textContent=copy;
     section.append(h,p);container.append(section);
   });
+  if(Array.isArray(resource.checklist)){
+    const panel=document.createElement('section');panel.className='resource-checklist';
+    const heading=document.createElement('h2');heading.textContent='Mark each day complete';
+    const progress=document.createElement('p');progress.className='resource-progress';
+    const list=document.createElement('div');list.className='resource-checklist-items';
+    const storageKey='fuse_challenge_checklist_'+resource.key;
+    let saved={};
+    try{saved=JSON.parse(localStorage.getItem(storageKey)||'{}')||{}}catch{}
+    const update=()=>{
+      progress.textContent=`${resource.checklist.filter((_,i)=>saved[i]).length} of ${resource.checklist.length} days marked complete`;
+      try{localStorage.setItem(storageKey,JSON.stringify(saved))}catch{}
+    };
+    resource.checklist.forEach(([day,task],i)=>{
+      const label=document.createElement('label');label.className='resource-check-item';
+      const input=document.createElement('input');input.type='checkbox';input.checked=Boolean(saved[i]);
+      input.addEventListener('change',()=>{saved[i]=input.checked;update()});
+      const text=document.createElement('span');
+      const strong=document.createElement('strong');strong.textContent=day;
+      text.append(strong,document.createTextNode(task));
+      label.append(input,text);list.append(label);
+    });
+    panel.append(heading,progress,list);container.append(panel);update();
+  }
   const template=document.createElement('section');template.className='resource-template';
   const heading=document.createElement('h2');heading.textContent='Copy and make it yours';
   const pre=document.createElement('pre');pre.textContent=resource.template;
