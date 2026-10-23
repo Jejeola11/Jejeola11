@@ -132,6 +132,20 @@ function renderDrawer(){
   const nodes=modules.map((m,mi)=>{
     const wrap=document.createElement('section');
     wrap.className='drawer-module'+(m.isNew?' featured':'');
+    if(key==='challenge' && m.key!=='challenge-resources' && m.lessons?.length===1){
+      const lesson=m.lessons[0];
+      const lessonIndex=moduleStartIndex(mi);
+      const row=document.createElement('button');
+      row.type='button';row.className='drawer-challenge-link';
+      if(lessonIndex===index)row.classList.add('current');
+      if(visited.has(lesson.key))row.classList.add('done');
+      const dot=document.createElement('span');dot.className='drawer-dot';dot.setAttribute('aria-hidden','true');
+      const title=document.createElement('span');title.className='drawer-module-title';title.textContent=m.title;
+      row.append(dot,title);
+      row.onclick=()=>{closeDrawer();open(lessonIndex,true)};
+      wrap.append(row);
+      return wrap;
+    }
     const head=document.createElement('button');
     head.type='button';head.className='drawer-module-head';
     const left=document.createElement('div');
