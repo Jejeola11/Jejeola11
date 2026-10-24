@@ -83,10 +83,12 @@ async function expandSources(sources){
 }
 async function submitSearch(p,market,excluded,sources=[]){
   const grounded=sources.length>0;
+  const readable=sources.map(s=>({...s,text:sourceText(s.text)}));
   return openAI('responses',{model:process.env.OPENAI_CLIENT_RESEARCH_MODEL||'gpt-4.1-mini',background:true,store:true,max_output_tokens:10000,
     ...(grounded?{text:{format:{type:'json_object'}}}:{tools:[{type:'web_search',external_web_access:true}],tool_choice:'required'}),
-    input:searchPrompt(p,market,excluded)+(grounded?'\nORIGINAL SOURCE TEXT WAS ALREADY RETRIEVED FOR YOU. Extract candidate businesses ONLY from the supplied pages. Do not claim to search again. Prefer official business pages over directory roundups. All quotes MUST occur word-for-word in SOURCE TEXT. Find specific product/service names and concrete offers, not generic brand values. For ongoing_offer the date MUST be empty; the research date is NOT a launch date. Never invent contact text or founder quotes. Public website route is enough if contacts are missing. Return JSON only.\nSOURCE TEXT: '+JSON.stringify(sources):'')});
+    input:searchPrompt(p,market,excluded)+(grounded?'\nORIGINAL SOURCE TEXT WAS ALREADY RETRIEVED FOR YOU. Extract candidate businesses ONLY from the supplied pages. Do not claim to search again. Every source_url MUST exactly equal a url in SOURCE TEXT; never substitute a linked page, guessed about page or redirect destination. Copy the identity quote from that SAME official source, even if it is simply a product or brand heading. Never attribute a directory description to an official website. All quotes MUST occur word-for-word as one contiguous passage in that source text; do not combine separate offers into one quote. Prefer short exact quotes, 40-160 characters. For ongoing_offer date MUST be empty. Omit contacts and founder when not stated in those exact sources. A website route is enough. No invented contact forms. Return JSON only.\nSOURCE TEXT: '+JSON.stringify(readable):'')});
 }
+function sourceText(value){return String(value||'').replace(/!\[[^\]]*\]\([^\s)]+\)/g,' ').replace(/\[([^\]]*)\]\([^\s)]+(?:\s+"[^"]*")?\)/g,'$1').replace(/\\n/g,' ').replace(/\\/g,' ').replace(/\s+/g,' ').trim()}
 async function sourcePage(url,cache){
   const u=safeUrl(url);if(!u)return null;
   if(cache.has(u))return cache.get(u);
@@ -103,7 +105,7 @@ async function sourcePage(url,cache){
     }
   })();cache.set(u,task);return task;
 }
-function evidenceMatches(page,e){return Boolean(page&&quotePresent(page.text,e?.quote))}
+function evidenceMatches(page,e){return Boolean(page&&(quotePresent(page.text,e?.quote)||quotePresent(sourceText(page.text),e?.quote)))}
 function dateSupported(activity,page,now=Date.now()){
   if(activity.type==='ongoing_offer')return !activity.date&&clean(activity.quote).length>=55&&!/^(shop now|book now|contact us)[.!\s]*$/i.test(clean(activity.quote));
   if(!/^\d{4}-\d{2}-\d{2}$/.test(activity.date||''))return false;
