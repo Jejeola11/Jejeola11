@@ -55,7 +55,20 @@ Return JSON only: {"leads":[{"name":"","location":"","website":"","description":
 APPROVED STUDENT PROFILE: ${JSON.stringify(p)}
 PREVIOUSLY RESEARCHED (do not repeat): ${JSON.stringify(excluded).slice(0,15000)}`;
 }
-async function submitSearch(p,market,excluded){return openAI('responses',{model:process.env.OPENAI_CLIENT_RESEARCH_MODEL||'gpt-4.1-mini',background:true,store:true,max_output_tokens:10000,tools:[{type:'web_search',external_web_access:true}],tool_choice:'required',input:searchPrompt(p,market,excluded)})}
+async function discoverSources(p,market){
+  if(!firecrawl.enabled())return [];
+  const results=await Promise.all([
+    firecrawl.search(p.buyer+' '+market+' official website products services',{limit:8}).catch(()=>[]),
+    firecrawl.search(p.buyer+' '+market+' new collection launch founder contact',{limit:8}).catch(()=>[])
+  ]);
+  return results.flat().filter(x=>x.url&&x.markdown).filter((x,i,a)=>a.findIndex(y=>y.url===x.url)===i).slice(0,14).map(x=>({url:x.url,title:x.title,text:x.markdown.slice(0,10000)}));
+}
+async function submitSearch(p,market,excluded,sources=[]){
+  const grounded=sources.length>0;
+  return openAI('responses',{model:process.env.OPENAI_CLIENT_RESEARCH_MODEL||'gpt-4.1-mini',background:true,store:true,max_output_tokens:10000,
+    ...(grounded?{text:{format:{type:'json_object'}}}:{tools:[{type:'web_search',external_web_access:true}],tool_choice:'required'}),
+    input:searchPrompt(p,market,excluded)+(grounded?'\nORIGINAL SOURCE TEXT WAS ALREADY RETRIEVED FOR YOU. Extract candidate businesses ONLY from the supplied pages. Do not claim to search again. Prefer official business pages over directory roundups. All quotes MUST occur word-for-word in SOURCE TEXT. Find specific product/service names and concrete offers, not generic brand values. For ongoing_offer the date MUST be empty; the research date is NOT a launch date. Never invent contact text or founder quotes. Public website route is enough if contacts are missing. Return JSON only.\nSOURCE TEXT: '+JSON.stringify(sources):'')});
+}
 async function sourcePage(url,cache){
   const u=safeUrl(url);if(!u)return null;
   if(cache.has(u))return cache.get(u);
@@ -131,11 +144,15 @@ async function advance(db,job){
     if(Date.now()-Date.parse(job.created_at)>25*60000){await finish(db,job,[],'Research took too long. Your credits were returned. Please try again.');return}
     const p=job.profile_snapshot;
     if(job.status==='queued'){
-      const previous=await db.from('client_prospects').select('brand_name,website').eq('user_id',job.user_id).limit(500);if(previous.error)throw previous.error;
-      const response=await submitSearch(p,job.market,previous.data||[]);
-      await update(db,job,{status:'searching',response_id:response.id,message:'Finding businesses and checking current public activity.',attempts:0});return;
+      const sources=await discoverSources(p,job.market);
+      await update(db,job,{status:'searching',seed_sources:sources,response_id:null,message:'Discovery complete. Comparing original business pages with your approved service.',attempts:0});return;
     }
     if(job.status==='searching'||job.status==='drafting'){
+      if(job.status==='searching'&&!job.response_id){
+        const previous=await db.from('client_prospects').select('brand_name,website').eq('user_id',job.user_id).limit(500);if(previous.error)throw previous.error;
+        const response=await submitSearch(p,job.market,previous.data||[],job.seed_sources||[]);
+        await update(db,job,{response_id:response.id,message:'Checking identity, specific offers and public contacts against original sources.'});return;
+      }
       if(job.status==='drafting'&&!job.response_id){
         const response=await submitDraft(p,job.verified);
         await update(db,job,{response_id:response.id,message:'Matching your proof and writing personalized email and DM drafts.'});return;
