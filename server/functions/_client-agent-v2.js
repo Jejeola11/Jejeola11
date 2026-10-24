@@ -63,6 +63,24 @@ async function discoverSources(p,market){
   ]);
   return results.flat().filter(x=>x.url&&x.markdown).filter((x,i,a)=>a.findIndex(y=>y.url===x.url)===i).slice(0,14).map(x=>({url:x.url,title:x.title,text:x.markdown.slice(0,10000)}));
 }
+function businessLinks(sources){
+  const excluded=/(?:youtube|youtu\.be|instagram|facebook|tiktok|twitter|linkedin|pinterest|google|doubleclick|amazon|awin|linksynergy|skimresources|shareasale|tidd\.ly|revenuebase|cdn\.|wp\.com|cloudinary|shopify|stylist\.co|countryandtownhouse|forwardvia|wandersomewhere)/i;
+  const urls=[];
+  for(const s of sources){
+    for(const match of String(s.text||'').matchAll(/\[([^\]\n]{3,90})\]\((https?:\/\/[^\s)]+)\)/g)){
+      const target=safeUrl(match[2]);if(!target||excluded.test(domain(target))||domain(target)===domain(s.url)||/\.(jpg|png|webp|gif|pdf|svg)(\?|$)/i.test(target))continue;
+      const root=new URL(target).origin+'/';if(!urls.includes(root))urls.push(root);
+    }
+  }
+  return urls.slice(0,8);
+}
+async function expandSources(sources){
+  if(!firecrawl.enabled())return sources;
+  const links=businessLinks(sources);
+  const pages=await Promise.all(links.map(async target=>{try{const p=await firecrawl.scrape(target);return p?.markdown?{url:target,title:p.title,text:p.markdown.slice(0,14000)}:null}catch{return null}}));
+  // Original merchant pages lead; roundup pages remain discovery context only.
+  return [...pages.filter(Boolean),...sources].slice(0,20);
+}
 async function submitSearch(p,market,excluded,sources=[]){
   const grounded=sources.length>0;
   return openAI('responses',{model:process.env.OPENAI_CLIENT_RESEARCH_MODEL||'gpt-4.1-mini',background:true,store:true,max_output_tokens:10000,
@@ -149,6 +167,10 @@ async function advance(db,job){
     }
     if(job.status==='searching'||job.status==='drafting'){
       if(job.status==='searching'&&!job.response_id){
+        if(!job.sources_expanded&&(job.seed_sources||[]).length){
+          const pages=await expandSources(job.seed_sources);
+          await update(db,job,{seed_sources:pages,sources_expanded:true,message:'Opened original business websites behind the discovery listings.'});return;
+        }
         const previous=await db.from('client_prospects').select('brand_name,website').eq('user_id',job.user_id).limit(500);if(previous.error)throw previous.error;
         const response=await submitSearch(p,job.market,previous.data||[],job.seed_sources||[]);
         await update(db,job,{response_id:response.id,message:'Checking identity, specific offers and public contacts against original sources.'});return;
@@ -177,7 +199,8 @@ async function advance(db,job){
       await finish(db,job,rows);return;
     }
     if(job.status==='verifying'){
-      const cache=new Map(),candidate=job.candidates[job.cursor];
+      const cache=new Map((job.seed_sources||[]).filter(s=>safeUrl(s.url)&&s.text).map(s=>[safeUrl(s.url),Promise.resolve({url:s.url,text:s.text,raw:s.text,checked_at:job.created_at})]));
+      const candidate=job.candidates[job.cursor];
       const checked=candidate?await verifyCandidate(candidate,p,cache):null;
       const verified=[...(job.verified||[]),...(checked?[checked]:[])];const cursor=job.cursor+1;
       if(verified.length>=5||cursor>=job.candidates.length){
