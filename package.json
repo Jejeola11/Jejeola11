@@ -4,6 +4,12 @@
   "private": true,
   "description": "Fuse Studio — hosted AI image & video generation with credits, trials and Paystack payments.",
   "type": "commonjs",
+  "scripts": {
+    "test:client-agent": "node --test tests/client-agent-v2.test.js && node tests/client-agent-ui.cjs"
+  },
+  "devDependencies": {
+    "happy-dom": "20.8.4"
+  },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@napi-rs/canvas": "^1.0.2",
