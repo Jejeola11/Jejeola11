@@ -19,7 +19,7 @@ function profile(value={}){
   p.fingerprint=createHash('sha256').update(JSON.stringify(p)).digest('hex');
   return p;
 }
-function missing(p){return ['skill','buyer','purpose','offer_title','deliverables','formats','included','client_inputs','turnaround','revisions','market','portfolio','price_amount'].filter(k=>!p[k]).concat(p.projects.some(x=>x.url&&x.title&&x.description)?[]:['one project with a link and description'])}
+function missing(p){return ['skill','buyer','purpose','offer_title','deliverables','formats','included','client_inputs','turnaround','revisions','market','price_amount'].filter(k=>!p[k]).concat(p.projects.some(x=>x.url&&x.title&&x.description)?[]:['one project with a link and description'])}
 function jsonOutput(data){
   const text=responseText(data).trim().replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'');
   try{return JSON.parse(text)}catch{}

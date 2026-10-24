@@ -1,4 +1,5 @@
 :root{--deep:#001012;--mid:#00191b;--surface:#062125;--line:#315456;--text:#eeffe0;--muted:#abc3c3;--lime:#dfff4e;--chrome:linear-gradient(110deg,#ffe66a 0%,#dfff4e 52%,#eeffe0 100%);font-family:Montserrat,Arial,sans-serif;color-scheme:dark}
+.project-preview{display:block;width:100%;max-height:280px;object-fit:contain;background:#001012;border:1px solid #315456;border-radius:12px;margin:0 0 16px}.upload-field input[type=file]{padding:10px;font-size:13px}.upload-field input::file-selector-button{border:0;border-radius:8px;padding:9px 12px;margin-right:10px;background:var(--chrome);color:#001012;font-weight:700;cursor:pointer}
 /* Same logo, Instagram, Pricing and menu layout as the homepage. */
 .reference-header{width:min(900px,calc(100% - 32px));height:66px;margin:auto;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:40;color:#f4f4f4}
 .logo-link{display:flex;align-items:center;min-height:44px}.logo-link img{width:36px;height:36px;object-fit:contain;clip-path:inset(10% round 24%);transform:scale(1.18)}

@@ -5,7 +5,7 @@
   "description": "Fuse Studio — hosted AI image & video generation with credits, trials and Paystack payments.",
   "type": "commonjs",
   "scripts": {
-    "test:client-agent": "node --test tests/client-agent-v2.test.js && node tests/client-agent-ui.cjs"
+    "test:client-agent": "node --test tests/client-agent-v2.test.js && node tests/client-agent-ui.cjs && node tests/client-agent-uploads.cjs"
   },
   "devDependencies": {
     "happy-dom": "20.8.4"
