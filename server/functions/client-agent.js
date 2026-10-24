@@ -22,10 +22,11 @@ exports.handler=async event=>{
     if(body.action==='organize'){
       if(!agent.clean(body.day1)&&!agent.clean(body.day2))return response(400,{error:'Paste some notes about your skills or service offer first.'});
       // Existing user-owned activity rows provide a small, server-enforced rate limit.
-      const recent=await db.from('client_activities').select('id',{count:'exact',head:true}).eq('user_id',user.id).eq('activity_type','profile_organized').gte('created_at',new Date(Date.now()-3600000).toISOString());
+      const recent=await db.from('client_activities').select('id',{count:'exact',head:true}).eq('user_id',user.id).eq('activity_type','profile_organized').contains('metadata',{success:true}).gte('created_at',new Date(Date.now()-3600000).toISOString());
       if(recent.error)throw recent.error;if(recent.count>=5)return response(429,{error:'You can organize your answers five times per hour. You can still edit every field manually.'});
-      const activity=await db.from('client_activities').insert({user_id:user.id,activity_type:'profile_organized',title:'Organized service notes'});if(activity.error)throw activity.error;
-      return response(200,{fields:await agent.organize(body)});
+      const fields=await agent.organize(body);
+      const activity=await db.from('client_activities').insert({user_id:user.id,activity_type:'profile_organized',title:'Organized service notes',metadata:{success:true}});if(activity.error)throw activity.error;
+      return response(200,{fields});
     }
     if(body.action==='profile'){
       const p=agent.profile(body.profile),missing=agent.missing(p);
