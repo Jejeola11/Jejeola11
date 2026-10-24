@@ -9,7 +9,7 @@
     ['Build a professional portfolio that sells your offer', 'Show your strongest work with honest case studies and publish a working portfolio link.'],
     ['Build your Upwork profile', 'Set up your profile using your Day 1 skill audit, Day 2 offer and Day 3 portfolio.'],
     ['Find suitable jobs, research clients and pitch', 'Find three suitable jobs, verify the client and requirements, then prepare one tailored proposal.'],
-    ['Choose ask-first or sample-first', 'Match your approach to the prospect and prepare the right concept.'],
+    ['Find 5 Real Clients Beyond Upwork and Pitch Them', 'Research five suitable businesses, verify each manually and send five personalized pitches.'],
     ['Send a first message that starts a conversation', 'Send five researched, personalized first messages.'],
     ['Read replies and follow up', 'Respond to real replies and follow up without inventing urgency.'],
     ['Turn interest into a clear brief', 'Ask discovery questions and write a one-page creative direction.'],
@@ -172,6 +172,15 @@ ACCURACY RULES
         key:'challenge-day-5',title:'Day 5: Find suitable jobs, research clients and pitch',
         learnText:'Continue the Upwork work from Day 4. Check each job against your skill, portfolio and the client’s requirements, then research enough to write a specific pitch.',
         actionText:'Finish your Upwork profile and share its link in the group. Find two verified jobs that fit your offer and send two tailored proposals. Share the job links and the approach you used at check-in.'
+      }]});
+      return;
+    }
+    if(day===6){
+      modules.push({key:'challenge-day-6',title:'Day 6: Find 5 Real Clients Beyond Upwork and Pitch Them',kicker:'Day 6',lessons:[{
+        key:'challenge-day-6',title:'Day 6: Find 5 Real Clients Beyond Upwork and Pitch Them',
+        learnText:'Use your Day 1 skill, Day 2 offer and portfolio to research five relevant businesses beyond Upwork. Find current opportunities and public professional contacts, verify the research, choose ask-first or sample-first, and personalize your email or DM.',
+        actionText:'1. Copy the research prompt below and paste it into ChatGPT with web search. Add your completed Day 1 and Day 2 answers, Day 3 portfolio link, optional Upwork link and target location.\n\n2. Research your first five prospects and pitches. Manually verify each business, current activity, contact and source before sending anything.\n\n3. Edit and send a personalized pitch to all five verified prospects.\n\nShare your check-in in the group:\n• One thing I learned from the research:\n• One thing I need help with:',
+        copyPrompt:window.FUSE_DAY_SIX_RESEARCH_PROMPT
       }]});
       return;
     }

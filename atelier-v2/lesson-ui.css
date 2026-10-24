@@ -477,4 +477,5 @@ body.drawer-open .module-drawer{transform:translateX(0);visibility:visible;trans
 .course-title{margin-top:0}
 
 /* Challenge task action matches the chrome next-lesson button. */
+#actionCopy{white-space:pre-line}
 .course-action.ghost[href^="https://chat.whatsapp.com/"]{border:1px solid #eeffe0;background:var(--course-chrome);color:#071411;font-weight:700}
