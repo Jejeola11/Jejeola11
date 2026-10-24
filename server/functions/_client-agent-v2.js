@@ -116,8 +116,16 @@ function dateSupported(activity,page,now=Date.now()){
 }
 async function verifyCandidate(raw,p,cache=new Map()){
   const website=safeUrl(raw.website),name=clean(raw.name,180);if(!website||!name)return null;
-  const identity=raw.identity||{},activity=raw.activity||{};
+  let identity=raw.identity||{};const activity=raw.activity||{};
   if(domain(identity.source_url)!==domain(website))return null;
+  // Identity is the brand-to-website relationship, not a model-written biography.
+  // When a generated biography quote is unsupported, use an exact passage naming
+  // the brand from the already retrieved official page. Activity stays unchanged.
+  const official=await sourcePage(website,cache);
+  if(official){
+    const copy=sourceText(official.text),at=copy.toLowerCase().indexOf(name.toLowerCase());
+    if(at>=0){const quote=copy.slice(Math.max(0,at-35),Math.min(copy.length,at+name.length+120));if(quote.length>=40)identity={source_url:website,quote};}
+  }
   await Promise.all([...new Set([identity.source_url,activity.source_url,raw.person?.source_url,...(raw.contacts||[]).slice(0,4).map(c=>c.source_url)].filter(Boolean))].map(u=>sourcePage(u,cache)));
   const [ip,ap]=await Promise.all([sourcePage(identity.source_url,cache),sourcePage(activity.source_url,cache)]);
   if(!evidenceMatches(ip,identity)||!evidenceMatches(ap,activity)||!dateSupported(activity,ap))return null;
