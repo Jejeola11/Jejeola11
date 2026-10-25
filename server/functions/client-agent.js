@@ -66,7 +66,8 @@ exports.handler=async event=>{
       const enriched=await agent.enrichContacts({name:old.data.brand_name,website:old.data.website,location:old.data.location});
       const current=await db.from('client_prospects').select('qualification_json').eq('id',body.id).eq('user_id',user.id).single();if(current.error)throw current.error;
       const q=current.data.qualification_json||{};
-      const contacts=[...enriched.contacts,...(q.contacts||[])].filter(c=>c.kind!=='website').filter((c,i,a)=>a.findIndex(x=>x.kind===c.kind&&x.value===c.value)===i);
+      const contacts=[...enriched.contacts,...(q.contacts||[]),...['email','instagram','whatsapp'].filter(k=>old.data[k]).map(k=>({kind:k,value:old.data[k],source_url:old.data.website}))].filter(c=>c.kind!=='website').filter((c,i,a)=>a.findIndex(x=>x.kind===c.kind&&x.value===c.value)===i);
+      if(!contacts.length)contacts.push({kind:'website',value:old.data.website,source_url:old.data.website});
       const person=enriched.person||q.person||null;
       const patch={qualification_json:{...q,version:2,contacts,person,contact_research:enriched},updated_at:new Date().toISOString()};
       if(person){patch.contact_name=person.name;patch.founder_name=person.name;patch.founder_title=person.role;}
