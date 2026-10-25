@@ -56,6 +56,24 @@ exports.handler=async event=>{
       if(agent.ACTIVE.includes(r.data.status))await db.rpc('client_agent_dispatch');
       return response(200,{job:agent.publicJob(r.data)});
     }
+    if(body.action==='enrich-contacts'){
+      if(!uuid(body.id))return response(400,{error:'Invalid prospect ID'});
+      const old=await db.from('client_prospects').select('*').eq('id',body.id).eq('user_id',user.id).maybeSingle();if(old.error)throw old.error;if(!old.data)return response(404,{error:'Prospect not found'});
+      const prior=old.data.qualification_json||{};
+      if(prior.contact_research?.checked_at&&Date.now()-Date.parse(prior.contact_research.checked_at)<3600000)return response(200,{prospect:old.data,cached:true});
+      const recent=await db.from('client_activities').select('id',{count:'exact',head:true}).eq('user_id',user.id).eq('activity_type','contact_research').gte('created_at',new Date(Date.now()-3600000).toISOString());if(recent.error)throw recent.error;if(recent.count>=10)return response(429,{error:'You can refresh contacts for ten businesses per hour.'});
+      const attempt=await db.from('client_activities').insert({user_id:user.id,activity_type:'contact_research',title:'Researching public business contacts',metadata:{prospect_id:body.id}});if(attempt.error)throw attempt.error;
+      const enriched=await agent.enrichContacts({name:old.data.brand_name,website:old.data.website,location:old.data.location});
+      const current=await db.from('client_prospects').select('qualification_json').eq('id',body.id).eq('user_id',user.id).single();if(current.error)throw current.error;
+      const q=current.data.qualification_json||{};
+      const contacts=[...enriched.contacts,...(q.contacts||[])].filter(c=>c.kind!=='website').filter((c,i,a)=>a.findIndex(x=>x.kind===c.kind&&x.value===c.value)===i);
+      const person=enriched.person||q.person||null;
+      const patch={qualification_json:{...q,version:2,contacts,person,contact_research:enriched},updated_at:new Date().toISOString()};
+      if(person){patch.contact_name=person.name;patch.founder_name=person.name;patch.founder_title=person.role;}
+      for(const kind of ['email','instagram','whatsapp']){const found=contacts.find(c=>c.kind===kind);if(found)patch[kind]=found.value;}
+      const saved=await db.from('client_prospects').update(patch).eq('id',body.id).eq('user_id',user.id).select('*').single();if(saved.error)throw saved.error;
+      return response(200,{prospect:saved.data});
+    }
     if(body.action==='update-prospect'){
       if(!uuid(body.id))return response(400,{error:'Invalid prospect ID'});
       const patch={updated_at:new Date().toISOString()};
@@ -71,3 +89,4 @@ exports.handler=async event=>{
     return response(400,{error:'Unknown Client Agent action'});
   }catch(error){console.error('[client-agent]',body.action,error.provider||error.message);return response(500,{error:'Fuse could not complete this step. Your saved work is safe. Please try again.'})}
 };
+
