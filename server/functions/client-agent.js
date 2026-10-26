@@ -28,6 +28,12 @@ exports.handler=async event=>{
       const activity=await db.from('client_activities').insert({user_id:user.id,activity_type:'profile_organized',title:'Organized service notes',metadata:{success:true}});if(activity.error)throw activity.error;
       return response(200,{fields});
     }
+    if(body.action==='reset-profile'){
+      // Scope the reset to the signed-in user. Research history is independent.
+      const saved=await db.from('client_agent_profiles').delete().eq('user_id',user.id);
+      if(saved.error)throw saved.error;
+      return response(200,{profile:null});
+    }
     if(body.action==='profile'){
       const p=agent.profile(body.profile),missing=agent.missing(p);
       if(missing.length)return response(400,{error:'Complete: '+missing.join(', ')});

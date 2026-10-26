@@ -44,6 +44,7 @@ function render(){
   document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{state.view=b.dataset.view;render()});
   document.querySelectorAll('[data-setup]').forEach(b=>b.onclick=()=>openSetup());
   document.querySelectorAll('[data-prospect]').forEach(b=>b.onclick=()=>openProspect(b.dataset.prospect));
+  $('resetOffer')?.addEventListener('click',resetOffer);
   $('startResearch')?.addEventListener('click',startResearch);
   $('refreshResearch')?.addEventListener('click',()=>poll(true));
   $('viewLatest')?.addEventListener('click',()=>{state.view='prospects';render()});
@@ -68,7 +69,7 @@ function renderProspects(){return `<div class="section-heading"><h2>My Prospects
 function filteredCards(){const rows=state.prospects.filter(p=>(state.filter==='all'||p.status===state.filter)&&[p.brand_name,p.niche,p.location].join(' ').toLowerCase().includes(state.search.toLowerCase()));return rows.length?rows.map(card).join(''):'<div class="empty"><h2>No prospects here yet.</h2><p>Start a search in Discover, or try another status or business name.</p></div>'}
 function renderList(){$('prospectList').innerHTML=filteredCards();$('prospectList').querySelectorAll('[data-prospect]').forEach(b=>b.onclick=()=>openProspect(b.dataset.prospect))}
 function offerDetails(p){return `<dl class="offer-grid">${[['Buyer',p.buyer],['Purpose',p.purpose],['Deliverables',p.deliverables],['Length / formats',[p.length,p.formats].filter(Boolean).join(' · ')],['I handle',p.included],['Client supplies',p.client_inputs],['Turnaround',p.turnaround],['Revision limit',p.revisions],['Price',price(p)],['Not included',p.exclusions||'No extra exclusions supplied'],['Market',p.market]].map(([k,v])=>`<div class="detail-row"><dt>${k}</dt><dd>${escape(v||'Not supplied')}</dd></div>`).join('')}</dl>`}
-function renderOffer(){const p=state.profile;if(!p)return setupIntro();return `<section class="panel"><p class="kicker">${ready()?'YOUR SOURCE OF TRUTH':'REVIEW YOUR EXISTING PROFILE'}</p><h2>${escape(p.offer_title||p.skill||'Your offer')}</h2>${!ready()?'<div class="inline-alert">Your earlier details are preserved. Complete the new fields and approve your offer before researching.</div>':''}${offerDetails(p)}<p class="offer-note">Fuse uses this exact scope and price. A new project or different deliverables require your approval. Portfolio links are saved as proof references; Fuse does not claim to have watched your videos.</p><button class="chrome-button" data-setup>Edit my offer</button>${source(p.portfolio,'Open my portfolio ↗')}</section>`}
+function renderOffer(){const p=state.profile;if(!p)return setupIntro();return `<section class="panel"><p class="kicker">${ready()?'YOUR SOURCE OF TRUTH':'REVIEW YOUR EXISTING PROFILE'}</p><h2>${escape(p.offer_title||p.skill||'Your offer')}</h2>${!ready()?'<div class="inline-alert">Your earlier details are preserved. Complete the new fields and approve your offer before researching.</div>':''}<div class="action-row"><button class="secondary-button" id="resetOffer">Clear offer and start again ↻</button></div><p class="source-note">Clear your saved offer and setup answers. Your prospects, pitches and follow-ups stay saved.</p>${offerDetails(p)}<p class="offer-note">Fuse uses this exact scope and price. A new project or different deliverables require your approval. Portfolio links are saved as proof references; Fuse does not claim to have watched your videos.</p><button class="chrome-button" data-setup>Edit my offer</button>${source(p.portfolio,'Open my portfolio ↗')}</section>`}
 async function load(){const data=await api({action:'load'});state.profile=normalizeProfile(data.profile);state.prospects=data.prospects;state.jobs=data.jobs;state.credits=data.credits;state.cost=data.research_cost;render();schedulePoll()}
 function schedulePoll(){clearTimeout(pollTimer);if(active(currentJob()))pollTimer=setTimeout(()=>poll(),8000)}
 async function poll(manual=false){if(state.polling)return;const job=currentJob();if(!active(job))return;state.polling=true;try{const r=await api({action:'status',id:job.id});const i=state.jobs.findIndex(x=>x.id===job.id);state.jobs[i]=r.job;if(!active(r.job)){await load();toast(r.job.status==='completed'?'Your research is ready to review.':'Research stopped. Your credit refund is saved.')}else {if(!$('setupDialog').open&&!$('prospectDialog').open)render();if(manual)toast(r.job.message)}}catch{if(manual)toast('Could not refresh progress. Your saved job is still available.')}finally{state.polling=false;schedulePoll()}}
@@ -78,6 +79,16 @@ async function startResearch(){
   if(!confirm(`Reserve ${state.cost} credits to research up to five prospects in ${market}? Any unfilled places are refunded automatically.`))return;
   requestKey=requestKey||crypto.randomUUID();state.starting=true;$('startResearch').disabled=true;$('startResearch').textContent='Starting…';
   try{const r=await api({action:'start',market,request_key:requestKey});state.jobs=[r.job,...state.jobs.filter(x=>x.id!==r.job.id)];state.credits=r.credits;requestKey=null;render();schedulePoll();toast('Research saved. You can leave and come back.')}catch(e){toast(e.message)}finally{state.starting=false;if($('startResearch')&&!active(currentJob())){$('startResearch').disabled=false;$('startResearch').textContent='Find 5 prospects →'}}
+}
+async function resetOffer(){
+  if(!confirm('Clear your offer and all setup answers? Your saved prospects, pitches, follow-ups and uploaded media will remain.'))return;
+  const button=$('resetOffer');if(button){button.disabled=true;button.textContent='Clearing offer…';}
+  try{
+    await api({action:'reset-profile'});
+    try{localStorage.removeItem('fuse_agent_draft_'+state.session.user.id)}catch{}
+    state.profile=null;state.draft={currency:'USD',projects:[]};state.step=0;state.view='discover';
+    render();openSetup();toast('Offer cleared. Start fresh from Step 1.');
+  }catch(e){toast(e.message);if(button){button.disabled=false;button.textContent='Clear offer and start again ↻';}}
 }
 function openSetup(){
   state.step=0;state.draft=structuredClone(state.profile||{currency:'USD',projects:[]});state.draft.approved=false;
