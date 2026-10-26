@@ -10,7 +10,7 @@
     ['Build your Upwork profile', 'Set up your profile using your Day 1 skill audit, Day 2 offer and Day 3 portfolio.'],
     ['Find suitable jobs, research clients and pitch', 'Find three suitable jobs, verify the client and requirements, then prepare one tailored proposal.'],
     ['Find 5 Real Clients Beyond Upwork and Pitch Them', 'Research five suitable businesses, verify each manually and send five personalized pitches.'],
-    ['Send a first message that starts a conversation', 'Send five researched, personalized first messages.'],
+    ['Find Prospects with Fuse Client Agent, Start Conversations & Move Towards a Deal', 'Send five researched, personalized first messages.'],
     ['Read replies and follow up', 'Respond to real replies and follow up without inventing urgency.'],
     ['Turn interest into a clear brief', 'Ask discovery questions and write a one-page creative direction.'],
     ['Quote, scope and request a deposit', 'Prepare a fixed-price quote with deliverables and revision limits.'],
