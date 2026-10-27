@@ -11,13 +11,13 @@
   <link rel="stylesheet" href="ai-video-book.css?v=6">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
   <script src="fuse-shell.js?v=footer-unified-6" defer></script>
-  <script src="ai-video-book.js?v=7" defer></script>
-</head>
+  <script src="ai-video-book.js?v=direct-reader-8" defer></script>
+<style>.book-menu-links{display:grid;gap:10px}.book-menu-links a{display:block;padding:14px 16px;border-radius:12px;background:linear-gradient(110deg,#FFE66A,#DFFF4E,#EEFFE0);color:#001012;font-weight:700;text-decoration:none}.book-contents{font-size:24px;line-height:1}</style></head>
 <body data-page="academy">
   <header class="book-top">
-    <a href="ai-video-book-home.html" class="book-back" aria-label="Back to book home">←</a>
+    <a href="learn.html" class="book-back" aria-label="Back to Academy">←</a>
     <div class="book-heading"><strong>Zero To First 10 Million With AI Video</strong></div>
-    <button id="bookContents" class="book-contents" type="button">Contents</button>
+    <button id="bookContents" class="book-contents" type="button" aria-label="Open book menu" aria-haspopup="dialog">☰</button>
   </header>
   <main class="book-shell">
     <div class="book-meta"><span>MARYAM JEJEOLA</span><span id="pageLabel">Page 1 of 45</span></div>
@@ -31,15 +31,17 @@
       <label for="pageNumber"><span>Page</span><input id="pageNumber" type="number" min="1" max="45" value="1" inputmode="numeric" aria-label="Go to page"><span>of 45</span></label>
       <button id="nextPage" type="button">Next →</button>
     </div>
-    <button id="actionCue" class="action-cue" type="button" hidden>↓ See the action note for this page</button>
-    <aside id="bookAction" class="book-action" hidden aria-live="polite"></aside>
     <p class="reader-note">Use two fingers to zoom, then drag to read. Double-tap to zoom or reset. Your last page is saved on this device.</p>
   </main>
-  <button id="actionPeek" class="action-peek" type="button" hidden>↓ Action note</button>
   <div class="reader-progress" aria-hidden="true"><div id="readerProgressFill"></div></div>
-  <dialog id="contentsDialog" class="contents-dialog" aria-label="Book contents">
-    <div class="contents-head"><strong>Jump to a chapter</strong><button id="closeContents" type="button" aria-label="Close contents">×</button></div>
-    <div id="chapterList"></div>
+  <dialog id="contentsDialog" class="contents-dialog" aria-label="Book menu">
+    <div class="contents-head"><strong>Book menu</strong><button id="closeContents" type="button" aria-label="Close contents">×</button></div>
+    <nav class="book-menu-links" aria-label="Book resources and courses">
+<a href="ai-video-book-resources.html">Resources ↗</a>
+<a href="https://chat.whatsapp.com/KKbt2aqTSP9D0YgcODf7Sy?s=cl&amp;p=a&amp;mlu=4&amp;ilr=4" target="_blank" rel="noopener noreferrer">Join WhatsApp community ↗</a>
+<a href="https://nestuge.com/academy_ugc_offer" target="_blank" rel="noopener noreferrer">Get the AI UGC course ↗</a>
+<a href="https://nestuge.com/14-days-challenge" target="_blank" rel="noopener noreferrer">Join the 14-Day Challenge ↗</a>
+</nav><h2 style="font-size:16px;margin:24px 0 12px">Chapters</h2><div id="chapterList"></div>
   </dialog>
 </body>
 </html>
