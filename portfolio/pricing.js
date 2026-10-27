@@ -1,5 +1,5 @@
 (function(root){
-const rates={presenter:{name:'AI Presenter Video',base:150,extra:75},story:{name:'AI Story & Lifestyle Video',base:200,extra:100},commercial:{name:'AI Product Commercial',base:300,extra:150}};
+const rates={presenter:{name:'AI Presenter Video',base:100,extra:50},story:{name:'Fashion & Lifestyle UGC',base:100,extra:50},commercial:{name:'Beauty & Product UGC',base:100,extra:50}};
 function quote(s){
 const r=rates[s.type];if(!r)throw Error('Invalid video type');
 const keys=['quantity','seconds','scenes','characters','hooks','formats','twins','setups'];for(const k of keys)if(!Number.isInteger(s[k]))throw Error('Invalid '+k);
