@@ -1,7 +1,7 @@
 const { createHash } = require('crypto');
 const json=(statusCode,data)=>({statusCode,headers:{'Content-Type':'application/json','Cache-Control':'no-store'},body:JSON.stringify(data)});
 function calculate(s){
- const rates={presenter:[150,75],story:[200,100],commercial:[300,150]};const rate=rates[s.type];if(!rate)throw Error('Choose a video type.');
+ const rates={presenter:[100,50],story:[100,50],commercial:[100,50]};const rate=rates[s.type];if(!rate)throw Error('Choose a video type.');
  const ranges={quantity:[1,10],seconds:[15,60],scenes:[1,6],characters:[1,3],hooks:[0,5],formats:[1,3],twins:[0,3],setups:[0,3]};
  for(const [k,[min,max]] of Object.entries(ranges))if(!Number.isInteger(s[k])||s[k]<min||s[k]>max)throw Error('Check your project scope.');
  if(![15,30,45,60].includes(s.seconds))throw Error('Choose a supported duration.');
