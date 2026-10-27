@@ -18,3 +18,11 @@ body{font-size:14px}h2{font-size:23px}.section{padding-top:38px;padding-bottom:3
 @keyframes chrome-heartbeat{0%,55%,100%{box-shadow:0 0 7px #DFFF4E33,0 0 0 0 #FFE66A00;filter:brightness(1)}8%{box-shadow:0 0 17px #DFFF4E99,0 0 0 5px #FFE66A18;filter:brightness(1.13)}16%{box-shadow:0 0 8px #DFFF4E44,0 0 0 1px #FFE66A08;filter:brightness(1)}24%{box-shadow:0 0 20px #DFFF4E99,0 0 0 7px #EEFFE012;filter:brightness(1.16)}34%{box-shadow:0 0 9px #DFFF4E44,0 0 0 2px #FFE66A05;filter:brightness(1)}}
 @media(max-width:600px){.brief{gap:18px}.brief form{padding:16px}.brief h2{font-size:21px}.brief input,.brief textarea,.controls input,.controls select{font-size:16px}.brief textarea{min-height:72px}.brief label{font-size:12px;margin-bottom:12px}.brief form .button{font-size:14px}.work-card,.controls,.quote,.services details{box-shadow:0 8px 20px #00000055,inset 0 1px 0 #EEFFE016,0 0 12px #DFFF4E08}}
 @media(prefers-reduced-motion:reduce){.plus,.video-toggle{animation:none!important}.button,.card-project{transition:none!important}.button:hover,.card-project:hover{transform:none}}
+
+/* Slow, swipeable project rail. */
+#work-grid{display:flex;gap:20px;overflow-x:auto;overflow-y:hidden;scroll-behavior:auto;overscroll-behavior-x:contain;padding:8px 3px 24px;scrollbar-width:thin;scrollbar-color:#DFFF4E #062125}
+#work-grid>.work-card{flex:0 0 300px;max-width:calc(100vw - 52px)}
+#work-grid>.work-card[hidden]{display:none}
+#work-grid .project-description{font-size:11px;line-height:1.65;margin-top:9px}
+#work-grid:focus-visible{outline:2px solid var(--lime);outline-offset:5px}
+@media(max-width:600px){#work-grid{gap:14px}#work-grid>.work-card{flex-basis:78vw;max-width:320px}#work-grid .project-description{font-size:11px}}
