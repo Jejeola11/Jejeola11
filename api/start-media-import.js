@@ -9,6 +9,8 @@ module.exports=async(req,res)=>{
  if(error&&!/already|duplicate|exists/i.test(error.message))throw error;
  const sizes={11:123283895,12:33916618,13:89014453},targets=[];
  for(const [id,size] of Object.entries(sizes))for(let n=0;n<size;n+=4000000)targets.push({id:Number(id),offset:n,size:Math.min(4000000,size-n),path:`start-more/${id}-${n}.mp4`});
+ const body=typeof req.body==='object'?req.body:JSON.parse(req.body||'{}');
+ if(Array.isArray(body.cleanup)){const ids=body.cleanup.filter(id=>[11,12,13].includes(id));const paths=targets.filter(t=>ids.includes(t.id)).map(t=>t.path);const {error}=await sb.storage.from(bucket).remove(paths);if(error)throw error;res.setHeader('Content-Type','application/json');return res.end(JSON.stringify({removed:paths.length}));}
  const outputs=[];
  for(let i=0;i<targets.length;i+=8){const batch=await Promise.all(targets.slice(i,i+8).map(async target=>{const {data,error}=await sb.storage.from(bucket).createSignedUploadUrl(target.path,{upsert:true});if(error)throw error;return {...target,signedUrl:data.signedUrl,publicUrl:sb.storage.from(bucket).getPublicUrl(target.path).data.publicUrl};}));outputs.push(...batch);}
  res.setHeader('Content-Type','application/json');res.setHeader('Cache-Control','no-store');res.end(JSON.stringify({targets:outputs}));
