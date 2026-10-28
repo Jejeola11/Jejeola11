@@ -8,6 +8,14 @@
   },
   "routes": [
     {
+      "src": "/signup/?",
+      "dest": "/start/auth/index.html"
+    },
+    {
+      "src": "/login/?",
+      "dest": "/start/auth/index.html"
+    },
+    {
       "src": "/start/?",
       "dest": "/start/index.html"
     },
