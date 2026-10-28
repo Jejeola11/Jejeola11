@@ -1,0 +1,122 @@
+[
+  {
+    "title": "Jewelry in Motion",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793190971/fuse-start/poster-01.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-01.mp4"
+  },
+  {
+    "title": "Beauty, Up Close",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793190975/fuse-start/poster-02.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-02.mp4"
+  },
+  {
+    "title": "Skincare Spotlight",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793190979/fuse-start/poster-03.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-03.mp4"
+  },
+  {
+    "title": "Morning Mood",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793190983/fuse-start/poster-04.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-04.mp4"
+  },
+  {
+    "title": "Bridal Dream",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793190988/fuse-start/poster-05.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-05.mp4"
+  },
+  {
+    "title": "Evening Elegance",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793190992/fuse-start/poster-06.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-06.mp4"
+  },
+  {
+    "title": "The Skincare Edit",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793190998/fuse-start/poster-07.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-07.mp4"
+  },
+  {
+    "title": "Hair in Motion",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793191001/fuse-start/poster-08.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-08.mp4"
+  },
+  {
+    "title": "Get Ready With Me",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793191012/fuse-start/poster-09.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-09.mp4"
+  },
+  {
+    "title": "Daily Glow",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793191017/fuse-start/poster-10.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-10.mp4"
+  },
+  {
+    "title": "A Moment of Self-Care",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793191026/fuse-start/poster-11.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-11.mp4"
+  },
+  {
+    "title": "The Style Edit",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793191032/fuse-start/poster-12.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-12.mp4"
+  },
+  {
+    "title": "Golden Hour Style",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793191038/fuse-start/poster-13.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-13.mp4"
+  },
+  {
+    "title": "AI Presenter",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793191045/fuse-start/poster-14.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-14.mp4"
+  },
+  {
+    "title": "Colour in Every Detail",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793191048/fuse-start/poster-15.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-15.mp4"
+  },
+  {
+    "title": "The Morning Ritual",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793191051/fuse-start/poster-16.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-16.mp4"
+  },
+  {
+    "title": "Creator Spotlight",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793191054/fuse-start/poster-17.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-17.mp4"
+  },
+  {
+    "title": "Made by Hand",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793191058/fuse-start/poster-18.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-18.mp4"
+  },
+  {
+    "title": "The Jewelry Film",
+    "poster": "https://res.cloudinary.com/bzw55wh2/image/upload/v1793191061/fuse-start/poster-19.jpg",
+    "url": "https://res.cloudinary.com/bzw55wh2/video/upload/fuse-start/community-19.mp4"
+  },
+  {
+    "title": "Flame & Flavor",
+    "url": "/atelier-v2/media/community/community-01.mp4",
+    "poster": "/atelier-v2/media/community/community-01.webp"
+  },
+  {
+    "title": "Everyday Elegance",
+    "url": "/atelier-v2/media/community/community-06.mp4",
+    "poster": "/atelier-v2/media/community/community-06.webp"
+  },
+  {
+    "title": "Studio News",
+    "url": "/atelier-v2/media/community/community-09.mp4",
+    "poster": "/atelier-v2/media/community/community-09.webp"
+  },
+  {
+    "title": "Morning Glow",
+    "url": "/atelier-v2/media/community/community-05.mp4",
+    "poster": "/atelier-v2/media/community/community-05.webp"
+  },
+  {
+    "title": "Golden Hour",
+    "url": "/atelier-v2/media/community/community-15.mp4",
+    "poster": "/atelier-v2/media/community/community-15.webp"
+  }
+]
