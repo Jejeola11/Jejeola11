@@ -26,7 +26,7 @@
     <section class="hero"><div><div class="eyebrow">Contacts and demand</div><h1>Your Fuse audience.</h1><p>One private view for class registrations, guide-page visitors and Playbook sales-page leads.</p></div></section>
     <section class="stats"><article class="stat"><span>Total contacts</span><b id="total">—</b></article><article class="stat"><span>Countries reached</span><b id="country-total">—</b></article><article class="stat"><span>Lead sources</span><b id="source-total">—</b></article><article class="stat"><span>WhatsApp opted in</span><b id="whatsapp-opted-in">—</b></article></section>
     <section class="panel"><div class="panel-head"><div><div class="eyebrow">WhatsApp readiness</div><h2>Build the list now. Send later.</h2><small>Only contacts who deliberately tick the WhatsApp update box are marked opted in. Sending stays disabled until you connect and fund a Meta WhatsApp Cloud API sender.</small></div></div><div class="chips"><span class="chip">Messaging status <b>Not connected</b></span><span class="chip">Opted-in contacts <b id="whatsapp-ready-count">0</b></span><span class="chip">STOP handling <b>Planned with sender</b></span></div></section>
-    <section class="panel"><div class="panel-head"><div><h2>Audience filters</h2><small>Search by name, email, WhatsApp or country.</small></div></div><div class="filters"><input id="search" placeholder="Search contacts…"><select id="country"><option value="">All countries</option></select><select id="source"><option value="">All sources</option></select><select id="marketing"><option value="">All consent states</option><option value="opted_in">WhatsApp opted in</option><option value="not_opted_in">No WhatsApp opt-in</option><option value="opted_out">WhatsApp opted out</option></select></div></section>
+    <section class="panel"><div class="panel-head"><div><h2>Audience filters</h2><small>Search by name, email, WhatsApp or country.</small></div></div><div class="filters"><input id="search" placeholder="Search contacts…"><select id="country"><option value="">All countries</option></select><select id="source"><option value="">All sources</option></select><select id="marketing"><option value="">All consent states</option><option value="email:subscribed">Email subscribed</option><option value="email:unknown">Email not opted in</option><option value="email:unsubscribed">Email unsubscribed</option><option value="opted_in">WhatsApp opted in</option><option value="not_opted_in">No WhatsApp opt-in</option><option value="opted_out">WhatsApp opted out</option></select></div></section>
     <section class="panel"><div class="panel-head"><div><h2>Where they came from</h2><small id="source-note"></small></div></div><div id="source-chips" class="chips"></div></section>
     <section class="panel"><div class="panel-head"><div><h2>Contacts</h2><small id="visible-count"></small></div></div><div class="table-wrap"><table class="leads"><thead><tr><th>Contact</th><th>WhatsApp</th><th>Country</th><th>Struggle</th><th>Source</th><th>WhatsApp consent</th></tr></thead><tbody id="lead-rows"></tbody></table></div></section>
   </div>
@@ -39,18 +39,18 @@
   const $=id=>document.getElementById(id);
   let leads=[], countries=[], sources=[];
   const safe=value=>String(value||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const label=value=>String(value||'').replace(/[-_]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  const label=value=>value==='fuse_platform_signup'?'Platform sign-ups':String(value||'').replace(/[-_]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
   function selectOptions(id, values, text){ $(id).innerHTML='<option value="">'+text+'</option>'+values.map(value=>'<option value="'+safe(value)+'">'+safe(label(value))+'</option>').join(''); }
   function getFiltered(){
     const q=$('search').value.trim().toLowerCase(), country=$('country').value, source=$('source').value, marketing=$('marketing').value;
     return leads.filter(row=>{
       const hay=[row.first_name,row.email,row.phone_e164||row.whatsapp,row.country,row.source,row.lead_type].join(' ').toLowerCase();
-      return (!q||hay.includes(q))&&(!country||row.country===country)&&(!source||row.source===source)&&(!marketing||row.whatsapp_marketing_status===marketing);
+      return (!q||hay.includes(q))&&(!country||row.country===country)&&(!source||(row.sources||[row.source]).includes(source))&&(!marketing||(marketing.startsWith('email:')?row.email_marketing_status===marketing.slice(6):row.whatsapp_marketing_status===marketing));
     });
   }
   function render(){
     const rows=getFiltered();$('visible-count').textContent=rows.length+' contact'+(rows.length===1?'':'s')+' shown';
-    $('lead-rows').innerHTML=rows.length?rows.map(row=>'<tr><td><span class="name">'+safe(row.first_name||'Unknown')+'</span><span class="muted">'+safe(row.email||'No email')+'</span></td><td>'+safe(row.phone_e164||row.whatsapp||'—')+'</td><td>'+safe(row.country||'Unknown')+'</td><td>'+safe(row.biggest_struggle||'—')+'</td><td><span class="tag">'+safe(label(row.source||'unknown'))+'</span></td><td><span class="tag '+(row.whatsapp_marketing_status==='opted_in'?'':'off')+'">'+safe(label(row.whatsapp_marketing_status))+'</span></td></tr>').join(''):'<tr><td colspan="6" class="empty">No contacts match these filters.</td></tr>';
+    $('lead-rows').innerHTML=rows.length?rows.map(row=>'<tr><td><span class="name">'+safe(row.first_name||'Unknown')+'</span><span class="muted">'+safe(row.email||'No email')+'</span></td><td>'+safe(row.phone_e164||row.whatsapp||'—')+'</td><td>'+safe(row.country||'Unknown')+'</td><td>'+safe(row.biggest_struggle||'—')+'</td><td><span class="tag">'+safe((row.sources?.length?row.sources:[row.source||'unknown']).map(label).join(' · '))+'</span></td><td><span class="tag '+(row.whatsapp_marketing_status==='opted_in'?'':'off')+'">'+safe(label(row.whatsapp_marketing_status))+'</span></td></tr>').join(''):'<tr><td colspan="6" class="empty">No contacts match these filters.</td></tr>';
   }
   async function load(){
     $('refresh').disabled=true;$('refresh').textContent='Loading…';
