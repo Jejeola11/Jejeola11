@@ -4,6 +4,10 @@
     "api/[fn].js": {
       "includeFiles": "server/functions/**",
       "maxDuration": 60
+    },
+    "api/project-media.js": {
+      "includeFiles": "start/project-parts.json",
+      "maxDuration": 60
     }
   },
   "routes": [
