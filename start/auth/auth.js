@@ -8,11 +8,11 @@
  const title=document.getElementById('title'),description=document.getElementById('description'),button=document.getElementById('submit'),message=document.getElementById('message'),switcher=document.getElementById('switch');
  const optIn=document.getElementById('marketingOptIn');
  let touchedOptIn=false;
- optIn.addEventListener('change',()=>{touchedOptIn=true;});
- document.getElementById('email').addEventListener('input',()=>{if(signup||touchedOptIn)return;try{const saved=JSON.parse(sessionStorage.getItem('fuse_signup_email_choice')||'null');optIn.checked=!!(saved&&saved.email===document.getElementById('email').value.trim().toLowerCase()&&saved.consent);}catch(_){}});
+ optIn?.addEventListener('change',()=>{touchedOptIn=true;});
+ document.getElementById('email').addEventListener('input',()=>{if(!optIn||signup||touchedOptIn)return;try{const saved=JSON.parse(sessionStorage.getItem('fuse_signup_email_choice')||'null');optIn.checked=!!(saved&&saved.email===document.getElementById('email').value.trim().toLowerCase()&&saved.consent);}catch(_){}});
  let session=null;
  const ready=sb.auth.getSession().then(({data})=>{session=data.session;if(session&&!signup&&!token){button.textContent='Log in';description.textContent='You’re already verified on this device. Enter your name and account email to continue.';}});
- if(!signup){title.textContent='Welcome to Fuse Atelier';document.title='Log in — Fuse Atelier';switcher.textContent='New to Fuse? Create an account';switcher.href='/signup';description.textContent=token?'Enter your name and the email you just verified to log in.':'Enter your details to receive a secure login button by email.';button.textContent=token?'Verify and log in':'Send login email';}
+ if(!signup&&!document.body.dataset.originalLogin){title.textContent='Welcome to Fuse Atelier';document.title='Log in — Fuse Atelier';switcher.textContent='New to Fuse? Create an account';switcher.href='/signup';description.textContent=token?'Enter your name and the email you just verified to log in.':'Enter your details to receive a secure login button by email.';button.textContent=token?'Verify and log in':'Send login email';}
  document.getElementById('auth-form').addEventListener('submit',async e=>{
   e.preventDefault();await ready;button.disabled=true;message.textContent='';
   const email=document.getElementById('email').value.trim().toLowerCase(),name=document.getElementById('name').value.trim();
@@ -26,10 +26,11 @@
     if(session.user.email.toLowerCase()!==email)throw new Error('Use the email address this verification button was sent to.');
     localStorage.setItem('fuse_display_name',name);
     // Signup already saved the contact; this authenticated call records the optional email choice.
-    try{await fetch('/api/public-registration-sync',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({name,marketingOptIn:optIn.checked})});}catch(_){}
+    let consent=!!optIn?.checked;try{const saved=JSON.parse(sessionStorage.getItem('fuse_signup_email_choice')||'null');if(!optIn&&saved?.email===email)consent=!!saved.consent;}catch(_){}
+    try{await fetch('/api/public-registration-sync',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({name,marketingOptIn:consent})});}catch(_){}
     sessionStorage.removeItem('fuse_signup_email_choice');location.replace('/atelier-v2/home.html');return;
    }
-   if(signup)sessionStorage.setItem('fuse_signup_email_choice',JSON.stringify({email,consent:optIn.checked}));
+   if(signup)sessionStorage.setItem('fuse_signup_email_choice',JSON.stringify({email,consent:optIn?.checked}));
    const response=await fetch('/api/public-auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name,mode:signup?'signup':'login'})});
    const data=await response.json();if(!response.ok)throw new Error(data.error||'Please try again.');
    message.textContent='Check your inbox (and spam folder). Tap the verification button, then enter your details to log in.';
