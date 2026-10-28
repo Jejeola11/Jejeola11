@@ -1,0 +1,13 @@
+const test=require('node:test');const assert=require('node:assert/strict');const Module=require('module');
+const original=Module._load;
+let calls=[],limit=0,profile=true;
+const sb={from(table){return {select(){return this},eq(){return this},gte(){return Promise.resolve({count:limit})},ilike(){return this},maybeSingle(){return Promise.resolve({data:profile?{id:'existing'}:null})},insert(row){calls.push(['record',row]);return Promise.resolve({error:null})}}},auth:{admin:{async generateLink(){calls.push(['generate']);return {data:{properties:{hashed_token:'PRIVATE-TEST-TOKEN'}}}}}}};
+Module._load=function(id,...args){if(id==='./_supabase')return {admin:()=>sb,json:(statusCode,obj)=>({statusCode,body:JSON.stringify(obj)})};return original.call(this,id,...args)};
+const {handler}=require('../server/functions/public-auth');Module._load=original;
+process.env.RESEND_API_KEY='test';process.env.FUSE_EMAIL_FROM='Fuse <test@example.com>';
+global.fetch=async(url,args)=>{calls.push(['send',JSON.parse(args.body)]);return {ok:true}};
+const event=body=>({httpMethod:'POST',headers:{'x-forwarded-for':'127.0.0.1'},body:JSON.stringify(body)});
+test('reject invalid input',async()=>assert.equal((await handler(event({email:'bad',name:'Ria'}))).statusCode,400));
+test('signup sends verification only by email and returns no token',async()=>{calls=[];let r=await handler(event({email:'ria@example.com',name:'Ria',mode:'signup'}));assert.equal(r.statusCode,200);assert(!r.body.includes('PRIVATE-TEST-TOKEN'));assert(calls.find(c=>c[0]==='send')[1].html.includes('/login#token_hash=PRIVATE-TEST-TOKEN'));});
+test('throttle blocks token generation and email',async()=>{limit=3;calls=[];assert.equal((await handler(event({email:'ria@example.com',name:'Ria',mode:'signup'}))).statusCode,429);assert.equal(calls.length,0);limit=0;});
+test('unknown login returns neutral without creating an account',async()=>{profile=false;calls=[];assert.equal((await handler(event({email:'new@example.com',name:'Ria',mode:'login'}))).statusCode,200);assert(!calls.some(c=>c[0]==='generate'));profile=true;});
