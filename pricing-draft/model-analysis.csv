@@ -1,0 +1,151 @@
+category,model,provider_usd_assumption,credits,retail_ngn,provider_ngn,fee_reserve_ngn,operations_reserve_ngn,retry_reserve_ngn,contribution_ngn
+image,gpt-image-2.5-sunburst,0.02,2,200,40.8,30,20,4.08,105.12
+image,gpt-image-2.5-flare,0.02,2,200,40.8,30,20,4.08,105.12
+image,minimax-h3-image,0.02,2,200,34,30,20,3.4,112.6
+image,flux-schnell-image,0,2,200,5.1,30,20,0.51,144.39
+image,flux-dev-image,0.01,2,200,20.4,30,20,2.04,127.56
+image,gpt-image-2-text-to-image,0.06,4,400,102,60,40,10.2,187.8
+image,gpt-image-2-image-to-image,0.09,5,500,153,75,50,15.3,206.7
+image,gpt-image-2-ws-text-to-image,0.06,4,400,96.9,60,40,9.69,193.41
+image,gpt-image-2-ws-edit,0.07,4,400,113.05,60,40,11.31,175.65
+image,nano-banana-pro-ws-text-to-image,0.14,8,800,238,120,80,23.8,338.2
+image,nano-banana-pro-ws-edit,0.14,8,800,238,120,80,23.8,338.2
+image,nano-banana,0.04,3,300,64.6,45,30,6.46,153.94
+image,nano-banana-edit,0.04,3,300,64.6,45,30,6.46,153.94
+image,nano-banana-2,0.07,4,400,119,60,40,11.9,169.1
+image,qwen-image,0.02,2,200,34,30,20,3.4,112.6
+image,flux-2-pro,0.03,2,200,51,30,20,5.1,93.9
+image,seedream-5.0,0.05,3,300,76.5,45,30,7.65,140.85
+image,hunyuan-image-3.0,0.12,7,700,204,105,70,20.4,300.6
+image,hunyuan-image-2.1,0.03,2,200,42.5,30,20,4.25,103.25
+image,google-imagen4-ultra,0.06,4,400,102,60,40,10.2,187.8
+image,hidream_i1_full_image,0.02,2,200,40.8,30,20,4.08,105.12
+video_base,seedance-2-mini-text-to-video,0.4,22,2200,680,330,220,68,902
+video_base,seedance-2-mini-image-to-video,0.4,22,2200,680,330,220,68,902
+video_base,seedance-2-text-to-video,0.6,33,3300,1020,495,330,102,1353
+video_base,seedance-2-image-to-video,0.6,33,3300,1020,495,330,102,1353
+video_base,seedance-2-720p-text-to-video,1.2,65,6500,2040,975,650,204,2631
+video_base,seedance-2-720p-image-to-video,1.2,65,6500,2040,975,650,204,2631
+video_base,seedance-2-1080p-text-to-video,3,161,16100,5100,2415,1610,510,6465
+video_base,seedance-2-1080p-image-to-video,3,161,16100,5100,2415,1610,510,6465
+video_base,seedance-2-4k-text-to-video,6,321,32100,10200,4815,3210,1020,12855
+video_base,seedance-2-4k-image-to-video,6,321,32100,10200,4815,3210,1020,12855
+video_base,seedance-2-vip-text-to-video,1.5,81,8100,2550,1215,810,255,3270
+video_base,seedance-2-vip-image-to-video,1.5,81,8100,2550,1215,810,255,3270
+video_base,kling-v3-turbo-standard-text-to-video,0.56,30,3000,952,450,300,95.2,1202.8
+video_base,kling-v3-turbo-standard-image-to-video,0.56,30,3000,952,450,300,95.2,1202.8
+video_base,kling-v3-turbo-pro-text-to-video,0.7,38,3800,1190,570,380,119,1541
+video_base,kling-v3-turbo-pro-image-to-video,0.7,38,3800,1190,570,380,119,1541
+video_base,kling-v3-turbo-4k-text-to-video,1.4,75,7500,2380,1125,750,238,3007
+video_base,kling-v3-turbo-4k-image-to-video,1.4,75,7500,2380,1125,750,238,3007
+video_base,grok-imagine-text-to-video,0.05,3,300,85,45,30,8.5,131.5
+video_base,grok-imagine-image-to-video,0.05,3,300,85,45,30,8.5,131.5
+video_base,minimax-h3-text-to-video,0.2,11,1100,340,165,110,34,451
+video_base,minimax-h3-image-to-video,0.2,11,1100,340,165,110,34,451
+video_base,wan-3-text-to-video,0.25,14,1400,425,210,140,42.5,582.5
+video_base,wan-3-image-to-video,0.25,14,1400,425,210,140,42.5,582.5
+video_base,gemini-omni-1.1-flash-text-to-video,0.15,9,900,255,135,90,25.5,394.5
+video_base,gemini-omni-1.1-flash-image-to-video,0.15,9,900,255,135,90,25.5,394.5
+video_base,seedance-2.5-image-to-video,0.9,49,4900,1530,735,490,153,1992
+video_base,seedance-2.5-text-to-video,0.9,49,4900,1530,735,490,153,1992
+video_base,veo3-text-to-video,1.2,65,6500,2040,975,650,204,2631
+video_base,veo3-image-to-video,1.2,65,6500,2040,975,650,204,2631
+video_base,gemini-omni-video-edit,2.4,129,12900,4080,1935,1290,408,5187
+video_base,seedance-2-omni-reference-no-video,1.25,67,6700,2125,1005,670,212.5,2687.5
+video_base,gemini-omni-flash-video-edit,0.16,9,900,272,135,90,27.2,375.8
+video_base,omnihuman-1-5,0.25,14,1400,425,210,140,42.5,582.5
+video_base,kling-v2-avatar-pro,0.75,41,4100,1275,615,410,127.5,1672.5
+video_base,kling-v2-avatar-standard,0.35,19,1900,595,285,190,59.5,770.5
+tool,ai-image-upscale,0.01,2,200,17,30,20,1.7,131.3
+tool,ai-background-remover,0,2,200,6.8,30,20,0.68,142.52
+tool,ai-object-eraser,0.03,2,200,42.5,30,20,4.25,103.25
+video_setting,minimax-h3-text-to-video 480p 5s,0.2,11,1100,340,165,110,34,451
+video_setting,minimax-h3-text-to-video 480p 10s,0.4,22,2200,680,330,220,68,902
+video_setting,minimax-h3-text-to-video 480p 15s,0.6,33,3300,1020,495,330,102,1353
+video_setting,minimax-h3-text-to-video 540p 5s,0.3,17,1700,510,255,170,51,714
+video_setting,minimax-h3-text-to-video 540p 10s,0.6,33,3300,1020,495,330,102,1353
+video_setting,minimax-h3-text-to-video 540p 15s,0.9,49,4900,1530,735,490,153,1992
+video_setting,minimax-h3-text-to-video 768p 5s,0.4,22,2200,680,330,220,68,902
+video_setting,minimax-h3-text-to-video 768p 10s,0.8,43,4300,1360,645,430,136,1729
+video_setting,minimax-h3-text-to-video 768p 15s,1.2,65,6500,2040,975,650,204,2631
+video_setting,minimax-h3-text-to-video 1080p 5s,0.8,43,4300,1360,645,430,136,1729
+video_setting,minimax-h3-text-to-video 1080p 10s,1.6,86,8600,2720,1290,860,272,3458
+video_setting,minimax-h3-text-to-video 1080p 15s,2.4,129,12900,4080,1935,1290,408,5187
+video_setting,minimax-h3-image-to-video 480p 5s,0.2,11,1100,340,165,110,34,451
+video_setting,minimax-h3-image-to-video 480p 10s,0.4,22,2200,680,330,220,68,902
+video_setting,minimax-h3-image-to-video 480p 15s,0.6,33,3300,1020,495,330,102,1353
+video_setting,minimax-h3-image-to-video 540p 5s,0.3,17,1700,510,255,170,51,714
+video_setting,minimax-h3-image-to-video 540p 10s,0.6,33,3300,1020,495,330,102,1353
+video_setting,minimax-h3-image-to-video 540p 15s,0.9,49,4900,1530,735,490,153,1992
+video_setting,minimax-h3-image-to-video 768p 5s,0.4,22,2200,680,330,220,68,902
+video_setting,minimax-h3-image-to-video 768p 10s,0.8,43,4300,1360,645,430,136,1729
+video_setting,minimax-h3-image-to-video 768p 15s,1.2,65,6500,2040,975,650,204,2631
+video_setting,minimax-h3-image-to-video 1080p 5s,0.8,43,4300,1360,645,430,136,1729
+video_setting,minimax-h3-image-to-video 1080p 10s,1.6,86,8600,2720,1290,860,272,3458
+video_setting,minimax-h3-image-to-video 1080p 15s,2.4,129,12900,4080,1935,1290,408,5187
+video_setting,wan-3-text-to-video 480p 5s,0.25,14,1400,425,210,140,42.5,582.5
+video_setting,wan-3-text-to-video 480p 10s,0.5,27,2700,850,405,270,85,1090
+video_setting,wan-3-text-to-video 480p 15s,0.75,41,4100,1275,615,410,127.5,1672.5
+video_setting,wan-3-text-to-video 720p 5s,0.5,27,2700,850,405,270,85,1090
+video_setting,wan-3-text-to-video 720p 10s,1,54,5400,1700,810,540,170,2180
+video_setting,wan-3-text-to-video 720p 15s,1.5,81,8100,2550,1215,810,255,3270
+video_setting,wan-3-text-to-video 1080p 5s,1,54,5400,1700,810,540,170,2180
+video_setting,wan-3-text-to-video 1080p 10s,2,107,10700,3400,1605,1070,340,4285
+video_setting,wan-3-text-to-video 1080p 15s,3,161,16100,5100,2415,1610,510,6465
+video_setting,wan-3-image-to-video 480p 5s,0.25,14,1400,425,210,140,42.5,582.5
+video_setting,wan-3-image-to-video 480p 10s,0.5,27,2700,850,405,270,85,1090
+video_setting,wan-3-image-to-video 480p 15s,0.75,41,4100,1275,615,410,127.5,1672.5
+video_setting,wan-3-image-to-video 720p 5s,0.5,27,2700,850,405,270,85,1090
+video_setting,wan-3-image-to-video 720p 10s,1,54,5400,1700,810,540,170,2180
+video_setting,wan-3-image-to-video 720p 15s,1.5,81,8100,2550,1215,810,255,3270
+video_setting,wan-3-image-to-video 1080p 5s,1,54,5400,1700,810,540,170,2180
+video_setting,wan-3-image-to-video 1080p 10s,2,107,10700,3400,1605,1070,340,4285
+video_setting,wan-3-image-to-video 1080p 15s,3,161,16100,5100,2415,1610,510,6465
+video_setting,gemini-omni-1.1-flash-text-to-video 360p 5s,0.15,9,900,255,135,90,25.5,394.5
+video_setting,gemini-omni-1.1-flash-text-to-video 360p 10s,0.3,17,1700,510,255,170,51,714
+video_setting,gemini-omni-1.1-flash-text-to-video 360p 15s,0.45,25,2500,765,375,250,76.5,1033.5
+video_setting,gemini-omni-1.1-flash-text-to-video 720p 5s,0.5,27,2700,850,405,270,85,1090
+video_setting,gemini-omni-1.1-flash-text-to-video 720p 10s,1,54,5400,1700,810,540,170,2180
+video_setting,gemini-omni-1.1-flash-text-to-video 720p 15s,1.5,81,8100,2550,1215,810,255,3270
+video_setting,gemini-omni-1.1-flash-text-to-video 1080p 5s,0.75,41,4100,1275,615,410,127.5,1672.5
+video_setting,gemini-omni-1.1-flash-text-to-video 1080p 10s,1.5,81,8100,2550,1215,810,255,3270
+video_setting,gemini-omni-1.1-flash-text-to-video 1080p 15s,2.25,121,12100,3825,1815,1210,382.5,4867.5
+video_setting,gemini-omni-1.1-flash-text-to-video 4k 5s,1.5,81,8100,2550,1215,810,255,3270
+video_setting,gemini-omni-1.1-flash-text-to-video 4k 10s,3,161,16100,5100,2415,1610,510,6465
+video_setting,gemini-omni-1.1-flash-text-to-video 4k 15s,4.5,241,24100,7650,3615,2410,765,9660
+video_setting,gemini-omni-1.1-flash-image-to-video 360p 5s,0.15,9,900,255,135,90,25.5,394.5
+video_setting,gemini-omni-1.1-flash-image-to-video 360p 10s,0.3,17,1700,510,255,170,51,714
+video_setting,gemini-omni-1.1-flash-image-to-video 360p 15s,0.45,25,2500,765,375,250,76.5,1033.5
+video_setting,gemini-omni-1.1-flash-image-to-video 720p 5s,0.5,27,2700,850,405,270,85,1090
+video_setting,gemini-omni-1.1-flash-image-to-video 720p 10s,1,54,5400,1700,810,540,170,2180
+video_setting,gemini-omni-1.1-flash-image-to-video 720p 15s,1.5,81,8100,2550,1215,810,255,3270
+video_setting,gemini-omni-1.1-flash-image-to-video 1080p 5s,0.75,41,4100,1275,615,410,127.5,1672.5
+video_setting,gemini-omni-1.1-flash-image-to-video 1080p 10s,1.5,81,8100,2550,1215,810,255,3270
+video_setting,gemini-omni-1.1-flash-image-to-video 1080p 15s,2.25,121,12100,3825,1815,1210,382.5,4867.5
+video_setting,gemini-omni-1.1-flash-image-to-video 4k 5s,1.5,81,8100,2550,1215,810,255,3270
+video_setting,gemini-omni-1.1-flash-image-to-video 4k 10s,3,161,16100,5100,2415,1610,510,6465
+video_setting,gemini-omni-1.1-flash-image-to-video 4k 15s,4.5,241,24100,7650,3615,2410,765,9660
+video_setting,seedance-2.5-image-to-video 480p 5s,0.9,49,4900,1530,735,490,153,1992
+video_setting,seedance-2.5-image-to-video 480p 10s,1.8,97,9700,3060,1455,970,306,3909
+video_setting,seedance-2.5-image-to-video 480p 15s,2.7,145,14500,4590,2175,1450,459,5826
+video_setting,seedance-2.5-image-to-video 720p 5s,1.8,97,9700,3060,1455,970,306,3909
+video_setting,seedance-2.5-image-to-video 720p 10s,3.6,193,19300,6120,2895,1930,612,7743
+video_setting,seedance-2.5-image-to-video 720p 15s,5.4,289,28900,9180,4335,2890,918,11577
+video_setting,seedance-2.5-image-to-video 1080p 5s,4.5,241,24100,7650,3615,2410,765,9660
+video_setting,seedance-2.5-image-to-video 1080p 10s,9,481,48100,15300,7215,4810,1530,19245
+video_setting,seedance-2.5-image-to-video 1080p 15s,13.5,722,72200,22950,10830,7220,2295,28905
+video_setting,seedance-2.5-image-to-video 4k 5s,9,481,48100,15300,7215,4810,1530,19245
+video_setting,seedance-2.5-image-to-video 4k 10s,18,962,96200,30600,14430,9620,3060,38490
+video_setting,seedance-2.5-image-to-video 4k 15s,27,1443,144300,45900,21645,14430,4590,57735
+video_setting,seedance-2.5-text-to-video 480p 5s,0.9,49,4900,1530,735,490,153,1992
+video_setting,seedance-2.5-text-to-video 480p 10s,1.8,97,9700,3060,1455,970,306,3909
+video_setting,seedance-2.5-text-to-video 480p 15s,2.7,145,14500,4590,2175,1450,459,5826
+video_setting,seedance-2.5-text-to-video 720p 5s,1.8,97,9700,3060,1455,970,306,3909
+video_setting,seedance-2.5-text-to-video 720p 10s,3.6,193,19300,6120,2895,1930,612,7743
+video_setting,seedance-2.5-text-to-video 720p 15s,5.4,289,28900,9180,4335,2890,918,11577
+video_setting,seedance-2.5-text-to-video 1080p 5s,4.5,241,24100,7650,3615,2410,765,9660
+video_setting,seedance-2.5-text-to-video 1080p 10s,9,481,48100,15300,7215,4810,1530,19245
+video_setting,seedance-2.5-text-to-video 1080p 15s,13.5,722,72200,22950,10830,7220,2295,28905
+video_setting,seedance-2.5-text-to-video 4k 5s,9,481,48100,15300,7215,4810,1530,19245
+video_setting,seedance-2.5-text-to-video 4k 10s,18,962,96200,30600,14430,9620,3060,38490
+video_setting,seedance-2.5-text-to-video 4k 15s,27,1443,144300,45900,21645,14430,4590,57735
