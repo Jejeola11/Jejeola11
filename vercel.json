@@ -8,6 +8,10 @@
   },
   "routes": [
     {
+      "src": "/server/functions/_ai-video-book-v2\\.js",
+      "status": 404
+    },
+    {
       "src": "/",
       "has": [
         {

@@ -25,3 +25,42 @@ html{scrollbar-color:#dfff4e #062125;scrollbar-width:auto}
 @media(prefers-reduced-motion:reduce){.action-peek{animation:none}}
 .book-action a.secondary-action{margin:10px 0 0 9px;border:1px solid #dfff4e;background:transparent;color:#dfff4e}
 @media(max-width:520px){.book-action a.secondary-action{margin-left:0;display:flex;width:max-content;max-width:100%}}
+
+/* Revised edition: readable pages, real links and copyable exercises. */
+.page-frame{aspect-ratio:auto;min-height:calc(min(100vw,760px)*4/3);touch-action:pan-y;overflow:hidden;background:#fffef5}
+.page-frame.zoomed{touch-action:none}
+#pageStage{transform-origin:0 0;width:100%;will-change:transform}
+#pageStage[hidden]{display:none}
+.page-frame img{height:auto;object-fit:contain;touch-action:pan-y}
+.page-frame.cover-page{min-height:0}
+#bookText{padding:clamp(24px,6vw,56px);color:#062125;min-height:calc(min(100vw,760px)*4/3);background:radial-gradient(ellipse at top right,#fff3a5 0,transparent 45%),#fffef5;font-size:clamp(17px,2.7vw,22px);line-height:1.75}
+#bookText[hidden]{display:none}
+#bookText[data-tone="1"]{background:radial-gradient(ellipse at top right,#e9f4d3 0,transparent 45%),#fbfff6}
+#bookText[data-tone="2"]{background:radial-gradient(ellipse at top right,#fff0a5 0,transparent 45%),#fffdf1}
+#bookText .lesson-kicker{text-transform:uppercase;font-size:12px;font-weight:800;letter-spacing:.13em;color:#315456;margin-bottom:16px}
+#bookText .lesson-title{font-size:clamp(27px,4.7vw,42px);line-height:1.17;letter-spacing:-.035em;margin:0 0 22px;font-weight:700;overflow-wrap:break-word}
+.lesson-rule{width:80px;height:6px;border-radius:5px;background:linear-gradient(100deg,#ffe66a,#a7c939,#1b4c52);margin:0 0 28px}
+#bookText p{padding:0;margin:0 0 22px;max-width:none;text-align:left;line-height:inherit;color:inherit}
+.lesson-cards{display:grid;gap:14px;margin:28px 0;counter-reset:card}
+.lesson-card{counter-increment:card;border:1px solid #31545655;border-radius:15px;padding:22px;background:linear-gradient(130deg,#00191b,#123b3f);color:#eeffe0;box-shadow:0 8px 22px #00101216}
+#bookText .lesson-card h2{margin:0 0 8px;font-size:17px;color:#dfff4e;line-height:1.4}
+#bookText .lesson-card p{margin:0;font-size:.9em}
+.lesson-steps{list-style:none;counter-reset:step;padding:0;margin:28px 0;display:grid;gap:15px}
+.lesson-steps li{counter-increment:step;position:relative;padding-left:46px}
+.lesson-steps li:before{content:counter(step,decimal-leading-zero);position:absolute;left:0;top:3px;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:#062125;color:#dfff4e;font-size:12px;font-weight:700}
+.lesson-task,.lesson-prompt{padding:24px;border-radius:16px;margin:28px 0;background:linear-gradient(115deg,#ffe66a,#e9f59a,#f3ffe7);border:1px solid #b6c475;box-shadow:0 8px 20px #0010120a}
+#bookText .lesson-task h2,#bookText .lesson-prompt h2{font-size:15px;text-transform:uppercase;letter-spacing:.07em;margin:0 0 12px}
+#bookText .lesson-task p,#bookText .lesson-prompt p{margin:0;font-size:.94em}
+.lesson-prompt{background:#eaf2ed;border-color:#31545644}
+.lesson-copy{padding:12px 18px;background:#062125;color:#eeffe0;border:0;border-radius:9px;font:700 14px Montserrat,Arial;cursor:pointer;margin-top:16px;min-height:44px}
+.lesson-note{border-left:4px solid #9ba929;padding:8px 0 8px 18px;font-size:.85em;color:#315456;margin:26px 0}
+.lesson-links{display:grid;gap:10px;margin:26px 0}
+.lesson-links a{background:linear-gradient(105deg,#001012,#1b4c52);border:1px solid #315456;color:#eeffe0;text-decoration:none;font-size:14px;line-height:1.5;padding:14px 18px;border-radius:10px;font-weight:700}
+.lesson-links a:focus-visible,.lesson-copy:focus-visible{outline:3px solid #839e26;outline-offset:4px}
+.lesson-footer{border-top:1px solid #31545644;padding-top:20px;margin-top:32px;display:flex;justify-content:space-between;gap:20px;font-size:9px;letter-spacing:.09em;color:#315456}
+.copy-fallback{width:100%;height:180px;font:16px/1.5 sans-serif;margin-top:15px}
+.page-frame.is-loading #bookStatus{position:relative;top:auto;left:auto;transform:none;margin:60px auto}
+#bookStatus{max-width:85%;padding:24px;line-height:1.6}
+.book-contents{font-size:24px!important}
+@media(min-width:650px){.lesson-cards{grid-template-columns:1fr 1fr}.lesson-card:last-child:nth-child(odd){grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}

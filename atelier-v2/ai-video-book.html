@@ -8,10 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="ai-video-book.css?v=6">
+  <link rel="stylesheet" href="ai-video-book.css?v=edition-202610-1">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
   <script src="fuse-shell.js?v=footer-unified-6" defer></script>
-  <script src="ai-video-book.js?v=direct-reader-8" defer></script>
+  <script src="ai-video-book.js?v=edition-202610-1" defer></script>
 <style>.book-menu-links{display:grid;gap:10px}.book-menu-links a{display:block;padding:14px 16px;border-radius:12px;background:linear-gradient(110deg,#FFE66A,#DFFF4E,#EEFFE0);color:#001012;font-weight:700;text-decoration:none}.book-contents{font-size:24px;line-height:1}</style></head>
 <body data-page="academy">
   <header class="book-top">
@@ -20,18 +20,17 @@
     <button id="bookContents" class="book-contents" type="button" aria-label="Open book menu" aria-haspopup="dialog">☰</button>
   </header>
   <main class="book-shell">
-    <div class="book-meta"><span>MARYAM JEJEOLA</span><span id="pageLabel">Page 1 of 45</span></div>
+    <div class="book-meta"><span>MARYAM JEJEOLA</span><span id="pageLabel">Page 1 of 63</span></div>
     <div class="page-frame" id="pageFrame" aria-live="polite">
-      <p id="bookStatus" role="status">Checking your access…</p>
-      <img id="bookPage" alt="" hidden>
-      <div id="pageHotspots" class="page-hotspots" hidden><a id="ugcPageLink" href="https://nestuge.com/academy_ugc_offer" target="_blank" rel="noopener noreferrer" aria-label="View the AI UGC course"></a></div>
+      <p id="bookStatus" role="status">Opening your book…</p>
+      <div id="pageStage"><img id="bookPage" alt="Book cover" hidden><article id="bookText" hidden></article></div>
     </div>
     <div class="book-controls">
       <button id="prevPage" type="button">← Previous</button>
-      <label for="pageNumber"><span>Page</span><input id="pageNumber" type="number" min="1" max="45" value="1" inputmode="numeric" aria-label="Go to page"><span>of 45</span></label>
+      <label for="pageNumber"><span>Page</span><input id="pageNumber" type="number" min="1" max="63" value="1" inputmode="numeric" aria-label="Go to page"><span id="totalPages">of 63</span></label>
       <button id="nextPage" type="button">Next →</button>
     </div>
-    <p class="reader-note">Use two fingers to zoom, then drag to read. Double-tap to zoom or reset. Your last page is saved on this device.</p>
+    <p class="reader-note">Pinch to zoom. Double-tap to reset. Swipe vertically to read longer pages. Your place is saved on this device.</p>
   </main>
   <div class="reader-progress" aria-hidden="true"><div id="readerProgressFill"></div></div>
   <dialog id="contentsDialog" class="contents-dialog" aria-label="Book menu">
@@ -45,3 +44,4 @@
   </dialog>
 </body>
 </html>
+
