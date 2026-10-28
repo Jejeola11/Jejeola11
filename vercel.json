@@ -17,7 +17,7 @@
     },
     {
       "src": "/login/?",
-      "dest": "/start/auth/index.html"
+      "dest": "/atelier-v2/login.html"
     },
     {
       "src": "/start/?",
