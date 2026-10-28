@@ -11,7 +11,7 @@
  optIn?.addEventListener('change',()=>{touchedOptIn=true;});
  document.getElementById('email').addEventListener('input',()=>{if(!optIn||signup||touchedOptIn)return;try{const saved=JSON.parse(sessionStorage.getItem('fuse_signup_email_choice')||'null');optIn.checked=!!(saved&&saved.email===document.getElementById('email').value.trim().toLowerCase()&&saved.consent);}catch(_){}});
  let session=null;
- const ready=sb.auth.getSession().then(({data})=>{session=data.session;if(session&&!signup&&!token){button.textContent='Log in';description.textContent='You’re already verified on this device. Enter your name and account email to continue.';}});
+ const ready=sb.auth.getSession().then(({data})=>{session=data.session;if(session&&!signup&&!token){button.textContent='Log in';description.textContent='Continue with your saved account, or enter another email to switch accounts.';document.getElementById('email').value=session.user.email||'';document.getElementById('name').value=session.user.user_metadata?.full_name||session.user.user_metadata?.name||'';}});
  if(!signup&&!document.body.dataset.originalLogin){title.textContent='Welcome to Fuse Atelier';document.title='Log in — Fuse Atelier';switcher.textContent='New to Fuse? Create an account';switcher.href='/signup';description.textContent=token?'Enter your name and the email you just verified to log in.':'Enter your details to receive a secure login button by email.';button.textContent=token?'Verify and log in':'Send login email';}
  document.getElementById('auth-form').addEventListener('submit',async e=>{
   e.preventDefault();await ready;button.disabled=true;message.textContent='';
@@ -22,8 +22,7 @@
     if(error)throw new Error('This verification button has expired or was already used. Open Login to request a new email.');
     session=data.session;token=null;
    }
-   if(!signup&&session){
-    if(session.user.email.toLowerCase()!==email)throw new Error('Use the email address this verification button was sent to.');
+   if(!signup&&session&&session.user.email.trim().toLowerCase()===email){
     localStorage.setItem('fuse_display_name',name);
     // Signup already saved the contact; this authenticated call records the optional email choice.
     let consent=!!optIn?.checked;try{const saved=JSON.parse(sessionStorage.getItem('fuse_signup_email_choice')||'null');if(!optIn&&saved?.email===email)consent=!!saved.consent;}catch(_){}
