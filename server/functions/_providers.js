@@ -24,7 +24,7 @@ const MU_BASE = 'https://api.muapi.ai/api/v1';
 const WS_BASE = 'https://api.wavespeed.ai/api/v3';
 const GOOGLE_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
-const hasWaveSpeed = () => !!process.env.WAVESPEED_KEY;
+const hasWaveSpeed = () => require('./_wave-capture').active() || !!process.env.WAVESPEED_KEY;
 // GEMINI_API_KEY billing note: unlike MuAPI/WaveSpeed (small prepaid credit
 // pools where a bad call costs cents), this key bills directly against a
 // real Google account with no visible cap here. Built from Google's stable,
@@ -262,6 +262,7 @@ function durInt(duration) { return parseInt(duration, 10) || 5; }
 
 // --- WaveSpeed transport -----------------------------------------------------
 async function wsSubmit(model, body) {
+  if(require('./_wave-capture').record(model,body))return 'quote-only';
   const res = await fetch(`${WS_BASE}/${model}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${process.env.WAVESPEED_KEY}`, 'Content-Type': 'application/json' },
@@ -287,6 +288,7 @@ async function wsPoll(id) {
 
 // --- MuAPI transport ---------------------------------------------------------
 async function muSubmit(model, body) {
+  if(require('./_wave-capture').active())throw Error('Fallback provider pricing is not verified');
   const res = await fetch(`${MU_BASE}/${model}`, {
     method: 'POST',
     headers: { 'x-api-key': process.env.MUAPI_KEY, 'Content-Type': 'application/json' },
@@ -408,7 +410,7 @@ function wsVideoBody(route, opts, hosted) {
 // against a genuinely separate account (Google Cloud vs WaveSpeed vs MuAPI).
 async function submitVideo(model, opts, hosted) {
   const googleModel = GOOGLE_VIDEO_ROUTES[model];
-  if (googleModel && hasGoogle() && !opts.strictModel) {
+  if (googleModel && hasGoogle() && !opts.strictModel && !require('./_wave-capture').active()) {
     try {
       const opName = await googleSubmitVideo(googleModel, opts);
       return { requestId: 'g:' + Buffer.from(opName).toString('base64url'), provider: 'google' };
