@@ -11,7 +11,7 @@
     ['Find suitable jobs, research clients and pitch', 'Find three suitable jobs, verify the client and requirements, then prepare one tailored proposal.'],
     ['Find 5 Real Clients Beyond Upwork and Pitch Them', 'Research five suitable businesses, verify each manually and send five personalized pitches.'],
     ['Find Prospects with Fuse Client Agent, Start Conversations & Move Towards a Deal', 'Send five researched, personalized first messages.'],
-    ['Read replies and follow up', 'Respond to real replies and follow up without inventing urgency.'],
+    ["Review Your Outreach: Why Aren't They Replying?", 'Respond to real replies and follow up without inventing urgency.'],
     ['Turn interest into a clear brief', 'Ask discovery questions and write a one-page creative direction.'],
     ['Quote, scope and request a deposit', 'Prepare a fixed-price quote with deliverables and revision limits.'],
     ['Handle objections without discounting blindly', 'Practice answers to the objections you actually receive.'],
@@ -184,8 +184,8 @@ ACCURACY RULES
       }]});
       return;
     }
-    modules.push({key:`challenge-day-${day}`,title:`Day ${day} · ${title}`,kicker:`Day ${day}`,lessons:[{
-      key:`challenge-day-${day}`,title:`Day ${day}: ${title}`,
+    modules.push({key:`challenge-day-${day}`,title:day===8?`Day 8 - ${title}`:`Day ${day} · ${title}`,kicker:`Day ${day}`,lessons:[{
+      key:`challenge-day-${day}`,title:day===8?`Day 8 - ${title}`:`Day ${day}: ${title}`,
       learnText:day===1?'Assess the AI videos you can create now, the businesses they could help and the work you would feel confident showing a client.':day===2?'Turn one AI video skill into a clear service: choose a buyer, understand their concerns, define the deliverables and price it with your costs in mind.':day===3?'Use your strongest work and your Day 1 and Day 2 answers to build a simple portfolio with ChatGPT or Claude, then check that a client can view it on a phone.':`Today's focus: ${title}. Watch the lesson, study the example and apply it to your own AI video service.`,
       actionText:day===1?'Review three AI videos you made. For each, note what works, what you would improve and which business could use it. Choose your strongest one. In the group, share your video type, target business, strongest video link or upload, and one thing to improve.':day===2?'Choose one business type and what they need your video for. List three hiring concerns and your answers. Define one package: length, format, deliverables, client inputs, turnaround, revisions and starting price after costs. Write a short offer statement and share your draft in the group.':day===3?'Choose up to three strong videos and write a short, honest case study for each. Label practice work as a concept. Use your Day 1 and Day 2 answers to build a portfolio with ChatGPT or Claude. Test it on your phone: videos, readability and contact button. Share the link in the group before 8 PM.':action,
       ...(day===3 ? {copyPrompt:dayThreePortfolioPrompt} : {})
