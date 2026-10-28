@@ -8,6 +8,9 @@
     "api/project-media.js": {
       "includeFiles": "start/project-parts.json",
       "maxDuration": 60
+    },
+    "api/start-media-import.js": {
+      "maxDuration": 60
     }
   },
   "routes": [
