@@ -36,6 +36,7 @@
     ebook:{name:'Zero To First 10 Million With AI Video',price:4900,href:'ai-video-book.html'}
   };
 
+  for(const offer of window.FuseAgentCourseOffers||[]){checkoutUrls[offer.key]=offer.checkout;courseMeta[offer.key].price=offer.price;}
   let isFull=false;
   let owned=new Set();
   let isAdmin=false;
@@ -59,7 +60,7 @@
       row.querySelector('.academy-lock-label')?.remove();
       row.href=allowed?meta.href:(checkoutUrls[course]||'#');
       const cta=row.querySelector('.academy-start');
-      if(cta) cta.textContent=allowed?'Start':'Unlock · ₦'+(course==='challenge'?'15,000':'4900');
+      if(cta) cta.textContent=allowed?'Start':'Unlock · ₦'+meta.price.toLocaleString('en-NG');
     });
     const list=document.querySelector('.academy-cards');
     if(list){
