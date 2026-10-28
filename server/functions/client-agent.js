@@ -10,6 +10,14 @@ exports.handler=async event=>{
   let body;try{if((event.body||'').length>70000)return response(413,{error:'Please shorten your assignments.'});body=JSON.parse(event.body||'{}')}catch{return response(400,{error:'Invalid request'})}
   const db=admin();
   try{
+    const [account,grants]=await Promise.all([db.from('profiles').select('is_admin').eq('id',user.id).maybeSingle(),db.from('module_unlocks').select('module_key').eq('user_id',user.id)]);
+    if(account.error||grants.error)throw account.error||grants.error;
+    const owned=new Set((grants.data||[]).map(row=>row.module_key));
+    const allowed=account.data?.is_admin||['money','ai-video-client-challenge','atelier-starter','atelier-creator','atelier-empire','atelier-full'].some(key=>owned.has(key));
+    if(!allowed){
+      if(body.action==='load')return response(200,{locked:true});
+      return response(403,{error:'Unlock Money Engine or the 14-Day Challenge to use the Client Agent.',code:'AGENT_COURSE_REQUIRED'});
+    }
     if(body.action==='load'){
       const [profile,prospects,jobs,balance]=await Promise.all([
         db.from('client_agent_profiles').select('*').eq('user_id',user.id).maybeSingle(),
