@@ -8,6 +8,10 @@
   },
   "routes": [
     {
+      "src": "/start/?",
+      "dest": "/start/index.html"
+    },
+    {
       "src": "/server/functions/_ai-video-book-v2\\.js",
       "status": 404,
       "dest": "/atelier-v2/book-unavailable.txt"
