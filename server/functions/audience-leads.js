@@ -58,7 +58,7 @@ exports.handler = async (event) => {
     total: rows.length,
     leads: rows,
     countries: sortCounts(by('country')),
-    sources: sortCounts(by('source')),
+    sources: sortCounts(rows.reduce((result,row)=>{for(const source of new Set(row.sources.length?row.sources:['unknown']))result[source]=(result[source]||0)+1;return result;},{})),
     whatsappOptedIn: rows.filter(row => row.whatsapp_marketing_status === 'opted_in').length,
     emailSubscribed: rows.filter(row => row.email_marketing_status === 'subscribed').length
   });
