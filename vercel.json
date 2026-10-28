@@ -4,6 +4,10 @@
     "api/[fn].js": {
       "includeFiles": "server/functions/**",
       "maxDuration": 60
+    },
+    "api/community-source.js": {
+      "includeFiles": "start/original-parts.json",
+      "maxDuration": 60
     }
   },
   "routes": [
