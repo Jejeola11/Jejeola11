@@ -1,36 +1,34 @@
 (() => {
-  'use strict';
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const word = document.getElementById('rotating-word');
-  const words = ['AI videos.', 'product visuals.', 'flyer designs.', 'talking twins.'];
-  let index = 0;
-  setInterval(() => {
-    if (reduced.matches || document.hidden) return;
-    word.classList.add('leaving');
-    setTimeout(() => { index = (index + 1) % words.length; word.textContent = words[index]; word.classList.remove('leaving'); }, 250);
-  }, 2600);
-  const works = [
-    ['community-01','Flame & Flavor',368,464],['community-02','Jewelry in Motion',480,714],
-    ['community-08','Skincare Spotlight',480,854],['community-06','Everyday Elegance',478,850],
-    ['community-09','Studio News',480,854],['community-16','Bridal Dream',360,640],
-    ['community-05','Morning Glow',360,640],['community-15','Golden Hour',478,850]
-  ];
-  const observer = new IntersectionObserver(entries => entries.forEach(({target,isIntersecting}) => {
-    if (isIntersecting && !reduced.matches && !document.hidden) target.play().catch(() => {});
-    else target.pause();
-  }), {threshold: .25});
-  works.forEach(([id,title,width,height]) => {
-    const figure = document.createElement('figure'); figure.className = 'piece';
-    const media = document.createElement('div'); media.className = 'media';
-    const video = document.createElement('video');
-    video.poster = `/atelier-v2/media/community/${id}.webp`;
-    video.src = `/atelier-v2/media/community/${id}.mp4`;
-    video.width = width; video.height = height;
-    video.muted = true; video.loop = true; video.playsInline = true;
-    video.controls = true; video.preload = 'none'; video.setAttribute('aria-label', title);
-    const caption = document.createElement('figcaption'); caption.textContent = title;
-    media.append(video); figure.append(media,caption); document.getElementById('gallery').append(figure);
-    observer.observe(video);
-  });
-  document.addEventListener('visibilitychange', () => { if(document.hidden) document.querySelectorAll('video').forEach(v => v.pause()); });
+ 'use strict';
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+ const word=document.getElementById('rotating-word');
+ const words=['AI videos.','product visuals.','flyer designs.','talking twins.','Client work.','Paid gigs.','Website.','Portfolio.'];
+ let index=0;
+ setInterval(()=>{if(reduced.matches||document.hidden)return;word.classList.add('leaving');setTimeout(()=>{word.textContent=words[index=(index+1)%words.length];word.classList.remove('leaving');},250);},2600);
+ const menu=document.querySelector('.menu-toggle'),panel=document.getElementById('start-menu');
+ function close(){panel.hidden=true;menu.setAttribute('aria-expanded','false');}
+ menu.addEventListener('click',()=>{panel.hidden=!panel.hidden;menu.setAttribute('aria-expanded',String(!panel.hidden));});
+ document.getElementById('close-menu').addEventListener('click',close);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){close();menu.focus();}});
+ const gallery=document.getElementById('gallery');
+ let paused=false,hover=false,last=0;
+ const toggle=document.getElementById('gallery-motion');
+ toggle.addEventListener('click',()=>{paused=!paused;toggle.textContent=paused?'Resume motion':'Pause motion';toggle.setAttribute('aria-pressed',String(paused));});
+ gallery.addEventListener('pointerenter',()=>hover=true);gallery.addEventListener('pointerleave',()=>hover=false);
+ gallery.addEventListener('focusin',()=>hover=true);gallery.addEventListener('focusout',()=>hover=false);
+ gallery.addEventListener('pointerdown',()=>{paused=true;toggle.textContent='Resume motion';toggle.setAttribute('aria-pressed','true');});
+ document.getElementById('gallery-prev').onclick=()=>gallery.scrollBy({left:-290,behavior:reduced.matches?'instant':'smooth'});
+ document.getElementById('gallery-next').onclick=()=>gallery.scrollBy({left:290,behavior:reduced.matches?'instant':'smooth'});
+ const observer=new IntersectionObserver(entries=>entries.forEach(({target,isIntersecting})=>{if(isIntersecting&&!reduced.matches&&!document.hidden)target.play().catch(()=>{});else target.pause();}),{root:gallery,threshold:.25});
+ fetch('/start/community.json').then(r=>{if(!r.ok)throw Error();return r.json();}).then(works=>{
+ works.forEach(row=>{
+  const figure=document.createElement('figure');figure.className='piece';
+  const media=document.createElement('div');media.className='media';
+  const video=document.createElement('video');video.src=row.url;video.poster=row.poster;video.muted=true;video.loop=true;video.playsInline=true;video.controls=true;video.preload='none';video.setAttribute('aria-label',row.title);
+  const caption=document.createElement('figcaption'),label=document.createElement('span');label.textContent=row.title;caption.append(label);
+  media.append(video);figure.append(media,caption);gallery.append(figure);observer.observe(video);
+ });
+ }).catch(()=>{gallery.textContent='Community work is temporarily unavailable. Please refresh to try again.';});
+ function frame(time){const dt=Math.min(time-last,40);last=time;if(!paused&&!hover&&!reduced.matches&&!document.hidden&&gallery.scrollWidth>gallery.clientWidth){if(gallery.scrollLeft>=gallery.scrollWidth-gallery.clientWidth-1)gallery.scrollLeft=0;else gallery.scrollLeft+=dt*.035;}requestAnimationFrame(frame);}requestAnimationFrame(frame);
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)gallery.querySelectorAll('video').forEach(v=>v.pause());});
 })();
