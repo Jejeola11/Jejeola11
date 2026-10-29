@@ -263,7 +263,16 @@ async function open(i,scroll=false){
   history.replaceState(null,'','?course='+encodeURIComponent(key)+'&lesson='+encodeURIComponent(lesson.key));
   renderDrawer();
   const resourceReader=$('resourceReader');
-  if(lesson.kind==='resource' && resourceReader){
+  document.querySelector('.learn-card > h2').textContent=lesson.kind==='reading'?'Lesson recap':'What you’ll learn';
+  if(lesson.kind==='reading' && resourceReader){
+    $('lessonPlayer').hidden=true;
+    $('lessonPlayer').replaceChildren();
+    $('lessonStatus').textContent='Reading lesson · Read, practise and complete today’s task';
+    $('retryLesson').hidden=true;
+    resourceReader.hidden=false;
+    renderReading(resourceReader,lesson.reading);
+    $('nextLesson').textContent='Next lesson →';
+  }else if(lesson.kind==='resource' && resourceReader){
     $('lessonPlayer').hidden=true;
     $('lessonStatus').textContent='';
     $('retryLesson').hidden=true;
@@ -287,8 +296,32 @@ async function open(i,scroll=false){
   if(scroll)window.scrollTo({top:0,behavior:'smooth'});
 }
 
+function renderReading(container,reading){
+  container.replaceChildren();
+  container.classList.add('challenge-reading');
+  const lead=document.createElement('div');lead.className='reading-introduction';
+  reading.intro.forEach(text=>{const p=document.createElement('p');p.textContent=text;lead.append(p)});
+  container.append(lead);
+  const contents=document.createElement('nav');contents.className='reading-outline';contents.setAttribute('aria-label','In this lesson');
+  const label=document.createElement('strong');label.textContent='In this lesson';contents.append(label);
+  reading.sections.forEach((item,i)=>{
+    const a=document.createElement('a');a.href='#reading-section-'+i;a.textContent=item.title;
+    a.onclick=e=>{e.preventDefault();document.getElementById('reading-section-'+i)?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'})};contents.append(a);
+  });container.append(contents);
+  reading.sections.forEach((item,i)=>{
+    const section=document.createElement('section');section.className='reading-section';section.id='reading-section-'+i;
+    const h=document.createElement('h2');h.textContent=item.title;section.append(h);
+    item.paragraphs.flatMap(text=>text.startsWith('PROJECT:')?text.split(/ (?=DELIVERABLES:|CLIENT INPUTS:|PRICE AND PAYMENT:|TIMELINE:|REVISIONS:|HANDOVER:|OTHER TERMS:|CONFIRMATION:)/):[text]).forEach(text=>{
+      const p=document.createElement('p');p.textContent=text;
+      if(/^(CLIENT:|YOU:|"|PROJECT:|DELIVERABLES:|CLIENT INPUTS:|PRICE AND PAYMENT:|TIMELINE:|REVISIONS:|HANDOVER:|OTHER TERMS:|CONFIRMATION:)/.test(text))p.className='reading-example';
+      section.append(p);
+    });container.append(section);
+  });
+}
+
 function renderResource(container,resource){
   container.replaceChildren();
+  container.classList.remove('challenge-reading');
   const intro=document.createElement('p');intro.className='resource-intro';intro.textContent=resource.intro;
   container.append(intro);
   resource.sections.forEach(([heading,copy])=>{
@@ -388,3 +421,4 @@ if(key==='challenge'){
   })();
 }else open(selected);
 })();
+
