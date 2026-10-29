@@ -1,6 +1,7 @@
 (() => {
   'use strict';
 
+  if(['/atelier-v2/create.html','/atelier-v2/studio.html','/atelier-v2/clients.html','/atelier-v2/earn.html','/atelier-v2/profile.html','/atelier-v2/home.html'].includes(location.pathname)){document.documentElement.style.setProperty('background','#00090b','important');document.addEventListener('DOMContentLoaded',()=>document.body.style.setProperty('background','linear-gradient(145deg,#000709 0%,#001012 65%,#00191b 100%) fixed','important'));}
   const darkStyles=document.createElement('style');
   darkStyles.textContent='html:has(body[data-page="home"]),html:has(body[data-page="create"]),html:has(body[data-page="clients"]),html:has(body[data-page="earn"]),html:has(body[data-page="profile"]){background:#00090b!important}body[data-page="home"],body[data-page="create"],body[data-page="clients"],body[data-page="earn"],body[data-page="profile"],body[data-page="studio"],body[data-page="client"]{background:linear-gradient(145deg,#000709 0%,#001012 65%,#00191b 100%) fixed!important;min-height:100svh}';
   document.head.append(darkStyles);
@@ -112,8 +113,8 @@
       el.innerHTML=`<header class="fuse-top fuse-program-top">
         <a class="program-logo" href="${root}home.html" aria-label="Fuse Atelier home"><img src="/atelier-v2/media/fuse-mark-palette.webp" alt="Fuse Atelier"></a>
         <div class="program-actions">
-          <a class="program-instagram" href="https://www.instagram.com/fuse_studio2?stkn=MWhiOWU5M3pjYjJvcA==" target="_blank" rel="noopener noreferrer" aria-label="Fuse Studio on Instagram">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".7" fill="currentColor"/></svg>
+          <a class="program-instagram" href="https://www.tiktok.com/@director_ria" target="_blank" rel="noopener noreferrer" aria-label="Director Ria on TikTok">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3v12a5 5 0 1 1-4-4.9V14a2 2 0 1 0 1 1V3h3c.4 2.4 2.1 4 5 4.4V10a9 9 0 0 1-5-2"/></svg>
           </a>
           <a class="program-pricing" href="/credits" aria-label="Open pricing">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 12 9-9h7l2 2v7l-9 9z"/><circle cx="16.5" cy="7.5" r="1"/></svg><span>Pricing</span><small>23% OFF</small>
