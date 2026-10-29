@@ -209,3 +209,9 @@
   .reference-home .slide-copy>a{min-height:30px!important;padding:5px 8px!important;font-size:11px!important}
   .reference-home .slide-sculpture{width:43%!important}
 }
+
+/* Compact account menu: preserve existing typography and tap heights. */
+.reference-home .account-menu{width:min(240px,calc(100vw - 28px))!important;box-sizing:border-box}
+.reference-home .account-menu .menu-credit{grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.reference-home .account-menu .menu-credit>a{padding-left:12px;padding-right:12px}
+.reference-home .account-menu nav a{gap:10px}
