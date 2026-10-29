@@ -442,3 +442,14 @@ body.course-unlock-open{overflow:hidden}
   .course-unlock-summary{gap:8px}
   .course-unlock-summary>div{padding:12px 8px}
 }
+
+/* Allow course copy to define height instead of clipping inside a fixed ratio. */
+.academy-v3 .academy-shell{margin-top:20px}
+.academy-v3 .academy-course{box-sizing:border-box;aspect-ratio:auto;min-height:190px}
+.academy-v3 .academy-copy{gap:10px}
+.academy-v3 .academy-copy h2,.academy-v3 .academy-copy p{overflow-wrap:break-word}
+.academy-v3 .academy-start{flex-shrink:0;margin-top:8px;max-width:100%;box-sizing:border-box}
+.academy-v3 .academy-free{grid-template-columns:1fr;min-height:0}
+.academy-v3 .academy-free .academy-copy{padding:20px;gap:12px}
+.academy-v3 .academy-free h2,.academy-v3 .academy-free p{max-width:100%;margin:0}
+.academy-v3 .academy-free .academy-start{margin:0;min-height:37px;height:auto;padding:10px 16px}
