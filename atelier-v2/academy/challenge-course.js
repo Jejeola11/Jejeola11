@@ -524,6 +524,14 @@ ACCURACY RULES
       }]});
       return;
     }
+    if(day===9){
+      modules.push({key:'challenge-day-9',title:'Day 9: Create a Strategic Sample That Supports Your Pitch',kicker:'Day 9',lessons:[{
+        key:'challenge-day-9',title:'Day 9: Create a Strategic Sample That Supports Your Pitch',
+        learnText:'Choose relevant proof for a prospect and decide whether to ask permission first, propose a small paid test or lead with existing work that demonstrates the skill they need.',
+        actionText:"1. Research 5 prospects. Verify that each business is relevant to your offer and has a usable contact route.\n\n2. Pitch to all five using the direction that best fits each prospect: Ask-first, Paid test or Existing work. You do not need to use all three directions with the same person.\n\nTODAY’S CHECK-IN\n• Prospects researched:\n• Pitches sent:\n• Direction used for each prospect and why:\n• One pitch or relevant work link for review:\n• One thing I need help with:\n\nGood luck 😎"
+      }]});
+      return;
+    }
     if(day===4){
       modules.push({key:'challenge-day-4',title:'Day 4 · Build your Upwork profile',kicker:'Day 4',lessons:[
         {
