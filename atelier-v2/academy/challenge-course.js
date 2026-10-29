@@ -12,7 +12,7 @@
     ['Find 5 Real Clients Beyond Upwork and Pitch Them', 'Research five suitable businesses, verify each manually and send five personalized pitches.'],
     ['Find Prospects with Fuse Client Agent, Start Conversations & Move Towards a Deal', 'Send five researched, personalized first messages.'],
     ["Review Your Outreach: Why Aren't They Replying?", 'Respond to real replies and follow up without inventing urgency.'],
-    ['Turn interest into a clear brief', 'Ask discovery questions and write a one-page creative direction.'],
+    ['Create a Strategic Sample That Supports Your Pitch', 'Ask discovery questions and write a one-page creative direction.'],
     ['Quote, scope and request a deposit', 'Prepare a fixed-price quote with deliverables and revision limits.'],
     ['Handle objections without discounting blindly', 'Practice answers to the objections you actually receive.'],
     ['Agree on the work and deliver well', 'Confirm approval, files, payment steps and delivery schedule.'],
