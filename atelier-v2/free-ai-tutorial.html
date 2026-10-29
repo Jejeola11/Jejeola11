@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#001012">
+  <title>Seedance 2.5 Photoshoot Video · Fuse Atelier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="fuse.css?v=footer-unified-6">
+  <link rel="stylesheet" href="free-ai-tutorial.css?v=1">
+  <script src="free-ai-tutorial.js?v=1" defer></script>
+</head>
+<body class="free-tutorial-page">
+  <header class="course-top">
+    <div class="course-brand-wrap">
+      <a class="course-back" href="learn.html" aria-label="Back to Academy">←</a>
+      <a class="course-brand" href="learn.html" aria-label="Academy"><img src="media/fuse-mark-login-exact.png" alt=""><span>Fuse Atelier</span></a>
+    </div>
+    <button id="openModules" class="course-menu" type="button" aria-label="Open tutorials" aria-controls="moduleDrawer" aria-expanded="false"><span></span><span></span><span></span></button>
+  </header>
+
+  <main id="top" class="tutorial-shell">
+    <section class="tutorial-hero">
+      <p class="eyebrow">FREE TUTORIAL · LEARN AI FROM ZERO</p>
+      <h1>Seedance 2.5 <span class="chrome">Photoshoot Video</span></h1>
+      <p class="hero-copy">Turn a face reference and an outfit reference into a polished photoshoot still, then bring that scene to life. Follow the example below with your own images.</p>
+      <div class="tutorial-meta"><span>01 / TUTORIALS</span><span>IMAGE + VIDEO</span><span>VERTICAL 9:16</span></div>
+      <video class="hero-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793195194/fuse-start/more-9.mp4" poster="https://res.cloudinary.com/bzw55wh2/image/upload/v1793313124/fuse-atelier/academy/seedance-photoshoot-still-v1.webp" autoplay muted loop playsinline controls preload="metadata" aria-label="Director Ria's Seedance photoshoot video"></video>
+      <p class="video-hint">The video starts muted. Tap the speaker in the player to hear it.</p>
+    </section>
+
+    <section class="tutorial-section" aria-labelledby="flow-title">
+      <p class="eyebrow">01 · THE PROCESS</p>
+      <h2 id="flow-title">From references <span class="chrome">to motion</span></h2>
+      <p>Work in two stages. First make one strong vertical image. Then animate that image while keeping the same face, outfit, location and light throughout the clip.</p>
+      <div class="step-grid">
+        <article class="step-card"><span class="step-number">01</span><h3>Build the photoshoot frame</h3><p>Upload a clear face photo as <strong>@image1</strong> and the outfit-only front/back sheet as <strong>@image2</strong> to an image generator that supports image references. Paste the image prompt below and save your best 9:16 result.</p></article>
+        <article class="step-card"><span class="step-number">02</span><h3>Animate your frame</h3><p>In Seedance 2.5, upload the finished still as <strong>@image1</strong> and your face reference as <strong>@image2</strong>. Paste the video prompt, replace the name, and choose the available vertical duration and quality settings.</p></article>
+      </div>
+    </section>
+
+    <section class="tutorial-section" aria-labelledby="prep-title">
+      <p class="eyebrow">02 · GET READY</p>
+      <h2 id="prep-title">Set your <span class="chrome">references</span></h2>
+      <p>Use these images to understand the example. For your own result, replace the face and wardrobe references with images you have permission to use.</p>
+      <div class="reference-grid">
+        <figure><img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1793313127/fuse-atelier/academy/seedance-face-reference-v1.webp" alt="Close-up face reference for Ria" loading="lazy"><figcaption><strong>@image1 · Face</strong><span>A clear, front-facing image anchors the person’s identity.</span></figcaption></figure>
+        <figure><img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1793313121/fuse-atelier/academy/seedance-outfit-reference-v1.webp" alt="Front and back of blue floral dress and matching hijab alone on a grey background" loading="lazy"><figcaption><strong>@image2 · Outfit</strong><span>Front and back clothing reference on grey, with no person wearing it.</span></figcaption></figure>
+      </div>
+      <div class="tip-grid"><p><strong>Identity:</strong> Keep the face image sharp and unobstructed.</p><p><strong>Wardrobe:</strong> Describe the dress and hijab together so both carry into the final scene.</p><p><strong>Audio:</strong> Ask for scene sounds in the generation; add music later in an editor if you want it.</p></div>
+    </section>
+
+    <section class="tutorial-section prompt-section" aria-labelledby="image-title">
+      <p class="eyebrow">03 · STEP ONE · IMAGE</p>
+      <h2 id="image-title">Create the <span class="chrome">start frame</span></h2>
+      <p>The image establishes your character, styling, location and camera angle. Check it carefully before generating the video.</p>
+      <div class="result-grid"><figure><img class="still-image" src="https://res.cloudinary.com/bzw55wh2/image/upload/v1793313124/fuse-atelier/academy/seedance-photoshoot-still-v1.webp" alt="Ria in a blue floral dress beside a pool at golden hour, seen behind a photographer's camera" loading="lazy"><figcaption>Example still · photographer’s point of view</figcaption></figure><div class="result-notes"><span class="chip">9:16</span><span class="chip">FACE + OUTFIT REFERENCES</span><h3>Look for these details</h3><ul><li>The face remains recognisable.</li><li>The dress and hijab match the reference sheet.</li><li>Hands and camera screen are believable.</li><li>The subject is sharp against a golden-hour setting.</li></ul></div></div>
+      <div class="prompt-card"><div class="prompt-head"><strong>IMAGE PROMPT · COPY AND CUSTOMISE</strong><button type="button" data-copy="imagePrompt">Copy prompt</button></div><pre id="imagePrompt">Use @image1 only as the facial-identity reference and @image2 only as the clothing reference. Create an original, photorealistic vertical 9:16 fashion photoshoot still of the person in @image1. Keep her recognisable facial structure, skin tone, expression and natural proportions. Dress her in the exact modest full-length blue-and-white floral dress and matching pale-blue hijab shown from front and back in @image2. Maintain the long sleeves, flowing fabric, floral pattern and drape. Do not show another person wearing the reference outfit.
+
+Scene: a refined contemporary villa beside an outdoor swimming pool at late golden hour. Warm sunlight touches the terrace, calm water reflects the sky, and palm trees and an outdoor kitchen sit in the background. She stands near the pool, turning her head back toward the photographer with a relaxed welcoming smile. Keep a safe, natural distance from the pool edge.
+
+Camera: the viewer is the photographer. A realistic camera and both photographer hands appear low in the foreground, with the camera's rear screen accurately showing the same subject and pose. Make the woman the sharp focal point; keep the camera foreground slightly softer and the distant villa gently out of focus. Editorial composition, natural skin texture, believable fingers, coherent shadows, premium but realistic color. No extra people, logos, text, warped camera screen, altered identity, redesigned outfit or duplicate limbs.</pre></div>
+    </section>
+
+    <section class="tutorial-section prompt-section" aria-labelledby="video-title">
+      <p class="eyebrow">04 · STEP TWO · VIDEO</p>
+      <h2 id="video-title">Make the scene <span class="chrome">move</span></h2>
+      <p>Upload your generated still as <strong>@image1</strong> and the original face photo as <strong>@image2</strong>. The still sets the scene; the face photo helps keep the subject consistent.</p>
+      <div class="video-panel"><video src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793195194/fuse-start/more-9.mp4" poster="https://res.cloudinary.com/bzw55wh2/image/upload/v1793313124/fuse-atelier/academy/seedance-photoshoot-still-v1.webp" controls playsinline preload="none" aria-label="Finished Seedance 2.5 photoshoot example"></video><div><span class="chip">SEEDANCE 2.5</span><span class="chip">9:16</span><p>Use the duration your generation interface offers. This example runs about 25 seconds; if your available setting is shorter, split the beats into separate clips and edit them together.</p></div></div>
+      <div class="prompt-card"><div class="prompt-head"><strong>VIDEO PROMPT · COPY AND CUSTOMISE</strong><button type="button" data-copy="videoPrompt">Copy prompt</button></div><pre id="videoPrompt">Create a vertical, realistic fashion-film sequence based on @image1. Use @image1 as the opening composition, clothing, location, light and color reference. Use @image2 to preserve the woman's recognisable facial identity. Keep her blue floral full-length dress, pale-blue hijab, natural proportions and villa-pool setting consistent in every shot. Replace [NAME] with the name you want spoken, or remove dialogue entirely.
+
+Opening: begin from the photographer's point of view. Show the real camera and both hands in the foreground while the subject smiles and turns toward the lens beside the pool. The camera screen must display the same woman and outfit. Add slight natural handheld movement and soft environmental sounds.
+
+Middle: move into a few elegant editorial portraits around the same terrace. Alternate a medium shot, a closer face shot and a wider view that shows the dress moving naturally. Keep the sun direction, wardrobe details and facial features consistent. Give each shot a distinct pose and camera distance; avoid a slideshow effect.
+
+Ending: return to the photographer's point of view as the subject moves playfully toward the water. If a pool-entry moment is generated, show a physically coherent action and water reaction, then finish with the subject visible in or near the water. Keep the sequence modest, graceful and believable. Photographer may call, '[NAME], one more look,' once. Use natural ambient sound and clear dialogue only; no background music.
+
+Preserve continuity across the whole clip. No face swaps, outfit changes, floating accessories, duplicate hands, distorted camera display, sudden location changes, impossible motion, extra subjects, text or logos.</pre></div>
+    </section>
+
+    <section class="tutorial-section tutorial-finish"><p class="eyebrow">YOUR TURN</p><h2>Make your first <span class="chrome">photoshoot video</span></h2><p>Start with a clean face image and an outfit-only reference. Generate one still you love, then animate it. Compare the final clip with your references and revise the prompt if the face, hijab or dress changes.</p><a class="tutorial-cta" href="studio.html">Create inside Fuse Atelier ↗</a><a class="tutorial-back" href="learn.html">Back to Academy</a></section>
+  </main>
+
+  <button id="drawerBackdrop" class="drawer-backdrop" type="button" aria-label="Close tutorials" tabindex="-1"></button>
+  <aside id="moduleDrawer" class="module-drawer" aria-hidden="true" aria-label="All tutorials">
+    <div class="drawer-head"><strong>All tutorials</strong><button id="closeModules" class="drawer-close" type="button" aria-label="Close tutorials">×</button></div>
+    <section class="drawer-course"><h2>Learn AI From Zero</h2></section>
+    <nav class="drawer-modules" aria-label="Tutorial list"><a href="#top" aria-current="page"><span>1.</span> Seedance 2.5 Photoshoot Video</a></nav>
+  </aside>
+</body>
+</html>
