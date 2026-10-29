@@ -1,6 +1,9 @@
 (() => {
   'use strict';
 
+  const darkStyles=document.createElement('style');
+  darkStyles.textContent='html:has(body[data-page="home"]),html:has(body[data-page="create"]),html:has(body[data-page="clients"]),html:has(body[data-page="earn"]),html:has(body[data-page="profile"]){background:#00090b!important}body[data-page="home"],body[data-page="create"],body[data-page="clients"],body[data-page="earn"],body[data-page="profile"],body[data-page="studio"],body[data-page="client"]{background:linear-gradient(145deg,#000709 0%,#001012 65%,#00191b 100%) fixed!important;min-height:100svh}';
+  document.head.append(darkStyles);
   const mobileStyles=document.createElement('link');
   mobileStyles.rel='stylesheet';
   mobileStyles.href='/atelier-v2/mobile-refinement.css?v=teal-1';
