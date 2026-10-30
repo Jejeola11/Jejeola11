@@ -37,6 +37,7 @@
   };
 
   for(const offer of window.FuseAgentCourseOffers||[]){checkoutUrls[offer.key]=offer.checkout;courseMeta[offer.key].price=offer.price;}
+  let guest=false;
   let isFull=false;
   let owned=new Set();
   let isAdmin=false;
@@ -58,9 +59,9 @@
       row.hidden=false;
       row.classList.toggle('is-locked',!allowed);
       row.querySelector('.academy-lock-label')?.remove();
-      row.href=allowed?meta.href:(checkoutUrls[course]||'#');
+      row.href=guest?'#':allowed?meta.href:(checkoutUrls[course]||'#');
       const cta=row.querySelector('.academy-start');
-      if(cta) cta.textContent=allowed?'Start':'Unlock · ₦'+meta.price.toLocaleString('en-NG');
+      if(cta) cta.textContent=guest?'Sign up to unlock':allowed?'Start':'Unlock · ₦'+meta.price.toLocaleString('en-NG');
     });
     const list=document.querySelector('.academy-cards');
     if(list){
@@ -72,7 +73,9 @@
 
   async function loadAccess({keepStatus=false}={}){
     const sb=await Fuse.client();
-    const session=await Fuse.session();
+    const {data:{session},error:sessionError}=await sb.auth.getSession();
+    if(sessionError)throw sessionError;
+    if(!session){guest=true;renderAccess();status.textContent='Sign up to get full access to the academy page';return;}
 
     if(!storedName){
       const meta=session.user?.user_metadata||{};
@@ -101,6 +104,11 @@
   rows.forEach(row=>{
     row.addEventListener('click',event=>{
       const course=row.dataset.course;
+      if(guest){
+        event.preventDefault();
+        location.assign('/signup?next='+encodeURIComponent('/atelier-v2/learn.html'));
+        return;
+      }
       if(row.classList.contains('is-locked')&&!checkoutUrls[course]){
         event.preventDefault();
         status.textContent='Checkout for '+courseMeta[course].name+' is being added. Please check back shortly.';
@@ -117,7 +125,7 @@
         row.classList.add('is-locked');
         row.removeAttribute('href');
       });
-      status.textContent='Could not check course access. Please reload the page.';
+      status.textContent='Sign up to get full access to the academy page';
     }
   })();
 })();
