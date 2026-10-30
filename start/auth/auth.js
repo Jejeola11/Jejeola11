@@ -12,6 +12,18 @@
  document.getElementById('email').addEventListener('input',()=>{if(!optIn||signup||touchedOptIn)return;try{const saved=JSON.parse(sessionStorage.getItem('fuse_signup_email_choice')||'null');optIn.checked=!!(saved&&saved.email===document.getElementById('email').value.trim().toLowerCase()&&saved.consent);}catch(_){}});
  let session=null;
  const ready=sb.auth.getSession().then(({data})=>{session=data.session;if(session&&!signup&&!token){button.textContent='Log in';description.textContent='Continue with your saved account, or enter another email to switch accounts.';document.getElementById('email').value=session.user.email||'';document.getElementById('name').value=session.user.user_metadata?.full_name||session.user.user_metadata?.name||'';}});
+ if(token&&!signup){
+  button.disabled=true;message.textContent='Signing you in securely…';
+  ready.then(async()=>{
+   const {data,error}=await sb.auth.verifyOtp({token_hash:token,type:'email'});
+   if(error)throw error;
+   const user=data.user;
+   const name=user?.user_metadata?.full_name||user?.user_metadata?.name||user?.email?.split('@')[0]||'Fuse creator';
+   try{await fetch('/api/public-registration-sync',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+data.session.access_token},body:JSON.stringify({name,marketingOptIn:false})});}catch(_){}
+   const next=sessionStorage.getItem('fuse_signup_destination');sessionStorage.removeItem('fuse_signup_destination');
+   location.replace(next?.startsWith('/atelier-v2/')&&!next.startsWith('//')?next:'/atelier-v2/home.html');
+  }).catch(error=>{message.textContent=error.message||'This link expired. Request another sign-in email.';button.disabled=false;token=null});
+ }
  if(!signup&&!document.body.dataset.originalLogin){title.textContent='Welcome to Fuse Atelier';document.title='Log in — Fuse Atelier';switcher.textContent='New to Fuse? Create an account';switcher.href='/signup';description.textContent=token?'Enter your name and the email you just verified to log in.':'Enter your details to receive a secure login button by email.';button.textContent=token?'Verify and log in':'Send login email';}
  document.getElementById('auth-form').addEventListener('submit',async e=>{
   e.preventDefault();await ready;button.disabled=true;message.textContent='';

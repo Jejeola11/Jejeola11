@@ -1,0 +1,2 @@
+.reference-home .public-signup{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 15px;border-radius:12px;background:linear-gradient(110deg,#FFE66A,#DFFF4E,#EEFFE0);color:#001012!important;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap}
+@media(max-width:390px){.reference-home .header-actions{gap:7px}.reference-home .public-signup{padding:8px 11px;font-size:12px}}

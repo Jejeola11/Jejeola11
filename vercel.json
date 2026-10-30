@@ -20,6 +20,14 @@
       "dest": "/atelier-v2/login.html"
     },
     {
+      "src": "/terms/?",
+      "dest": "/start/auth/terms.html"
+    },
+    {
+      "src": "/privacy/?",
+      "dest": "/start/auth/privacy.html"
+    },
+    {
       "src": "/start/?",
       "dest": "/start/index.html"
     },
@@ -40,7 +48,7 @@
     },
     {
       "src": "/",
-      "dest": "/app/index.html"
+      "dest": "/atelier-v2/home.html"
     },
     {
       "src": "/studio/?",
