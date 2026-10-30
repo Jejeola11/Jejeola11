@@ -164,12 +164,12 @@
   </style>
 </head>
 <body class="create-catalog" data-page="create">
-  <link rel="stylesheet" href="create-composer.css?v=wave-catalog-1">
+  <link rel="stylesheet" href="create-composer.css?v=chat-settings-2">
   <main class="create-wrap">
     <section class="create-agent" aria-label="Start creating">
       <div class="create-agent-brand"><img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1793361152/fuse-atelier/create/fuse-mark-transparent-20261030.png" alt="">Fuse Atelier</div>
-      <div class="create-composer"><textarea id="createPrompt" maxlength="4000" aria-label="Describe what you want to create" placeholder="Create a cinematic trailer for my brand"></textarea>
-        <div class="composer-files" id="composerFiles"></div>
+      <div id="generationChat" class="generation-chat" aria-label="Your creations"></div>
+      <div class="create-composer"><div class="composer-files" id="composerFiles"></div><textarea id="createPrompt" maxlength="4000" aria-label="Describe what you want to create" placeholder="Create a cinematic trailer for my brand"></textarea>
         <div class="composer-toolbar"><button type="button" class="composer-plus" id="assetOpen" aria-label="Add reference assets">+</button><button type="button" class="composer-pill" id="modelOpen"><span aria-hidden="true">▣</span><span id="modelLabel">Loading models…</span></button><button type="button" class="composer-settings" id="settingsOpen" aria-label="Model settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3v18M12 3v18M18 3v18M3 8h6M9 16h6M15 6h6"/></svg></button><button type="button" class="composer-send" id="createSend" aria-label="Generate with quoted credits" disabled>✦ …</button></div>
       </div><p class="composer-message" id="composerMessage" role="status" aria-live="polite"></p>
     </section>
@@ -178,6 +178,7 @@
 
   <dialog class="create-sheet" id="modelSheet" aria-label="Choose a model"><div class="sheet-head"><h2>Model</h2><button type="button" data-close-sheet aria-label="Close model picker">×</button></div><input class="sheet-search" id="modelSearch" type="search" placeholder="Search models" aria-label="Search models"><div id="modelOptions"></div></dialog>
   <dialog class="create-sheet" id="settingsSheet" aria-label="Model settings"><div class="sheet-head"><h2>Settings</h2><button type="button" data-close-sheet aria-label="Close settings">×</button></div><div id="modelSettings"></div><p class="settings-cost" id="settingsCost">Choose a model</p><button type="button" class="sheet-done" id="settingsDone">Apply settings</button></dialog>
+  <dialog class="ratio-sheet" id="settingChoices" aria-label="Choose setting"><div class="sheet-head"><h2 id="choiceTitle"></h2><button type="button" id="choiceClose" aria-label="Close options">×</button></div><div id="choiceOptions"></div></dialog>
   <dialog class="create-sheet" id="assetSheet" aria-label="Assets"><div class="sheet-head"><h2>Assets</h2><button type="button" data-close-sheet aria-label="Close assets">×</button></div><p class="sheet-selection-count" id="assetCount">0 of 14 selected</p><nav class="asset-tabs" aria-label="Asset categories"><button type="button" data-asset-tab="uploads" aria-selected="true">Uploads</button><button type="button" data-asset-tab="characters">AI Characters</button><button type="button" data-asset-tab="presets">Presets</button><button type="button" data-asset-tab="elements">Elements</button></nav><input id="assetInput" type="file" accept="image/*,video/*,audio/*" multiple hidden><div class="sheet-assets" id="assetList"></div><p class="asset-help" id="assetHelp"></p><button type="button" class="sheet-done" id="assetsDone" disabled>Apply</button></dialog>
   <script>
     const tabs=['All','Image','Video','Twin','Page','Voice','Flyer','Content','Lipsync','UGC'];
@@ -369,6 +370,6 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="fuse-shell.js?v=footer-unified-7"></script>
-  <script src="create-composer.js?v=wave-catalog-1" defer></script>
+  <script src="create-composer.js?v=chat-settings-2" defer></script>
 </body>
 </html>
