@@ -130,6 +130,26 @@
       .create-grid{gap:22px 18px}.create-card h2{font-size:14px}.model-grid{gap:13px 11px}
       .model-copy{left:9px;right:9px;bottom:8px}.model-copy h2{font-size:12px}.model-copy p{font-size:9px}.model-meta{top:8px;left:8px;right:8px}.model-badge{font-size:8px;min-height:21px;padding:0 6px}.model-credits{font-size:9px;min-height:21px;padding:0 6px}
     }
+
+    .create-agent{min-height:510px;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:42px 0 30px}
+    .create-agent-brand{display:flex;align-items:center;gap:13px;margin-bottom:28px;color:#fff;font-size:clamp(28px,6vw,42px);font-weight:600;letter-spacing:-1.5px}
+    .create-agent-brand img{width:54px;height:54px;object-fit:contain}
+    .create-composer{width:min(100%,780px);padding:18px;border-radius:30px;border:1px solid rgba(238,255,224,.20);background:linear-gradient(145deg,#132426,#0a1c1e);box-shadow:0 20px 52px rgba(0,0,0,.28)}
+    .create-composer textarea{width:100%;min-height:84px;resize:vertical;max-height:240px;background:transparent;border:0;outline:0;color:#fff;font:400 19px/1.45 Montserrat,Arial,sans-serif}
+    .create-composer textarea::placeholder{color:#a6b6b5}
+    .composer-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+    .composer-pill,.composer-plus{border:1px solid rgba(238,255,224,.15);background:#193033;color:#fff;min-height:43px;padding:0 14px;border-radius:999px;cursor:pointer}
+    .composer-plus{width:43px;padding:0;font-size:27px;line-height:1}
+    .composer-send{margin-left:auto;width:48px;height:48px;border:0;border-radius:50%;background:var(--chrome);color:#001012;font-size:29px;line-height:1;cursor:pointer}
+    .composer-send:disabled{opacity:.55;cursor:wait}.composer-message{width:min(100%,780px);min-height:20px;margin:9px 0;color:var(--white);font-size:12px}
+    .composer-files{display:flex;gap:7px;flex-wrap:wrap;margin:7px 0}.composer-file{font-size:11px;border:1px solid var(--line);background:#062125;color:#fff;border-radius:12px;padding:6px 9px;display:flex;gap:7px;align-items:center;max-width:100%}.composer-file span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}.composer-file button{border:0;background:none;color:var(--lime);cursor:pointer}
+    .create-agent~.create-tabs{margin-top:4px}.create-agent~.catalog-intro{margin-top:4px}
+    .create-sheet{position:fixed;inset:auto 0 0;width:min(100%,720px);max-height:min(86svh,850px);margin:0 auto;padding:22px 18px calc(22px + env(safe-area-inset-bottom));border:1px solid var(--line);border-radius:28px 28px 0 0;background:#091718;color:#fff;box-shadow:0 -24px 80px #0009;overflow-y:auto;z-index:110}
+    .create-sheet::backdrop{background:#000a}.sheet-head{display:flex;align-items:center;justify-content:space-between}.sheet-head h2{margin:0;font-size:21px}.sheet-head button{width:38px;height:38px;border:0;border-radius:50%;background:#263638;color:#fff;font-size:23px}
+    .sheet-search{width:100%;height:47px;background:#172729;border:1px solid var(--line);border-radius:14px;padding:0 14px;color:#fff;margin:16px 0}
+    .sheet-group{font-size:13px;color:var(--white);margin:18px 4px 9px}.sheet-option{width:100%;min-height:70px;padding:10px 12px;display:flex;align-items:center;gap:13px;border:1px solid transparent;border-radius:16px;background:transparent;color:#fff;text-align:left;cursor:pointer}.sheet-option:hover,.sheet-option[aria-selected="true"]{background:#192b2d;border-color:#476368}.sheet-symbol{flex:none;display:grid;place-items:center;width:46px;height:46px;border:1px solid #315456;border-radius:14px;background:#102527;color:var(--lime);font-size:20px}.sheet-option strong{display:block;font-size:14px}.sheet-option small{display:block;color:#a8bcba;margin-top:4px;font-size:11px;line-height:1.3}.sheet-check{margin-left:auto;color:var(--lime);font-size:21px}
+    .sheet-upload{display:block;width:100%;margin:17px 0;padding:20px;border:1px dashed var(--line);border-radius:16px;background:#102527;text-align:center;color:#fff;cursor:pointer}.sheet-upload input{display:none}.sheet-assets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.sheet-assets button{border:1px solid var(--line);border-radius:13px;background:#132528;color:#fff;padding:9px;overflow:hidden;min-height:100px}.sheet-assets img,.sheet-assets video{width:100%;height:105px;object-fit:cover;border-radius:9px}.sheet-assets span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}.sheet-done{width:100%;min-height:46px;margin-top:14px;border:0;border-radius:13px;background:var(--chrome);font-weight:700;color:#001012}
+    @media(max-width:520px){.create-agent{min-height:410px;padding:28px 0 20px}.create-agent-brand{font-size:29px;margin-bottom:23px}.create-agent-brand img{width:45px;height:45px}.create-composer{padding:14px;border-radius:23px}.create-composer textarea{font-size:15px;min-height:75px}.composer-pill{font-size:12px;padding:0 10px}.composer-toolbar{gap:5px}.composer-plus{width:40px;min-height:40px}.composer-send{width:43px;height:43px}.create-sheet{max-height:85svh}}
   </style>
 </head>
 <body class="create-catalog" data-page="create">
@@ -138,6 +158,13 @@
       <h1 class="create-title">Create</h1>
       <button class="create-close" id="closeCreate" aria-label="Close Create"><span>×</span></button>
     </header>
+    <section class="create-agent" aria-label="Start creating">
+      <div class="create-agent-brand"><img src="media/fuse-mark-palette.webp" alt="">Fuse Atelier</div>
+      <div class="create-composer"><textarea id="createPrompt" maxlength="4000" aria-label="Describe what you want to create" placeholder="Create a cinematic trailer for my brand"></textarea>
+        <div class="composer-files" id="composerFiles"></div>
+        <div class="composer-toolbar"><button type="button" class="composer-plus" id="assetOpen" aria-label="Add reference assets">+</button><button type="button" class="composer-pill" id="modelOpen">✦ <span id="modelLabel">Auto</span></button><button type="button" class="composer-pill" id="aspectOpen"><span id="aspectLabel">9:16</span> ▾</button><button type="button" class="composer-send" id="createSend" aria-label="Open Create workspace">↑</button></div>
+      </div><p class="composer-message" id="composerMessage" role="status" aria-live="polite"></p>
+    </section>
     <nav class="create-tabs" id="createTabs" aria-label="Create categories"></nav>
     <section class="catalog-intro" id="catalogIntro" hidden>
       <div><h2 id="catalogTitle"></h2><p id="catalogText"></p></div>
@@ -146,6 +173,9 @@
     <section class="create-grid" id="createGrid"></section>
   </main>
 
+  <dialog class="create-sheet" id="modelSheet" aria-label="Choose a model"><div class="sheet-head"><h2>Model</h2><button type="button" data-close-sheet aria-label="Close model picker">×</button></div><input class="sheet-search" id="modelSearch" type="search" placeholder="Search models" aria-label="Search models"><div id="modelOptions"></div></dialog>
+  <dialog class="create-sheet" id="aspectSheet" aria-label="Choose aspect ratio"><div class="sheet-head"><h2>Aspect ratio</h2><button type="button" data-close-sheet aria-label="Close aspect picker">×</button></div><div id="aspectOptions"></div></dialog>
+  <dialog class="create-sheet" id="assetSheet" aria-label="Add assets"><div class="sheet-head"><h2>Assets</h2><button type="button" data-close-sheet aria-label="Close assets">×</button></div><p style="font-size:12px;color:#a8bcba">Add up to 6 image, video or audio references. The selected model determines which files it can use.</p><label class="sheet-upload">＋ Upload from your device<input id="assetInput" type="file" accept="image/*,video/*,audio/*" multiple></label><div class="sheet-assets" id="assetList"></div><button type="button" class="sheet-done" id="assetsDone">Apply assets</button></dialog>
   <script>
     const tabs=['All','Image','Video','Twin','Page','Voice','Flyer','Content','Lipsync','UGC'];
 
@@ -157,8 +187,8 @@
       {cat:'Voice',title:'Clone Your Voice',voice:true,route:'audio'},
       {cat:'Flyer',title:'AI Flyer',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789527907/fuse-atelier/create/ai-flyer-rosen.jpg',route:'flyer'},
       {cat:'Lipsync',title:'Lipsync Video',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789529143/fuse-atelier/create/lipsync-video.mp4',route:'omni'},
-      {cat:'UGC',title:'UGC Video',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789528540/fuse-atelier/create/ugc-video.mp4',route:'video-seedance'},
-      {cat:'Content',title:'Instagram Content',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789525979/student-content.mp4',route:'studio:generate'}
+      {cat:'UGC',title:'UGC Video',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789528540/fuse-atelier/create/ugc-video.mp4',route:'video-seedance'}
+      // Social content remains available in the Content tab, outside the All shortcuts.
     ];
 
     const catalogs={
@@ -345,6 +375,66 @@
       const d=descriptions[selected]||[selected,'Open the matching Fuse workspace.'];
       setIntro(d[0],d[1],list.length);
     }
+
+
+    // The composer hands a brief to an existing image/video workspace; generation
+    // and credit charging still happen only in that workspace.
+    const composerModels=[{name:'Auto',desc:'Fuse picks an image or video workspace from your brief.',route:'auto',type:'auto'},...catalogs.Image.items.map(m=>({name:m.name,desc:m.desc,route:m.route,type:'image'})),...catalogs.Video.items.map(m=>({name:m.name,desc:m.desc,route:m.route,type:'video'}))];
+    let composerModel=composerModels[0],composerAspect='9:16',composerAssets=[];
+    const byId=id=>document.getElementById(id);
+    const showSheet=id=>byId(id).showModal();
+    document.querySelectorAll('[data-close-sheet]').forEach(b=>b.onclick=()=>b.closest('dialog').close());
+    document.querySelectorAll('.create-sheet').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close()}));
+    byId('modelOpen').onclick=()=>{renderModelSheet();showSheet('modelSheet');byId('modelSearch').focus()};
+    byId('modelSearch').oninput=renderModelSheet;
+    function renderModelSheet(){
+      const q=byId('modelSearch').value.trim().toLowerCase(),root=byId('modelOptions');root.replaceChildren();
+      for(const type of ['auto','image','video']){
+        const group=composerModels.filter(m=>m.type===type&&(!q||(m.name+' '+m.desc).toLowerCase().includes(q)));if(!group.length)continue;
+        const heading=document.createElement('h3');heading.className='sheet-group';heading.textContent=type==='auto'?'Smart selection':type==='image'?'Image':'Video';root.append(heading);
+        group.forEach(m=>{const b=document.createElement('button');b.type='button';b.className='sheet-option';b.setAttribute('aria-selected',String(m===composerModel));const symbol=document.createElement('span');symbol.className='sheet-symbol';symbol.textContent=type==='auto'?'✦':type==='image'?'▧':'▣';const copy=document.createElement('span');const name=document.createElement('strong');name.textContent=m.name;const description=document.createElement('small');description.textContent=m.desc;copy.append(name,description);b.append(symbol,copy);if(m===composerModel){const tick=document.createElement('span');tick.className='sheet-check';tick.textContent='✓';b.append(tick)}b.onclick=()=>{composerModel=m;byId('modelLabel').textContent=m.name;byId('modelSheet').close()};root.append(b)});
+      }
+    }
+    byId('aspectOpen').onclick=()=>showSheet('aspectSheet');
+    const aspectRoot=byId('aspectOptions');
+    for(const value of ['9:16','16:9','1:1','3:4','4:3']){
+      const b=document.createElement('button');b.type='button';b.className='sheet-option';b.innerHTML='<span class="sheet-symbol">▯</span>';const label=document.createElement('strong');label.textContent=value;b.append(label);b.onclick=()=>{composerAspect=value;byId('aspectLabel').textContent=value;byId('aspectSheet').close()};aspectRoot.append(b);
+    }
+    const assetMessage=text=>byId('composerMessage').textContent=text;
+    byId('assetOpen').onclick=()=>{renderAssets();showSheet('assetSheet')};
+    byId('assetsDone').onclick=()=>byId('assetSheet').close();
+    byId('assetInput').onchange=e=>{const incoming=[...e.target.files];const room=6-composerAssets.length;composerAssets.push(...incoming.slice(0,room));if(incoming.length>room)assetMessage('Add up to 6 references.');e.target.value='';renderAssets()};
+    function renderAssets(){
+      const pills=byId('composerFiles'),grid=byId('assetList');pills.replaceChildren();grid.replaceChildren();
+      composerAssets.forEach((file,index)=>{
+        const chip=document.createElement('div');chip.className='composer-file';const label=document.createElement('span');label.textContent=file.name;const remove=document.createElement('button');remove.type='button';remove.textContent='×';remove.setAttribute('aria-label','Remove '+file.name);remove.onclick=()=>{composerAssets.splice(index,1);renderAssets()};chip.append(label,remove);pills.append(chip);
+        const card=document.createElement('button');card.type='button';const media=file.type.startsWith('image/')?document.createElement('img'):file.type.startsWith('video/')?document.createElement('video'):null;
+        if(media){media.src=URL.createObjectURL(file);media.onload=()=>URL.revokeObjectURL(media.src);if(media.tagName==='VIDEO'){media.muted=true;media.onloadeddata=()=>URL.revokeObjectURL(media.src)}card.append(media)}
+        const t=document.createElement('span');t.textContent=file.name+' · tap to remove';card.append(t);card.onclick=remove.onclick;grid.append(card);
+      });
+    }
+    function handoffDb(){
+      return new Promise((resolve,reject)=>{const request=indexedDB.open('fuse-create-handoff',1);request.onupgradeneeded=()=>request.result.createObjectStore('briefs');request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)});
+    }
+    function saveHandoff(key,brief){
+      return handoffDb().then(db=>new Promise((resolve,reject)=>{const tx=db.transaction('briefs','readwrite');tx.objectStore('briefs').put(brief,key);tx.oncomplete=()=>{db.close();resolve()};tx.onerror=()=>{db.close();reject(tx.error)}}));
+    }
+    byId('createSend').onclick=async()=>{
+      const prompt=byId('createPrompt').value.trim();if(!prompt){assetMessage('Describe what you want to create first.');byId('createPrompt').focus();return}
+      let model=composerModel;
+      if(model.type==='auto'){
+        const wantsVideo=/video|film|movie|trailer|animate|motion|moving|cinematic clip|reel/i.test(prompt)||composerAssets.some(f=>!f.type.startsWith('image/'));
+        model=composerModels.find(m=>m.route===(wantsVideo?'videopage:seedance-2.5':'imagepage:nano-banana-2'));
+      }
+      if(model.type==='image'&&composerAssets.some(f=>!f.type.startsWith('image/'))){assetMessage('This image model needs image references. Choose Seedance 2.5 for video or audio references.');return}
+      if(model.type==='video'&&model.route!=='videopage:seedance-2.5'&&composerAssets.some(f=>!f.type.startsWith('image/'))){assetMessage('Choose Seedance 2.5 to use video or audio references.');return}
+      const route=model.route;
+      const path=(model.type==='video'?'video-create.html':'image-create.html')+'?model='+encodeURIComponent(route.split(':')[1]);
+      const key='fuse-create-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+      const send=byId('createSend');send.disabled=true;assetMessage('Opening your workspace…');
+      try{await saveHandoff(key,{prompt,aspect:composerAspect,files:composerAssets,createdAt:Date.now(),type:model.type});sessionStorage.setItem('fuse_create_handoff',key);location.assign(path)}
+      catch(error){send.disabled=false;assetMessage('Could not transfer your references. Please try again or open the workspace directly.')}
+    };
 
     document.getElementById('closeCreate').onclick=()=>location.href='home.html';
     render();
