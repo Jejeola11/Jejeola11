@@ -3,8 +3,7 @@
   const client = window.__fuseClient ||= window.supabase?.createClient('https://rgbweaimkcndjznlazho.supabase.co','sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3');
   client?.auth.getSession().then(async ({data}) => {
     if (!data.session || !signup) return;
-    signup.textContent = 'My account';
-    signup.href = '/atelier-v2/profile.html';
+    signup.hidden = true;
     const user=data.session.user;
     if(user.email && !sessionStorage.getItem('fuse_synced_'+user.id)){
       try{
