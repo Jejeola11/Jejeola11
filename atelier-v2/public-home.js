@@ -21,7 +21,7 @@
       const {data} = await client.auth.getSession();
       if (!data.session) {
         event.preventDefault();
-        location.href='/signup?next='+encodeURIComponent(a.getAttribute('href'));
+        location.href='/signup?next='+encodeURIComponent(new URL(a.href).pathname+new URL(a.href).search+new URL(a.href).hash);
       }
     });
   });
