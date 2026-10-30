@@ -268,11 +268,11 @@
       {key:'sunburst',name:'GPT Image 2.5 Sunburst',desc:'Exceptional quality, precise edits',short:'2.5',credits:2,api:'gpt-image-2.5-sunburst',fresh:true,supports4k:true},
       {key:'flare',name:'GPT Image 2.5 Flare',desc:'Stunning everyday images, fast',short:'FL',credits:2,api:'gpt-image-2.5-flare',fresh:true,supports4k:true},
       {key:'minimax-h3',name:'MiniMax H3 Image',desc:'Natural, photoreal image creation',short:'H3',credits:1,api:'minimax-h3-image',supports4k:false},
-      {key:'seedream-5-pro',name:'Seedream 5 Pro',desc:'Intelligent visual reasoning and campaigns',short:'S5',credits:3,api:'seedream-5.0',supports4k:false},
-      {key:'nano-banana-2',name:'Nano Banana 2',desc:'Consistent characters and reference editing',short:'NB',credits:4,api:'nano-banana-2',supports4k:true},
-      {key:'nano-banana-pro',name:'Nano Banana Pro',desc:"Google's premium 4K generation model",short:'NP',credits:8,api:'nano-banana-pro-ws-text-to-image',supports4k:true},
+      {key:'seedream-5-pro',name:'Seedream 5 Pro',desc:'Intelligent visual reasoning and campaigns',short:'S5',credits:2,api:'seedream-5.0',supports4k:false},
+      {key:'nano-banana-2',name:'Nano Banana 2',desc:'Consistent characters and reference editing',short:'NB',credits:3,api:'nano-banana-2',supports4k:true},
+      {key:'nano-banana-pro',name:'Nano Banana Pro',desc:"Google's premium 4K generation model",short:'NP',credits:6,api:'nano-banana-pro-ws-text-to-image',supports4k:true},
       {key:'flux-2-pro',name:'Flux 2 Pro',desc:'Creative campaign images with sharp control',short:'F2',credits:2,api:'flux-2-pro',supports4k:false},
-      {key:'qwen-image-3-pro',name:'Qwen Image 3 Pro',desc:'Clean typography and commercial compositions',short:'Q3',credits:3,api:'qwen-image',supports4k:false}
+      {key:'qwen-image-3-pro',name:'Qwen Image 3 Pro',desc:'Clean typography and commercial compositions',short:'Q3',credits:2,api:'qwen-image',supports4k:false}
     ];
     const ASPECTS=['1:1','3:4','4:3','2:3','3:2','9:16','16:9','21:9'];
     let selectedKey=new URLSearchParams(location.search).get('model')||'auto';
@@ -291,11 +291,14 @@
       return MODELS.find(m=>m.key==='sunburst');
     }
     function activeModel(){return currentModel()||smartAutoModel()}
+    let quoteSequence=0;
     function updateCost(){
       const m=activeModel();
       const q=quality==='4K'?2:1;
       const c=Math.max(1,(m?.credits||2)*batch*q);
       $('creditCost').textContent=c;
+      const seq=++quoteSequence;
+      auth().then(session=>session && fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({quote:true,prompt:$('prompt').value.trim()||'Preview',model:m.api,aspect,count:batch,provider:'wavespeed',resolution:quality.toLowerCase(),quality:'medium',reference_image_count:files.length})})).then(r=>r?.ok?r.json():null).then(q=>{if(seq===quoteSequence && q?.credits)$('creditCost').textContent=q.credits}).catch(()=>{});
       $('modelName').textContent=selectedKey==='auto'?'Auto':m.name;
       $('aspectLabel').textContent=aspect;$('qualityLabel').textContent=quality;$('batchLabel').textContent=batch;
       document.querySelectorAll('[data-quality]').forEach(b=>b.classList.toggle('on',b.dataset.quality===quality));
@@ -361,13 +364,18 @@
         let refs=[];
         if(files.length){btn.textContent='Uploading references…';refs=await uploadRefs(session)}
         const m=activeModel();
-        btn.textContent='Submitting…';
+        btn.textContent='Checking credit cost…';
+        const preflight=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({quote:true,prompt,model:m.api,aspect,count:batch,provider:'wavespeed',resolution:quality.toLowerCase(),quality:'medium',reference_image_count:refs.length})});
+        const quote=await preflight.json().catch(()=>({}));
+        if(!preflight.ok)throw new Error(quote.error||'Could not calculate the credit cost.');
+        $('creditCost').textContent=quote.credits;
+        btn.textContent='Submitting · '+quote.credits+' credits';
         const res=await fetch('/api/generate',{
           method:'POST',
           headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},
           body:JSON.stringify({
             prompt,model:m.api,aspect,count:batch,
-            provider:'wavespeed',
+            accepted_credits:quote.credits,provider:'wavespeed',
             resolution:quality.toLowerCase(),
             quality:'medium',
             reference_image_urls:refs.length?refs:undefined

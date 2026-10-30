@@ -130,7 +130,11 @@ const VIDEO_MARGIN = 2.0;
 // WaveSpeed provider cost at the current pack pricing / FX assumptions.
 const SEEDANCE_REALIZED_CREDIT_USD = 0.05;
 const creditsFor = (cost_usd, margin) => Math.max(1, Math.ceil((cost_usd / CREDIT_USD) * margin));
-const seedanceCreditsFor = (cost_usd) => Math.max(1, Math.ceil((cost_usd / SEEDANCE_REALIZED_CREDIT_USD) * VIDEO_MARGIN));
+const NET_NAIRA_PER_CREDIT = 9500 / 120; // Lowest of six Nestuge packs, after 4% + ₦100.
+const BUFFERED_NAIRA_PER_USD = 1400;
+const API_TARGET_MULTIPLIER = 2.2;
+const safeCreditsFor = usd => Math.max(1, Math.ceil(usd * BUFFERED_NAIRA_PER_USD * API_TARGET_MULTIPLIER / NET_NAIRA_PER_CREDIT - 1e-9));
+const seedanceCreditsFor = safeCreditsFor;
 // Image credits are additionally clamped to a tight, easy-to-understand
 // 2-6 range regardless of the exact formula output (10 Aug 2026 pricing
 // call) — cheap models would otherwise round to 1 credit, expensive ones
@@ -205,7 +209,7 @@ const VIDEO_COST = {        // real $ cost, WaveSpeed-first (see _providers.js) 
   // OWN direct API costs more — but that was never actually compared
   // against WaveSpeed. Confirmed live 2026-07-16 via WaveSpeed's own
   // catalog: x-ai/grok-imagine-video is 0.05 there, cheaper than MuAPI.
-  'grok-imagine-text-to-video': 0.05,          'grok-imagine-image-to-video': 0.05,
+  'grok-imagine-text-to-video': 0.30,          'grok-imagine-image-to-video': 0.30, // 6s minimum at $0.05/s
   // New Fuse Create video page: WaveSpeed-native flexible models. The values
   // here are the 5-second LOWEST-resolution baseline used to register the
   // slugs in VIDEO_MODELS; videoCreditsForRequest() below prices the actual
@@ -248,13 +252,29 @@ const IMAGE_MODEL_OVERRIDES = {
   'gpt-image-2.5-sunburst': 2,
   'gpt-image-2.5-flare': 2,
   'minimax-h3-image': 1,
-  'seedream-5.0': 3,
-  'nano-banana-2': 4,
-  'nano-banana-pro-ws-text-to-image': 8,
+  'seedream-5.0': 2,
+  'nano-banana-2': 3,
+  'nano-banana-pro-ws-text-to-image': 6,
   'flux-2-pro': 2,
-  'qwen-image': 3,
+  'qwen-image': 2,
 };
-Object.assign(IMAGE_MODELS, IMAGE_MODEL_OVERRIDES);
+Object.assign(IMAGE_MODELS, IMAGE_MODEL_OVERRIDES, {
+  'flux-schnell-image':1, 'flux-dev-image':1, 'hidream_i1_full_image':1,
+  'gpt-image-2-text-to-image':3, 'gpt-image-2-image-to-image':4,
+  'gpt-image-2-ws-text-to-image':3, 'gpt-image-2-ws-edit':3,
+  'nano-banana-pro-ws-edit':6, 'hunyuan-image-3.0':5,
+  'google-imagen4-ultra':3,
+});
+function imageCreditsForRequest(model,{resolution='2k',referenceCount=0,quality='medium'}={}) {
+  const base=IMAGE_MODELS[model]; if(!base)return null;
+  const refs=Math.max(0,Math.min(16,Math.floor(Number(referenceCount)||0)));
+  if(refs && ['gpt-image-2-text-to-image','gpt-image-2-ws-edit','gpt-image-2-image-to-image'].includes(model)) {
+    const tiers=quality==='high'?{'1k':.23,'2k':.41,'4k':.73}:quality==='low'?{'1k':.02,'2k':.03,'4k':.04}:{'1k':.07,'2k':.11,'4k':.19};
+    return Math.max(base,safeCreditsFor(tiers[resolution]+Math.max(0,refs-1)*.012));
+  }
+  if(model==='nano-banana-pro-ws-text-to-image' && resolution==='4k') return Math.max(base*2,safeCreditsFor(.24));
+  return base*(resolution==='4k'?2:1);
+}
 
 // Explicit credit overrides, 10 Aug 2026 pricing call — these deliberately
 // don't match the cost-plus formula above (Ria dictated exact numbers for
@@ -296,12 +316,15 @@ function videoCreditsForRequest(model, duration, resolution, pricingContext = {}
     if (model === 'seedance-2.5-image-to-video' || model === 'seedance-2.5-text-to-video') {
       return seedanceCreditsFor(rate * outputSecs);
     }
-    return creditsFor(rate * outputSecs, VIDEO_MARGIN);
+    return safeCreditsFor(rate * outputSecs);
   }
+  if(model==='grok-imagine-text-to-video'||model==='grok-imagine-image-to-video')
+    return safeCreditsFor(.05*Math.max(6,parseInt(duration,10)||6));
   const base = VIDEO_MODELS[model];
   if (!base) return null;
   const secs = Math.max(1, parseInt(duration, 10) || 5);
-  return base * (secs >= 10 ? 2 : 1);
+  const multiplier=secs>=10?2:1;
+  return Math.max(base*multiplier,safeCreditsFor((VIDEO_COST[model]||0)*multiplier));
 }
 
 Object.assign(VIDEO_MODELS, {
@@ -320,6 +343,11 @@ Object.assign(VIDEO_MODELS, {
   'kling-v3-turbo-pro-text-to-video': 11,  'kling-v3-turbo-pro-image-to-video': 11,  // = 1080p; was 7, breakeven $0.10
   'kling-v3-turbo-4k-text-to-video': 39,   'kling-v3-turbo-4k-image-to-video': 39,   // already safe (breakeven $0.036)
 });
+
+// Direct callers use VIDEO_MODELS without videoCreditsForRequest; enforce the same
+// buffered floor for their fixed-rate operations as the Video Studio quote path.
+for(const [model,usd] of Object.entries(VIDEO_COST))
+  VIDEO_MODELS[model]=Math.max(VIDEO_MODELS[model],safeCreditsFor(usd));
 
 // ---- AI Avatar Creator (long-form video) — WaveSpeed-only cost model ------
 // Two completely different engines depending on mode, so two completely
@@ -351,7 +379,7 @@ function avatarVideoCredits(estimatedMinutes, includeVoice = true, mode = 'talki
   const mins = Math.max(1, Math.ceil(estimatedMinutes));
   const perMin = mode === 'motion' ? (AVATAR_MOTION_PER_MIN_USD[resolution] || AVATAR_MOTION_PER_MIN_USD['480p']) : AVATAR_VIDEO_PER_MIN_USD;
   const cost = mins * (perMin + (includeVoice ? AVATAR_VOICE_PER_MIN_USD : 0));
-  return creditsFor(cost, AVATAR_VIDEO_MARGIN);
+  return safeCreditsFor(cost);
 }
 // ~150 spoken words/minute — used to estimate a script's runtime before any
 // audio has actually been generated (for the up-front credit charge).
@@ -369,7 +397,7 @@ const RESYNC_PER_SEC_USD = 0.08;
 const RESYNC_MARGIN = 2.0; // raised from 1.6 (10 Aug 2026 margin sweep)
 function resyncCredits(durationSec) {
   const secs = Math.max(1, Math.ceil(durationSec || 0));
-  return creditsFor(secs * RESYNC_PER_SEC_USD, RESYNC_MARGIN);
+  return safeCreditsFor(secs * RESYNC_PER_SEC_USD);
 }
 
 // Kling Lip-Sync Dialogue (add speech to an existing video) — confirmed
@@ -382,9 +410,9 @@ const LIPSYNC_MARGIN = 2.0; // raised from 1.6 (10 Aug 2026 margin sweep)
 function lipsyncDialogueCredits(mode, durationSec) {
   if (mode === 'audio') {
     const secs = Math.max(5, Math.ceil(durationSec || 5));
-    return creditsFor(secs * LIPSYNC_AUDIO_PER_SEC_USD, LIPSYNC_MARGIN);
+    return safeCreditsFor(secs * LIPSYNC_AUDIO_PER_SEC_USD);
   }
-  return creditsFor(LIPSYNC_TEXT_FLAT_USD, LIPSYNC_MARGIN);
+  return safeCreditsFor(LIPSYNC_TEXT_FLAT_USD);
 }
 
 // ---- Audio Studio (standalone narration/voiceover, Omnivoice) -------------
@@ -394,7 +422,7 @@ function lipsyncDialogueCredits(mode, durationSec) {
 const AUDIO_MARGIN = 3;
 function audioCredits(estimatedMinutes) {
   const mins = Math.max(0.2, estimatedMinutes);
-  return creditsFor(mins * AVATAR_VOICE_PER_MIN_USD, AUDIO_MARGIN);
+  return Math.max(2,safeCreditsFor(mins * AVATAR_VOICE_PER_MIN_USD));
 }
 
 // Fuse Reactor — text-AI costs (credits per message). MuAPI charges ~$0 for
@@ -433,4 +461,4 @@ function canUseTrial(model) {
   return TRIAL_IMAGE.includes(model) || TRIAL_VIDEO.includes(model);
 }
 
-module.exports = { PACKS, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, VIDEO_DYNAMIC_RATES, videoCreditsForRequest, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree, TRIAL_IMAGE, TRIAL_VIDEO, canUseTrial, PROMO, promoActive, creditsForPack, avatarVideoCredits, estimateScriptMinutes, audioCredits, resyncCredits, lipsyncDialogueCredits };
+module.exports = { PACKS, safeCreditsFor, imageCreditsForRequest, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, VIDEO_DYNAMIC_RATES, videoCreditsForRequest, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree, TRIAL_IMAGE, TRIAL_VIDEO, canUseTrial, PROMO, promoActive, creditsForPack, avatarVideoCredits, estimateScriptMinutes, audioCredits, resyncCredits, lipsyncDialogueCredits };

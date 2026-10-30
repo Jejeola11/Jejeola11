@@ -7,7 +7,7 @@
 //   4. record the generation, return the image URL + new balance
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
-const { IMAGE_MODELS, canUseFree, canUseTrial } = require('./_packs');
+const { IMAGE_MODELS, imageCreditsForRequest, canUseFree, canUseTrial } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
 const { submitImageGoogle, hasGoogle, submitImageWS, hasWaveSpeed } = require('./_providers');
 
@@ -119,7 +119,8 @@ exports.handler = async (event) => {
   // Collect 0..N reference images (multi-image editing/blending via Nano Banana).
   const refs = (Array.isArray(body.reference_image_urls) ? body.reference_image_urls
     : (body.reference_image_url ? [body.reference_image_url] : [])).filter(Boolean);
-  const useRef = refs.length > 0;
+  const referenceCount = body.quote === true ? Math.max(0,Math.min(16,Math.floor(Number(body.reference_image_count)||refs.length))) : refs.length;
+  const useRef = referenceCount > 0;
   // With references, models that have their own edit/i2i variant (WaveSpeed's
   // IMAGE_ROUTES has i2i for all of these) keep whatever the user actually
   // selected — submitImageWS already picks .i2i vs .t2i internally based on
@@ -136,6 +137,7 @@ exports.handler = async (event) => {
     ? String(body.resolution).toLowerCase() : null;
   const requestedQuality = ['low','medium','high','xhigh','max'].includes(String(body.quality || '').toLowerCase())
     ? String(body.quality).toLowerCase() : 'medium';
+  if(forceWaveSpeed && requestedQuality!=='medium')return json(400,{error:'This image tool currently supports medium quality only.'});
   const EDIT_CAPABLE = ['nano-banana', 'nano-banana-2', 'nano-banana-pro-ws-text-to-image', 'gpt-image-2-text-to-image', 'gpt-image-2.5-sunburst', 'gpt-image-2.5-flare', 'minimax-h3-image', 'qwen-image', 'flux-2-pro', 'seedream-5.0', 'hunyuan-image-3.0', 'hidream_i1_full_image', 'flux-dev-image'];
   const model = useRef ? (EDIT_CAPABLE.includes(selectedModel) ? selectedModel : 'nano-banana-edit') : selectedModel;
   if (!prompt) return json(400, { error: 'Add a prompt first.' });
@@ -165,7 +167,10 @@ exports.handler = async (event) => {
   // Dedicated Fuse Atelier creator treats the displayed base credits as the
   // normal 2K price and doubles only for 4K. Legacy callers keep the old
   // res-multiplier behavior unchanged.
-  const cost = base * count * (forceWaveSpeed ? (resolution === '4k' ? 2 : 1) : resMult);
+  const perImage=imageCreditsForRequest(model,{resolution,referenceCount,quality:requestedQuality});
+  const cost=base*count*(forceWaveSpeed ? perImage/base : resMult);
+  if(body.quote===true)return json(200,{credits:cost,model,per_image:perImage});
+  if(forceWaveSpeed && body.accepted_credits!==cost)return json(409,{error:'The credit price changed. Review the cost and try again.',credits:cost});
 
   const db = admin();
 

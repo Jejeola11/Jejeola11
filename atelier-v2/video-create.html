@@ -283,10 +283,10 @@
     const MODELS=[
       {key:'minimax-h3',name:'MiniMax H3',desc:'Native-audio cinematic generation with flexible 3–15s clips.',short:'H3',api:'minimax-h3-text-to-video',res:['480p','540p','768p','1080p'],dur:[3,5,8,10,15],aspects:['16:9','9:16','1:1','4:3','3:4'],preview:'/app/media/samples/vid1.mp4',tag:'2K',fresh:true},
       {key:'wan-3',name:'Wan 3.0',desc:'Flexible 2–30s video with strong image guidance and native audio.',short:'W3',api:'wan-3-text-to-video',res:['480p','720p','1080p'],dur:[2,5,8,10,15,30],aspects:['16:9','9:16','1:1','4:3','3:4'],preview:'/app/media/samples/vid2.mp4',tag:'BEST VALUE',fresh:true},
-      {key:'grok-imagine',name:'Grok Imagine',desc:'Fast, punchy social video generation.',short:'GX',api:'grok-imagine-text-to-video',res:['720p'],dur:[6,10],aspects:['16:9','9:16'],preview:'/app/media/samples/vid2.mp4',base:1,tag:'FAST'},
-      {key:'kling-standard',name:'Kling 2.5 Turbo Pro',desc:'Polished motion and cinematic control.',short:'K2.5',api:'kling-v3-turbo-standard-text-to-video',res:['720p'],dur:[5,10],aspects:['16:9','9:16','1:1'],preview:'/app/media/samples/vid4.mp4',base:9,tag:'CINEMATIC'},
+      {key:'grok-imagine',name:'Grok Imagine',desc:'Fast, punchy social video generation.',short:'GX',api:'grok-imagine-text-to-video',res:['720p'],dur:[6,10],aspects:['16:9','9:16'],preview:'/app/media/samples/vid2.mp4',base:12,tag:'FAST'},
+      {key:'kling-standard',name:'Kling 2.5 Turbo Pro',desc:'Polished motion and cinematic control.',short:'K2.5',api:'kling-v3-turbo-standard-text-to-video',res:['720p'],dur:[5,10],aspects:['16:9','9:16','1:1'],preview:'/app/media/samples/vid4.mp4',base:22,tag:'CINEMATIC'},
       {key:'seedance-2.5',name:'Seedance 2.5',desc:'WaveSpeed Seedance 2.5 with up to six image, video or audio references, native audio and 4–30s generation.',short:'S2.5',api:'seedance-2.5-image-to-video',res:['480p','720p','1080p','4k'],dur:[4,5,8,10,15,20,25,30],customDur:[4,30],aspects:['16:9','9:16','4:3','3:4','1:1','21:9'],preview:'/app/media/samples/vid3.mp4',tag:'6 REFS',fresh:true,mixedRefs:true},
-      {key:'veo-fast',name:'Veo 3.1 Fast',desc:'High-end cinematic prompting for premium storytelling.',short:'V3',api:'veo3-text-to-video',res:['720p'],dur:[8],aspects:['16:9','9:16'],preview:'/app/media/samples/vid5.mp4',base:22,tag:'PREMIUM'},
+      {key:'veo-fast',name:'Veo 3.1 Fast',desc:'High-end cinematic prompting for premium storytelling.',short:'V3',api:'veo3-text-to-video',res:['720p'],dur:[8],aspects:['16:9','9:16'],preview:'/app/media/samples/vid5.mp4',base:47,tag:'PREMIUM'},
       {key:'omni-flash',name:'Gemini Omni Flash 1.1',desc:'Fast synchronized-audio video generation from text or image.',short:'GO',api:'gemini-omni-1.1-flash-text-to-video',res:['360p','720p','1080p','4k'],dur:[3,5,8,10],aspects:['16:9','9:16'],preview:'/app/media/samples/vid3.mp4',tag:'OMNI',fresh:true}
     ];
     const RATES={
@@ -295,11 +295,13 @@
       'seedance-2.5':{'480p':.18,'720p':.36,'1080p':.90,'4k':1.80},
       'omni-flash':{'360p':.03,'720p':.10,'1080p':.15,'4k':.30}
     };
-    const CREDIT_USD=.11, MARGIN=2, SEEDANCE_CREDIT_USD=.05;
+    const NET_CREDIT=9500/120, BUFFERED_FX=1400, API_MULTIPLIER=2.2;
+    const safeCredits=usd=>Math.max(1,Math.ceil(usd*BUFFERED_FX*API_MULTIPLIER/NET_CREDIT-1e-9));
     let selectedKey=new URLSearchParams(location.search).get('model')||'auto';
     if(selectedKey!=='auto'&&!MODELS.some(m=>m.key===selectedKey))selectedKey='auto';
     let duration=5,aspect='9:16',quality='720p',audioOn=true,files=[],uploadedRefs=[];
     const fileDurations=new Map();
+    let acceptedServerQuote=null;
 
     const selected=()=>MODELS.find(m=>m.key===selectedKey)||null;
     const active=()=>selected()||MODELS.find(m=>m.key==='wan-3');
@@ -341,13 +343,13 @@
           const refRates={'480p':.11,'720p':.22,'1080p':.55,'4k':1.10};
           const refSecs=Math.min(30,videoFiles.reduce((s,f)=>s+Math.max(2,Math.ceil(fileDurations.get(f)||0)),0));
           const rate=refRates[quality]??refRates['720p'];
-          return Math.max(1,Math.ceil((rate*(duration+refSecs)/SEEDANCE_CREDIT_USD)*MARGIN));
+          return safeCredits(rate*(duration+refSecs));
         }
       }
       if(rates){
-        const creditUsd=m.key==='seedance-2.5'?SEEDANCE_CREDIT_USD:CREDIT_USD;
-        return Math.max(1,Math.ceil(((rates[quality]??rates[Object.keys(rates)[0]])*duration/creditUsd)*MARGIN));
+        return safeCredits((rates[quality]??rates[Object.keys(rates)[0]])*duration);
       }
+      if(m.key==='grok-imagine')return safeCredits(.05*duration);
       return (m.base||1)*(duration>=10?2:1);
     }
     function updateUI(){
@@ -509,8 +511,7 @@
         const imageRefs=refs.filter(r=>r.type==='image');
         const videoRefs=refs.filter(r=>r.type==='video');
         const audioRefs=refs.filter(r=>r.type==='audio');
-        btn.textContent='Submitting…';
-        const res=await fetch('/api/video-generate',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({
+        const request={
           prompt,model:m.api,...settings,
           image_url:imageRefs[0]?.url,
           reference_image_urls:imageRefs.slice(1).map(r=>r.url),
@@ -518,7 +519,21 @@
           reference_audio_urls:audioRefs.map(r=>r.url),
           reference_video_durations:videoRefs.map(r=>r.duration||0),
           reference_audio_durations:audioRefs.map(r=>r.duration||0)
-        })});
+        };
+        btn.textContent='Checking credit cost…';
+        const headers={'Content-Type':'application/json',Authorization:'Bearer '+session.access_token};
+        const estimate=await fetch('/api/video-generate',{method:'POST',headers,body:JSON.stringify({...request,quote:true})});
+        const quote=await estimate.json().catch(()=>({}));
+        if(!estimate.ok)throw new Error(quote.error||'Could not calculate the credit cost.');
+        if(quote.credits!==credits() && acceptedServerQuote!==quote.credits){
+          acceptedServerQuote=quote.credits;
+          $('creditCost').textContent=quote.credits;
+          note('The updated cost is '+quote.credits+' credits. Tap Generate again to accept it.','err');
+          btn.disabled=false;btn.innerHTML='Generate ✦ <span id="creditCost">'+quote.credits+'</span>';
+          return;
+        }
+        btn.textContent='Submitting · '+quote.credits+' credits';
+        const res=await fetch('/api/video-generate',{method:'POST',headers,body:JSON.stringify({...request,accepted_credits:quote.credits})});
         const data=await res.json().catch(()=>({}));
         if(!res.ok){if(res.status===402)throw new Error('Not enough credits. Top up and try again.');throw new Error(data.error||'Video generation could not start.')}
         try{

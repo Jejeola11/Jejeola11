@@ -20,7 +20,7 @@
 // gradient-filled object ends up ruining an otherwise flat poster.
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
-const { IMAGE_MODELS, canUseFree, canUseTrial } = require('./_packs');
+const { IMAGE_MODELS, imageCreditsForRequest, canUseFree, canUseTrial } = require('./_packs');
 const { buildLayerImagePrompt } = require('./_flyer-spec');
 const { submitFlyerImage, hasWaveSpeed, muapiHostImage } = require('./_providers');
 
@@ -88,7 +88,7 @@ exports.handler = async (event) => {
       return json(403, { error: 'Free trial credits only cover our starter models.', code: 'TRIAL_TIER_ONLY' });
     }
 
-    cost = IMAGE_MODELS[model];
+    cost = imageCreditsForRequest(model,{resolution:'1k',referenceCount:refUrl?1:0,quality:'medium'});
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 

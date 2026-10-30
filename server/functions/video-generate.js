@@ -130,6 +130,8 @@ exports.handler = async (event) => {
       referenceVideoSeconds: normalizedReferenceVideoSeconds,
     });
     if (!cost) return json(400, { error: 'Could not price this video model.' });
+    if(body.quote===true)return json(200,{credits:cost,model});
+    if(body.accepted_credits!=null && body.accepted_credits!==cost)return json(409,{error:'The credit price changed. Review the cost and try again.',credits:cost});
 
     const db = admin();
     const { data: balance, error: spendError } = await db.rpc('spend_credits', {

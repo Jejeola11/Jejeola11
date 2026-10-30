@@ -26,7 +26,7 @@
 // this is now a real paid generation, not a free sub-second render.
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
-const { IMAGE_MODELS, canUseFree, canUseTrial } = require('./_packs');
+const { IMAGE_MODELS, imageCreditsForRequest, canUseFree, canUseTrial } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
 const { submitFlyerImage, hasWaveSpeed } = require('./_providers');
 
@@ -140,7 +140,8 @@ exports.handler = async (event) => {
       return json(403, { error: 'Free trial credits only cover our starter models. Buy a credit pack to unlock every model.', code: 'TRIAL_TIER_ONLY' });
     }
 
-    cost = IMAGE_MODELS[model];
+    const referenceCount=1+['headline_reference_url','features_reference_url','cta_reference_url'].filter(key=>Boolean(body[key])).length;
+    cost = wantsWS ? imageCreditsForRequest(model,{resolution:'1k',referenceCount,quality:'medium'}) : IMAGE_MODELS[model];
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 

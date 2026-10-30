@@ -31,7 +31,7 @@
 // flyer-hero job regardless of model, so no extra wiring was needed here.
 // ============================================================
 const { admin, getUser, json, getPlan } = require('./_supabase');
-const { IMAGE_MODELS, canUseFree, canUseTrial } = require('./_packs');
+const { IMAGE_MODELS, imageCreditsForRequest, canUseFree, canUseTrial } = require('./_packs');
 const { muapiHostImage } = require('./_muapi');
 const { submitFlyerImage, hasWaveSpeed } = require('./_providers');
 
@@ -146,7 +146,7 @@ exports.handler = async (event) => {
     }
 
     const base = IMAGE_MODELS[model];
-    cost = base;
+    cost = wantsWS ? imageCreditsForRequest(model,{resolution:'1k',referenceCount:Math.min(10,refs.length),quality:'medium'}) : base;
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
