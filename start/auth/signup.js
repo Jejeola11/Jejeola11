@@ -15,7 +15,18 @@
     $('google').lastChild.textContent='Google sign-in coming soon';
     $('google').title='Google sign-in is being connected';
   }).catch(()=>{});
-  function agreed() { if ($('agree').checked) return true; message.textContent='Please agree to the terms and privacy policy to continue.'; $('agree').focus(); return false; }
+  const agreement=document.querySelector('.agreement');
+  $('agree').addEventListener('change',()=>{if($('agree').checked){agreement.classList.remove('needs-attention');message.textContent='';}});
+  function agreed() {
+    if ($('agree').checked) return true;
+    message.textContent='Please agree to the terms and privacy policy to continue.';
+    agreement.classList.remove('needs-attention');
+    void agreement.offsetWidth;
+    agreement.classList.add('needs-attention');
+    agreement.scrollIntoView({block:'nearest',behavior:'smooth'});
+    $('agree').focus({preventScroll:true});
+    return false;
+  }
   $('google').addEventListener('click', async () => {
     if (!agreed()) return;
     const {data:existing}=await sb.auth.getSession();
