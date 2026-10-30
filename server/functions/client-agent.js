@@ -1,6 +1,7 @@
 'use strict';
 const {admin,getUser,json}=require('./_supabase');
 const agent=require('./_client-agent-v2');
+const conversation=require('./_client-agent-conversation');
 const uuid=v=>/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v||'');
 const statuses=new Set(['new','asked','replied','sample_ready','sample_sent','proposal_sent','deposit_paid','in_delivery','delivered','won','lost']);
 function response(code,data){const r=json(code,data);r.headers['Cache-Control']='no-store';return r}
@@ -19,13 +20,14 @@ exports.handler=async event=>{
       return response(403,{error:'Unlock Money Engine or the 14-Day Challenge to use the Client Agent.',code:'AGENT_COURSE_REQUIRED'});
     }
     if(body.action==='load'){
-      const [profile,prospects,jobs,balance]=await Promise.all([
+      const [profile,prospects,jobs,balance,followups]=await Promise.all([
         db.from('client_agent_profiles').select('*').eq('user_id',user.id).maybeSingle(),
         db.from('client_prospects').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(300),
         db.from('client_agent_jobs').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(5),
-        db.from('profiles').select('credits').eq('id',user.id).single()
-      ]);for(const r of [profile,prospects,jobs,balance])if(r.error)throw r.error;
-      return response(200,{profile:profile.data?.profile_json||null,prospects:prospects.data||[],jobs:(jobs.data||[]).map(agent.publicJob),credits:balance.data.credits,research_cost:30});
+        db.from('profiles').select('credits').eq('id',user.id).single(),
+        db.from('client_agent_followups').select('id,prospect_id,due_at,status,draft,sent_at,last_error').eq('user_id',user.id).order('created_at',{ascending:false}).limit(300)
+      ]);for(const r of [profile,prospects,jobs,balance,followups])if(r.error)throw r.error;
+      return response(200,{followups:followups.data||[],profile:profile.data?.profile_json||null,prospects:prospects.data||[],jobs:(jobs.data||[]).map(agent.publicJob),credits:balance.data.credits,research_cost:30});
     }
     if(body.action==='organize'){
       if(!agent.clean(body.day1)&&!agent.clean(body.day2))return response(400,{error:'Paste some notes about your skills or service offer first.'});
@@ -89,13 +91,39 @@ exports.handler=async event=>{
       const saved=await db.from('client_prospects').update(patch).eq('id',body.id).eq('user_id',user.id).select('*').single();if(saved.error)throw saved.error;
       return response(200,{prospect:saved.data});
     }
+    if(['record-message','draft-reply','refresh-pitch','stop-followups'].includes(body.action)){
+      if(!uuid(body.id))return response(400,{error:'Invalid prospect ID'});
+      const old=await db.from('client_prospects').select('*').eq('id',body.id).eq('user_id',user.id).maybeSingle();if(old.error)throw old.error;if(!old.data)return response(404,{error:'Prospect not found'});
+      let prospect=old.data;
+      if(body.action==='stop-followups'){
+        const stopped=await db.from('client_agent_followups').update({status:'cancelled',lease_token:null,lease_until:null}).eq('prospect_id',body.id).eq('user_id',user.id).in('status',['pending','working']);if(stopped.error)throw stopped.error;
+        const changed=await db.from('client_prospects').update({next_follow_up:null}).eq('id',body.id).eq('user_id',user.id).select('*').single();if(changed.error)throw changed.error;
+        return response(200,{prospect:changed.data});
+      }
+      if(body.action==='record-message'){
+        if(!['initial','reply','followup'].includes(body.kind))return response(400,{error:'Choose the message type'});
+        const recorded=await db.rpc('client_agent_record_message',{p_user:user.id,p_id:body.id,p_kind:body.kind,p_message:agent.clean(body.message,8000),p_channel:agent.clean(body.channel,30)||'email'});if(recorded.error)return response(400,{error:recorded.error.message});
+        return response(200,{prospect:recorded.data});
+      }
+      const recent=await db.from('client_activities').select('id',{count:'exact',head:true}).eq('user_id',user.id).eq('activity_type','conversation_assist').gte('created_at',new Date(Date.now()-3600000).toISOString());if(recent.error)throw recent.error;if(recent.count>=10)return response(429,{error:'You can prepare ten conversation drafts per hour.'});
+      const attempt=await db.from('client_activities').insert({user_id:user.id,prospect_id:body.id,activity_type:'conversation_assist',title:'Preparing a draft'});if(attempt.error)throw attempt.error;
+      if(body.action==='draft-reply'){
+        const actual=agent.clean(body.reply,8000);if(!actual)return response(400,{error:'Paste the actual reply first.'});
+        const received=await db.rpc('client_agent_record_message',{p_user:user.id,p_id:body.id,p_kind:'received',p_message:actual,p_channel:agent.clean(body.channel,30)||'email'});if(received.error)throw received.error;prospect=received.data;
+      }
+      const profile=await db.from('client_agent_profiles').select('profile_json').eq('user_id',user.id).maybeSingle();if(profile.error)throw profile.error;
+      const draft=body.action==='refresh-pitch'?await agent.redraft(profile.data?.profile_json||prospect.qualification_json?.approved_offer,prospect):await conversation.draft(prospect,profile.data?.profile_json||prospect.qualification_json?.approved_offer,prospect.conversation_json||[]);
+      const q=prospect.qualification_json||{};
+      const patch=body.action==='refresh-pitch'?{pitch_email:draft.email,pitch_instagram:draft.dm,pitch_linkedin:draft.dm,qualification_json:{...q,subject:draft.subject,approach:draft.approach,approach_reason:draft.reason}}:{qualification_json:{...q,reply_assist:{...draft,based_on_reply_text:prospect.reply_text,created_at:new Date().toISOString()}},...(draft.stop?{status:'lost'}:{})};
+      const saved=await db.from('client_prospects').update({...patch,updated_at:new Date().toISOString()}).eq('id',body.id).eq('user_id',user.id).select('*').single();if(saved.error)throw saved.error;
+      return response(200,{prospect:saved.data,draft});
+    }
     if(body.action==='update-prospect'){
       if(!uuid(body.id))return response(400,{error:'Invalid prospect ID'});
       const patch={updated_at:new Date().toISOString()};
-      if(body.status!==undefined){if(!statuses.has(body.status))return response(400,{error:'Choose a valid status'});patch.status=body.status;if(body.status==='asked')patch.last_contacted_at=patch.updated_at}
+      if(body.status!==undefined){if(!statuses.has(body.status))return response(400,{error:'Choose a valid status'});patch.status=body.status}
       if(body.notes!==undefined)patch.notes=agent.clean(body.notes,8000);
       if(body.reply_text!==undefined){patch.reply_text=agent.clean(body.reply_text,8000);if(patch.reply_text)patch.replied_at=patch.updated_at}
-      if(body.next_follow_up!==undefined){if(body.next_follow_up&&!Number.isFinite(Date.parse(body.next_follow_up)))return response(400,{error:'Choose a valid follow-up date'});patch.next_follow_up=body.next_follow_up?new Date(body.next_follow_up).toISOString():null}
       for(const field of ['pitch_email','pitch_instagram'])if(body[field]!==undefined)patch[field]=agent.clean(body[field],6000);
       if(body.email_subject!==undefined){const old=await db.from('client_prospects').select('qualification_json').eq('id',body.id).eq('user_id',user.id).maybeSingle();if(old.error)throw old.error;if(!old.data)return response(404,{error:'Prospect not found'});patch.qualification_json={...(old.data.qualification_json||{}),subject:agent.clean(body.email_subject,180)}}
       const r=await db.from('client_prospects').update(patch).eq('id',body.id).eq('user_id',user.id).select('*').maybeSingle();if(r.error)throw r.error;if(!r.data)return response(404,{error:'Prospect not found'});
