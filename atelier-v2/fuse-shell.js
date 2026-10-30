@@ -249,7 +249,8 @@
     if(protectedPages.has(currentFile)){
       location.replace('/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash));return;
     }
-    if(!document.querySelector('.public-signup')){
+    document.querySelectorAll('.public-signup').forEach(anchor=>anchor.hidden=false);
+     if(!document.querySelector('.public-signup')){
       const anchor=document.createElement('a');anchor.className='public-signup';anchor.textContent='Sign up';anchor.href='/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash);
       const target=document.querySelector('.reference-header .header-actions,.academy-top,.course-top,.create-top,[data-fuse-header] header,.top');
       if(target?.querySelector('#menuToggle'))target.insertBefore(anchor,target.querySelector('#menuToggle'));else (target||document.body).append(anchor);
