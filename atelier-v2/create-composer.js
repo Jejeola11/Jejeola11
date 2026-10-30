@@ -16,15 +16,15 @@ function renderModels(){const q=$('modelSearch').value.toLowerCase().trim(),root
  if(!state.expanded&&rows.length>50){const b=document.createElement('button');b.className='model-load-more';b.textContent='Show all '+rows.length+' models';b.onclick=()=>{state.expanded=true;renderModels()};root.append(b)}
  for(const group of ['Audio','Pages','Twin','Flyer']){const h=document.createElement('h3');h.className='sheet-group';h.textContent=group;root.append(h);const p=document.createElement('p');p.className='settings-help';p.textContent='Use the dedicated '+group.toLowerCase()+' workspace. Composer integration coming soon.';root.append(p)}
 }
-const settingNames={aspect_ratio:'Aspect ratio',resolution:'Quality',duration:'Duration',generate_audio:'Sound',enable_web_search:'Web search',num_images:'Batch size',num_outputs:'Batch size',batch_size:'Batch size'};
-const settingIcons={aspect_ratio:'▭',resolution:'◇',duration:'◷',generate_audio:'♫',enable_web_search:'⌕',num_images:'▱',num_outputs:'▱',batch_size:'▱'};
+const settingNames={aspect_ratio:'Aspect ratio',resolution:'Quality',duration:'Duration',generate_audio:'Sound',num_images:'Batch size',num_outputs:'Batch size',batch_size:'Batch size'};
+const settingIcons={aspect_ratio:'▭',resolution:'◇',duration:'◷',generate_audio:'♫',num_images:'▱',num_outputs:'▱',batch_size:'▱'};
 function pickSetting(key,p){
  const root=$('choiceOptions');root.replaceChildren();$('choiceTitle').textContent=settingNames[key]||key.replaceAll('_',' ');
  const values=key==='aspect_ratio'?[...new Set(['auto','16:9','9:16','4:3','3:4','1:1','21:9',...(p.enum||[])])]:p.enum;
  for(const v of values){const b=document.createElement('button');b.type='button';b.className='ratio-option';const supported=p.enum?.includes(v);b.disabled=!supported;b.setAttribute('aria-pressed',String(String(state.settings[key]??'auto')===String(v)));b.innerHTML='<span>'+esc(v==='auto'?'Auto':v)+'</span><i aria-hidden="true"></i>';if(!supported)b.title='Not supported by this model';b.onclick=()=>{if(v==='auto'&&!p.enum?.includes(v))delete state.settings[key];else state.settings[key]=v;$('settingChoices').close();renderSettings();refreshQuote()};root.append(b)}$('settingChoices').showModal();
 }
 function renderSettings(){const root=$('modelSettings');root.replaceChildren();if(!state.model)return;
- const entries=Object.entries(props()).filter(([key,p])=>key!=='prompt'&&!isMedia(key,p)&&!['enable_base64_output','enable_sync_mode'].includes(key));
+ const entries=Object.entries(props()).filter(([key,p])=>key!=='prompt'&&!isMedia(key,p)&&!['enable_base64_output','enable_sync_mode','enable_web_search'].includes(key));
  const order=['aspect_ratio','num_images','num_outputs','batch_size','resolution','duration','generate_audio'];entries.sort((a,b)=>(order.includes(a[0])?order.indexOf(a[0]):99)-(order.includes(b[0])?order.indexOf(b[0]):99));
  if(!entries.some(([k])=>['num_images','num_outputs','batch_size'].includes(k)))entries.splice(Math.min(1,entries.length),0,['__batch',{type:'integer',default:1}]);
  for(const [key,p] of entries){const row=document.createElement('label');row.className='setting-row';const title=document.createElement('span');title.className='setting-title';title.innerHTML='<i aria-hidden="true">'+(settingIcons[key]||'▱')+'</i><strong>'+esc(key==='__batch'?'Batch size':settingNames[key]||key.replaceAll('_',' '))+'</strong>';row.append(title);let el;
@@ -36,7 +36,7 @@ function renderSettings(){const root=$('modelSettings');root.replaceChildren();i
  if(key!=='__batch'){el.dataset.setting=key;el.setAttribute('aria-label',settingNames[key]||key.replaceAll('_',' '));if(!p.enum)el.addEventListener('input',()=>{try{state.settings[key]=p.type==='boolean'?el.checked:['integer','number'].includes(p.type)?Number(el.value):['object','array'].includes(p.type)?JSON.parse(el.value||'null'):el.value;refreshQuote()}catch{state.quote=null;$('createSend').disabled=true;note('Check the value for '+key.replaceAll('_',' '));}})}if(!el.parentElement)row.append(el);root.append(row);
  }
 }
-function inputs(urls=[],validateMedia=false){const out={...state.settings};if(props().prompt)out.prompt=$('createPrompt').value.trim();const used={image:0,video:0,audio:0};
+function inputs(urls=[],validateMedia=false){const out={...state.settings};if(props().enable_web_search)out.enable_web_search=false;if(props().prompt)out.prompt=$('createPrompt').value.trim();const used={image:0,video:0,audio:0};
  const selected=chosen();for(const [key,p] of Object.entries(props())){if(!isMedia(key,p))continue;const kind=mediaKind(key),items=selected.filter(a=>a.kind===kind);if(p.type==='array'){const max=Math.min(p.maxItems||14,14);const take=items.slice(used[kind],used[kind]+max);if(take.length)out[key]=take.map(a=>urls.find(u=>u.id===a.id)?.url||a.url||'https://example.com/reference');used[kind]+=take.length}else{const a=items[used[kind]++];if(a)out[key]=urls.find(u=>u.id===a.id)?.url||a.url||'https://example.com/reference';}}
  if(validateMedia){for(const kind of ['image','video','audio']){const count=selected.filter(a=>a.kind===kind).length;if(count>used[kind])throw Error('This model cannot use all '+count+' '+kind+' assets. Select only the supported references or choose a different model.');}for(const key of schema().required||[]){if(isMedia(key,props()[key]||{})&&!out[key])throw Error('Add the required '+key.replaceAll('_',' ')+' reference.');}}
  return out;

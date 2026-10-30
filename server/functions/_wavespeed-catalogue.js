@@ -27,6 +27,7 @@ async function quote(m,raw,{validate=true}={}){
  // Quotes may omit required media URLs before upload; production may not.
  if(validate&&!check(input))throw Error('Check model settings: '+ajv.errorsText(check.errors,{separator:'; '}));
  if(!validate){const relaxed={...spec,required:[]};const fill=ajv.compile(relaxed);if(!fill(input))throw Error('Check model settings: '+ajv.errorsText(fill.errors));}
+ if(spec.properties.enable_web_search)input.enable_web_search=false;
  if(spec.properties.enable_base64_output)input.enable_base64_output=false;if(spec.properties.enable_sync_mode)input.enable_sync_mode=false;
  // Models requiring duration analysis of external media need a separate verified
  // pricing integration. Never substitute a base price for a dynamic charge.
