@@ -164,20 +164,21 @@
   </style>
 </head>
 <body class="create-catalog" data-page="create">
+  <link rel="stylesheet" href="create-composer.css?v=wave-catalog-1">
   <main class="create-wrap">
     <section class="create-agent" aria-label="Start creating">
       <div class="create-agent-brand"><img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1793361152/fuse-atelier/create/fuse-mark-transparent-20261030.png" alt="">Fuse Atelier</div>
       <div class="create-composer"><textarea id="createPrompt" maxlength="4000" aria-label="Describe what you want to create" placeholder="Create a cinematic trailer for my brand"></textarea>
         <div class="composer-files" id="composerFiles"></div>
-        <div class="composer-toolbar"><button type="button" class="composer-plus" id="assetOpen" aria-label="Add reference assets">+</button><button type="button" class="composer-pill" id="modelOpen">✦ <span id="modelLabel">Auto</span></button><button type="button" class="composer-pill" id="aspectOpen"><span id="aspectLabel">9:16</span> ▾</button><button type="button" class="composer-send" id="createSend" aria-label="Open Create workspace">↑</button></div>
+        <div class="composer-toolbar"><button type="button" class="composer-plus" id="assetOpen" aria-label="Add reference assets">+</button><button type="button" class="composer-pill" id="modelOpen"><span aria-hidden="true">▣</span><span id="modelLabel">Loading models…</span></button><button type="button" class="composer-settings" id="settingsOpen" aria-label="Model settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3v18M12 3v18M18 3v18M3 8h6M9 16h6M15 6h6"/></svg></button><button type="button" class="composer-send" id="createSend" aria-label="Generate with quoted credits" disabled>✦ …</button></div>
       </div><p class="composer-message" id="composerMessage" role="status" aria-live="polite"></p>
     </section>
     <section class="create-grid" id="createGrid"></section>
   </main>
 
   <dialog class="create-sheet" id="modelSheet" aria-label="Choose a model"><div class="sheet-head"><h2>Model</h2><button type="button" data-close-sheet aria-label="Close model picker">×</button></div><input class="sheet-search" id="modelSearch" type="search" placeholder="Search models" aria-label="Search models"><div id="modelOptions"></div></dialog>
-  <dialog class="create-sheet" id="aspectSheet" aria-label="Choose aspect ratio"><div class="sheet-head"><h2>Aspect ratio</h2><button type="button" data-close-sheet aria-label="Close aspect picker">×</button></div><div id="aspectOptions"></div></dialog>
-  <dialog class="create-sheet" id="assetSheet" aria-label="Add assets"><div class="sheet-head"><h2>Assets</h2><button type="button" data-close-sheet aria-label="Close assets">×</button></div><p style="font-size:12px;color:#a8bcba">Add up to 6 image, video or audio references. The selected model determines which files it can use.</p><label class="sheet-upload">＋ Upload from your device<input id="assetInput" type="file" accept="image/*,video/*,audio/*" multiple></label><div class="sheet-assets" id="assetList"></div><button type="button" class="sheet-done" id="assetsDone">Apply assets</button></dialog>
+  <dialog class="create-sheet" id="settingsSheet" aria-label="Model settings"><div class="sheet-head"><h2>Settings</h2><button type="button" data-close-sheet aria-label="Close settings">×</button></div><div id="modelSettings"></div><p class="settings-cost" id="settingsCost">Choose a model</p><button type="button" class="sheet-done" id="settingsDone">Apply settings</button></dialog>
+  <dialog class="create-sheet" id="assetSheet" aria-label="Assets"><div class="sheet-head"><h2>Assets</h2><button type="button" data-close-sheet aria-label="Close assets">×</button></div><p class="sheet-selection-count" id="assetCount">0 of 14 selected</p><nav class="asset-tabs" aria-label="Asset categories"><button type="button" data-asset-tab="uploads" aria-selected="true">Uploads</button><button type="button" data-asset-tab="characters">AI Characters</button><button type="button" data-asset-tab="presets">Presets</button><button type="button" data-asset-tab="elements">Elements</button></nav><input id="assetInput" type="file" accept="image/*,video/*,audio/*" multiple hidden><div class="sheet-assets" id="assetList"></div><p class="asset-help" id="assetHelp"></p><button type="button" class="sheet-done" id="assetsDone" disabled>Apply</button></dialog>
   <script>
     const tabs=['All','Image','Video','Twin','Page','Voice','Flyer','Content','Lipsync','UGC'];
 
@@ -364,75 +365,10 @@
       });
     }
 
-    // The composer hands a brief to an existing image/video workspace; generation
-    // and credit charging still happen only in that workspace.
-    const composerModels=[
-      {name:'Auto',desc:'Fuse picks an image or video workspace from your brief.',route:'auto',type:'auto'},
-      ...catalogs.Image.items.map(m=>({name:m.name,desc:m.desc,route:m.route,type:'image'})),
-      ...catalogs.Video.items.map(m=>({name:m.name,desc:m.desc,route:m.route,type:'video'})),
-      ...catalogs.Voice.items.map(m=>({name:m.name,desc:'Audio workspace integration coming soon.',route:m.route,type:'audio',pending:true})),
-      ...catalogs.Page.items.map(m=>({name:m.name,desc:'Pages workspace integration coming soon.',route:m.route,type:'page',pending:true})),
-      ...catalogs.Twin.items.map(m=>({name:m.name,desc:'Twin workspace integration coming soon.',route:m.route,type:'twin',pending:true})),
-      {name:'AI Flyer',desc:'Flyer workspace integration coming soon.',route:'flyer',type:'flyer',pending:true}
-    ];
-    let composerModel=composerModels[0],composerAspect='9:16',composerAssets=[];
-    const byId=id=>document.getElementById(id);
-    const showSheet=id=>byId(id).showModal();
-    document.querySelectorAll('[data-close-sheet]').forEach(b=>b.onclick=()=>b.closest('dialog').close());
-    document.querySelectorAll('.create-sheet').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close()}));
-    byId('modelOpen').onclick=()=>{renderModelSheet();showSheet('modelSheet');byId('modelSearch').focus()};
-    byId('modelSearch').oninput=renderModelSheet;
-    function renderModelSheet(){
-      const q=byId('modelSearch').value.trim().toLowerCase(),root=byId('modelOptions');root.replaceChildren();
-      for(const type of ['auto','image','video','audio','page','twin','flyer']){
-        const group=composerModels.filter(m=>m.type===type&&(!q||(m.name+' '+m.desc).toLowerCase().includes(q)));if(!group.length)continue;
-        const heading=document.createElement('h3');heading.className='sheet-group';heading.textContent=({auto:'Smart selection',image:'Image',video:'Video',audio:'Audio',page:'Pages',twin:'Twin',flyer:'Flyer'})[type];root.append(heading);
-        group.forEach(m=>{const b=document.createElement('button');b.type='button';b.className='sheet-option';b.setAttribute('aria-selected',String(m===composerModel));if(m.pending){b.disabled=true;b.title='Coming soon';b.style.opacity='.55'}const symbol=document.createElement('span');symbol.className='sheet-symbol';symbol.textContent=({auto:'✦',image:'▧',video:'▣',audio:'♫',page:'▤',twin:'◉',flyer:'✧'})[type];const copy=document.createElement('span');const name=document.createElement('strong');name.textContent=m.name;const description=document.createElement('small');description.textContent=m.desc;copy.append(name,description);b.append(symbol,copy);if(m===composerModel){const tick=document.createElement('span');tick.className='sheet-check';tick.textContent='✓';b.append(tick)}b.onclick=()=>{composerModel=m;byId('modelLabel').textContent=m.name;byId('modelSheet').close()};root.append(b)});
-      }
-    }
-    byId('aspectOpen').onclick=()=>showSheet('aspectSheet');
-    const aspectRoot=byId('aspectOptions');
-    for(const value of ['9:16','16:9','1:1','3:4','4:3']){
-      const b=document.createElement('button');b.type='button';b.className='sheet-option';b.innerHTML='<span class="sheet-symbol">▯</span>';const label=document.createElement('strong');label.textContent=value;b.append(label);b.onclick=()=>{composerAspect=value;byId('aspectLabel').textContent=value;byId('aspectSheet').close()};aspectRoot.append(b);
-    }
-    const assetMessage=text=>byId('composerMessage').textContent=text;
-    byId('assetOpen').onclick=()=>{renderAssets();showSheet('assetSheet')};
-    byId('assetsDone').onclick=()=>byId('assetSheet').close();
-    byId('assetInput').onchange=e=>{const incoming=[...e.target.files];const room=6-composerAssets.length;composerAssets.push(...incoming.slice(0,room));if(incoming.length>room)assetMessage('Add up to 6 references.');e.target.value='';renderAssets()};
-    function renderAssets(){
-      const pills=byId('composerFiles'),grid=byId('assetList');pills.replaceChildren();grid.replaceChildren();
-      composerAssets.forEach((file,index)=>{
-        const chip=document.createElement('div');chip.className='composer-file';const label=document.createElement('span');label.textContent=file.name;const remove=document.createElement('button');remove.type='button';remove.textContent='×';remove.setAttribute('aria-label','Remove '+file.name);remove.onclick=()=>{composerAssets.splice(index,1);renderAssets()};chip.append(label,remove);pills.append(chip);
-        const card=document.createElement('button');card.type='button';const media=file.type.startsWith('image/')?document.createElement('img'):file.type.startsWith('video/')?document.createElement('video'):null;
-        if(media){media.src=URL.createObjectURL(file);media.onload=()=>URL.revokeObjectURL(media.src);if(media.tagName==='VIDEO'){media.muted=true;media.onloadeddata=()=>URL.revokeObjectURL(media.src)}card.append(media)}
-        const t=document.createElement('span');t.textContent=file.name+' · tap to remove';card.append(t);card.onclick=remove.onclick;grid.append(card);
-      });
-    }
-    function handoffDb(){
-      return new Promise((resolve,reject)=>{const request=indexedDB.open('fuse-create-handoff',1);request.onupgradeneeded=()=>request.result.createObjectStore('briefs');request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)});
-    }
-    function saveHandoff(key,brief){
-      return handoffDb().then(db=>new Promise((resolve,reject)=>{const tx=db.transaction('briefs','readwrite');tx.objectStore('briefs').put(brief,key);tx.oncomplete=()=>{db.close();resolve()};tx.onerror=()=>{db.close();reject(tx.error)}}));
-    }
-    byId('createSend').onclick=async()=>{
-      const prompt=byId('createPrompt').value.trim();if(!prompt){assetMessage('Describe what you want to create first.');byId('createPrompt').focus();return}
-      let model=composerModel;
-      if(model.type==='auto'){
-        const wantsVideo=/video|film|movie|trailer|animate|motion|moving|cinematic clip|reel/i.test(prompt)||composerAssets.some(f=>!f.type.startsWith('image/'));
-        model=composerModels.find(m=>m.route===(wantsVideo?'videopage:seedance-2.5':'imagepage:nano-banana-2'));
-      }
-      if(model.type==='image'&&composerAssets.some(f=>!f.type.startsWith('image/'))){assetMessage('This image model needs image references. Choose Seedance 2.5 for video or audio references.');return}
-      if(model.type==='video'&&model.route!=='videopage:seedance-2.5'&&composerAssets.some(f=>!f.type.startsWith('image/'))){assetMessage('Choose Seedance 2.5 to use video or audio references.');return}
-      const route=model.route;
-      const path=(model.type==='video'?'video-create.html':'image-create.html')+'?model='+encodeURIComponent(route.split(':')[1]);
-      const key='fuse-create-'+Date.now()+'-'+Math.random().toString(36).slice(2);
-      const send=byId('createSend');send.disabled=true;assetMessage('Opening your workspace…');
-      try{await saveHandoff(key,{prompt,aspect:composerAspect,files:composerAssets,createdAt:Date.now(),type:model.type});sessionStorage.setItem('fuse_create_handoff',key);location.assign(path)}
-      catch(error){send.disabled=false;assetMessage('Could not transfer your references. Please try again or open the workspace directly.')}
-    };
-
     render();
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="fuse-shell.js?v=footer-unified-7"></script>
+  <script src="create-composer.js?v=wave-catalog-1" defer></script>
 </body>
 </html>

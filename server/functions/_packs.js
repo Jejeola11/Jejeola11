@@ -286,6 +286,8 @@ function imageCreditsForRequest(model,{resolution='2k',referenceCount=0,quality=
 // browser can DISPLAY an estimate, but can never decide what gets charged.
 // Rates verified against WaveSpeed's current model docs in Sep 2026.
 const VIDEO_DYNAMIC_RATES = {
+  'seedance-2.0-mini-image-to-video': {'720p':0.08,'1080p':0.10},
+  'seedance-2.0-mini-text-to-video': {'720p':0.08,'1080p':0.10},
   'minimax-h3-text-to-video': { '480p': 0.04, '540p': 0.06, '768p': 0.08, '1080p': 0.16 },
   'minimax-h3-image-to-video': { '480p': 0.04, '540p': 0.06, '768p': 0.08, '1080p': 0.16 },
   'wan-3-text-to-video': { '480p': 0.05, '720p': 0.10, '1080p': 0.20 },
@@ -328,6 +330,8 @@ function videoCreditsForRequest(model, duration, resolution, pricingContext = {}
 }
 
 Object.assign(VIDEO_MODELS, {
+  'seedance-2.0-mini-image-to-video':safeCreditsFor(0.40),
+  'seedance-2.0-mini-text-to-video':safeCreditsFor(0.40),
   'seedance-2-mini-text-to-video': 17,     'seedance-2-mini-image-to-video': 17,     // formula would give 8
   // 10 Aug 2026, pass 3: raised off Ria's original numbers (45/6/7) to close
   // a real loss risk found in the profit audit. With Studio Pro/Creator/

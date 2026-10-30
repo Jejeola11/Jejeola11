@@ -281,6 +281,7 @@
     const cfg=window.FUSE||{}, sb=createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY), $=id=>document.getElementById(id);
 
     const MODELS=[
+      {key:'seedance-2.0-mini',name:'Seedance 2.0 Mini',desc:'4–15 seconds, native audio, start and optional end frame.',short:'S2M',api:'seedance-2.0-mini-text-to-video',res:['720p','1080p'],dur:[4,5,8,10,15],customDur:[4,15],aspects:['16:9','9:16','4:3','3:4','1:1','21:9'],preview:'/app/media/samples/vid3.mp4',tag:'MINI',fresh:true},
       {key:'minimax-h3',name:'MiniMax H3',desc:'Native-audio cinematic generation with flexible 3–15s clips.',short:'H3',api:'minimax-h3-text-to-video',res:['480p','540p','768p','1080p'],dur:[3,5,8,10,15],aspects:['16:9','9:16','1:1','4:3','3:4'],preview:'/app/media/samples/vid1.mp4',tag:'2K',fresh:true},
       {key:'wan-3',name:'Wan 3.0',desc:'Flexible 2–30s video with strong image guidance and native audio.',short:'W3',api:'wan-3-text-to-video',res:['480p','720p','1080p'],dur:[2,5,8,10,15,30],aspects:['16:9','9:16','1:1','4:3','3:4'],preview:'/app/media/samples/vid2.mp4',tag:'BEST VALUE',fresh:true},
       {key:'grok-imagine',name:'Grok Imagine',desc:'Fast, punchy social video generation.',short:'GX',api:'grok-imagine-text-to-video',res:['720p'],dur:[6,10],aspects:['16:9','9:16'],preview:'/app/media/samples/vid2.mp4',base:12,tag:'FAST'},
@@ -290,6 +291,7 @@
       {key:'omni-flash',name:'Gemini Omni Flash 1.1',desc:'Fast synchronized-audio video generation from text or image.',short:'GO',api:'gemini-omni-1.1-flash-text-to-video',res:['360p','720p','1080p','4k'],dur:[3,5,8,10],aspects:['16:9','9:16'],preview:'/app/media/samples/vid3.mp4',tag:'OMNI',fresh:true}
     ];
     const RATES={
+      'seedance-2.0-mini':{'720p':.08,'1080p':.10},
       'minimax-h3':{'480p':.04,'540p':.06,'768p':.08,'1080p':.16},
       'wan-3':{'480p':.05,'720p':.10,'1080p':.20},
       'seedance-2.5':{'480p':.18,'720p':.36,'1080p':.90,'4k':1.80},

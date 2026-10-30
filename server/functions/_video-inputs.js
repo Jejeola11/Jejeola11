@@ -4,7 +4,8 @@ function validateModelInputs(model, { duration, resolution, prompt, images, vide
   const seconds = Number(String(duration).replace(/s$/, ''));
   const common = { maxImages: 2 };
   let rules;
-  if(model.startsWith('minimax-h3-')) rules={...common,min:3,max:15,res:['480p','540p','768p','1080p']};
+  if(model.startsWith('seedance-2.0-mini-')) rules={...common,min:4,max:15,res:['720p','1080p']};
+  else if(model.startsWith('minimax-h3-')) rules={...common,min:3,max:15,res:['480p','540p','768p','1080p']};
   else if(model.startsWith('wan-3-')) rules={...common,min:2,max:30,res:['480p','720p','1080p']};
   else if(model.startsWith('grok-imagine-')) rules={maxImages:1,durations:[6,10],res:['720p']};
   else if(model.startsWith('kling-v3-turbo-')) rules={...common,durations:[5,10],res:['720p'],maxPrompt:2500};

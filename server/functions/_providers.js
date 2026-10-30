@@ -158,6 +158,8 @@ async function triggerTextWorker(requestId) {
 // Field names verified from each model's page (t2v: prompt/aspect_ratio/duration
 // /camera_fixed/seed; i2v adds image/last_image).
 const VIDEO_ROUTES = {
+  'seedance-2.0-mini-image-to-video': {kind:'i2v',pick:()=> 'bytedance/seedance-2.0-mini/image-to-video-turbo',durationRange:[4,15],resolutionParam:true,audioField:'generate_audio',waveSpeedOnly:true},
+  'seedance-2.0-mini-text-to-video': {kind:'t2v',pick:()=> 'bytedance/seedance-2.0-mini/text-to-video-turbo',durationRange:[4,15],resolutionParam:true,audioField:'generate_audio',waveSpeedOnly:true},
   // Fuse Create flexible models (WaveSpeed native).
   // MiniMax H3: 3-15s. Image-to-video follows the input image canvas, so
   // aspect_ratio is deliberately omitted on that route.

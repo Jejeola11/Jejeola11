@@ -1,0 +1,110 @@
+[
+  {
+    "model_id": "bytedance/seedance-2.0-mini/text-to-video-turbo",
+    "name": "bytedance/seedance-2.0-mini/text-to-video-turbo",
+    "base_price": 0.08,
+    "description": "Seedance 2.0 Mini is ByteDance's faster, lower-cost tier of Seedance 2.0 for cinematic multi-shot video \u2014 narrative sequences, AI camera control (zoom/pan/tracking), and consistent characters across scenes, from text or image prompts. 720p-1080p, 5-12s, aspect ratios 16:9 / 4:3 / 1:1 / 3:4 / 9:16. Priced at 50% of standard Seedance 2.0.",
+    "type": "text-to-video",
+    "sort_order": 7400,
+    "api_schema": {
+      "api_schemas": [
+        {
+          "type": "model_run",
+          "method": "POST",
+          "server": "https://api.wavespeed.ai",
+          "api_path": "/api/v3/bytedance/seedance-2.0-mini/text-to-video-turbo",
+          "request_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "aspect_ratio": {
+                "default": "16:9",
+                "description": "The aspect ratio of the generated video.",
+                "enum": [
+                  "16:9",
+                  "9:16",
+                  "4:3",
+                  "3:4",
+                  "1:1",
+                  "21:9"
+                ],
+                "type": "string",
+                "x-ui-component": "select"
+              },
+              "duration": {
+                "default": 5,
+                "description": "The duration of the generated video in seconds (4-15s).",
+                "maximum": 15,
+                "minimum": 4,
+                "type": "integer",
+                "x-ui-component": "slider"
+              },
+              "enable_web_search": {
+                "default": false,
+                "description": "Enable web search for real-time information.",
+                "type": "boolean"
+              },
+              "generate_audio": {
+                "default": true,
+                "description": "Whether to generate native audio synchronized with the output video. Defaults to true.",
+                "type": "boolean"
+              },
+              "prompt": {
+                "description": "Describe the scene, action, camera movement, and mood for the video.",
+                "type": "string"
+              },
+              "reference_audios": {
+                "description": "Reference audio URLs (total length must not exceed 15 seconds).",
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 3,
+                "type": "array"
+              },
+              "reference_images": {
+                "description": "Reference image URLs to guide visual style, characters, or scene composition.",
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 9,
+                "type": "array"
+              },
+              "reference_videos": {
+                "description": "Reference video URLs (total length must not exceed 15 seconds).",
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 3,
+                "type": "array"
+              },
+              "resolution": {
+                "default": "720p",
+                "description": "The output video resolution.",
+                "enum": [
+                  "720p",
+                  "1080p"
+                ],
+                "type": "string",
+                "x-ui-component": "select"
+              }
+            },
+            "required": [
+              "prompt"
+            ],
+            "type": "object",
+            "x-order-properties": [
+              "prompt",
+              "reference_images",
+              "reference_videos",
+              "reference_audios",
+              "aspect_ratio",
+              "resolution",
+              "duration",
+              "enable_web_search",
+              "generate_audio"
+            ]
+          }
+        }
+      ]
+    }
+  }
+]
