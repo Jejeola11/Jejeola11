@@ -150,25 +150,27 @@
     .sheet-group{font-size:13px;color:var(--white);margin:18px 4px 9px}.sheet-option{width:100%;min-height:70px;padding:10px 12px;display:flex;align-items:center;gap:13px;border:1px solid transparent;border-radius:16px;background:transparent;color:#fff;text-align:left;cursor:pointer}.sheet-option:hover,.sheet-option[aria-selected="true"]{background:#192b2d;border-color:#476368}.sheet-symbol{flex:none;display:grid;place-items:center;width:46px;height:46px;border:1px solid #315456;border-radius:14px;background:#102527;color:var(--lime);font-size:20px}.sheet-option strong{display:block;font-size:14px}.sheet-option small{display:block;color:#a8bcba;margin-top:4px;font-size:11px;line-height:1.3}.sheet-check{margin-left:auto;color:var(--lime);font-size:21px}
     .sheet-upload{display:block;width:100%;margin:17px 0;padding:20px;border:1px dashed var(--line);border-radius:16px;background:#102527;text-align:center;color:#fff;cursor:pointer}.sheet-upload input{display:none}.sheet-assets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.sheet-assets button{border:1px solid var(--line);border-radius:13px;background:#132528;color:#fff;padding:9px;overflow:hidden;min-height:100px}.sheet-assets img,.sheet-assets video{width:100%;height:105px;object-fit:cover;border-radius:9px}.sheet-assets span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}.sheet-done{width:100%;min-height:46px;margin-top:14px;border:0;border-radius:13px;background:var(--chrome);font-weight:700;color:#001012}
     @media(max-width:520px){.create-agent{min-height:410px;padding:28px 0 20px}.create-agent-brand{font-size:29px;margin-bottom:23px}.create-agent-brand img{width:45px;height:45px}.create-composer{padding:14px;border-radius:23px}.create-composer textarea{font-size:15px;min-height:75px}.composer-pill{font-size:12px;padding:0 10px}.composer-toolbar{gap:5px}.composer-plus{width:40px;min-height:40px}.composer-send{width:43px;height:43px}.create-sheet{max-height:85svh}}
+
+    .create-wrap{padding-top:0}
+    .create-agent{min-height:0;padding:18px 0 16px;justify-content:flex-start}
+    .create-agent-brand{font-size:clamp(23px,4.8vw,30px);gap:8px;margin:0 0 18px;letter-spacing:-.7px}
+    .create-agent-brand img{width:37px;height:37px}
+    .create-composer{padding:12px 14px 10px;border-radius:24px;width:min(100%,780px)}
+    .create-composer textarea{min-height:132px;max-height:300px;font-size:17px}
+    .composer-toolbar{margin-top:0}.composer-pill,.composer-plus{min-height:39px}.composer-plus{width:39px}.composer-send{height:43px;width:43px}
+    .composer-message{margin:7px 0 0;min-height:0}
+    .create-grid{margin-top:8px}
+    @media(max-width:520px){.create-agent{padding:11px 0 11px}.create-agent-brand{font-size:24px;margin-bottom:14px}.create-agent-brand img{width:34px;height:34px}.create-composer{padding:10px 12px 9px;border-radius:22px}.create-composer textarea{min-height:125px;font-size:15px}.composer-pill{font-size:12px;padding:0 10px}.create-grid{gap:18px 14px;margin-top:10px}}
   </style>
 </head>
 <body class="create-catalog" data-page="create">
   <main class="create-wrap">
-    <header class="create-top">
-      <h1 class="create-title">Create</h1>
-      <button class="create-close" id="closeCreate" aria-label="Close Create"><span>×</span></button>
-    </header>
     <section class="create-agent" aria-label="Start creating">
-      <div class="create-agent-brand"><img src="media/fuse-mark-palette.webp" alt="">Fuse Atelier</div>
+      <div class="create-agent-brand"><img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1793361152/fuse-atelier/create/fuse-mark-transparent-20261030.png" alt="">Fuse Atelier</div>
       <div class="create-composer"><textarea id="createPrompt" maxlength="4000" aria-label="Describe what you want to create" placeholder="Create a cinematic trailer for my brand"></textarea>
         <div class="composer-files" id="composerFiles"></div>
         <div class="composer-toolbar"><button type="button" class="composer-plus" id="assetOpen" aria-label="Add reference assets">+</button><button type="button" class="composer-pill" id="modelOpen">✦ <span id="modelLabel">Auto</span></button><button type="button" class="composer-pill" id="aspectOpen"><span id="aspectLabel">9:16</span> ▾</button><button type="button" class="composer-send" id="createSend" aria-label="Open Create workspace">↑</button></div>
       </div><p class="composer-message" id="composerMessage" role="status" aria-live="polite"></p>
-    </section>
-    <nav class="create-tabs" id="createTabs" aria-label="Create categories"></nav>
-    <section class="catalog-intro" id="catalogIntro" hidden>
-      <div><h2 id="catalogTitle"></h2><p id="catalogText"></p></div>
-      <span class="catalog-count" id="catalogCount"></span>
     </section>
     <section class="create-grid" id="createGrid"></section>
   </main>
@@ -350,36 +352,29 @@
     }
 
     function render(){
-      renderTabs();
       const grid=document.getElementById('createGrid');
-      const catalog=catalogs[selected];
-
-      if(catalog){
-        grid.className='create-grid model-grid';
-        const tool=selected==='Page'?null:tools.find(t=>t.cat===selected);
-        grid.innerHTML=(tool?toolMarkup(tool,true):'')+catalog.items.map(modelMarkup).join('');
-        setIntro(catalog.title,catalog.text,catalog.items.length+(tool?1:0));
-        wireModelRoutes();
-        return;
-      }
-
       grid.className='create-grid';
-      if(selected==='All'){
-        grid.innerHTML=tools.map(t=>toolMarkup(t,false)).join('');
-        setIntro(descriptions.All[0],descriptions.All[1],tools.length);
-        return;
-      }
-
-      const list=tools.filter(t=>t.cat===selected);
-      grid.innerHTML=list.length?list.map(t=>toolMarkup(t,true)).join(''):'<p class="empty-state">More Create tools are coming soon.</p>';
-      const d=descriptions[selected]||[selected,'Open the matching Fuse workspace.'];
-      setIntro(d[0],d[1],list.length);
+      grid.replaceChildren();
+      tools.forEach(tool=>{
+        const card=document.createElement('article');
+        card.className='create-card';
+        card.innerHTML='<div class="create-media">'+mediaMarkup(tool)+'</div><h2></h2>';
+        card.querySelector('h2').textContent=tool.title;
+        grid.append(card);
+      });
     }
-
 
     // The composer hands a brief to an existing image/video workspace; generation
     // and credit charging still happen only in that workspace.
-    const composerModels=[{name:'Auto',desc:'Fuse picks an image or video workspace from your brief.',route:'auto',type:'auto'},...catalogs.Image.items.map(m=>({name:m.name,desc:m.desc,route:m.route,type:'image'})),...catalogs.Video.items.map(m=>({name:m.name,desc:m.desc,route:m.route,type:'video'}))];
+    const composerModels=[
+      {name:'Auto',desc:'Fuse picks an image or video workspace from your brief.',route:'auto',type:'auto'},
+      ...catalogs.Image.items.map(m=>({name:m.name,desc:m.desc,route:m.route,type:'image'})),
+      ...catalogs.Video.items.map(m=>({name:m.name,desc:m.desc,route:m.route,type:'video'})),
+      ...catalogs.Voice.items.map(m=>({name:m.name,desc:'Audio workspace integration coming soon.',route:m.route,type:'audio',pending:true})),
+      ...catalogs.Page.items.map(m=>({name:m.name,desc:'Pages workspace integration coming soon.',route:m.route,type:'page',pending:true})),
+      ...catalogs.Twin.items.map(m=>({name:m.name,desc:'Twin workspace integration coming soon.',route:m.route,type:'twin',pending:true})),
+      {name:'AI Flyer',desc:'Flyer workspace integration coming soon.',route:'flyer',type:'flyer',pending:true}
+    ];
     let composerModel=composerModels[0],composerAspect='9:16',composerAssets=[];
     const byId=id=>document.getElementById(id);
     const showSheet=id=>byId(id).showModal();
@@ -389,10 +384,10 @@
     byId('modelSearch').oninput=renderModelSheet;
     function renderModelSheet(){
       const q=byId('modelSearch').value.trim().toLowerCase(),root=byId('modelOptions');root.replaceChildren();
-      for(const type of ['auto','image','video']){
+      for(const type of ['auto','image','video','audio','page','twin','flyer']){
         const group=composerModels.filter(m=>m.type===type&&(!q||(m.name+' '+m.desc).toLowerCase().includes(q)));if(!group.length)continue;
-        const heading=document.createElement('h3');heading.className='sheet-group';heading.textContent=type==='auto'?'Smart selection':type==='image'?'Image':'Video';root.append(heading);
-        group.forEach(m=>{const b=document.createElement('button');b.type='button';b.className='sheet-option';b.setAttribute('aria-selected',String(m===composerModel));const symbol=document.createElement('span');symbol.className='sheet-symbol';symbol.textContent=type==='auto'?'✦':type==='image'?'▧':'▣';const copy=document.createElement('span');const name=document.createElement('strong');name.textContent=m.name;const description=document.createElement('small');description.textContent=m.desc;copy.append(name,description);b.append(symbol,copy);if(m===composerModel){const tick=document.createElement('span');tick.className='sheet-check';tick.textContent='✓';b.append(tick)}b.onclick=()=>{composerModel=m;byId('modelLabel').textContent=m.name;byId('modelSheet').close()};root.append(b)});
+        const heading=document.createElement('h3');heading.className='sheet-group';heading.textContent=({auto:'Smart selection',image:'Image',video:'Video',audio:'Audio',page:'Pages',twin:'Twin',flyer:'Flyer'})[type];root.append(heading);
+        group.forEach(m=>{const b=document.createElement('button');b.type='button';b.className='sheet-option';b.setAttribute('aria-selected',String(m===composerModel));if(m.pending){b.disabled=true;b.title='Coming soon';b.style.opacity='.55'}const symbol=document.createElement('span');symbol.className='sheet-symbol';symbol.textContent=({auto:'✦',image:'▧',video:'▣',audio:'♫',page:'▤',twin:'◉',flyer:'✧'})[type];const copy=document.createElement('span');const name=document.createElement('strong');name.textContent=m.name;const description=document.createElement('small');description.textContent=m.desc;copy.append(name,description);b.append(symbol,copy);if(m===composerModel){const tick=document.createElement('span');tick.className='sheet-check';tick.textContent='✓';b.append(tick)}b.onclick=()=>{composerModel=m;byId('modelLabel').textContent=m.name;byId('modelSheet').close()};root.append(b)});
       }
     }
     byId('aspectOpen').onclick=()=>showSheet('aspectSheet');
@@ -436,7 +431,6 @@
       catch(error){send.disabled=false;assetMessage('Could not transfer your references. Please try again or open the workspace directly.')}
     };
 
-    document.getElementById('closeCreate').onclick=()=>location.href='home.html';
     render();
   </script>
   <script src="fuse-shell.js?v=footer-unified-7"></script>
