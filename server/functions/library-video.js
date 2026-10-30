@@ -22,6 +22,6 @@ exports.handler = async function (event) {
     if (updateError) return json(500, { error: 'The video was recovered but could not be saved. Please retry.' });
   }
   const url = new URL(archived);
-  url.searchParams.set('download', `fuse-atelier-video-${id.slice(0,8)}.mp4`);
+  url.searchParams.set('download', `fuseatelier-video-${id.slice(0,8)}.mp4`);
   return json(200, { url: archived, download_url: url.href });
 };

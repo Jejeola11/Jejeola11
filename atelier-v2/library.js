@@ -220,41 +220,10 @@
     finally{item.repairing=false;item.repairAttempted=true}
   }
   async function downloadSelected(){
-    if(!selected)return;
-    const btn=$('downloadAction'),label=btn?.querySelector('span');
-    if(btn?.disabled)return;
-    const original=label?.textContent||'Download';
-    try{
-      if(btn)btn.disabled=true;if(label)label.textContent='Downloading…';libraryToast('Downloading…');
-      if(selected.kind==='video'){
-        const links=await videoLinks(selected);
-        const a=document.createElement('a');a.href=links.download_url;a.download='fuse-atelier-video.mp4';a.style.display='none';
-        document.body.appendChild(a);a.click();a.remove();
-        if(label)label.textContent='Download started ✓';libraryToast('Download started ✓',true);
-        setTimeout(()=>{if(label)label.textContent=original;if(btn)btn.disabled=false},1400);
-        return;
-      }
-      const response=await fetch(selected.output_url,{mode:'cors',credentials:'omit',cache:'no-store'});
-      if(!response.ok)throw new Error('Download failed.');
-      const blob=await response.blob();
-      if(!blob.size)throw new Error('The file was empty.');
-      const ext=downloadExtension(blob.type,selected.kind);
-      const filename='fuse-atelier-'+selected.kind+'-'+new Date().toISOString().slice(0,10)+'.'+ext;
-      const objectUrl=URL.createObjectURL(blob);
-      const a=document.createElement('a');a.href=objectUrl;a.download=filename;a.style.display='none';
-      document.body.appendChild(a);a.click();a.remove();
-      setTimeout(()=>URL.revokeObjectURL(objectUrl),15000);
-      if(label)label.textContent='Downloaded ✓';libraryToast('Downloaded ✓',true);
-      setTimeout(()=>{if(label)label.textContent=original;if(btn)btn.disabled=false},1400);
-    }catch(e){
-      console.warn('[library] download',e);
-      if(label)label.textContent='Try again';libraryToast(e.message||'Could not download. Try again.');
-      setTimeout(()=>{if(label)label.textContent=original;if(btn)btn.disabled=false},1500);
-    }
+    if(!selected||!window.FuseDownload)return;
+    await FuseDownload.download({url:selected.output_url,title:selected.prompt||selected.title||selected.kind,kind:selected.kind,button:$('downloadAction'),onStatus:message=>libraryToast(message)});
   }
-  function closeMoreMenu(){const m=$('libraryMoreMenu');if(m)m.classList.remove('open')}
-  function openMoreMenu(){if(!selected)return;injectMoreMenu();const menu=$('libraryMoreMenu'),btn=$('moreAction'),r=btn.getBoundingClientRect(),width=Math.min(220,innerWidth-28),left=Math.max(14,Math.min(innerWidth-width-14,r.right-width));let top=r.top-116;if(top<14)top=Math.min(innerHeight-122,r.bottom+8);menu.style.left=left+'px';menu.style.top=top+'px';menu.classList.add('open')}
-  async function shareSelected(){if(!selected)return;closeMoreMenu();const p={title:'Fuse Atelier creation',text:selected.prompt||'Created with Fuse Atelier',url:selected.output_url};try{if(navigator.share){await navigator.share(p);return}await navigator.clipboard.writeText(selected.output_url||'');alert('Creation link copied.')}catch(e){if(e?.name!=='AbortError')try{await navigator.clipboard.writeText(selected.output_url||'');alert('Creation link copied.')}catch(_){}}}
+
   async function deleteSelected(){if(!selected)return;closeMoreMenu();if(!confirm('Delete this creation permanently from your Library?'))return;const deleting=selected;try{const res=await fetch('/api/delete-generation',{method:'POST',headers:{'Content-Type':'application/json',...(await authHeader())},body:JSON.stringify({id:deleting.id})}),d=await res.json().catch(()=>({}));if(!res.ok)throw Error(d.error||'Could not delete this creation.');closeDetail();await load()}catch(e){alert(e.message||'Could not delete this creation.')}}
 
   function openDetail(item){
