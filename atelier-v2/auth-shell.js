@@ -8,10 +8,10 @@
       const client=window.__fuseClient ||= window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
       const {data,error}=await client.auth.getSession();
       if(error)throw error;
-      if(!data.session){location.replace('/atelier-v2/login.html');return;}
+      if(!data.session){location.replace('/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash));return;}
       const {data:profile}=await client.from('profiles').select('credits').eq('id',data.session.user.id).maybeSingle();
       document.querySelectorAll('[data-balance]').forEach(el=>el.textContent=`✦ ${Number(profile?.credits||0)} credits`);
-    }catch(error){location.replace('/atelier-v2/login.html');}
+    }catch(error){location.replace('/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash));}
   }
   window.addEventListener('load',()=>setTimeout(start,120));
 })();

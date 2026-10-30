@@ -4,6 +4,10 @@
   const $ = id => document.getElementById(id), message=$('message');
   const next = new URLSearchParams(location.search).get('next');
   const destination = next?.startsWith('/atelier-v2/') && !next.startsWith('//') ? next : '/atelier-v2/home.html';
+  const requestedReturn=new URLSearchParams(location.search).get('return');
+  const returnTo=requestedReturn?.startsWith('/atelier-v2/')&&!requestedReturn.startsWith('//')?requestedReturn:'/';
+  document.querySelector('.close').href=returnTo;
+  document.querySelector('.signin a').href='/login?next='+encodeURIComponent(destination);
   fetch('https://rgbweaimkcndjznlazho.supabase.co/auth/v1/settings',{headers:{apikey:'sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3'}}).then(r=>r.json()).then(settings=>{
     if(settings.external?.google)return;
     sb.auth.getSession().then(({data})=>{if(data.session){$('google').disabled=false;$('google').lastChild.textContent='Continue to Fuse Atelier'}});
@@ -30,7 +34,7 @@
     const button=$('submit');button.disabled=true;message.textContent='Creating your account…';
     try {
       sessionStorage.setItem('fuse_signup_destination',destination);
-      const response=await fetch('/api/public-auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,mode:'signup'})});
+      const response=await fetch('/api/public-auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,mode:'signup',next:destination})});
       const result=await response.json(); if(!response.ok)throw new Error(result.error||'Please try again.');
       message.textContent='Check your email and tap the secure sign-in button. You’ll enter Fuse Atelier automatically.';
     }catch(error){message.textContent=error.message||'Could not create your account.';}

@@ -29,7 +29,8 @@ exports.handler = async event => {
   if(error)throw error;
   await captureSignup(sb,{id:data?.user?.id,email,name});
   const token=data?.properties?.hashed_token;if(!token)throw new Error('Verification unavailable');
-  const link='https://fuseatelier.com/login#token_hash='+encodeURIComponent(token);
+  const next=typeof body.next==='string'&&body.next.startsWith('/atelier-v2/')&&!body.next.startsWith('//')?body.next:'';
+  const link='https://fuseatelier.com/login'+(next?'?next='+encodeURIComponent(next):'')+'#token_hash='+encodeURIComponent(token);
   const response=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${process.env.RESEND_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({from:process.env.FUSE_EMAIL_FROM,to:[email],subject:'Verify your email to enter Fuse Atelier',html:`<div style="background:#021418;color:#f4f4f4;padding:32px;font-family:Arial,sans-serif"><h1>Welcome to Fuse Atelier</h1><p>Verify your email, then enter your name and email on the login page to continue.</p><p><a href="${link}" style="display:inline-block;background:#eef4bd;color:#021418;padding:16px 24px;border-radius:24px;text-decoration:none">Verify email &amp; continue</a></p><p>This button is single-use and expires shortly. If you didn’t request it, ignore this email.</p></div>`})});
   if(!response.ok)return json(502,{error:'We couldn’t send the verification email. Please try again shortly.'});
   return neutral();

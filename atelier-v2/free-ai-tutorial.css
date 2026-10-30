@@ -35,3 +35,5 @@
 .finale-body{min-height:650px}.heart-portrait{height:455px}.final-card{margin-top:370px;padding-top:28px}
 @media(max-width:700px){.finale-body{min-height:620px}.heart-portrait{height:390px}.final-card{margin-top:325px;padding-top:25px}}
 @media(max-width:700px){.cover h1{width:100%;max-width:100%;padding-inline:12px;font-size:clamp(42px,12.5vw,58px);line-height:1.04;letter-spacing:-.035em;overflow:visible}.cover h1 em{padding-inline:4px}}
+
+.course-top .tutorial-signup{margin-left:auto;margin-right:12px;display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:7px 12px;border-radius:10px;background:linear-gradient(110deg,#FFE66A,#DFFF4E,#EEFFE0);color:#001012;font:700 12px Montserrat,Arial,sans-serif;text-decoration:none;white-space:nowrap}.course-top .tutorial-signup[hidden]{display:none}@media(max-width:390px){.course-top .tutorial-signup{margin-right:7px;padding:7px 9px;font-size:11px}}

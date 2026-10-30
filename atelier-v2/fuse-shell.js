@@ -240,4 +240,28 @@
       if(playbookOnly)location.replace('/playbook');
     }catch{}
   })();
+  async function publicSignupGate(){
+    const sb=await Fuse.client().catch(()=>null);
+    if(!sb)return;
+    const {data}=await sb.auth.getSession().catch(()=>({data:{}}));
+    if(data?.session)return;
+    const protectedPages=new Set(['studio.html','create.html','page-create.html','clients.html','page-workspace.html']);
+    if(protectedPages.has(currentFile)){
+      location.replace('/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash));return;
+    }
+    if(!document.querySelector('.public-signup')){
+      const anchor=document.createElement('a');anchor.className='public-signup';anchor.textContent='Sign up';anchor.href='/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash);
+      const target=document.querySelector('.reference-header .header-actions,.academy-top,.course-top,.create-top,[data-fuse-header] header,.top');
+      (target||document.body).append(anchor);
+      if(!target)anchor.classList.add('public-signup-floating');
+    }
+    document.addEventListener('click',event=>{
+      const anchor=event.target.closest('a[href]');if(!anchor)return;
+      const url=new URL(anchor.href,location.href);
+      if(url.origin!==location.origin||!protectedPages.has(url.pathname.split('/').pop()))return;
+      event.preventDefault();location.assign('/signup?next='+encodeURIComponent(url.pathname+url.search+url.hash));
+    },true);
+  }
+  const signupStyle=document.createElement('style');signupStyle.textContent='.public-signup{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 13px;border-radius:12px;background:linear-gradient(110deg,#FFE66A,#DFFF4E,#EEFFE0);color:#001012!important;font:700 13px Montserrat,Arial,sans-serif;text-decoration:none;white-space:nowrap;position:relative;z-index:20}.public-signup-floating{position:fixed;right:12px;top:12px;z-index:9999}';document.head.append(signupStyle);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',publicSignupGate,{once:true});else publicSignupGate();
 })();
