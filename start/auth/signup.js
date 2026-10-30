@@ -2,6 +2,8 @@
   'use strict';
   const sb = window.supabase.createClient('https://rgbweaimkcndjznlazho.supabase.co','sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   const $ = id => document.getElementById(id), message=$('message');
+  const referral=new URLSearchParams(location.search).get('ref');
+  if(referral&&/^[a-z0-9-]{5,80}$/i.test(referral))localStorage.setItem('fuse_pending_referral',referral.toLowerCase());
   const next = new URLSearchParams(location.search).get('next');
   const destination = next?.startsWith('/atelier-v2/') && !next.startsWith('//') ? next : '/atelier-v2/home.html';
   const requestedReturn=new URLSearchParams(location.search).get('return');
