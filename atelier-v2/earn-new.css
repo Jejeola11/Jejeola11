@@ -132,3 +132,43 @@ body{background:#001012;color:#fff}
  .range-fill{left:7px;top:7px;bottom:7px;width:calc((100% - 14px)*var(--progress)/100)}
  .range-handle{width:46px;height:46px;font-size:22px}
 }
+
+/* Affiliate CTA modal */
+body.affiliate-modal-open{overflow:hidden}
+.affiliate-modal-backdrop{position:fixed;inset:0;z-index:120;background:#000b;backdrop-filter:blur(3px)}
+.affiliate-modal{position:fixed;z-index:121;left:50%;top:50%;transform:translate(-50%,-50%);width:min(650px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:58px 46px 46px;border:1px solid #ffffff18;border-radius:36px;background:#101112;color:#fff;box-shadow:0 28px 90px #000c;text-align:center}
+.affiliate-modal-close{position:absolute;right:24px;top:22px;width:52px;height:52px;border:0;border-radius:50%;background:#202123;color:#a9abad;font-size:37px;font-weight:300;line-height:1;cursor:pointer}
+.affiliate-modal-logo{display:block;width:72px;height:72px;margin:18px auto 28px;object-fit:contain;border-radius:19px;box-shadow:0 12px 30px #0009}
+.affiliate-modal h2{font-size:clamp(27px,5vw,38px);line-height:1.12;letter-spacing:-.04em;margin:0 0 9px}
+.affiliate-modal-lead{font-size:19px;line-height:1.4;color:#98999b;margin:0 auto 52px}
+.affiliate-link-block{text-align:left}
+.affiliate-link-block>label{display:block;font-size:17px;font-weight:600;color:#bbb;margin:0 0 12px 8px}
+.affiliate-link-row{display:grid;grid-template-columns:minmax(0,1fr) 52px auto;align-items:center;gap:9px;padding:9px;border-radius:20px;background:#202123}
+.affiliate-link-row input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#d8d8d8;font:600 16px/1.2 Montserrat,Arial,sans-serif;padding:12px 7px;text-overflow:ellipsis}
+.affiliate-link-row input:not([readonly]){background:#171819;border-radius:11px;box-shadow:inset 0 0 0 1px #4c5052}
+.affiliate-edit{display:grid;place-items:center;width:52px;height:52px;border:0;border-radius:12px;background:#444548;color:#fff;cursor:pointer}
+.affiliate-edit svg,.affiliate-copy svg{width:24px;height:24px}
+.affiliate-copy{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:52px;padding:0 19px;border:0;border-radius:13px;background:var(--chrome);color:#001012;font:700 16px Montserrat,Arial,sans-serif;cursor:pointer}
+.affiliate-dashboard-card{margin-top:44px;padding:38px 30px;border:1px solid #292b2d;border-radius:24px}
+.dashboard-icon{width:46px;height:46px;color:#fff;margin-bottom:16px}
+.affiliate-dashboard-card h3{font-size:24px;margin:0 0 13px}
+.affiliate-dashboard-card p{max-width:410px;margin:0 auto 26px;color:#929496;font-size:17px;line-height:1.45}
+.affiliate-dashboard-card>a{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:13px 28px;border-radius:14px;background:var(--chrome);color:#001012;text-decoration:none;font-weight:700;font-size:17px;box-shadow:0 6px 0 #768e26}
+@media(max-width:600px){
+ .affiliate-modal{width:calc(100vw - 28px);padding:50px 20px 25px;border-radius:30px}
+ .affiliate-modal-close{right:17px;top:16px;width:46px;height:46px;font-size:32px}
+ .affiliate-modal-logo{width:64px;height:64px;margin:14px auto 24px}
+ .affiliate-modal h2{font-size:25px}
+ .affiliate-modal-lead{font-size:16px;margin-bottom:38px}
+ .affiliate-link-block>label{font-size:15px}
+ .affiliate-link-row{grid-template-columns:minmax(0,1fr) 44px auto;gap:6px;padding:7px;border-radius:17px}
+ .affiliate-link-row input{font-size:13px;padding:10px 5px}
+ .affiliate-edit{width:44px;height:46px}
+ .affiliate-copy{min-height:46px;padding:0 13px;font-size:14px}
+ .affiliate-copy svg{width:20px;height:20px}
+ .affiliate-dashboard-card{margin-top:30px;padding:29px 18px;border-radius:20px}
+ .dashboard-icon{width:40px;height:40px}
+ .affiliate-dashboard-card h3{font-size:21px}
+ .affiliate-dashboard-card p{font-size:15px;margin-bottom:23px}
+ .affiliate-dashboard-card>a{min-height:48px;font-size:15px}
+}
