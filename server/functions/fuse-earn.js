@@ -49,12 +49,12 @@ exports.handler=async event=>{
    const {data,error}=await db.rpc('claim_fuse_referral_click',{p_user_id:user.id,p_token:token});if(error)throw error;
    return json(200,{claimed:data===true});
   }
-  if(b.action==='record_course_payment'){
+  if(b.action==='record_verified_payment'){
    if(!await owner(db,user.id))return bad('Owner access required.',403);
    const email=String(b.email||'').trim().toLowerCase(),reference=String(b.reference||'').trim(),pack=String(b.pack||''),amount=Number(b.amount_naira);
-   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!/^[-a-zA-Z0-9_:]{6,120}$/.test(reference)||!['design','video','landing','money','ebook','challenge','atelier-lane-a'].includes(pack)||!Number.isSafeInteger(amount)||amount<1||amount>1000000||b.confirmed!==true)return bad('Confirm the external payment and enter the buyer, course, amount paid and unique receipt reference.');
+   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!/^[-a-zA-Z0-9_:]{6,120}$/.test(reference)||!['design','video','landing','money','ebook','challenge','atelier-lane-a','credits-v2-trial','credits-v2-mini','credits-v2-creator','credits-v2-studio','credits-v2-pro','credits-v2-agency'].includes(pack)||!Number.isSafeInteger(amount)||amount<1||amount>1000000||b.confirmed!==true)return bad('Confirm the external payment and enter the buyer, course, amount paid and unique receipt reference.');
    const buyer=await db.from('profiles').select('id').eq('email',email).maybeSingle();if(buyer.error)throw buyer.error;if(!buyer.data)return bad('Buyer account was not found.',404);
-   const {error}=await db.from('payments').insert({user_id:buyer.data.id,reference,pack,amount_naira:amount,credits_added:0,status:'manual',raw:{source:'owner-verified-course-payment',recorded_by:user.id}});
+   const {error}=await db.from('payments').insert({user_id:buyer.data.id,reference,pack,amount_naira:amount,credits_added:0,status:'manual',raw:{source:'owner-verified-referral-payment',recorded_by:user.id}});
    if(error?.code==='23505')return bad('This receipt was already recorded.',409);if(error)throw error;
    return json(200,{ok:true});
   }
