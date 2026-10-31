@@ -9,6 +9,7 @@
 const crypto = require('crypto');
 const { admin } = require('./_supabase');
 const { PACKS, creditsForPack } = require('./_packs');
+const { COMMERCE } = require('./_commerce');
 const { sweepToBank } = require('./_payout');
 
 exports.handler = async (event) => {
@@ -68,7 +69,7 @@ exports.handler = async (event) => {
     return { statusCode: 200, body: 'ok (freelance)' };
   }
 
-  const pack = PACKS[meta.pack];
+  const pack = COMMERCE[meta.pack] || PACKS[meta.pack];
   if (!pack) return { statusCode: 200, body: 'missing data' };
 
   // 3) Resolve the buyer's account. Logged-in purchases (from inside the
@@ -127,6 +128,23 @@ exports.handler = async (event) => {
       }
     }
     return { statusCode: 200, body: 'ok (credit pack)' };
+  }
+
+  // Academy purchases are fulfilled atomically and never grant credits.
+  if (pack.kind === 'course' && String(meta.pack).startsWith('academy-')) {
+    const declared = Number(meta.amount_naira || 0);
+    if (d.currency !== 'NGN' || amountNaira !== declared || amountNaira !== pack.amount_naira) {
+      console.error('academy amount mismatch:', reference, meta.pack, amountNaira, d.currency);
+      return { statusCode: 200, body: 'amount mismatch' };
+    }
+    const { data: fulfilled, error: fulfillErr } = await db.rpc('fulfill_academy_purchase', {
+      p_user_id: userId, p_reference: reference, p_amount_naira: amountNaira,
+      p_pack: meta.pack, p_raw: d,
+    });
+    if (fulfillErr) { console.error('academy fulfillment failed:', fulfillErr.message); return { statusCode: 500, body: 'fulfillment failed' }; }
+    const row = Array.isArray(fulfilled) ? fulfilled[0] : fulfilled;
+    if (row && row.processed) { try { await sweepToBank(db, amountNaira, reference); } catch (e) { console.error('academy payout sweep failed:', e && e.message); } }
+    return { statusCode: 200, body: 'ok (academy)' };
   }
 
   // 4) Credit the user — multiplied during the launch promo for subscription

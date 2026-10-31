@@ -5,14 +5,7 @@
   const status=document.getElementById('courseStatus');
   const nameEl=document.getElementById('academyName');
   // Fill these with the individual Nestuge checkout URLs once Ria provides them.
-  const checkoutUrls={
-    ebook:'https://nestuge.com/zero-to-10million',
-    challenge:'https://nestuge.com/challenge_academy_offer',
-    money:'https://nestuge.com/academy_money_engine',
-    video:'https://nestuge.com/academy_ugc_offer',
-    landing:'https://nestuge.com/academy_landing_page',
-    design:'https://nestuge.com/academy_campain_flyer'
-  };
+  const checkoutUrls={ebook:'academy-ebook',challenge:'academy-challenge',money:'academy-money',video:'academy-video',landing:'academy-landing',design:'academy-design'};
 
   const storedName=(localStorage.getItem('fuse_display_name')||'').trim();
   if(storedName) nameEl.textContent=storedName;
@@ -36,7 +29,7 @@
     ebook:{name:'Zero To First 10 Million With AI Video',price:9900,href:'ai-video-book.html'}
   };
 
-  for(const offer of window.FuseAgentCourseOffers||[]){checkoutUrls[offer.key]=offer.checkout;courseMeta[offer.key].price=offer.price;}
+  for(const offer of window.FuseAgentCourseOffers||[]){courseMeta[offer.key].price=offer.price;}
   let guest=false;
   let isFull=false;
   let owned=new Set();
@@ -59,7 +52,7 @@
       row.hidden=false;
       row.classList.toggle('is-locked',!allowed);
       row.querySelector('.academy-lock-label')?.remove();
-      row.href=guest?'#':allowed?meta.href:(checkoutUrls[course]||'#');
+      row.href=guest?'#':allowed?meta.href:'#';
       const cta=row.querySelector('.academy-start');
       if(cta) cta.textContent=guest?'Sign up to unlock':allowed?'Start':'Unlock · ₦'+meta.price.toLocaleString('en-NG');
     });
@@ -102,17 +95,19 @@
   }
 
   rows.forEach(row=>{
-    row.addEventListener('click',event=>{
+    row.addEventListener('click',async event=>{
       const course=row.dataset.course;
       if(guest){
         event.preventDefault();
         location.assign('/signup?next='+encodeURIComponent('/atelier-v2/learn.html'));
         return;
       }
-      if(row.classList.contains('is-locked')&&!checkoutUrls[course]){
+      if(row.classList.contains('is-locked')){
         event.preventDefault();
-        status.textContent='Checkout for '+courseMeta[course].name+' is being added. Please check back shortly.';
+        const pack=checkoutUrls[course];if(!pack)return;
+        status.textContent='Opening secure Paystack checkout for '+courseMeta[course].name+'…';
         status.scrollIntoView({block:'nearest',behavior:'smooth'});
+        try{const out=await Fuse.api('paystack-init',{pack});location.assign(out.authorization_url)}catch(error){status.textContent=error.message||'Could not start payment. Please try again.'}
       }
     });
   });
@@ -120,6 +115,7 @@
   (async()=>{
     try{
       await loadAccess();
+      const buy=new URLSearchParams(location.search).get('buy');if(buy&&checkoutUrls[buy]&&!hasCourseAccess(buy)){const out=await Fuse.api('paystack-init',{pack:checkoutUrls[buy]});location.assign(out.authorization_url);}
     }catch(error){
       rows.forEach(row=>{
         row.classList.add('is-locked');
