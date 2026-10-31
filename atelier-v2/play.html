@@ -62,13 +62,29 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}a:focus-
  .play-main .games{grid-template-columns:repeat(2,minmax(0,1fr))!important}
  .play-main .game-meta{display:flex!important;width:100%!important}
 }
+
+/* Final spacing and compact card copy. */
+.play-main .hero{padding-top:76px!important}
+.play-main .hero-brand{margin-bottom:17px!important}
+.play-main .hero h1{font-size:clamp(54px,10vw,82px)!important;line-height:.96!important;margin:0 0 22px!important;letter-spacing:-.055em!important}
+.play-main .game-copy h3{font-size:13px!important;line-height:1.18!important;margin:0 0 2px!important;white-space:normal!important}
+.play-main .game-copy p{font-size:9px!important;line-height:1.15!important;margin:0!important;color:#97aaa2!important}
+.play-main .game-meta{padding-top:9px!important;gap:4px!important}
+.play-main .game-play{font-size:10px!important;min-height:27px!important;padding:0 9px!important}
+@media(max-width:600px){
+ .play-main .hero{padding-top:70px!important;padding-bottom:43px!important}
+ .play-main .hero-brand{margin-bottom:15px!important}
+ .play-main .hero h1{font-size:50px!important;margin-bottom:20px!important}
+ .play-main .game-copy h3{font-size:11px!important}
+ .play-main .game-copy p{font-size:8px!important}
+}
 </style></head>
 <body data-page="play"><div data-fuse-header></div>
 <main class="play-main"><section class="hero" aria-labelledby="playTitle"><div class="hero-brand"><img src="/atelier-v2/media/fuse-mark-palette.webp" width="30" height="30" alt=""><span>Fuse Atelier</span></div><h1 id="playTitle">Play Games</h1><p>Step into a game, chase a new high score, and come back whenever you want another run.</p><a class="start" href="#games">Start Playing</a></section>
 <section class="catalog" id="games" aria-labelledby="catalogTitle"><h2 class="sr-only" id="catalogTitle">Games</h2>
 <div class="filters" role="group" aria-label="Filter games"><button class="filter" type="button" data-filter="all" aria-pressed="true"><span aria-hidden="true">╱╲</span> All</button><button class="filter" type="button" data-filter="runners" aria-pressed="false"><span aria-hidden="true">◉</span> Runners</button><button class="filter" type="button" data-filter="shooters" aria-pressed="false"><span aria-hidden="true">⌖</span> Shooters</button><button class="filter" type="button" data-filter="adventures" aria-pressed="false"><span aria-hidden="true">✦</span> Adventures</button><button class="filter" type="button" data-filter="puzzles" aria-pressed="false"><span aria-hidden="true">⬡</span> Puzzles</button></div>
-<div class="games"><article class="game" data-category="runners"><a class="poster" href="games/fuse-rush.html" aria-label="Play Metro Pursuit"><span class="poster-art runner-art"></span><span class="poster-name">Metro<br>Pursuit</span></a><div class="game-meta"><div class="game-copy"><h3>Metro Pursuit</h3><p>City runner · Dodge trains, collect coins</p></div><a class="game-play" href="games/fuse-rush.html">Play ↗</a></div></article>
-<article class="game" data-category="adventures"><div class="poster" aria-label="Second game preview, coming soon"><span class="poster-art future-art"></span><span class="soon">Coming soon</span><span class="poster-name">A new world<br>is coming</span></div><div class="game-meta"><div class="game-copy"><h3>Next adventure</h3><p>Adventure · Preview coming soon</p></div><button class="game-play" type="button" disabled aria-label="Next adventure coming soon">Play soon</button></div></article></div>
+<div class="games"><article class="game" data-category="runners"><a class="poster" href="games/fuse-rush.html" aria-label="Play Metro Pursuit"><span class="poster-art runner-art"></span><span class="poster-name">Metro<br>Pursuit</span></a><div class="game-meta"><div class="game-copy"><h3>Metro Pursuit</h3><p>Runners</p></div><a class="game-play" href="games/fuse-rush.html">Play ↗</a></div></article>
+<article class="game" data-category="adventures"><div class="poster" aria-label="Second game preview, coming soon"><span class="poster-art future-art"></span><span class="soon">Coming soon</span><span class="poster-name">A new world<br>is coming</span></div><div class="game-meta"><div class="game-copy"><h3>Next adventure</h3><p>Adventures</p></div><button class="game-play" type="button" disabled aria-label="Next adventure coming soon">Play soon</button></div></article></div>
 <p class="empty" id="empty" hidden>No games in this category yet. Try All or Runners.</p></section></main>
 <script>
 document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{const category=button.dataset.filter;document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));let shown=0;document.querySelectorAll('.game').forEach(card=>{const visible=category==='all'||card.dataset.category===category;card.dataset.hidden=String(!visible);if(visible)shown++});document.getElementById('empty').hidden=shown>0}));
