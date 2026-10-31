@@ -3,7 +3,7 @@
   const sb = window.supabase.createClient('https://rgbweaimkcndjznlazho.supabase.co','sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   const $ = id => document.getElementById(id), message=$('message');
   const referral=new URLSearchParams(location.search).get('ref');
-  if(referral&&/^[a-z0-9-]{5,80}$/i.test(referral))localStorage.setItem('fuse_pending_referral',referral.toLowerCase());
+  const referralReady=(async()=>{if(!referral||!/^[a-z0-9-]{5,80}$/i.test(referral))return;try{const saved=JSON.parse(localStorage.getItem('fuse_pending_referral')||'null');if(saved?.code===referral.toLowerCase()&&/^[0-9a-f-]{36}$/i.test(saved.token))return;const response=await fetch('/api/fuse-earn?ref='+encodeURIComponent(referral.toLowerCase()));const info=await response.json();if(response.ok)localStorage.setItem('fuse_pending_referral',JSON.stringify({code:referral.toLowerCase(),token:info.token}));}catch{}})();
   const next = new URLSearchParams(location.search).get('next');
   const destination = next?.startsWith('/atelier-v2/') && !next.startsWith('//') ? next : '/atelier-v2/home.html';
   const requestedReturn=new URLSearchParams(location.search).get('return');
@@ -31,6 +31,7 @@
   }
   $('google').addEventListener('click', async () => {
     if (!agreed()) return;
+    await referralReady;
     const {data:existing}=await sb.auth.getSession();
     if(existing.session){location.assign(destination);return;}
     $('google').disabled=true; message.textContent='Opening Google sign in…';
@@ -42,6 +43,7 @@
   });
   $('signup-form').addEventListener('submit', async event => {
     event.preventDefault(); if (!agreed()) return;
+    await referralReady;
     const name=$('name').value.trim(),email=$('email').value.trim().toLowerCase();
     if (!name || !$('email').checkValidity()) return;
     const button=$('submit');button.disabled=true;message.textContent='Creating your account…';

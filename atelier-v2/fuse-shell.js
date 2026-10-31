@@ -245,9 +245,9 @@
     if(!sb)return;
     const {data}=await sb.auth.getSession().catch(()=>({data:{}}));
     if(data?.session){
-      const code=localStorage.getItem('fuse_pending_referral');
-      if(code&&/^[a-z0-9-]{5,80}$/.test(code)){
-        sb.auth.getSession().then(({data:verified})=>verified.session&&fetch('/api/fuse-earn',{method:'POST',headers:{'Content-Type':'application/json',authorization:'Bearer '+verified.session.access_token},body:JSON.stringify({action:'claim',code})}).then(r=>{if(r.ok)localStorage.removeItem('fuse_pending_referral')}).catch(()=>{}));
+      let pending;try{pending=JSON.parse(localStorage.getItem('fuse_pending_referral')||'null')}catch{}
+      if(pending?.token&&/^[0-9a-f-]{36}$/i.test(pending.token)){
+        fetch('/api/fuse-earn',{method:'POST',headers:{'Content-Type':'application/json',authorization:'Bearer '+data.session.access_token},body:JSON.stringify({action:'claim',token:pending.token})}).then(r=>{if(r.ok)localStorage.removeItem('fuse_pending_referral')}).catch(()=>{});
       }
       document.querySelectorAll('.public-signup').forEach(anchor=>anchor.hidden=true);return;}
     const protectedPages=new Set(['studio.html','create.html','page-create.html','clients.html','earn.html','page-workspace.html']);

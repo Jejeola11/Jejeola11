@@ -1,4 +1,5 @@
 const {admin,getUser,json}=require('./_supabase');
+const crypto=require('crypto');
 const bad=(message,code=400)=>json(code,{error:message});
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const safeUrl=value=>{try{const u=new URL(String(value));return u.protocol==='https:'&&u.username===''&&u.password===''&&u.href.length<=1000?u.href:null}catch{return null}};
@@ -25,12 +26,23 @@ async function state(db,user){
 exports.handler=async event=>{
  if(!['GET','POST'].includes(event.httpMethod))return bad('Method not allowed',405);
  try{
+  if(event.httpMethod==='GET'&&event.queryStringParameters?.ref){
+   const code=String(event.queryStringParameters.ref).trim().toLowerCase();
+   if(!/^[a-z0-9-]{5,80}$/.test(code))return bad('Referral link is invalid.');
+   const db=admin(),ip=String(event.headers['x-forwarded-for']||'unknown').split(',')[0].trim();
+   const visitorHash=crypto.createHash('sha256').update(ip+process.env.SUPABASE_SERVICE_ROLE_KEY).digest('hex');
+   const {count,error:limitError}=await db.from('fuse_referral_clicks').select('token',{count:'exact',head:true}).eq('visitor_hash',visitorHash).gte('clicked_at',new Date(Date.now()-3600000).toISOString());
+   if(limitError)throw limitError;if(count>=20)return bad('Please wait before opening another referral link.',429);
+   const {data:referrer,error:codeError}=await db.from('profiles').select('id').eq('referral_code',code).maybeSingle();if(codeError)throw codeError;if(!referrer)return bad('Referral link is not available.',404);
+   const token=crypto.randomUUID();const {error:clickError}=await db.from('fuse_referral_clicks').insert({token,referrer_user_id:referrer.id,code,visitor_hash:visitorHash});if(clickError)throw clickError;
+   return json(200,{token});
+  }
   const user=await getUser(event);if(!user)return bad('Sign up to enter Fuse Earn.',401);
   const db=admin();if(event.httpMethod==='GET')return json(200,await state(db,user));
   const b=JSON.parse(event.body||'{}');
   if(b.action==='claim'){
-   const code=String(b.code||'').trim().toLowerCase();if(!/^[a-z0-9-]{5,80}$/.test(code))return bad('Invalid referral link.');
-   const {data,error}=await db.rpc('claim_fuse_referral',{p_user_id:user.id,p_code:code});if(error)throw error;
+   const token=String(b.token||'').trim();if(!uuid.test(token))return bad('Invalid referral visit.');
+   const {data,error}=await db.rpc('claim_fuse_referral_click',{p_user_id:user.id,p_token:token});if(error)throw error;
    return json(200,{claimed:data===true});
   }
   if(b.action==='create_contest'){

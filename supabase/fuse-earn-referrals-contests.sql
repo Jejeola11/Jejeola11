@@ -8,6 +8,19 @@ create table if not exists public.fuse_referrals (
   check (referred_user_id <> referrer_user_id)
 );
 create index if not exists fuse_referrals_referrer_idx on public.fuse_referrals(referrer_user_id);
+create table if not exists public.fuse_referral_clicks (
+ token uuid primary key default gen_random_uuid(),
+ referrer_user_id uuid not null references auth.users(id) on delete cascade,
+ code text not null,
+ visitor_hash text not null,
+ clicked_at timestamptz not null default now(),
+ claimed_by uuid unique references auth.users(id) on delete set null
+);
+create index if not exists fuse_clicks_visitor_idx on public.fuse_referral_clicks(visitor_hash,clicked_at);
+alter table public.fuse_referral_clicks enable row level security;
+revoke all on public.fuse_referral_clicks from anon,authenticated;
+grant all on public.fuse_referral_clicks to service_role;
+
 create table if not exists public.fuse_referral_commissions (
   payment_id bigint primary key references public.payments(id) on delete restrict,
   referrer_user_id uuid not null references auth.users(id) on delete cascade,
@@ -51,33 +64,37 @@ create index if not exists fuse_votes_entry_idx on public.fuse_contest_votes(ent
 
 -- All data is served through authenticated functions; clients cannot forge rewards, entries or votes.
 alter table public.fuse_referrals enable row level security;
+alter table public.fuse_referral_clicks enable row level security;
 alter table public.fuse_referral_commissions enable row level security;
 alter table public.fuse_contests enable row level security;
 alter table public.fuse_contest_entries enable row level security;
 alter table public.fuse_contest_votes enable row level security;
-revoke all on public.fuse_referrals, public.fuse_referral_commissions, public.fuse_contests, public.fuse_contest_entries, public.fuse_contest_votes from anon, authenticated;
-grant all on public.fuse_referrals, public.fuse_referral_commissions, public.fuse_contests, public.fuse_contest_entries, public.fuse_contest_votes to service_role;
+revoke all on public.fuse_referral_clicks, public.fuse_referrals, public.fuse_referral_commissions, public.fuse_contests, public.fuse_contest_entries, public.fuse_contest_votes from anon, authenticated;
+grant all on public.fuse_referral_clicks, public.fuse_referrals, public.fuse_referral_commissions, public.fuse_contests, public.fuse_contest_entries, public.fuse_contest_votes to service_role;
 grant usage, select on sequence public.fuse_contests_id_seq, public.fuse_contest_entries_id_seq to service_role;
 
 -- Called only by a server-verified new account. Credit grant and referral attribution are atomic.
-create or replace function public.claim_fuse_referral(p_user_id uuid,p_code text)
-returns boolean language plpgsql security definer set search_path=public,pg_temp as $$
-declare v_referrer uuid; v_created timestamptz;
+create or replace function public.claim_fuse_referral_click(p_user_id uuid,p_token uuid)
+returns boolean language plpgsql security definer set search_path=public,pg_temp as $
+declare v_referrer uuid; v_code text; v_clicked timestamptz; v_created timestamptz;
 begin
-  select created_at into v_created from auth.users where id=p_user_id for update;
-  if v_created is null or v_created < now()-interval '24 hours' then return false; end if;
-  select id into v_referrer from public.profiles where referral_code=lower(trim(p_code)) and id<>p_user_id;
-  if v_referrer is null then return false; end if;
-  insert into public.fuse_referrals(referred_user_id,referrer_user_id,code)
-  values(p_user_id,v_referrer,lower(trim(p_code))) on conflict do nothing;
-  if not found then return false; end if;
-  update public.profiles set credits=credits+1 where id=v_referrer;
-  insert into public.transactions(user_id,delta,reason,meta)
-  values(v_referrer,1,'fuse-referral-signup',jsonb_build_object('referred_user_id',p_user_id));
-  return true;
-end;$$;
-revoke all on function public.claim_fuse_referral(uuid,text) from public,anon,authenticated;
-grant execute on function public.claim_fuse_referral(uuid,text) to service_role;
+ select created_at into v_created from auth.users where id=p_user_id for update;
+ select referrer_user_id,code,clicked_at into v_referrer,v_code,v_clicked
+ from public.fuse_referral_clicks where token=p_token and claimed_by is null for update;
+ if v_created is null or v_clicked is null or v_created<v_clicked
+    or v_created>v_clicked+interval '24 hours' or now()>v_clicked+interval '48 hours'
+    or v_referrer=p_user_id then return false; end if;
+ insert into public.fuse_referrals(referred_user_id,referrer_user_id,code)
+ values(p_user_id,v_referrer,v_code) on conflict do nothing;
+ if not found then return false; end if;
+ update public.fuse_referral_clicks set claimed_by=p_user_id where token=p_token;
+ update public.profiles set credits=credits+1 where id=v_referrer;
+ insert into public.transactions(user_id,delta,reason,meta)
+ values(v_referrer,1,'fuse-referral-signup',jsonb_build_object('referred_user_id',p_user_id));
+ return true;
+end;$;
+revoke all on function public.claim_fuse_referral_click(uuid,uuid) from public,anon,authenticated;
+grant execute on function public.claim_fuse_referral_click(uuid,uuid) to service_role;
 
 -- Every verified successful credit-pack payment earns exactly one 10% commission.
 -- No commission for Academy, Fuse Core, manual grants, refunded or failed payments.
