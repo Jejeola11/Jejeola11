@@ -11,7 +11,7 @@ async function state(db,user){
  for(const c of expired.data||[]){const r=await db.rpc('finalize_fuse_contest',{p_contest_id:c.id});if(r.error)throw r.error;}
  const isOwner=await owner(db,id);
  const [profile,refs,commissions,contests,entries,votes]=await Promise.all([
-  db.from('profiles').select('referral_code,credits').eq('id',id).single(),
+  db.from('profiles').select('referral_code,credits,created_at,email').eq('id',id).single(),
   db.from('fuse_referrals').select('referred_user_id').eq('referrer_user_id',id),
   db.from('fuse_referral_commissions').select('amount_naira,commission_naira,status,created_at').eq('referrer_user_id',id).order('created_at',{ascending:false}).limit(100),
   db.from('fuse_contests').select('id,title,brief,prize_naira,opens_at,closes_at,voting_closes_at,status').neq('status','draft').order('created_at',{ascending:false}).limit(30),
@@ -19,9 +19,13 @@ async function state(db,user){
   db.rpc('fuse_contest_vote_counts')
  ]);
  for(const r of [profile,refs,commissions,contests,entries,votes])if(r.error)throw r.error;
+ const referral=await db.from('fuse_referrals').select('referrer_user_id').eq('referred_user_id',id).maybeSingle();if(referral.error)throw referral.error;
+ const priorPurchase=await db.from('payments').select('id').eq('user_id',id).in('status',['manual','success']).in('pack',['credits-v2-trial','credits-v2-mini','credits-v2-creator','credits-v2-studio','credits-v2-pro','credits-v2-agency','starter','mini','creator','studio','pro','power']).limit(1);if(priorPurchase.error)throw priorPurchase.error;
+ const joinedAt=new Date(profile.data?.created_at||0).getTime();const expiresAt=joinedAt+24*3600000;
+ const discountExpiresAt=referral.data&&!priorPurchase.data?.length&&joinedAt&&Date.now()<expiresAt?new Date(expiresAt).toISOString():null;
  const count=new Map();for(const vote of votes.data||[])count.set(vote.entry_id,Number(vote.vote_count));
  const pending=isOwner?(await db.from('fuse_contest_entries').select('id,contest_id,video_url,caption,created_at').eq('status','pending').order('created_at',{ascending:true}).limit(100)).data||[]:[];
- return {isOwner,pending,code:profile.data?.referral_code||null,credits:profile.data?.credits||0,signups:refs.data?.length||0,commissions:commissions.data||[],contests:(contests.data||[]).map(c=>({...c,entries:(entries.data||[]).filter(e=>e.contest_id===c.id).map(e=>({...e,votes:count.get(e.id)||0})).sort((a,b)=>b.votes-a.votes||a.id-b.id)})),myVotes:(await db.from('fuse_contest_votes').select('contest_id').eq('voter_user_id',id)).data?.map(v=>v.contest_id)||[],myEntries:(await db.from('fuse_contest_entries').select('id,contest_id,status,video_url').eq('creator_user_id',id)).data||[]};
+ return {isOwner,pending,discountExpiresAt,code:profile.data?.referral_code||null,credits:profile.data?.credits||0,signups:refs.data?.length||0,commissions:commissions.data||[],contests:(contests.data||[]).map(c=>({...c,entries:(entries.data||[]).filter(e=>e.contest_id===c.id).map(e=>({...e,votes:count.get(e.id)||0})).sort((a,b)=>b.votes-a.votes||a.id-b.id)})),myVotes:(await db.from('fuse_contest_votes').select('contest_id').eq('voter_user_id',id)).data?.map(v=>v.contest_id)||[],myEntries:(await db.from('fuse_contest_entries').select('id,contest_id,status,video_url').eq('creator_user_id',id)).data||[]};
 }
 exports.handler=async event=>{
  if(!['GET','POST'].includes(event.httpMethod))return bad('Method not allowed',405);
@@ -44,6 +48,15 @@ exports.handler=async event=>{
    const token=String(b.token||'').trim();if(!uuid.test(token))return bad('Invalid referral visit.');
    const {data,error}=await db.rpc('claim_fuse_referral_click',{p_user_id:user.id,p_token:token});if(error)throw error;
    return json(200,{claimed:data===true});
+  }
+  if(b.action==='record_course_payment'){
+   if(!await owner(db,user.id))return bad('Owner access required.',403);
+   const email=String(b.email||'').trim().toLowerCase(),reference=String(b.reference||'').trim(),pack=String(b.pack||''),amount=Number(b.amount_naira);
+   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!/^[-a-zA-Z0-9_:]{6,120}$/.test(reference)||!['design','video','landing','money','ebook','challenge','atelier-lane-a'].includes(pack)||!Number.isSafeInteger(amount)||amount<1||amount>1000000||b.confirmed!==true)return bad('Confirm the external payment and enter the buyer, course, amount paid and unique receipt reference.');
+   const buyer=await db.from('profiles').select('id').eq('email',email).maybeSingle();if(buyer.error)throw buyer.error;if(!buyer.data)return bad('Buyer account was not found.',404);
+   const {error}=await db.from('payments').insert({user_id:buyer.data.id,reference,pack,amount_naira:amount,credits_added:0,status:'manual',raw:{source:'owner-verified-course-payment',recorded_by:user.id}});
+   if(error?.code==='23505')return bad('This receipt was already recorded.',409);if(error)throw error;
+   return json(200,{ok:true});
   }
   if(b.action==='create_contest'){
    if(!await owner(db,user.id))return bad('Owner access required.',403);
