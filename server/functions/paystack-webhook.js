@@ -101,7 +101,9 @@ exports.handler = async (event) => {
   // verified Paystack callback. This makes webhook retries and callback races
   // idempotent: the same reference can never add the pack credits twice.
   if (pack.kind === 'pack') {
-    if (d.currency !== 'NGN' || amountNaira !== pack.amount_naira) {
+    const declaredAmount = Number(meta.amount_naira || pack.amount_naira);
+    const allowedAmounts = [pack.amount_naira, Math.round(pack.amount_naira * .75)];
+    if (d.currency !== 'NGN' || amountNaira !== declaredAmount || !allowedAmounts.includes(amountNaira)) {
       console.error('credit-pack amount mismatch:', reference, meta.pack, amountNaira, d.currency);
       return { statusCode: 200, body: 'amount mismatch' };
     }
