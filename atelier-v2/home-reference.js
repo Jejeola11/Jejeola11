@@ -17,7 +17,5 @@ let touchX=null;viewport.addEventListener('touchstart',e=>{touchX=e.touches[0].c
 if('IntersectionObserver'in window)new IntersectionObserver(entries=>{carouselVisible=entries[0].isIntersecting},{threshold:.3}).observe(viewport);
 setInterval(()=>{if(!reduced.matches&&!hovering&&carouselVisible&&!document.hidden&&!viewport.contains(document.activeElement)&&menu.hidden)show(current+1)},5500);
 
-const destinations=[['Academy','learn.html','courses learn skills'],['Design','design.html','flyers image design'],['Build Page','academy-v2.html?course=landing','website landing page course'],['Create','studio.html','image video voice ai generation'],['Money Engine','money.html','monetize clients prospects'],['Community','community.html','feedback help'],['Library','library.html','saved creations results'],['Resources','resources.html','prompts templates guides'],['Fuse Play','play.html','games relax'],['Profile','profile.html','credits account pricing top up']];
-function search(){const q=$('searchQuery').value.trim().toLowerCase(),results=$('searchResults');results.replaceChildren();results.hidden=!q;if(!q)return;const matches=destinations.filter(d=>(d[0]+' '+d[2]).toLowerCase().includes(q));for(const d of matches){const a=document.createElement('a');a.href=d[1];a.textContent=d[0]+' ↗';results.append(a)}if(!matches.length){const p=document.createElement('p');p.textContent='No matching feature. Try courses, design or credits.';results.append(p)}}
-$('homeSearch').onsubmit=e=>{e.preventDefault();search()};$('searchQuery').oninput=search;
+
 })();

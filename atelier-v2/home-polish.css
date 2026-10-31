@@ -215,3 +215,12 @@
 .reference-home .account-menu .menu-credit{grid-template-columns:minmax(0,1fr) auto;gap:8px}
 .reference-home .account-menu .menu-credit>a{padding-left:12px;padding-right:12px}
 .reference-home .account-menu nav a{gap:10px}
+
+/* Compact explore shortcuts replace the homepage search field. */
+.reference-home .home-shortcuts{display:flex;align-items:center;gap:9px;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch;white-space:nowrap;padding:6px 2px 13px;margin:4px 0 4px;scroll-snap-type:x proximity}
+.reference-home .home-shortcuts::-webkit-scrollbar{display:none}
+.reference-home .home-shortcuts a{flex:none;display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:9px 15px;border-radius:999px;background:var(--fa-chrome);color:var(--fa-deep);font-size:13px;font-weight:600;text-decoration:none;line-height:1;box-shadow:0 3px 13px rgba(223,255,78,.14);scroll-snap-align:start;transition:transform .18s,box-shadow .18s}
+.reference-home .home-shortcuts a:hover,.reference-home .home-shortcuts a:focus-visible{transform:translateY(-2px);box-shadow:0 5px 17px rgba(223,255,78,.32)}
+.reference-home .home-shortcuts a:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media(max-width:420px){.reference-home .home-shortcuts{gap:8px}.reference-home .home-shortcuts a{font-size:12px;min-height:39px;padding:9px 13px}}
+@media(prefers-reduced-motion:reduce){.reference-home .home-shortcuts a{transition:none}}
