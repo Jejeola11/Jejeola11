@@ -114,13 +114,13 @@ body{background:#001012;color:#fff}
 .calc-control label strong{font-size:25px;margin-top:8px}
 .calc-control small{display:block;color:#8fa3a1;font-size:11px;line-height:1.4;margin-top:8px}
 .range-shell{--progress:0%;position:relative;height:56px;width:100%;border-radius:14px;background:#001012;overflow:visible}
-.range-fill{position:absolute;left:8px;top:8px;bottom:8px;width:calc((100% - 16px)*var(--progress)/100);border-radius:10px;min-width:0;box-shadow:inset 0 2px 7px #fff5,0 0 12px #dfff4e20}
+.range-fill{position:absolute;z-index:1;left:0;top:7px;bottom:7px;width:var(--progress);border-radius:12px;min-width:0;box-shadow:inset 0 2px 7px #fff5,0 0 14px #dfff4e38;transition:width .12s ease-out}
 .tone-chrome .range-fill{background:linear-gradient(90deg,#ffe66a,#dfff4e,#eeffe0)}
 .tone-yellow .range-fill{background:#ffe66a}
 .tone-lime .range-fill{background:#dfff4e}
-.range-dots{position:absolute;inset:0 15px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
+.range-dots{position:absolute;z-index:2;inset:0 15px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
 .range-dots i{display:block;width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 3px #00101266;opacity:.95}
-.range-handle{position:absolute;z-index:3;left:clamp(25px,var(--progress),calc(100% - 25px));top:50%;transform:translate(-50%,-50%);display:grid;place-items:center;width:50px;height:50px;border-radius:50%;background:#fff;color:#001012;font-size:24px;font-weight:700;letter-spacing:-5px;padding-right:5px;box-shadow:0 4px 11px #0005;pointer-events:none}
+.range-handle{position:absolute;z-index:3;left:clamp(25px,var(--progress),calc(100% - 25px));top:50%;transform:translate(-50%,-50%);display:grid;place-items:center;width:50px;height:50px;border-radius:50%;background:#fff;color:#001012;font-size:22px;font-weight:700;letter-spacing:0;padding:0;box-shadow:0 4px 11px #0005;pointer-events:none}
 .range-shell input[type=range]{position:absolute;z-index:4;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
 .range-shell:focus-within{outline:2px solid #eeffe0;outline-offset:3px}
 @media(max-width:700px){
@@ -129,7 +129,7 @@ body{background:#001012;color:#fff}
  .calc-control label{font-size:13px;margin-bottom:11px}
  .calc-control label strong{font-size:21px;margin-top:6px}
  .range-shell{height:52px;border-radius:13px}
- .range-fill{left:7px;top:7px;bottom:7px;width:calc((100% - 14px)*var(--progress)/100)}
+ .range-fill{left:0;top:6px;bottom:6px;width:var(--progress)}
  .range-handle{width:46px;height:46px;font-size:22px}
 }
 
