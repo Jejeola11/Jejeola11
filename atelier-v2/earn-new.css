@@ -172,3 +172,65 @@ body.affiliate-modal-open{overflow:hidden}
  .affiliate-dashboard-card p{font-size:15px;margin-bottom:23px}
  .affiliate-dashboard-card>a{min-height:48px;font-size:15px}
 }
+
+
+/* Compact Affiliate CTA panel: clear header clearance and an easier close target. */
+.affiliate-modal-backdrop{background:rgba(0,10,12,.72);backdrop-filter:blur(5px)}
+.affiliate-modal{
+ top:max(82px,calc(env(safe-area-inset-top) + 74px));
+ transform:translateX(-50%);
+ width:min(530px,calc(100vw - 30px));
+ max-height:calc(100dvh - max(98px,calc(env(safe-area-inset-top) + 88px)));
+ overflow:auto;
+ padding:26px 28px 24px;
+ border:1px solid #315456;
+ border-radius:24px;
+ background:radial-gradient(circle at 88% 6%,rgba(54,109,105,.35),transparent 34%),linear-gradient(145deg,#09282b 0%,#03191b 54%,#001012 100%);
+ box-shadow:0 22px 56px rgba(0,0,0,.66),inset 0 1px 0 rgba(238,255,224,.09);
+}
+.affiliate-modal-close{
+ right:12px;top:12px;width:44px;height:44px;
+ background:#001012;color:#eeffe0;border:1px solid #315456;
+ font-size:30px;line-height:1;
+}
+.affiliate-modal-logo{width:54px;height:54px;margin:2px auto 14px;border-radius:15px;box-shadow:0 8px 18px #0008}
+.affiliate-modal h2{max-width:360px;margin:0 auto 6px;font-size:clamp(21px,5.8vw,29px);line-height:1.13}
+.affiliate-modal-lead{font-size:14px;line-height:1.35;margin:0 auto 24px;color:#aebcbd}
+.affiliate-link-block>label{font-size:13px;margin:0 0 8px 4px;color:#c6d5d2}
+.affiliate-link-row{grid-template-columns:minmax(0,1fr) 42px auto;gap:6px;padding:6px;border-radius:15px;background:#001517;border:1px solid #315456}
+.affiliate-link-row input{font-size:12px;padding:9px 4px;color:#e9f2ef}
+.affiliate-edit{width:42px;height:42px;border-radius:10px;background:#244247}
+.affiliate-edit svg,.affiliate-copy svg{width:19px;height:19px}
+.affiliate-copy{min-height:42px;padding:0 13px;border-radius:11px;font-size:13px}
+.affiliate-dashboard-card{
+ margin-top:20px;padding:21px 18px 18px;
+ border-color:#315456;border-radius:18px;
+ background:linear-gradient(145deg,rgba(10,44,47,.76),rgba(0,16,18,.75));
+}
+.dashboard-icon{width:34px;height:34px;margin-bottom:8px;color:#dfff4e}
+.affiliate-dashboard-card h3{font-size:19px;margin:0 0 7px}
+.affiliate-dashboard-card p{font-size:13px;line-height:1.4;margin:0 auto 15px;color:#b2c3c1}
+.affiliate-dashboard-card>a{min-height:44px;padding:10px 20px;border-radius:12px;font-size:14px;box-shadow:0 4px 0 #768e26}
+@media(max-width:600px){
+ .affiliate-modal{
+  top:max(76px,calc(env(safe-area-inset-top) + 68px));
+  width:calc(100vw - 24px);
+  max-height:calc(100dvh - max(90px,calc(env(safe-area-inset-top) + 80px)));
+  padding:23px 16px 18px;border-radius:21px;
+ }
+ .affiliate-modal-close{right:10px;top:10px;width:42px;height:42px;font-size:28px}
+ .affiliate-modal-logo{width:48px;height:48px;margin:0 auto 11px;border-radius:13px}
+ .affiliate-modal h2{max-width:285px;font-size:22px;line-height:1.12}
+ .affiliate-modal-lead{font-size:13px;margin-bottom:20px}
+ .affiliate-link-block>label{font-size:12px}
+ .affiliate-link-row{grid-template-columns:minmax(0,1fr) 39px auto;gap:5px;padding:5px;border-radius:13px}
+ .affiliate-link-row input{font-size:11px;padding:8px 3px}
+ .affiliate-edit{width:39px;height:39px}
+ .affiliate-copy{min-height:39px;padding:0 11px;font-size:12px}
+ .affiliate-copy svg{width:17px;height:17px}
+ .affiliate-dashboard-card{margin-top:16px;padding:17px 14px 15px;border-radius:16px}
+ .dashboard-icon{width:30px;height:30px;margin-bottom:6px}
+ .affiliate-dashboard-card h3{font-size:17px;margin-bottom:5px}
+ .affiliate-dashboard-card p{font-size:12px;margin-bottom:12px}
+ .affiliate-dashboard-card>a{min-height:40px;padding:9px 17px;border-radius:11px;font-size:13px}
+}
