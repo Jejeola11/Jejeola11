@@ -124,7 +124,9 @@ const USD_RATE = 1400;
 // Price every provider run from the cheapest current credit pack on the live
 // pricing page. A pack change automatically updates all model quotes.
 const {PACKS: CREDIT_PACKS}=require('./credit-pricing');
-const NAIRA_PER_CREDIT=Math.min(...Object.values(CREDIT_PACKS).map(p=>p.amount_naira/p.credits));
+// Preserve the launch quote basis when pack prices rise. This keeps the
+// intended margin buffer for first-day discounts, referral payouts and fees.
+const NAIRA_PER_CREDIT=Math.min(10000/120,...Object.values(CREDIT_PACKS).map(p=>p.amount_naira/p.credits));
 const MODEL_USD_TO_NAIRA=1400;
 const MODEL_COST_MULTIPLIER=2;
 const safeCreditsFor=usd=>{
