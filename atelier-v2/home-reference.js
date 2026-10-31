@@ -11,6 +11,7 @@ const slides=[...document.querySelectorAll('.feature-slide')],dots=[...document.
 let current=0,hovering=false,carouselVisible=true;
 function show(n){current=(n+slides.length)%slides.length;track.style.transform='translateX(-'+current*100+'%)';slides.forEach((s,i)=>{s.inert=i!==current;s.setAttribute('aria-hidden',String(i!==current))});dots.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===current)))}
 dots.forEach(b=>b.onclick=()=>show(Number(b.dataset.slide)));
+$('carouselNext')?.addEventListener('click',()=>show(current+1));
 show(0);
 const viewport=$('carouselWindow');viewport.onmouseenter=()=>hovering=true;viewport.onmouseleave=()=>hovering=false;
 let touchX=null;viewport.addEventListener('touchstart',e=>{touchX=e.touches[0].clientX},{passive:true});viewport.addEventListener('touchend',e=>{if(touchX===null)return;const delta=e.changedTouches[0].clientX-touchX;if(Math.abs(delta)>40)show(current+(delta<0?1:-1));touchX=null},{passive:true});
