@@ -121,26 +121,19 @@ const USD_RATE = 1400;
 //   Credit price = ceil(cost / 0.11 * MARGIN). Change MARGIN once to reprice all.
 // Update the cost_usd numbers below with MuAPI's/WaveSpeed's exact prices anytime.
 // ============================================================
-const CREDIT_USD = 0.11;    // legacy nominal credit value used by older model pricing
-const IMAGE_MARGIN = 2.5;
-const VIDEO_MARGIN = 2.0;
-// Seedance is expensive enough that the nominal $0.11/credit assumption is
-// unsafe against the largest top-up packs. Use a conservative realized-value
-// floor of $0.05/credit so even Power-pack credits still leave >2x revenue vs
-// WaveSpeed provider cost at the current pack pricing / FX assumptions.
-const SEEDANCE_REALIZED_CREDIT_USD = 0.05;
-const creditsFor = (cost_usd, margin) => Math.max(1, Math.ceil((cost_usd / CREDIT_USD) * margin));
-const NET_NAIRA_PER_CREDIT = 9500 / 120; // Lowest of six Nestuge packs, after 4% + ₦100.
-const BUFFERED_NAIRA_PER_USD = 1400;
-const API_TARGET_MULTIPLIER = 2.2;
-const safeCreditsFor = usd => Math.max(1, Math.ceil(usd * BUFFERED_NAIRA_PER_USD * API_TARGET_MULTIPLIER / NET_NAIRA_PER_CREDIT - 1e-9));
-const seedanceCreditsFor = safeCreditsFor;
-// Image credits are additionally clamped to a tight, easy-to-understand
-// 2-6 range regardless of the exact formula output (10 Aug 2026 pricing
-// call) — cheap models would otherwise round to 1 credit, expensive ones
-// could exceed 6; every image model should feel roughly "a handful of
-// credits," not a number the customer has to think about.
-const creditsForImage = (cost_usd, margin) => Math.min(6, Math.max(2, creditsFor(cost_usd, margin)));
+// Price every provider run from the cheapest current credit pack on the live
+// pricing page. A pack change automatically updates all model quotes.
+const {PACKS: CREDIT_PACKS}=require('./credit-pricing');
+const NAIRA_PER_CREDIT=Math.min(...Object.values(CREDIT_PACKS).map(p=>p.amount_naira/p.credits));
+const MODEL_USD_TO_NAIRA=1400;
+const MODEL_COST_MULTIPLIER=2;
+const safeCreditsFor=usd=>{
+  if(!Number.isFinite(usd)||usd<=0)throw Error('A verified model cost is required.');
+  return Math.max(1,Math.round(usd*MODEL_USD_TO_NAIRA*MODEL_COST_MULTIPLIER/NAIRA_PER_CREDIT));
+};
+const seedanceCreditsFor=safeCreditsFor;
+const creditsFor=(cost_usd)=>safeCreditsFor(cost_usd);
+const creditsForImage=(cost_usd)=>safeCreditsFor(cost_usd);
 
 // IMPORTANT: the keys below are MuAPI endpoint slugs — exactly what we POST to
 // /api/v1/{slug}. MuAPI slugs are versioned and change over time. If a model
@@ -241,38 +234,19 @@ const TOOL_COST = {         // utility tools (take an input image -> output), Wa
 };
 
 // slug -> credits charged (auto-computed for guaranteed margin; images clamp to 2-6)
-const IMAGE_MODELS = Object.fromEntries(Object.entries(IMAGE_COST).map(([k, v]) => [k, creditsForImage(v, IMAGE_MARGIN)]));
-const VIDEO_MODELS = Object.fromEntries(Object.entries(VIDEO_COST).map(([k, v]) => [k, creditsFor(v, VIDEO_MARGIN)]));
-const TOOL_MODELS = Object.fromEntries(Object.entries(TOOL_COST).map(([k, v]) => [k, creditsFor(v, IMAGE_MARGIN)]));
+const IMAGE_MODELS = Object.fromEntries(Object.entries(IMAGE_COST).map(([k, v]) => [k, creditsForImage(v)]));
+const VIDEO_MODELS = Object.fromEntries(Object.entries(VIDEO_COST).map(([k, v]) => [k, creditsFor(v)]));
+const TOOL_MODELS = Object.fromEntries(Object.entries(TOOL_COST).map(([k, v]) => [k, creditsFor(v)]));
 const MODEL_COST = IMAGE_MODELS; // back-compat alias
 
-// Fuse Atelier image-catalog pricing. These are the student-facing base
-// charges for normal 2K generation. 4K is doubled by the dedicated creator.
-const IMAGE_MODEL_OVERRIDES = {
-  'gpt-image-2.5-sunburst': 2,
-  'gpt-image-2.5-flare': 2,
-  'minimax-h3-image': 1,
-  'seedream-5.0': 2,
-  'nano-banana-2': 3,
-  'nano-banana-pro-ws-text-to-image': 6,
-  'flux-2-pro': 2,
-  'qwen-image': 2,
-};
-Object.assign(IMAGE_MODELS, IMAGE_MODEL_OVERRIDES, {
-  'flux-schnell-image':1, 'flux-dev-image':1, 'hidream_i1_full_image':1,
-  'gpt-image-2-text-to-image':3, 'gpt-image-2-image-to-image':4,
-  'gpt-image-2-ws-text-to-image':3, 'gpt-image-2-ws-edit':3,
-  'nano-banana-pro-ws-edit':6, 'hunyuan-image-3.0':5,
-  'google-imagen4-ultra':3,
-});
 function imageCreditsForRequest(model,{resolution='2k',referenceCount=0,quality='medium'}={}) {
   const base=IMAGE_MODELS[model]; if(!base)return null;
   const refs=Math.max(0,Math.min(16,Math.floor(Number(referenceCount)||0)));
   if(refs && ['gpt-image-2-text-to-image','gpt-image-2-ws-edit','gpt-image-2-image-to-image'].includes(model)) {
     const tiers=quality==='high'?{'1k':.23,'2k':.41,'4k':.73}:quality==='low'?{'1k':.02,'2k':.03,'4k':.04}:{'1k':.07,'2k':.11,'4k':.19};
-    return Math.max(base,safeCreditsFor(tiers[resolution]+Math.max(0,refs-1)*.012));
+    return safeCreditsFor(tiers[resolution]+Math.max(0,refs-1)*.012);
   }
-  if(model==='nano-banana-pro-ws-text-to-image' && resolution==='4k') return Math.max(base*2,safeCreditsFor(.24));
+  if(model==='nano-banana-pro-ws-text-to-image' && resolution==='4k') return safeCreditsFor(.24);
   return base*(resolution==='4k'?2:1);
 }
 
@@ -328,30 +302,6 @@ function videoCreditsForRequest(model, duration, resolution, pricingContext = {}
   const multiplier=secs>=10?2:1;
   return Math.max(base*multiplier,safeCreditsFor((VIDEO_COST[model]||0)*multiplier));
 }
-
-Object.assign(VIDEO_MODELS, {
-  'seedance-2.0-mini-image-to-video':safeCreditsFor(0.40),
-  'seedance-2.0-mini-text-to-video':safeCreditsFor(0.40),
-  'seedance-2-mini-text-to-video': 17,     'seedance-2-mini-image-to-video': 17,     // formula would give 8
-  // 10 Aug 2026, pass 3: raised off Ria's original numbers (45/6/7) to close
-  // a real loss risk found in the profit audit. With Studio Pro/Creator/
-  // Agency repriced to 9,000/29,000/59,000, Agency realizes only $0.0648 of
-  // revenue per credit sold -- the worst of any pack. Any model whose
-  // break-even (real cost / credits) exceeded that would generate an actual
-  // loss for Agency subscribers who used it. These 3 were the only ones
-  // that did; every credit number below now clears $0.0648/credit with
-  // ceil() as the only buffer -- "leave the prices" meant fix credits, not
-  // pack naira, so this is the smallest change that guarantees zero loss.
-  'seedance-2-1080p-text-to-video': 47,    'seedance-2-1080p-image-to-video': 47,    // was 45, breakeven $0.0667 > Agency's $0.0648
-  'kling-v3-turbo-standard-text-to-video': 9, 'kling-v3-turbo-standard-image-to-video': 9, // = 720p; was 6, breakeven $0.0933
-  'kling-v3-turbo-pro-text-to-video': 11,  'kling-v3-turbo-pro-image-to-video': 11,  // = 1080p; was 7, breakeven $0.10
-  'kling-v3-turbo-4k-text-to-video': 39,   'kling-v3-turbo-4k-image-to-video': 39,   // already safe (breakeven $0.036)
-});
-
-// Direct callers use VIDEO_MODELS without videoCreditsForRequest; enforce the same
-// buffered floor for their fixed-rate operations as the Video Studio quote path.
-for(const [model,usd] of Object.entries(VIDEO_COST))
-  VIDEO_MODELS[model]=Math.max(VIDEO_MODELS[model],safeCreditsFor(usd));
 
 // ---- AI Avatar Creator (long-form video) — WaveSpeed-only cost model ------
 // Two completely different engines depending on mode, so two completely
