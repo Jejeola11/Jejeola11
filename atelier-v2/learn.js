@@ -33,7 +33,7 @@
     landing:{name:'Landing Page Design',price:9900,href:'academy-v2.html?course=landing'},
     money:{name:'Money Engine',price:9900,href:'academy-v2.html?course=money'},
     challenge:{name:'14-Day AI Video Client Challenge',price:9900,href:'academy-v2.html?course=challenge'},
-    ebook:{name:'Zero To First 10 Million With AI Video',price:4900,href:'ai-video-book.html'}
+    ebook:{name:'Zero To First 10 Million With AI Video',price:9900,href:'ai-video-book.html'}
   };
 
   for(const offer of window.FuseAgentCourseOffers||[]){checkoutUrls[offer.key]=offer.checkout;courseMeta[offer.key].price=offer.price;}
