@@ -234,3 +234,15 @@
 @keyframes fuseShortcutMarquee{to{transform:translateX(-50%)}}
 @media(max-width:420px){.reference-home .shortcut-set{gap:8px;padding-right:8px}.reference-home .home-shortcuts a{font-size:12px;min-height:39px;padding:9px 13px}}
 @media(prefers-reduced-motion:reduce){.reference-home .home-shortcuts{overflow-x:auto}.reference-home .home-shortcuts-track{animation:none}.reference-home .shortcut-set-copy{display:none}}
+
+/* Smaller shortcut pills and a single centered community heading. */
+.reference-home .home-shortcuts{padding-top:4px;padding-bottom:10px}
+.reference-home .shortcut-set{gap:7px;padding-right:7px}
+.reference-home .home-shortcuts a{min-height:31px;padding:6px 10px;border-radius:11px;color:#fff!important;font-size:11px;font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.reference-home .community-heading{display:block!important;text-align:center!important;margin-bottom:14px}
+.reference-home .community-heading h2{display:block!important;width:100%!important;max-width:none!important;white-space:nowrap!important;text-align:center!important;font-size:16px!important;line-height:1.2!important}
+@media(max-width:420px){
+ .reference-home .shortcut-set{gap:6px;padding-right:6px}
+ .reference-home .home-shortcuts a{min-height:29px;padding:5px 9px;border-radius:10px;font-size:10.5px}
+ .reference-home .community-heading h2{font-size:15px!important}
+}
