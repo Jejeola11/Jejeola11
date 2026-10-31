@@ -48,6 +48,20 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}a:focus-
  .game-play{min-height:28px;padding:0 9px;font-size:11px}
  .poster-name{font-size:clamp(13px,3.8vw,22px)}
 }
+
+/* Guard the gallery from shared mobile card rules. */
+.play-main .filters{scrollbar-width:none!important;border-bottom:0!important}
+.play-main .filters::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
+.play-main .games{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;width:100%!important}
+.play-main .game{display:block!important;min-width:0!important;width:auto!important;max-width:none!important;grid-column:auto!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;overflow:visible!important}
+.play-main .poster{display:block!important;width:100%!important;min-width:0!important;max-width:none!important;aspect-ratio:9/16!important;height:auto!important;min-height:0!important;margin:0!important}
+.play-main .poster-art{background:linear-gradient(155deg,#092326,#031416)!important}
+.play-main .poster-art:before,.play-main .poster-art:after{content:none!important;display:none!important}
+.play-main .poster-name{display:none!important}
+@media(max-width:600px){
+ .play-main .games{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .play-main .game-meta{display:flex!important;width:100%!important}
+}
 </style></head>
 <body data-page="play"><div data-fuse-header></div>
 <main class="play-main"><section class="hero" aria-labelledby="playTitle"><div class="hero-brand"><img src="/atelier-v2/media/fuse-mark-palette.webp" width="30" height="30" alt=""><span>Fuse Atelier</span></div><h1 id="playTitle">Play Games</h1><p>Step into a game, chase a new high score, and come back whenever you want another run.</p><a class="start" href="#games">Start Playing</a></section>
