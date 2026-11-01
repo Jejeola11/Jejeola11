@@ -7,8 +7,12 @@
   // Fill these with the individual Nestuge checkout URLs once Ria provides them.
   const checkoutUrls={ebook:'academy-ebook',challenge:'academy-challenge',money:'academy-money',video:'academy-video',landing:'academy-landing',design:'academy-design'};
 
-  const storedName=(localStorage.getItem('fuse_display_name')||'').trim();
-  if(storedName) nameEl.textContent=storedName;
+  // Match Profile: full_name is the editable display name; never use a shared local cache.
+  function renderName(user){
+    const meta=user?.user_metadata||{};
+    const name=meta.full_name||meta.name||user?.email?.split('@')[0]||'there';
+    if(nameEl) nameEl.textContent=String(name).trim()||'there';
+  }
 
   const range=(prefix,n)=>Array.from({length:n},(_,i)=>prefix+(i+1));
   const required={
@@ -70,11 +74,13 @@
     if(sessionError)throw sessionError;
     if(!session){guest=true;renderAccess();status.textContent='Sign up to get full access to the academy page';return;}
 
-    if(!storedName){
-      const meta=session.user?.user_metadata||{};
-      const fallback=(meta.name||meta.full_name||session.user?.email?.split('@')[0]||'there').trim();
-      nameEl.textContent=fallback;
-    }
+    renderName(session.user);
+    // Refresh metadata so edits made on Profile are reflected on the next visit.
+    try{
+      const {data,error}=await sb.auth.getUser();
+      if(!error&&data?.user) renderName(data.user);
+    }catch{}
+    sb.auth.onAuthStateChange((_event,nextSession)=>renderName(nextSession?.user));
 
     const [p,u]=await Promise.all([
       sb.from('profiles').select('is_admin').eq('id',session.user.id).maybeSingle(),
