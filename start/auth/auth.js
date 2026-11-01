@@ -1,8 +1,6 @@
 (() => {
  'use strict';
  const sb=window.supabase.createClient('https://rgbweaimkcndjznlazho.supabase.co','sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
- const passwordField=document.getElementById('password');
- document.getElementById('resetPassword')?.addEventListener('click',async()=>{const email=document.getElementById('email').value.trim();if(!email){document.getElementById('message').textContent='Enter your account email first.';return}const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+'/atelier-v2/login.html?set_password=1'});document.getElementById('message').textContent=error?error.message:'Check your email once to securely set your password.';});
  const signup=location.pathname.replace(/\/$/,'')==='/signup';
  const requestedNext=new URLSearchParams(location.search).get('next');
  const loginNext=requestedNext?.startsWith('/atelier-v2/')&&!requestedNext.startsWith('//')?requestedNext:'/atelier-v2/home.html';
@@ -14,9 +12,8 @@
  let touchedOptIn=false;
  optIn?.addEventListener('change',()=>{touchedOptIn=true;});
  document.getElementById('email').addEventListener('input',()=>{if(!optIn||signup||touchedOptIn)return;try{const saved=JSON.parse(sessionStorage.getItem('fuse_signup_email_choice')||'null');optIn.checked=!!(saved&&saved.email===document.getElementById('email').value.trim().toLowerCase()&&saved.consent);}catch(_){}});
- if(passwordField&&new URLSearchParams(location.search).has('set_password')){button.textContent='Save password';description.textContent='Choose a password for future logins.';passwordField.autocomplete='new-password';passwordField.minLength=8;}
  let session=null;
- const ready=sb.auth.getSession().then(({data})=>{session=data.session;if(session&&!signup&&!token){button.textContent='Log in';description.textContent='Continue with your saved account, or enter another email to switch accounts.';document.getElementById('email').value=session.user.email||'';document.getElementById('name').value=session.user.user_metadata?.full_name||session.user.user_metadata?.name||'';}});
+ const ready=sb.auth.getSession().then(({data})=>{session=data.session;if(session&&!signup&&!token){location.replace(loginNext);return;}if(session&&!signup&&!token){button.textContent='Log in';description.textContent='Continue with your saved account, or enter another email to switch accounts.';document.getElementById('email').value=session.user.email||'';document.getElementById('name').value=session.user.user_metadata?.full_name||session.user.user_metadata?.name||'';}});
  if(token&&!signup){
   button.disabled=true;message.textContent='Signing you in securely…';
   ready.then(async()=>{
@@ -39,18 +36,17 @@
     if(error)throw new Error('This verification button has expired or was already used. Open Login to request a new email.');
     session=data.session;token=null;
    }
-   if(!signup&&session&&!new URLSearchParams(location.search).has('set_password')&&session.user.email.trim().toLowerCase()===email){
+   if(!signup&&session&&session.user.email.trim().toLowerCase()===email){
     localStorage.setItem('fuse_display_name',name);
     // Signup already saved the contact; this authenticated call records the optional email choice.
     let consent=!!optIn?.checked;try{const saved=JSON.parse(sessionStorage.getItem('fuse_signup_email_choice')||'null');if(!optIn&&saved?.email===email)consent=!!saved.consent;}catch(_){}
     try{await fetch('/api/public-registration-sync',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({name,marketingOptIn:consent})});}catch(_){}
     sessionStorage.removeItem('fuse_signup_email_choice');location.replace(loginNext);return;
    }
-   if(!signup&&passwordField){if(new URLSearchParams(location.search).has('set_password')){const {error}=await sb.auth.updateUser({password:passwordField.value});if(error)throw error;location.replace(loginNext);return;}const {error}=await sb.auth.signInWithPassword({email,password:passwordField.value});if(error)throw error;location.replace(loginNext);return;}
    if(signup)sessionStorage.setItem('fuse_signup_email_choice',JSON.stringify({email,consent:optIn?.checked}));
    const response=await fetch('/api/public-auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name,mode:signup?'signup':'login'})});
    const data=await response.json();if(!response.ok)throw new Error(data.error||'Please try again.');
-   message.textContent='Check your inbox (and spam folder). Tap the verification button, then enter your details to log in.';
+   message.textContent='Check your inbox (and spam folder). Tap the secure sign-in link to open Fuse.';
   }catch(error){message.textContent=error.message;}
   finally{button.disabled=false;}
  });
