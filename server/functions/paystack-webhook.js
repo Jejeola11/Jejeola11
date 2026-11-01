@@ -97,6 +97,14 @@ exports.handler = async (event) => {
   }
   if (!userId) return { statusCode: 200, body: 'missing user' };
 
+  if(meta.pack==='fuse-creator-pass'){
+    if(d.currency!=='NGN'||d.amount!==2590000||Number(meta.amount_naira)!==25900)return {statusCode:400,body:'amount mismatch'};
+    const {data:fulfilled,error}=await db.rpc('fulfill_creator_pass',{p_user_id:userId,p_reference:reference,p_amount_naira:25900,p_raw:d});
+    if(error)return {statusCode:500,body:'fulfillment failed'};
+    const row=Array.isArray(fulfilled)?fulfilled[0]:fulfilled;
+    if(row?.processed){try{await sweepToBank(db,25900,reference)}catch(e){console.error('bundle sweep failed',e.message)}}
+    return {statusCode:200,body:'ok (creator pass)'};
+  }
   // Credit-pack purchases use one atomic DB transaction shared with the
   // verified Paystack callback. This makes webhook retries and callback races
   // idempotent: the same reference can never add the pack credits twice.
