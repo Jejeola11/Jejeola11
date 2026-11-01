@@ -234,3 +234,26 @@ body.affiliate-modal-open{overflow:hidden}
  .affiliate-dashboard-card p{font-size:12px;margin-bottom:12px}
  .affiliate-dashboard-card>a{min-height:40px;padding:9px 17px;border-radius:11px;font-size:13px}
 }
+
+
+/* Shorter monthly earnings controls. */
+.calc-controls{padding:16px 18px 4px}
+.calc-control{padding-bottom:15px;margin-bottom:15px}
+.calc-control label{font-size:14px;margin-bottom:8px}
+.calc-control label strong{font-size:21px;margin-top:4px}
+.calc-control small{margin-top:6px}
+.range-shell{height:42px;border-radius:12px}
+.range-fill{top:5px;bottom:5px;border-radius:9px}
+.range-handle{width:38px;height:38px;font-size:18px}
+.range-dots{inset:0 13px}
+.range-dots i{width:5px;height:5px}
+@media(max-width:700px){
+ .calc-controls{padding:14px 15px 3px}
+ .calc-control{padding-bottom:14px;margin-bottom:14px}
+ .calc-control label{font-size:13px;margin-bottom:7px}
+ .calc-control label strong{font-size:20px}
+ .range-shell{height:40px;border-radius:11px}
+ .range-fill{top:5px;bottom:5px}
+ .range-handle{width:36px;height:36px;font-size:17px}
+ .range-dots{inset:0 12px}
+}
