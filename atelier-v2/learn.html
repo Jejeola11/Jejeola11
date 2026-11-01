@@ -13,7 +13,20 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
   <script src="fuse-shell.js?v=header-stable-10" defer></script>
   <script src="agent-course-offers.js?v=9900-1" defer></script><script src="learn.js?v=academy-9900-1" defer></script>
-<style>.academy-v3 .academy-free{grid-template-columns:minmax(0,1fr) 42%}.academy-v3 .academy-free .academy-copy{padding:14px 12px;gap:10px}.academy-free-label{display:inline-flex;align-self:flex-start;padding:5px 9px;border-radius:999px;background:var(--academy-chrome);color:#001012;font-size:10px;font-weight:600;line-height:1}.academy-v3 .academy-free .academy-visual img{object-fit:contain;background:white}.academy-v3 .academy-free h2{font-size:20px}</style></head>
+<style>.academy-v3 .academy-free{grid-template-columns:minmax(0,1fr) 42%}.academy-v3 .academy-free .academy-copy{padding:14px 12px;gap:10px}.academy-free-label{display:inline-flex;align-self:flex-start;padding:5px 9px;border-radius:999px;background:var(--academy-chrome);color:#001012;font-size:10px;font-weight:600;line-height:1}.academy-v3 .academy-free .academy-visual img{object-fit:contain;background:white}.academy-v3 .academy-free h2{font-size:20px}
+/* Keep the free training and ebook cards at the Academy's landscape ratio. */
+.academy-v3 .academy-course.academy-free,
+.academy-v3 .academy-course.ebook{aspect-ratio:16/9;min-height:0;container-type:inline-size}
+.academy-v3 .academy-course.academy-free .academy-copy,
+.academy-v3 .academy-course.ebook .academy-copy{padding:clamp(10px,3cqw,24px);gap:clamp(5px,1.5cqw,10px);justify-content:flex-start}
+.academy-v3 .academy-course.academy-free h2,
+.academy-v3 .academy-course.ebook h2{font-size:clamp(16px,5cqw,24px);line-height:1.06;margin:0;max-width:100%}
+.academy-v3 .academy-course.academy-free p,
+.academy-v3 .academy-course.ebook p{font-size:clamp(10px,3cqw,16px);line-height:1.3;margin:0}
+.academy-v3 .academy-course.academy-free .academy-start,
+.academy-v3 .academy-course.ebook .academy-start{margin-top:auto;height:clamp(29px,9cqw,48px);min-height:0;min-width:0;padding:0 clamp(14px,4cqw,24px);font-size:clamp(14px,4cqw,18px)}
+.academy-v3 .academy-course.academy-free .academy-free-label{font-size:clamp(9px,2.6cqw,12px);padding:4px 8px}
+</style></head>
 <body class="academy-v3" data-page="academy">
   <header class="academy-top">
     <a class="academy-back" href="home.html" aria-label="Back to Home">←</a>
@@ -35,7 +48,7 @@
     <p id="courseStatus" class="academy-status" role="status">Checking your course access…</p>
 
     <section class="academy-cards" aria-label="My courses">
-<a class="academy-course academy-free" href="free-ai-tutorial.html" aria-label="Start Learn AI From Zero free tutorials"><div class="academy-copy"><span class="academy-free-label">FREE</span><h2>Learn AI From Zero</h2><p>Start creating with AI, Learn Everything you need to make your first AI images and videos inside Fuse Atelier.</p><span class="academy-start">Start learning</span></div><div class="academy-visual"><img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1793313117/fuse-atelier/academy/learn-ai-free-ria-chrome-v3.webp" width="750" height="1000" alt="Learn AI for free — Director Ria reclining on a white floor" loading="eager"></div></a>
+<a class="academy-course academy-free" href="free-ai-tutorial.html" aria-label="Start Learn AI From Zero free tutorials"><div class="academy-copy"><span class="academy-free-label">FREE</span><h2>Learn AI From Zero</h2><p>Start creating with AI, Learn Everything you need to make your first AI images and videos inside Fuse Atelier.</p><span class="academy-start">Start</span></div><div class="academy-visual"><img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1793313117/fuse-atelier/academy/learn-ai-free-ria-chrome-v3.webp" width="750" height="1000" alt="Learn AI for free — Director Ria reclining on a white floor" loading="eager"></div></a>
       <a class="academy-course ebook" data-course="ebook" href="ai-video-book.html">
         <div class="academy-copy">
           <h2>Zero To First 10 Million With AI Video</h2>
