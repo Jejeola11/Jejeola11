@@ -23,7 +23,6 @@ function setAffiliateModal(open){affiliateModal.hidden=!open;affiliateBackdrop.h
 document.addEventListener('click',e=>{const trigger=e.target.closest('a[href="#my-link"]');if(!trigger||trigger.id==='affiliateDashboardButton')return;e.preventDefault();setAffiliateModal(true)});
 $('affiliateModalClose').addEventListener('click',()=>setAffiliateModal(false));affiliateBackdrop.addEventListener('click',()=>setAffiliateModal(false));
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!affiliateModal.hidden)setAffiliateModal(false)});
-$('editAffiliateLink').addEventListener('click',()=>{const editing=!affiliateModalLink.hasAttribute('readonly');if(editing){affiliateModalLink.setAttribute('readonly','');$('editAffiliateLink').setAttribute('aria-label','Edit affiliate link')}else{affiliateModalLink.removeAttribute('readonly');affiliateModalLink.focus();affiliateModalLink.select();$('editAffiliateLink').setAttribute('aria-label','Finish editing affiliate link')}});
 $('copyAffiliateLink').addEventListener('click',async()=>{const button=$('copyAffiliateLink'),label=button.querySelector('span');try{await navigator.clipboard.writeText(affiliateModalLink.value);label.textContent='Copied';setTimeout(()=>label.textContent='Copy',1500)}catch{affiliateModalLink.select();label.textContent='Select link'}});
 $('affiliateDashboardButton').addEventListener('click',()=>setAffiliateModal(false));
 
