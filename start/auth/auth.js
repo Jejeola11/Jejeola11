@@ -14,6 +14,7 @@
  let touchedOptIn=false;
  optIn?.addEventListener('change',()=>{touchedOptIn=true;});
  document.getElementById('email').addEventListener('input',()=>{if(!optIn||signup||touchedOptIn)return;try{const saved=JSON.parse(sessionStorage.getItem('fuse_signup_email_choice')||'null');optIn.checked=!!(saved&&saved.email===document.getElementById('email').value.trim().toLowerCase()&&saved.consent);}catch(_){}});
+ if(passwordField&&new URLSearchParams(location.search).has('set_password')){button.textContent='Save password';description.textContent='Choose a password for future logins.';passwordField.autocomplete='new-password';passwordField.minLength=8;}
  let session=null;
  const ready=sb.auth.getSession().then(({data})=>{session=data.session;if(session&&!signup&&!token){button.textContent='Log in';description.textContent='Continue with your saved account, or enter another email to switch accounts.';document.getElementById('email').value=session.user.email||'';document.getElementById('name').value=session.user.user_metadata?.full_name||session.user.user_metadata?.name||'';}});
  if(token&&!signup){
@@ -38,7 +39,7 @@
     if(error)throw new Error('This verification button has expired or was already used. Open Login to request a new email.');
     session=data.session;token=null;
    }
-   if(!signup&&session&&session.user.email.trim().toLowerCase()===email){
+   if(!signup&&session&&!new URLSearchParams(location.search).has('set_password')&&session.user.email.trim().toLowerCase()===email){
     localStorage.setItem('fuse_display_name',name);
     // Signup already saved the contact; this authenticated call records the optional email choice.
     let consent=!!optIn?.checked;try{const saved=JSON.parse(sessionStorage.getItem('fuse_signup_email_choice')||'null');if(!optIn&&saved?.email===email)consent=!!saved.consent;}catch(_){}
