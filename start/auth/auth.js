@@ -6,14 +6,20 @@
  const loginNext=requestedNext?.startsWith('/atelier-v2/')&&!requestedNext.startsWith('//')?requestedNext:'/atelier-v2/home.html';
  const hash=new URLSearchParams(location.hash.slice(1));
  let token=hash.get('token_hash');
- if(location.hash)history.replaceState(null,'',location.pathname);
+ // Keep callback tokens in the URL until Supabase has finished initializing.
  const title=document.getElementById('title'),description=document.getElementById('description'),button=document.getElementById('submit'),message=document.getElementById('message'),switcher=document.getElementById('switch');
  const optIn=document.getElementById('marketingOptIn');
  let touchedOptIn=false;
  optIn?.addEventListener('change',()=>{touchedOptIn=true;});
  document.getElementById('email').addEventListener('input',()=>{if(!optIn||signup||touchedOptIn)return;try{const saved=JSON.parse(sessionStorage.getItem('fuse_signup_email_choice')||'null');optIn.checked=!!(saved&&saved.email===document.getElementById('email').value.trim().toLowerCase()&&saved.consent);}catch(_){}});
  let session=null;
- const ready=sb.auth.getSession().then(({data})=>{session=data.session;if(session&&!signup&&!token){location.replace(loginNext);return;}if(session&&!signup&&!token){button.textContent='Log in';description.textContent='Continue with your saved account, or enter another email to switch accounts.';document.getElementById('email').value=session.user.email||'';document.getElementById('name').value=session.user.user_metadata?.full_name||session.user.user_metadata?.name||'';}});
+ const ready=sb.auth.getSession().then(({data,error})=>{
+  if(error)throw error;
+  session=data.session;
+  // getSession waits for URL token processing and persistence before cleanup.
+  if(location.hash&&!token)history.replaceState(null,'',location.pathname+location.search);
+  if(session&&!signup&&!token){location.replace(loginNext);return;}
+ });
  if(token&&!signup){
   button.disabled=true;message.textContent='Signing you in securely…';
   ready.then(async()=>{
