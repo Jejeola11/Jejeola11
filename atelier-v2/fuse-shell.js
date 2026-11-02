@@ -310,5 +310,10 @@
     refresh();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installCreditNotice,{once:true});else installCreditNotice();
+
+  // One shared offer loader for Home and Academy; payment and ownership stay server verified.
+  const fullAccessOffer=document.createElement('script');
+  fullAccessOffer.src='/atelier-v2/full-access-offer.js?v=1';
+  document.body.append(fullAccessOffer);
 })();
 
