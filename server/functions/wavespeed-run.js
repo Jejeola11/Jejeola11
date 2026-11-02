@@ -8,7 +8,11 @@ exports.handler=async event=>{
  try{
   if(require('./_higgsfield-seedance').find(body.model))return require('./_higgsfield-jobs').run(event,body);
   const m=(await wave.catalogue()).find(m=>m.model_id===body.model);if(!m)return json(400,{error:'Choose a supported image or video model.'});
-  const priced=await wave.quote(m,body.inputs,{validate:body.quote!==true});
+  const quoteInputs={...(body.inputs||{})};const gpt=require('./_openai-direct').imageModel(m.model_id);const background=gpt?quoteInputs.background:undefined;
+  if(gpt&&background!==undefined&&!['auto','opaque','transparent'].includes(background))return json(400,{error:'Choose a supported background.'});
+  if(gpt&&!wave.schema(m).properties?.background)delete quoteInputs.background;
+  const priced=await wave.quote(m,quoteInputs,{validate:body.quote!==true});
+  if(gpt&&background!==undefined)priced.inputs.background=background;
   if(body.quote===true)return json(200,{credits:priced.credits,model:m.model_id});
   if(body.accepted_credits!==priced.credits)return json(409,{error:'Review the updated credit quote before generating.',credits:priced.credits});
   const db=admin();const spend=await db.rpc('spend_credits',{uid:user.id,amount:priced.credits});if(spend.error)throw spend.error;if(spend.data===null)return json(402,{error:'Not enough credits. Please top up.'});
@@ -27,5 +31,6 @@ exports.handler=async event=>{
   }catch(e){if(!started&&!e.uncertain)await require('./_openai-direct').refund(db,user.id,priced.credits);throw e}
  }catch(e){return json(400,{error:String(e.message||'Could not complete this generation.').slice(0,500)})}
 };
+
 
 
