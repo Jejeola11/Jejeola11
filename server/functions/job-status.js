@@ -100,6 +100,8 @@ exports.handler = async (event) => {
     return json(200, msg ? { status: 'failed', error: msg } : { status: 'failed' });
   }
 
+  if(id.startsWith('hf:'))return require('./_higgsfield-jobs').status(db,user,job);
+
   // Resemble voice jobs never got a real external request_id at submit time
   // (audio-generate.js only inserted a pending row) — the actual synth +
   // storage upload happens right here, lazily, on this first poll. Doing it
@@ -477,3 +479,4 @@ async function handleTranscribeJob(db, user, job, id) {
   }
   return json(200, { status: 'processing' });
 }
+

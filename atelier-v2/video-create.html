@@ -286,7 +286,7 @@
       {key:'wan-3',name:'Wan 3.0',desc:'Flexible 2–30s video with strong image guidance and native audio.',short:'W3',api:'wan-3-text-to-video',res:['480p','720p','1080p'],dur:[2,5,8,10,15,30],aspects:['16:9','9:16','1:1','4:3','3:4'],preview:'/app/media/samples/vid2.mp4',tag:'BEST VALUE',fresh:true},
       {key:'grok-imagine',name:'Grok Imagine',desc:'Fast, punchy social video generation.',short:'GX',api:'grok-imagine-text-to-video',res:['720p'],dur:[6,10],aspects:['16:9','9:16'],preview:'/app/media/samples/vid2.mp4',base:12,tag:'FAST'},
       {key:'kling-standard',name:'Kling 2.5 Turbo Pro',desc:'Polished motion and cinematic control.',short:'K2.5',api:'kling-v3-turbo-standard-text-to-video',res:['720p'],dur:[5,10],aspects:['16:9','9:16','1:1'],preview:'/app/media/samples/vid4.mp4',base:22,tag:'CINEMATIC'},
-      {key:'seedance-2.5',name:'Seedance 2.5',desc:'WaveSpeed Seedance 2.5 with up to six image, video or audio references, native audio and 4–30s generation.',short:'S2.5',api:'seedance-2.5-image-to-video',res:['480p','720p','1080p','4k'],dur:[4,5,8,10,15,20,25,30],customDur:[4,30],aspects:['16:9','9:16','4:3','3:4','1:1','21:9'],preview:'/app/media/samples/vid3.mp4',tag:'6 REFS',fresh:true,mixedRefs:true},
+      {key:'seedance-2.5',name:'Seedance 2.5',desc:'Seedance 2.5 through Higgsfield with up to six image, video or audio references, native audio and 4–30s generation.',short:'S2.5',api:'seedance-2.5-image-to-video',res:['480p','720p','1080p'],dur:[4,5,8,10,15,20,25,30],customDur:[4,30],aspects:['16:9','9:16','4:3','3:4','1:1','21:9'],preview:'/app/media/samples/vid3.mp4',tag:'6 REFS',fresh:true,mixedRefs:true},
       {key:'veo-fast',name:'Veo 3.1 Fast',desc:'High-end cinematic prompting for premium storytelling.',short:'V3',api:'veo3-text-to-video',res:['720p'],dur:[8],aspects:['16:9','9:16'],preview:'/app/media/samples/vid5.mp4',base:47,tag:'PREMIUM'},
       {key:'omni-flash',name:'Gemini Omni Flash 1.1',desc:'Fast synchronized-audio video generation from text or image.',short:'GO',api:'gemini-omni-1.1-flash-text-to-video',res:['360p','720p','1080p','4k'],dur:[3,5,8,10],aspects:['16:9','9:16'],preview:'/app/media/samples/vid3.mp4',tag:'OMNI',fresh:true}
     ];
@@ -423,8 +423,9 @@
     function renderModels(q=''){
       q=q.trim().toLowerCase();
       const list=MODELS.filter(m=>!q||m.name.toLowerCase().includes(q)||m.desc.toLowerCase().includes(q));
+      const seedanceModes='<a class="model-option" href="studio.html?model=bytedance%2Fseedance-2.5%2Ftext-to-video"><span class="mi">S</span><span class="mo-copy"><span class="mo-name">All Seedance modes</span><span class="mo-desc">Higgsfield Seedance 2.5 and 2.0 · Text, image, references, edit and extend.</span></span></a>';
       const auto=`<button class="model-option ${selectedKey==='auto'?'on':''}" data-model="auto"><span class="mi">A</span><span class="mo-copy"><span class="mo-name">Auto</span><span class="mo-desc">Fuse chooses a balanced model and keeps the controls simple.</span></span>${selectedKey==='auto'?'<span class="check">✓</span>':''}</button>`;
-      $('modelList').innerHTML=auto+list.map(m=>`<button class="model-option ${selectedKey===m.key?'on':''}" data-model="${m.key}"><span class="mi">${m.short}</span><span class="mo-copy"><span class="mo-name">${m.name}${m.fresh?'<span class="new">NEW</span>':''}</span><span class="mo-desc">${m.desc}</span><span class="tags"><span class="tag">${m.res.join(' · ')}</span><span class="tag">${m.dur[0]}–${m.dur[m.dur.length-1]}s</span></span></span>${selectedKey===m.key?'<span class="check">✓</span>':''}</button>`).join('');
+      $('modelList').innerHTML=seedanceModes+auto+list.map(m=>`<button class="model-option ${selectedKey===m.key?'on':''}" data-model="${m.key}"><span class="mi">${m.short}</span><span class="mo-copy"><span class="mo-name">${m.name}${m.fresh?'<span class="new">NEW</span>':''}</span><span class="mo-desc">${m.desc}</span><span class="tags"><span class="tag">${m.res.join(' · ')}</span><span class="tag">${m.dur[0]}–${m.dur[m.dur.length-1]}s</span></span></span>${selectedKey===m.key?'<span class="check">✓</span>':''}</button>`).join('');
       $('modelList').querySelectorAll('[data-model]').forEach(b=>b.onclick=()=>{
         selectedKey=b.dataset.model;
         const u=new URL(location.href);if(selectedKey==='auto')u.searchParams.delete('model');else u.searchParams.set('model',selectedKey);history.replaceState(null,'',u);
@@ -514,7 +515,7 @@
         const videoRefs=refs.filter(r=>r.type==='video');
         const audioRefs=refs.filter(r=>r.type==='audio');
         const request={
-          prompt,model:m.api,...settings,
+          prompt,model:m.api,...settings,client_request_id:crypto.randomUUID(),
           image_url:imageRefs[0]?.url,
           reference_image_urls:imageRefs.slice(1).map(r=>r.url),
           reference_video_urls:videoRefs.map(r=>r.url),
@@ -577,3 +578,4 @@
   <script src="create-handoff.js?v=1" defer></script>
 </body>
 </html>
+

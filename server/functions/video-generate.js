@@ -18,6 +18,19 @@ exports.handler = async (event) => {
     try { body = JSON.parse(event.body || '{}'); }
     catch (e) { return json(400, { error: 'Bad request' }); }
 
+    if(['seedance-2.5-image-to-video','seedance-2.5-text-to-video','seedance-2-text-to-video','seedance-2-image-to-video'].includes(body.model)){
+      const version=body.model.includes('2.5')?'2.5':'2.0';
+      const images=[body.image_url,...(body.reference_image_urls||[])].filter(Boolean);
+      const videos=body.reference_video_urls||[],audios=body.reference_audio_urls||[];
+      const reference=body.reference_mode==='reference'&&images.length||videos.length||audios.length||images.length>2;
+      const op=reference?'reference-to-video':images.length?'image-to-video':'text-to-video';
+      const inputs={prompt:body.prompt,duration:parseInt(body.duration,10)||5,resolution:body.resolution||'720p',generate_audio:body.generate_audio!==false};
+      if(op==='reference-to-video'){inputs.image_urls=images;inputs.video_urls=videos;inputs.audio_urls=audios;inputs.aspect_ratio=body.aspect||'16:9';}
+      else if(op==='image-to-video'){inputs.image_url=images[0];if(images[1])inputs.end_image_url=images[1];}
+      else inputs.aspect_ratio=body.aspect||'16:9';
+      return require('./_higgsfield-jobs').run(event,{model:'bytedance/seedance-'+version+'/'+op,inputs,quote:body.quote,accepted_credits:body.accepted_credits,client_request_id:body.client_request_id});
+    }
+
     const prompt = typeof body.prompt === 'string' ? body.prompt.trim() : '';
     const aspect = body.aspect || '16:9';
     if (!RATIOS.includes(aspect)) return json(400,{error:'Choose a supported aspect ratio.'});
@@ -223,3 +236,4 @@ exports.handler = async (event) => {
     return json(500, { error: 'Server error — please try again.' });
   }
 };
+

@@ -6,6 +6,7 @@ exports.handler=async event=>{
  const user=await getUser(event);if(!user)return json(401,{error:'Please sign in to create.'});
  let body;try{body=JSON.parse(event.body||'{}');if((event.body||'').length>60000)throw Error()}catch{return json(400,{error:'Invalid model request'})}
  try{
+  if(require('./_higgsfield-seedance').find(body.model))return require('./_higgsfield-jobs').run(event,body);
   const m=(await wave.catalogue()).find(m=>m.model_id===body.model);if(!m)return json(400,{error:'Choose a supported image or video model.'});
   const priced=await wave.quote(m,body.inputs,{validate:body.quote!==true});
   if(body.quote===true)return json(200,{credits:priced.credits,model:m.model_id});
@@ -22,3 +23,4 @@ exports.handler=async event=>{
   }catch(e){if(!started)await db.rpc('add_credits',{uid:user.id,amount:priced.credits,why:'refund'});throw e}
  }catch(e){return json(400,{error:String(e.message||'Could not complete this generation.').slice(0,500)})}
 };
+
