@@ -271,4 +271,44 @@
   }
   const signupStyle=document.createElement('style');signupStyle.textContent='.public-signup{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 13px;border-radius:12px;background:linear-gradient(110deg,#FFE66A,#DFFF4E,#EEFFE0);color:#001012!important;font:700 13px Montserrat,Arial,sans-serif;text-decoration:none;white-space:nowrap;position:relative;z-index:20}.public-signup[hidden]{display:none!important}.public-signup-floating{position:fixed;right:12px;top:12px;z-index:9999}';document.head.append(signupStyle);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',publicSignupGate,{once:true});else publicSignupGate();
+  // Shared low-credit notice; only verified balances from the signed-in profile.
+  function installCreditNotice(){
+    const notice=document.createElement('aside');
+    notice.className='fuse-credit-notice';notice.hidden=true;
+    notice.setAttribute('aria-label','Credit balance notice');
+    notice.innerHTML='<div class="fuse-credit-copy" role="status"><strong>Credits are running low!</strong><span></span></div><a class="fuse-credit-topup" href="/credits">Top up</a><button class="fuse-credit-close" type="button" aria-label="Dismiss credit notice">×</button>';
+    const style=document.createElement('style');
+    style.textContent=`.fuse-credit-notice[hidden]{display:none!important}.fuse-credit-notice{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(82px + env(safe-area-inset-bottom) + 12px);z-index:1001;box-sizing:border-box;width:min(720px,100%);min-height:88px;padding:17px 20px;display:flex;align-items:center;gap:16px;border:1px solid #284346;border-radius:20px;background:linear-gradient(110deg,#000b0e,#08272b 60%,#001114);box-shadow:0 8px 30px #0006;color:#fff;font-family:Montserrat,Arial,sans-serif}.fuse-credit-copy{flex:1;min-width:0;display:grid;gap:5px;line-height:1.3}.fuse-credit-copy strong{font-size:clamp(14px,3.8vw,20px);font-weight:600}.fuse-credit-copy span{font-size:clamp(13px,3.7vw,19px)}.fuse-credit-topup{flex:none;padding:13px 15px;border-radius:13px;background:linear-gradient(110deg,#FFE66A,#DFFF4E 52%,#EEFFE0);color:#001012!important;text-decoration:none;font-size:clamp(13px,3.5vw,18px);font-weight:600;white-space:nowrap;box-shadow:inset 0 1px 0 #ffffffb3}.fuse-credit-close{position:absolute;right:1px;top:-10px;display:grid;place-items:center;width:29px;height:29px;padding:0;border-radius:50%;border:1px solid #315456;background:#07191c;color:#fff;font:24px/1 Arial;cursor:pointer}.fuse-credit-topup:focus-visible,.fuse-credit-close:focus-visible{outline:2px solid #DFFF4E;outline-offset:3px}@media(max-width:430px){.fuse-credit-notice{bottom:calc(80px + env(safe-area-inset-bottom) + 10px);padding:16px;min-height:78px;border-radius:17px;gap:10px}}`;
+    document.head.append(style);document.body.append(notice);
+    const message=notice.querySelector('.fuse-credit-copy span');
+    const repeatMs=10*60*1000;
+    let nextShow=0,lastUser=null,busy=false;
+    function position(){const footer=document.querySelector('.fuse-nav');if(footer)notice.style.bottom=(Math.max(0,innerHeight-footer.getBoundingClientRect().top)+12)+'px'}
+    notice.querySelector('button').addEventListener('click',()=>{notice.hidden=true;nextShow=Date.now()+repeatMs});
+    async function refresh(){
+      if(busy||document.hidden)return;busy=true;
+      try{
+        const sb=await Fuse.client();
+        const {data:auth,error:authError}=await sb.auth.getSession();
+        const user=auth?.session?.user;
+        if(authError||!user){notice.hidden=true;lastUser=null;nextShow=0;return}
+        if(lastUser!==user.id){notice.hidden=true;nextShow=0;lastUser=user.id}
+        const {data,error}=await sb.from('profiles').select('credits').eq('id',user.id).single();
+        if(error||data?.credits===null||data?.credits===undefined){notice.hidden=true;return}
+        const credits=Number(data.credits);
+        if(!Number.isFinite(credits)){notice.hidden=true;return}
+        if(credits>=6){notice.hidden=true;nextShow=0;return}
+        message.textContent=credits<=0?'All Credits Used':`${credits} credits remaining`;
+        if(Date.now()>=nextShow){position();notice.hidden=false;nextShow=Date.now()+repeatMs}
+      }catch{notice.hidden=true}finally{busy=false}
+    }
+    addEventListener('resize',position);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
+    // Poll for spend/top-up changes, and re-show ten minutes after dismissal.
+    setInterval(refresh,30000);
+    Fuse.client().then(sb=>sb.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'){notice.hidden=true;lastUser=null;nextShow=0}setTimeout(refresh,0)})).catch(()=>{});
+    refresh();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installCreditNotice,{once:true});else installCreditNotice();
 })();
+
