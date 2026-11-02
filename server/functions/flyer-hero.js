@@ -125,13 +125,9 @@ exports.handler = async (event) => {
       const library = Array.from(new Set([...stored, ...referenceImageUrls])).slice(0, 20);
       const projUpdate = { aspect };
       if (library.length !== stored.length) projUpdate.reference_image_urls = library;
-      try { await db.from('flyer_projects').update(projUpdate).eq('id', projectId); } catch (e) {}
+      try { if(body.quote!==true)await db.from('flyer_projects').update(projUpdate).eq('id', projectId); } catch (e) {}
     } else {
-      // Generating straight from a typed prompt with no chat/project yet
-      // (or a stale/invalid project_id, see above) — create one fresh so
-      // this still slots into the same iterate-and-layer flow afterward.
-      const { data: newProj } = await db.from('flyer_projects').insert({ user_id: user.id, brief: prompt, reference_image_urls: referenceImageUrls, aspect }).select().single();
-      projectId = newProj && newProj.id;
+      projectId=null; // Quotes never create or modify projects.
     }
     const wantsWS = true; // GPT is routed directly to OpenAI, including legacy retry requests.
     const model = wantsWS ? (refs.length ? MODEL_I2I : MODEL_T2I) : (refs.length ? FALLBACK_I2I : FALLBACK_T2I);
@@ -147,6 +143,9 @@ exports.handler = async (event) => {
 
     const base = IMAGE_MODELS[model];
     cost = wantsWS ? imageCreditsForRequest(model,{resolution:'1k',referenceCount:Math.min(10,refs.length),quality:'medium'}) : base;
+    if(body.quote===true)return json(200,{credits:cost});
+    if(body.accepted_credits!==cost)return json(409,{error:'Review the updated GPT credit quote.',credits:cost});
+    if(!projectId){const {data:newProj,error}=await db.from('flyer_projects').insert({user_id:user.id,brief:prompt,reference_image_urls:referenceImageUrls,aspect}).select().single();if(error)throw error;projectId=newProj.id;}
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
@@ -212,4 +211,5 @@ exports.handler = async (event) => {
     return json(502, { error: (e && e.message) || 'Could not start generation', refunded: e.uncertain ? 0 : cost });
   }
 };
+
 

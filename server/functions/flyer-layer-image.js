@@ -89,6 +89,8 @@ exports.handler = async (event) => {
     }
 
     cost = imageCreditsForRequest(model,{resolution:'1k',referenceCount:refUrl?1:0,quality:'medium'});
+    if(body.quote===true)return json(200,{credits:cost});
+    if(body.accepted_credits!==cost)return json(409,{error:'Review the updated GPT credit quote.',credits:cost});
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
@@ -113,4 +115,5 @@ exports.handler = async (event) => {
     return json(502, { error: (e && e.message) || 'Could not start generation', refunded: e.uncertain ? 0 : cost });
   }
 };
+
 

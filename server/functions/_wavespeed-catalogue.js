@@ -34,6 +34,7 @@ async function quote(m,raw,{validate=true}={}){
  // pricing integration. Never substitute a base price for a dynamic charge.
  const assetCount=Object.entries(input).filter(([k])=>/^(image|images|image_urls|last_image|first_frame|last_frame|reference_images|reference_videos|reference_audios|video|audio)$/.test(k)).reduce((n,[,v])=>n+(Array.isArray(v)?v.length:v?1:0),0);
  if(assetCount>14)throw Error('Select at most 14 assets.');
+ if(require('./_gpt-pricing').imageModel(m.model_id))return {inputs:input,...require('./_gpt-pricing').imageQuote(m.model_id,input)};
  const meta=await pricing(m);let micro=meta.base_price;
  if(!meta.formula&&meta.price_inputs?.length)throw Error('This model’s dynamic pricing needs verification.');
  if(meta.formula){
@@ -46,5 +47,6 @@ async function quote(m,raw,{validate=true}={}){
  return {inputs:input,credits:safeCreditsFor(micro/1000000),provider_usd:micro/1000000};
 }
 module.exports={catalogue,schema,pricing,quote,objectAt,apiKey};
+
 
 

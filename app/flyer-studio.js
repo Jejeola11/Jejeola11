@@ -57,6 +57,11 @@
   async function api(path, body) {
     const headers = { 'Content-Type': 'application/json' };
     if (window.fuseAuthHeader) Object.assign(headers, await window.fuseAuthHeader());
+    if(path==='flyer-layer-image'&&body.quote!==true){
+      const priced=await fetch('/api/'+path,{method:'POST',headers,body:JSON.stringify({...body,quote:true})});const quote=await priced.json();if(!priced.ok)throw Error(quote.error||'Credit quote unavailable.');
+      if(!Number.isSafeInteger(quote.credits)||!confirm('Generate this layer for '+quote.credits+' Fuse credits?'))throw Error('Generation cancelled. No credits were spent.');
+      body={...body,accepted_credits:quote.credits};
+    }
     const res = await fetch('/api/' + path, { method: 'POST', headers, body: JSON.stringify(body) });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || 'Request failed');
@@ -537,3 +542,4 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
+

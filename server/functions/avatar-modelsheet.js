@@ -19,7 +19,7 @@ const { admin, getUser, json } = require('./_supabase');
 const { muapiHostImage } = require('./_muapi');
 const { submitFlyerImage, hasWaveSpeed } = require('./_providers');
 
-const SHEET_COST = 15;
+
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 const MODEL_WS = 'gpt-image-2-ws-edit';
 const MODEL_MUAPI = 'gpt-image-2-image-to-image';
@@ -39,7 +39,7 @@ const SHEET_PROMPT =
   + 'CRITICAL REALISM: it must look like a real DSLR photograph, not AI — keep natural skin texture with visible pores, fine lines, subtle blemishes, freckles or marks, realistic facial asymmetry and natural imperfections. No skin smoothing, no airbrushing, no plastic or waxy look, no CGI or 3D-render look, no beautifying. Shot on an 85mm lens, shallow depth of field, true-to-life colour. Do NOT alter, slim, or beautify the person\'s face — duplicate it faithfully.';
 
 exports.handler = async (event) => {
-  let db, user, cost = 0;
+  let db, user, cost = 0, SHEET_COST;
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
     if (!process.env.OPENAI_API_KEY && !process.env.MUAPI_KEY && !hasWaveSpeed()) return json(503, { error: 'Engine not connected (WAVESPEED_KEY/MUAPI_KEY missing).' });
@@ -58,6 +58,9 @@ exports.handler = async (event) => {
       : (avatar.image_url ? [avatar.image_url] : []);
     if (!photos.length) return json(400, { error: 'This avatar has no photos.' });
 
+    SHEET_COST=require('./_gpt-pricing').imageQuote(MODEL_WS,{prompt:SHEET_PROMPT,aspect:'1:1',referenceCount:Math.min(8,photos.length)}).credits;
+    if(body.quote===true)return json(200,{credits:SHEET_COST});
+    if(body.accepted_credits!==SHEET_COST)return json(409,{error:'Review the updated GPT credit quote.',credits:SHEET_COST});
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: SHEET_COST });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: SHEET_COST, code: 'NO_CREDITS' });
     cost = SHEET_COST;
@@ -99,4 +102,5 @@ exports.handler = async (event) => {
     return json(502, { error: (e && e.message) || 'Could not start model sheet', refunded: e.uncertain ? 0 : cost });
   }
 };
+
 

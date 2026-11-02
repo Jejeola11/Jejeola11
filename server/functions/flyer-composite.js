@@ -142,6 +142,8 @@ exports.handler = async (event) => {
 
     const referenceCount=1+['headline_reference_url','features_reference_url','cta_reference_url'].filter(key=>Boolean(body[key])).length;
     cost = wantsWS ? imageCreditsForRequest(model,{resolution:'1k',referenceCount,quality:'medium'}) : IMAGE_MODELS[model];
+    if(body.quote===true)return json(200,{credits:cost});
+    if(body.accepted_credits!==cost)return json(409,{error:'Review the updated GPT credit quote.',credits:cost});
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
@@ -211,4 +213,5 @@ exports.handler = async (event) => {
     return json(502, { error: (e && e.message) || 'Could not start compositing', refunded: e.uncertain ? 0 : cost });
   }
 };
+
 

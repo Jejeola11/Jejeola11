@@ -222,7 +222,7 @@ exports.handler = async (event) => {
   // Video / avatar / modelsheet: pollAny routes by the request_id prefix
   // ("ws:" -> WaveSpeed, bare -> MuAPI) so mixed-provider jobs just work.
   let r;
-  try { r = await pollAny(id, {db,userId:user.id}); } catch (e) { return json(200, { status: 'processing' }); }
+  try { r = await pollAny(id, {db,userId:user.id,model:job.model}); } catch (e) { return json(200, { status: 'processing' }); }
 
   if (r.status === 'completed') {
     let url = r.url;
@@ -481,5 +481,6 @@ async function handleTranscribeJob(db, user, job, id) {
   }
   return json(200, { status: 'processing' });
 }
+
 
 

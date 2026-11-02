@@ -9,6 +9,19 @@ const cfg = window.FUSE;
 const sb = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
 const $ = (id) => document.getElementById(id);
 
+// Show the current server quote before paid GPT requests in the legacy studios.
+async function quotedGptFetch(url,options){
+ let body;try{body=JSON.parse(options?.body||'{}')}catch{return fetch(url,options)}
+ const endpoint=String(url).split('?')[0],gptGenerate=endpoint==='/api/generate'&&String(body.model||'').startsWith('gpt-image-');
+ const gptChat=endpoint==='/api/ai-chat'&&/^gpt-/.test(body.model||'');
+ const studio=['/api/avatar-generate','/api/avatar-modelsheet','/api/flyer-hero','/api/flyer-layer','/api/flyer-composite','/api/flyer-layer-image'].includes(endpoint)||(endpoint==='/api/media-pipeline'&&body.op==='flyer-spot-fix');
+ if(!gptGenerate&&!gptChat&&!studio)return fetch(url,options);
+ const quoted=await fetch(url,{...options,body:JSON.stringify({...body,quote:true})});if(!quoted.ok)return quoted;const q=await quoted.json();
+ if(!Number.isSafeInteger(q.credits)||q.credits<1)throw Error('A verified credit quote is required.');
+ if(gptChat&&$('rcCost'))$('rcCost').textContent=q.credits+' credits · up to 4,096 output tokens';
+ if(!window.confirm('Generate for '+q.credits+' Fuse credits?'))return new Response(JSON.stringify({error:'Generation cancelled. No credits were spent.'}),{status:409,headers:{'Content-Type':'application/json'}});
+ return fetch(url,{...options,body:JSON.stringify({...body,accepted_credits:q.credits})});
+}
 // Fires when someone lands back on the studio via the link from a "Forgot
 // password?" email — Supabase parses the recovery token out of the URL and
 // signs them into a temporary session, then tells us via this event so we
@@ -1648,7 +1661,7 @@ async function generate() {
  note('genNote', '');
 
  try {
- const res = await fetch('/api/generate', {
+ const res = await quotedGptFetch('/api/generate', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ prompt, model, aspect, count: +$('imgCount').value, res: +$('imgRes').value, reference_image_urls: refUrls.length ? refUrls : undefined }),
  });
@@ -1910,7 +1923,7 @@ function buildReactor() {
  $('reactorList').innerHTML = cfg.REACTOR_MODELS.map((m) =>
  `<div class="rcard ${m.live ? '' : 'soon'}" data-id="${m.id}">
  <div class="rn">${m.name}</div><div class="rb">${m.badge}</div>
- <div class="rc">${m.live ? m.credits + (m.kind === 'image' ? ' cr / image' : ' cr / msg') : 'Coming soon'}</div></div>`).join('');
+ <div class="rc">${m.live ? 'From ' + m.credits + (m.kind === 'image' ? ' cr / image' : ' cr / msg') : 'Coming soon'}</div></div>`).join('');
  $('reactorList').querySelectorAll('.rcard').forEach((el) => el.onclick = () => {
  const m = cfg.REACTOR_MODELS.find((x) => x.id === el.dataset.id);
  $('reactorChat').style.display = 'block'; rcRefs = []; renderRcThumbs(); $('rcOut').innerHTML = ''; note('rcNote', '');
@@ -1919,7 +1932,7 @@ function buildReactor() {
  rcModel = m;
  const isImg = m.kind === 'image';
  $('rcName').textContent = m.name;
- $('rcCost').textContent = isImg ? (m.credits + ' credits per image · attach a photo to edit it') : (m.credits + ' credits per message');
+ $('rcCost').textContent = isImg ? (m.credits + ' credits per image · attach a photo to edit it') : ('From '+m.credits + ' credits per message · final price shown before sending');
  $('rcInput').placeholder = isImg ? 'Describe the image to create — or attach a photo and say how to change it…' : 'Ask anything — captions, scripts, product names, ad copy… (attach an image to ask about it)';
  $('rcAspect').style.display = isImg ? 'inline-block' : 'none';
  $('rcAttachBtn').textContent = isImg ? ' Add reference photo' : ' Add image (1 max)';
@@ -1960,7 +1973,7 @@ async function reactorSend() {
  btn.disabled = true; btn.textContent = 'Creating…'; note('rcNote', 'Sending to the engine…', 'ok');
  $('rcOut').innerHTML = '<div><span class="spin"></span></div>';
  try {
- const res = await fetch('/api/generate', {
+ const res = await quotedGptFetch('/api/generate', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ prompt, model: rcModel.slug, aspect: $('rcAspect').value || '9:16', count: 1, res: 1, reference_image_urls: rcRefs.length ? rcRefs : undefined }),
  });
@@ -1982,7 +1995,7 @@ async function reactorSend() {
  btn.disabled = true; btn.textContent = 'Thinking…'; note('rcNote', '');
  $('rcOut').innerHTML = '<span class="spin"></span>';
  try {
- const res = await fetch('/api/ai-chat', {
+ const res = await quotedGptFetch('/api/ai-chat', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ model: rcModel.id, prompt, images: rcRefs.length ? rcRefs : undefined }),
  });
@@ -2791,7 +2804,7 @@ window.fuseDeleteAvatarPhoto = async (url) => {
  if (count <= 1) return note('avManageNote', 'An avatar needs at least one training photo.', 'err');
  if (!confirm('Remove this training photo?')) return;
  try {
- const res = await fetch('/api/media-pipeline', {
+ const res = await quotedGptFetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ action: 'train', avatar_id: selectedAvatar, remove_photo_url: url }),
  });
@@ -2829,7 +2842,7 @@ async function generateModelSheet() {
  $('avSheetView').innerHTML = '<div style="padding:14px;text-align:center"><span class="spin"></span><div style="margin-top:8px" class="muted">Building your model sheet… up to a minute</div></div>';
  note('avSheetNote', '', '');
  try {
- const res = await fetch('/api/avatar-modelsheet', {
+ const res = await quotedGptFetch('/api/avatar-modelsheet', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ avatar_id: selectedAvatar }),
  });
@@ -2925,7 +2938,7 @@ async function avSaveEngine() {
  body.resemble_voice_uuid = uuid;
  }
  try {
- const res = await fetch('/api/media-pipeline', {
+ const res = await quotedGptFetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify(body),
  });
@@ -2945,7 +2958,7 @@ async function uploadAvatarVoice(file) {
  if (upErr) throw upErr;
  const url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
  const refText = ($('avVoiceRefText') && $('avVoiceRefText').value.trim()) || '';
- const res = await fetch('/api/media-pipeline', {
+ const res = await quotedGptFetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ action: 'train', avatar_id: selectedAvatar, voice_sample_url: url, voice_reference_text: refText }),
  });
@@ -2966,7 +2979,7 @@ async function uploadAvatarTrainingVideo(file) {
  if (upErr) throw upErr;
  const url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
  note('avFaceVideoNote', 'Training… this can take a moment ⏳', 'ok');
- const res = await fetch('/api/media-pipeline', {
+ const res = await quotedGptFetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ action: 'train', avatar_id: selectedAvatar, source_video_url: url }),
  });
@@ -3118,7 +3131,7 @@ async function avvGenerate() {
  $('avvCtaWrap').style.display = 'none';
  note('avvNote', '');
  try {
- const res = await fetch('/api/media-pipeline', {
+ const res = await quotedGptFetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({
  action: 'create', avatar_id: selectedAvatar, script, mode, camera_motion: mode === 'motion' ? cameraMotion : undefined,
@@ -3181,7 +3194,7 @@ async function avvAddCta() {
  const btn = $('avvAddCta'); btn.disabled = true; btn.textContent = 'Adding…';
  note('avvCtaNote', '');
  try {
- const res = await fetch('/api/media-pipeline', {
+ const res = await quotedGptFetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ type: 'cta', video_url: avvLastUrl, cta_text: ctaText }),
  });
@@ -3264,10 +3277,10 @@ async function avatarGenerate() {
  if (!prompt) return note('avGenNote', 'Describe the scene.', 'err');
  if (jobCapReached('avGenNote')) return;
  const aspect = $('avAspect').value;
- const btn = $('avGen'); const label = ' Generate (10 credits)'; btn.disabled = true; btn.textContent = 'Submitting…';
+ const btn = $('avGen'); const label = ' Generate · see credit quote'; btn.disabled = true; btn.textContent = 'Submitting…';
  note('avGenNote', '');
  try {
- const res = await fetch('/api/avatar-generate', {
+ const res = await quotedGptFetch('/api/avatar-generate', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ avatar_id: selectedAvatar, prompt, aspect, extra_refs: avExtraRefs.length ? avExtraRefs : undefined }),
  });
@@ -3613,7 +3626,7 @@ async function flyerGenHero(auto) {
  // between renders — only the (usually few) actually-tagged ones are sent.
  const referenceRoles = {};
  flyerRefUrls.filter((r) => r.on && r.role).forEach((r) => { referenceRoles[r.url] = r.role; });
- const res = await fetch('/api/flyer-hero', {
+ const res = await quotedGptFetch('/api/flyer-hero', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({
  project_id: flyerProjectId || undefined, prompt, aspect: $('flyerAspect').value,
@@ -3836,7 +3849,7 @@ async function flyerAddLayer() {
  const btn = $('flyerAddLayer'); btn.disabled = true; btn.textContent = 'Adding…';
  note('flyerLayerNote', '');
  try {
- const res = await fetch('/api/flyer-layer', {
+ const res = await quotedGptFetch('/api/flyer-layer', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ project_id: flyerProjectId, instruction, layer_images: flyerLayerImgs }),
  });
@@ -3964,7 +3977,7 @@ async function flyerComposite() {
  $('flyerFinalResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Rendering the typography…</div></div>';
  note('flyerCompositeNote', '');
  try {
- const res = await fetch('/api/flyer-composite', {
+ const res = await quotedGptFetch('/api/flyer-composite', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({
  project_id: flyerProjectId, text_spec: spec,
@@ -4434,7 +4447,7 @@ async function dsAiGenerateSticker() {
  $('dsAiStatus').textContent = 'Generating your sticker…';
  try {
  const fullPrompt = prompt + ', isolated single object on a plain white background, studio product photo, no shadow, centered';
- const res = await fetch('/api/generate', {
+ const res = await quotedGptFetch('/api/generate', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ prompt: fullPrompt, aspect: '1:1', model: 'nano-banana' }),
  });
@@ -4741,7 +4754,7 @@ async function flyerSubmitSpotFix() {
  const btn = $('flyerSpotFixGo'); btn.disabled = true; btn.textContent = 'Submitting…';
  note('flyerSpotFixNote', '');
  try {
- const res = await fetch('/api/media-pipeline', {
+ const res = await quotedGptFetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ op: 'flyer-spot-fix', project_id: flyerProjectId, region, instruction }),
  });
@@ -5106,7 +5119,7 @@ async function editApplyCaptions() {
  $('editResult').innerHTML = '<div><span class="spin"></span><div style="margin-top:12px">Applying captions…</div></div>';
  note('editCaptionNote', '');
  try {
- const res = await fetch('/api/media-pipeline', {
+ const res = await quotedGptFetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({
   type: 'caption',
@@ -5136,7 +5149,7 @@ async function editAddElement() {
  if (error) throw error;
  const imgUrl = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
  note('editElementNote', 'Compositing…', 'ok');
- const res = await fetch('/api/media-pipeline', {
+ const res = await quotedGptFetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ type: 'element', project_id: editProjectId, image_url: imgUrl, start_sec: parseFloat($('editElStart').value), duration_sec: parseFloat($('editElDur').value), position: $('editElPos').value }),
  });
@@ -5154,7 +5167,7 @@ async function editApplyCta() {
  const btn = $('editApplyCta'); btn.disabled = true; btn.textContent = 'Finishing…';
  note('editCtaNote', '');
  try {
- const res = await fetch('/api/media-pipeline', {
+ const res = await quotedGptFetch('/api/media-pipeline', {
  method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
  body: JSON.stringify({ type: 'cta', project_id: editProjectId, cta_text: ctaText, accent_color: $('editAccentColor').value }),
  });
@@ -6130,3 +6143,4 @@ window.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('visibilitychange', () => {
  if (document.visibilityState === 'visible' && curView === 'course') openCourse();
 });
+

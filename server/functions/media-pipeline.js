@@ -364,7 +364,9 @@ async function handleFlyerSpotFix(user, body) {
       return json(403, { error: 'Free trial credits only cover our starter models. Buy a credit pack to unlock every model.', code: 'TRIAL_TIER_ONLY' });
     }
 
-    cost = IMAGE_MODELS[model];
+    cost = require('./_gpt-pricing').imageQuote(model,{referenceCount:1}).credits;
+    if(body.quote===true)return json(200,{credits:cost});
+    if(body.accepted_credits!==cost)return json(409,{error:'Review the updated GPT credit quote.',credits:cost});
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
@@ -422,7 +424,7 @@ async function handleFlyerSpotFix(user, body) {
     await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'flyer-spot-fix', model, prompt: instruction, credits: cost, status: 'processing', project_id: projectId, meta });
     return json(200, { request_id: id, credits: balance, project_id: projectId });
   } catch (e) {
-    try { if (user && cost) await admin().rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
+    try { if (user && cost && !e.uncertain) await require('./_openai-direct').refund(admin(),user.id,cost); } catch (_) {}
     return json(502, { error: (e && e.message) || 'Could not start the fix', refunded: e.uncertain ? 0 : cost });
   }
 }
@@ -448,4 +450,5 @@ exports.handler = async (event) => {
     return json(502, { error: (e && e.message) || 'Something went wrong.' });
   }
 };
+
 

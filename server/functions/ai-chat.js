@@ -23,9 +23,14 @@ exports.handler = async (event) => {
   const model = body.model || 'gemini-2-5-flash';
   const prompt = (body.prompt || '').trim();
   const images = (Array.isArray(body.images) ? body.images : []).filter((u) => typeof u === 'string' && u).slice(0, 1);
+  if(!REACTOR_COST[model])return json(400,{error:'Unknown model.'});
   const directGPT=!!require('./_openai-direct').textModel(model);
   if(directGPT?!require('./_openai-direct').key():!hasWaveSpeed())return json(503,{error:'The selected provider is not configured.'});
-  const cost = REACTOR_COST[model];
+  let cost;
+  try { cost = directGPT ? require('./_gpt-pricing').textQuote(model,{prompt,referenceCount:images.length}).credits : REACTOR_COST[model]; }
+  catch(e) { return json(400,{error:e.message}); }
+  if(body.quote===true)return json(200,{credits:cost,model,max_output_tokens:directGPT?require('./_gpt-pricing').POLICY.chatOutputTokens:null});
+  if(directGPT&&body.accepted_credits!==cost)return json(409,{error:'Review the updated GPT credit price before sending.',credits:cost});
   if (!prompt) return json(400, { error: 'Type a message first.' });
   if (!cost) return json(400, { error: 'Unknown model.' });
 
@@ -49,7 +54,7 @@ exports.handler = async (event) => {
     const id = directGPT?(await require('./_openai-direct').submitText({prompt,imageUrl:images[0],model})).requestId:'wsllm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     await db.from('jobs').insert({
       request_id: id, user_id: user.id, kind: 'chat', model: encodeModelImage(model, images[0]), prompt, credits: cost,
-      status: 'processing',
+      status: 'processing',meta:directGPT?{provider:'openai',pricing_version:require('./_gpt-pricing').POLICY.version,provider_usd_quote:require('./_gpt-pricing').textQuote(model,{prompt,referenceCount:images.length}).provider_usd}:undefined,
     });
     if(!directGPT)triggerTextWorker(id);
     return json(200, { request_id: id, credits: balance });
@@ -58,4 +63,5 @@ exports.handler = async (event) => {
     return json(502, { error: e.message || 'AI failed', refunded: e.uncertain ? 0 : cost });
   }
 };
+
 

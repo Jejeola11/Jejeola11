@@ -21,7 +21,7 @@ const { admin, getUser, json } = require('./_supabase');
 const { muapiHostImage } = require('./_muapi');
 const { submitFlyerImage, hasWaveSpeed } = require('./_providers');
 
-const AVATAR_COST = 10;
+
 const MUAPI_BASE = 'https://api.muapi.ai/api/v1';
 const MODEL_WS = 'gpt-image-2-ws-edit';
 const MODEL_MUAPI = 'gpt-image-2-image-to-image';
@@ -38,7 +38,7 @@ function muapiError(j, status) {
 }
 
 exports.handler = async (event) => {
-  let db, user, cost = 0;
+  let db, user, cost = 0, AVATAR_COST;
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
     if (!process.env.OPENAI_API_KEY && !process.env.MUAPI_KEY && !hasWaveSpeed()) return json(503, { error: 'Engine not connected (WAVESPEED_KEY/MUAPI_KEY missing).' });
@@ -85,6 +85,9 @@ exports.handler = async (event) => {
     const extraNote = extraRefs.length ? ' Naturally include the product/object shown in the additional reference image(s) in the scene, held or placed realistically.' : '';
     const prompt = `${scene}. ${identity}${realism}${extraNote}`;
 
+    AVATAR_COST=require('./_gpt-pricing').imageQuote(MODEL_WS,{prompt,aspect,referenceCount:refs.length}).credits;
+    if(body.quote===true)return json(200,{credits:AVATAR_COST});
+    if(body.accepted_credits!==AVATAR_COST)return json(409,{error:'Review the updated GPT credit quote.',credits:AVATAR_COST});
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: AVATAR_COST });
     if (balance === null) return json(402, { error: 'Not enough credits.', need: AVATAR_COST, code: 'NO_CREDITS' });
     cost = AVATAR_COST;
@@ -120,4 +123,5 @@ exports.handler = async (event) => {
     return json(502, { error: (e && e.message) || 'Could not start generation', refunded: e.uncertain ? 0 : cost });
   }
 };
+
 

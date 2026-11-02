@@ -236,12 +236,13 @@ const TOOL_COST = {         // utility tools (take an input image -> output), Wa
 };
 
 // slug -> credits charged (auto-computed for guaranteed margin; images clamp to 2-6)
-const IMAGE_MODELS = Object.fromEntries(Object.entries(IMAGE_COST).map(([k, v]) => [k, creditsForImage(v)]));
+const IMAGE_MODELS = Object.fromEntries(Object.entries(IMAGE_COST).map(([k, v]) => [k, require('./_gpt-pricing').imageModel(k)?require('./_gpt-pricing').imageQuote(k,{prompt:'',resolution:'1k'}).credits:creditsForImage(v)]));
 const VIDEO_MODELS = Object.fromEntries(Object.entries(VIDEO_COST).map(([k, v]) => [k, creditsFor(v)]));
 const TOOL_MODELS = Object.fromEntries(Object.entries(TOOL_COST).map(([k, v]) => [k, creditsFor(v)]));
 const MODEL_COST = IMAGE_MODELS; // back-compat alias
 
-function imageCreditsForRequest(model,{resolution='2k',referenceCount=0,quality='medium'}={}) {
+function imageCreditsForRequest(model,{resolution='2k',referenceCount=0,quality='medium',prompt}={}) {
+  if(require('./_gpt-pricing').imageModel(model))return require('./_gpt-pricing').imageQuote(model,{resolution,referenceCount,quality,prompt}).credits;
   const base=IMAGE_MODELS[model]; if(!base)return null;
   const refs=Math.max(0,Math.min(16,Math.floor(Number(referenceCount)||0)));
   if(refs && ['gpt-image-2-text-to-image','gpt-image-2-ws-edit','gpt-image-2-image-to-image'].includes(model)) {
@@ -387,8 +388,8 @@ const REACTOR_COST = {
   'claude-sonnet-4-5': 2,
   'claude-opus-4-5': 3,
   'claude-haiku-4-5': 1,
-  'gpt-5-5': 2,
-  'gpt-5-2': 1,
+  'gpt-5-5': require('./_gpt-pricing').textQuote('gpt-5.5').credits,
+  'gpt-5-2': require('./_gpt-pricing').textQuote('gpt-5.2').credits,
   'gemini-2-5-pro': 2,
   'gemini-2-5-flash': 1,
 };
@@ -418,3 +419,4 @@ function canUseTrial(model) {
 }
 
 module.exports = { PACKS, safeCreditsFor, imageCreditsForRequest, MODEL_COST, IMAGE_MODELS, VIDEO_MODELS, TOOL_MODELS, IMAGE_COST, VIDEO_COST, TOOL_COST, VIDEO_DYNAMIC_RATES, videoCreditsForRequest, creditsFor, REFERRAL, USD_RATE, REACTOR_COST, FREE_IMAGE, FREE_VIDEO, FREE_TOOLS, FREE_REACTOR, canUseFree, TRIAL_IMAGE, TRIAL_VIDEO, canUseTrial, PROMO, promoActive, creditsForPack, avatarVideoCredits, estimateScriptMinutes, audioCredits, resyncCredits, lipsyncDialogueCredits };
+
