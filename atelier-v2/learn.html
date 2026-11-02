@@ -32,8 +32,12 @@
 .academy-intro-label svg{width:27px;height:27px;flex:none}
 .academy-intro-title{max-width:850px;margin:0 auto;color:#fff;font-size:clamp(27px,6.5vw,54px);font-weight:600;line-height:1.16;letter-spacing:-.045em;overflow-wrap:anywhere;text-wrap:balance}
 .academy-intro-chrome{display:inline-block;margin-top:8px;background:var(--academy-chrome);background-clip:text;-webkit-background-clip:text;color:transparent}
-</style><link rel="stylesheet" href="academy-tutorial-feature.css?v=4"><script src="academy-tutorial-feature.js?v=2" defer></script></head>
+</style><link rel="stylesheet" href="academy-tutorial-feature.css?v=4"><script src="academy-tutorial-feature.js?v=2" defer></script><style>
+.academy-offer-banner{display:flex;align-items:center;gap:12px;min-height:56px;padding:9px max(12px,calc((100vw - 1100px)/2));background:linear-gradient(100deg,#F8E85C 0%,#B9FF5D 50%,#F4F4F4 100%);color:#090909;font:600 13px/1.25 Montserrat,Arial,sans-serif}
+.academy-offer-banner[hidden]{display:none!important}.academy-offer-banner>span{flex:1}.academy-offer-banner>a{display:flex;align-items:center;justify-content:center;min-height:40px;padding:10px 16px;border-radius:999px;white-space:nowrap;background:linear-gradient(105deg,#090909,#021418 52%,#21474B);color:#fff;text-decoration:none;font-weight:600}.academy-offer-banner>button{border:0;background:none;color:#21474B;font:700 25px/1 Arial;min-width:32px;min-height:40px;padding:0;cursor:pointer}.academy-offer-banner a:focus-visible,.academy-offer-banner button:focus-visible{outline:2px solid #001012;outline-offset:2px}@media(max-width:350px){.academy-offer-banner{gap:6px;font-size:12px}.academy-offer-banner>a{padding:10px 12px}}
+</style></head>
 <body class="academy-v3" data-page="academy">
+<aside class="academy-offer-banner" id="academyOfferBanner" aria-label="Academy full access offer"><span>More skills.<br>More opportunities.</span><a id="academyOfferOpen" href="/credits">Get full access ↗</a><button id="academyOfferDismiss" type="button" aria-label="Dismiss Academy offer banner">×</button></aside>
   <header class="academy-top">
     <a class="academy-back" href="home.html" aria-label="Back to Home">←</a>
     <a class="academy-brand" href="home.html">
@@ -111,6 +115,12 @@
     </section>
   </main>
 
+<script>
+document.getElementById('academyOfferDismiss').addEventListener('click',()=>{document.getElementById('academyOfferBanner').hidden=true});
+document.getElementById('academyOfferOpen').addEventListener('click',event=>{
+ if(typeof window.Fuse?.openFullAccessOffer==='function'){event.preventDefault();Fuse.openFullAccessOffer()}
+});
+</script>
 </body>
 </html>
 
