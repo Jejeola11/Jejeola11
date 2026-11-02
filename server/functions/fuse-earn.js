@@ -10,22 +10,23 @@ async function state(db,user){
  if(expired.error)throw expired.error;
  for(const c of expired.data||[]){const r=await db.rpc('finalize_fuse_contest',{p_contest_id:c.id});if(r.error)throw r.error;}
  const isOwner=await owner(db,id);
- const [profile,refs,commissions,contests,entries,votes]=await Promise.all([
+ const [profile,refs,commissions,contests,entries,votes,clicks]=await Promise.all([
   db.from('profiles').select('referral_code,credits,created_at,email').eq('id',id).single(),
   db.from('fuse_referrals').select('referred_user_id').eq('referrer_user_id',id),
   db.from('fuse_referral_commissions').select('amount_naira,commission_naira,status,created_at').eq('referrer_user_id',id).order('created_at',{ascending:false}).limit(100),
   db.from('fuse_contests').select('id,title,brief,prize_naira,opens_at,closes_at,voting_closes_at,status').neq('status','draft').order('created_at',{ascending:false}).limit(30),
   db.from('fuse_contest_entries').select('id,contest_id,creator_user_id,video_url,caption,status,created_at').in('status',['approved','winner']).order('created_at',{ascending:true}).limit(300),
-  db.rpc('fuse_contest_vote_counts')
+  db.rpc('fuse_contest_vote_counts'),
+  db.from('fuse_referral_clicks').select('token',{count:'exact',head:true}).eq('referrer_user_id',id)
  ]);
- for(const r of [profile,refs,commissions,contests,entries,votes])if(r.error)throw r.error;
+ for(const r of [profile,refs,commissions,contests,entries,votes,clicks])if(r.error)throw r.error;
  const referral=await db.from('fuse_referrals').select('referrer_user_id').eq('referred_user_id',id).maybeSingle();if(referral.error)throw referral.error;
  const priorPurchase=await db.from('payments').select('id').eq('user_id',id).in('status',['manual','success']).in('pack',['credits-v2-trial','credits-v2-mini','credits-v2-creator','credits-v2-studio','credits-v2-pro','credits-v2-agency','starter','mini','creator','studio','pro','power']).limit(1);if(priorPurchase.error)throw priorPurchase.error;
  const joinedAt=new Date(profile.data?.created_at||0).getTime();const expiresAt=joinedAt+24*3600000;
  const discountExpiresAt=referral.data&&!priorPurchase.data?.length&&joinedAt&&Date.now()<expiresAt?new Date(expiresAt).toISOString():null;
  const count=new Map();for(const vote of votes.data||[])count.set(vote.entry_id,Number(vote.vote_count));
  const pending=isOwner?(await db.from('fuse_contest_entries').select('id,contest_id,video_url,caption,created_at').eq('status','pending').order('created_at',{ascending:true}).limit(100)).data||[]:[];
- return {isOwner,pending,discountExpiresAt,code:profile.data?.referral_code||null,credits:profile.data?.credits||0,signups:refs.data?.length||0,commissions:commissions.data||[],contests:(contests.data||[]).map(c=>({...c,entries:(entries.data||[]).filter(e=>e.contest_id===c.id).map(e=>({...e,votes:count.get(e.id)||0})).sort((a,b)=>b.votes-a.votes||a.id-b.id)})),myVotes:(await db.from('fuse_contest_votes').select('contest_id').eq('voter_user_id',id)).data?.map(v=>v.contest_id)||[],myEntries:(await db.from('fuse_contest_entries').select('id,contest_id,status,video_url').eq('creator_user_id',id)).data||[]};
+ return {isOwner,pending,discountExpiresAt,clicks:clicks.count||0,code:profile.data?.referral_code||null,credits:profile.data?.credits||0,signups:refs.data?.length||0,commissions:commissions.data||[],contests:(contests.data||[]).map(c=>({...c,entries:(entries.data||[]).filter(e=>e.contest_id===c.id).map(e=>({...e,votes:count.get(e.id)||0})).sort((a,b)=>b.votes-a.votes||a.id-b.id)})),myVotes:(await db.from('fuse_contest_votes').select('contest_id').eq('voter_user_id',id)).data?.map(v=>v.contest_id)||[],myEntries:(await db.from('fuse_contest_entries').select('id,contest_id,status,video_url').eq('creator_user_id',id)).data||[]};
 }
 exports.handler=async event=>{
  if(!['GET','POST'].includes(event.httpMethod))return bad('Method not allowed',405);
