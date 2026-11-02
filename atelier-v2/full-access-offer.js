@@ -8,10 +8,11 @@ const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href='/a
 const image='https://res.cloudinary.com/bzw55wh2/image/upload/v1793623939/fuse-atelier/offers/full-access-november-2026.webp';
 const REPEAT_MS=30*60*1000;
 let timer,dialog,previousFocus,owner=null,opening=false,nextDue=Date.now()+5000;
-async function eligibility(){
+async function eligibility(manual=false){
  const sb=await Fuse.client();const {data,error}=await sb.auth.getSession();
  if(error||!data?.session)return null;
  const user=data.session.user;
+ if(manual)return user;
  // Owner preview changes ad visibility only; payment and entitlement checks remain server-side.
  if(String(user.email||'').trim().toLowerCase()==='riadigitals0@gmail.com')return user;
  const [p,u]=await Promise.all([sb.from('profiles').select('is_admin').eq('id',user.id).single(),sb.from('module_unlocks').select('module_key').eq('user_id',user.id)]);
@@ -41,25 +42,27 @@ function build(){
   const status=dialog.querySelector('.fuse-offer-status');this.disabled=true;status.textContent='Opening secure Paystack checkout…';
   try{
    if(Date.now()>=END)throw Error('This promotion has ended. Visit Pricing for available offers.');
-   const user=await eligibility();if(!user||user.id!==owner)throw Error('Your account access changed. Please reload the page.');
+   const user=await eligibility(true);if(!user||user.id!==owner)throw Error('Your account access changed. Please reload the page.');
    const out=await Fuse.api('paystack-init',{pack:'fuse-creator-pass'});
    const url=new URL(out.authorization_url);if(url.protocol!=='https:'||url.hostname!=='checkout.paystack.com')throw Error('Checkout could not be opened. Please try again from Pricing.');
    location.assign(url.href);
   }catch(error){status.textContent=error.message||'Could not start checkout. Please try again.';this.disabled=false;}
  };
 }
-async function show(){
- if(opening||Date.now()<nextDue||document.hidden||Date.now()>=END||document.querySelector('dialog[open],[aria-modal="true"],#accountMenu:not([hidden]),[aria-busy="true"]'))return;
+async function show(manual=false){
+ if(opening||(!manual&&Date.now()<nextDue)||document.hidden||Date.now()>=END||document.querySelector('dialog[open],[aria-modal="true"],#accountMenu:not([hidden]),[aria-busy="true"]'))return;
  opening=true;
  try{
-  const user=await eligibility();
+  const user=await eligibility(manual);
   // Recheck eligibility at each appearance. Reloads start a fresh 5-second delay.
   nextDue=Date.now()+REPEAT_MS;
-  if(!user||document.hidden)return;
+  if(!user){if(manual)location.assign('/signup?next='+encodeURIComponent('/atelier-v2/learn.html'));return;}
+  if(document.hidden)return;
   if(!dialog)build();owner=user.id;previousFocus=document.activeElement;dialog.showModal();
  }catch{nextDue=Date.now()+5000}
  finally{opening=false}
 }
+Fuse.openFullAccessOffer=()=>show(true);
 timer=setTimeout(show,5000);
 setInterval(show,5000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)show()});
