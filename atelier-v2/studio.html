@@ -164,7 +164,7 @@
   </style>
 </head>
 <body class="create-catalog" data-page="create">
-  <link rel="stylesheet" href="create-composer.css?v=compact-picker-4">
+  <link rel="stylesheet" href="create-composer.css?v=assets-credit-5">
   <main class="create-wrap">
     <section class="create-agent" aria-label="Start creating">
       <div class="create-agent-brand"><img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1793361152/fuse-atelier/create/fuse-mark-transparent-20261030.png" alt="">Fuse Atelier</div>
@@ -179,7 +179,7 @@
   <dialog class="create-sheet" id="modelSheet" aria-label="Choose a model"><div class="sheet-head"><h2>Model</h2><button type="button" data-close-sheet aria-label="Close model picker">×</button></div><input class="sheet-search" id="modelSearch" type="search" placeholder="Search models" aria-label="Search models"><div id="modelOptions"></div></dialog>
   <dialog class="create-sheet" id="settingsSheet" aria-label="Model settings"><div class="sheet-head"><h2>Settings</h2><button type="button" data-close-sheet aria-label="Close settings">×</button></div><div id="modelSettings"></div><p class="settings-cost" id="settingsCost">Choose a model</p><button type="button" class="sheet-done" id="settingsDone">Apply settings</button></dialog>
   <dialog class="ratio-sheet" id="settingChoices" aria-label="Choose setting"><div class="sheet-head"><h2 id="choiceTitle"></h2><button type="button" id="choiceClose" aria-label="Close options">×</button></div><div id="choiceOptions"></div></dialog>
-  <dialog class="create-sheet" id="assetSheet" aria-label="Assets"><div class="sheet-head"><h2>Assets</h2><button type="button" data-close-sheet aria-label="Close assets">×</button></div><p class="sheet-selection-count" id="assetCount">0 of 14 selected</p><nav class="asset-tabs" aria-label="Asset categories"><button type="button" data-asset-tab="uploads" aria-selected="true">Uploads</button><button type="button" data-asset-tab="characters">AI Characters</button><button type="button" data-asset-tab="presets">Presets</button><button type="button" data-asset-tab="elements">Elements</button></nav><input id="assetInput" type="file" accept="image/*,video/*,audio/*" multiple hidden><div class="sheet-assets" id="assetList"></div><p class="asset-help" id="assetHelp"></p><button type="button" class="sheet-done" id="assetsDone" disabled>Apply</button></dialog>
+  <dialog class="create-sheet" id="assetSheet" aria-label="Assets"><div class="sheet-head"><h2>Assets</h2><button type="button" data-close-sheet aria-label="Close assets">×</button></div><p class="sheet-selection-count" id="assetCount">0 of 14 selected</p><nav class="asset-tabs" aria-label="Asset categories"><button type="button" data-asset-tab="uploads" aria-selected="true">Uploads 0</button><button type="button" data-asset-tab="images">Images 0</button><button type="button" data-asset-tab="videos">Videos 0</button><button type="button" data-asset-tab="files">Files 0</button><button type="button" data-asset-tab="audios">Audios 0</button></nav><input id="assetInput" type="file" accept="image/*,video/*,audio/*" multiple hidden><div class="sheet-assets" id="assetList"></div><p class="asset-help" id="assetHelp"></p><button type="button" class="sheet-done" id="assetsDone" disabled>Apply</button></dialog>
   <script>
     const tabs=['All','Image','Video','Twin','Page','Voice','Flyer','Content','Lipsync','UGC'];
 
@@ -371,6 +371,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="fuse-shell.js?v=create-chat-menu-8"></script>
   <script src="media-download.js?v=native-download-3"></script>
-  <script src="create-composer.js?v=compact-modes-3" defer></script>
+  <script src="create-composer.js?v=assets-credit-5" defer></script>
 </body>
 </html>
+

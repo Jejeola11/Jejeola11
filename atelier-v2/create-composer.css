@@ -37,3 +37,25 @@ body[data-page=create] #accountMenu{max-height:calc(85svh - 70px);overflow-y:aut
 .composer-reference-zone{width:100%;min-height:154px;background:linear-gradient(135deg,#17363a,#082327 60%,#001012);border:1px solid #315456;border-radius:20px;color:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;padding:18px 12px;cursor:pointer}.reference-icons{font-size:25px;letter-spacing:9px;color:#eeffe0}.composer-reference-zone strong{font:500 15px Montserrat,Arial}.composer-reference-zone small{font:400 11px/1.5 Montserrat,Arial;color:#a5bfbb;text-align:center}.reference-preview-strip{display:flex;gap:7px;overflow-x:auto;max-width:100%;padding:2px}.reference-preview-strip:empty{display:none}.reference-preview-strip .composer-file{flex:0 0 54px;height:54px;width:54px}
 @media(max-width:390px){#modelSheet .model-row-copy strong{font-size:13px}#modelSheet .sheet-option{gap:9px;padding:7px 4px}.composer-media-slot{min-height:118px}.composer-reference-zone strong{font-size:14px}}
 
+/* Assets library and contextual balance notice inside the composer. */
+#assetSheet{background:linear-gradient(145deg,#0a292d 0%,#001719 48%,#000b0d 100%);border:1px solid #315456;box-shadow:0 -18px 60px #0007}
+#assetSheet .asset-tabs{gap:6px;margin-bottom:13px;padding-bottom:3px}
+#assetSheet .asset-tabs button{flex:none;padding:9px 12px;font-size:12px;line-height:1.2;border:1px solid #315456;background:#112b2e;color:#b8cbc7}
+#assetSheet .asset-tabs button[aria-selected=true]{background:var(--chrome);color:#001012;border-color:transparent}
+#assetSheet .asset-upload-tile{background:linear-gradient(140deg,#18363a,#061d20 60%,#001012);border-radius:20px;gap:10px}
+#assetSheet .asset-upload-icon{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;margin:0;background:linear-gradient(135deg,#3c5354,#132c2f);border:1px solid #536969;box-shadow:inset 0 1px 3px #ffffff30;color:#fff}
+.asset-upload-icon svg{height:27px;width:27px}
+#assetSheet .asset-upload-tile>span:last-child{margin:0;font-size:13px;font-weight:500}
+#assetSheet .asset-unavailable{opacity:.5;cursor:not-allowed}
+.asset-file-symbol{font:30px/1 Arial;color:#eeffe0}
+#composerCreditNotice[hidden]{display:none!important}
+#composerCreditNotice{display:flex;align-items:center;gap:8px;margin:-13px -12px 12px;padding:9px 10px;min-height:51px;border:1px solid #315456;border-radius:26px;background:linear-gradient(110deg,#122d30,#051b1e 70%,#001012);color:#fff}
+#composerCreditNotice strong{font-size:12px;line-height:1.2;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.composer-credit-symbol{flex:none;display:grid;place-items:center;width:17px;height:17px;border-radius:50%;background:#ffe66a;color:#001012;font:10px Arial}
+#composerCreditNotice a{flex:none;padding:9px 13px;background:var(--chrome);border-radius:24px;color:#001012;text-decoration:none;font-size:12px;line-height:1.2;font-weight:600;white-space:nowrap}
+#composerCreditNotice button{flex:none;width:30px;height:30px;border:0;border-radius:50%;background:#163338;color:#b7c9c7;display:grid;place-items:center;font:24px/1 Arial;padding:0;cursor:pointer}
+#composerCreditNotice a:focus-visible,#composerCreditNotice button:focus-visible{outline:2px solid #dfff4e;outline-offset:2px}
+body[data-page=create] .fuse-credit-notice{display:none!important}
+@media(max-width:520px){#composerCreditNotice{margin:-12px -10px 10px;padding:8px;gap:6px}#composerCreditNotice strong{font-size:11px}#composerCreditNotice a{padding:9px 11px;font-size:11px}}
+
+
