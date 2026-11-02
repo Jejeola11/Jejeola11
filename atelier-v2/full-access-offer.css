@@ -31,3 +31,6 @@
 .fuse-offer-status{flex:none;margin:0;font-size:10px;line-height:1.2}
 @media(max-height:620px){.fuse-offer{padding:9px 12px}.fuse-offer[open]{gap:6px}.fuse-offer-art{height:22dvh}.fuse-offer-benefits{gap:6px}.fuse-offer-benefits strong{font-size:12px}.fuse-offer-benefits p{font-size:10px;margin-top:2px}.fuse-offer-value{font-size:10px;padding:6px 8px}.fuse-offer-value strong{font-size:10px}.fuse-offer-cta{min-height:38px;font-size:16px}.fuse-offer-head h2{font-size:14px}}
 @media(max-height:420px) and (min-width:600px){.fuse-offer[open]{width:min(760px,calc(100% - 16px));display:grid;grid-template-columns:40% minmax(0,1fr);gap:6px 12px}.fuse-offer-head{grid-column:1/-1}.fuse-offer-art{grid-column:1;grid-row:2/7;width:100%;height:auto;max-height:65dvh}.fuse-offer-benefits,.fuse-offer-value,.fuse-offer-cta,.fuse-offer-lock,.fuse-offer-skip,.fuse-offer-status{grid-column:2}.fuse-offer-benefits{gap:4px}.fuse-offer-icon{width:26px;height:26px}.fuse-offer-benefits li{grid-template-columns:26px minmax(0,1fr)}}
+
+/* Keep the purchase label heavy despite shared page button styles. */
+dialog.fuse-offer button.fuse-offer-cta{font-family:"Arial Black",Arial,Helvetica,sans-serif!important;font-weight:900!important;font-synthesis:weight;-webkit-text-stroke:.35px currentColor;letter-spacing:-.25px}
