@@ -6,12 +6,14 @@ const page=location.pathname==='/'?'home.html':location.pathname.split('/').pop(
 if(!allowedPages.has(page)||Date.now()>=END)return;
 const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href='/atelier-v2/full-access-offer.css?v=1';document.head.append(sheet);
 const image='https://res.cloudinary.com/bzw55wh2/image/upload/v1793623939/fuse-atelier/offers/full-access-november-2026.webp';
-const REPEAT_MS=6*60*60*1000;
-let timer,dialog,previousFocus,owner=null,opening=false,nextDue=Date.now()+30000;
+const REPEAT_MS=30*60*1000;
+let timer,dialog,previousFocus,owner=null,opening=false,nextDue=Date.now()+5000;
 async function eligibility(){
  const sb=await Fuse.client();const {data,error}=await sb.auth.getSession();
  if(error||!data?.session)return null;
  const user=data.session.user;
+ // Owner preview changes ad visibility only; payment and entitlement checks remain server-side.
+ if(String(user.email||'').trim().toLowerCase()==='riadigitals0@gmail.com')return user;
  const [p,u]=await Promise.all([sb.from('profiles').select('is_admin').eq('id',user.id).single(),sb.from('module_unlocks').select('module_key').eq('user_id',user.id)]);
  if(p.error||u.error||p.data?.is_admin)return null;
  const keys=new Set((u.data||[]).map(r=>r.module_key));
@@ -51,18 +53,18 @@ async function show(){
  opening=true;
  try{
   const user=await eligibility();
-  // Recheck eligibility at each appearance. Reloads start a fresh 30-second delay.
+  // Recheck eligibility at each appearance. Reloads start a fresh 5-second delay.
   nextDue=Date.now()+REPEAT_MS;
   if(!user||document.hidden)return;
   if(!dialog)build();owner=user.id;previousFocus=document.activeElement;dialog.showModal();
- }catch{nextDue=Date.now()+30000}
+ }catch{nextDue=Date.now()+5000}
  finally{opening=false}
 }
-timer=setTimeout(show,30000);
-setInterval(show,30000);
+timer=setTimeout(show,5000);
+setInterval(show,5000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)show()});
 Fuse.client().then(sb=>sb.auth.onAuthStateChange((event,session)=>{
- if(event==='SIGNED_OUT'){close();owner=null;nextDue=Date.now()+30000}
- if(event==='SIGNED_IN'&&session?.user?.id!==owner){clearTimeout(timer);nextDue=Date.now()+30000;timer=setTimeout(show,30000)}
+ if(event==='SIGNED_OUT'){close();owner=null;nextDue=Date.now()+5000}
+ if(event==='SIGNED_IN'&&session?.user?.id!==owner){clearTimeout(timer);nextDue=Date.now()+5000;timer=setTimeout(show,5000)}
 })).catch(()=>{});
 })();
