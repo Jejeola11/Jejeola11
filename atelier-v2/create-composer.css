@@ -76,3 +76,8 @@ body[data-page=create] .fuse-credit-notice{display:none!important}
 
 
 
+
+/* Keep reference numbering visible and leave more space for primary actions. */
+.reference-order{position:absolute;left:0;right:0;bottom:0;background:#001012dc;color:#fff;padding:3px 2px;text-align:center;font:500 9px/1.2 Montserrat,Arial;pointer-events:none}
+.composer-toolbar .composer-plus{width:44px;flex-basis:44px}.composer-toolbar .composer-send{min-width:64px;padding-inline:15px}.composer-toolbar .composer-pill{flex:1 1 0;width:0;padding-inline:10px}
+@media(max-width:520px){.composer-toolbar .composer-plus{width:41px;flex-basis:41px}.composer-toolbar .composer-send{min-width:60px;padding-inline:12px}.composer-toolbar .composer-pill{padding-inline:9px}}
