@@ -1,16 +1,13 @@
 (()=>{
 'use strict';
 const END=new Date('2026-11-09T00:00:00+01:00').getTime();
-const allowedPages=new Set(['home.html','learn.html']);
+const allowedPages=new Set(['home.html','learn.html','studio.html','create.html','clients.html','earn.html']);
 const page=location.pathname==='/'?'home.html':location.pathname.split('/').pop();
 if(!allowedPages.has(page)||Date.now()>=END)return;
 const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href='/atelier-v2/full-access-offer.css?v=1';document.head.append(sheet);
 const image='https://res.cloudinary.com/bzw55wh2/image/upload/v1793623939/fuse-atelier/offers/full-access-november-2026.webp';
-const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Lagos',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
-let shown=false,timer,dialog,previousFocus,owner=null;
-const key=id=>'fuse_full_access_offer_nov26:'+id;
-function seen(id){try{return localStorage.getItem(key(id))===day()}catch{return shown}}
-function mark(id){shown=true;try{localStorage.setItem(key(id),day())}catch{}}
+const REPEAT_MS=6*60*60*1000;
+let timer,dialog,previousFocus,owner=null,opening=false,nextDue=Date.now()+30000;
 async function eligibility(){
  const sb=await Fuse.client();const {data,error}=await sb.auth.getSession();
  if(error||!data?.session)return null;
@@ -50,12 +47,22 @@ function build(){
  };
 }
 async function show(){
- if(shown||document.hidden||Date.now()>=END||document.querySelector('dialog[open],[aria-modal="true"],#accountMenu:not([hidden]),[aria-busy="true"]'))return;
- try{const user=await eligibility();if(!user||seen(user.id)||document.hidden||shown)return;
-  if(!dialog)build();owner=user.id;previousFocus=document.activeElement;dialog.showModal();mark(user.id);
- }catch{/* Keep the platform usable when access checks are unavailable. */}
+ if(opening||Date.now()<nextDue||document.hidden||Date.now()>=END||document.querySelector('dialog[open],[aria-modal="true"],#accountMenu:not([hidden]),[aria-busy="true"]'))return;
+ opening=true;
+ try{
+  const user=await eligibility();
+  // Recheck eligibility at each appearance. Reloads start a fresh 30-second delay.
+  nextDue=Date.now()+REPEAT_MS;
+  if(!user||document.hidden)return;
+  if(!dialog)build();owner=user.id;previousFocus=document.activeElement;dialog.showModal();
+ }catch{nextDue=Date.now()+30000}
+ finally{opening=false}
 }
-function schedule(){clearTimeout(timer);timer=setTimeout(show,30000)}
-schedule();document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!shown)schedule()});
-Fuse.client().then(sb=>sb.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){close();shown=false;owner=null}if(event==='SIGNED_IN')schedule()})).catch(()=>{});
+timer=setTimeout(show,30000);
+setInterval(show,30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)show()});
+Fuse.client().then(sb=>sb.auth.onAuthStateChange((event,session)=>{
+ if(event==='SIGNED_OUT'){close();owner=null;nextDue=Date.now()+30000}
+ if(event==='SIGNED_IN'&&session?.user?.id!==owner){clearTimeout(timer);nextDue=Date.now()+30000;timer=setTimeout(show,30000)}
+})).catch(()=>{});
 })();
