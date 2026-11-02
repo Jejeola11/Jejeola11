@@ -40,3 +40,7 @@
 .tutorial-slot video{display:block;width:100%;height:100%;position:absolute;inset:0;object-fit:contain;background:#001012;pointer-events:none}
 .tutorial-slot span{z-index:1}
 .tutorial-slot video::-webkit-media-controls{display:none!important}
+
+
+.tutorial-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.academy-courses-headline{text-align:center;margin:22px auto 10px;max-width:760px;font-size:clamp(25px,6vw,42px);font-weight:600;line-height:1.2;letter-spacing:-.03em;text-wrap:balance;filter:drop-shadow(0 2px 0 #183b3c)}
