@@ -31,3 +31,12 @@
 .tutorial-comparison h3{margin:24px 0 8px;color:#fff;font-size:23px;font-weight:500}
 .tutorial-comparison>p{margin:0;color:#fff;font-size:14px;line-height:1.5}
 @media(max-width:360px){.tutorial-tabs{gap:0;padding:3px}.tutorial-tab{padding:9px 10px}.tutorial-stats{gap:9px}}
+
+/* Leave room after engagement totals as the audience grows. */
+.tutorial-meta{justify-content:flex-start;column-gap:clamp(20px,5vw,48px);padding-right:clamp(20px,6vw,64px)}
+.tutorial-stats{flex-shrink:0}
+.tutorial-stat span{min-width:2.5ch;font-variant-numeric:tabular-nums}
+.tutorial-slot{overflow:hidden}
+.tutorial-slot video{display:block;width:100%;height:100%;position:absolute;inset:0;object-fit:contain;background:#001012;pointer-events:none}
+.tutorial-slot span{z-index:1}
+.tutorial-slot video::-webkit-media-controls{display:none!important}
