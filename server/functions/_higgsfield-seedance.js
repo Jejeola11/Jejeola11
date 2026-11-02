@@ -46,10 +46,12 @@ async function quote(m,raw,{validate=true,userId}={}){
  const imageUrls=[...(input.image_url?[input.image_url]:[]),...(input.end_image_url?[input.end_image_url]:[]),...(input.image_urls||[])];
  const audioUrls=input.audio_urls||[];
  if(validate&&op==='reference-to-video'&&!imageUrls.length&&!videoUrls.length&&!audioUrls.length)throw Error('Add reference assets for this Seedance mode.');
- if(imageUrls.length+videoUrls.length+audioUrls.length>14)throw Error('Select at most 14 reference assets in Fuse.');
+ const maxAssets=m.model_id.includes('2.5')?30:15;
+ if(imageUrls.length+videoUrls.length+audioUrls.length>maxAssets)throw Error('Select at most '+maxAssets+' reference assets for this model.');
  for(const url of [...imageUrls,...videoUrls,...audioUrls]){if(validate||!url.startsWith('https://example.com/'))ownAsset(url,userId);}
- let ratio=input.aspect_ratio||'16:9',videoSeconds=0,source;
- for(const url of videoUrls){if(!validate&&url.startsWith('https://example.com/')){videoSeconds+=30;continue;}const info=await inspect(url,userId,true);videoSeconds+=Math.ceil(info.duration);if(url===input.video_url)source=info;}
+ let ratio=input.aspect_ratio||'16:9',videoSeconds=0,source,pendingVideo=false;
+ for(const url of videoUrls){if(!validate&&url.startsWith('https://example.com/')){pendingVideo=true;continue;}const info=await inspect(url,userId,true);videoSeconds+=Math.ceil(info.duration);if(url===input.video_url)source=info;}
+ if(pendingVideo)videoSeconds=Math.max(videoSeconds,30);
  if(videoSeconds>30)throw Error('Use at most 30 seconds of reference video.');
  if(input.image_url&&!input.image_url.startsWith('https://example.com/'))source=await inspect(input.image_url,userId,false);
  if(source)ratio=source.width+':'+source.height;
@@ -71,3 +73,4 @@ async function submit(model,input){let r;try{r=await fetch(BASE+'/'+model,{metho
 }
 async function poll(id){if(!/^[a-zA-Z0-9-]{8,100}$/.test(id))throw Error('Invalid Seedance task.');const r=await fetch(BASE+'/requests/'+id+'/status',{headers:headers(),signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error('Seedance status is temporarily unavailable.');const out=await r.json();if(out.status==='completed'){let url=out.video?.url;if(!url||!url.startsWith('https://'))throw Error('Seedance output is not available yet.');return {status:'completed',url};}if(['failed','nsfw','canceled'].includes(out.status))return {status:'failed',error:out.status==='nsfw'?'Seedance could not generate this content.':'Seedance generation did not complete.'};return {status:'processing'};}
 module.exports={models,find,quote,submit,poll,key};
+
