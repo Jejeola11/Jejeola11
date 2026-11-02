@@ -109,7 +109,7 @@ exports.handler = async (event) => {
   let db, user, cost = 0;
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
-    if (!process.env.MUAPI_KEY) return json(503, { error: 'Flyer Studio is being connected (MUAPI_KEY missing).' });
+    if (!process.env.OPENAI_API_KEY && !process.env.MUAPI_KEY) return json(503, { error: 'Flyer Studio is being connected (MUAPI_KEY missing).' });
 
     user = await getUser(event);
     if (!user) return json(401, { error: 'Please sign in again.' });
@@ -128,7 +128,7 @@ exports.handler = async (event) => {
     if (!project || project.user_id !== user.id) return json(404, { error: 'This project could not be found — generate a new hero visual to start fresh, then try compositing again.' });
     if (!project.hero_image_url) return json(400, { error: 'Generate the hero visual first.' });
 
-    const wantsWS = hasWaveSpeed();
+    const wantsWS = true; // GPT is routed directly to OpenAI.
     const model = wantsWS ? MODEL : FALLBACK_MODEL;
 
     let plan = 'pro', isAdmin = false, hasPurchased = true;
@@ -163,7 +163,7 @@ exports.handler = async (event) => {
     // may be a provider CDN URL or Supabase storage, and not every host is
     // reachable by every downstream engine.
     const toHost = [project.hero_image_url, ...refUrls];
-    const hosted = await Promise.all(toHost.map(muapiHostImage));
+    const hosted = toHost;
 
     // Shared MuAPI submit -- the static fallback when WAVESPEED_KEY is
     // missing entirely, and ALSO the dynamic fallback below when WaveSpeed
@@ -193,6 +193,7 @@ exports.handler = async (event) => {
         if (!r) throw new Error('WaveSpeed did not start the job');
         id = r.requestId;
       } catch (e) {
+        if(require('./_openai-direct').imageModel(model))throw e;
         id = await muapiSubmit();
       }
     } else {
@@ -206,7 +207,8 @@ exports.handler = async (event) => {
     try { await db.from('flyer_projects').update({ text_spec: spec }).eq('id', projectId); } catch (e) {}
     return json(200, { request_id: id, credits: balance, project_id: projectId });
   } catch (e) {
-    try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
-    return json(502, { error: (e && e.message) || 'Could not start compositing', refunded: cost });
+    try { if (db && user && cost && !e.uncertain) await require('./_openai-direct').refund(db,user.id,cost); } catch (_) {}
+    return json(502, { error: (e && e.message) || 'Could not start compositing', refunded: e.uncertain ? 0 : cost });
   }
 };
+

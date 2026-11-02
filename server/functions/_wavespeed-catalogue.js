@@ -10,7 +10,7 @@ async function catalogue(){
  const r=await fetch('https://api.wavespeed.ai/api/v3/models',{headers:{Authorization:'Bearer '+apiKey()},signal:AbortSignal.timeout(20000)});
  if(!r.ok)throw Error('The model catalogue could not be loaded.');
  const d=await r.json();models=(d.data||[]).filter(m=>TYPES.has(m.type)&&m.api_schema?.api_schemas?.some(s=>s.type==='model_run'));
- const hf=require('./_higgsfield-seedance');models=models.filter(m=>!hf.find(m.model_id)).concat(hf.models());until=Date.now()+3600000;return models;
+ const hf=require('./_higgsfield-seedance');models=models.filter(m=>!hf.find(m.model_id)).concat(hf.models());models=models.filter(m=>require('./_openai-direct').imageModel(m.model_id)!=='gpt-image-1').map(m=>require('./_openai-direct').imageModel(m.model_id)?{...m,provider:'openai'}:m);until=Date.now()+3600000;return models;
 }
 function schema(m){return m.api_schema.api_schemas.find(s=>s.type==='model_run').request_schema}
 function objectAt(text,start){let depth=0,inString=false,escaped=false;for(let i=start;i<text.length;i++){const c=text[i];if(inString){if(escaped)escaped=false;else if(c==='\\')escaped=true;else if(c==='"')inString=false}else if(c==='"')inString=true;else if(c==='{')depth++;else if(c==='}'&&!--depth)return JSON.parse(text.slice(start,i+1));}throw Error('Model pricing could not be read.')}
@@ -46,4 +46,5 @@ async function quote(m,raw,{validate=true}={}){
  return {inputs:input,credits:safeCreditsFor(micro/1000000),provider_usd:micro/1000000};
 }
 module.exports={catalogue,schema,pricing,quote,objectAt,apiKey};
+
 

@@ -14,7 +14,7 @@ const { hasWaveSpeed, encodeModelImage, triggerTextWorker } = require('./_provid
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
-  if (!hasWaveSpeed()) return json(503, { error: 'Engine not connected (WAVESPEED_KEY missing).' });
+
 
   const user = await getUser(event);
   if (!user) return json(401, { error: 'Please sign in again.' });
@@ -23,6 +23,8 @@ exports.handler = async (event) => {
   const model = body.model || 'gemini-2-5-flash';
   const prompt = (body.prompt || '').trim();
   const images = (Array.isArray(body.images) ? body.images : []).filter((u) => typeof u === 'string' && u).slice(0, 1);
+  const directGPT=!!require('./_openai-direct').textModel(model);
+  if(directGPT?!require('./_openai-direct').key():!hasWaveSpeed())return json(503,{error:'The selected provider is not configured.'});
   const cost = REACTOR_COST[model];
   if (!prompt) return json(400, { error: 'Type a message first.' });
   if (!cost) return json(400, { error: 'Unknown model.' });
@@ -44,15 +46,16 @@ exports.handler = async (event) => {
     // 2026-07-17. So this just inserts a pending job and returns
     // immediately; job-status.js does the actual WaveSpeed call lazily on
     // its first poll.
-    const id = 'wsllm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+    const id = directGPT?(await require('./_openai-direct').submitText({prompt,imageUrl:images[0],model})).requestId:'wsllm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     await db.from('jobs').insert({
       request_id: id, user_id: user.id, kind: 'chat', model: encodeModelImage(model, images[0]), prompt, credits: cost,
       status: 'processing',
     });
-    triggerTextWorker(id);
+    if(!directGPT)triggerTextWorker(id);
     return json(200, { request_id: id, credits: balance });
   } catch (e) {
-    await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' });
-    return json(502, { error: e.message || 'AI failed', refunded: cost });
+    if(!e.uncertain)await require('./_openai-direct').refund(db,user.id,cost);
+    return json(502, { error: e.message || 'AI failed', refunded: e.uncertain ? 0 : cost });
   }
 };
+

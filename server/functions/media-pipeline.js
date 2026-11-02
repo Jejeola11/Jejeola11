@@ -146,8 +146,8 @@ async function handleAvatarCreate(user, body) {
     const progress = await advance(db, video.id);
     return json(200, { id: video.id, credits: balance, estimated_minutes: Math.round(minutes * 10) / 10, ...progress });
   } catch (e) {
-    try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
-    return json(502, { error: (e && e.message) || 'Could not start the video', refunded: cost });
+    try { if (db && user && cost && !e.uncertain) await require('./_openai-direct').refund(db,user.id,cost); } catch (_) {}
+    return json(502, { error: (e && e.message) || 'Could not start the video', refunded: e.uncertain ? 0 : cost });
   }
 }
 
@@ -336,7 +336,7 @@ async function uploadBufferToStorage(db, buf, storagePath, contentType) {
 async function handleFlyerSpotFix(user, body) {
   let cost = 0;
   try {
-    if (!process.env.MUAPI_KEY) return json(503, { error: 'Flyer Studio is being connected (MUAPI_KEY missing).' });
+    if (!process.env.OPENAI_API_KEY && !process.env.MUAPI_KEY) return json(503, { error: 'Flyer Studio is being connected (MUAPI_KEY missing).' });
 
     const projectId = body.project_id;
     const instruction = (body.instruction || '').trim();
@@ -352,7 +352,7 @@ async function handleFlyerSpotFix(user, body) {
     if (!project || project.user_id !== user.id) return json(404, { error: 'This project could not be found.' });
     if (!project.final_url) return json(400, { error: 'Composite the final flyer first — there\'s nothing to fix a spot on yet.' });
 
-    const wantsWS = hasWaveSpeed();
+    const wantsWS = true; // GPT is routed directly to OpenAI.
     const model = wantsWS ? FLYER_SPOTFIX_MODEL : FLYER_SPOTFIX_FALLBACK;
 
     let plan = 'pro', isAdmin = false, hasPurchased = true;
@@ -389,7 +389,7 @@ async function handleFlyerSpotFix(user, body) {
     const cropBuf = cropCanvas.toBuffer('image/png');
     const cropStoragePath = `${user.id}/spotfix-crop-${projectId}-${Date.now()}.png`;
     const cropUrl = await uploadBufferToStorage(db, cropBuf, cropStoragePath, 'image/png');
-    const hostedCrop = await muapiHostImage(cropUrl);
+    const hostedCrop = cropUrl;
 
     const prompt = `Edit this image: ${instruction}. This is a small cropped detail from a larger finished design — make ONLY the specific change described, keep everything else in this crop exactly as it is (same subject, same composition, same colors elsewhere, unless the instruction itself says to change them). Do not add any new text, words, logos, or watermarks unless explicitly asked to.`;
     const aspect = closestAspect(cw, ch);
@@ -423,7 +423,7 @@ async function handleFlyerSpotFix(user, body) {
     return json(200, { request_id: id, credits: balance, project_id: projectId });
   } catch (e) {
     try { if (user && cost) await admin().rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
-    return json(502, { error: (e && e.message) || 'Could not start the fix', refunded: cost });
+    return json(502, { error: (e && e.message) || 'Could not start the fix', refunded: e.uncertain ? 0 : cost });
   }
 }
 
@@ -448,3 +448,4 @@ exports.handler = async (event) => {
     return json(502, { error: (e && e.message) || 'Something went wrong.' });
   }
 };
+

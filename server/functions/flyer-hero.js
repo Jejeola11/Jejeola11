@@ -76,7 +76,7 @@ exports.handler = async (event) => {
   let db, user, cost = 0;
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
-    if (!process.env.MUAPI_KEY) return json(503, { error: 'Flyer Studio is being connected (MUAPI_KEY missing).' });
+    if (!process.env.OPENAI_API_KEY && !process.env.MUAPI_KEY) return json(503, { error: 'Flyer Studio is being connected (MUAPI_KEY missing).' });
 
     user = await getUser(event);
     if (!user) return json(401, { error: 'Please sign in again.' });
@@ -133,7 +133,7 @@ exports.handler = async (event) => {
       const { data: newProj } = await db.from('flyer_projects').insert({ user_id: user.id, brief: prompt, reference_image_urls: referenceImageUrls, aspect }).select().single();
       projectId = newProj && newProj.id;
     }
-    const wantsWS = hasWaveSpeed() && !forceFallback;
+    const wantsWS = true; // GPT is routed directly to OpenAI, including legacy retry requests.
     const model = wantsWS ? (refs.length ? MODEL_I2I : MODEL_T2I) : (refs.length ? FALLBACK_I2I : FALLBACK_T2I);
 
     let plan = 'pro', isAdmin = false, hasPurchased = true;
@@ -164,7 +164,7 @@ exports.handler = async (event) => {
     // timeout — see muapiHostFile in _muapi.js — so one slow reference
     // can't stall the submission either way.
     const refsSent = refs.slice(0, 10);
-    const hostedRefs = refsSent.length ? await Promise.all(refsSent.map(muapiHostImage)) : [];
+    const hostedRefs = refsSent.length ? refsSent : [];
     const finalPrompt = buildRoleMapping(refsSent, referenceRoles) + prompt;
 
     // Shared MuAPI submit -- used both as the static fallback (WAVESPEED_KEY
@@ -197,6 +197,7 @@ exports.handler = async (event) => {
         if (!r) throw new Error('WaveSpeed did not start the job');
         id = r.requestId;
       } catch (e) {
+        if(require('./_openai-direct').imageModel(model))throw e;
         id = await muapiSubmit(refs.length ? FALLBACK_I2I : FALLBACK_T2I);
       }
     } else {
@@ -207,7 +208,8 @@ exports.handler = async (event) => {
     await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'flyer-hero', model, prompt, aspect, credits: cost, status: 'processing', project_id: projectId });
     return json(200, { request_id: id, credits: balance, project_id: projectId });
   } catch (e) {
-    try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
-    return json(502, { error: (e && e.message) || 'Could not start generation', refunded: cost });
+    try { if (db && user && cost && !e.uncertain) await require('./_openai-direct').refund(db,user.id,cost); } catch (_) {}
+    return json(502, { error: (e && e.message) || 'Could not start generation', refunded: e.uncertain ? 0 : cost });
   }
 };
+

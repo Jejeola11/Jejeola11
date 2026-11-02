@@ -41,7 +41,7 @@ exports.handler = async (event) => {
   let db, user, cost = 0;
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
-    if (!process.env.MUAPI_KEY && !hasWaveSpeed()) return json(503, { error: 'Engine not connected (WAVESPEED_KEY/MUAPI_KEY missing).' });
+    if (!process.env.OPENAI_API_KEY && !process.env.MUAPI_KEY && !hasWaveSpeed()) return json(503, { error: 'Engine not connected (WAVESPEED_KEY/MUAPI_KEY missing).' });
 
     user = await getUser(event);
     if (!user) return json(401, { error: 'Please sign in again.' });
@@ -90,8 +90,8 @@ exports.handler = async (event) => {
     cost = AVATAR_COST;
 
     // Host all refs so the engine can always fetch them, then SUBMIT.
-    const hosted = await Promise.all(refs.map(muapiHostImage));
-    const wantsWS = hasWaveSpeed();
+    const hosted = refs;
+    const wantsWS = true; // GPT is routed directly to OpenAI.
     const model = wantsWS ? MODEL_WS : MODEL_MUAPI;
 
     let id;
@@ -116,7 +116,8 @@ exports.handler = async (event) => {
     await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'avatar', model, prompt: scene, aspect, credits: AVATAR_COST, status: 'processing' });
     return json(200, { request_id: id, credits: balance });
   } catch (e) {
-    try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
-    return json(502, { error: (e && e.message) || 'Could not start generation', refunded: cost });
+    try { if (db && user && cost && !e.uncertain) await require('./_openai-direct').refund(db,user.id,cost); } catch (_) {}
+    return json(502, { error: (e && e.message) || 'Could not start generation', refunded: e.uncertain ? 0 : cost });
   }
 };
+

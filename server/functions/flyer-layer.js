@@ -43,7 +43,7 @@ exports.handler = async (event) => {
   let db, user, cost = 0;
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
-    if (!process.env.MUAPI_KEY) return json(503, { error: 'Flyer Studio is being connected (MUAPI_KEY missing).' });
+    if (!process.env.OPENAI_API_KEY && !process.env.MUAPI_KEY) return json(503, { error: 'Flyer Studio is being connected (MUAPI_KEY missing).' });
 
     user = await getUser(event);
     if (!user) return json(401, { error: 'Please sign in again.' });
@@ -63,7 +63,7 @@ exports.handler = async (event) => {
     if (!project || project.user_id !== user.id) return json(404, { error: 'This project could not be found — generate a new hero visual to start fresh, then try adding the layer again.' });
     if (!project.hero_image_url) return json(400, { error: 'Generate the hero visual first.' });
 
-    const wantsWS = hasWaveSpeed();
+    const wantsWS = true; // GPT is routed directly to OpenAI.
     const model = wantsWS ? MODEL : FALLBACK_MODEL;
 
     let plan = 'pro', isAdmin = false, hasPurchased = true;
@@ -96,7 +96,7 @@ exports.handler = async (event) => {
     const editPrompt = `Edit this image: ${instruction}. ${attachmentNotes ? attachmentNotes + ' ' : ''}Keep everything else in the image exactly as it is — same subject, same composition, same colors elsewhere. Do NOT add any text, words, logos, watermarks, or legible signage — visual elements only.`;
     const projectRefBudget = Math.max(0, MAX_IMAGES - 1 - layerImages.length);
     const extraRefs = (Array.isArray(project.reference_image_urls) ? project.reference_image_urls : []).slice(0, projectRefBudget);
-    const hosted = await Promise.all([project.hero_image_url, ...layerImages.map((x) => x.url), ...extraRefs].map(muapiHostImage));
+    const hosted = [project.hero_image_url, ...layerImages.map((x) => x.url), ...extraRefs];
     // Nano Banana Pro has no "keep current aspect" auto option — it needs a
     // real enum value every time, so this reads back the project's own
     // chosen aspect (persisted at flyer-hero.js time) so an edit on the
@@ -131,6 +131,7 @@ exports.handler = async (event) => {
         if (!r) throw new Error('WaveSpeed did not start the job');
         id = r.requestId;
       } catch (e) {
+        if(require('./_openai-direct').imageModel(model))throw e;
         id = await muapiSubmit();
       }
     } else {
@@ -141,7 +142,8 @@ exports.handler = async (event) => {
     await db.from('jobs').insert({ request_id: id, user_id: user.id, kind: 'flyer-layer', model, prompt: instruction, credits: cost, status: 'processing', project_id: projectId });
     return json(200, { request_id: id, credits: balance, project_id: projectId });
   } catch (e) {
-    try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
-    return json(502, { error: (e && e.message) || 'Could not add that layer', refunded: cost });
+    try { if (db && user && cost && !e.uncertain) await require('./_openai-direct').refund(db,user.id,cost); } catch (_) {}
+    return json(502, { error: (e && e.message) || 'Could not add that layer', refunded: e.uncertain ? 0 : cost });
   }
 };
+

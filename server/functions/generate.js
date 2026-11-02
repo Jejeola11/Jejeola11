@@ -132,6 +132,7 @@ exports.handler = async (event) => {
   // WaveSpeed account. Only substitute a known edit-capable default for
   // models that genuinely have no editing variant at all (e.g. flux-schnell).
   const selectedModel = body.model || 'flux-schnell-image';
+  const directGPT = !!require('./_openai-direct').imageModel(selectedModel);
   const forceWaveSpeed = body.provider === 'wavespeed';
   const requestedResolution = ['1k','2k','4k'].includes(String(body.resolution || '').toLowerCase())
     ? String(body.resolution).toLowerCase() : null;
@@ -139,7 +140,7 @@ exports.handler = async (event) => {
     ? String(body.quality).toLowerCase() : 'medium';
   if(forceWaveSpeed && requestedQuality!=='medium')return json(400,{error:'This image tool currently supports medium quality only.'});
   const EDIT_CAPABLE = ['nano-banana', 'nano-banana-2', 'nano-banana-pro-ws-text-to-image', 'gpt-image-2-text-to-image', 'gpt-image-2.5-sunburst', 'gpt-image-2.5-flare', 'minimax-h3-image', 'qwen-image', 'flux-2-pro', 'seedream-5.0', 'hunyuan-image-3.0', 'hidream_i1_full_image', 'flux-dev-image'];
-  const model = useRef ? (EDIT_CAPABLE.includes(selectedModel) ? selectedModel : 'nano-banana-edit') : selectedModel;
+  const model = useRef ? ((directGPT || EDIT_CAPABLE.includes(selectedModel)) ? selectedModel : 'nano-banana-edit') : selectedModel;
   if (!prompt) return json(400, { error: 'Add a prompt first.' });
   const base = IMAGE_MODELS[model];
   if (!base) return json(400, { error: 'Unknown model.' });
@@ -150,7 +151,7 @@ exports.handler = async (event) => {
   if (!forceWaveSpeed && plan === 'free' && !isAdmin && !canUseFree(model)) {
     return json(403, { error: 'This model requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
   }
-  if (forceWaveSpeed && !hasWaveSpeed()) {
+  if (forceWaveSpeed && !directGPT && !hasWaveSpeed()) {
     return json(503, { error: 'WaveSpeed is not configured on this deployment yet.' });
   }
   // Trial-tier cap — a free user who has never actually paid Fuse Studio
@@ -212,26 +213,27 @@ exports.handler = async (event) => {
       }
     }
 
-    const hostedRefs = useRef ? (forceWaveSpeed ? refs : await Promise.all(refs.map(muapiHostImage))) : undefined;
+    const hostedRefs = useRef ? ((forceWaveSpeed || directGPT) ? refs : await Promise.all(refs.map(muapiHostImage))) : undefined;
     const perCredits = Math.max(1, Math.round(cost / count));
-    let firstError = null;
+    let firstError = null, uncertainSubmissions = 0;
     // WaveSpeed first (cheaper, and several models there accept far more
     // reference images than MuAPI's wrapper ever exposed — see _providers.js's
     // IMAGE_ROUTES), MuAPI as the fallback. Only the resMult===1 case tries
     // WaveSpeed — the "generate at 2k/4k" multiplier is a MuAPI-specific
     // per-model resolution convention with no equivalent mapping here yet.
     async function submitOne() {
-      if ((forceWaveSpeed || resMult === 1) && hasWaveSpeed()) {
+      if (directGPT || ((forceWaveSpeed || resMult === 1) && hasWaveSpeed())) {
         try {
           const r = await submitImageWS(model, {
             prompt, aspect, images: hostedRefs,
-            resolution: forceWaveSpeed ? resolution : undefined,
-            quality: forceWaveSpeed ? requestedQuality : undefined,
+            resolution: (forceWaveSpeed || directGPT) ? resolution : undefined,
+            quality: (forceWaveSpeed || directGPT) ? requestedQuality : undefined,
           });
           if (r) return r.requestId;
           if (forceWaveSpeed) throw new Error('This image model is not available on WaveSpeed.');
         } catch (e) {
           if (!firstError) firstError = e;
+          if (directGPT) {if(e.uncertain)uncertainSubmissions++;return null;}
           if (forceWaveSpeed) return null;
         }
       }
@@ -246,21 +248,25 @@ exports.handler = async (event) => {
     const ids = submits.filter(Boolean);
     // Surface the real engine error (e.g. a param the model rejected) instead of
     // a generic message — critical for spotting a genuinely broken model fast.
-    if (!ids.length) throw firstError || new Error('Engine did not start the job');
+    if (!ids.length) {
+      if(uncertainSubmissions){const known=(count-uncertainSubmissions)*perCredits;if(known>0)await require('./_openai-direct').refund(db,user.id,known);firstError=firstError||new Error('OpenAI submission needs checking. Do not resubmit.');firstError.uncertain=true;}
+      throw firstError || new Error('Engine did not start the job');
+    }
 
     const rows = ids.map((id) => ({ request_id: id, user_id: user.id, kind: 'image', model, prompt, aspect, credits: perCredits, status: 'processing' }));
     await db.from('jobs').insert(rows);
 
     // Refund any submissions that failed to start.
-    const refund = (count - ids.length) * perCredits;
-    if (refund > 0) await db.rpc('add_credits', { uid: user.id, amount: refund, why: 'refund' });
+    const refund = (count - ids.length - uncertainSubmissions) * perCredits;
+    if (refund > 0) await require('./_openai-direct').refund(db,user.id,refund);
 
     return json(200, { request_ids: ids, request_id: ids[0], credits: balance + refund, watermark: plan === 'free' && !isAdmin });
   } catch (e) {
-    try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
-    return json(502, { error: (e && e.message) || 'Generation failed', refunded: cost });
+    try { if (db && user && cost && !e.uncertain) await require('./_openai-direct').refund(db,user.id,cost); } catch (_) {}
+    return json(502, { error: (e && e.message) || 'Generation failed', refunded: e.uncertain ? 0 : cost });
   }
   } catch (fatal) {
     return json(500, { error: 'Server error — please try again.' });
   }
 };
+

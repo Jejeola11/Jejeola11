@@ -79,7 +79,7 @@ exports.handler = async (event) => {
 
     let plan = 'pro', isAdmin = false, hasPurchased = true;
     try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; hasPurchased = p.hasPurchased; } catch (e) {}
-    const wantsWS = hasWaveSpeed();
+    const wantsWS = true; // GPT is routed directly to OpenAI.
     const model = refUrl ? MODEL_I2I : MODEL_T2I;
     if (plan === 'free' && !isAdmin && !canUseFree(model)) {
       return json(403, { error: 'This requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
@@ -93,7 +93,7 @@ exports.handler = async (event) => {
     if (balance === null) return json(402, { error: 'Not enough credits.', need: cost, code: 'NO_CREDITS' });
 
     const aspect = nearestAspect(layer.w, layer.h);
-    const hosted = refUrl ? [await muapiHostImage(refUrl)] : [];
+    const hosted = refUrl ? [refUrl] : [];
 
     if (!wantsWS) throw new Error('Image engine is not configured (WAVESPEED_KEY missing).');
     const r = await submitFlyerImage(model, { prompt, aspect, images: hosted });
@@ -109,7 +109,8 @@ exports.handler = async (event) => {
     });
     return json(200, { request_id: r.requestId, credits: balance, layer_id: layerId });
   } catch (e) {
-    try { if (cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
-    return json(502, { error: (e && e.message) || 'Could not start generation', refunded: cost });
+    try { if (cost) await require('./_openai-direct').refund(db,user.id,cost); } catch (_) {}
+    return json(502, { error: (e && e.message) || 'Could not start generation', refunded: e.uncertain ? 0 : cost });
   }
 };
+

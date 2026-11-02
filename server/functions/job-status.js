@@ -89,6 +89,8 @@ exports.handler = async (event) => {
   const { data: job } = await db.from('jobs').select('*').eq('request_id', id).maybeSingle();
   if (!job || job.user_id !== user.id) return json(404, { error: 'Job not found' });
 
+  if((id.startsWith('oa:')&&job.kind==='image')||id.startsWith('oa-text:'))return require('./_openai-job-status').status(db,user,job);
+
   if (job.kind === 'video-transcribe') return handleTranscribeJob(db, user, job, id);
 
   const isTextKind = job.kind === 'chat' || job.kind === 'flyer-brief' || job.kind === 'video-edit-brief' || job.kind === 'flyer-suggest-layers' || job.kind === 'flyer-spec';
@@ -220,7 +222,7 @@ exports.handler = async (event) => {
   // Video / avatar / modelsheet: pollAny routes by the request_id prefix
   // ("ws:" -> WaveSpeed, bare -> MuAPI) so mixed-provider jobs just work.
   let r;
-  try { r = await pollAny(id); } catch (e) { return json(200, { status: 'processing' }); }
+  try { r = await pollAny(id, {db,userId:user.id}); } catch (e) { return json(200, { status: 'processing' }); }
 
   if (r.status === 'completed') {
     let url = r.url;
@@ -479,4 +481,5 @@ async function handleTranscribeJob(db, user, job, id) {
   }
   return json(200, { status: 'processing' });
 }
+
 

@@ -98,6 +98,7 @@ function decodeModelImage(encoded) {
 }
 
 async function chatCompletion({ prompt, imageUrl, model, timeoutMs = 9000 }) {
+  if(require('./_openai-direct').textModel(model))return require('./_openai-direct').chat({prompt,imageUrl,model,timeoutMs});
   if (!hasWaveSpeed()) throw new Error('WAVESPEED_KEY missing.');
   const content = imageUrl
     ? [{ type: 'text', text: prompt }, { type: 'image_url', image_url: { url: imageUrl } }]
@@ -467,7 +468,8 @@ async function submitAvatar(model, { image, audio, prompt, resolution }) {
 }
 
 // Poll ANY job by its (possibly prefixed) request id.
-async function pollAny(requestId) {
+async function pollAny(requestId, context) {
+  if(typeof requestId==='string'&&requestId.startsWith('oa:'))return require('./_openai-direct').poll(requestId.slice(3),context);
   if (typeof requestId === 'string' && requestId.indexOf('ws:') === 0) return wsPoll(requestId.slice(3));
   if (typeof requestId === 'string' && requestId.indexOf('g:') === 0) {
     const opName = Buffer.from(requestId.slice(2), 'base64url').toString();
@@ -687,6 +689,7 @@ const FLYER_IMAGE_ROUTES = {
 // fall back to their own MuAPI route — same graceful-degrade pattern as
 // submitImageGoogle.
 async function submitFlyerImage(model, { prompt, aspect, images }) {
+  if(require('./_openai-direct').imageModel(model))return require('./_openai-direct').submitImage(model,{prompt,aspect,images});
   const wsModel = FLYER_IMAGE_ROUTES[model];
   if (!wsModel || !hasWaveSpeed()) return null;
   const body = { prompt, aspect_ratio: aspect || '4:5' };
@@ -749,6 +752,7 @@ function wsResolution(route, resolution) {
 // The dedicated Fuse Atelier creator can request WaveSpeed-only mode at the
 // API layer; older callers still retain their normal fallback behavior.
 async function submitImageWS(model, { prompt, aspect, images, resolution, quality }) {
+  if(require('./_openai-direct').imageModel(model))return require('./_openai-direct').submitImage(model,{prompt,aspect,images,resolution,quality});
   const route = IMAGE_ROUTES[model];
   if (!route || !hasWaveSpeed()) return null;
   const hasRefs = Array.isArray(images) && images.length > 0;
@@ -784,3 +788,4 @@ async function submitToolWS(slug, { image, prompt }) {
 }
 
 module.exports = { submitVideo, submitAvatar, submitSpeech, submitImageGoogle, submitVideoEdit, submitOmniReference, submitLipsyncResync, submitLipsyncDialogue, submitFlyerImage, submitImageWS, submitToolWS, pollAny, VIDEO_ROUTES, AVATAR_ROUTES, hasWaveSpeed, hasGoogle, synthesizeResemble, listResembleVoices, hasResemble, chatCompletion, encodeModelImage, decodeModelImage, triggerTextWorker };
+
