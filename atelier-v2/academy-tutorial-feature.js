@@ -11,6 +11,8 @@ async function countView(){if(viewed||document.hidden)return;try{await request({
 const cover=feature.querySelector('.tutorial-cover');document.getElementById('tutorialViews').addEventListener('click',()=>{countView()});
 if('IntersectionObserver' in window){observer=new IntersectionObserver(entries=>{clearTimeout(timer);if(entries[0].isIntersecting&&entries[0].intersectionRatio>=.5)timer=setTimeout(countView,1000)},{threshold:[0,.5]});observer.observe(cover)}else countView();
 const tabs=[...document.querySelectorAll('.tutorial-tab')];
-function select(tab){tabs.forEach(t=>{const active=t===tab;t.setAttribute('aria-selected',String(active));t.tabIndex=active?0:-1;document.getElementById(t.getAttribute('aria-controls')).hidden=!active})}
+function syncVideos(){document.querySelectorAll(".tutorial-slot video").forEach(v=>{v.muted=true;v.defaultMuted=true;v.controls=false;if(document.hidden||v.closest("[hidden]"))v.pause();else v.play().catch(()=>{})})}
+function select(tab){tabs.forEach(t=>{const active=t===tab;t.setAttribute('aria-selected',String(active));t.tabIndex=active?0:-1;document.getElementById(t.getAttribute('aria-controls')).hidden=!active});syncVideos()}
 tabs.forEach((tab,i)=>{tab.onclick=()=>select(tab);tab.onkeydown=e=>{let n;if(e.key==='ArrowRight')n=(i+1)%tabs.length;else if(e.key==='ArrowLeft')n=(i+tabs.length-1)%tabs.length;else if(e.key==='Home')n=0;else if(e.key==='End')n=tabs.length-1;else return;e.preventDefault();select(tabs[n]);tabs[n].focus()}});
+document.addEventListener("visibilitychange",syncVideos);syncVideos();
 })();
