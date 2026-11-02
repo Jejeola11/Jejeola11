@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const {admin,json} = require('./_supabase');
 const {captureSignup}=require('./_platform-audience');
-const neutral = () => json(200,{ok:true,message:'Check your inbox for your verification button. If you already have an account, use the same email as before.'});
+const neutral = () => json(200,{ok:true,message:'Check your email for your sign-in code. Use your existing account email when logging in.'});
 exports.handler = async event => {
  if(event.httpMethod!=='POST')return json(405,{error:'Method not allowed'});
  try{
@@ -28,11 +28,9 @@ exports.handler = async event => {
   const {data,error}=await sb.auth.admin.generateLink({type:'magiclink',email,options:{data:{full_name:name,name}}});
   if(error)throw error;
   await captureSignup(sb,{id:data?.user?.id,email,name});
-  const token=data?.properties?.hashed_token;if(!token)throw new Error('Verification unavailable');
-  const next=typeof body.next==='string'&&body.next.startsWith('/atelier-v2/')&&!body.next.startsWith('//')?body.next:'';
-  const link='https://fuseatelier.com/login'+(next?'?next='+encodeURIComponent(next):'')+'#token_hash='+encodeURIComponent(token);
-  const response=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${process.env.RESEND_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({from:process.env.FUSE_EMAIL_FROM,to:[email],subject:'Verify your email to enter Fuse Atelier',html:`<div style="background:#021418;color:#f4f4f4;padding:32px;font-family:Arial,sans-serif"><h1>Welcome to Fuse Atelier</h1><p>Verify your email, then enter your name and email on the login page to continue.</p><p><a href="${link}" style="display:inline-block;background:#eef4bd;color:#021418;padding:16px 24px;border-radius:24px;text-decoration:none">Verify email &amp; continue</a></p><p>This button is single-use and expires shortly. If you didn’t request it, ignore this email.</p></div>`})});
-  if(!response.ok)return json(502,{error:'We couldn’t send the verification email. Please try again shortly.'});
+  const code=data?.properties?.email_otp;if(!/^\d{6,10}$/.test(code||''))throw new Error('Sign-in code unavailable');
+  const response=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${process.env.RESEND_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({from:process.env.FUSE_EMAIL_FROM,to:[email],subject:'Your Fuse Atelier sign-in code',html:`<div style="background:#021418;color:#f4f4f4;padding:32px;font-family:Arial,sans-serif"><h1>Your Fuse Atelier sign-in code</h1><p>Enter this code on the device where you want to use Fuse:</p><p style="font-size:36px;letter-spacing:8px;font-weight:bold;color:#dfff4e">${code}</p><p>You can read this email on any device. Return to the Fuse login or signup page and type the code there.</p><p>This code is single-use and expires. Use the newest code you requested. Never share it. If you didn’t request it, ignore this email.</p></div>`})});
+  if(!response.ok)return json(502,{error:'We couldn’t send the sign-in code. Please try again shortly.'});
   return neutral();
- }catch(_){return json(500,{error:'We couldn’t send your verification email. Please try again shortly.'});}
+ }catch(_){return json(500,{error:'We couldn’t send your sign-in code. Please try again shortly.'});}
 };
