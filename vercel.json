@@ -16,8 +16,8 @@
       "dest": "/start/auth/index.html"
     },
     {
-      "src": "/login/?",
-      "dest": "/atelier-v2/login.html"
+      "src": "/(?:login/?|atelier-v2/login\\.html)",
+      "dest": "/start/auth/index.html"
     },
     {
       "src": "/terms/?",
