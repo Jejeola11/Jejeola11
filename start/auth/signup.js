@@ -41,6 +41,27 @@
       if(error)throw error;
     }catch(error){message.textContent=error.message||'Could not start Google sign in.';$('google').disabled=false;}
   });
+  const codeForm=document.createElement('form');
+  codeForm.hidden=true;
+  codeForm.innerHTML='<label for="email-code">Email sign-in code</label><input id="email-code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{8}" maxlength="8" required><button class="submit" type="submit">Verify code</button>';
+  $('signup-form').after(codeForm);
+  const existingCode=document.createElement('button');
+  existingCode.type='button';existingCode.className='google';existingCode.textContent='I already have a code';
+  codeForm.before(existingCode);
+  function showCode(){codeForm.hidden=false;existingCode.hidden=true;$('email-code').focus();}
+  existingCode.onclick=()=>{if(!$('email').reportValidity())return;showCode();};
+  codeForm.addEventListener('submit',async event=>{
+    event.preventDefault();
+    if(!$('email').reportValidity())return;
+    const button=codeForm.querySelector('button');button.disabled=true;
+    try {
+      await referralReady;
+      const {error}=await sb.auth.verifyOtp({email:$('email').value.trim().toLowerCase(),token:$('email-code').value.trim(),type:'email'});
+      if(error)throw error;
+      location.assign(destination);
+    }catch(error){message.textContent=error.message||'Could not verify your code.';}
+    finally{button.disabled=false;}
+  });
   $('signup-form').addEventListener('submit', async event => {
     event.preventDefault(); if (!agreed()) return;
     await referralReady;
@@ -51,7 +72,7 @@
       sessionStorage.setItem('fuse_signup_destination',destination);
       const response=await fetch('/api/public-auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,mode:'signup',next:destination})});
       const result=await response.json(); if(!response.ok)throw new Error(result.error||'Please try again.');
-      message.textContent='Check your email and tap the secure sign-in button. You’ll enter Fuse Atelier automatically.';
+      message.textContent='Check your email and enter the 8-digit code below.';showCode();
     }catch(error){message.textContent=error.message||'Could not create your account.';}
     finally{button.disabled=false;}
   });
