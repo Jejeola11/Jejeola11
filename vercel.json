@@ -102,5 +102,5 @@
       "handle": "filesystem"
     }
   ],
-  "buildCommand": "node scripts/assemble-course-intro.cjs"
+  "buildCommand": "node -e 'const fs=require('\\''node:fs'\\''),crypto=require('\\''node:crypto'\\'');\nconst dir='\\''atelier-v2/media/academy/'\\'';\nconst parts=Array.from({length:9},(_,i)=>dir+'\\''course-original.part'\\''+i);\nconst video=Buffer.concat(parts.map(p=>fs.readFileSync(p)));\nif(crypto.createHash('\\''sha256'\\'').update(video).digest('\\''hex'\\'')!=='\\''a5f2e7c208aa0af826a7bf74159ba001ac701dcb853de56891ea888db2187100'\\'')throw new Error('\\''Course video integrity check failed'\\'');\nfs.writeFileSync(dir+'\\''course-intro-original.mp4'\\'',video);\nparts.forEach(p=>fs.unlinkSync(p));\n'"
 }
