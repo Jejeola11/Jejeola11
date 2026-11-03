@@ -9,6 +9,7 @@ exports.handler=async event=>{
   if(event.httpMethod==='POST'){
    let b;try{b=JSON.parse(event.body||'{}')}catch{return respond(400,{error:'Invalid request'})}
    if(b.action==='view'){
+    if(b.source!=='tutorial-content')return respond(400,{error:'Open the tutorial to record a view.'});
     const headers=event.headers||{};
     const actor=user?'user:'+user.id:'guest:'+String(headers['x-forwarded-for']||headers['x-real-ip']||'unknown').split(',')[0].trim()+':'+String(headers['user-agent']||'').slice(0,500);
     const hash=crypto.createHmac('sha256',process.env.SUPABASE_SERVICE_ROLE_KEY).update(actor).digest('hex');

@@ -37,3 +37,23 @@
 @media(max-width:700px){.cover h1{width:100%;max-width:100%;padding-inline:12px;font-size:clamp(42px,12.5vw,58px);line-height:1.04;letter-spacing:-.035em;overflow:visible}.cover h1 em{padding-inline:4px}}
 
 .course-top .tutorial-signup{margin-left:auto;margin-right:12px;display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:7px 12px;border-radius:10px;background:linear-gradient(110deg,#FFE66A,#DFFF4E,#EEFFE0);color:#001012;font:700 12px Montserrat,Arial,sans-serif;text-decoration:none;white-space:nowrap}.course-top .tutorial-signup[hidden]{display:none}@media(max-width:390px){.course-top .tutorial-signup{margin-right:7px;padding:7px 9px;font-size:11px}}
+
+
+/* Course promotion, tutorial page 06 only. */
+.course-promotion{background:linear-gradient(145deg,#00090b,#001719 65%,#12383d);overflow:hidden}
+.course-offer-inner{max-width:780px;width:100%;margin:0 auto;padding:48px 28px 40px;text-align:center}
+.course-promotion .offer-chrome{background:var(--chrome);background-clip:text;-webkit-background-clip:text;color:transparent}
+.course-promotion .course-offer-headline{font:700 clamp(29px,5.7vw,49px)/1.19 Montserrat,Arial,sans-serif;letter-spacing:-.045em;margin:0;color:#fff}
+.course-offer-headline>.offer-chrome{display:block;margin:5px 0;white-space:nowrap}
+.course-offer-white{display:block;color:#fff;font-size:.76em;margin-top:10px;letter-spacing:-.035em}
+.course-offer-description{max-width:610px;margin:25px auto 35px;color:#fff;font:400 clamp(14px,2.5vw,17px)/1.7 Montserrat,Arial,sans-serif}
+.course-promotion .course-offer-teaches{font:700 clamp(20px,4vw,29px)/1.3 Montserrat,Arial,sans-serif;margin:0 0 20px;letter-spacing:-.025em}
+.course-offer-video{aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;background:radial-gradient(ellipse at 50% 45%,#16494e,#031b1e 70%);border:1px solid #4c7c7e;border-radius:20px;color:#b8cfcd;font:500 12px Montserrat,Arial,sans-serif;box-shadow:inset 0 1px 0 #dfffff1a,0 20px 50px #0003}
+.offer-play{display:grid;place-items:center;width:56px;height:56px;padding-left:4px;border:1px solid #759b96;border-radius:50%;font-size:18px;color:#dfff4e;background:#173c3e}
+.course-offer-cta{display:flex;justify-content:center;align-items:center;gap:8px;margin:24px auto 0;padding:18px 22px;max-width:440px;border-radius:999px;background:var(--chrome);color:#001012;text-decoration:none;font:700 clamp(13px,3.2vw,18px)/1.3 Montserrat,Arial,sans-serif;box-shadow:0 10px 32px #b7ec5520}
+.course-offer-cta:focus-visible{outline:3px solid white;outline-offset:5px}
+.course-showcase{margin-top:55px}.course-promotion .course-showcase h3{font:700 clamp(23px,4.6vw,35px)/1.25 Montserrat,Arial,sans-serif;letter-spacing:-.035em;margin:0 auto;max-width:650px}.course-showcase>p{color:#fff;font:400 clamp(12px,2.6vw,16px)/1.6 Montserrat,Arial,sans-serif;margin:17px 0 26px}
+.showcase-window{overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);border-radius:15px}.showcase-track{display:flex;width:max-content;animation:offer-showcase-scroll 24s linear infinite}.showcase-set{display:flex;gap:14px;padding-right:14px}.showcase-placeholder{width:clamp(115px,23vw,170px);aspect-ratio:9/16;border:1px solid #426f73;border-radius:17px;background:linear-gradient(145deg,#173c41,#001012);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#b1ceca}.showcase-placeholder>span{font-size:19px;color:#dfff4e}.showcase-placeholder small{font:500 10px Montserrat,Arial,sans-serif}.showcase-window:hover .showcase-track,.showcase-window:focus-within .showcase-track{animation-play-state:paused}
+@keyframes offer-showcase-scroll{to{transform:translateX(-50%)}}
+@media(max-width:480px){.course-offer-inner{padding:38px 19px 30px}.course-offer-description{margin:22px auto 29px}.course-offer-video{border-radius:15px}.course-showcase{margin-top:42px}.course-offer-cta{padding:16px 14px}}
+@media(prefers-reduced-motion:reduce){.showcase-track{animation:none}.showcase-window{overflow-x:auto}}
