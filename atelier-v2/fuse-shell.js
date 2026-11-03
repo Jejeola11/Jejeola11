@@ -224,7 +224,7 @@
       const list=currentFile==='free-prompts-workflows.html', back=wrap.querySelector('.logo-link');
       back.href=root+(list?'learn.html':'free-prompts-workflows.html');
       back.setAttribute('aria-label',list?'Back to Academy':'Back to Free Prompts and Workflows');
-      back.style.cssText='display:grid;place-items:center;border:1px solid #315456;border-radius:12px;color:white;text-decoration:none;font-size:25px';
+      back.style.cssText='display:grid;place-items:center;width:clamp(44px,13vw,56px);min-width:44px;height:44px;flex-shrink:0;background:linear-gradient(110deg,#ffe66a,#dfff4e,#eeffe0);border-radius:12px;color:#000;text-decoration:none;font-size:26px;font-weight:700';
       back.textContent='←';
       const badge=wrap.querySelector('.pricing-badge');if(badge)badge.textContent='FROM ₦1,250';
     }
