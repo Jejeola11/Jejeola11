@@ -43,7 +43,7 @@
     try{
       await referralReady;const address=email.value.trim().toLowerCase(),password=pw.value;let result;
       if(view==='create'){
-        result=await sb.auth.signUp({email:address,password,options:{data:{name:name.value.trim(),full_name:name.value.trim()},emailRedirectTo:callback.href}});
+        result=await sb.auth.signUp({email:address,password,options:{data:{name:name.value.trim(),full_name:name.value.trim(),fuse_password_set:true},emailRedirectTo:callback.href}});
         if(!result.error&&!result.data.session){render('confirm','Open the confirmation link or enter the code from your email.');return;}
       }else if(view==='login')result=await sb.auth.signInWithPassword({email:address,password});
       else if(view==='confirm')result=await sb.auth.verifyOtp({email:address,token:code.value.trim(),type:'email'});
