@@ -6,7 +6,6 @@ exports.handler=async event=>{
  const user=await getUser(event);if(!user)return json(401,{error:'Please sign in to create.'});
  let body;try{body=JSON.parse(event.body||'{}');if((event.body||'').length>262144)throw Error()}catch{return json(400,{error:'Invalid model request'})}
  try{
-  if(require('./_higgsfield-seedance').find(body.model))return require('./_higgsfield-jobs').run(event,body);
   const m=(await wave.catalogue()).find(m=>m.model_id===body.model);if(!m)return json(400,{error:'Choose a supported image or video model.'});
   const quoteInputs={...(body.inputs||{})};const gpt=require('./_openai-direct').imageModel(m.model_id);const background=gpt?quoteInputs.background:undefined;
   if(gpt&&background!==undefined&&!['auto','opaque','transparent'].includes(background))return json(400,{error:'Choose a supported background.'});
