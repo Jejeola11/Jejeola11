@@ -102,6 +102,6 @@
       "handle": "filesystem"
     }
   ],
-  "buildCommand": "cd atelier-v2/media/academy && cat course-original.part[0-8] > course-intro-original.mp4 && echo 'a5f2e7c208aa0af826a7bf74159ba001ac701dcb853de56891ea888db2187100  course-intro-original.mp4' | sha256sum -c - && rm course-original.part[0-8]",
+  "buildCommand": "cd atelier-v2/media/academy && cat course-upload-part[0-9][0-9] > course-intro-upload-1763.mp4 && echo 'e2c9f9a9d1ef3c50569319719ce3ea2937fba18f1348347502c6e315c33caa56  course-intro-upload-1763.mp4' | sha256sum -c - && rm -f course-upload-part[0-9][0-9] course-original.part[0-8]",
   "outputDirectory": "."
 }
