@@ -57,3 +57,18 @@
 @keyframes offer-showcase-scroll{to{transform:translateX(-50%)}}
 @media(max-width:480px){.course-offer-inner{padding:38px 19px 30px}.course-offer-description{margin:22px auto 29px}.course-offer-video{border-radius:15px}.course-showcase{margin-top:42px}.course-offer-cta{padding:16px 14px}}
 @media(prefers-reduced-motion:reduce){.showcase-track{animation:none}.showcase-window{overflow-x:auto}}
+
+.course-offer-inner{container-type:inline-size}
+.offer-first-line{display:block;white-space:nowrap;font-size:min(1em,7.6cqw)}
+.course-promotion .course-offer-teaches{font-size:min(29px,4.7cqw);white-space:nowrap}
+.tutorial-next h2{font:700 clamp(25px,6vw,44px)/1.2 Montserrat,Arial,sans-serif;margin:0}
+.tutorial-next p{color:white;line-height:1.7;font-size:clamp(13px,2.5vw,16px)}
+.tutorial-next-block{margin-top:45px}
+.tutorial-next-block h3{font:700 clamp(20px,4.6vw,31px)/1.3 Montserrat,Arial,sans-serif}
+.tutorial-next-block a:not(.course-offer-cta){color:#eeffe0}
+.tutorial-referral-row{display:flex;gap:8px}.tutorial-referral-row[hidden]{display:none}
+.tutorial-referral-row input{flex:1;min-width:0;padding:10px;border:1px solid #537d75;border-radius:10px;background:#062125;color:#fff}
+.tutorial-referral-row button{border:0;border-radius:10px;background:var(--chrome);color:#001012;padding:10px 14px;font-weight:700}
+.showcase-set video{object-fit:cover;display:block;height:auto;flex:none}
+.showcase-track{animation-duration:38s}
+@media(prefers-reduced-motion:reduce){.showcase-set[aria-hidden=true]{display:none}}
