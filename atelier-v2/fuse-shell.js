@@ -332,6 +332,51 @@
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installCreditNotice,{once:true});else installCreditNotice();
 
+  // Accumulate foreground time across app pages in this tab.
+  Fuse.client().then(sb=>{
+    let user, dialog, last=performance.now();
+    const eligible=u=>u?.app_metadata?.provider==='email'&&
+      !(u.app_metadata.providers||[]).some(p=>p!=='email')&&!u.user_metadata?.fuse_password_set;
+    const key=u=>'fuse-password-notice:'+u.id;
+    function show(account){
+      dialog=document.createElement('dialog');
+      dialog.setAttribute('aria-labelledby','fuse-password-title');
+      dialog.style.cssText='box-sizing:border-box;width:min(90vw,400px);padding:24px;border:1px solid #537d75;border-radius:20px;background:#062125;color:#fff;font:16px Montserrat,Arial,sans-serif';
+      dialog.innerHTML='<form><button type="button" aria-label="Dismiss" style="float:right;background:transparent;color:white;border:0;font-size:24px;cursor:pointer">×</button><h2 id="fuse-password-title">Fuse Atelier now uses passwords</h2><p>Set a password for your existing account.</p><input aria-label="New password" type="password" autocomplete="new-password" placeholder="New password (at least 8 characters)" required minlength="8" style="box-sizing:border-box;width:100%;padding:12px;border:1px solid #537d75;border-radius:10px;background:#001012;color:white;font-size:16px"><button class="public-signup" type="submit" style="margin-top:12px;border:0;cursor:pointer">Save</button><p role="status"></p></form>';
+      const el=dialog,form=el.querySelector('form'),input=form.querySelector('input'),save=form.querySelector('[type=submit]'),status=form.querySelector('[role=status]');
+      el.querySelector('[type=button]').onclick=()=>el.close();
+      el.addEventListener('close',()=>{sessionStorage.setItem(key(account),'dismissed');el.remove();if(dialog===el)dialog=null;});
+      form.onsubmit=async event=>{
+        event.preventDefault();save.disabled=true;status.textContent='Saving…';
+        try{
+          const {data}=await sb.auth.getSession();
+          if(data.session?.user.id!==account.id)throw Error('Please sign in again.');
+          const {error}=await sb.auth.updateUser({password:input.value,data:{fuse_password_set:true}});
+          if(error)throw error;
+          user=null;el.close();
+        }catch(error){status.textContent=error.message||'Could not save your password. Try again.';}
+        finally{save.disabled=false;}
+      };
+      document.body.append(el);el.showModal();
+    }
+    sb.auth.onAuthStateChange((_event,session)=>{
+      const next=session?.user;
+      if(user?.id!==next?.id){last=performance.now();if(dialog?.open)dialog.close();}
+      user=eligible(next)?next:null;
+    });
+    function tick(){
+      const now=performance.now(),elapsed=now-last;last=now;
+      if(!user||document.hidden||dialog)return;
+      const k=key(user),previous=sessionStorage.getItem(k);
+      if(previous==='dismissed')return;
+      const total=(Number(previous)||0)+Math.min(elapsed,5000);
+      sessionStorage.setItem(k,String(total));
+      if(total>=300000&&!document.querySelector('dialog[open]'))show(user);
+    }
+    document.addEventListener('visibilitychange',()=>{last=performance.now();});
+    setInterval(tick,1000);
+  }).catch(()=>{});
+
   // One shared offer loader for Home and Academy; payment and ownership stay server verified.
   const fullAccessOffer=document.createElement('script');
   fullAccessOffer.src='/atelier-v2/full-access-offer.js?v=1';
