@@ -263,8 +263,21 @@
     if(protectedPages.has(currentFile)){
       location.replace('/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash));return;
     }
+    if(!document.querySelector('#fuse-signup-prompt')){
+      const dialog=document.createElement('dialog');dialog.id='fuse-signup-prompt';
+      dialog.setAttribute('aria-labelledby','fuse-signup-title');
+      dialog.style.cssText='box-sizing:border-box;width:min(90vw,390px);border:1px solid #537d75;border-radius:20px;background:#062125;color:white;padding:24px;font:16px Montserrat,Arial,sans-serif';
+      dialog.innerHTML='<form method="dialog"><button aria-label="Close signup prompt" style="float:right">×</button></form><h2 id="fuse-signup-title">Welcome to Fuse Atelier</h2><p>Sign up for free to start learning and creating.</p><a class="public-signup">Sign up free</a>';
+      const current=location.pathname+location.search+location.hash;
+      const signup=new URL('/signup',location.origin);
+      signup.searchParams.set('next',current);signup.searchParams.set('return',current);
+      const ref=new URLSearchParams(location.search).get('ref');
+      if(ref)signup.searchParams.set('ref',ref);
+      dialog.querySelector('a').href=signup.href;
+      document.body.append(dialog);dialog.showModal();
+    }
     document.querySelectorAll('.public-signup').forEach(anchor=>anchor.hidden=false);
-     if(!document.querySelector('.public-signup')){
+     if(!document.querySelector('.public-signup:not(dialog a)')){
       const anchor=document.createElement('a');anchor.className='public-signup';anchor.textContent='Sign up';anchor.href='/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash);
       const target=document.querySelector('.reference-header .header-actions,.academy-top,.course-top,.create-top,[data-fuse-header] header,.top');
       if(target?.querySelector('#menuToggle'))target.insertBefore(anchor,target.querySelector('#menuToggle'));else (target||document.body).append(anchor);
