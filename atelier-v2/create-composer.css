@@ -89,3 +89,12 @@ body[data-page=create] .fuse-credit-notice{display:none!important}
 #settingsSheet .setting-range output{min-width:48px;font-size:15px;padding-inline:12px;justify-content:space-between;gap:12px}
 #settingsSheet .setting-range output:after{content:'';display:block;flex:0 0 2px;width:2px;height:14px;border-radius:2px;background:#eeffe0}
 #settingsSheet .setting-range input{touch-action:pan-y}
+
+/* Seedance references use the same compact strip above the prompt as images. */
+#composerMedia[hidden]{display:none!important}
+.composer-files{align-items:flex-start;scrollbar-width:thin}
+.composer-file{flex:0 0 58px;width:58px;height:62px;border-radius:16px}
+.composer-file .reference-order{padding:4px 1px;font-size:9px;line-height:1.15;background:#001012e6}
+.composer-file>button{right:2px;top:2px;width:21px;height:21px;font-size:21px}
+#modelOpen>[aria-hidden]{display:grid;place-items:center;flex:none}
+#modelOpen>[aria-hidden] svg{display:block;width:17px;height:17px}
