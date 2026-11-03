@@ -119,7 +119,7 @@ async function chatCompletion({ prompt, imageUrl, model, timeoutMs = 9000 }) {
     res = await fetch(`${WS_LLM_BASE}/chat/completions`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${process.env.WAVESPEED_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: wsModel, messages: [{ role: 'user', content }] }),
+      body: JSON.stringify({ model: wsModel, max_tokens:4096, messages: [{ role: 'user', content }] }),
       signal: controller.signal,
     });
   } catch (e) {

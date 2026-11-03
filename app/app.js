@@ -13,7 +13,7 @@ const $ = (id) => document.getElementById(id);
 async function quotedGptFetch(url,options){
  let body;try{body=JSON.parse(options?.body||'{}')}catch{return fetch(url,options)}
  const endpoint=String(url).split('?')[0],gptGenerate=endpoint==='/api/generate'&&String(body.model||'').startsWith('gpt-image-');
- const gptChat=endpoint==='/api/ai-chat'&&/^gpt-/.test(body.model||'');
+ const gptChat=endpoint==='/api/ai-chat';
  const studio=['/api/avatar-generate','/api/avatar-modelsheet','/api/flyer-hero','/api/flyer-layer','/api/flyer-composite','/api/flyer-layer-image'].includes(endpoint)||(endpoint==='/api/media-pipeline'&&body.op==='flyer-spot-fix');
  if(!gptGenerate&&!gptChat&&!studio)return fetch(url,options);
  const quoted=await fetch(url,{...options,body:JSON.stringify({...body,quote:true})});if(!quoted.ok)return quoted;const q=await quoted.json();

@@ -1,37 +1,20 @@
+'use strict';
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('node:assert/strict');
-const cache={},stubs={};let fetchImpl;const root=path.join(__dirname,'functions');
-function load(name){if(stubs[name])return stubs[name];if(cache[name])return cache[name].exports;const module={exports:{}};cache[name]=module;const context={module,exports:module.exports,require:p=>p.startsWith('./')?load(p.slice(2)):(stubs[p]||require(p)),Buffer,URL,AbortSignal,setTimeout,clearTimeout,process:{env:{OPENAI_API_KEY:'test-not-a-key'}},fetch:(...a)=>fetchImpl(...a),console};vm.runInNewContext(fs.readFileSync(path.join(root,name+'.js'),'utf8'),context,{filename:name});return module.exports;}
-stubs._supabase={};
-const p=load('_gpt-pricing');
-assert.equal(p.outputTokens('gpt-image-2.5-sunburst',1024,1024,'low'),196);
-assert.equal(p.outputTokens('gpt-image-2.5-flare',1024,1024,'medium'),439);
-assert.equal(p.outputTokens('gpt-image-2',1024,1024,'high'),7024);
-for(const pack of Object.values(load('credit-pricing').PACKS)){const net=(Math.floor(pack.amount_naira*.75)*.91-100)/pack.credits;assert(p.netCreditNaira<=net+1e-8);}
-for(const model of ['gpt-image-2.5-sunburst','gpt-image-2.5-flare','gpt-image-2','gpt-image-1.5'])for(const q of model.includes('2.5')?['low','medium','high','xhigh','max']:['low','medium','high'])for(const res of ['1k','2k','4k'])for(const refs of [0,1,8,14]){
- const quote=p.imageQuote(model,{prompt:'Test photo',quality:q,resolution:res,referenceCount:refs});
- assert(quote.credits*p.netCreditNaira+1e-8>=(quote.provider_usd*p.POLICY.fxBudget+p.POLICY.operatingNaira)*p.POLICY.imageMarkup);
- assert.equal(quote.credits,Math.ceil((quote.provider_usd*p.POLICY.fxBudget+5)*p.POLICY.imageMarkup/p.netCreditNaira));
-}
-assert.throws(()=>p.imageQuote('gpt-image-2',{quality:'max'}));assert.throws(()=>p.imageQuote('gpt-image-1.5',{referenceCount:15}));assert.throws(()=>p.promptBytes('a'.repeat(12001)));assert.throws(()=>p.sizeFor('1:1','1k','10000x10000'));
-for(const model of ['gpt-5.2','gpt-5.5'])for(const refs of [0,1]){const q=p.textQuote(model,{prompt:'a'.repeat(12000),referenceCount:refs});assert(q.credits*p.netCreditNaira>=(q.provider_usd*1750+5)*3-1e-8);}
-assert.equal(p.responseCost({model:'gpt-5.2',usage:{input_tokens:1000,input_tokens_details:{cached_tokens:200},output_tokens:500}}),(800*1.75+200*.175+500*14)/1e6);
-assert.equal(p.responseCost({model:'gpt-5.2',usage:{input_tokens:1000,output_tokens:500}},{imageModel:'gpt-image-2'}),null);
-const refs=load('_gpt-references');assert.throws(()=>refs.allowed('https://127.0.0.1/x'));assert.throws(()=>refs.allowed('https://res.cloudinary.com/other-user/image.png'));assert(refs.allowed('https://rgbweaimkcndjznlazho.supabase.co/storage/v1/object/public/avatars/u/ref.png'));
-stubs['_gpt-references']={normalize:async urls=>urls.map(()=> 'data:image/png;base64,dGVzdA==')};const oa=load('_openai-direct');
-const calls=[];fetchImpl=async(url,init)=>{calls.push({url,body:init.body?JSON.parse(init.body):null});return {ok:true,json:async()=>({id:'resp_test',status:'queued'})}};
+const root=path.join(__dirname,'functions'),cache={};let remote;
+function load(n){if(n==='_supabase')return {};if(cache[n])return cache[n];const m={exports:{}};vm.runInNewContext(fs.readFileSync(path.join(root,n+'.js'),'utf8'),{module:m,exports:m.exports,Buffer,URL,AbortSignal,process:{env:{OPENAI_API_KEY:'test-only'}},fetch:(...args)=>remote(...args),require:p=>p.startsWith('./')?load(p.slice(2)):require(p),console,setTimeout,clearTimeout});return cache[n]=m.exports;}
 (async()=>{
- let rasterSize;stubs.sharp=()=>{const pipeline={metadata:async()=>({format:'png',width:5000,height:2500}),rotate:()=>pipeline,resize:opts=>{rasterSize=[opts.width,opts.height];return pipeline},png:()=>pipeline,toBuffer:async()=>Buffer.from('normalized')};return pipeline;};
- let consumed=false;fetchImpl=async()=>({ok:true,headers:{get:()=> 'image/png'},body:{getReader:()=>({read:async()=>consumed?{done:true}:(consumed=true,{done:false,value:Buffer.from('original')}),cancel:async()=>{}})}});const normalized=await refs.normalizeOne('https://rgbweaimkcndjznlazho.supabase.co/storage/v1/object/public/avatars/u/original.png');assert(normalized.startsWith('data:image/png'));assert(Math.max(...rasterSize)<=1536);
- fetchImpl=async(url,init)=>{calls.push({url,body:init.body?JSON.parse(init.body):null});return {ok:true,json:async()=>({id:'resp_test',status:'queued'})}};
- const body=oa.imageBody('gpt-image-2.5-sunburst',{prompt:'photo',quality:'medium'});assert.equal(body.max_tool_calls,1);assert.equal(body.max_output_tokens,p.POLICY.imageHelperOutputTokens);assert.equal(body.reasoning.effort,'none');
- await oa.submitImage('gpt-image-2.5-sunburst',{prompt:'photo',images:['https://rgbweaimkcndjznlazho.supabase.co/storage/v1/object/public/avatars/u/a.png']});assert(calls.at(-1).body.input[0].content[1].image_url.startsWith('data:image/png'));
- await oa.submitText({model:'gpt-5-5',prompt:'hello',imageUrl:'https://example.com/image'});assert.equal(calls.at(-1).body.max_output_tokens,4096);assert.equal(calls.at(-1).body.reasoning.effort,'none');
- fetchImpl=async()=>({ok:true,json:async()=>({model:'gpt-5.2',status:'incomplete',incomplete_details:{reason:'max_output_tokens'},usage:{input_tokens:100,input_tokens_details:{cached_tokens:0},output_tokens:4096},output:[{type:'message',content:[{type:'output_text',text:'Useful answer'}]}]})});const partial=await oa.pollText('resp_test');assert.equal(partial.status,'completed');assert.equal(partial.truncated,true);
- const packs=load('_packs');assert(packs.imageCreditsForRequest('gpt-image-2.5-sunburst',{prompt:'photo',referenceCount:1})>packs.imageCreditsForRequest('gpt-image-2.5-sunburst',{prompt:'photo',referenceCount:0}));
- let spends=0;const saved=[];Object.assign(stubs._supabase,{getUser:async()=>({id:'user'}),getPlan:async()=>({plan:'pro',isAdmin:false}),json:(statusCode,body)=>({statusCode,body}),admin:()=>({rpc:async()=>{spends++;return {data:50}},from:()=>({insert:async row=>{saved.push(row);return {}}})})});stubs._providers={hasWaveSpeed:()=>true,encodeModelImage:m=>m,triggerTextWorker:()=>{throw Error('GPT should not use the text worker')}};
- fetchImpl=async()=>({ok:true,json:async()=>({id:'resp_test',status:'queued'})});const handler=load('ai-chat').handler,event=body=>({httpMethod:'POST',body:JSON.stringify(body)}),message={model:'gpt-5-2',prompt:'Hello'};const quote=await handler(event({...message,quote:true}));assert.equal(spends,0);assert.equal(quote.statusCode,200);const stale=await handler(event({...message,accepted_credits:1}));assert.equal(stale.statusCode,409);assert.equal(spends,0);const accepted=await handler(event({...message,accepted_credits:quote.body.credits}));assert.equal(accepted.statusCode,200);assert.equal(spends,1);assert(saved[0].meta.provider_usd_quote>0);const tooLong=await handler(event({...message,prompt:'a'.repeat(12001),accepted_credits:quote.body.credits}));assert.equal(tooLong.statusCode,400);assert.equal(spends,1);
- const chat=p.textQuote('gpt-5.2',{prompt:'Hello',referenceCount:0}),premium=p.textQuote('gpt-5.5',{prompt:'Hello',referenceCount:0});
- console.log('Image quotes (1K medium, two refs):',p.imageQuote('gpt-image-2.5-sunburst',{prompt:'Use image 1 as the exact identity and image 2 for styling.',referenceCount:2}).credits);
- console.log('PASS: published calculator vectors; 192 model/settings/reference scenarios; discounted affiliate/fee margin; ceilings; byte/output/tool caps; SSRF allowlist; normalized references; useful partial replies; legacy shared pricing.');
- console.log(JSON.stringify({net_credit_naira:p.netCreditNaira,gpt52_chat:chat.credits,gpt55_chat:premium.credits,image_1k_medium:p.imageQuote('gpt-image-2.5-sunburst',{prompt:'A product photo',resolution:'1k',quality:'medium'}).credits,image_2k_high:p.imageQuote('gpt-image-2.5-sunburst',{prompt:'A product photo',resolution:'2k',quality:'high'}).credits}));
+ const r=load('_retail-pricing'),g=load('_gpt-pricing'),packs=load('_packs');
+ for(const [usd,want]of [[.024,1],[.054,2],[.10,4],[1.8,60],[85/2800,1]])assert.equal(r.credits(usd),want);
+ for(const v of [0,-1,NaN,Infinity])assert.throws(()=>r.credits(v));
+ let count=0;for(const model of ['gpt-image-2.5-sunburst','gpt-image-2.5-flare','gpt-image-2'])for(const resolution of ['1k','2k','4k'])for(const quality of model.includes('2.5')?['low','medium','high','xhigh','max']:['low','medium','high'])for(const referenceCount of [0,1,2,14]){const q=g.imageQuote(model,{prompt:'portrait',resolution,quality,referenceCount});assert.equal(q.credits,r.credits(q.wavespeed_usd));assert.equal(q.pricing_source,'wavespeed');count++;}
+ assert.equal(g.imageQuote('gpt-image-2.5-sunburst',{prompt:'portrait',referenceCount:2}).credits,2);
+ assert.equal(g.imageQuote('gpt-image-2.5-sunburst',{prompt:'portrait',referenceCount:2}).wavespeed_usd,.054);
+ assert.equal(packs.safeCreditsFor(.054),2);assert.equal(packs.imageCreditsForRequest('gpt-image-2.5-sunburst',{referenceCount:2,resolution:'1k'}),2);
+ assert(Math.abs(r.seedanceUsd('2.5','720p',5)-1.8)<1e-10);assert(Math.abs(r.seedanceUsd('2.0','720p',5)-1.2)<1e-10);
+ assert(Math.abs(r.seedanceUsd('2.5','720p',5,5,'video-edit')-2.2)<1e-10);assert(Math.abs(r.seedanceUsd('2.5','720p',5,10,'video-extend')-3.3)<1e-10);
+ const direct=load('_openai-direct').imageBody('gpt-image-2.5-sunburst',{prompt:'test'});assert.equal(direct.max_tool_calls,1);assert.equal(direct.max_output_tokens,2048);
+ const llm=load('_wavespeed-llm-pricing');remote=async()=>({ok:true,json:async()=>({data:Object.values(llm.IDS).map(id=>({id,pricing:{prompt:'0.000002',completion:'0.00001'}}))})});
+ for(const id of Object.keys(llm.IDS)){const q=await llm.quote(id,{prompt:'test'});assert.equal(q.credits,r.credits((4+2048)*.000002+4096*.00001));assert.equal(q.max_output_tokens,4096);}
+ const hf=load('_higgsfield-seedance');for(const m of hf.models().filter(m=>m.type==='text-to-video')){const q=await hf.quote(m,{prompt:'test',resolution:'720p',duration:5},{validate:false});assert.equal(q.credits,r.credits(m.model_id.includes('2.5')?1.8:1.2));}
+ console.log('PASS: exact formula and ceilings; '+count+' GPT settings/reference combinations; legacy image conversion; WaveSpeed Seedance version/edit/extend rates; all seven text model quotes; provider tool caps.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

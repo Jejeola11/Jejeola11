@@ -32,7 +32,7 @@ async function inspect(url,userId,video){url=ownAsset(url,userId);const ck=url+'
  const chunks=[];let size=0;for await(const chunk of r.body){size+=chunk.length;if(size>limit){await r.body.cancel?.().catch(()=>{});throw Error('This reference is too large.');}chunks.push(chunk);}const buffer=Buffer.concat(chunks);
  let result;
  if(video){const fs=require('fs/promises'),os=require('os'),path=require('path'),{randomUUID}=require('crypto'),{probeDuration,probeDimensions}=require('./_ffmpeg');const file=path.join(os.tmpdir(),'hf-'+randomUUID()+'.mp4');try{await fs.writeFile(file,buffer);result={duration:await probeDuration(file),...await probeDimensions(file)}}finally{await fs.unlink(file).catch(()=>{});}}
- else{const im=await require('@napi-rs/canvas').loadImage(buffer);result={width:im.width,height:im.height};}
+ else{const im=await require('sharp')(buffer,{limitInputPixels:32000000}).metadata();result={width:im.width,height:im.height};}
  if(!result.width||!result.height||video&&(!Number.isFinite(result.duration)||result.duration<=0))throw Error('Could not inspect this reference.');
  if(metadata.size>100)metadata.clear();result.until=Date.now()+300000;metadata.set(ck,result);return result;
 }
@@ -50,9 +50,9 @@ async function quote(m,raw,{validate=true,userId}={}){
  if(imageUrls.length+videoUrls.length+audioUrls.length>maxAssets)throw Error('Select at most '+maxAssets+' reference assets for this model.');
  for(const url of [...imageUrls,...videoUrls,...audioUrls]){if(validate||!url.startsWith('https://example.com/'))ownAsset(url,userId);}
  let ratio=input.aspect_ratio||'16:9',videoSeconds=0,source,pendingVideo=false;
- for(const url of videoUrls){if(!validate&&url.startsWith('https://example.com/')){pendingVideo=true;continue;}const info=await inspect(url,userId,true);videoSeconds+=Math.ceil(info.duration);if(url===input.video_url)source=info;}
- if(pendingVideo)videoSeconds=Math.max(videoSeconds,30);
- if(videoSeconds>30)throw Error('Use at most 30 seconds of reference video.');
+ for(const url of videoUrls){if(!validate&&url.startsWith('https://example.com/')){pendingVideo=true;continue;}const info=await inspect(url,userId,true);videoSeconds+=Math.max(2,Math.ceil(info.duration));if(url===input.video_url)source=info;}
+ if(pendingVideo)videoSeconds=Math.max(videoSeconds,m.model_id.includes('2.5')?30:15);
+ if(videoSeconds>(m.model_id.includes('2.5')?30:15))throw Error('Reference video exceeds this model’s duration limit.');
  if(input.image_url&&!input.image_url.startsWith('https://example.com/'))source=await inspect(input.image_url,userId,false);
  if(source)ratio=source.width+':'+source.height;
  // Reference-derived ratios can be arbitrary. Bound the output raster by
@@ -63,9 +63,10 @@ async function quote(m,raw,{validate=true,userId}={}){
  const width=Math.ceil((a>=b?edge*a/b:edge)/64)*64,height=Math.ceil((b>a?edge*b/a:edge)/64)*64;
  const duration=op==='video-edit'?(source?Math.ceil(source.duration):30):input.duration;
  const version=m.model_id.includes('2.5')?'2.5':'2.0';
- const rate=version==='2.5'?(input.resolution==='1080p'?0.0234:0.0214):(input.resolution==='4k'?0.008:0.014);
- const tokens=Math.ceil(width*height*(duration+videoSeconds)*24/1024),usd=tokens/1000*rate*(videoSeconds?0.6:1);
- return {inputs:input,credits:safeCreditsFor(usd),provider_usd:usd,provider:'higgsfield'};
+ const refSeconds=videoUrls.length?Math.max(videoUrls.length*2,videoSeconds):0;
+ const outputSeconds=op==='video-edit'?Math.max(4,Math.min(30,duration)):duration;
+ const usd=require('./_retail-pricing').seedanceUsd(version,input.resolution,outputSeconds,refSeconds,op);
+ return {inputs:input,credits:safeCreditsFor(usd),provider_usd:usd,wavespeed_usd:usd,pricing_source:'wavespeed',pricing_version:require('./_retail-pricing').VERSION,provider:'higgsfield'};
 }
 async function submit(model,input){let r;try{r=await fetch(BASE+'/'+model,{method:'POST',headers:headers(),body:JSON.stringify(input),signal:AbortSignal.timeout(30000)});}catch{const e=Error('Seedance submission is being checked. Do not submit it again.');e.uncertain=true;throw e;}
  const out=await r.json().catch(()=>({}));if(!r.ok){const e=Error(safeError(r.status));e.uncertain=r.status>=500;throw e;}

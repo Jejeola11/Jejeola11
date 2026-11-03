@@ -123,16 +123,7 @@ const USD_RATE = 1400;
 // ============================================================
 // Price every provider run from the cheapest current credit pack on the live
 // pricing page. A pack change automatically updates all model quotes.
-const {PACKS: CREDIT_PACKS}=require('./credit-pricing');
-// Preserve the launch quote basis when pack prices rise. This keeps the
-// intended margin buffer for first-day discounts, referral payouts and fees.
-const NAIRA_PER_CREDIT=Math.min(10000/120,...Object.values(CREDIT_PACKS).map(p=>p.amount_naira/p.credits));
-const MODEL_USD_TO_NAIRA=1400;
-const MODEL_COST_MULTIPLIER=2;
-const safeCreditsFor=usd=>{
-  if(!Number.isFinite(usd)||usd<=0)throw Error('A verified model cost is required.');
-  return Math.max(1,Math.round(usd*MODEL_USD_TO_NAIRA*MODEL_COST_MULTIPLIER/NAIRA_PER_CREDIT));
-};
+const safeCreditsFor=require('./_retail-pricing').credits;
 const seedanceCreditsFor=safeCreditsFor;
 const creditsFor=(cost_usd)=>safeCreditsFor(cost_usd);
 const creditsForImage=(cost_usd)=>safeCreditsFor(cost_usd);
@@ -250,7 +241,7 @@ function imageCreditsForRequest(model,{resolution='2k',referenceCount=0,quality=
     return safeCreditsFor(tiers[resolution]+Math.max(0,refs-1)*.012);
   }
   if(model==='nano-banana-pro-ws-text-to-image' && resolution==='4k') return safeCreditsFor(.24);
-  return base*(resolution==='4k'?2:1);
+  return safeCreditsFor(IMAGE_COST[model]*(resolution==='4k'?2:1));
 }
 
 // Explicit credit overrides, 10 Aug 2026 pricing call — these deliberately
@@ -303,7 +294,7 @@ function videoCreditsForRequest(model, duration, resolution, pricingContext = {}
   if (!base) return null;
   const secs = Math.max(1, parseInt(duration, 10) || 5);
   const multiplier=secs>=10?2:1;
-  return Math.max(base*multiplier,safeCreditsFor((VIDEO_COST[model]||0)*multiplier));
+  return safeCreditsFor((VIDEO_COST[model]||0)*multiplier);
 }
 
 // ---- AI Avatar Creator (long-form video) — WaveSpeed-only cost model ------
@@ -379,7 +370,7 @@ function lipsyncDialogueCredits(mode, durationSec) {
 const AUDIO_MARGIN = 3;
 function audioCredits(estimatedMinutes) {
   const mins = Math.max(0.2, estimatedMinutes);
-  return Math.max(2,safeCreditsFor(mins * AVATAR_VOICE_PER_MIN_USD));
+  return safeCreditsFor(mins * AVATAR_VOICE_PER_MIN_USD);
 }
 
 // Fuse Reactor — text-AI costs (credits per message). MuAPI charges ~$0 for
@@ -388,8 +379,8 @@ const REACTOR_COST = {
   'claude-sonnet-4-5': 2,
   'claude-opus-4-5': 3,
   'claude-haiku-4-5': 1,
-  'gpt-5-5': require('./_gpt-pricing').textQuote('gpt-5.5').credits,
-  'gpt-5-2': require('./_gpt-pricing').textQuote('gpt-5.2').credits,
+  'gpt-5-5': 1,
+  'gpt-5-2': 1,
   'gemini-2-5-pro': 2,
   'gemini-2-5-flash': 1,
 };

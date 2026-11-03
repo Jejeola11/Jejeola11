@@ -26,11 +26,11 @@ exports.handler = async (event) => {
   if(!REACTOR_COST[model])return json(400,{error:'Unknown model.'});
   const directGPT=!!require('./_openai-direct').textModel(model);
   if(directGPT?!require('./_openai-direct').key():!hasWaveSpeed())return json(503,{error:'The selected provider is not configured.'});
-  let cost;
-  try { cost = directGPT ? require('./_gpt-pricing').textQuote(model,{prompt,referenceCount:images.length}).credits : REACTOR_COST[model]; }
+  let cost,priced;
+  try { priced=await require('./_wavespeed-llm-pricing').quote(model,{prompt,referenceCount:images.length});cost=priced.credits; }
   catch(e) { return json(400,{error:e.message}); }
   if(body.quote===true)return json(200,{credits:cost,model,max_output_tokens:directGPT?require('./_gpt-pricing').POLICY.chatOutputTokens:null});
-  if(directGPT&&body.accepted_credits!==cost)return json(409,{error:'Review the updated GPT credit price before sending.',credits:cost});
+  if(body.accepted_credits!==cost)return json(409,{error:'Review the updated GPT credit price before sending.',credits:cost});
   if (!prompt) return json(400, { error: 'Type a message first.' });
   if (!cost) return json(400, { error: 'Unknown model.' });
 
@@ -54,7 +54,7 @@ exports.handler = async (event) => {
     const id = directGPT?(await require('./_openai-direct').submitText({prompt,imageUrl:images[0],model})).requestId:'wsllm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     await db.from('jobs').insert({
       request_id: id, user_id: user.id, kind: 'chat', model: encodeModelImage(model, images[0]), prompt, credits: cost,
-      status: 'processing',meta:directGPT?{provider:'openai',pricing_version:require('./_gpt-pricing').POLICY.version,provider_usd_quote:require('./_gpt-pricing').textQuote(model,{prompt,referenceCount:images.length}).provider_usd}:undefined,
+      status: 'processing',meta:directGPT?{provider:'openai',pricing_version:require('./_gpt-pricing').POLICY.version,provider_usd_quote:priced.provider_usd,pricing_source:'wavespeed'}:undefined,
     });
     if(!directGPT)triggerTextWorker(id);
     return json(200, { request_id: id, credits: balance });

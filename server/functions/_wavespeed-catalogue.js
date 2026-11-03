@@ -44,7 +44,7 @@ async function quote(m,raw,{validate=true}={}){
  if(!Number.isFinite(micro)||micro<=0)throw Error('A verified model quote is unavailable.');
  // Raw catalogue prices are millionths of USD. Discounts are deliberately not
  // assumed so temporary offers cannot remove the margin floor.
- return {inputs:input,credits:safeCreditsFor(micro/1000000),provider_usd:micro/1000000};
+ return {inputs:input,credits:safeCreditsFor(micro/1000000),provider_usd:micro/1000000,wavespeed_usd:micro/1000000,pricing_source:'wavespeed',pricing_version:require('./_retail-pricing').VERSION};
 }
 module.exports={catalogue,schema,pricing,quote,objectAt,apiKey};
 
