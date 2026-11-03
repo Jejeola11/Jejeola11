@@ -20,7 +20,7 @@ const refs=load('_gpt-references');assert.throws(()=>refs.allowed('https://127.0
 stubs['_gpt-references']={normalize:async urls=>urls.map(()=> 'data:image/png;base64,dGVzdA==')};const oa=load('_openai-direct');
 const calls=[];fetchImpl=async(url,init)=>{calls.push({url,body:init.body?JSON.parse(init.body):null});return {ok:true,json:async()=>({id:'resp_test',status:'queued'})}};
 (async()=>{
- let rasterSize;stubs['@napi-rs/canvas']={loadImage:async()=>({width:5000,height:2500}),createCanvas:(w,h)=>({width:w,height:h,getContext:()=>({drawImage:()=>{rasterSize=[w,h]}}),toBuffer:()=>Buffer.from('normalized')})};
+ let rasterSize;stubs.sharp=()=>{const pipeline={metadata:async()=>({format:'png',width:5000,height:2500}),rotate:()=>pipeline,resize:opts=>{rasterSize=[opts.width,opts.height];return pipeline},png:()=>pipeline,toBuffer:async()=>Buffer.from('normalized')};return pipeline;};
  let consumed=false;fetchImpl=async()=>({ok:true,headers:{get:()=> 'image/png'},body:{getReader:()=>({read:async()=>consumed?{done:true}:(consumed=true,{done:false,value:Buffer.from('original')}),cancel:async()=>{}})}});const normalized=await refs.normalizeOne('https://rgbweaimkcndjznlazho.supabase.co/storage/v1/object/public/avatars/u/original.png');assert(normalized.startsWith('data:image/png'));assert(Math.max(...rasterSize)<=1536);
  fetchImpl=async(url,init)=>{calls.push({url,body:init.body?JSON.parse(init.body):null});return {ok:true,json:async()=>({id:'resp_test',status:'queued'})}};
  const body=oa.imageBody('gpt-image-2.5-sunburst',{prompt:'photo',quality:'medium'});assert.equal(body.max_tool_calls,1);assert.equal(body.max_output_tokens,p.POLICY.imageHelperOutputTokens);assert.equal(body.reasoning.effort,'none');
