@@ -42,7 +42,20 @@ function resolveAutoModel(){
  $('modelLabel').textContent='Auto mode';$('modelOpen').querySelector('[aria-hidden]').textContent='✦';$('modelOpen').title='Auto mode · '+label(m);
 }
 const imageSettingLabels={aspect_ratio:'Aspect ratio',__batch:'Batch size',quality:'Quality',resolution:'Resolution',background:'Background'};
-const imageSettingIcons={aspect_ratio:'▭',__batch:'▱',quality:'◇',resolution:'⛶',background:'▥'};
+const settingSvg=body=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true">'+body+'</svg>';
+const settingsArtwork={
+ mode:settingSvg('<path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4"/>'),
+ aspect:settingSvg('<rect x="2" y="5" width="20" height="14" rx="1.5"/>'),
+ duration:settingSvg('<path d="M20.2 8a9 9 0 1 1-6.1-4.7M12 7v5l3 2M18 2v4h4"/>'),
+ quality:settingSvg('<path d="m3 12 9-9h7l3 3v7l-9 9-10-10Z"/><path d="m7 12 7-7"/><circle cx="17.5" cy="7.5" r="1"/>'),
+ sound:settingSvg('<path d="M11 4 6 8H2v8h4l5 4V4Zm4 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>'),
+ batch:settingSvg('<path d="m12 3 10 5-10 5L2 8l10-5ZM2 12l10 5 10-5M2 16l10 5 10-5"/>'),
+ bitrate:settingSvg('<path d="M3 20V11m6 9V4m6 16V8m6 12V2"/>'),
+ resolution:settingSvg('<path d="M14 3h7v7m0-7-8 8M3 14h7v7H3zM3 10V3h7"/>'),
+ background:settingSvg('<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M12 3v18M4 9h8m-8 6h8m-4-12v6m0 6v6"/>'),
+ format:settingSvg('<path d="M6 2h9l5 5v15H6V2Zm9 0v6h5M9 13h8m-8 4h8"/>')
+};
+const imageSettingIcons={aspect_ratio:settingsArtwork.aspect,__batch:settingsArtwork.batch,quality:settingsArtwork.quality,resolution:settingsArtwork.resolution,background:settingsArtwork.background};
 function imageChoices(key,p){
  const root=$('choiceOptions');root.replaceChildren();$('choiceTitle').textContent=imageSettingLabels[key];
  const values=key==='__batch'?[1,2,3,4]:key==='aspect_ratio'?['auto',...(p.enum||[])].filter((v,i,a)=>a.indexOf(v)===i):p.enum||[];
@@ -58,23 +71,22 @@ function renderImageSettings(root){
  if(familyModes().length>1||extra.length){const details=document.createElement('details');details.className='image-settings-more';const summary=document.createElement('summary');summary.textContent='More settings';details.append(summary);if(familyModes().length>1){const mode=document.createElement('button');mode.type='button';mode.className='setting-choice';mode.textContent='Mode: '+modeName(state.model)+' ⌄';mode.onclick=pickMode;details.append(mode);}for(const [key,p]of extra){if(!p.enum)continue;const b=document.createElement('button');b.type='button';b.className='setting-choice';b.textContent=key.replaceAll('_',' ')+': '+String(state.settings[key]??'Auto')+' ⌄';b.onclick=()=>pickSetting(key,p);details.append(b);}root.append(details);}
 }
 const settingNames={aspect_ratio:'Aspect ratio',resolution:'Quality',duration:'Duration',generate_audio:'Sound',num_images:'Batch size',num_outputs:'Batch size',batch_size:'Batch size'};
-const settingIcons={aspect_ratio:'▭',resolution:'◇',duration:'◷',generate_audio:'♫',num_images:'▱',num_outputs:'▱',batch_size:'▱'};
+const settingIcons={aspect_ratio:settingsArtwork.aspect,resolution:settingsArtwork.quality,duration:settingsArtwork.duration,generate_audio:settingsArtwork.sound,num_images:settingsArtwork.batch,num_outputs:settingsArtwork.batch,batch_size:settingsArtwork.batch,__batch:settingsArtwork.batch,bitrate_mode:settingsArtwork.bitrate,bitrate:settingsArtwork.bitrate,output_format:settingsArtwork.format};
 function pickSetting(key,p){
  const root=$('choiceOptions');root.replaceChildren();$('choiceTitle').textContent=settingNames[key]||key.replaceAll('_',' ');
  const values=key==='aspect_ratio'?[...new Set(['auto','16:9','9:16','4:3','3:4','1:1','21:9',...(p.enum||[])])]:p.enum;
  for(const v of values){const b=document.createElement('button');b.type='button';b.className='ratio-option';const supported=p.enum?.includes(v);b.disabled=!supported;b.setAttribute('aria-pressed',String(String(state.settings[key]??'auto')===String(v)));b.innerHTML='<span>'+esc(v==='auto'?'Auto':v)+'</span><i aria-hidden="true"></i>';if(!supported)b.title='Not supported by this model';b.onclick=()=>{if(v==='auto'&&!p.enum?.includes(v))delete state.settings[key];else state.settings[key]=v;$('settingChoices').close();renderSettings();refreshQuote()};root.append(b)}$('settingChoices').showModal();
 }
 function renderSettings(){const root=$('modelSettings');root.replaceChildren();if(!state.model)return;if(!isVideo(state.model))return renderImageSettings(root);$('settingsSheet').classList.remove('image-settings-sheet');
- if(familyModes().length>1){const row=document.createElement('div');row.className='setting-row';row.innerHTML='<span class="setting-title"><i aria-hidden="true">⇄</i><strong>Mode</strong></span>';const b=document.createElement('button');b.type='button';b.className='setting-choice';b.innerHTML='<span>'+esc(modeName(state.model))+'</span><i aria-hidden="true">⌄</i>';b.onclick=pickMode;row.append(b);root.append(row);}
+ if(familyModes().length>1){const row=document.createElement('div');row.className='setting-row';row.innerHTML='<span class="setting-title"><i aria-hidden="true">'+settingsArtwork.mode+'</i><strong>Mode</strong></span>';const b=document.createElement('button');b.type='button';b.className='setting-choice';b.innerHTML='<span>'+esc(modeName(state.model))+'</span><i aria-hidden="true">⌄</i>';b.onclick=pickMode;row.append(b);root.append(row);}
  const entries=Object.entries(props()).filter(([key,p])=>key!=='prompt'&&!isMedia(key,p)&&!['enable_base64_output','enable_sync_mode','enable_web_search'].includes(key));
  const order=['aspect_ratio','duration','resolution','bitrate_mode','generate_audio','num_images','num_outputs','batch_size'];entries.sort((a,b)=>(order.includes(a[0])?order.indexOf(a[0]):99)-(order.includes(b[0])?order.indexOf(b[0]):99));
  if(!entries.some(([k])=>['num_images','num_outputs','batch_size'].includes(k)))entries.push(['__batch',{type:'integer',default:1}]);
- for(const [key,p] of entries){const row=document.createElement('label');row.className='setting-row';const title=document.createElement('span');title.className='setting-title';title.innerHTML='<i aria-hidden="true">'+(settingIcons[key]||'▱')+'</i><strong>'+esc(key==='__batch'?'Batch size':settingNames[key]||key.replaceAll('_',' '))+'</strong>';row.append(title);let el;
+ for(const [key,p] of entries){const row=document.createElement('label');row.className='setting-row';const title=document.createElement('span');title.className='setting-title';title.innerHTML='<i aria-hidden="true">'+(settingIcons[key]||settingsArtwork.format)+'</i><strong>'+esc(key==='__batch'?'Batch size':settingNames[key]||key.replaceAll('_',' '))+'</strong>';row.append(title);let el;
  if(key==='__batch'){el=document.createElement('span');el.className='setting-single';el.textContent=state.model.type.includes('video')?'1 video':'1 image';}
  else if(p.enum){el=document.createElement('button');el.type='button';el.className='setting-choice';el.innerHTML='<span>'+esc(state.settings[key]??'Auto')+'</span><i aria-hidden="true">⌄</i>';el.onclick=()=>pickSetting(key,p);}
  else if(p.type==='boolean'){el=document.createElement('input');el.type='checkbox';el.className='setting-toggle';el.setAttribute('role','switch');el.checked=state.settings[key]===true;}
- else if(isHF()&&key==='duration'){el=document.createElement('input');el.type='number';el.className='setting-duration';el.min=p.minimum;el.max=p.maximum;el.step='1';el.value=state.settings[key]??p.default??5;}
- else if(['integer','number'].includes(p.type)&&p.minimum!==undefined&&p.maximum!==undefined){const wrap=document.createElement('span');wrap.className='setting-range';el=document.createElement('input');el.type='range';el.min=p.minimum;el.max=p.maximum;el.step=p.type==='integer'?1:.1;el.value=state.settings[key]??p.default??p.minimum;const output=document.createElement('output');const update=()=>{output.textContent=el.value+(key==='duration'?'s':'');wrap.style.setProperty('--position',((Number(el.value)-Number(el.min))/(Number(el.max)-Number(el.min))*100)+'%')};update();el.addEventListener('input',update);wrap.append(output,el);row.append(wrap);}
+ else if(['integer','number'].includes(p.type)&&p.minimum!==undefined&&p.maximum!==undefined){const wrap=document.createElement('span');wrap.className='setting-range';el=document.createElement('input');el.type='range';el.min=p.minimum;el.max=p.maximum;el.step=p.type==='integer'?1:.1;el.value=state.settings[key]??p.default??p.minimum;const output=document.createElement('output');const update=()=>{output.textContent=el.value+(key==='duration'?'s':'');el.setAttribute('aria-valuetext',el.value+(key==='duration'?' seconds':''));wrap.style.setProperty('--position',((Number(el.value)-Number(el.min))/(Number(el.max)-Number(el.min))*100)+'%')};update();el.addEventListener('input',update);wrap.append(output,el);row.append(wrap);}
  else{el=document.createElement(p.type==='object'||p.type==='array'?'textarea':'input');if(el.tagName==='INPUT')el.type=['integer','number'].includes(p.type)?'number':'text';el.value=typeof state.settings[key]==='object'?JSON.stringify(state.settings[key]):state.settings[key]??'';el.className='setting-text';if(p.minimum!==undefined)el.min=p.minimum;if(p.maximum!==undefined)el.max=p.maximum;}
  if(key!=='__batch'){el.dataset.setting=key;el.setAttribute('aria-label',settingNames[key]||key.replaceAll('_',' '));if(!p.enum)el.addEventListener('input',()=>{try{state.settings[key]=p.type==='boolean'?el.checked:['integer','number'].includes(p.type)?Number(el.value):['object','array'].includes(p.type)?JSON.parse(el.value||'null'):el.value;refreshQuote()}catch{state.quote=null;$('createSend').disabled=true;note('Check the value for '+key.replaceAll('_',' '));}})}if(!el.parentElement)row.append(el);root.append(row);
  }
