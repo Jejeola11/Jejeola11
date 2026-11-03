@@ -4,7 +4,7 @@ const wave=require('./_wavespeed-catalogue');
 exports.handler=async event=>{
  if(event.httpMethod!=='POST')return json(405,{error:'Method not allowed'});
  const user=await getUser(event);if(!user)return json(401,{error:'Please sign in to create.'});
- let body;try{body=JSON.parse(event.body||'{}');if((event.body||'').length>60000)throw Error()}catch{return json(400,{error:'Invalid model request'})}
+ let body;try{body=JSON.parse(event.body||'{}');if((event.body||'').length>262144)throw Error()}catch{return json(400,{error:'Invalid model request'})}
  try{
   if(require('./_higgsfield-seedance').find(body.model))return require('./_higgsfield-jobs').run(event,body);
   const m=(await wave.catalogue()).find(m=>m.model_id===body.model);if(!m)return json(400,{error:'Choose a supported image or video model.'});
@@ -25,7 +25,7 @@ exports.handler=async event=>{
    const out=await r.json().catch(()=>({}));if(!r.ok||!out.data?.id)throw Error(out.message||'The provider could not start this generation.');
    providerId='ws:'+out.data.id;}
    started=true;const request_id=providerId;
-   const record=await db.from('jobs').insert({request_id,user_id:user.id,kind:m.type.includes('video')||['digital-human','motion-control'].includes(m.type)?'video':'image',model:m.model_id,prompt:String(priced.inputs.prompt||'').slice(0,8000),aspect:priced.inputs.aspect_ratio||'9:16',credits:priced.credits,status:'processing',...(direct?{meta:{provider:'openai',pricing_version:priced.pricing_version,provider_usd_quote:priced.provider_usd,pricing_source:'wavespeed',wavespeed_usd:priced.wavespeed_usd}}:{})});
+   const record=await db.from('jobs').insert({request_id,user_id:user.id,kind:m.type.includes('video')||['digital-human','motion-control'].includes(m.type)?'video':'image',model:m.model_id,prompt:String(priced.inputs.prompt||''),aspect:priced.inputs.aspect_ratio||'9:16',credits:priced.credits,status:'processing',...(direct?{meta:{provider:'openai',pricing_version:priced.pricing_version,provider_usd_quote:priced.provider_usd,pricing_source:'wavespeed',wavespeed_usd:priced.wavespeed_usd}}:{})});
    if(record.error){console.error('[wavespeed job persistence]',request_id);return json(500,{error:'Generation started but could not be saved. Contact support with '+request_id,request_id});}
    return json(200,{request_id,charged:priced.credits,credits:spend.data});
   }catch(e){if(!started&&!e.uncertain)await require('./_openai-direct').refund(db,user.id,priced.credits);throw e}

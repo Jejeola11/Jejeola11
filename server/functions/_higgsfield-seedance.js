@@ -8,7 +8,7 @@ const key=()=>String(process.env.HIGGSFIELD_API_KEY||'').trim();
 const modes={'2.5':['text-to-video','image-to-video','reference-to-video','video-edit','video-extend'],'2.0':['text-to-video','image-to-video','reference-to-video']};
 const media=(array,max)=>array?{type:'array',items:{type:'string',format:'uri'},maxItems:max}:{type:'string',format:'uri'};
 function models(){return Object.entries(modes).flatMap(([version,ops])=>ops.map(op=>{
- const properties={prompt:{type:'string',minLength:1,maxLength:8000},resolution:{type:'string',enum:version==='2.5'?['480p','720p','1080p']:['480p','720p','1080p','4k'],default:'720p'},generate_audio:{type:'boolean',default:true}};
+ const properties={prompt:{type:'string',minLength:1,maxLength:30000},resolution:{type:'string',enum:version==='2.5'?['480p','720p','1080p']:['480p','720p','1080p','4k'],default:'720p'},generate_audio:{type:'boolean',default:true}};
  const required=op==='text-to-video'||op.startsWith('video-')?['prompt']:[];
  if(op!=='video-edit')properties.duration={type:'integer',minimum:4,maximum:version==='2.5'?30:15,default:5};
  if(!['image-to-video','video-edit','video-extend'].includes(op))properties.aspect_ratio={type:'string',enum:ratios,default:'16:9'};

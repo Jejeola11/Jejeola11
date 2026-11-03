@@ -9,7 +9,7 @@ async function refund(db,job,message){
 async function run(event,provided){
  if(event.httpMethod!=='POST')return json(405,{error:'Method not allowed'});
  const user=await getUser(event);if(!user)return json(401,{error:'Please sign in to create.'});
- let body;try{body=provided||JSON.parse(event.body||'{}');if((event.body||'').length>60000)throw Error()}catch{return json(400,{error:'Invalid Seedance request.'});}
+ let body;try{body=provided||JSON.parse(event.body||'{}');if((event.body||'').length>262144)throw Error()}catch{return json(400,{error:'Invalid Seedance request.'});}
  try{
   const m=hf.find(body.model);if(!m)return json(400,{error:'Choose a supported Higgsfield Seedance model.'});
   if(!hf.key())return json(503,{error:'Seedance connection is not configured.'});
@@ -19,7 +19,7 @@ async function run(event,provided){
   const nonce=body.client_request_id||randomUUID();if(!/^[a-zA-Z0-9-]{8,80}$/.test(nonce))return json(400,{error:'Invalid generation reference.'});
   // Persist a user-scoped submission before spending or calling the provider.
   const request_id='hf:'+user.id+':'+nonce,db=admin();
-  let job={request_id,user_id:user.id,kind:'video',model:m.model_id,prompt:String(priced.inputs.prompt||'').slice(0,8000),aspect:priced.inputs.aspect_ratio||'16:9',credits:0,status:'processing',meta:{provider:'higgsfield',submitting:true,provider_usd_quote:priced.provider_usd,pricing_source:'wavespeed',pricing_version:priced.pricing_version,wavespeed_usd:priced.wavespeed_usd}};
+  let job={request_id,user_id:user.id,kind:'video',model:m.model_id,prompt:String(priced.inputs.prompt||''),aspect:priced.inputs.aspect_ratio||'16:9',credits:0,status:'processing',meta:{provider:'higgsfield',submitting:true,provider_usd_quote:priced.provider_usd,pricing_source:'wavespeed',pricing_version:priced.pricing_version,wavespeed_usd:priced.wavespeed_usd}};
   const saved=await db.from('jobs').insert(job);
   if(saved.error){if(saved.error.code==='23505'){const prior=await db.from('jobs').select('*').eq('request_id',request_id).eq('user_id',user.id).maybeSingle();if(prior.data)return json(200,{request_id,charged:prior.data.credits,provider:'higgsfield'});}throw Error('Could not save this generation. No request was sent.');}
   const spend=await db.rpc('higgsfield_reserve_job',{p_request_id:request_id,p_user_id:user.id,p_credits:priced.credits});
