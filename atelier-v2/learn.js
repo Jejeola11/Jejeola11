@@ -121,7 +121,7 @@
   (async()=>{
     try{
       await loadAccess();
-      const buy=new URLSearchParams(location.search).get('buy');if(buy&&checkoutUrls[buy]&&!hasCourseAccess(buy)){const out=await Fuse.api('paystack-init',{pack:checkoutUrls[buy]});location.assign(out.authorization_url);}
+      const buy=new URLSearchParams(location.search).get('buy');if(buy&&checkoutUrls[buy]){if(guest){location.assign('/signup?next='+encodeURIComponent(location.pathname+location.search));return;}if(hasCourseAccess(buy)){location.replace(courseMeta[buy].href);return;}try{const out=await Fuse.api('paystack-init',{pack:checkoutUrls[buy]});location.assign(out.authorization_url);}catch(error){status.textContent=error.message||'Could not start payment. Please try again.';}}
     }catch(error){
       rows.forEach(row=>{
         row.classList.add('is-locked');
