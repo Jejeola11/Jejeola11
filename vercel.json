@@ -101,5 +101,6 @@
     {
       "handle": "filesystem"
     }
-  ]
+  ],
+  "buildCommand": "node scripts/assemble-course-intro.cjs"
 }
