@@ -50,3 +50,7 @@
 .tutorial-feature-title a{color:#fff}
 .tutorial-open-button{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:10px 23px;margin:0 0 18px;border-radius:999px;background:var(--academy-chrome);color:#001012;text-decoration:none;font:600 14px Montserrat,Arial,sans-serif;box-shadow:0 4px 0 #29491b}
 .tutorial-open-button:focus-visible{outline:2px solid #DFFF4E;outline-offset:5px}
+
+.tutorial-feature-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0 3px;container-type:inline-size}
+.tutorial-feature-row .tutorial-feature-title{margin:0;font-size:clamp(9px,3.85cqw,21px);line-height:1.35}
+.tutorial-feature-row .tutorial-open-button{flex:none;white-space:nowrap;gap:4px;min-height:34px;padding:6px clamp(7px,2.5cqw,16px);margin:0;font-size:clamp(10px,3cqw,13px);box-shadow:0 2px 0 #29491b}
