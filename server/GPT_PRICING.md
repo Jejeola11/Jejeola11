@@ -1,10 +1,10 @@
-# GPT credit policy — 2 November 2026
+# GPT credit policy — 3 November 2026
 
 Pricing lives in `functions/_gpt-pricing.js`. OpenAI generation routes must use it instead of WaveSpeed dollar estimates. Credit pack prices, existing balances and affiliate rewards are unchanged.
 
 ## Target
 
-Each quote aims to collect at least three times its buffered generation-and-operating budget **after** the modeled credit-purchase discount, credit affiliate commission and payment fees. This targets a two-thirds contribution margin against that budget, not guaranteed business profit.
+Image quotes target twice their buffered generation-and-operating budget after modeled discounts, commission and fees: a 50% contribution margin against that budget. GPT chat keeps its existing 3× policy. These are budgeting targets, not guaranteed business profit.
 
 Verified commerce assumptions:
 
@@ -24,7 +24,7 @@ Budget assumptions, not claims about current exchange rates:
 
 - Image output tokens: OpenAI's published GPT Image 2 / 2.5 calculator, using the actual dimensions and quality. GPT Image 1.5 uses the published older-model token table.
 - Text input: conservative UTF-8 byte count; prompts over 12,000 bytes are rejected.
-- Images: at most 14 references, normalized server-side to at most 1,536 pixels on the longest edge, at most 2 MB encoded per reference. Conservative input allowance is 16,384 tokens per reference for both image generation and its helper.
+- Images: at most 14 references, normalized server-side to at most 1,536 pixels on the longest edge, at most 2 MB encoded per reference. Image edits budget 8,192 image-input tokens per reference and 4,096 helper-input tokens per reference. These are explicit estimates, not documented fixed token counts or provider spending caps; compare with returned usage and invoices. Chat retains its previous reference allowance.
 - The GPT-5.2 image helper is included in the quote, with `reasoning: none`, a 2,048-output-token ceiling and at most one image tool call.
 - GPT chat: selected model's input/output rates, at most one normalized image, `reasoning: none`, and at most 4,096 output tokens.
 - Useful text returned at the output limit is delivered with a length-limit label, not discarded and refunded as an empty failure.
@@ -47,8 +47,8 @@ Examples for short English prompts, with no references:
 
 | Request | Credits |
 | --- | ---: |
-| GPT Image 2.5, 1K medium | 5 |
-| GPT Image 2.5, 2K high | 14 |
+| GPT Image 2.5, 1K medium | 3–4 |
+| GPT Image 2.5, 2K high | 9 |
 | GPT-5.2 chat | 6 |
 | GPT-5.5 chat | 13 |
 
@@ -59,3 +59,5 @@ Longer prompts, image references, different quality, size and batch count can in
 Token calculators provide estimates, not spending guarantees. Provider failures/refunds, storage and hosting beyond the modeled allowance, exchange-rate changes, taxes, chargebacks and abuse can reduce realized profit. Compare usage with provider invoices and adjust the budget constants if the observed costs exceed the allowance. Do not claim every request is loss-proof.
 
 No paid generation was used to test this change. Run `node server/test-gpt-pricing.cjs`; external services are mocked.
+
+For a short prompt and two references, GPT Image 2.5 1K medium now quotes about 13 credits. Higher settings, longer prompts and batches cost more. The previous per-reference allowance plus 3× image markup made edits unnecessarily expensive.

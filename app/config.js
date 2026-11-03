@@ -124,7 +124,7 @@ window.FUSE = {
   // before generating; the server enforces the real charge independently,
   // so drift here doesn't cost money, it just shows the wrong number.
   IMAGE_MODELS: [
-    { slug: 'gpt-image-2-text-to-image', name: 'GPT Image 2',   badge: 'Most realistic', credits: 9, sample: '/app/media/samples/s4.jpg' },
+    { slug: 'gpt-image-2-text-to-image', name: 'GPT Image 2',   badge: 'Most realistic', credits: 6, sample: '/app/media/samples/s4.jpg' },
     { slug: 'flux-schnell-image',    name: 'Flux Schnell',   badge: 'Fast',      credits: 2,  sample: '/app/media/samples/s1.jpg' },
     { slug: 'flux-dev-image',        name: 'Flux Dev',       badge: 'Quality',   credits: 2,  sample: '/app/media/samples/s4.jpg' },
     { slug: 'nano-banana',           name: 'Nano Banana',    badge: 'Google',    credits: 2,  sample: '/app/media/samples/s3.jpg' },
@@ -191,7 +191,7 @@ window.FUSE = {
     { id: 'gemini-2-5-flash',  name: 'Gemini Flash',  badge: 'Google',    credits: 1, live: true, kind: 'text', vision: true },
     // --- Image AIs: generate or edit pictures in the Reactor (charged like Image Studio) ---
     { id: 'nano-banana',          name: 'Gemini Image (Nano Banana)', badge: 'Google · image', credits: 2,  live: true, kind: 'image', slug: 'nano-banana' },
-    { id: 'gpt-image-2',          name: 'GPT Image 2',                badge: 'OpenAI · image', credits: 9,  live: true, kind: 'image', slug: 'gpt-image-2-text-to-image' },
+    { id: 'gpt-image-2',          name: 'GPT Image 2',                badge: 'OpenAI · image', credits: 6,  live: true, kind: 'image', slug: 'gpt-image-2-text-to-image' },
     { id: 'google-imagen4-ultra', name: 'Imagen 4 Ultra',            badge: 'Google · image', credits: 2, live: true, kind: 'image', slug: 'google-imagen4-ultra' },
   ],
 
