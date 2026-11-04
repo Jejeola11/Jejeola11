@@ -31,7 +31,9 @@
     links.hidden=!['create','login'].includes(mode);links.innerHTML=mode==='create'?'Already have an account? <button type="button" data-mode="login">Log in</button>':'<button type="button" data-mode="forgot">Forgot password?</button><br><br>Don’t have an account? <button type="button" data-mode="welcome">Sign up</button>';
     message.textContent=msg;
   }
-  links.onclick=e=>{if(!busy&&e.target.dataset.mode)render(e.target.dataset.mode);};back.onclick=()=>{if(!busy)render(view==='forgot'?'login':'welcome');};
+  let signupStep='welcome';
+  document.querySelector('.close').addEventListener('click',()=>{try{sessionStorage.setItem('fuse-next-signup-prompt',String(Date.now()+300000));}catch{}});
+  links.onclick=e=>{if(busy||!e.target.dataset.mode)return;if(view==='create')signupStep='create';render(e.target.dataset.mode==='welcome'?signupStep:e.target.dataset.mode);};back.onclick=()=>{if(!busy)render(view==='forgot'?'login':view==='login'?signupStep:'welcome');};
   function agreed(){if($('agree').checked)return true;message.textContent='Please agree to the terms and privacy policy to continue.';$('agree').focus();return false;}
   try{if(localStorage.getItem('fuse_last_auth')==='google'){const badge=document.createElement('span');badge.id='last-used';badge.textContent='Last used';google.append(badge);}}catch{}
   function finish(session){try{localStorage.setItem('fuse_last_auth',session.user.app_metadata?.provider==='google'?'google':'email')}catch{}location.replace(destination);}

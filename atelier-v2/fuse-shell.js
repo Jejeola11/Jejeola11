@@ -263,21 +263,29 @@
     if(protectedPages.has(currentFile)){
       location.replace('/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash));return;
     }
-    if(!document.querySelector('#fuse-signup-prompt')){
-      const dialog=document.createElement('dialog');dialog.id='fuse-signup-prompt';
-      dialog.setAttribute('aria-labelledby','fuse-signup-title');
-      dialog.style.cssText='box-sizing:border-box;width:min(90vw,390px);border:1px solid #537d75;border-radius:20px;background:#062125;color:white;padding:24px;font:16px Montserrat,Arial,sans-serif';
-      dialog.innerHTML='<form method="dialog"><button aria-label="Close signup prompt" style="float:right">×</button></form><h2 id="fuse-signup-title">Welcome to Fuse Atelier</h2><p>Sign up for free to start learning and creating.</p><a class="public-signup">Sign up free</a>';
-      const current=location.pathname+location.search+location.hash;
-      const signup=new URL('/signup',location.origin);
-      signup.searchParams.set('next',current);signup.searchParams.set('return',current);
-      const ref=new URLSearchParams(location.search).get('ref');
-      if(ref)signup.searchParams.set('ref',ref);
-      dialog.querySelector('a').href=signup.href;
-      document.body.append(dialog);dialog.showModal();
-    }
+    const signupClock='fuse-next-signup-prompt';
+    let due=Date.now()+5000, checking=false, stopped=false;
+    try{due=Number(sessionStorage.getItem(signupClock))||due;sessionStorage.setItem(signupClock,String(due));}catch{}
+    const timer=setInterval(async()=>{
+      try{due=Number(sessionStorage.getItem(signupClock))||due;}catch{}
+      if(stopped||checking||document.hidden||Date.now()<due)return;
+      checking=true;
+      try{
+        const {data,error}=await sb.auth.getSession();
+        if(error||document.hidden)return;
+        if(data.session){clearInterval(timer);stopped=true;return;}
+        const current=location.pathname+location.search+location.hash;
+        const url=new URL('/signup',location.origin);
+        url.searchParams.set('next',current);url.searchParams.set('return',current);
+        const ref=new URLSearchParams(location.search).get('ref');
+        if(ref)url.searchParams.set('ref',ref);
+        due=Date.now()+300000;
+        try{sessionStorage.setItem(signupClock,String(due));}catch{}
+        location.assign(url.href);
+      }catch{}finally{checking=false;}
+    },500);
     document.querySelectorAll('.public-signup').forEach(anchor=>anchor.hidden=false);
-     if(!document.querySelector('.public-signup:not(dialog a)')){
+     if(!document.querySelector('.public-signup')){
       const anchor=document.createElement('a');anchor.className='public-signup';anchor.textContent='Sign up';anchor.href='/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash);
       const target=document.querySelector('.reference-header .header-actions,.academy-top,.course-top,.create-top,[data-fuse-header] header,.top');
       if(target?.querySelector('#menuToggle'))target.insertBefore(anchor,target.querySelector('#menuToggle'));else (target||document.body).append(anchor);

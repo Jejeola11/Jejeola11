@@ -52,7 +52,5 @@
       event.preventDefault();referralReady.then(()=>location.assign(signup(url.pathname+url.search+url.hash)));
     }
   },true);
-  setInterval(()=>{
-    if(ready&&!signedIn&&!document.hidden)referralReady.then(()=>{if(!signedIn)location.assign(signup(current));});
-  },10000);
+
 })();
