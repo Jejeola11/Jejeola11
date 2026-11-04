@@ -25,7 +25,7 @@ exports.handler = async event => {
   if(body.mode!=='signup'){
    const {data,error}=await sb.from('profiles').select('id').ilike('email',email).maybeSingle();if(error)throw error;if(!data)return neutral();
   }
-  const {data,error}=await sb.auth.admin.generateLink({type:'magiclink',email,options:{data:{full_name:name,name}}});
+  const {data,error}=await sb.auth.admin.generateLink({type:'magiclink',email,options:{redirectTo:'https://fuseatelier.com/signup',data:{full_name:name,name}}});
   if(error)throw error;
   await captureSignup(sb,{id:data?.user?.id,email,name});
   const code=data?.properties?.email_otp;if(!/^\d{6,10}$/.test(code||''))throw new Error('Sign-in code unavailable');
