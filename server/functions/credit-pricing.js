@@ -2,9 +2,9 @@ const {json}=require('./_supabase');
 const PACKS=Object.freeze({
  'credits-v2-trial':{label:'Try Fuse',amount_naira:1250,credits:20,note:'A small start for your first creations'},
  'credits-v2-mini':{label:'Mini',amount_naira:6250,credits:120,note:'Room to explore your creative ideas'},
- 'credits-v2-creator':{label:'Creator',amount_naira:12500,credits:260,note:'For your next creative project'},
- 'credits-v2-studio':{label:'Studio',amount_naira:25000,credits:560,note:'For regular creative work'},
- 'credits-v2-pro':{label:'Pro',amount_naira:62500,credits:1400,note:'For busy production schedules'},
+ 'credits-v2-creator':{label:'Creator',amount_naira:12500,credits:250,note:'For your next creative project'},
+ 'credits-v2-studio':{label:'Studio',amount_naira:25000,credits:550,note:'For regular creative work'},
+ 'credits-v2-pro':{label:'Pro',amount_naira:62500,credits:1450,note:'For busy production schedules'},
  'credits-v2-agency':{label:'Agency',amount_naira:125000,credits:3000,note:'For larger client projects'}
 });
 exports.PACKS=PACKS;

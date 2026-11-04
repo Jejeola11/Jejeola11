@@ -22,6 +22,7 @@ if(!course){location.replace('learn.html');return}
 const modules=(course.modules||[]).map((m,mi)=>({...m,moduleIndex:mi}));
 const lessons=[];
 modules.forEach((m,mi)=>(m.lessons||[]).forEach((l,li)=>lessons.push({...l,module:m.title,moduleKey:m.key,moduleIndex:mi,lessonIndex:li,moduleData:m})));
+let accessVerified=false,permittedLesson=()=>false;
 let index=-1,requestVersion=0,openModules=new Set();
 
 function cleanTopic(title=''){
@@ -237,7 +238,7 @@ async function loadVideo(lesson,version){
 }
 
 async function open(i,scroll=false){
-  if(i<0||i>=lessons.length)return;
+  if(!accessVerified||i<0||i>=lessons.length||!permittedLesson(lessons[i]))return;
   index=i;
   const lesson=lessons[i],module=modules[lesson.moduleIndex];
   const version=++requestVersion;
@@ -388,37 +389,38 @@ $('saveChallengeGoal').onclick=async()=>{
   finally{button.disabled=false}
 };
 
+
 let selected=lessons.findIndex(l=>l.key===requestedLesson);
 if(selected<0)selected=0;
-if(key==='challenge'){
-  // The course shell itself is restricted to the dedicated enrollment key.
-  (async()=>{
-    try{
-      const sb=await Fuse.client();
-      const session=await Fuse.session();
-      const [profile,unlocks]=await Promise.all([
-        sb.from('profiles').select('is_admin').eq('id',session.user.id).maybeSingle(),
-        sb.from('module_unlocks').select('module_key').eq('user_id',session.user.id).eq('module_key','ai-video-client-challenge')
-      ]);
-      if(profile.error||unlocks.error)throw profile.error||unlocks.error;
-      if(!profile.data?.is_admin && !unlocks.data?.length){
-        $('lessonTitle').textContent='Challenge access required';
-        $('lessonKicker').textContent='FUSE ATELIER · ENROLLMENT';
-        setPlayerMessage('This course is for enrolled challenge students.');
-        $('lessonStatus').textContent='Use the same email Ria enrolled in Fuse Operations.';
-        $('openModules').disabled=true;
-        $('nextLesson').disabled=true;
-        $('lessonPrimaryAction').hidden=true;
-        document.querySelector('.learn-card').hidden=true;
-        return;
-      }
-      open(selected);
-    }catch(error){
-      $('lessonTitle').textContent='Could not check enrollment';
-      setPlayerMessage('Please sign in and reload.');
-      $('lessonStatus').textContent=error?.message||'Access check failed.';
-    }
-  })();
-}else open(selected);
+$('openModules').disabled=true;$('nextLesson').disabled=true;
+$('lessonPrimaryAction').hidden=true;document.querySelector('.learn-card').hidden=true;
+(async()=>{
+  try{
+    const sb=await Fuse.client();
+    const {data:auth,error:authError}=await sb.auth.getSession();
+    if(authError)throw authError;
+    if(!auth.session){location.replace('/signup?next='+encodeURIComponent(location.pathname+location.search));return;}
+    const [profile,unlocks]=await Promise.all([
+      sb.from('profiles').select('is_admin').eq('id',auth.session.user.id).maybeSingle(),
+      sb.from('module_unlocks').select('module_key').eq('user_id',auth.session.user.id)
+    ]);
+    if(profile.error||unlocks.error)throw profile.error||unlocks.error;
+    const owned=new Set((unlocks.data||[]).map(r=>r.module_key));
+    const full=!!profile.data?.is_admin||['atelier-full','atelier-empire','atelier-starter','atelier-creator'].some(k=>owned.has(k));
+    permittedLesson=lesson=>{
+      if(profile.data?.is_admin)return true;
+      if(key==='challenge')return owned.has('ai-video-client-challenge');
+      if(full)return true;
+      if(key==='money')return owned.has('money');
+      return owned.has(lesson.moduleKey);
+    };
+    const first=lessons.findIndex(permittedLesson);
+    if(first<0){$('lessonTitle').textContent='Course access required';setPlayerMessage('This course is not included in your account.');$('lessonStatus').textContent='Open Academy to purchase this course, or sign in with your enrolled email.';return;}
+    accessVerified=true;
+    if(!permittedLesson(lessons[selected]))selected=first;
+    $('openModules').disabled=false;$('lessonPrimaryAction').hidden=false;document.querySelector('.learn-card').hidden=false;
+    sb.auth.onAuthStateChange((event,session)=>{if(!session||session.user.id!==auth.session.user.id){accessVerified=false;location.replace('/signup?next='+encodeURIComponent(location.pathname+location.search));}});
+    open(selected);
+  }catch(error){$('lessonTitle').textContent='Could not verify course access';setPlayerMessage('Connect to the internet and reload.');$('lessonStatus').textContent='Course content stays locked until enrollment is verified.';}
 })();
-
+})();
