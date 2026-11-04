@@ -1,2 +1,86 @@
-document.getElementById('creatorPassButton')?.addEventListener('click',async function(){const status=document.getElementById('passStatus');this.disabled=true;status.textContent='Opening secure checkout…';try{const client=await Fuse.client();const {data}=await client.auth.getSession();if(!data.session){location.assign('/login?next='+encodeURIComponent('/atelier-v2/pricing.html'));return;}const out=await Fuse.api('paystack-init',{pack:'fuse-creator-pass'});location.assign(out.authorization_url);}catch(error){status.textContent=error.message||'Could not start payment. Please try again.';this.disabled=false;}});
-(async function(){const root=document.getElementById('packs'),status=document.querySelector('.status');try{const response=await fetch('/api/credit-pricing');if(!response.ok)throw Error('Could not load credit packs');const data=await response.json();let eligible=false,expiry=null;try{const offer=await Fuse.api('fuse-earn');expiry=offer.discountExpiresAt;eligible=Boolean(expiry&&new Date(expiry)>new Date());if(eligible){const note=document.getElementById('referralOffer');note.hidden=false;note.innerHTML='<strong>Your referral offer is active:</strong> Paystack will automatically apply 25% off your first credit pack until '+new Date(expiry).toLocaleString('en-NG',{dateStyle:'medium',timeStyle:'short'})+'.'}}catch{}for(const p of data.packs){const card=document.createElement('article');card.className='pack '+p.id.replace('credits-v2-','');const inner=document.createElement('span');inner.className='pack-inner';inner.innerHTML='<span class="pack-head"><strong class="name">'+p.label+'</strong><span class="price">'+(eligible?'<del>₦'+Number(p.amount_naira).toLocaleString('en-NG')+'</del>':'')+'<strong>₦'+Number(eligible?Math.round(p.amount_naira*.75):p.amount_naira).toLocaleString('en-NG')+'</strong></span></span><strong class="credits">'+p.credits+' credits</strong><ul class="uses"><li>'+p.note+'</li><li>One-time credit top-up</li><li>Credits added automatically after payment</li></ul>';const button=document.createElement('button');button.className='pack-action';button.type='button';button.textContent='Purchase '+p.label;button.onclick=async()=>{button.disabled=true;button.textContent='Opening secure checkout…';try{const out=await Fuse.api('paystack-init',{pack:p.id});location.assign(out.authorization_url)}catch(err){button.disabled=false;button.textContent='Purchase '+p.label;if(status)status.textContent=err.message||'Could not start payment.'}};inner.append(button);card.append(inner);root.append(card)}}catch{root.textContent='Credit packs could not load. Please refresh this page.'}})();
+(() => {
+  const status = document.getElementById('passStatus');
+  const money = amount => '₦' + Number(amount).toLocaleString('en-NG');
+  const root = document.getElementById('packs');
+  const cards = Array.from(root?.querySelectorAll('[data-pack-id]') || []);
+  let eligible = false;
+
+  async function checkout(button, pack, label) {
+    button.disabled = true;
+    button.textContent = 'Opening secure checkout…';
+    if (status) status.textContent = '';
+    try {
+      const client = await Fuse.client();
+      const { data } = await client.auth.getSession();
+      if (!data.session) {
+        location.assign('/signup?next=' + encodeURIComponent(location.pathname + location.search));
+        return;
+      }
+      // The server always verifies the product, price and discount before Paystack.
+      const out = await Fuse.api('paystack-init', { pack });
+      location.assign(out.authorization_url);
+    } catch (error) {
+      if (status) status.textContent = error.message || 'Could not start payment. Please try again.';
+      button.disabled = false;
+      button.textContent = label;
+    }
+  }
+
+  const passButton = document.getElementById('creatorPassButton');
+  passButton?.addEventListener('click', () => checkout(passButton, 'fuse-creator-pass', 'Get Full Access for ₦25,900'));
+  // Cards are already in the HTML. Bind them before any network or auth work.
+  for (const card of cards) {
+    const button = card.querySelector('[data-pack]');
+    const label = button.textContent;
+    button.addEventListener('click', () => checkout(button, card.dataset.packId, label));
+  }
+
+  function updatePrice(card) {
+    const amount = Number(card.dataset.amountNaira);
+    const price = card.querySelector('.price');
+    price.replaceChildren();
+    if (eligible) {
+      const original = document.createElement('del');
+      original.textContent = money(amount);
+      price.append(original);
+    }
+    const current = document.createElement('strong');
+    current.textContent = money(eligible ? Math.round(amount * .75) : amount);
+    price.append(current);
+  }
+
+  // Refresh values in place; a slow/failed request never hides the pack list.
+  async function refreshPacks() {
+    try {
+      const response = await fetch('/api/credit-pricing');
+      if (!response.ok) return;
+      const data = await response.json();
+      for (const pack of data.packs || []) {
+        const card = cards.find(card => card.dataset.packId === pack.id);
+        if (!card || !Number.isFinite(pack.amount_naira) || !Number.isSafeInteger(pack.credits)) continue;
+        card.dataset.amountNaira = String(pack.amount_naira);
+        card.querySelector('.name').textContent = pack.label;
+        card.querySelector('.credits').textContent = pack.credits + ' credits';
+        card.querySelector('.uses li').textContent = pack.note;
+        updatePrice(card);
+      }
+    } catch { /* Static cards remain visible and server-verified checkout still works. */ }
+  }
+
+  async function refreshReferral() {
+    try {
+      const offer = await Fuse.api('fuse-earn');
+      const expiry = offer.discountExpiresAt;
+      eligible = Boolean(expiry && new Date(expiry) > new Date());
+      if (!eligible) return;
+      const note = document.getElementById('referralOffer');
+      if (note) {
+        note.hidden = false;
+        note.textContent = 'Your referral offer is active: Paystack will automatically apply 25% off your first credit pack until ' + new Date(expiry).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' }) + '.';
+      }
+      cards.forEach(updatePrice);
+    } catch { /* Referral lookup is optional and never delays cards or checkout. */ }
+  }
+  refreshPacks();
+  refreshReferral();
+})();
