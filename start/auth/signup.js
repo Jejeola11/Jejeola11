@@ -19,6 +19,19 @@
   const confirm=document.createElement('div');confirm.innerHTML='<label for="confirm-code">Email confirmation code</label><input id="confirm-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6,10}" maxlength="10">';submit.before(confirm);
   const pw=$('password'), code=$('confirm-code'), eye=$('eye');
   let view,busy=false,resendAt=0;
+  const consentKey='fuse_signup_marketing_consent';
+  function rememberConsent(){try{localStorage.setItem(consentKey,JSON.stringify({optedIn:$('marketing-opt-in').checked,at:Date.now()}));}catch{}}
+  async function saveConsent(session){
+    let pending;try{pending=JSON.parse(localStorage.getItem(consentKey)||'null');}catch{}
+    if(!pending||Date.now()-pending.at>86400000)return;
+    if(pending.optedIn===true){
+      try{
+        const response=await fetch('/api/marketing-consent',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({optedIn:true}),signal:AbortSignal.timeout(5000)});
+        if(!response.ok)throw Error('Consent save failed');
+      }catch{return;}
+    }
+    try{localStorage.removeItem(consentKey);}catch{}
+  }
   const recoveryActions=document.createElement('div');recoveryActions.className='signin';
   recoveryActions.innerHTML='<p id="pending-email"></p><button type="button" id="resend-confirmation">Resend email</button><br><br><button type="button" id="change-email">Change email</button><br><br><button type="button" id="confirmation-login">Back to login</button>';
   submit.after(recoveryActions);
@@ -31,7 +44,7 @@
   eye.onclick=()=>{const show=pw.type==='password';pw.type=show?'text':'password';eye.setAttribute('aria-label',show?'Hide password':'Show password');eye.setAttribute('aria-pressed',String(show));$('slash').style.display=show?'none':'';};
   const back=document.createElement('button');back.type='button';back.textContent='←';back.className='close';back.style.cssText='left:16px;right:auto';back.setAttribute('aria-label','Back');document.querySelector('.close').after(back);
   function render(mode,msg=''){
-    view=mode;document.body.dataset.auth=mode;const welcome=mode==='welcome';
+    view=mode;document.body.dataset.auth=mode;const welcome=mode==='welcome';$('marketing-choice').hidden=!welcome;
     const [title,subtitle,action]={welcome:['Welcome to Fuse Atelier','Sign up and learn AI for free','Continue'],create:['Create an account','Sign up and learn AI for free','Sign up'],login:['Log in to Fuse Atelier','Enter your account and continue creating','Log in'],forgot:['Reset your password','Enter your email to get a reset link','Send reset link'],reset:['Set a new password','Choose a new password','Save password'],confirm:['Check your email','Confirm your email to finish signing up','Verify code']}[mode];
     document.querySelector('h1').textContent=title;document.querySelector('.subheading').textContent=subtitle;submit.textContent=action;
     back.hidden=welcome||mode==='reset';google.hidden=document.querySelector('.divider').hidden=agreement.hidden=name.hidden=name.labels[0].hidden=!welcome;name.required=welcome;
@@ -45,19 +58,19 @@
   links.onclick=e=>{if(busy||!e.target.dataset.mode)return;if(view==='create')signupStep='create';render(e.target.dataset.mode==='welcome'?signupStep:e.target.dataset.mode);};back.onclick=()=>{if(!busy)render(view==='forgot'?'login':view==='login'?signupStep:'welcome');};
   function agreed(){if($('agree').checked)return true;message.textContent='';agreement.classList.remove('needs-attention');void agreement.offsetWidth;agreement.classList.add('needs-attention');agreement.scrollIntoView({block:'nearest',behavior:'smooth'});$('agree').focus({preventScroll:true});return false;}
   try{if(localStorage.getItem('fuse_last_auth')==='google'){const badge=document.createElement('span');badge.id='last-used';badge.textContent='Last used';google.append(badge);}}catch{}
-  function finish(session){try{localStorage.setItem('fuse_last_auth',session.user.app_metadata?.provider==='google'?'google':'email')}catch{}location.replace(new URL(destination,'https://fuseatelier.com').href);}
-  google.onclick=async()=>{if(busy||!agreed())return;busy=true;google.disabled=true;try{await referralReady;const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:callback.href}});if(error)throw error;}catch(e){message.textContent=e.message;busy=false;google.disabled=false;}};
+  async function finish(session){await saveConsent(session);try{localStorage.setItem('fuse_last_auth',session.user.app_metadata?.provider==='google'?'google':'email')}catch{}location.replace(new URL(destination,'https://fuseatelier.com').href);}
+  google.onclick=async()=>{if(busy||!agreed())return;busy=true;google.disabled=true;try{rememberConsent();await referralReady;const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:callback.href}});if(error)throw error;}catch(e){message.textContent=e.message;busy=false;google.disabled=false;}};
   form.noValidate=true;
   submit.addEventListener('click',e=>{if(view==='welcome'&&!agreed())e.preventDefault();});
   form.onsubmit=async e=>{
     e.preventDefault();if(busy)return;
-    if(view==='welcome'){if(agreed()&&form.reportValidity()&&name.value.trim()){render('create');pw.focus();}return;}
+    if(view==='welcome'){if(agreed()&&form.reportValidity()&&name.value.trim()){rememberConsent();render('create');pw.focus();}return;}
     if(!form.reportValidity())return;
     busy=true;submit.disabled=true;message.textContent='';
     try{
       await referralReady;const address=email.value.trim().toLowerCase(),password=pw.value;let result;
       if(view==='create'){
-        result=await sb.auth.signUp({email:address,password,options:{data:{name:name.value.trim(),full_name:name.value.trim(),fuse_password_set:true},emailRedirectTo:callback.href}});
+        result=await sb.auth.signUp({email:address,password,options:{data:{name:name.value.trim(),full_name:name.value.trim(),fuse_password_set:true,email_marketing_opt_in:$('marketing-opt-in').checked,email_marketing_opt_in_at:$('marketing-opt-in').checked?new Date().toISOString():null,email_marketing_consent_text:'Send me occasional updates, guides, and promotions.'},emailRedirectTo:callback.href}});
         if(!result.error&&!result.data.session){resendAt=Date.now()+60000;render('confirm','Confirmation requested. Open the link or enter the newest code. If you already have an account, use Back to login.');return;}
       }else if(view==='login')result=await sb.auth.signInWithPassword({email:address,password});
       else if(view==='confirm')result=await sb.auth.verifyOtp({email:address,token:code.value.trim(),type:'email'});
