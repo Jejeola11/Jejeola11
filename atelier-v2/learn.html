@@ -27,11 +27,13 @@
 .academy-v3 .academy-course.ebook .academy-start{margin-top:auto;height:clamp(29px,9cqw,48px);min-height:0;min-width:0;padding:0 clamp(14px,4cqw,24px);font-size:clamp(14px,4cqw,18px)}
 .academy-v3 .academy-course.academy-free .academy-free-label{font-size:clamp(9px,2.6cqw,12px);padding:4px 8px}
 
-.academy-intro{text-align:center;padding:clamp(28px,6vw,58px) 0 clamp(30px,6vw,52px)}
-.academy-intro-label{display:flex;align-items:center;justify-content:center;gap:9px;margin:0 0 22px;color:var(--academy-lime);font-size:clamp(16px,3.8vw,22px);font-weight:500;line-height:1.2}
-.academy-intro-label svg{width:27px;height:27px;flex:none}
-.academy-intro-title{max-width:850px;margin:0 auto;color:#fff;font-size:clamp(27px,6.5vw,54px);font-weight:600;line-height:1.16;letter-spacing:-.045em;overflow-wrap:anywhere;text-wrap:balance}
-.academy-intro-chrome{display:inline-block;margin-top:8px;background:var(--academy-chrome);background-clip:text;-webkit-background-clip:text;color:transparent}
+body.academy-v3 .academy-shell{margin-top:6px}
+.academy-intro{text-align:center;padding:clamp(10px,2.8vw,20px) 0 clamp(16px,3.5vw,28px)}
+.academy-intro-label{display:flex;align-items:center;justify-content:center;gap:6px;margin:0 0 12px;color:var(--academy-lime);font-size:clamp(13px,3.3vw,17px);font-weight:500;line-height:1.2}
+.academy-intro-label svg{width:19px;height:19px;flex:none}
+.academy-intro-title{max-width:850px;margin:0 auto;color:#fff;font-size:clamp(21px,5.2vw,36px);font-weight:600;line-height:1.22;letter-spacing:-.045em;overflow-wrap:anywhere;text-wrap:balance}
+.academy-intro-greeting{display:block;font-size:clamp(18px,5vw,30px);line-height:1.25;overflow-wrap:anywhere}
+.academy-intro-chrome{display:inline-block;margin-top:6px;background:var(--academy-chrome);background-clip:text;-webkit-background-clip:text;color:transparent}
 </style><link rel="stylesheet" href="academy-tutorial-feature.css?v=feature-row-6"><script src="academy-tutorial-feature.js?v=explore-actions-1" defer></script><style>
 .academy-offer-banner{display:flex;align-items:center;gap:12px;min-height:56px;padding:9px max(12px,calc((100vw - 1100px)/2));background:linear-gradient(100deg,#F8E85C 0%,#B9FF5D 50%,#F4F4F4 100%);color:#090909;font:600 13px/1.25 Montserrat,Arial,sans-serif}
 .academy-offer-banner[hidden]{display:none!important}.academy-offer-banner>span{flex:1}.academy-offer-banner>a{display:flex;align-items:center;justify-content:center;min-height:40px;padding:10px 16px;border-radius:999px;white-space:nowrap;background:linear-gradient(105deg,#090909,#021418 52%,#21474B);color:#fff;text-decoration:none;font-weight:600}.academy-offer-banner>button{border:0;background:none;color:#21474B;font:700 25px/1 Arial;min-width:32px;min-height:40px;padding:0;cursor:pointer}.academy-offer-banner a:focus-visible,.academy-offer-banner button:focus-visible{outline:2px solid #001012;outline-offset:2px}@media(max-width:350px){.academy-offer-banner{gap:6px;font-size:12px}.academy-offer-banner>a{padding:10px 12px}}
@@ -54,7 +56,7 @@
   <main class="academy-shell">
     <section class="academy-intro" aria-labelledby="academyGreeting">
       <p class="academy-intro-label"><svg viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M1 11 16 4l15 7-15 7L1 11Zm5 5.5 10 4.7 10-4.7V24c-6.7 4.7-13.3 4.7-20 0v-7.5Z"/><path d="M30 12v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Academy</span></p>
-      <h1 id="academyGreeting" class="academy-intro-title">Welcome, <span id="academyName">there</span>.<br><span class="academy-intro-chrome">Your next skill is waiting.</span></h1>
+      <h1 id="academyGreeting" class="academy-intro-title"><span class="academy-intro-greeting">Welcome, <span id="academyName">there</span>.</span><span class="academy-intro-chrome">Your next skill is waiting.</span></h1>
     </section>
     <p id="courseStatus" class="academy-status" role="status">Checking your course access…</p>
 
