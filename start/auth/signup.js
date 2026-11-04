@@ -7,7 +7,8 @@
   const next = new URLSearchParams(location.search).get('next');
   const destination = next?.startsWith('/atelier-v2/') && !next.startsWith('//') ? next : '/atelier-v2/home.html';
   const requestedReturn=new URLSearchParams(location.search).get('return');
-  const returnTo=requestedReturn?.startsWith('/atelier-v2/')&&!requestedReturn.startsWith('//')?requestedReturn:'/';
+  function safeReturn(value){try{const u=new URL(value,location.origin);if(u.origin!==location.origin||['/signup','/login'].some(p=>u.pathname.startsWith(p))||u.pathname.startsWith('/start/auth/'))return null;return u.pathname+u.search+u.hash;}catch{return null;}}
+  const returnTo=(requestedReturn&&safeReturn(requestedReturn))||(next&&safeReturn(next))||(document.referrer&&safeReturn(document.referrer))||'/atelier-v2/home.html';
 
   const form=$('signup-form'), email=$('email'), name=$('name'), submit=$('submit'), google=$('google'), links=document.querySelector('.signin'), agreement=document.querySelector('.agreement');
   document.querySelector('.close').href=returnTo;
@@ -34,13 +35,16 @@
   let signupStep='welcome';
   document.querySelector('.close').addEventListener('click',()=>{try{sessionStorage.setItem('fuse-next-signup-prompt',String(Date.now()+300000));}catch{}});
   links.onclick=e=>{if(busy||!e.target.dataset.mode)return;if(view==='create')signupStep='create';render(e.target.dataset.mode==='welcome'?signupStep:e.target.dataset.mode);};back.onclick=()=>{if(!busy)render(view==='forgot'?'login':view==='login'?signupStep:'welcome');};
-  function agreed(){if($('agree').checked)return true;message.textContent='Please agree to the terms and privacy policy to continue.';$('agree').focus();return false;}
+  function agreed(){if($('agree').checked)return true;message.textContent='';agreement.classList.remove('needs-attention');void agreement.offsetWidth;agreement.classList.add('needs-attention');agreement.scrollIntoView({block:'nearest',behavior:'smooth'});$('agree').focus({preventScroll:true});return false;}
   try{if(localStorage.getItem('fuse_last_auth')==='google'){const badge=document.createElement('span');badge.id='last-used';badge.textContent='Last used';google.append(badge);}}catch{}
   function finish(session){try{localStorage.setItem('fuse_last_auth',session.user.app_metadata?.provider==='google'?'google':'email')}catch{}location.replace(new URL(destination,'https://fuseatelier.com').href);}
   google.onclick=async()=>{if(busy||!agreed())return;busy=true;google.disabled=true;try{await referralReady;const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:callback.href}});if(error)throw error;}catch(e){message.textContent=e.message;busy=false;google.disabled=false;}};
+  form.noValidate=true;
+  submit.addEventListener('click',e=>{if(view==='welcome'&&!agreed())e.preventDefault();});
   form.onsubmit=async e=>{
     e.preventDefault();if(busy)return;
-    if(view==='welcome'){if(agreed()&&name.value.trim()){render('create');pw.focus();}return;}
+    if(view==='welcome'){if(agreed()&&form.reportValidity()&&name.value.trim()){render('create');pw.focus();}return;}
+    if(!form.reportValidity())return;
     busy=true;submit.disabled=true;message.textContent='';
     try{
       await referralReady;const address=email.value.trim().toLowerCase(),password=pw.value;let result;
