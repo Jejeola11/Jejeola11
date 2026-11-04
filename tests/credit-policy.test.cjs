@@ -76,5 +76,8 @@ test('image quote cannot be lowered by client credit fields or provider flags',a
 });
 test('Vercel cannot finish a build without running the pricing checks',()=>{
  const config=JSON.parse(fs.readFileSync(require.resolve('../vercel.json'),'utf8'));
- assert(config.buildCommand.startsWith('node --test tests/credit-policy.test.cjs && '));
+ assert.equal(config.buildCommand,'bash scripts/vercel-build.sh');
+ const script=fs.readFileSync(require.resolve('../scripts/vercel-build.sh'),'utf8');
+ assert(script.includes('set -euo pipefail'));
+ assert(script.includes('node --test tests/credit-policy.test.cjs && '));
 });
