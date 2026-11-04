@@ -34,6 +34,7 @@
   };
 
   for(const offer of window.FuseAgentCourseOffers||[]){courseMeta[offer.key].price=offer.price;}
+  let accessReady=false;
   let guest=false;
   let isFull=false;
   let owned=new Set();
@@ -54,6 +55,7 @@
       if(!meta) return;
       const allowed=hasCourseAccess(course);
       row.hidden=false;
+      row.removeAttribute('aria-disabled');
       row.classList.toggle('is-locked',!allowed);
       row.querySelector('.academy-lock-label')?.remove();
       row.href=guest?'#':allowed?meta.href:'#';
@@ -72,7 +74,7 @@
     const sb=await Fuse.client();
     const {data:{session},error:sessionError}=await sb.auth.getSession();
     if(sessionError)throw sessionError;
-    if(!session){guest=true;renderAccess();status.textContent='Sign up to get full access to the academy page';return;}
+    if(!session){accessReady=true;guest=true;renderAccess();status.textContent='Sign up to get full access to the academy page';return;}
 
     renderName(session.user);
     // Refresh metadata so edits made on Profile are reflected on the next visit.
@@ -96,12 +98,14 @@
       || owned.has('atelier-starter')
       || owned.has('atelier-creator');
 
+    accessReady=true;
     renderAccess();
     if(!keepStatus) status.textContent='';
   }
 
   rows.forEach(row=>{
     row.addEventListener('click',async event=>{
+      if(!accessReady){event.preventDefault();status.textContent='Connect to the internet and reload to check course access.';return;}
       const course=row.dataset.course;
       if(guest){
         event.preventDefault();
@@ -126,8 +130,10 @@
       rows.forEach(row=>{
         row.classList.add('is-locked');
         row.removeAttribute('href');
+        row.setAttribute('aria-disabled','true');
+        const cta=row.querySelector('.academy-start');if(cta)cta.textContent='Connect to check access';
       });
-      status.textContent='Sign up to get full access to the academy page';
+      status.textContent='Could not verify course access. Connect to the internet and reload.';
     }
   })();
 })();
