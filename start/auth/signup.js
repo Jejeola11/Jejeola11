@@ -11,7 +11,7 @@
 
   const form=$('signup-form'), email=$('email'), name=$('name'), submit=$('submit'), google=$('google'), links=document.querySelector('.signin'), agreement=document.querySelector('.agreement');
   document.querySelector('.close').href=returnTo;
-  const params=new URLSearchParams(location.search), callback=new URL('/signup',location.origin);
+  const params=new URLSearchParams(location.search), callback=new URL('/signup','https://fuseatelier.com');
   for(const key of ['next','return','ref'])if(params.has(key))callback.searchParams.set(key,params.get(key));
   const row=document.createElement('div');row.className='password-row';row.innerHTML='<input id="password" aria-label="Password" placeholder="Password" type="password"><button type="button" id="eye" aria-label="Show password" aria-pressed="false"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path id="slash" d="M3 3l18 18"/></svg></button>';
   submit.before(row);
@@ -36,7 +36,7 @@
   links.onclick=e=>{if(busy||!e.target.dataset.mode)return;if(view==='create')signupStep='create';render(e.target.dataset.mode==='welcome'?signupStep:e.target.dataset.mode);};back.onclick=()=>{if(!busy)render(view==='forgot'?'login':view==='login'?signupStep:'welcome');};
   function agreed(){if($('agree').checked)return true;message.textContent='Please agree to the terms and privacy policy to continue.';$('agree').focus();return false;}
   try{if(localStorage.getItem('fuse_last_auth')==='google'){const badge=document.createElement('span');badge.id='last-used';badge.textContent='Last used';google.append(badge);}}catch{}
-  function finish(session){try{localStorage.setItem('fuse_last_auth',session.user.app_metadata?.provider==='google'?'google':'email')}catch{}location.replace(destination);}
+  function finish(session){try{localStorage.setItem('fuse_last_auth',session.user.app_metadata?.provider==='google'?'google':'email')}catch{}location.replace(new URL(destination,'https://fuseatelier.com').href);}
   google.onclick=async()=>{if(busy||!agreed())return;busy=true;google.disabled=true;try{await referralReady;const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:callback.href}});if(error)throw error;}catch(e){message.textContent=e.message;busy=false;google.disabled=false;}};
   form.onsubmit=async e=>{
     e.preventDefault();if(busy)return;
