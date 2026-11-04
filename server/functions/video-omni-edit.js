@@ -16,7 +16,7 @@ const { submitVideoEdit, hasWaveSpeed } = require('./_providers');
 
 const MODEL = 'gemini-omni-flash-video-edit';
 
-exports.handler = async (event) => {
+const legacyHandler = async (event) => {
   let db, user, cost = 0;
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
@@ -56,4 +56,11 @@ exports.handler = async (event) => {
     try { if (db && user && cost) await db.rpc('add_credits', { uid: user.id, amount: cost, why: 'refund' }); } catch (_) {}
     return json(502, { error: (e && e.message) || 'Could not start the edit', refunded: cost });
   }
+};
+
+// No provider submission or credit debit while the duration price is unverified.
+exports.handler = async event => {
+  if(event.httpMethod!=='POST')return json(405,{error:'Method not allowed'});
+  if(!await getUser(event))return json(401,{error:'Please sign in again.'});
+  return json(503,{error:'This tool needs a verified duration-based price before generation. Please use the model catalogue.',code:'PRICING_REVIEW_REQUIRED'});
 };

@@ -1,6 +1,7 @@
 'use strict';
 // Locked retail assumptions. Re-review before increasing discounts, commissions,
 // payment fees or USD exposure. Free/historical credits are acquisition costs.
+const VERSION='fuse-credit-policy-2026-11-04';
 const POLICY=Object.freeze({usdNaira:1500,minimumRetailNaira:1250/15,maxDiscount:.25,affiliateRate:.05,paymentRate:.02,paymentFixedNaira:100,smallestPackCredits:15,minimumContributionMargin:.10});
 const netNairaPerCredit=POLICY.minimumRetailNaira*(1-POLICY.maxDiscount)*(1-POLICY.affiliateRate-POLICY.paymentRate)-POLICY.paymentFixedNaira/POLICY.smallestPackCredits;
 function credits(usd){
@@ -16,4 +17,4 @@ function assertPack(pack,amount=pack.amount_naira){
  const net=(amount*(1-POLICY.affiliateRate-POLICY.paymentRate)-POLICY.paymentFixedNaira)/pack.credits;
  if(net+1e-9<netNairaPerCredit)throw Error('This credit offer requires a pricing review.');
 }
-module.exports={POLICY,netNairaPerCredit,credits,assertPack};
+module.exports=Object.freeze({VERSION,POLICY,netNairaPerCredit,credits,assertPack});

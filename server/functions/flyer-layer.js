@@ -77,7 +77,7 @@ exports.handler = async (event) => {
 
     const cost0 = IMAGE_MODELS[model];
     const referenceCount=1+layerImages.length+Math.min(Math.max(0,MAX_IMAGES-1-layerImages.length),Array.isArray(project.reference_image_urls)?project.reference_image_urls.length:0);
-    cost = wantsWS ? imageCreditsForRequest(model,{resolution:'1k',referenceCount,quality:'medium'}) : cost0;
+    cost = imageCreditsForRequest(model,{resolution:'1k',referenceCount,quality:'medium'});
     if(body.quote===true)return json(200,{credits:cost});
     if(body.accepted_credits!==cost)return json(409,{error:'Review the updated GPT credit quote.',credits:cost});
     const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });

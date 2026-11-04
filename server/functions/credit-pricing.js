@@ -1,4 +1,4 @@
-const {assertPack}=require('./_credit-policy');
+const {assertPack,VERSION,POLICY}=require('./_credit-policy');
 const {json}=require('./_supabase');
 const PACKS=Object.freeze({
  'credits-v2-trial':{label:'Try Fuse',amount_naira:1250,credits:15,note:'A small start for your first creations'},
@@ -10,4 +10,4 @@ const PACKS=Object.freeze({
 });
 Object.values(PACKS).forEach(pack=>assertPack(pack,Math.round(pack.amount_naira*.75)));
 exports.PACKS=PACKS;
-exports.handler=async event=>event.httpMethod!=='GET'?json(405,{error:'Method not allowed'}):json(200,{version:'2026-11-profit-protected',enabled:true,packs:Object.entries(PACKS).map(([id,pack])=>({id,...pack})),quoteRequired:false});
+exports.handler=async event=>event.httpMethod!=='GET'?json(405,{error:'Method not allowed'}):json(200,{version:'2026-11-profit-protected',enabled:true,pricing_policy:{version:VERSION,usd_naira:POLICY.usdNaira,minimum_contribution_margin:POLICY.minimumContributionMargin},packs:Object.entries(PACKS).map(([id,pack])=>({id,...pack})),quoteRequired:false});

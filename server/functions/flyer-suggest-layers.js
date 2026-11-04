@@ -34,7 +34,10 @@ exports.handler = async (event) => {
 
   let plan = 'pro', isAdmin = false;
   try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
-  const cost = REACTOR_COST[MODEL];
+  let priced;
+  try { priced=await require('./_wavespeed-llm-pricing').quote(MODEL,{prompt:SYSTEM,referenceCount:1}); }catch(e){return json(503,{error:e.message})}
+  const cost=Math.max(REACTOR_COST[MODEL],priced.credits);
+  if(body.quote===true)return json(200,{credits:cost});
   if (plan === 'free' && !isAdmin && !canUseFree(MODEL)) {
     return json(403, { error: 'This requires a subscription.', code: 'PLAN_REQUIRED' });
   }

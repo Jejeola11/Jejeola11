@@ -40,7 +40,6 @@ exports.handler = async (event) => {
 
   let plan = 'pro', isAdmin = false;
   try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
-  const cost = REACTOR_COST[MODEL];
   if (plan === 'free' && !isAdmin && !canUseFree(MODEL)) {
     return json(403, { error: 'Flyer Studio requires a subscription.', code: 'PLAN_REQUIRED' });
   }
@@ -52,23 +51,19 @@ exports.handler = async (event) => {
     if (data && data.user_id === user.id) project = data;
   }
 
-  const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
-  if (balance === null) return json(402, { error: 'Not enough credits.', code: 'NO_CREDITS' });
+  // The spec model can't see the references (only the first is passed
+  // through as a real image input). What it CAN do is say, per image layer,
+  // which attached reference that layer should be built from — so the
+  // later per-layer generation call knows to attach it. Anything vaguer
+  // than an explicit index gets ignored by the image model, which is the
+  // single most common way an attached reference goes unused.
+  const refNote = refs.length
+    ? `\n\nThe user attached ${refs.length} reference image(s), numbered 1-${refs.length} in order. You cannot see them, but each one can be passed into the generation of an individual image layer. When a layer should be built from a specific attachment, add "refIndex": <number> to that layer. Materials the user supplied (a product photo, a logo, a headshot) belong on the layer that depicts them. Inspiration flyers inform the GRID and PALETTE you choose — never copy their content, and do not attach them to a layer.`
+    : '';
+  const aspectNote = aspect ? `\n\nThe user wants aspect "${aspect}" — use it unless it is impossible for what they asked for.` : '';
+  const notesNote = notes ? `\n\nExtra direction from the user, which outranks your defaults where they conflict:\n${notes}` : '';
 
-  try {
-    // The spec model can't see the references (only the first is passed
-    // through as a real image input). What it CAN do is say, per image layer,
-    // which attached reference that layer should be built from — so the
-    // later per-layer generation call knows to attach it. Anything vaguer
-    // than an explicit index gets ignored by the image model, which is the
-    // single most common way an attached reference goes unused.
-    const refNote = refs.length
-      ? `\n\nThe user attached ${refs.length} reference image(s), numbered 1-${refs.length} in order. You cannot see them, but each one can be passed into the generation of an individual image layer. When a layer should be built from a specific attachment, add "refIndex": <number> to that layer. Materials the user supplied (a product photo, a logo, a headshot) belong on the layer that depicts them. Inspiration flyers inform the GRID and PALETTE you choose — never copy their content, and do not attach them to a layer.`
-      : '';
-    const aspectNote = aspect ? `\n\nThe user wants aspect "${aspect}" — use it unless it is impossible for what they asked for.` : '';
-    const notesNote = notes ? `\n\nExtra direction from the user, which outranks your defaults where they conflict:\n${notes}` : '';
-
-    const fullPrompt = `${buildSpecBrainPrompt()}
+  const fullPrompt = `${buildSpecBrainPrompt()}
 
 ${buildSpecSchemaPrompt()}
 
@@ -77,6 +72,14 @@ ${brief}${notesNote}${refNote}${aspectNote}
 
 Return ONLY the JSON object. No commentary before or after it, no markdown fence.`;
 
+  let priced;
+  try { priced=await require('./_wavespeed-llm-pricing').quote(MODEL,{prompt:fullPrompt,referenceCount:0}); } catch(e){return json(503,{error:e.message})}
+  const cost=Math.max(REACTOR_COST[MODEL],priced.credits);
+  if(body.quote===true)return json(200,{credits:cost});
+  const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
+  if (balance === null) return json(402, { error: 'Not enough credits.', code: 'NO_CREDITS' });
+
+  try {
     const id = 'wsllm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
 
     let projectId = project && project.id;

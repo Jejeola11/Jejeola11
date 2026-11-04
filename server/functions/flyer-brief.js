@@ -92,7 +92,6 @@ exports.handler = async (event) => {
 
   let plan = 'pro', isAdmin = false;
   try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
-  const cost = REACTOR_COST[MODEL];
   if (plan === 'free' && !isAdmin && !canUseFree(MODEL)) {
     return json(403, { error: 'Flyer Studio\'s design assistant requires a subscription.', code: 'PLAN_REQUIRED' });
   }
@@ -104,27 +103,32 @@ exports.handler = async (event) => {
     if (data && data.user_id === user.id) project = data;
   }
 
+  // Merge, don't just prefer one side — the client resends its full current
+  // set every message, but always merging with whatever's already stored
+  // means a stale/reloaded client can't accidentally make the assistant
+  // "forget" references that are genuinely still attached to the project.
+  const storedRefs = (project && project.reference_image_urls) || [];
+  const refs = Array.from(new Set([...storedRefs, ...referenceImageUrls]));
+  const convo = history.map((h) => `${h.role === 'assistant' ? 'YOU' : 'USER'}: ${h.text}`).join('\n');
+  const refNote = refs.length ? `\n\n${refs.length} reference image(s) attached (product photos and/or inspiration flyers) — one sample is shown to you directly below; all ${refs.length} will be passed into the actual image generation as visual grounding once a direction is settled.` : '';
+  const projectNote = project ? `\n\nCurrent project brief: ${project.brief}${project.niche ? ` (niche: ${project.niche})` : ''}${project.hero_prompt ? `\nCurrent hero visual prompt in use: ${project.hero_prompt}` : ''}` : '';
+  const fullPrompt = `${SYSTEM_PREAMBLE}${refNote}${projectNote}\n\n${convo ? convo + '\n' : ''}USER: ${message}`;
+
+  // A rich brief response can genuinely take longer than Netlify's own
+  // function timeout — confirmed live 2026-07-17. So this just inserts a
+  // pending job with everything job-status.js needs (the full prompt,
+  // plus the reference image encoded into `model`) and returns
+  // immediately; the actual WaveSpeed call happens lazily on the first
+  // poll, same lazy-completion pattern already used for Resemble audio.
+
+  let priced;
+  try { priced=await require('./_wavespeed-llm-pricing').quote(MODEL,{prompt:fullPrompt,referenceCount:refs.length?1:0}); } catch(e){return json(503,{error:e.message})}
+  const cost=Math.max(REACTOR_COST[MODEL],priced.credits);
+  if(body.quote===true)return json(200,{credits:cost});
   const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
   if (balance === null) return json(402, { error: 'Not enough credits.', code: 'NO_CREDITS' });
 
   try {
-    // Merge, don't just prefer one side — the client resends its full current
-    // set every message, but always merging with whatever's already stored
-    // means a stale/reloaded client can't accidentally make the assistant
-    // "forget" references that are genuinely still attached to the project.
-    const storedRefs = (project && project.reference_image_urls) || [];
-    const refs = Array.from(new Set([...storedRefs, ...referenceImageUrls]));
-    const convo = history.map((h) => `${h.role === 'assistant' ? 'YOU' : 'USER'}: ${h.text}`).join('\n');
-    const refNote = refs.length ? `\n\n${refs.length} reference image(s) attached (product photos and/or inspiration flyers) — one sample is shown to you directly below; all ${refs.length} will be passed into the actual image generation as visual grounding once a direction is settled.` : '';
-    const projectNote = project ? `\n\nCurrent project brief: ${project.brief}${project.niche ? ` (niche: ${project.niche})` : ''}${project.hero_prompt ? `\nCurrent hero visual prompt in use: ${project.hero_prompt}` : ''}` : '';
-    const fullPrompt = `${SYSTEM_PREAMBLE}${refNote}${projectNote}\n\n${convo ? convo + '\n' : ''}USER: ${message}`;
-
-    // A rich brief response can genuinely take longer than Netlify's own
-    // function timeout — confirmed live 2026-07-17. So this just inserts a
-    // pending job with everything job-status.js needs (the full prompt,
-    // plus the reference image encoded into `model`) and returns
-    // immediately; the actual WaveSpeed call happens lazily on the first
-    // poll, same lazy-completion pattern already used for Resemble audio.
     const id = 'wsllm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
 
     let projectId = project && project.id;

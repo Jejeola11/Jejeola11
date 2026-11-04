@@ -59,7 +59,6 @@ exports.handler = async (event) => {
 
   let plan = 'pro', isAdmin = false;
   try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; } catch (e) {}
-  const cost = REACTOR_COST[MODEL];
   if (plan === 'free' && !isAdmin && !canUseFree(MODEL)) {
     return json(403, { error: 'The editing assistant requires a subscription.', code: 'PLAN_REQUIRED' });
   }
@@ -72,15 +71,19 @@ exports.handler = async (event) => {
   }
   if (!project) return json(400, { error: 'Upload and transcribe a video first.' });
 
+  const convo = history.map((h) => `${h.role === 'assistant' ? 'YOU' : 'USER'}: ${h.text}`).join('\n');
+  const transcriptText = project.transcript && project.transcript.text ? project.transcript.text.slice(0, 4000) : null;
+  const transcriptNote = transcriptText ? `\n\nVideo transcript:\n"""${transcriptText}"""` : '\n\n(No transcript yet — reason from the user\'s description alone.)';
+  const fullPrompt = `${SYSTEM_PREAMBLE}${transcriptNote}\n\n${convo ? convo + '\n' : ''}USER: ${message}`;
+
+  let priced;
+  try { priced=await require('./_wavespeed-llm-pricing').quote(MODEL,{prompt:fullPrompt,referenceCount:0}); } catch(e){return json(503,{error:e.message})}
+  const cost=Math.max(REACTOR_COST[MODEL],priced.credits);
+  if(body.quote===true)return json(200,{credits:cost});
   const { data: balance } = await db.rpc('spend_credits', { uid: user.id, amount: cost });
   if (balance === null) return json(402, { error: 'Not enough credits.', code: 'NO_CREDITS' });
 
   try {
-    const convo = history.map((h) => `${h.role === 'assistant' ? 'YOU' : 'USER'}: ${h.text}`).join('\n');
-    const transcriptText = project.transcript && project.transcript.text ? project.transcript.text.slice(0, 4000) : null;
-    const transcriptNote = transcriptText ? `\n\nVideo transcript:\n"""${transcriptText}"""` : '\n\n(No transcript yet — reason from the user\'s description alone.)';
-    const fullPrompt = `${SYSTEM_PREAMBLE}${transcriptNote}\n\n${convo ? convo + '\n' : ''}USER: ${message}`;
-
     const id = 'wsllm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     await db.from('jobs').insert({
       request_id: id, user_id: user.id, kind: 'video-edit-brief', model: encodeModelImage(MODEL, null), prompt: fullPrompt, credits: cost,

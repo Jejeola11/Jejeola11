@@ -5,8 +5,9 @@
 // GPT Image 2.5 low/medium/high/xhigh/max=16/24/48/64/96.
 // Provider token usage is separate from the customer WaveSpeed benchmark.
 
-const POLICY=Object.freeze({version:'wavespeed-retail-2026-11-03',fxBudget:1400,firstPurchaseDiscount:.25,affiliateRate:.05,feeRate:.04,fixedFee:100,operatingNaira:0,markup:2,imageMarkup:2,providerAllowance:1,maxPromptBytes:12000,maxReferences:14,maxReferenceEdge:1536,referenceTokenBudget:16384,imageReferenceTokenBudget:8192,imageHelperReferenceTokenBudget:4096,chatOutputTokens:4096,imageHelperOutputTokens:2048});
-const netCreditNaira=85;
+const creditPolicy=require('./_credit-policy');
+const POLICY=Object.freeze({version:creditPolicy.VERSION,fxBudget:creditPolicy.POLICY.usdNaira,firstPurchaseDiscount:.25,affiliateRate:.05,feeRate:.04,fixedFee:100,operatingNaira:0,markup:2,imageMarkup:2,providerAllowance:1,maxPromptBytes:12000,maxReferences:14,maxReferenceEdge:1536,referenceTokenBudget:16384,imageReferenceTokenBudget:8192,imageHelperReferenceTokenBudget:4096,chatOutputTokens:4096,imageHelperOutputTokens:2048});
+const netCreditNaira=creditPolicy.netNairaPerCredit;
 const TEXT={'gpt-5.2':{input:1.75,cached:.175,output:14},'gpt-5.5':{input:5,cached:.5,output:30}};
 function imageModel(id){const m=String(id||'').replace(/^openai\//,'').match(/^gpt-image-(2\.5-(?:sunburst|flare)|2|1\.5|1-mini|1)(?=$|[-/])/);return m?'gpt-image-'+m[1]:null;}
 function textModel(id){const s=String(id||'').replace(/^openai\//,'');return s==='gpt-5-5'?'gpt-5.5':s==='gpt-5-2'?'gpt-5.2':TEXT[s]?s:null;}

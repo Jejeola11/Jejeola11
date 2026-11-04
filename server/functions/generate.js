@@ -169,7 +169,7 @@ exports.handler = async (event) => {
   // normal 2K price and doubles only for 4K. Legacy callers keep the old
   // res-multiplier behavior unchanged.
   const perImage=imageCreditsForRequest(model,{resolution,referenceCount,quality:requestedQuality,prompt});
-  const cost=directGPT?perImage*count:base*count*(forceWaveSpeed ? perImage/base : resMult);
+  const cost=Math.max(perImage, directGPT || forceWaveSpeed ? perImage : base*resMult)*count;
   if(body.quote===true)return json(200,{credits:cost,model,per_image:perImage});
   if((forceWaveSpeed||directGPT) && body.accepted_credits!==cost)return json(409,{error:'The credit price changed. Review the cost and try again.',credits:cost});
 

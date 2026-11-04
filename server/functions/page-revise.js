@@ -37,28 +37,11 @@ function fallbackRevision(spec,instruction){
   next.meta.last_revision_instruction=instruction;
   return next;
 }
-async function aiRevision(spec,instruction){
-  const key=(process.env.GEMINI_API_KEY||'').trim();
-  if(!key)return null;
-  const system=`You are Fuse Pages' senior web creative director.
-Edit the supplied SiteSpec according to the user's instruction.
-Return the COMPLETE updated SiteSpec as JSON only, no markdown.
-Preserve facts the user did not ask to change. Never invent verifiable statistics, real client names, awards, or testimonials.
-Do not output HTML, JavaScript, CSS, external scripts, or executable code.
-Allowed structure is the existing JSON SiteSpec only. Keep 5-10 useful sections and concise premium conversion copy.
-If asked for 3D, set theme.experience/motion appropriately but keep the content usable on mobile.`;
-  const payload={
-    system_instruction:{parts:[{text:system}]},
-    contents:[{role:'user',parts:[{text:JSON.stringify({instruction,current_site_spec:spec})}]}],
-    generationConfig:{temperature:.55,response_mime_type:'application/json',maxOutputTokens:7500}
-  };
-  const url='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key);
-  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-  const j=await r.json();
-  if(!r.ok)throw new Error((j.error&&j.error.message)||'AI edit failed.');
-  const txt=j?.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'';
-  return txt?JSON.parse(txt):null;
+async function aiRevision() {
+  // Deterministic edits remain available; unpriced paid calls are blocked.
+  return null;
 }
+
 function normalize(candidate,base,instruction){
   if(!candidate||typeof candidate!=='object')return fallbackRevision(base,instruction);
   const next={...clone(base),...candidate};

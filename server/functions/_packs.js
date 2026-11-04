@@ -226,7 +226,7 @@ const TOOL_COST = {         // utility tools (take an input image -> output), Wa
   'ai-object-eraser': 0.025,       // was 0.02 on MuAPI — wavespeed-ai/image-eraser verified live at 0.025
 };
 
-// slug -> credits charged (auto-computed for guaranteed margin; images clamp to 2-6)
+// All model costs use the shared locked credit policy; no fixed credit overrides.
 const IMAGE_MODELS = Object.fromEntries(Object.entries(IMAGE_COST).map(([k, v]) => [k, require('./_gpt-pricing').imageModel(k)?require('./_gpt-pricing').imageQuote(k,{prompt:'',resolution:'1k'}).credits:creditsForImage(v)]));
 const VIDEO_MODELS = Object.fromEntries(Object.entries(VIDEO_COST).map(([k, v]) => [k, creditsFor(v)]));
 const TOOL_MODELS = Object.fromEntries(Object.entries(TOOL_COST).map(([k, v]) => [k, creditsFor(v)]));
@@ -234,7 +234,7 @@ const MODEL_COST = IMAGE_MODELS; // back-compat alias
 
 function imageCreditsForRequest(model,{resolution='2k',referenceCount=0,quality='medium',prompt}={}) {
   if(require('./_gpt-pricing').imageModel(model))return require('./_gpt-pricing').imageQuote(model,{resolution,referenceCount,quality,prompt}).credits;
-  const base=IMAGE_MODELS[model]; if(!base)return null;
+  const base=IMAGE_MODELS[model]; if(!base)throw Error('This model needs verified pricing before generation.');
   const refs=Math.max(0,Math.min(16,Math.floor(Number(referenceCount)||0)));
   if(refs && ['gpt-image-2-text-to-image','gpt-image-2-ws-edit','gpt-image-2-image-to-image'].includes(model)) {
     const tiers=quality==='high'?{'1k':.23,'2k':.41,'4k':.73}:quality==='low'?{'1k':.02,'2k':.03,'4k':.04}:{'1k':.07,'2k':.11,'4k':.19};
@@ -291,9 +291,9 @@ function videoCreditsForRequest(model, duration, resolution, pricingContext = {}
   if(model==='grok-imagine-text-to-video'||model==='grok-imagine-image-to-video')
     return safeCreditsFor(.05*Math.max(6,parseInt(duration,10)||6));
   const base = VIDEO_MODELS[model];
-  if (!base) return null;
+  if (!base) throw Error('This model needs verified pricing before generation.');
   const secs = Math.max(1, parseInt(duration, 10) || 5);
-  const multiplier=secs>=10?2:1;
+  const multiplier=Math.max(1,secs/5);
   return safeCreditsFor((VIDEO_COST[model]||0)*multiplier);
 }
 

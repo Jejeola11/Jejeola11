@@ -2904,16 +2904,18 @@ async function avvRewriteScript() {
  const btn = $('avvRewrite'); btn.disabled = true; btn.textContent = 'Rewriting…';
  note('avvRewriteNote', '');
  try {
- const res = await fetch('/api/audio-rewrite', {
- method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
- body: JSON.stringify({ text }),
- });
- const d = await res.json();
- if (!res.ok) throw new Error(d.error || 'Failed');
+ const headers={ 'Content-Type': 'application/json', ...(await authHeader()) };
+ const quoteRes=await fetch('/api/audio-rewrite',{method:'POST',headers,body:JSON.stringify({text,quote:true})});
+ const quoted=await quoteRes.json();
+ if(!quoteRes.ok)throw new Error(quoted.error||'Could not quote this rewrite.');
+ if(!window.confirm(`Rewrite this script for ${quoted.credits} Fuse credits?`))return;
+ const res=await fetch('/api/audio-rewrite',{method:'POST',headers,body:JSON.stringify({text,accepted_credits:quoted.credits})});
+ const d=await res.json();
+ if(!res.ok)throw new Error(d.error||'Failed');
  $('avvScript').value = d.text;
  note('avvRewriteNote', ' Rewritten with pacing/emphasis tags — review before generating.', 'ok');
  } catch (e) { note('avvRewriteNote', e.message || 'Could not rewrite.', 'err'); }
- btn.disabled = false; btn.textContent = ' Rewrite for natural delivery (Resemble only)';
+ finally { btn.disabled = false; btn.textContent = ' Rewrite for natural delivery (Resemble only)'; }
 }
 async function loadAvatarResembleVoices(selectedUuid) {
  const rsel = $('avResemblePicker');
@@ -4858,16 +4860,18 @@ async function adRewriteScript() {
  const btn = $('adRewrite'); btn.disabled = true; btn.textContent = 'Rewriting…';
  note('adRewriteNote', '');
  try {
- const res = await fetch('/api/audio-rewrite', {
- method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
- body: JSON.stringify({ text }),
- });
- const d = await res.json();
- if (!res.ok) throw new Error(d.error || 'Failed');
+ const headers={ 'Content-Type': 'application/json', ...(await authHeader()) };
+ const quoteRes=await fetch('/api/audio-rewrite',{method:'POST',headers,body:JSON.stringify({text,quote:true})});
+ const quoted=await quoteRes.json();
+ if(!quoteRes.ok)throw new Error(quoted.error||'Could not quote this rewrite.');
+ if(!window.confirm(`Rewrite this script for ${quoted.credits} Fuse credits?`))return;
+ const res=await fetch('/api/audio-rewrite',{method:'POST',headers,body:JSON.stringify({text,accepted_credits:quoted.credits})});
+ const d=await res.json();
+ if(!res.ok)throw new Error(d.error||'Failed');
  $('adScript').value = d.text;
  note('adRewriteNote', ' Rewritten with pacing/emphasis tags — review before generating.', 'ok');
  } catch (e) { note('adRewriteNote', e.message || 'Could not rewrite.', 'err'); }
- btn.disabled = false; btn.textContent = ' Rewrite for natural delivery (Resemble only)';
+ finally { btn.disabled = false; btn.textContent = ' Rewrite for natural delivery (Resemble only)'; }
 }
 async function saveTrainedVoice() {
  if (preview) { showAuth('signup'); return; }

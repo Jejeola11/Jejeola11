@@ -175,22 +175,9 @@ function normalizeSpec(raw, brief) {
   spec.assets={...fallback.assets,...(raw.assets||{}),generate:!!brief.generateAssets};
   return spec;
 }
-async function openAiSpec(brief) {
-  const apiKey=(process.env.OPENAI_API_KEY||'').trim();
-  if(!apiKey) return null;
-  const instruction=`You are Fuse Pages Creative Director. Turn a website brief into a concise JSON SiteSpec for a premium, mobile-first website. Return JSON only, never markdown. Include meta, theme, nav, contact, hero, 5-9 sections, motion and assets. Use specific conversion-focused copy based on the actual brief. Never invent statistics or real testimonials. For 3D, use a lightweight orb/product-depth direction with a mobile fallback. Always suggest a bespoke brand colour palette from the brief; never use Fuse Atelier colours (#DFFF4E, #FFE66A, #001012, #00191B, #062125) unless the user explicitly requests them.`;
-  const response=await fetch('https://api.openai.com/v1/responses',{
-    method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
-    body:JSON.stringify({model:process.env.OPENAI_PAGE_MODEL||'gpt-4.1-mini',input:[
-      {role:'system',content:[{type:'input_text',text:instruction}]},
-      {role:'user',content:[{type:'input_text',text:JSON.stringify({page_type:brief.type,experience:brief.experience,generate_assets:brief.generateAssets,prompt:brief.prompt,attachment_names:(brief.attachments||[]).map(x=>x.name).slice(0,8)})}]}
-    ]})
-  });
-  const body=await response.json();
-  if(!response.ok) throw new Error((body.error&&body.error.message)||'OpenAI website planning request failed.');
-  const output=String(body.output_text||'').trim();
-  if(!output) throw new Error('OpenAI website planner returned no content.');
-  return JSON.parse(output.replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,''));
+async function openAiSpec() {
+  // No paid provider call until this planner has a verified cost quote.
+  return null;
 }
 
 function ensureSectionIds(spec){

@@ -142,7 +142,7 @@ exports.handler = async (event) => {
     }
 
     const base = IMAGE_MODELS[model];
-    cost = wantsWS ? imageCreditsForRequest(model,{resolution:'1k',referenceCount:Math.min(10,refs.length),quality:'medium'}) : base;
+    cost = imageCreditsForRequest(model,{resolution:'1k',referenceCount:Math.min(10,refs.length),quality:'medium'});
     if(body.quote===true)return json(200,{credits:cost});
     if(body.accepted_credits!==cost)return json(409,{error:'Review the updated GPT credit quote.',credits:cost});
     if(!projectId){const {data:newProj,error}=await db.from('flyer_projects').insert({user_id:user.id,brief:prompt,reference_image_urls:referenceImageUrls,aspect}).select().single();if(error)throw error;projectId=newProj.id;}

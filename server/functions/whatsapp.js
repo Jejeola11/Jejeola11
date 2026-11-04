@@ -58,7 +58,7 @@ exports.handler = async (event) => {
     return { statusCode: 200, body: 'ok' };
   }
 
-  const COST = 1;
+  const COST = require('./_packs').imageCreditsForRequest('flux-schnell-image',{resolution:'1k'});
   const { data: balance } = await db.rpc('spend_credits', { uid: profile.id, amount: COST });
   if (balance === null) { await sendText(from, '⚠️ You are out of credits. Top up in the app to keep creating.'); return { statusCode: 200, body: 'ok' }; }
 

@@ -12,7 +12,7 @@
 // at the actual voice-generation step, not a generation itself.
 // Uses the same WaveSpeed LLM endpoint as flyer-brief.js's design assistant.
 // ============================================================
-const { getUser, json } = require('./_supabase');
+const { admin, getUser, json } = require('./_supabase');
 const { chatCompletion, hasWaveSpeed } = require('./_providers');
 
 const SYSTEM_PROMPT = `You rewrite scripts into performance-ready text for Resemble AI's text-to-speech engine, so the spoken result sounds like a real, warm, human delivery instead of a flat read.
@@ -31,20 +31,33 @@ Rules:
 - Output ONLY the rewritten script text with tags inserted. No explanation, no preamble, no markdown fencing, nothing else.`;
 
 exports.handler = async (event) => {
+  let db,user,cost=0,charged=false;
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
     if (!hasWaveSpeed()) return json(503, { error: 'This is being connected (WAVESPEED_KEY missing).' });
 
-    const user = await getUser(event);
+    user = await getUser(event);
     if (!user) return json(401, { error: 'Please sign in again.' });
 
     let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
     const text = (body.text || '').trim();
     if (!text) return json(400, { error: 'Write the script first.' });
 
-    const rewritten = await chatCompletion({ prompt: `${SYSTEM_PROMPT}\n\nSCRIPT TO REWRITE:\n${text}` });
+    const prompt=`${SYSTEM_PROMPT}\n\nSCRIPT TO REWRITE:\n${text}`;
+    const model='gemini-2-5-flash';
+    const priced=await require('./_wavespeed-llm-pricing').quote(model,{prompt});
+    cost=priced.credits;
+    if(body.quote===true)return json(200,{credits:cost});
+    if(body.accepted_credits!==cost)return json(409,{error:'Review the credit price before rewriting.',credits:cost});
+    db=admin();
+    const spend=await db.rpc('spend_credits',{uid:user.id,amount:cost});
+    if(spend.error)throw spend.error;
+    if(spend.data===null)return json(402,{error:'Not enough credits.'});
+    charged=true;
+    const rewritten = await chatCompletion({prompt,model});
     return json(200, { text: rewritten.trim() });
   } catch (e) {
+    if(charged)await require('./_openai-direct').refund(db,user.id,cost);
     return json(502, { error: (e && e.message) || 'Could not rewrite the script.' });
   }
 };
