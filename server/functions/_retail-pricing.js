@@ -1,6 +1,6 @@
 'use strict';
-const VERSION='wavespeed-retail-2026-11-03';
-function credits(usd){if(!Number.isFinite(usd)||usd<=0)throw Error('A verified WaveSpeed price is required.');return Math.max(1,Math.ceil(usd*1400*2/85-1e-12));}
+const VERSION='fuse-retail-2026-11-04';
+const {credits}=require('./_credit-policy');
 // Published WaveSpeed standard USD tables, verified 2026-11-03.
 // https://wavespeed.ai/docs/docs-api/openai/openai-gpt-image-2.5-sunburst-edit
 const IMAGE25={low:[.01,.02,.03],medium:[.024,.04,.07],high:[.09,.15,.27],xhigh:[.16,.27,.48],max:[.36,.60,1]};

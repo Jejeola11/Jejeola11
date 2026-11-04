@@ -1,4 +1,5 @@
 const {getUser,admin,json}=require('./_supabase');
+const {assertPack}=require('./_credit-policy');
 const {COMMERCE,CREDIT_KEYS}=require('./_commerce');
 async function referralPrice(db,userId,item,key){
  if(!CREDIT_KEYS.includes(key))return {amount:item.amount_naira,discount:false};
@@ -19,6 +20,7 @@ exports.handler=async event=>{
  if(!item||!['pack','course'].includes(item.kind))return json(400,{error:'This product is unavailable.'});
  const secret=(process.env.PAYSTACK_SECRET_KEY||'').trim();if(!secret)return json(503,{error:'Paystack is not configured.'});
  const db=admin(),price=await referralPrice(db,user.id,item,key);
+ if(item.kind==='pack'){try{assertPack(item,price.amount)}catch(e){return json(409,{error:e.message})}}
  const host=event.headers['x-forwarded-host']||event.headers.host||'fuseatelier.com';
  const proto=event.headers['x-forwarded-proto']||'https';
  const appUrl=(process.env.APP_URL||proto+'://'+host).replace(/\/+$/,'').replace('fuse-atelier.vercel.app','fuseatelier.com');
