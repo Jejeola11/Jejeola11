@@ -1,0 +1,11 @@
+.course-preview{box-sizing:border-box;width:min(100%,620px);margin:20px auto 0;padding:20px;border:1px solid #537d75;border-radius:20px;background:linear-gradient(145deg,#123437,#00191b);color:#fff;text-align:left;font-family:Montserrat,Arial,sans-serif}
+.course-preview .course-preview-kicker{margin:0 0 8px;color:#dfff4e;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.course-preview h2{margin:0 0 10px!important;padding:0!important;font-size:clamp(21px,5.5vw,30px)!important;line-height:1.2!important;letter-spacing:-.03em}
+.course-preview p,.course-inclusions p{margin:8px 0;font-size:14px;line-height:1.65}
+.course-preview .course-offer-cta{box-sizing:border-box;display:flex;align-items:center;justify-content:center;width:100%;min-height:50px;margin:16px 0 10px;padding:12px;border-radius:14px;background:linear-gradient(110deg,#ffe66a,#dfff4e,#eeffe0);color:#001012;text-decoration:none;font-size:15px;font-weight:700;line-height:1.3;text-align:center}
+.course-preview .course-preview-details{color:#eeffe0;font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.course-preview small{display:block;margin:12px 0 0;color:#bfd2cf;font-size:11px;line-height:1.6}
+.course-inclusions{padding:18px;margin:20px 0;border:1px solid #315456;border-radius:16px;background:#062125;text-align:left;color:#eeffe0}
+.course-inclusions ul{padding-left:20px;font-size:14px;line-height:1.8}
+.course-inclusions strong{color:#dfff4e}.course-promotion{scroll-margin-top:90px}
+@media(max-width:390px){.course-preview{padding:16px}.course-preview p{font-size:13px}}

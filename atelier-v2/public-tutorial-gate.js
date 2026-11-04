@@ -8,7 +8,7 @@
   const referralReady=(async()=>{
     if(!/^[a-z0-9-]{5,80}$/.test(code))return;
     try{
-      const response=await fetch('/api/fuse-earn?ref='+encodeURIComponent(code),{cache:'no-store'});
+      const response=await fetch('/api/fuse-earn?ref='+encodeURIComponent(code),{cache:'no-store',signal:AbortSignal.timeout(5000)});
       const data=await response.json();
       if(response.ok&&data.token)localStorage.setItem('fuse_pending_referral',JSON.stringify({code,token:data.token}));
     }catch(_){}

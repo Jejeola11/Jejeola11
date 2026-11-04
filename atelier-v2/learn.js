@@ -4,8 +4,35 @@
   const rows=[...document.querySelectorAll('[data-course]')];
   const status=document.getElementById('courseStatus');
   const nameEl=document.getElementById('academyName');
-  // Fill these with the individual Nestuge checkout URLs once Ria provides them.
+  // Only server-owned product IDs are sent to Paystack checkout.
   const checkoutUrls={ebook:'academy-ebook',challenge:'academy-challenge',money:'academy-money',video:'academy-video',landing:'academy-landing',design:'academy-design'};
+  const params=new URLSearchParams(location.search);
+  const returnTo=FuseCourseFunnel.safeReturn(params.get('return')||(params.has('buy')?'/atelier-v2/free-prompts-workflows.html#course-offer':location.pathname));
+  function signupToBuy(course){
+    const checkout=FuseCourseFunnel.checkoutURL(course,returnTo,location.search);
+    location.assign(FuseCourseFunnel.signupURL(checkout,returnTo,location.search));
+  }
+  let checkoutBusy=false,pendingCourse=null;
+  async function openCheckout(course){
+    if(checkoutBusy)return;
+    checkoutBusy=true;pendingCourse=course;retry.hidden=true;
+    status.textContent='Opening secure Paystack checkout for '+courseMeta[course].name+' · ₦'+courseMeta[course].price.toLocaleString('en-NG')+'…';
+    try{
+      const out=await Fuse.api('paystack-init',{pack:checkoutUrls[course]});
+      const url=new URL(out.authorization_url);
+      if(url.protocol!=='https:'||url.hostname!=='checkout.paystack.com')throw Error('Could not open secure Paystack checkout. Please try again.');
+      location.assign(url.href);
+    }catch(error){
+      checkoutBusy=false;
+      status.textContent=error.message||'Could not start payment. Please try again.';
+      retry.hidden=false;
+    }
+  }
+  const retry=document.createElement('button');
+  retry.type='button';retry.className='workflow-button';retry.textContent='Try secure checkout again';retry.hidden=true;
+  retry.addEventListener('click',()=>{if(pendingCourse)openCheckout(pendingCourse)});
+  status.after(retry);
+
 
   // Match Profile: full_name is the editable display name; never use a shared local cache.
   function renderName(user){
@@ -109,15 +136,13 @@
       const course=row.dataset.course;
       if(guest){
         event.preventDefault();
-        location.assign('/signup?next='+encodeURIComponent('/atelier-v2/learn.html'));
+        signupToBuy(course);
         return;
       }
       if(row.classList.contains('is-locked')){
         event.preventDefault();
         const pack=checkoutUrls[course];if(!pack)return;
-        status.textContent='Opening secure Paystack checkout for '+courseMeta[course].name+'…';
-        status.scrollIntoView({block:'nearest',behavior:'smooth'});
-        try{const out=await Fuse.api('paystack-init',{pack});location.assign(out.authorization_url)}catch(error){status.textContent=error.message||'Could not start payment. Please try again.'}
+        await openCheckout(course);
       }
     });
   });
@@ -125,7 +150,15 @@
   (async()=>{
     try{
       await loadAccess();
-      const buy=new URLSearchParams(location.search).get('buy');if(buy&&checkoutUrls[buy]){if(guest){location.assign('/signup?next='+encodeURIComponent(location.pathname+location.search));return;}if(hasCourseAccess(buy)){location.replace(courseMeta[buy].href);return;}try{const out=await Fuse.api('paystack-init',{pack:checkoutUrls[buy]});location.assign(out.authorization_url);}catch(error){status.textContent=error.message||'Could not start payment. Please try again.';}}
+      const buy=params.get('buy');
+      if(buy&&checkoutUrls[buy]){
+        if(guest){signupToBuy(buy);return;}
+        if(hasCourseAccess(buy)){location.replace(courseMeta[buy].href);return;}
+        await openCheckout(buy);
+      }else{
+        const purchased=params.get('course');
+        if(params.get('payment')==='success'&&courseMeta[purchased]&&hasCourseAccess(purchased))location.replace(courseMeta[purchased].href);
+      }
     }catch(error){
       rows.forEach(row=>{
         row.classList.add('is-locked');

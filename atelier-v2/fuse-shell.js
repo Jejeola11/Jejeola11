@@ -92,6 +92,7 @@
 
   const root='/atelier-v2/';
   const currentFile=(location.pathname.split('/').pop()||'home.html').toLowerCase();
+  const uninterruptedCoursePage=window.FuseCourseFunnel?.isPublicPage(location.pathname,location.search)||['free-prompts-workflows.html','free-ai-tutorial.html','ocean-eyes-halloween.html','realistic-images.html'].includes(currentFile)||currentFile==='learn.html'&&new URLSearchParams(location.search).has('buy');
   const paths={
     home:{path:'home.html',label:'Home'},
     academy:{path:'learn.html',label:'Academy'},
@@ -237,6 +238,7 @@
   if(window.supabase)Fuse.balance().catch(()=>{});
 
   (async function keepPlaybookOnlyAccountsInThePlaybook(){
+    if(uninterruptedCoursePage)return;
     try{
       const session=await Fuse.session();
       const email=String(session.user.email||'').trim().toLowerCase();
@@ -280,7 +282,7 @@
 
   // Each document gets its own five-second guest check, including after sign-out.
   (function installGuestRedirect(){
-    if(['/signup','/login','/start/auth/'].some(p=>location.pathname.startsWith(p)))return;
+    if(uninterruptedCoursePage||['/signup','/login','/start/auth/'].some(p=>location.pathname.startsWith(p)))return;
     let due=Date.now()+5000, checking=false;
     function reset(){due=Date.now()+5000;}
     addEventListener('pageshow',reset);
@@ -393,6 +395,6 @@
   // One shared offer loader for Home and Academy; payment and ownership stay server verified.
   const fullAccessOffer=document.createElement('script');
   fullAccessOffer.src='/atelier-v2/full-access-offer.js?v=1';
-  document.body.append(fullAccessOffer);
+  if(!uninterruptedCoursePage)document.body.append(fullAccessOffer);
 })();
 
