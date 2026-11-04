@@ -10,7 +10,7 @@
   function safeReturn(value){try{const u=new URL(value,location.origin);if(u.origin!==location.origin||['/signup','/login'].some(p=>u.pathname.startsWith(p))||u.pathname.startsWith('/start/auth/'))return null;return u.pathname+u.search+u.hash;}catch{return null;}}
   const returnTo=(requestedReturn&&safeReturn(requestedReturn))||(next&&safeReturn(next))||(document.referrer&&safeReturn(document.referrer))||'/atelier-v2/home.html';
 
-  const form=$('signup-form'), email=$('email'), name=$('name'), submit=$('submit'), google=$('google'), links=document.querySelector('.signin'), agreement=document.querySelector('.agreement');
+  const form=$('signup-form'), email=$('email'), name=$('name'), submit=$('submit'), google=$('google'), links=document.querySelector('.signin'), agreement=$('agree').closest('.agreement');
   document.querySelector('.close').href=returnTo;
   const params=new URLSearchParams(location.search), callback=new URL('/signup','https://fuseatelier.com');
   for(const key of ['next','return','ref'])if(params.has(key))callback.searchParams.set(key,params.get(key));
@@ -32,15 +32,15 @@
     }
     try{localStorage.removeItem(consentKey);}catch{}
   }
-  const recoveryActions=document.createElement('div');recoveryActions.className='signin';
-  recoveryActions.innerHTML='<p id="pending-email"></p><button type="button" id="resend-confirmation">Resend email</button><br><br><button type="button" id="change-email">Change email</button><br><br><button type="button" id="confirmation-login">Back to login</button>';
+  const recoveryActions=document.createElement('div');recoveryActions.className='signin confirmation-actions';
+  recoveryActions.innerHTML='<p id="pending-email"></p><div class="confirmation-action-row"><button type="button" id="resend-confirmation">Resend email</button><button type="button" id="change-email">Change email</button></div><button type="button" id="confirmation-login">Back to login</button>';
   submit.after(recoveryActions);
   const resend=$('resend-confirmation');
   function cooldown(){const seconds=Math.max(0,Math.ceil((resendAt-Date.now())/1000));resend.disabled=busy||seconds>0;resend.textContent=seconds?'Resend in '+seconds+'s':'Resend email';}
   setInterval(cooldown,1000);
   $('change-email').onclick=()=>{if(!busy){render('welcome');email.focus();}};
   $('confirmation-login').onclick=()=>{if(!busy)render('login');};
-  resend.onclick=async()=>{if(busy||Date.now()<resendAt)return;busy=true;cooldown();message.textContent='Requesting another email…';try{const {error}=await sb.auth.resend({type:'signup',email:email.value.trim().toLowerCase(),options:{emailRedirectTo:callback.href}});if(error)throw error;resendAt=Date.now()+60000;message.textContent='Another email was requested. Use the newest code or confirmation link. Already registered? Choose Back to login.';}catch(e){message.textContent=e.message||'The email request failed. Please try again.';}finally{busy=false;cooldown();}};
+  resend.onclick=async()=>{if(busy||Date.now()<resendAt)return;busy=true;cooldown();message.textContent='Requesting another email…';try{const {error}=await sb.auth.resend({type:'signup',email:email.value.trim().toLowerCase(),options:{emailRedirectTo:callback.href}});if(error)throw error;resendAt=Date.now()+60000;message.textContent='Enter the newest verification code from your email.';}catch(e){message.textContent=e.message||'The email request failed. Please try again.';}finally{busy=false;cooldown();}};
   eye.onclick=()=>{const show=pw.type==='password';pw.type=show?'text':'password';eye.setAttribute('aria-label',show?'Hide password':'Show password');eye.setAttribute('aria-pressed',String(show));$('slash').style.display=show?'none':'';};
   const back=document.createElement('button');back.type='button';back.textContent='←';back.className='close';back.style.cssText='left:16px;right:auto';back.setAttribute('aria-label','Back');document.querySelector('.close').after(back);
   function render(mode,msg=''){
@@ -71,7 +71,8 @@
       await referralReady;const address=email.value.trim().toLowerCase(),password=pw.value;let result;
       if(view==='create'){
         result=await sb.auth.signUp({email:address,password,options:{data:{name:name.value.trim(),full_name:name.value.trim(),fuse_password_set:true,email_marketing_opt_in:$('marketing-opt-in').checked,email_marketing_opt_in_at:$('marketing-opt-in').checked?new Date().toISOString():null,email_marketing_consent_text:'Send me occasional updates, guides, and promotions.'},emailRedirectTo:callback.href}});
-        if(!result.error&&!result.data.session){resendAt=Date.now()+60000;render('confirm','Confirmation requested. Open the link or enter the newest code. If you already have an account, use Back to login.');return;}
+        if(result.error&&['user_already_exists','email_exists'].includes(result.error.code)||!result.error&&!result.data?.session&&Array.isArray(result.data?.user?.identities)&&result.data.user.identities.length===0){signupStep='create';render('login','You already have an account. Log in instead.');pw.focus();return;}
+        if(!result.error&&!result.data.session){resendAt=Date.now()+60000;render('confirm','Enter the verification code sent to your email to finish signing up.');return;}
       }else if(view==='login')result=await sb.auth.signInWithPassword({email:address,password});
       else if(view==='confirm')result=await sb.auth.verifyOtp({email:address,token:code.value.trim(),type:'email'});
       else if(view==='forgot'){

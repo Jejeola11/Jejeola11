@@ -1,0 +1,12 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');const vm=require('node:vm');const fs=require('node:fs');
+function page(result){
+ const nodes=new Map();function node(id){if(!nodes.has(id))nodes.set(id,{value:'',checked:false,hidden:false,style:{},dataset:{},labels:[{hidden:false}],classList:{remove(){},add(){}},setAttribute(){},addEventListener(){},before(){},after(){},append(){},focus(){},scrollIntoView(){},closest(){return node('terms');}});return nodes.get(id);}
+ node('agree').checked=true;node('name').value='Test';node('email').value='test@example.com';node('signup-form').reportValidity=()=>true;
+ let verified,redirect;
+ const client={auth:{signUp:async()=>result,verifyOtp:async args=>{verified=args;return {data:{session:{access_token:'token',user:{app_metadata:{}}}},error:null}},onAuthStateChange(){}}};
+ const context={window:{supabase:{createClient:()=>client}},document:{body:node("body"),getElementById:node,querySelector:s=>node(s),createElement:()=>node('created-'+nodes.size),referrer:''},location:{origin:'https://fuseatelier.com',search:'',pathname:'/signup',hash:'',replace:x=>{redirect=x}},URL,URLSearchParams,setInterval(){},setTimeout,localStorage:{getItem(){return null},setItem(){},removeItem(){}},AbortSignal,fetch:async()=>({ok:true})};
+ vm.runInNewContext(fs.readFileSync(__dirname+'/../start/auth/signup.js','utf8'),context);
+ return {node,get verified(){return verified},get redirect(){return redirect},async submit(){await node('signup-form').onsubmit({preventDefault(){}})}};
+}
+test('existing confirmed account switches to login without a fake email-sent screen',async()=>{const p=page({data:{session:null,user:{identities:[]}},error:null});await p.submit();await p.submit();assert.equal(p.node('submit').textContent,'Log in');assert.match(p.node('message').textContent,/already have an account/);assert.equal(p.node('email').value,'test@example.com');});
+test('new signup verifies typed code and redirects with a real session',async()=>{const p=page({data:{session:null,user:{identities:[{provider:'email'}]}},error:null});await p.submit();await p.submit();assert.equal(p.node('submit').textContent,'Verify code');p.node('confirm-code').value='12345678';await p.submit();await new Promise(r=>setImmediate(r));assert.equal(p.verified.token,'12345678');assert.equal(p.verified.type,'email');assert.equal(p.redirect,'https://fuseatelier.com/atelier-v2/home.html');});
