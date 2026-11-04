@@ -263,27 +263,6 @@
     if(protectedPages.has(currentFile)){
       location.replace('/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash));return;
     }
-    const signupClock='fuse-next-signup-prompt';
-    let due=Date.now()+5000, checking=false, stopped=false;
-    try{due=Number(sessionStorage.getItem(signupClock))||due;sessionStorage.setItem(signupClock,String(due));}catch{}
-    const timer=setInterval(async()=>{
-      try{due=Number(sessionStorage.getItem(signupClock))||due;}catch{}
-      if(stopped||checking||document.hidden||Date.now()<due)return;
-      checking=true;
-      try{
-        const {data,error}=await sb.auth.getSession();
-        if(error||document.hidden)return;
-        if(data.session){clearInterval(timer);stopped=true;return;}
-        const current=location.pathname+location.search+location.hash;
-        const url=new URL('/signup',location.origin);
-        url.searchParams.set('next',current);url.searchParams.set('return',current);
-        const ref=new URLSearchParams(location.search).get('ref');
-        if(ref)url.searchParams.set('ref',ref);
-        due=Date.now()+300000;
-        try{sessionStorage.setItem(signupClock,String(due));}catch{}
-        location.assign(url.href);
-      }catch{}finally{checking=false;}
-    },500);
     document.querySelectorAll('.public-signup').forEach(anchor=>anchor.hidden=false);
      if(!document.querySelector('.public-signup')){
       const anchor=document.createElement('a');anchor.className='public-signup';anchor.textContent='Sign up';anchor.href='/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash);
@@ -298,6 +277,32 @@
       event.preventDefault();location.assign('/signup?next='+encodeURIComponent(url.pathname+url.search+url.hash));
     },true);
   }
+
+  // Each document gets its own five-second guest check, including after sign-out.
+  (function installGuestRedirect(){
+    if(['/signup','/login','/start/auth/'].some(p=>location.pathname.startsWith(p)))return;
+    let due=Date.now()+5000, checking=false;
+    function reset(){due=Date.now()+5000;}
+    addEventListener('pageshow',reset);
+    Fuse.client().then(sb=>sb.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT')reset();})).catch(()=>{});
+    setInterval(async()=>{
+      if(checking||document.hidden||Date.now()<due)return;
+      checking=true;
+      try{
+        const sb=await Fuse.client();
+        const {data,error}=await sb.auth.getSession();
+        if(error)return;
+        if(data.session){due=Date.now()+300000;return;}
+        const current=location.pathname+location.search+location.hash;
+        const url=new URL('/signup',location.origin);
+        url.searchParams.set('next',current);url.searchParams.set('return',current);
+        const ref=new URLSearchParams(location.search).get('ref');
+        if(ref)url.searchParams.set('ref',ref);
+        due=Date.now()+300000;
+        location.assign(url.href);
+      }catch{}finally{checking=false;}
+    },250);
+  })();
   const signupStyle=document.createElement('style');signupStyle.textContent='.public-signup{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 13px;border-radius:12px;background:linear-gradient(110deg,#FFE66A,#DFFF4E,#EEFFE0);color:#001012!important;font:700 13px Montserrat,Arial,sans-serif;text-decoration:none;white-space:nowrap;position:relative;z-index:20}.public-signup[hidden]{display:none!important}.public-signup-floating{position:fixed;right:12px;top:12px;z-index:9999}';document.head.append(signupStyle);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',publicSignupGate,{once:true});else publicSignupGate();
   // Shared low-credit notice; only verified balances from the signed-in profile.
