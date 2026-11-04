@@ -16,9 +16,18 @@
   for(const key of ['next','return','ref'])if(params.has(key))callback.searchParams.set(key,params.get(key));
   const row=document.createElement('div');row.className='password-row';row.innerHTML='<input id="password" aria-label="Password" placeholder="Password" type="password"><button type="button" id="eye" aria-label="Show password" aria-pressed="false"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path id="slash" d="M3 3l18 18"/></svg></button>';
   submit.before(row);
-  const confirm=document.createElement('div');confirm.innerHTML='<label for="confirm-code">Email confirmation code</label><input id="confirm-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6,8}" maxlength="8">';submit.before(confirm);
+  const confirm=document.createElement('div');confirm.innerHTML='<label for="confirm-code">Email confirmation code</label><input id="confirm-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6,10}" maxlength="10">';submit.before(confirm);
   const pw=$('password'), code=$('confirm-code'), eye=$('eye');
-  let view,busy=false;
+  let view,busy=false,resendAt=0;
+  const recoveryActions=document.createElement('div');recoveryActions.className='signin';
+  recoveryActions.innerHTML='<p id="pending-email"></p><button type="button" id="resend-confirmation">Resend email</button><br><br><button type="button" id="change-email">Change email</button><br><br><button type="button" id="confirmation-login">Back to login</button>';
+  submit.after(recoveryActions);
+  const resend=$('resend-confirmation');
+  function cooldown(){const seconds=Math.max(0,Math.ceil((resendAt-Date.now())/1000));resend.disabled=busy||seconds>0;resend.textContent=seconds?'Resend in '+seconds+'s':'Resend email';}
+  setInterval(cooldown,1000);
+  $('change-email').onclick=()=>{if(!busy){render('welcome');email.focus();}};
+  $('confirmation-login').onclick=()=>{if(!busy)render('login');};
+  resend.onclick=async()=>{if(busy||Date.now()<resendAt)return;busy=true;cooldown();message.textContent='Requesting another email…';try{const {error}=await sb.auth.resend({type:'signup',email:email.value.trim().toLowerCase(),options:{emailRedirectTo:callback.href}});if(error)throw error;resendAt=Date.now()+60000;message.textContent='Another email was requested. Use the newest code or confirmation link. Already registered? Choose Back to login.';}catch(e){message.textContent=e.message||'The email request failed. Please try again.';}finally{busy=false;cooldown();}};
   eye.onclick=()=>{const show=pw.type==='password';pw.type=show?'text':'password';eye.setAttribute('aria-label',show?'Hide password':'Show password');eye.setAttribute('aria-pressed',String(show));$('slash').style.display=show?'none':'';};
   const back=document.createElement('button');back.type='button';back.textContent='←';back.className='close';back.style.cssText='left:16px;right:auto';back.setAttribute('aria-label','Back');document.querySelector('.close').after(back);
   function render(mode,msg=''){
@@ -28,7 +37,7 @@
     back.hidden=welcome||mode==='reset';google.hidden=document.querySelector('.divider').hidden=agreement.hidden=name.hidden=name.labels[0].hidden=!welcome;name.required=welcome;
     email.hidden=email.labels[0].hidden=mode==='reset'||mode==='confirm';email.required=!email.hidden;email.readOnly=mode==='create';email.labels[0].hidden=!welcome;
     row.hidden=!['create','login','reset'].includes(mode);pw.required=!row.hidden;pw.minLength=mode==='login'?1:8;pw.autocomplete=mode==='login'?'current-password':'new-password';pw.value='';if(pw.type==='text')eye.click();
-    confirm.hidden=mode!=='confirm';code.required=!confirm.hidden;
+    confirm.hidden=mode!=='confirm';code.required=!confirm.hidden;recoveryActions.hidden=confirm.hidden;if(!confirm.hidden){$('pending-email').textContent='Confirmation for '+email.value.trim();cooldown();}
     links.hidden=!['create','login'].includes(mode);links.innerHTML=mode==='create'?'Already have an account? <button type="button" data-mode="login">Log in</button>':'<button type="button" data-mode="forgot">Forgot password?</button><br><br>Don’t have an account? <button type="button" data-mode="welcome">Sign up</button>';
     message.textContent=msg;
   }
@@ -49,7 +58,7 @@
       await referralReady;const address=email.value.trim().toLowerCase(),password=pw.value;let result;
       if(view==='create'){
         result=await sb.auth.signUp({email:address,password,options:{data:{name:name.value.trim(),full_name:name.value.trim(),fuse_password_set:true},emailRedirectTo:callback.href}});
-        if(!result.error&&!result.data.session){render('confirm','Open the confirmation link or enter the code from your email.');return;}
+        if(!result.error&&!result.data.session){resendAt=Date.now()+60000;render('confirm','Confirmation requested. Open the link or enter the newest code. If you already have an account, use Back to login.');return;}
       }else if(view==='login')result=await sb.auth.signInWithPassword({email:address,password});
       else if(view==='confirm')result=await sb.auth.verifyOtp({email:address,token:code.value.trim(),type:'email'});
       else if(view==='forgot'){
@@ -61,9 +70,10 @@
         if(!result.error){finish((await sb.auth.getSession()).data.session);return;}
       }
       if(result.error)throw result.error;if(result.data.session)finish(result.data.session);
-    }catch(e){message.textContent=e.message||'Please try again.';}finally{busy=false;submit.disabled=false;}
+    }catch(e){if(view==='login'&&e.code==='email_not_confirmed'){render('confirm','Your email still needs confirmation. Request another email below.');}else{message.textContent=e.message||'Please try again.';}}finally{busy=false;submit.disabled=false;}
   };
   const recovery=params.get('mode')==='reset'||new URLSearchParams(location.hash.slice(1)).get('type')==='recovery';
   render(location.pathname.startsWith('/login')||location.pathname.endsWith('/login.html')||recovery?'login':'welcome',recovery?'If your reset link expired, request a new one below.':'');
   sb.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'){render('reset');return;}if(event==='INITIAL_SESSION'&&session&&!recovery)setTimeout(()=>referralReady.then(()=>finish(session)),0);});
 })();
+
