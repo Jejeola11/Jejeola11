@@ -55,7 +55,7 @@ async function show(manual=false){
   const user=await eligibility(manual);
   // Recheck eligibility at each appearance. Reloads start a fresh 5-second delay.
   nextDue=Date.now()+REPEAT_MS;
-  if(!user){if(manual)location.assign('/signup?next='+encodeURIComponent('/atelier-v2/learn.html'));return;}
+  if(!user){if(manual)await Fuse.requireAccount({reason:'Sign in to add Full Access to your own Fuse account.',next:'/atelier-v2/pricing.html?buy=fuse-creator-pass'});return;}
   if(document.hidden)return;
   if(!dialog)build();owner=user.id;previousFocus=document.activeElement;dialog.showModal();
  }catch{nextDue=Date.now()+5000}

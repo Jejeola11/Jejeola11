@@ -63,7 +63,7 @@
   }
 
   async function authHeader(){const {data}=await sb.auth.getSession();return data.session?.access_token?{Authorization:'Bearer '+data.session.access_token}:{}}
-  async function getSession(){const {data}=await sb.auth.getSession();session=data.session||null;if(!session){location.href='login.html';return false}return true}
+  async function getSession(){const {data}=await sb.auth.getSession();session=data.session||null;if(!session){FuseExplore.preview(document.querySelector('main'),{title:'Your creations, in one place',description:'Your Fuse Library keeps your generated images and videos together. Explore the creation tools freely, then sign in to save and manage your own work.',action:'Open my Library',reason:'Sign in to see and manage the creations saved to your account.'});return false}return true}
 
   async function fetchFinished(){
     const {data,error}=await sb.from('generations').select('id,output_url,type,prompt,model,aspect,created_at,credits_spent').eq('user_id',session.user.id).gte('created_at',new Date(LIBRARY_START).toISOString()).order('created_at',{ascending:false}).limit(160);

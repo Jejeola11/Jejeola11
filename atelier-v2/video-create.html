@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head><script src="/atelier-v2/explore-auth.js?v=1" defer data-fuse-explore></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#001012">
@@ -280,6 +280,13 @@
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
     const cfg=window.FUSE||{}, sb=createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY), $=id=>document.getElementById(id);
 
+    sb.auth.getSession().then(({data})=>{
+      if(data.session)return;
+      const link=document.createElement('a');link.className='fuse-explore-signup';link.textContent='Sign up free';link.href=FuseExplore.authURL();
+      link.onclick=async event=>{event.preventDefault();await FuseExplore.saveDraft('video-create');location.assign(link.href)};
+      document.querySelector('.topbar').insertBefore(link,$('closeBtn'));
+    }).catch(()=>{});
+
     const MODELS=[
       {key:'seedance-2.0-mini',name:'Seedance 2.0 Mini',desc:'4–15 seconds, native audio, start and optional end frame.',short:'S2M',api:'seedance-2.0-mini-text-to-video',res:['720p','1080p'],dur:[4,5,8,10,15],customDur:[4,15],aspects:['16:9','9:16','4:3','3:4','1:1','21:9'],preview:'/app/media/samples/vid3.mp4',tag:'MINI',fresh:true},
       {key:'minimax-h3',name:'MiniMax H3',desc:'Native-audio cinematic generation with flexible 3–15s clips.',short:'H3',api:'minimax-h3-text-to-video',res:['480p','540p','768p','1080p'],dur:[3,5,8,10,15],aspects:['16:9','9:16','1:1','4:3','3:4'],preview:'/app/media/samples/vid1.mp4',tag:'2K',fresh:true},
@@ -507,7 +514,7 @@
       if(m.key==='kling-standard'&&prompt.length>2500)return note('Kling accepts up to 2,500 prompt characters. Shorten it before generating.','err');
       const settings={aspect,duration:duration+'s',resolution:quality,generate_audio:effectiveAudio(),reference_mode:referenceMode()};
       const requestFiles=[...files];
-      const session=await auth();if(!session)return note('Please sign in to Fuse Atelier again before generating.','err');
+      const session=await auth();if(!session){await FuseExplore.requireAccount({client:sb,reason:'Create your free account to generate with credits and keep your results.',draft:'video-create'});return;}
       const btn=$('generateBtn');btn.disabled=true;btn.textContent='Preparing…';note('');
       try{
         let refs=[];if(requestFiles.length){btn.textContent='Uploading references…';refs=await uploadRefs(session,requestFiles)}
@@ -574,6 +581,11 @@
     $('referenceMode').onchange=()=>renderThumbs();
 
     renderThumbs();renderModels();updateUI();
+    FuseExplore.registerDraft('video-create',{
+      capture:()=>({prompt:$('prompt').value,selectedKey,aspect,quality,duration,audioOn,referenceMode:$('referenceMode').value,files}),
+      restore:s=>{selectedKey=s.selectedKey==='auto'||MODELS.some(m=>m.key===s.selectedKey)?s.selectedKey:'auto';aspect=s.aspect||aspect;quality=s.quality||quality;duration=s.duration||duration;audioOn=s.audioOn!==false;files=(s.files||[]).filter(Boolean);uploadedRefs=[];$('prompt').value=s.prompt||'';$('referenceMode').value=s.referenceMode||'auto';renderThumbs();renderModels();updateUI();}
+    });
+
   </script>
   <script src="create-handoff.js?v=1" defer></script>
 </body>

@@ -11,17 +11,6 @@
         if(response.ok)sessionStorage.setItem('fuse_synced_'+user.id,'1');
       }catch(_){}
     }
-    const next=sessionStorage.getItem('fuse_signup_destination');
-    if(next?.startsWith('/atelier-v2/')&&!next.startsWith('//')){sessionStorage.removeItem('fuse_signup_destination');location.replace(next)}
   }).catch(() => {});
-  document.querySelectorAll('#accountMenu nav a, .menu-credit a').forEach(a => {
-    a.addEventListener('click', async event => {
-      if (!client) return;
-      const {data} = await client.auth.getSession();
-      if (!data.session) {
-        event.preventDefault();
-        location.href='/signup?next='+encodeURIComponent(new URL(a.href).pathname+new URL(a.href).search+new URL(a.href).hash);
-      }
-    });
-  });
+  // Navigation stays public. Account-required actions handle their own signup.
 })();

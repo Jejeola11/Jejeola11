@@ -43,14 +43,7 @@
   button.href=signup(current);
   if(signIn)signIn.href=signup(location.pathname+'#page-6');
   for(const link of [button,signIn].filter(Boolean))link.addEventListener('click',event=>{if(code){event.preventDefault();referralReady.then(()=>location.assign(link.href));}});
-  document.addEventListener('click',event=>{
-    if(signedIn)return;
-    const link=event.target.closest('a[href]');if(!link)return;
-    const url=new URL(link.href,location.href);
-    if(url.origin!==location.origin)return;
-    if(['studio.html','create.html','page-create.html','clients.html'].includes(url.pathname.split('/').pop())){
-      event.preventDefault();referralReady.then(()=>location.assign(signup(url.pathname+url.search+url.hash)));
-    }
-  },true);
+  // Creation pages are public; Generate asks for an account when needed.
+
 
 })();

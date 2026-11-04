@@ -13,7 +13,10 @@
       const client = await Fuse.client();
       const { data } = await client.auth.getSession();
       if (!data.session) {
-        location.assign('/signup?next=' + encodeURIComponent(location.pathname + location.search));
+        const next=new URL('/atelier-v2/pricing.html',location.origin);next.searchParams.set('buy',pack);
+        const ref=new URLSearchParams(location.search).get('ref');if(ref)next.searchParams.set('ref',ref);
+        await FuseExplore.requireAccount({client,reason:'Sign in to add this purchase to your own Fuse account.',next:next.pathname+next.search,returnTo:'/atelier-v2/pricing.html'});
+        button.disabled=false;button.textContent=label;
         return;
       }
       // The server always verifies the product, price and discount before Paystack.
@@ -33,6 +36,13 @@
     const button = card.querySelector('[data-pack]');
     const label = button.textContent;
     button.addEventListener('click', () => checkout(button, card.dataset.packId, label));
+  }
+
+  const requested=new URLSearchParams(location.search).get('buy');
+  if(requested){
+    const card=cards.find(c=>c.dataset.packId===requested);
+    const button=requested==='fuse-creator-pass'?passButton:card?.querySelector('[data-pack]');
+    if(button)FuseExplore.session().then(session=>{if(session)checkout(button,requested,button.textContent)});
   }
 
   function updatePrice(card) {

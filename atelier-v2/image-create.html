@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head><script src="/atelier-v2/explore-auth.js?v=1" defer data-fuse-explore></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#001012">
@@ -264,6 +264,13 @@
     const sb=createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY);
     const $=id=>document.getElementById(id);
 
+    sb.auth.getSession().then(({data})=>{
+      if(data.session)return;
+      const link=document.createElement('a');link.className='fuse-explore-signup';link.textContent='Sign up free';link.href=FuseExplore.authURL();
+      link.onclick=async event=>{event.preventDefault();await FuseExplore.saveDraft('image-create');location.assign(link.href)};
+      document.querySelector('.topbar').insertBefore(link,$('closeBtn'));
+    }).catch(()=>{});
+
     const MODELS=[
       {key:'sunburst',name:'GPT Image 2.5 Sunburst',desc:'Exceptional quality, precise edits',short:'2.5',credits:2,api:'gpt-image-2.5-sunburst',fresh:true,supports4k:true},
       {key:'flare',name:'GPT Image 2.5 Flare',desc:'Stunning everyday images, fast',short:'FL',credits:2,api:'gpt-image-2.5-flare',fresh:true,supports4k:true},
@@ -357,7 +364,7 @@
       const prompt=$('prompt').value.trim();
       if(!prompt)return note('Describe what you want to create first.','err');
       const session=await auth();
-      if(!session)return note('Please sign in to Fuse Atelier again before generating.','err');
+      if(!session){await FuseExplore.requireAccount({client:sb,reason:'Create your free account to generate with credits and keep your results.',draft:'image-create'});return;}
 
       const btn=$('generateBtn');btn.disabled=true;btn.textContent='Preparing…';note('');
       try{
@@ -438,6 +445,11 @@
     $('generateBtn').onclick=generate;
 
     renderAspects();renderModels();renderThumbs();updateCost();
+    FuseExplore.registerDraft('image-create',{
+      capture:()=>({prompt:$('prompt').value,selectedKey,aspect,quality,batch,files}),
+      restore:s=>{selectedKey=s.selectedKey==='auto'||MODELS.some(m=>m.key===s.selectedKey)?s.selectedKey:'auto';aspect=s.aspect||aspect;quality=s.quality||quality;batch=s.batch||1;files=(s.files||[]).filter(Boolean);uploadedUrls=[];$('prompt').value=s.prompt||'';renderAspects();renderModels();renderThumbs();updateCost();}
+    });
+
   </script>
   <script src="create-handoff.js?v=1" defer></script>
 </body>

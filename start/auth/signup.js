@@ -5,7 +5,7 @@
   const referral=new URLSearchParams(location.search).get('ref');
   const referralReady=(async()=>{if(!referral||!/^[a-z0-9-]{5,80}$/i.test(referral))return;try{const saved=JSON.parse(localStorage.getItem('fuse_pending_referral')||'null');if(saved?.code===referral.toLowerCase()&&/^[0-9a-f-]{36}$/i.test(saved.token))return;const response=await fetch('/api/fuse-earn?ref='+encodeURIComponent(referral.toLowerCase()),{signal:AbortSignal.timeout(5000)});const info=await response.json();if(response.ok)localStorage.setItem('fuse_pending_referral',JSON.stringify({code:referral.toLowerCase(),token:info.token}));}catch{}})();
   const next = new URLSearchParams(location.search).get('next');
-  const destination = next?.startsWith('/atelier-v2/') && !next.startsWith('//') ? next : '/atelier-v2/home.html';
+  const destination = next&&safeReturn(next)||'/atelier-v2/home.html';
   const requestedReturn=new URLSearchParams(location.search).get('return');
   function safeReturn(value){try{const u=new URL(value,location.origin);if(u.origin!==location.origin||['/signup','/login'].some(p=>u.pathname.startsWith(p))||u.pathname.startsWith('/start/auth/'))return null;return u.pathname+u.search+u.hash;}catch{return null;}}
   const returnTo=(requestedReturn&&safeReturn(requestedReturn))||(next&&safeReturn(next))||(document.referrer&&safeReturn(document.referrer))||'/atelier-v2/home.html';
@@ -33,7 +33,6 @@
     message.textContent=msg;
   }
   let signupStep='welcome';
-  document.querySelector('.close').addEventListener('click',()=>{try{sessionStorage.setItem('fuse-next-signup-prompt',String(Date.now()+300000));}catch{}});
   links.onclick=e=>{if(busy||!e.target.dataset.mode)return;if(view==='create')signupStep='create';render(e.target.dataset.mode==='welcome'?signupStep:e.target.dataset.mode);};back.onclick=()=>{if(!busy)render(view==='forgot'?'login':view==='login'?signupStep:'welcome');};
   function agreed(){if($('agree').checked)return true;message.textContent='';agreement.classList.remove('needs-attention');void agreement.offsetWidth;agreement.classList.add('needs-attention');agreement.scrollIntoView({block:'nearest',behavior:'smooth'});$('agree').focus({preventScroll:true});return false;}
   try{if(localStorage.getItem('fuse_last_auth')==='google'){const badge=document.createElement('span');badge.id='last-used';badge.textContent='Last used';google.append(badge);}}catch{}

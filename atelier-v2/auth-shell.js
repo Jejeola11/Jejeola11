@@ -8,10 +8,10 @@
       const client=window.__fuseClient ||= window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
       const {data,error}=await client.auth.getSession();
       if(error)throw error;
-      if(!data.session){location.replace('/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash));return;}
+      if(!data.session){document.querySelectorAll('[data-balance]').forEach(el=>el.textContent='Explore Fuse');return;}
       const {data:profile}=await client.from('profiles').select('credits').eq('id',data.session.user.id).maybeSingle();
       document.querySelectorAll('[data-balance]').forEach(el=>el.textContent=`✦ ${Number(profile?.credits||0)} credits`);
-    }catch(error){location.replace('/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash));}
+    }catch(error){/* Account loading must never interrupt browsing. */}
   }
   window.addEventListener('load',()=>setTimeout(start,120));
 })();

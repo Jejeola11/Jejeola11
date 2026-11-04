@@ -1,5 +1,20 @@
 (() => {
   'use strict';
+  // Older pages also receive the shared action gate without a page-entry redirect.
+  if(!window.FuseExplore){
+    let resolve,reject;const ready=new Promise((yes,no)=>{resolve=yes;reject=no});ready.catch(()=>{});
+    window.FuseExplore={
+      session:(...args)=>ready.then(api=>api.session(...args)),
+      requireAccount:(...args)=>ready.then(api=>api.requireAccount(...args)),
+      registerDraft:(...args)=>ready.then(api=>api.registerDraft(...args))
+    };
+    const existing=document.querySelector('script[data-fuse-explore]');
+    const helper=existing||document.createElement('script');
+    if(!existing)helper.src='/atelier-v2/explore-auth.js?v=1';
+    helper.addEventListener('load',()=>resolve(window.FuseExplore),{once:true});
+    helper.addEventListener('error',()=>reject(Error('Account options could not load. Please refresh.')),{once:true});
+    if(!existing)document.head.append(helper);
+  }
 
   if(['/atelier-v2/create.html','/atelier-v2/studio.html','/atelier-v2/clients.html','/atelier-v2/earn.html','/atelier-v2/profile.html','/atelier-v2/home.html'].includes(location.pathname)){document.documentElement.style.setProperty('background','#00090b','important');document.addEventListener('DOMContentLoaded',()=>document.body.style.setProperty('background','linear-gradient(145deg,#000709 0%,#001012 65%,#00191b 100%) fixed','important'));}
   const darkStyles=document.createElement('style');
@@ -164,6 +179,7 @@
 
   window.Fuse={
     root,
+    requireAccount:options=>window.FuseExplore.requireAccount(options),
     async client(){
       if(!window.supabase)throw Error('Sign-in could not load. Please reload.');
       return window.__fuseClient ||= window.supabase.createClient('https://rgbweaimkcndjznlazho.supabase.co','sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3');
@@ -172,7 +188,7 @@
       const sb=await this.client();
       const{data,error}=await sb.auth.getSession();
       if(error)throw error;
-      if(!data.session)throw Error('Please sign in from Home first.');
+      if(!data.session)throw Error('Sign in to use your personal workspace.');
       return data.session;
     },
     async api(path,body){
@@ -237,20 +253,6 @@
   if(currentFile==='earn.html'){const a=document.querySelector('#accountMenu a[href="profile.html"]');if(a)for(const n of a.childNodes)if(n.nodeType===3&&n.textContent.includes('View profile'))n.textContent='View Dashboard ';}
   if(window.supabase)Fuse.balance().catch(()=>{});
 
-  (async function keepPlaybookOnlyAccountsInThePlaybook(){
-    if(uninterruptedCoursePage)return;
-    try{
-      const session=await Fuse.session();
-      const email=String(session.user.email||'').trim().toLowerCase();
-      if(email==='riadigitals0@gmail.com')return;
-      const sb=await Fuse.client();
-      const {data:unlocks,error}=await sb.from('module_unlocks').select('module_key').eq('user_id',session.user.id);
-      if(error)return;
-      const keys=new Set((unlocks||[]).map(row=>row.module_key));
-      const playbookOnly=keys.size===1&&keys.has('first-client-playbook');
-      if(playbookOnly)location.replace('/playbook');
-    }catch{}
-  })();
   async function publicSignupGate(){
     const sb=await Fuse.client().catch(()=>null);
     if(!sb)return;
@@ -261,52 +263,28 @@
         fetch('/api/fuse-earn',{method:'POST',headers:{'Content-Type':'application/json',authorization:'Bearer '+data.session.access_token},body:JSON.stringify({action:'claim',token:pending.token})}).then(r=>{if(r.ok)localStorage.removeItem('fuse_pending_referral')}).catch(()=>{});
       }
       document.querySelectorAll('.public-signup').forEach(anchor=>anchor.hidden=true);return;}
-    const protectedPages=new Set(['studio.html','create.html','page-create.html','clients.html','earn.html','page-workspace.html']);
-    if(protectedPages.has(currentFile)){
-      location.replace('/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash));return;
-    }
     document.querySelectorAll('.public-signup').forEach(anchor=>anchor.hidden=false);
      if(!document.querySelector('.public-signup')){
-      const anchor=document.createElement('a');anchor.className='public-signup';anchor.textContent='Sign up';anchor.href='/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash);
+      const anchor=document.createElement('a');anchor.className='public-signup';anchor.textContent='Sign up free';anchor.href='/signup?next='+encodeURIComponent(location.pathname+location.search+location.hash);
       const target=document.querySelector('.reference-header .header-actions,.academy-top,.course-top,.create-top,[data-fuse-header] header,.top');
       if(target?.querySelector('#menuToggle'))target.insertBefore(anchor,target.querySelector('#menuToggle'));else (target||document.body).append(anchor);
       if(!target)anchor.classList.add('public-signup-floating');
     }
-    document.addEventListener('click',event=>{
-      const anchor=event.target.closest('a[href]');if(!anchor)return;
-      const url=new URL(anchor.href,location.href);
-      if(url.origin!==location.origin||!protectedPages.has(url.pathname.split('/').pop()))return;
-      event.preventDefault();location.assign('/signup?next='+encodeURIComponent(url.pathname+url.search+url.hash));
-    },true);
+
   }
 
-  // Each document gets its own five-second guest check, including after sign-out.
-  (function installGuestRedirect(){
-    if(uninterruptedCoursePage||['/signup','/login','/start/auth/'].some(p=>location.pathname.startsWith(p)))return;
-    let due=Date.now()+5000, checking=false;
-    function reset(){due=Date.now()+5000;}
-    addEventListener('pageshow',reset);
-    Fuse.client().then(sb=>sb.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT')reset();})).catch(()=>{});
-    setInterval(async()=>{
-      if(checking||document.hidden||Date.now()<due)return;
-      checking=true;
-      try{
-        const sb=await Fuse.client();
-        const {data,error}=await sb.auth.getSession();
-        if(error)return;
-        if(data.session){due=Date.now()+300000;return;}
-        const current=location.pathname+location.search+location.hash;
-        const url=new URL('/signup',location.origin);
-        url.searchParams.set('next',current);url.searchParams.set('return',current);
-        const ref=new URLSearchParams(location.search).get('ref');
-        if(ref)url.searchParams.set('ref',ref);
-        due=Date.now()+300000;
-        location.assign(url.href);
-      }catch{}finally{checking=false;}
-    },250);
-  })();
+  // Browsing never starts a signup timer. Authentication follows an explicit action.
   const signupStyle=document.createElement('style');signupStyle.textContent='.public-signup{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 13px;border-radius:12px;background:linear-gradient(110deg,#FFE66A,#DFFF4E,#EEFFE0);color:#001012!important;font:700 13px Montserrat,Arial,sans-serif;text-decoration:none;white-space:nowrap;position:relative;z-index:20}.public-signup[hidden]{display:none!important}.public-signup-floating{position:fixed;right:12px;top:12px;z-index:9999}';document.head.append(signupStyle);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',publicSignupGate,{once:true});else publicSignupGate();
+  async function inviteAfterTutorial(){
+    if(!window.FuseExplore||!['free-ai-tutorial.html','ocean-eyes-halloween.html','free-prompts-workflows.html','realistic-images.html'].includes(currentFile))return;
+    if(await FuseExplore.session())return;
+    const main=document.querySelector('main');if(!main||document.querySelector('.fuse-inline-signup'))return;
+    const invite=document.createElement('aside');invite.className='fuse-inline-signup';
+    invite.innerHTML='<h2>Keep learning with Fuse</h2><p>Create your free account to track progress in supported Academy lessons and keep your creations together.</p><a>Sign up free</a>';
+    invite.querySelector('a').href=FuseExplore.authURL();main.append(invite);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',inviteAfterTutorial,{once:true});else inviteAfterTutorial();
   // Shared low-credit notice; only verified balances from the signed-in profile.
   function installCreditNotice(){
     const notice=document.createElement('aside');
@@ -394,7 +372,7 @@
 
   // One shared offer loader for Home and Academy; payment and ownership stay server verified.
   const fullAccessOffer=document.createElement('script');
-  fullAccessOffer.src='/atelier-v2/full-access-offer.js?v=1';
+  fullAccessOffer.src='/atelier-v2/full-access-offer.js?v=explore-actions-1';
   if(!uninterruptedCoursePage)document.body.append(fullAccessOffer);
 })();
 

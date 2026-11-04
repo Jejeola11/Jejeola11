@@ -399,7 +399,7 @@ $('lessonPrimaryAction').hidden=true;document.querySelector('.learn-card').hidde
     const sb=await Fuse.client();
     const {data:auth,error:authError}=await sb.auth.getSession();
     if(authError)throw authError;
-    if(!auth.session){location.replace('/signup?next='+encodeURIComponent(location.pathname+location.search));return;}
+    if(!auth.session){$('lessonTitle').textContent='Open your course';setPlayerMessage('Sign in with your enrolled email','Your paid lessons stay private until your course access is checked.');const button=document.createElement('button');button.type='button';button.className='chrome-button';button.textContent='Sign in to start learning';button.onclick=async()=>{if(await FuseExplore.requireAccount({reason:'Sign in with the email linked to your purchase to open your course.'}))location.reload()};$('lessonPlayer').append(button);$('lessonStatus').textContent='You can also explore free tutorials without an account.';return;}
     const [profile,unlocks]=await Promise.all([
       sb.from('profiles').select('is_admin').eq('id',auth.session.user.id).maybeSingle(),
       sb.from('module_unlocks').select('module_key').eq('user_id',auth.session.user.id)
@@ -419,7 +419,7 @@ $('lessonPrimaryAction').hidden=true;document.querySelector('.learn-card').hidde
     accessVerified=true;
     if(!permittedLesson(lessons[selected]))selected=first;
     $('openModules').disabled=false;$('lessonPrimaryAction').hidden=false;document.querySelector('.learn-card').hidden=false;
-    sb.auth.onAuthStateChange((event,session)=>{if(!session||session.user.id!==auth.session.user.id){accessVerified=false;location.replace('/signup?next='+encodeURIComponent(location.pathname+location.search));}});
+    sb.auth.onAuthStateChange((event,session)=>{if(!session||session.user.id!==auth.session.user.id){accessVerified=false;setPlayerMessage('Your lesson is locked','Sign in again when you are ready to continue.');$('lessonPrimaryAction').hidden=true;document.querySelector('.learn-card').hidden=true;const button=document.createElement('button');button.type='button';button.textContent='Continue learning';button.onclick=async()=>{if(await FuseExplore.requireAccount({reason:'Sign in again to continue your private course.'}))location.reload()};$('lessonPlayer').append(button);}});
     open(selected);
   }catch(error){$('lessonTitle').textContent='Could not verify course access';setPlayerMessage('Connect to the internet and reload.');$('lessonStatus').textContent='Course content stays locked until enrollment is verified.';}
 })();

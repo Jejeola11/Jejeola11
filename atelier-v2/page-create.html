@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head><script src="/atelier-v2/explore-auth.js?v=1" defer data-fuse-explore></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#001012">
@@ -69,9 +69,9 @@
     attachBtn.onclick=()=>assetInput.click();
 
     function safeFileName(name){return String(name||'asset').toLowerCase().replace(/[^a-z0-9._-]+/g,'-').replace(/-+/g,'-').slice(0,90)}
-    function drawAttachments(){attachments.innerHTML=files.map(a=>{const cls=a.status==='ready'?'ready':a.status==='failed'?'failed':'uploading',icon=a.status==='ready'?'✓':a.status==='failed'?'!':'↥';return '<span class="attachment '+cls+'">'+icon+' <span>'+String(a.name||'asset').replace(/[<>]/g,'')+'</span></span>'}).join('')}
+    function drawAttachments(){attachments.innerHTML=files.map(a=>{const cls=a.status==='ready'||a.status==='local'?'ready':a.status==='failed'?'failed':'uploading',icon=a.status==='ready'?'✓':a.status==='local'?'＋':a.status==='failed'?'!':'↥';return '<span class="attachment '+cls+'">'+icon+' <span>'+String(a.name||'asset').replace(/[<>]/g,'')+'</span></span>'}).join('')}
     async function uploadSelectedAssets(selected){
-      const sb=await Fuse.client(),session=await Fuse.session(),uid=session.user.id;
+      const sb=await Fuse.client(),session=await FuseExplore.session(sb);if(!session){files.forEach((item,i)=>{item.file=selected[i];item.status='local'});drawAttachments();sendBtn.disabled=false;document.getElementById('assetNote').textContent='Your references are ready on this device. Sign in when you choose Build.';return;}const uid=session.user.id;
       for(let i=0;i<selected.length;i++){
         const file=selected[i],item=files[i];if(!item)continue;
         try{if(file.size>25*1024*1024)throw Error('File is larger than 25 MB.');const path=uid+'/pages/'+Date.now()+'-'+i+'-'+safeFileName(file.name);const up=await sb.storage.from('landing-assets').upload(path,file,{upsert:false,contentType:file.type||undefined});if(up.error)throw up.error;item.url=sb.storage.from('landing-assets').getPublicUrl(path).data.publicUrl;item.status='ready'}catch(e){item.status='failed';item.error=e?.message||'Upload failed'}drawAttachments();
@@ -83,10 +83,14 @@
     enhanceBtn.onclick=()=>{const raw=promptEl.value.trim();promptEl.value=raw?raw+'\n\nCreative direction: premium hierarchy, conversion-focused copy, refined spacing, strong mobile design, useful social proof and one clear CTA. Use uploaded brand assets where available.':'Create a premium conversion-focused website for a modern brand. Use strong hierarchy, refined spacing, social proof and one clear CTA.';enhanceBtn.classList.add('on');promptEl.focus()};
 
     async function launch(){
-      const prompt=promptEl.value.trim();if(!prompt){promptEl.focus();return}if(uploadPromise){sendBtn.disabled=true;await uploadPromise}
+      const prompt=promptEl.value.trim();if(!prompt){promptEl.focus();return}if(!await FuseExplore.requireAccount({reason:'Create an account to build and save your website in your own workspace.',draft:'page-create'}))return;if(files.some(f=>f.status==='local'&&f.file))await uploadSelectedAssets(files.filter(f=>f.file).map(f=>f.file));if(uploadPromise){sendBtn.disabled=true;await uploadPromise}
       sendBtn.disabled=true;document.getElementById('buildOverlay').classList.add('on');
       const readyFiles=files.filter(f=>f.status==='ready'&&f.url);const spec={prompt,type:selectedType,experience,generateAssets,attachments:readyFiles.map(f=>({name:f.name,type:f.type,size:f.size,url:f.url})),createdAt:Date.now()};sessionStorage.setItem('fuse_page_brief',JSON.stringify(spec));const u=new URL('page-workspace.html',location.href);u.searchParams.set('type',selectedType);setTimeout(()=>location.href=u.href,1450);
     }
+    window.addEventListener('DOMContentLoaded',()=>FuseExplore.registerDraft('page-create',{
+      capture:()=>({prompt:promptEl.value,selectedType,experience,generateAssets,files}),
+      restore:s=>{promptEl.value=s.prompt||'';selectedType=s.selectedType||selectedType;experience=s.experience||experience;generateAssets=!!s.generateAssets;files=(s.files||[]).filter(f=>f.file||f.url);drawAttachments();document.querySelectorAll('[data-type]').forEach(b=>b.classList.toggle('active',b.dataset.type===selectedType));}
+    }));
     sendBtn.onclick=launch;promptEl.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();launch()}});
 
 
@@ -94,6 +98,6 @@
     if(SpeechRecognition){voiceBtn.onclick=()=>{const r=new SpeechRecognition();r.lang='en-US';r.interimResults=false;r.maxAlternatives=1;voiceBtn.textContent='●';r.onresult=e=>{const heard=e.results[0][0].transcript;promptEl.value=(promptEl.value.trim()?promptEl.value.trim()+' ':'')+heard};r.onend=()=>voiceBtn.textContent='⌁';r.onerror=()=>voiceBtn.textContent='⌁';r.start()}}else{voiceBtn.onclick=()=>promptEl.focus();voiceBtn.title='Voice input is not supported in this browser'}
     window.addEventListener('load',()=>{if(window.Fuse)Fuse.balance().catch(()=>{})});
   </script>
-  <script src="fuse-shell.js?v=pages-composer-2"></script>
+  <script src="fuse-shell.js?v=explore-actions-1"></script>
 </body>
 </html>
