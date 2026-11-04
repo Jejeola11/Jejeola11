@@ -3,8 +3,10 @@
 
 # Development / build support
 .claude/
-tests/
-scripts/
+tests/*
+!tests/credit-policy.test.cjs
+scripts/*
+!scripts/vercel-build.sh
 supabase/
 deployment/
 
