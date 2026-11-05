@@ -93,8 +93,8 @@
    })));
  }
  function loadArtwork(src){return new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(Error('A selected setting image could not load. Refresh and try again.'));image.src=src;});}
- async function artworkSheets(){
-  const cards=selectedArtwork(),sheets=[];
+ async function artworkSheets(cards){
+  const sheets=[];
   for(let offset=0;offset<cards.length;offset+=9){
    const page=cards.slice(offset,offset+9),images=await Promise.all(page.map(card=>loadArtwork(card.src)));
    const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=1120;
@@ -128,8 +128,12 @@
    const reference=mode==='me'?faceFile:window.FuseInfluencerScratch.getStyleFile();
    if(mode==='me'&&!reference)throw Error('Add your face first, or select Build From Scratch.');
    const request=requestFor(mode);
+   const values=window.FuseInfluencerScratch.getSettings();
+   const selections=window.FuseInfluencerCatalog.map(({id,label})=>({label,value:[values[id]].flat().filter(Boolean).join(', ')})).filter(item=>item.value);
+   const customPrompt=mode==='scratch'&&values.promptEnabled?values.prompt.trim():'';
+   const selectedCards=selectedArtwork();
    status.textContent='Checking credit cost…';
-   const sheets=await artworkSheets(),referenceCount=sheets.length+(reference?1:0);
+   const sheets=await artworkSheets(selectedCards),referenceCount=sheets.length+(reference?1:0);
    if(referenceCount>14)throw Error('Too many setting images were selected. Choose fewer features.');
    const quote=await Fuse.api('generate',{...request,quote:true,reference_image_count:referenceCount});
    if(quote.credits!==8)throw Error('The influencer credit price changed. Please refresh before generating.');
@@ -138,7 +142,7 @@
    if(reference)urls.push(await uploadReference(reference,session));
    for(const sheet of sheets)urls.push(await uploadReference(sheet,session));
    status.textContent='Starting your influencer…';
-   window.dispatchEvent(new CustomEvent('fuse-influencer-generate',{detail:{request,credits:8,referenceUrls:urls,mode}}));
+   window.dispatchEvent(new CustomEvent('fuse-influencer-generate',{detail:{request,credits:8,referenceUrls:urls,mode,selections,customPrompt}}));
   }catch(error){if(error.code==='NO_CREDITS'||error.status===402)showLowCredits(0);else status.textContent=error.message||'Could not generate the influencer.';}
   finally{generateButton.disabled=false;}
  });

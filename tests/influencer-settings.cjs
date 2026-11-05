@@ -49,6 +49,8 @@ console.log('PASS: multiple feature/accessory choices, isolated snapshots, popup
  assert.match(events[0].detail.request.prompt,/Freckles, Dimples/);
  assert.match(events[0].detail.request.prompt,/pure white/);
  assert.match(events[0].detail.request.prompt,/Natural studio portrait/);
+ assert.equal(events[0].detail.customPrompt,'Natural studio portrait');
+ assert(events[0].detail.selections.some(item=>item.label==='Features'&&item.value==='Freckles, Dimples'));
  assert(events[0].detail.referenceUrls.length>0);
  assert(loadedArtwork.some(url=>url.endsWith('/features-freckles.webp')));
  assert(loadedArtwork.some(url=>url.endsWith('/features-dimples.webp')));
