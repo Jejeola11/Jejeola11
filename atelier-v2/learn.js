@@ -81,11 +81,7 @@
   function renderAccess(){
     const influencerFeature=document.getElementById('influencerCourseFeature');
     if(influencerFeature){
-      const allowed=hasCourseAccess('video');
-      influencerFeature.hidden=activeCourseTab==='mine'&&!allowed;
-      influencerFeature.querySelectorAll('a[href*="academy-v2.html?course=video"],a[href*="learn.html?buy=video"]').forEach(link=>{
-        link.href=allowed?'academy-v2.html?course=video':'learn.html?buy=video';
-      });
+      influencerFeature.hidden=activeCourseTab==='mine'&&!isAdmin;
     }
     rows.forEach(row=>{
       const course=row.dataset.course;

@@ -17,7 +17,7 @@ exports.handler=async event=>{
    const b=body;
    if(b.action==='view'){
     if(course==='influencer' ? b.source!=='influencer-course' : b.source!=='tutorial-content')return respond(400,{error:'Open the course to record a view.'});
-    if(course==='influencer'&&b.contentPath!=='/atelier-v2/academy-v2.html?course=video')return respond(400,{error:'Invalid course view.'});
+    if(course==='influencer'&&b.contentPath!=='/atelier-v2/influencer-course.html')return respond(400,{error:'Invalid course view.'});
     const paths=['/atelier-v2/free-prompts-workflows.html','/atelier-v2/ocean-eyes-halloween.html','/atelier-v2/free-ai-tutorial.html','/atelier-v2/realistic-images.html'];
     const perContent=course!=='influencer'&&(b.contentPath!==undefined||b.viewId!==undefined);
     if(perContent&&(!paths.includes(b.contentPath)||!/^[-0-9a-f]{36}$/i.test(b.viewId||'')))return respond(400,{error:'Invalid tutorial view.'});
