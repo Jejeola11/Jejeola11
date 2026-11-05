@@ -134,7 +134,7 @@ exports.handler = async (event) => {
   const selectedModel = body.model || 'flux-schnell-image';
   const directGPT = !!require('./_openai-direct').imageModel(selectedModel);
    const influencerSheet = body.product === 'influencer-sheet';
-   if(influencerSheet && (selectedModel!=='gpt-image-2.5-sunburst'||aspect!=='16:9'||body.resolution!=='2k'||body.quality!=='high'||body.count!==1||referenceCount>1))return json(400,{error:'Invalid influencer sheet settings.'});
+   if(influencerSheet && (selectedModel!=='gpt-image-2.5-sunburst'||aspect!=='16:9'||body.resolution!=='2k'||body.quality!=='high'||body.count!==1||referenceCount>14))return json(400,{error:'Invalid influencer sheet settings.'});
   const forceWaveSpeed = body.provider === 'wavespeed';
   const requestedResolution = ['1k','2k','4k'].includes(String(body.resolution || '').toLowerCase())
     ? String(body.resolution).toLowerCase() : null;
