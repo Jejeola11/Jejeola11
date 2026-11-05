@@ -7,10 +7,10 @@
  const symbols=['♀','♂','⚧','⚧','◌'];
  const key='fuse-influencer-scratch-v1';
  let saved={};try{saved=JSON.parse(sessionStorage.getItem(key)||'{}')||{};}catch{}
- const values={};let styleURL=null;
+ const values={},controls={};let styleURL=null;
  function persist(){try{sessionStorage.setItem(key,JSON.stringify(values));}catch{}}
  for(const group of catalog){
-  const field=document.createElement('fieldset');field.className='scratch-field';
+  const field=document.createElement('fieldset');field.className='scratch-field';field.dataset.group=group.id;
   const legend=document.createElement('legend');legend.textContent=group.label;field.append(legend);
   const rail=document.createElement('div');rail.className='scratch-rail';
   if(group.id==='style'){
@@ -23,10 +23,10 @@
    preview.addEventListener('error',clear);remove.addEventListener('click',clear);window.addEventListener('pagehide',clear);
    upload.append(input,preview);rail.append(upload,remove);
   }
-  values[group.id]=group.options.includes(saved[group.id])?saved[group.id]:group.options[0];
+  values[group.id]=group.options.includes(saved[group.id])?saved[group.id]:group.options[0];controls[group.id]=[];
   group.options.forEach((option,index)=>{
    const label=document.createElement('label');label.className='scratch-choice scratch-'+group.kind;
-   const input=document.createElement('input');input.type='radio';input.name='influencer-'+group.id;input.value=option;input.checked=values[group.id]===option;
+   const input=document.createElement('input');input.type='radio';input.name='influencer-'+group.id;input.value=option;input.checked=values[group.id]===option;controls[group.id].push(input);
    const art=document.createElement('span');art.className='scratch-art';art.setAttribute('aria-hidden','true');
    if(group.kind==='color')art.style.backgroundColor=colors[group.id][index];
    else if(group.kind==='symbol')art.textContent=symbols[index];
@@ -43,5 +43,8 @@
   });field.append(rail);root.append(field);
  }
  // A stable settings snapshot for the forthcoming generation integration.
- window.FuseInfluencerScratch={getSettings:()=>({...values})};
+ window.FuseInfluencerScratch={getSettings:()=>({...values}),setSettings(settings){
+  for(const group of catalog){if(group.options.includes(settings[group.id])){values[group.id]=settings[group.id];controls[group.id].forEach(input=>input.checked=input.value===values[group.id]);}}persist();
+ }};
 })();
+

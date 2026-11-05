@@ -163,8 +163,8 @@
     @media(max-width:520px){.create-agent{padding:11px 0 11px}.create-agent-brand{font-size:24px;margin-bottom:14px}.create-agent-brand img{width:34px;height:34px}.create-composer{padding:10px 12px 9px;border-radius:22px}.create-composer textarea{min-height:125px;font-size:15px}.composer-pill{font-size:12px;padding:0 10px}.create-grid{gap:18px 14px;margin-top:10px}}
   
     #createGrid{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x proximity;overscroll-behavior-x:contain;padding:4px 2px 16px;scrollbar-width:thin;scrollbar-color:#315456 transparent}
-    #createGrid .create-card{flex:0 0 clamp(230px,72vw,340px);scroll-snap-align:start;cursor:pointer;border-radius:22px}
-    #createGrid .create-media{aspect-ratio:16/9}
+    #createGrid .create-card{flex:0 0 clamp(150px,44vw,230px);scroll-snap-align:start;cursor:pointer;border-radius:22px}
+    #createGrid .create-media{aspect-ratio:3/4}
     #createGrid .create-card:focus-visible{outline:2px solid #dfff4e;outline-offset:3px}
     #createGrid .create-card[aria-pressed=true] .create-media{box-shadow:0 0 0 2px #dfff4e,0 0 20px #dfff4e44}
     #createGrid .is-locked{cursor:not-allowed}
@@ -173,7 +173,7 @@
 </head>
 <body class="create-catalog" data-page="create">
   <link rel="stylesheet" href="create-composer.css?v=review-before-send-13">
-  <link rel="stylesheet" href="influencer-create.css?v=4">
+  <link rel="stylesheet" href="influencer-create.css?v=5">
 <main class="create-wrap">
     <section id="influencerBuilder" class="influencer-builder" data-mode="me" aria-labelledby="influencerTitle" hidden>
       <div class="influencer-heading"><h1 id="influencerTitle" tabindex="-1">Create Influencer</h1><button type="button" id="influencerBack" class="influencer-back">Back to Create</button></div>
@@ -189,12 +189,13 @@
         <button class="influencer-presets" type="button" disabled title="Presets are coming next">Select from presets</button>
       </div>
       <section id="influencerScratch" aria-label="Build from scratch settings" hidden></section>
-      <details class="influencer-advanced"><summary>Advanced settings</summary>
-        <label>Visual style<select id="influencerStyle"><option>Natural</option><option>Cinematic</option><option>Editorial</option></select></label>
-        <label>Aspect ratio<select id="influencerRatio"><option>3:4</option><option>1:1</option><option>9:16</option><option>16:9</option></select></label>
-      </details>
-      <button type="button" class="influencer-generate" disabled aria-describedby="influencerAvailability">Generate ✦</button>
-      <p class="influencer-note" id="influencerAvailability">Presets and influencer generation are coming next.</p>
+      <button type="button" class="influencer-advanced" id="influencerAdvancedOpen" aria-haspopup="dialog" aria-controls="influencerSettings">Advanced settings <span aria-hidden="true">＋</span></button>
+      <dialog id="influencerSettings" class="influencer-settings" aria-labelledby="influencerSettingsTitle">
+        <header class="influencer-settings-head"><h2 id="influencerSettingsTitle">Settings</h2><button type="button" id="influencerSettingsClose" aria-label="Close settings">×</button></header>
+        <div id="influencerSettingsFields" class="influencer-settings-fields"></div>
+        <footer class="influencer-settings-actions"><button type="button" id="influencerSettingsRandomize">Randomize ⤨</button><button type="button" id="influencerSettingsApply">Apply</button></footer>
+      </dialog>
+      <button type="button" class="influencer-generate" disabled>Generate ✦</button>
       <p class="influencer-note" id="influencerStatus" role="status" aria-live="polite"></p>
     </section>
     <section class="create-agent" aria-label="Start creating">
@@ -219,11 +220,9 @@
       {cat:'Video',title:'Create Video',video:'/atelier-site/assets/course-ai-ugc.mp4',href:'video-create.html'},
       {cat:'Influencer',title:'Create Influencer',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1788626963/4870020.png'},
       {cat:'Page',locked:true,title:'Build Website With AI',img:'/atelier-site/assets/work/landing-card.jpg',fallback:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789492222/fuse-atelier/academy/landing-card.webp',href:'page-create.html'},
-      {cat:'Twin',title:'Create Your AI Twin',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789528511/fuse-atelier/create/ai-twin-car.jpg',route:'avatar'},
-      {cat:'Voice',title:'Clone Your Voice',voice:true,route:'audio'},
+      {cat:'Twin',locked:true,title:'Create Your AI Twin',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789528511/fuse-atelier/create/ai-twin-car.jpg',route:'avatar'},
+      {cat:'Voice',locked:true,title:'Clone Your Voice',voice:true,route:'audio'},
       {cat:'Flyer',locked:true,title:'AI Flyer',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789527907/fuse-atelier/create/ai-flyer-rosen.jpg',route:'flyer'},
-      {cat:'Lipsync',title:'Lipsync Video',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789529143/fuse-atelier/create/lipsync-video.mp4',route:'omni'},
-      {cat:'UGC',title:'UGC Video',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789528540/fuse-atelier/create/ugc-video.mp4',route:'video-seedance'}
       // Social content remains available in the Content tab, outside the All shortcuts.
     ];
 
@@ -409,10 +408,11 @@
   <script src="media-download.js?v=native-download-3"></script>
   <script src="create-composer.js?v=influencer-builder-3" defer></script>
   <script src="influencer-catalog.js?v=1" defer></script>
-  <script src="influencer-scratch.js?v=2" defer></script>
-  <script src="influencer-create.js?v=2" defer></script>
+  <script src="influencer-scratch.js?v=3" defer></script>
+  <script src="influencer-create.js?v=3" defer></script>
 </body>
 </html>
+
 
 
 
