@@ -10,9 +10,12 @@ exports.handler=async event=>{
    let b;try{b=JSON.parse(event.body||'{}')}catch{return respond(400,{error:'Invalid request'})}
    if(b.action==='view'){
     if(b.source!=='tutorial-content')return respond(400,{error:'Open the tutorial to record a view.'});
+    const paths=['/atelier-v2/free-prompts-workflows.html','/atelier-v2/ocean-eyes-halloween.html','/atelier-v2/free-ai-tutorial.html','/atelier-v2/realistic-images.html'];
+    const perContent=b.contentPath!==undefined||b.viewId!==undefined;
+    if(perContent&&(!paths.includes(b.contentPath)||!/^[-0-9a-f]{36}$/i.test(b.viewId||'')))return respond(400,{error:'Invalid tutorial view.'});
     const headers=event.headers||{};
     const actor=user?'user:'+user.id:'guest:'+String(headers['x-forwarded-for']||headers['x-real-ip']||'unknown').split(',')[0].trim()+':'+String(headers['user-agent']||'').slice(0,500);
-    const hash=crypto.createHmac('sha256',process.env.SUPABASE_SERVICE_ROLE_KEY).update(actor).digest('hex');
+    const hash=crypto.createHmac('sha256',process.env.SUPABASE_SERVICE_ROLE_KEY).update(perContent?'content-session:'+b.contentPath+':'+b.viewId:actor).digest('hex');
     const r=await db.from('academy_tutorial_views').upsert({tutorial_key:KEY,viewer_hash:hash},{onConflict:'tutorial_key,viewer_hash',ignoreDuplicates:true});if(r.error)throw r.error;
    }else if(b.action==='like'){
     if(!user)return respond(401,{error:'Sign in to like this tutorial.'});

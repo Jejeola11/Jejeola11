@@ -54,3 +54,12 @@
 .tutorial-feature-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0 3px;container-type:inline-size}
 .tutorial-feature-row .tutorial-feature-title{margin:0;font-size:clamp(9px,3.85cqw,21px);line-height:1.35}
 .tutorial-feature-row .tutorial-open-button{flex:none;white-space:nowrap;gap:4px;min-height:34px;padding:6px clamp(7px,2.5cqw,16px);margin:0;font-size:clamp(10px,3cqw,13px);box-shadow:0 2px 0 #29491b}
+
+/* Put creator and engagement alongside the existing viewing action. */
+#freeTutorialFeature .tutorial-feature-row{margin:10px 0 0;gap:10px}
+#freeTutorialFeature .tutorial-meta{flex:1;min-width:0;padding-right:0;column-gap:clamp(8px,2vw,20px);row-gap:0}
+#freeTutorialFeature .tutorial-stats{gap:clamp(6px,1.5vw,14px)}
+#freeTutorialFeature .tutorial-author{font-size:clamp(10px,3cqw,17px)}
+#freeTutorialFeature .tutorial-stat{font-size:clamp(10px,3cqw,14px);gap:4px}
+#freeTutorialFeature .tutorial-stat svg{width:clamp(17px,5cqw,21px);height:clamp(17px,5cqw,21px)}
+#freeTutorialFeature .tutorial-cover img{object-fit:contain}
