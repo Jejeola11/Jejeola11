@@ -177,7 +177,13 @@ window.FuseInfluencerCatalog=[
       "Standard",
       "Long",
       "Tiny",
-      "High forehead"
+      "High forehead",
+      "Caveman",
+      "Gigachad",
+      "Mega jaw",
+      "Round",
+      "Square",
+      "Heart"
     ],
     "kind": "image"
   },
@@ -199,9 +205,113 @@ window.FuseInfluencerCatalog=[
       "Almond",
       "Round",
       "Monolid",
-      "Close-set"
+      "Close-set",
+      "Wide-set",
+      "Uneven",
+      "Large",
+      "Huge",
+      "Hooded",
+      "Upturned",
+      "Downturned"
     ],
     "kind": "image"
+  },
+  {
+    "id": "eyeColor",
+    "label": "Eye color",
+    "kind": "color",
+    "options": [
+      "Black",
+      "Brown",
+      "Hazel",
+      "Green",
+      "Blue",
+      "Ice blue",
+      "Amber",
+      "Grey"
+    ]
+  },
+  {
+    "id": "features",
+    "label": "Features",
+    "kind": "image",
+    "multiple": true,
+    "options": [
+      "Freckles",
+      "Dimples",
+      "Heavy eye bags",
+      "Blush",
+      "High cheekbones",
+      "Full lips",
+      "Thick brows",
+      "Beauty mark",
+      "Potato nose",
+      "Button nose",
+      "Pointy nose",
+      "Tiny nose",
+      "Pouty lips",
+      "Tiny pursed mouth",
+      "Wide mouth",
+      "Unibrow",
+      "Thin high brows",
+      "Brush brows",
+      "Jug ears",
+      "Gap teeth",
+      "Buck teeth",
+      "Pointy chin",
+      "Weak chin",
+      "Big forehead"
+    ]
+  },
+  {
+    "id": "facialHair",
+    "label": "Facial hair",
+    "kind": "image",
+    "options": [
+      "Clean",
+      "Stubble",
+      "Full beard",
+      "Goatee",
+      "Moustache",
+      "Pencil",
+      "Push-broom",
+      "Braided"
+    ]
+  },
+  {
+    "id": "distinctive",
+    "label": "Distinctive features",
+    "kind": "image",
+    "multiple": true,
+    "options": [
+      "Odd eyes",
+      "Face tattoo",
+      "Piercing",
+      "Ear piercing",
+      "Brow slits",
+      "Bleached",
+      "No brows",
+      "Face gems",
+      "Elf ears",
+      "Big lashes",
+      "Nose tape",
+      "Gold grill",
+      "Braces",
+      "Brow scar"
+    ]
+  },
+  {
+    "id": "accessories",
+    "label": "Accessories",
+    "kind": "image",
+    "multiple": true,
+    "options": [
+      "None",
+      "Glasses",
+      "Headphones",
+      "Jewelry",
+      "Hat",
+      "Bag"
+    ]
   }
 ];
-

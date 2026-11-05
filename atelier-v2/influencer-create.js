@@ -9,7 +9,7 @@
  const status=document.getElementById('influencerStatus');
  const settings=document.getElementById('influencerSettings');
  const settingsFields=document.getElementById('influencerSettingsFields');
- const advancedIds=['height','proportions','head','neck','eyes'];
+ const advancedIds=['height','proportions','head','neck','eyes','eyeColor','features','facialHair','distinctive','accessories'];
  let settingsSnapshot=null,originalOverflow='';
  const movedFields=[];
  function closeSettings(apply=false){
@@ -27,7 +27,7 @@
  document.getElementById('influencerSettingsClose').addEventListener('click',()=>closeSettings());
  document.getElementById('influencerSettingsApply').addEventListener('click',()=>closeSettings(true));
  document.getElementById('influencerSettingsRandomize').addEventListener('click',()=>{
-  const choices={};(window.FuseInfluencerCatalog||[]).filter(group=>advancedIds.includes(group.id)).forEach(group=>choices[group.id]=group.options[Math.floor(Math.random()*group.options.length)]);window.FuseInfluencerScratch.setSettings(choices);
+  const choices={};(window.FuseInfluencerCatalog||[]).filter(group=>advancedIds.includes(group.id)).forEach(group=>choices[group.id]=group.multiple?[group.options[Math.floor(Math.random()*group.options.length)]]:group.options[Math.floor(Math.random()*group.options.length)]);window.FuseInfluencerScratch.setSettings(choices);
  });
  settings.addEventListener('cancel',event=>{event.preventDefault();closeSettings();});
  settings.addEventListener('click',event=>{if(event.target!==settings)return;const rect=settings.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)closeSettings();});

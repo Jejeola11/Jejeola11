@@ -96,3 +96,14 @@ body:has(#influencerBuilder:not([hidden])){background:radial-gradient(ellipse at
 #influencerSettingsApply{background:var(--fuse-chrome);color:#001012;border:0;font-weight:600}
 @media(min-width:700px){.influencer-heading h1{font-size:20px}.influencer-face{min-height:220px}.influencer-settings{margin:auto;border:1px solid #315456;border-radius:24px}}
 
+
+.scratch-prompt{border:1px solid #315456;border-radius:16px;background:var(--fuse-dark);overflow:hidden;margin:2px 0 14px}
+.scratch-prompt-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;font-size:13px;cursor:pointer}
+.scratch-prompt-toggle input{appearance:none;-webkit-appearance:none;position:relative;flex:0 0 34px;width:34px;height:20px;margin:0;border:1px solid #65817d;border-radius:20px;background:#315456;cursor:pointer}
+.scratch-prompt-toggle input:before{content:'';position:absolute;left:3px;top:3px;width:12px;height:12px;border-radius:50%;background:#eeffe0;transition:transform .15s}
+.scratch-prompt-toggle input:checked{background:var(--fuse-chrome);border-color:#eeffe0}
+.scratch-prompt-toggle input:checked:before{transform:translateX(14px);background:#001012}
+.scratch-prompt textarea{display:block;box-sizing:border-box;resize:vertical;width:100%;min-height:130px;max-height:300px;border:0;border-top:1px solid #315456;padding:13px 14px;font:inherit;font-size:16px;line-height:1.5;color:#eeffe0;background:transparent}
+.scratch-prompt textarea[hidden]{display:none}
+.scratch-prompt textarea::placeholder{color:#91aaa9}
+@media(prefers-reduced-motion:reduce){.scratch-prompt-toggle input:before{transition:none}}
