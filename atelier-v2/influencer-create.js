@@ -9,7 +9,7 @@
  const status=document.getElementById('influencerStatus');
  const settings=document.getElementById('influencerSettings');
  const settingsFields=document.getElementById('influencerSettingsFields');
- const advancedIds=['height','proportions','head','neck','eyes','eyeColor','features','facialHair','distinctive','accessories'];
+ const advancedIds=window.FuseInfluencerCatalog.map(group=>group.id);
  let settingsSnapshot=null,originalOverflow='';
  const movedFields=[];
  function closeSettings(apply=false){
@@ -19,7 +19,7 @@
   document.body.style.overflow=originalOverflow;settings.close();
  }
  document.getElementById('influencerAdvancedOpen').addEventListener('click',()=>{
-  if(settings.open||!window.FuseInfluencerScratch)return;
+  if(root.dataset.mode!=='me'||settings.open||!window.FuseInfluencerScratch)return;
   settingsSnapshot=window.FuseInfluencerScratch.getSettings();
   advancedIds.forEach(id=>{const field=document.querySelector('.scratch-field[data-group="'+id+'"]');if(!field)return;const anchor=document.createComment('settings '+id);field.replaceWith(anchor);settingsFields.append(field);movedFields.push({field,anchor});});
   originalOverflow=document.body.style.overflow;document.body.style.overflow='hidden';settings.showModal();
@@ -54,7 +54,6 @@
   const scratch=window.FuseInfluencerScratch;
   const values=scratch.getSettings();
   const traits=window.FuseInfluencerCatalog
-   .filter(group=>mode==='scratch'||advancedIds.includes(group.id))
    .map(({id,label})=>[label,[values[id]].flat().filter(Boolean).join(', ')])
    .filter(([,value])=>value)
    .map(([label,value])=>label+': '+value);
