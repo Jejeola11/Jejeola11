@@ -136,11 +136,13 @@
       const course=row.dataset.course;
       if(guest){
         event.preventDefault();
+        if(course==='challenge'){location.assign('/challenge');return;}
         signupToBuy(course);
         return;
       }
       if(row.classList.contains('is-locked')){
         event.preventDefault();
+        if(course==='challenge'){location.assign('/challenge');return;}
         const pack=checkoutUrls[course];if(!pack)return;
         await openCheckout(course);
       }
