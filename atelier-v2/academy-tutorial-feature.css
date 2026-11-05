@@ -5,9 +5,7 @@
 .academy-course-tab[aria-pressed=true]::after{content:"";position:absolute;left:0;right:0;bottom:1px;height:3px;border-radius:3px;background:#FFE66A}
 .academy-course-tab:focus-visible{outline:2px solid #DFFF4E;outline-offset:4px}
 .tutorial-feature{min-width:0}
-.tutorial-cover{display:block;position:relative;aspect-ratio:16/9;border:3px solid transparent;border-radius:22px;overflow:hidden;background:linear-gradient(#062125,#062125) padding-box,var(--academy-chrome) border-box;box-shadow:0 0 10px #dfff4e88,0 0 24px #ffe66a44;animation:tutorialChromeGlow 2.2s ease-in-out infinite alternate}
-@keyframes tutorialChromeGlow{from{box-shadow:0 0 7px #dfff4e77,0 0 18px #ffe66a33}to{box-shadow:0 0 16px #dfff4edd,0 0 38px #ffe66a88}}
-@media(prefers-reduced-motion:reduce){.tutorial-cover{animation:none}}
+.tutorial-cover{display:block;position:relative;aspect-ratio:16/9;border:2px solid transparent;border-radius:22px;overflow:hidden;background:linear-gradient(#001012,#001012) padding-box,var(--academy-chrome) border-box}
 .tutorial-cover img{display:block;width:100%;height:100%;object-fit:cover}
 .tutorial-feature-title{margin:15px 0 14px;color:#fff;font-size:clamp(18px,4.5vw,28px);font-weight:500;line-height:1.28;letter-spacing:-.025em}
 .tutorial-feature-title a{color:inherit;text-decoration:none}
@@ -63,11 +61,18 @@
 .tutorial-feature-row .tutorial-open-button{flex:none;white-space:nowrap;gap:4px;min-height:34px;padding:6px clamp(7px,2.5cqw,16px);margin:0;font-size:clamp(10px,3cqw,13px);box-shadow:0 2px 0 #29491b}
 
 /* Put creator and engagement alongside the existing viewing action. */
-#freeTutorialFeature .tutorial-feature-row{margin:10px 0 0;gap:10px}
-#freeTutorialFeature .tutorial-meta{flex:1;min-width:0;padding-right:0;column-gap:clamp(8px,2vw,20px);row-gap:0}
-#freeTutorialFeature .tutorial-stats{gap:clamp(6px,1.5vw,14px)}
-#freeTutorialFeature .tutorial-author{font-size:clamp(10px,3cqw,17px)}
-#freeTutorialFeature .tutorial-stat{font-size:clamp(10px,3cqw,14px);gap:4px}
-#freeTutorialFeature .tutorial-stat svg{width:clamp(17px,5cqw,21px);height:clamp(17px,5cqw,21px)}
-#freeTutorialFeature .tutorial-cover img{object-fit:contain}
+#freeTutorialFeature .tutorial-feature-row,
+#influencerCourseFeature .tutorial-feature-row{margin:10px 0 0;gap:10px}
+#freeTutorialFeature .tutorial-meta,
+#influencerCourseFeature .tutorial-meta{flex:1;min-width:0;padding-right:0;column-gap:clamp(8px,2vw,20px);row-gap:0}
+#freeTutorialFeature .tutorial-stats,
+#influencerCourseFeature .tutorial-stats{gap:clamp(6px,1.5vw,14px)}
+#freeTutorialFeature .tutorial-author,
+#influencerCourseFeature .tutorial-author{font-size:clamp(10px,3cqw,17px)}
+#freeTutorialFeature .tutorial-stat,
+#influencerCourseFeature .tutorial-stat{font-size:clamp(10px,3cqw,14px);gap:4px}
+#freeTutorialFeature .tutorial-stat svg,
+#influencerCourseFeature .tutorial-stat svg{width:clamp(17px,5cqw,21px);height:clamp(17px,5cqw,21px)}
+#freeTutorialFeature .tutorial-cover img{object-fit:cover;transform:translateY(3.5%)}
+#influencerCourseFeature{margin-top:24px}
 

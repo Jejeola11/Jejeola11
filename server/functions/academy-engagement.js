@@ -1,17 +1,25 @@
 const {admin,getUser,json}=require('./_supabase');
 const crypto=require('crypto');
-const KEY='learn-ai-from-zero';
+const DEFAULT_KEY='learn-ai-from-zero';
 exports.handler=async event=>{
  const respond=(code,data)=>({...json(code,data),headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
  if(!['GET','POST'].includes(event.httpMethod))return respond(405,{error:'Method not allowed'});
  try{
   const db=admin(),user=await getUser(event);
+  let body={};
   if(event.httpMethod==='POST'){
-   let b;try{b=JSON.parse(event.body||'{}')}catch{return respond(400,{error:'Invalid request'})}
+   try{body=JSON.parse(event.body||'{}')}catch{return respond(400,{error:'Invalid request'})}
+  }
+  const course=event.httpMethod==='POST'?body.course:event.queryStringParameters?.course;
+  if(course!==undefined&&course!=='influencer')return respond(400,{error:'Invalid course.'});
+  const KEY=course==='influencer'?'create-monetize-influencers':DEFAULT_KEY;
+  if(event.httpMethod==='POST'){
+   const b=body;
    if(b.action==='view'){
-    if(b.source!=='tutorial-content')return respond(400,{error:'Open the tutorial to record a view.'});
+    if(course==='influencer' ? b.source!=='influencer-course' : b.source!=='tutorial-content')return respond(400,{error:'Open the course to record a view.'});
+    if(course==='influencer'&&b.contentPath!=='/atelier-v2/academy-v2.html?course=video')return respond(400,{error:'Invalid course view.'});
     const paths=['/atelier-v2/free-prompts-workflows.html','/atelier-v2/ocean-eyes-halloween.html','/atelier-v2/free-ai-tutorial.html','/atelier-v2/realistic-images.html'];
-    const perContent=b.contentPath!==undefined||b.viewId!==undefined;
+    const perContent=course!=='influencer'&&(b.contentPath!==undefined||b.viewId!==undefined);
     if(perContent&&(!paths.includes(b.contentPath)||!/^[-0-9a-f]{36}$/i.test(b.viewId||'')))return respond(400,{error:'Invalid tutorial view.'});
     const headers=event.headers||{};
     const actor=user?'user:'+user.id:'guest:'+String(headers['x-forwarded-for']||headers['x-real-ip']||'unknown').split(',')[0].trim()+':'+String(headers['user-agent']||'').slice(0,500);
