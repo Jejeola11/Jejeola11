@@ -34,7 +34,7 @@ function imageBody(id,opts={}){
  const format=opts.output_format||'png';if(!['png','jpeg','webp'].includes(format))throw Error('Choose a supported output format.');
  const background=opts.background||'opaque';if(!['opaque','transparent','auto'].includes(background))throw Error('Choose a supported background.');
  if(background==='transparent'&&format==='jpeg')throw Error('Transparent images require PNG or WebP.');
- return {model:'gpt-5.2',background:true,store:true,reasoning:{effort:'none'},max_output_tokens:require('./_gpt-pricing').POLICY.imageHelperOutputTokens,max_tool_calls:1,parallel_tool_calls:false,input:[{role:'user',content:[{type:'input_text',text:String(opts.prompt||'')},...refs.map(url=>({type:'input_image',image_url:url}))]}],tools:[{type:'image_generation',model,action:refs.length?'edit':'generate',size,quality,output_format:format,background,...(opts.input_fidelity&&model!=='gpt-image-2'?{input_fidelity:opts.input_fidelity}:{})}],tool_choice:{type:'image_generation'}};
+ return {model:'gpt-5.2',background:true,store:true,max_output_tokens:require('./_gpt-pricing').POLICY.imageHelperOutputTokens,max_tool_calls:1,parallel_tool_calls:false,input:[{role:'user',content:[{type:'input_text',text:String(opts.prompt||'')},...refs.map(url=>({type:'input_image',image_url:url}))]}],tools:[{type:'image_generation',model,action:refs.length?'edit':'generate',size,quality,output_format:format,background,...(opts.input_fidelity&&model!=='gpt-image-2'?{input_fidelity:opts.input_fidelity}:{})}],tool_choice:{type:'image_generation'}};
 }
 async function submitImage(id,opts){const body=imageBody(id,opts);const refs=await require('./_gpt-references').normalize(opts.images||[]);if(refs.length)body.input[0].content=[body.input[0].content[0],...refs.map(url=>({type:'input_image',image_url:url}))];const j=await request('/responses',body);if(!j.id)throw Error('OpenAI did not return a generation reference.');return {requestId:'oa:'+j.id+'~'+(opts?.output_format||'png'),provider:'openai'};}
 async function submitText({prompt,imageUrl,model}){
@@ -78,4 +78,3 @@ async function chat({prompt,imageUrl,model,timeoutMs=120000}){
 }
 async function refund(db,userId,amount){const plan=await require('./_supabase').getPlan(userId);if(!plan.isAdmin)return db.rpc('add_credits',{uid:userId,amount,why:'refund'});}
 module.exports={imageModel,textModel,key,sizeFor,imageBody,submitImage,submitText,poll,pollText,chat,refund};
-

@@ -62,9 +62,9 @@
    : 'Create a new fictional adult identity. Use any attached image for styling only, without copying the subject’s identity.';
   const details=mode==='scratch'&&values.promptEnabled ? values.prompt.trim() : '';
   return {
-   model:'gpt-image-2.5-sunburst',
-   aspect:'3:4',resolution:'1k',quality:'medium',count:1,
-   prompt:['Create one photorealistic editorial influencer portrait. Natural skin texture, realistic lighting, no text or watermarks.',instructions,...traits,details].filter(Boolean).join('\n')
+   model:'gpt-image-2.5-sunburst',product:'influencer-sheet',
+   aspect:'16:9',resolution:'2k',quality:'high',count:1,output_format:'jpeg',background:'opaque',
+   prompt:['Generate exactly ONE photorealistic 16:9 horizontal character reference sheet on a completely pure white (#FFFFFF) seamless background. Two views of the SAME adult person, side by side with generous white space: LEFT a large close-up face and upper torso facing front, RIGHT a smaller complete full-body figure facing front, head to shoes fully visible. Match facial identity, skin, hairstyle, clothing and accessories precisely across both views. Real natural skin pores, realistic anatomy and studio lighting. No extra people, no panels, borders, typography, logos or watermarks.',instructions,...traits,details].filter(Boolean).join('\n')
   };
  }
 
@@ -127,12 +127,8 @@
    }
    status.textContent='Submitting your influencer…';
    const urls=reference?[await uploadReference(reference,session)]:[];
-   const job=await Fuse.api('generate',{...request,accepted_credits:quote.credits,reference_image_urls:urls});
-   if(!job.request_id)throw Error('No job reference was returned. Check your Library before retrying.');
-   sessionStorage.setItem(pendingKey(session),job.request_id);
-   generateButton.textContent='Check result';
-   status.textContent='Generating your influencer…';
-   await showJob(job.request_id,session);
+   window.dispatchEvent(new CustomEvent('fuse-influencer-generate',{detail:{request,credits:quote.credits,referenceUrls:urls}}));
+   setOpen(false);
   }catch(error){status.textContent=error.message||'Could not generate the influencer.';}
   finally{generateButton.disabled=false;}
  });

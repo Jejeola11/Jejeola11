@@ -133,6 +133,8 @@ exports.handler = async (event) => {
   // models that genuinely have no editing variant at all (e.g. flux-schnell).
   const selectedModel = body.model || 'flux-schnell-image';
   const directGPT = !!require('./_openai-direct').imageModel(selectedModel);
+   const influencerSheet = body.product === 'influencer-sheet';
+   if(influencerSheet && (selectedModel!=='gpt-image-2.5-sunburst'||aspect!=='16:9'||body.resolution!=='2k'||body.quality!=='high'||body.count!==1||referenceCount>1))return json(400,{error:'Invalid influencer sheet settings.'});
   const forceWaveSpeed = body.provider === 'wavespeed';
   const requestedResolution = ['1k','2k','4k'].includes(String(body.resolution || '').toLowerCase())
     ? String(body.resolution).toLowerCase() : null;
@@ -148,7 +150,7 @@ exports.handler = async (event) => {
   // Plan gating — free users only get basic models. Default to 'pro' on any DB error so generation is never blocked by a plan-check crash.
   let plan = 'pro', isAdmin = false, hasPurchased = true;
   try { const p = await getPlan(user.id); plan = p.plan; isAdmin = p.isAdmin; hasPurchased = p.hasPurchased; } catch (e) {}
-  if (!forceWaveSpeed && plan === 'free' && !isAdmin && !canUseFree(model)) {
+  if (!forceWaveSpeed && !influencerSheet && plan === 'free' && !isAdmin && !canUseFree(model)) {
     return json(403, { error: 'This model requires a subscription. Upgrade to unlock all models.', code: 'PLAN_REQUIRED' });
   }
   if (forceWaveSpeed && !directGPT && !hasWaveSpeed()) {
@@ -169,7 +171,7 @@ exports.handler = async (event) => {
   // normal 2K price and doubles only for 4K. Legacy callers keep the old
   // res-multiplier behavior unchanged.
   const perImage=imageCreditsForRequest(model,{resolution,referenceCount,quality:requestedQuality,prompt});
-  const cost=Math.max(perImage, directGPT || forceWaveSpeed ? perImage : base*resMult)*count;
+  const cost=influencerSheet ? 8 : Math.max(perImage, directGPT || forceWaveSpeed ? perImage : base*resMult)*count;
   if(body.quote===true)return json(200,{credits:cost,model,per_image:perImage});
   if((forceWaveSpeed||directGPT) && body.accepted_credits!==cost)return json(409,{error:'The credit price changed. Review the cost and try again.',credits:cost});
 
@@ -269,5 +271,3 @@ exports.handler = async (event) => {
     return json(500, { error: 'Server error — please try again.' });
   }
 };
-
-

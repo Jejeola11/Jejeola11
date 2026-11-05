@@ -241,6 +241,23 @@ async function generate(){
 async function restoreThreads(){try{const session=await Fuse.session();if(!session?.user?.id)return;chatUser=session.user.id;threadKey='fuse_create_chats_'+chatUser;const stored=JSON.parse(localStorage.getItem(threadKey)||'null');if(stored&&Array.isArray(stored.chats)){chats=stored.chats;activeChatId=stored.active}const legacy=JSON.parse(localStorage.getItem('fuse_create_chat_'+chatUser)||'[]');if(!chats.length&&Array.isArray(legacy)&&legacy.length){const now=new Date().toISOString();chats=[{legacyImported:true,id:crypto.randomUUID(),title:shortTitle(legacy[0].prompt),renamed:false,turns:legacy,created_at:now,updated_at:now}];dirtyChats.add(chats[0].id)}
  try{const sb=await Fuse.client();const {data,error}=await sb.from('create_chats').select('id,title,renamed,turns,created_at,updated_at').eq('user_id',chatUser).order('updated_at',{ascending:false}).limit(100);if(error)throw error;for(const remote of data||[]){const imported=chats.find(c=>c.legacyImported&&c.turns.some(t=>t.request_id&&(remote.turns||[]).some(r=>r.request_id===t.request_id)));if(imported){dirtyChats.delete(imported.id);if(activeChatId===imported.id)activeChatId=remote.id;imported.id=remote.id;delete imported.legacyImported;imported.updated_at=new Date().toISOString();dirtyChats.add(imported.id);}const i=chats.findIndex(c=>c.id===remote.id);if(i<0)chats.push(remote);else if(Date.parse(remote.updated_at)>Date.parse(chats[i].updated_at))chats[i]=remote;else if(Date.parse(remote.updated_at)<Date.parse(chats[i].updated_at))dirtyChats.add(remote.id)}for(const c of chats)if(!(data||[]).some(r=>r.id===c.id))dirtyChats.add(c.id)}catch{note('Showing chats saved on this device. Account sync will retry.')}
  for(const t of allTurns())if(t.status==='preparing'){t.status='failed';t.error='Submission was interrupted. Check Library before submitting again.'}if(!chats.length){newChat()}else{if(!chats.some(c=>c.id===activeChatId))activeChatId=chats[0].id;threads=activeChat().turns;restoreGenerationSettings();renderThreads();renderChatMenu();persistChats()}syncChats();pollThreads()}catch{threads=[];renderChatMenu()}finally{state.historyReady=true;if(state.quote)$('createSend').disabled=false;renderCreditNotice()}}
+async function startInfluencerChat({request,credits,referenceUrls=[]}) {
+ if(state.busy)return note('Wait for the current generation to finish.');
+ if(!state.historyReady)return note('Chats are still loading. Try again in a moment.');
+ const now=new Date().toISOString(),c={id:crypto.randomUUID(),title:'Create Influencer',renamed:true,turns:[],created_at:now,updated_at:now};
+ chats.unshift(c);openChat(c.id);
+ const turn={id:crypto.randomUUID(),prompt:request.prompt,modelLabel:'Create Influencer',model:request.model,kind:'image',assets:referenceUrls.map(url=>({name:'Reference face',kind:'image',url})),status:'preparing',started_at:Date.now()};
+ threads.push(turn);saveThreads();renderThreads();
+ document.querySelector('#generationChat')?.scrollIntoView({behavior:'smooth',block:'start'});
+ try{
+  const job=await Fuse.api('generate',{...request,accepted_credits:credits,reference_image_urls:referenceUrls,client_request_id:turn.id});
+  if(!job.request_id)throw Error('No job reference returned. Check your Library before trying again.');
+  turn.request_id=job.request_id;turn.status='processing';turn.started_at=Date.now();turn._dirty=true;
+  try{const jobs=JSON.parse(localStorage.getItem('fuse_pending_jobs')||'[]');jobs.push({request_id:job.request_id,endpoint:'job-status',mediaType:'image',label:'Create Influencer',model:request.model,started_at:turn.started_at});localStorage.setItem('fuse_pending_jobs',JSON.stringify(jobs))}catch{}
+  saveThreads();renderThreads();pollThreads();
+ }catch(error){turn.status='failed';turn.error=error.message||'Could not start generation.';turn._dirty=true;saveThreads();renderThreads();note(turn.error)}
+}
+window.addEventListener('fuse-influencer-generate',event=>{startInfluencerChat(event.detail)});
 setInterval(()=>{for(const t of threads.filter(t=>t.status==='processing')){const el=$('turn-'+t.id);const value=estimatedProgress(t);if(el?.querySelector('[data-progress]'))el.querySelector('[data-progress]').textContent=value+'%';if(el?.querySelector('progress'))el.querySelector('progress').value=value}},1000);
 setInterval(refreshBalance,30000);window.addEventListener('focus',refreshBalance);refreshBalance();setInterval(pollThreads,6000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){pollThreads();syncChats();refreshBalance()}});
 $('choiceClose').onclick=()=>$('settingChoices').close();$('settingChoices').addEventListener('click',e=>{if(e.target===$('settingChoices'))$('settingChoices').close()});
@@ -252,8 +269,3 @@ $('assetInput').onchange=async e=>{const files=[...e.target.files];e.target.valu
  restore:saved=>{state.toolScope=['Image','Video'].includes(saved.toolScope)?saved.toolScope:null;const model=state.models.find(m=>m.id===saved.model);if(model)select(model);$('createPrompt').value=saved.prompt||'';state.settings={...state.settings,...saved.settings};state.autoMode=saved.autoMode!==false;state.batchSize=saved.batchSize||1;state.assets=(saved.assets||[]).filter(a=>a.url||a.file).map(a=>({...a,preview:a.file?URL.createObjectURL(a.file):a.url}));state.selected=new Set(saved.selected||[]);state.assetBindings=saved.assetBindings||{};renderSettings();renderAssets();renderChips();renderMediaPanel();refreshQuote();note('Your draft is restored. Review the credit quote and tap Generate when ready.');}
 });if(threads.length){requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelector('.create-composer')?.scrollIntoView({block:'end',behavior:'instant'})));}await loadLibrary();if(state.pendingTool){const tool=state.pendingTool;state.pendingTool=null;activateTool(tool);}}catch(e){note(e.message)}})();
 })();
-
-
-
-
-
