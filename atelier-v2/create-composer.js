@@ -34,6 +34,8 @@ function renderModels(){const q=$('modelSearch').value.toLowerCase().trim(),root
 function activateTool(category){
  if(state.busy||state.uploading)return note('Wait for the current submission or upload to finish.');
  if(['Page','Flyer'].includes(category))return;
+ if(category==='Influencer'){window.dispatchEvent(new CustomEvent('fuse-influencer-open'));return;}
+ window.dispatchEvent(new CustomEvent('fuse-influencer-close'));
  if(!state.models.length){state.pendingTool=category;return note('Loading creation models…');}
  const scope=['Video','Lipsync','UGC'].includes(category)?'Video':'Image';
  if(category==='Voice'){note('Voice cloning is not available in this chat yet.');return;}
@@ -250,6 +252,7 @@ $('assetInput').onchange=async e=>{const files=[...e.target.files];e.target.valu
  restore:saved=>{state.toolScope=['Image','Video'].includes(saved.toolScope)?saved.toolScope:null;const model=state.models.find(m=>m.id===saved.model);if(model)select(model);$('createPrompt').value=saved.prompt||'';state.settings={...state.settings,...saved.settings};state.autoMode=saved.autoMode!==false;state.batchSize=saved.batchSize||1;state.assets=(saved.assets||[]).filter(a=>a.url||a.file).map(a=>({...a,preview:a.file?URL.createObjectURL(a.file):a.url}));state.selected=new Set(saved.selected||[]);state.assetBindings=saved.assetBindings||{};renderSettings();renderAssets();renderChips();renderMediaPanel();refreshQuote();note('Your draft is restored. Review the credit quote and tap Generate when ready.');}
 });if(threads.length){requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelector('.create-composer')?.scrollIntoView({block:'end',behavior:'instant'})));}await loadLibrary();if(state.pendingTool){const tool=state.pendingTool;state.pendingTool=null;activateTool(tool);}}catch(e){note(e.message)}})();
 })();
+
 
 
 

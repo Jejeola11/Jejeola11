@@ -173,7 +173,29 @@
 </head>
 <body class="create-catalog" data-page="create">
   <link rel="stylesheet" href="create-composer.css?v=review-before-send-13">
-  <main class="create-wrap">
+  <link rel="stylesheet" href="influencer-create.css?v=1">
+<main class="create-wrap">
+    <section id="influencerBuilder" class="influencer-builder" data-mode="me" aria-labelledby="influencerTitle" hidden>
+      <div class="influencer-heading"><h1 id="influencerTitle" tabindex="-1">Create Influencer</h1><button type="button" id="influencerBack" class="influencer-back">Back to Create</button></div>
+      <div class="influencer-banner" role="img" aria-label="Influencer banner placeholder">Influencer banner coming soon</div>
+      <div class="influencer-modes" role="group" aria-label="Build your influencer">
+        <button type="button" data-influencer-mode="me" aria-pressed="true">Build From Me</button>
+        <button type="button" data-influencer-mode="scratch" aria-pressed="false">Build From Scratch</button>
+      </div>
+      <div class="influencer-face">
+        <img id="influencerFacePreview" alt="Your selected face reference" hidden>
+        <button id="influencerFaceRemove" class="influencer-remove" type="button" hidden>Remove photo</button>
+        <label class="influencer-upload"><span aria-hidden="true">＋</span><strong id="influencerFaceLabel">Add your face</strong><input id="influencerFaceFile" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Upload your face"></label>
+        <button class="influencer-presets" type="button" disabled title="Presets are coming next">Select from presets</button>
+      </div>
+      <details class="influencer-advanced"><summary>Advanced settings</summary>
+        <label>Visual style<select id="influencerStyle"><option>Natural</option><option>Cinematic</option><option>Editorial</option></select></label>
+        <label>Aspect ratio<select id="influencerRatio"><option>3:4</option><option>1:1</option><option>9:16</option><option>16:9</option></select></label>
+      </details>
+      <button type="button" class="influencer-generate" disabled aria-describedby="influencerAvailability">Generate ✦</button>
+      <p class="influencer-note" id="influencerAvailability">Presets and influencer generation are coming next.</p>
+      <p class="influencer-note" id="influencerStatus" role="status" aria-live="polite"></p>
+    </section>
     <section class="create-agent" aria-label="Start creating">
       <div class="create-agent-brand"><img src="https://res.cloudinary.com/bzw55wh2/image/upload/v1793361152/fuse-atelier/create/fuse-mark-transparent-20261030.png" alt="">Fuse Atelier</div>
       <div id="generationChat" class="generation-chat" aria-label="Your creations"></div>
@@ -384,8 +406,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="fuse-shell.js?v=explore-actions-1"></script>
   <script src="media-download.js?v=native-download-3"></script>
-  <script src="create-composer.js?v=tool-modes-2" defer></script>
+  <script src="create-composer.js?v=influencer-builder-3" defer></script>
+  <script src="influencer-create.js?v=1" defer></script>
 </body>
 </html>
+
 
 
