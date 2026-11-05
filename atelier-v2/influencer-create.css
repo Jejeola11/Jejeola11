@@ -59,7 +59,13 @@ body:has(#influencerBuilder:not([hidden])){background:radial-gradient(ellipse at
 .influencer-heading{position:relative;justify-content:center;min-height:48px;margin-bottom:8px;padding:0 76px}
 .influencer-heading h1{font-size:18px;line-height:1.25;text-align:center}
 .influencer-builder .influencer-back{position:absolute;right:0;font-size:10px;padding:8px 0}
-.influencer-banner{border-radius:18px;font-size:11px}
+.influencer-banner{position:relative;aspect-ratio:2024/777;border-radius:18px;overflow:hidden;border-color:#365658;background:#031013 url("assets/influencer-banner.webp") center/cover no-repeat;isolation:isolate}
+.influencer-banner-copy{position:absolute;inset:0 29%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1px;white-space:nowrap;z-index:1}
+.influencer-banner-copy strong{display:block;font-family:Montserrat,Arial,sans-serif;font-size:clamp(18px,4.2vw,38px);font-weight:800;line-height:1.12;letter-spacing:-.035em;text-transform:uppercase;background:linear-gradient(180deg,#fff 7%,#b2c1c2 23%,#fff 43%,#718587 57%,#f4ffff 77%,#95a8aa 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 4px #000b)}
+.influencer-banner-stroke{width:min(78%,260px);height:clamp(12px,2.4vw,22px);overflow:visible;filter:drop-shadow(0 1px 2px #fff6)}
+.influencer-banner-copy>span{color:#fff;font-size:clamp(12px,2.1vw,19px);font-weight:600;line-height:1.2;text-shadow:0 2px 5px #000}
+.influencer-banner-hand{display:inline-block;font-family:Arial,sans-serif;font-variant-emoji:text;background:linear-gradient(125deg,#fff 8%,#9baeb0 34%,#fff 58%,#708b8e 82%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 1px #000)}
+@media(max-width:480px){.influencer-banner{border-radius:14px}.influencer-banner-copy{inset:0 26%}.influencer-banner-copy strong{font-size:clamp(14px,4.4vw,21px)}.influencer-banner-copy>span{font-size:clamp(11px,3vw,14px)}.influencer-banner-stroke{width:90%;height:12px}}
 .influencer-modes{margin:12px 0;padding:4px;gap:6px}
 .influencer-modes button{font-size:12px;padding:10px 5px;line-height:1.2}
 .influencer-face{aspect-ratio:auto;min-height:178px;border-radius:18px;gap:10px}
