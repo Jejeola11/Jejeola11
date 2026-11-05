@@ -12,6 +12,10 @@
   },
   "routes": [
     {
+      "src": "/influencer/?",
+      "dest": "/influencer/index.html"
+    },
+    {
       "src": "/signup/?",
       "dest": "/start/auth/index.html"
     },
