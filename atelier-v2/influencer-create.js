@@ -6,6 +6,7 @@
  const file=document.getElementById('influencerFaceFile');
  const preview=document.getElementById('influencerFacePreview');
  const remove=document.getElementById('influencerFaceRemove');
+ const faceUpload=root.querySelector('.influencer-upload');
  const status=document.getElementById('influencerStatus');
  const settings=document.getElementById('influencerSettings');
  const settingsFields=document.getElementById('influencerSettingsFields');
@@ -32,7 +33,7 @@
  settings.addEventListener('cancel',event=>{event.preventDefault();closeSettings();});
  settings.addEventListener('click',event=>{if(event.target!==settings)return;const rect=settings.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)closeSettings();});
  let previewURL=null, faceFile=null;
- function clearFace(){if(previewURL)URL.revokeObjectURL(previewURL);previewURL=null;faceFile=null;preview.removeAttribute('src');preview.hidden=true;remove.hidden=true;file.value='';}
+ function clearFace(){if(previewURL)URL.revokeObjectURL(previewURL);previewURL=null;faceFile=null;preview.removeAttribute('src');preview.hidden=true;remove.hidden=true;faceUpload.hidden=false;file.value='';}
  const originalParent=root.parentElement,originalNext=root.nextElementSibling;
  function setOpen(open){if(root.parentElement!==originalParent)originalParent.insertBefore(root,originalNext);root.hidden=!open;agent.hidden=open;document.body.classList.remove('influencer-chat');if(open){document.querySelectorAll('[data-create-tool]').forEach(card=>card.setAttribute('aria-pressed',String(card.dataset.createTool==='Influencer')));document.getElementById('createToolStatus').textContent='';root.scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('influencerTitle').focus({preventScroll:true});}}
  function enterChat(){agent.hidden=false;root.hidden=false;document.body.classList.add('influencer-chat');document.getElementById('generationChat').after(root);root.scrollIntoView({behavior:'smooth',block:'start'});}
@@ -44,7 +45,7 @@
  window.addEventListener('fuse-influencer-close',()=>setOpen(false));
  document.getElementById('influencerBack').addEventListener('click',()=>{const inChat=document.body.classList.contains('influencer-chat');setOpen(false);if(inChat)window.dispatchEvent(new Event('fuse-influencer-back'));const card=document.querySelector('[data-create-tool="Influencer"]');card?.setAttribute('aria-pressed','false');card?.focus();});
  root.querySelectorAll('[data-influencer-mode]').forEach(button=>button.addEventListener('click',()=>{root.querySelectorAll('[data-influencer-mode]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));root.dataset.mode=button.dataset.influencerMode;document.getElementById('influencerScratch').hidden=button.dataset.influencerMode!=='scratch';document.querySelector('.influencer-face').hidden=button.dataset.influencerMode==='scratch';document.getElementById('influencerFaceLabel').textContent=button.dataset.influencerMode==='me'?'Add your face':'Add a reference face (optional)';status.textContent='';}));
- file.addEventListener('change',()=>{const image=file.files?.[0];if(!image)return;if(!['image/jpeg','image/png','image/webp'].includes(image.type)||image.size>20*1024*1024){file.value='';status.textContent='Choose a JPG, PNG or WebP image under 20 MB.';return;}clearFace();faceFile=image;previewURL=URL.createObjectURL(image);preview.src=previewURL;preview.hidden=false;remove.hidden=false;status.textContent='Face added. It will be used as a reference when you generate.';});
+ file.addEventListener('change',()=>{const image=file.files?.[0];if(!image)return;if(!['image/jpeg','image/png','image/webp'].includes(image.type)||image.size>20*1024*1024){file.value='';status.textContent='Choose a JPG, PNG or WebP image under 20 MB.';return;}clearFace();faceFile=image;previewURL=URL.createObjectURL(image);preview.src=previewURL;preview.hidden=false;remove.hidden=false;faceUpload.hidden=true;status.textContent='Face added. It will be used as a reference when you generate.';});
  preview.addEventListener('error',()=>{clearFace();status.textContent='This image could not be opened. Please choose another.';});
  remove.addEventListener('click',()=>{clearFace();status.textContent='Face removed.';file.focus();});
  window.addEventListener('pagehide',()=>{if(previewURL)URL.revokeObjectURL(previewURL);});

@@ -17,11 +17,12 @@
    const upload=document.createElement('label');upload.className='scratch-style-upload';upload.textContent='＋ Add style reference';
    const input=document.createElement('input');input.type='file';input.accept='image/jpeg,image/png,image/webp';input.setAttribute('aria-label','Upload style reference');
    const preview=document.createElement('img');preview.hidden=true;preview.alt='Selected style reference';
-   const remove=document.createElement('button');remove.type='button';remove.textContent='Remove reference';remove.hidden=true;remove.className='scratch-reference-remove';
+   const remove=document.createElement('button');remove.type='button';remove.hidden=true;remove.className='scratch-reference-remove';remove.setAttribute('aria-label','Delete style reference');remove.title='Delete style reference';remove.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v6m4-6v6"/></svg>';
+   const uploadWrap=document.createElement('div');uploadWrap.className='scratch-style-wrap';
    function clear(){if(styleURL)URL.revokeObjectURL(styleURL);styleURL=null;styleFile=null;preview.removeAttribute('src');preview.hidden=true;remove.hidden=true;input.value='';}
    input.addEventListener('change',()=>{const file=input.files?.[0];if(!file)return;if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>20*1024*1024){input.value='';document.getElementById('influencerStatus').textContent='Choose a JPG, PNG or WebP style reference under 20 MB.';return;}clear();styleFile=file;styleURL=URL.createObjectURL(file);preview.src=styleURL;preview.hidden=false;remove.hidden=false;});
    preview.addEventListener('error',clear);remove.addEventListener('click',clear);window.addEventListener('pagehide',clear);
-   upload.append(input,preview);rail.append(upload,remove);
+   upload.append(input,preview);uploadWrap.append(upload,remove);rail.append(uploadWrap);
   }
   values[group.id]=group.multiple?(Array.isArray(saved[group.id])?[...new Set(saved[group.id].filter(v=>group.options.includes(v)&&v!=='None'))]:[]):(group.options.includes(saved[group.id])?saved[group.id]:group.options[0]);controls[group.id]=[];
   group.options.forEach((option,index)=>{
