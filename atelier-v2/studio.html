@@ -173,7 +173,7 @@
 </head>
 <body class="create-catalog" data-page="create">
   <link rel="stylesheet" href="create-composer.css?v=review-before-send-13">
-  <link rel="stylesheet" href="influencer-create.css?v=1">
+  <link rel="stylesheet" href="influencer-create.css?v=2">
 <main class="create-wrap">
     <section id="influencerBuilder" class="influencer-builder" data-mode="me" aria-labelledby="influencerTitle" hidden>
       <div class="influencer-heading"><h1 id="influencerTitle" tabindex="-1">Create Influencer</h1><button type="button" id="influencerBack" class="influencer-back">Back to Create</button></div>
@@ -188,6 +188,7 @@
         <label class="influencer-upload"><span aria-hidden="true">＋</span><strong id="influencerFaceLabel">Add your face</strong><input id="influencerFaceFile" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Upload your face"></label>
         <button class="influencer-presets" type="button" disabled title="Presets are coming next">Select from presets</button>
       </div>
+      <section id="influencerScratch" aria-label="Build from scratch settings" hidden></section>
       <details class="influencer-advanced"><summary>Advanced settings</summary>
         <label>Visual style<select id="influencerStyle"><option>Natural</option><option>Cinematic</option><option>Editorial</option></select></label>
         <label>Aspect ratio<select id="influencerRatio"><option>3:4</option><option>1:1</option><option>9:16</option><option>16:9</option></select></label>
@@ -407,7 +408,9 @@
   <script src="fuse-shell.js?v=explore-actions-1"></script>
   <script src="media-download.js?v=native-download-3"></script>
   <script src="create-composer.js?v=influencer-builder-3" defer></script>
-  <script src="influencer-create.js?v=1" defer></script>
+  <script src="influencer-catalog.js?v=1" defer></script>
+  <script src="influencer-scratch.js?v=1" defer></script>
+  <script src="influencer-create.js?v=2" defer></script>
 </body>
 </html>
 

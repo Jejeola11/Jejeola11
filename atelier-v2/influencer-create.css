@@ -25,3 +25,22 @@
 .influencer-generate{width:100%;border:0;border-radius:30px;background:linear-gradient(110deg,#fff25a,#dfff4e,#eaffc9);color:#0a1812;font-size:20px;font-weight:700;padding:18px}
 .influencer-note{font-size:13px;color:#a6bdb8;text-align:center;line-height:1.5;margin:12px 0}
 .influencer-builder :focus-visible{outline:2px solid #e1ff65;outline-offset:3px}
+.influencer-face[hidden],#influencerScratch[hidden]{display:none!important}
+.scratch-field{border:0;min-width:0;margin:0 0 32px;padding:0}
+.scratch-field legend{font-size:20px;font-weight:600;margin-bottom:16px;padding:0}
+.scratch-rail{display:flex;gap:12px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;padding:4px 3px 10px;scrollbar-width:thin;scrollbar-color:#315456 transparent}
+.scratch-choice{position:relative;flex:0 0 128px;scroll-snap-align:start;border:2px solid #315456;border-radius:20px;overflow:hidden;cursor:pointer;background:linear-gradient(145deg,#163537,#041314);display:flex;flex-direction:column;justify-content:center;min-height:142px;box-sizing:border-box}
+.scratch-choice:has(input:checked){border-color:#dfff4e;box-shadow:0 0 0 1px #dfff4e,inset 0 0 24px #dfff4e12}
+.scratch-choice:has(input:checked) .scratch-caption{color:#e1ff65}
+.scratch-choice:focus-within{outline:2px solid #eeffe0;outline-offset:2px}
+.scratch-choice input,.scratch-style-upload input{position:absolute;width:1px;height:1px;opacity:0}
+.scratch-art{display:grid;place-items:center;min-height:100px;color:#809b94;font-size:40px;background:radial-gradient(ellipse at center,#35574d55,transparent 70%)}
+.scratch-symbol .scratch-art{color:#d0e3dd;text-shadow:0 2px #152c29,0 -1px white}
+.scratch-caption{font-size:15px;padding:10px;line-height:1.25;color:#f0fff0}
+.scratch-color{border-radius:18px;background:transparent;min-height:112px}
+.scratch-color .scratch-art{min-height:68px;margin:6px;border-radius:12px}
+.scratch-text{min-height:54px}
+.scratch-style-upload{position:relative;flex:0 0 220px;min-height:142px;display:grid;place-items:center;border:1px dashed #65827a;border-radius:20px;background:#102728;color:#e4f5ed;overflow:hidden;cursor:pointer;padding:12px;box-sizing:border-box}
+.scratch-style-upload:focus-within{outline:2px solid #dfff4e}
+.scratch-style-upload img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#041314}
+.scratch-reference-remove{align-self:center;border:1px solid #456963;border-radius:16px;background:#163537;color:white;padding:10px}
