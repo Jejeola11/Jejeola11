@@ -163,8 +163,11 @@
     @media(max-width:520px){.create-agent{padding:11px 0 11px}.create-agent-brand{font-size:24px;margin-bottom:14px}.create-agent-brand img{width:34px;height:34px}.create-composer{padding:10px 12px 9px;border-radius:22px}.create-composer textarea{min-height:125px;font-size:15px}.composer-pill{font-size:12px;padding:0 10px}.create-grid{gap:18px 14px;margin-top:10px}}
   
     #createGrid{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x proximity;overscroll-behavior-x:contain;padding:4px 2px 16px;scrollbar-width:thin;scrollbar-color:#315456 transparent}
-    #createGrid .create-card{flex:0 0 clamp(150px,44vw,230px);scroll-snap-align:start;cursor:pointer;border-radius:22px}
+    #createGrid .create-card{flex:0 0 clamp(126px,35vw,180px);scroll-snap-align:start;cursor:pointer;border-radius:18px}
     #createGrid .create-media{aspect-ratio:3/4}
+    #createGrid .create-media{position:relative;border-radius:18px}
+    #createGrid .create-tap-badge{position:absolute;top:8px;left:8px;z-index:2;padding:6px 9px;border:1px solid #678783;border-radius:999px;background:linear-gradient(125deg,#050809,#00191b 60%,#21464a);color:#fff;font-size:clamp(9px,2.5vw,11px);font-weight:600;line-height:1;box-shadow:0 3px 10px #0008}
+    #createGrid .is-locked .pin-badge{left:auto;right:8px;top:37px}
     #createGrid .create-card:focus-visible{outline:2px solid #dfff4e;outline-offset:3px}
     #createGrid .create-card[aria-pressed=true] .create-media{box-shadow:0 0 0 2px #dfff4e,0 0 20px #dfff4e44}
     #createGrid .is-locked{cursor:not-allowed}
@@ -399,7 +402,7 @@
         card.setAttribute('role','button');card.tabIndex=tool.locked?-1:0;card.dataset.createTool=tool.cat;card.setAttribute('aria-pressed','false');
         if(tool.locked){card.classList.add('is-locked');card.setAttribute('aria-disabled','true');card.setAttribute('aria-label',tool.title+' · Coming soon');}
         else {const activate=()=>window.dispatchEvent(new CustomEvent('fuse-create-tool',{detail:{category:tool.cat}}));card.onclick=activate;card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};}
-        card.innerHTML='<div class="create-media">'+mediaMarkup(tool)+'</div><h2></h2>';
+        card.innerHTML='<div class="create-media">'+mediaMarkup(tool)+'<span class="create-tap-badge">Tap to create</span></div><h2></h2>';
         card.querySelector('h2').textContent=tool.title;
         if(tool.locked){const badge=document.createElement('span');badge.className='pin-badge';badge.textContent='🔒 Coming soon';card.append(badge);}
         grid.append(card);

@@ -66,6 +66,9 @@
   let isFull=false;
   let owned=new Set();
   let isAdmin=false;
+  let activeCourseTab='all';
+  const tabs=[...document.querySelectorAll('[data-course-tab]')];
+  tabs.forEach(tab=>tab.addEventListener('click',()=>{activeCourseTab=tab.dataset.courseTab;tabs.forEach(item=>item.setAttribute('aria-pressed',String(item===tab)));renderAccess();}));
 
   function hasCourseAccess(course){
     if(course==='challenge') return isAdmin || owned.has('ai-video-client-challenge');
@@ -81,7 +84,7 @@
       const meta=courseMeta[course];
       if(!meta) return;
       const allowed=hasCourseAccess(course);
-      row.hidden=false;
+      row.hidden=activeCourseTab==='mine'&&!allowed;
       row.removeAttribute('aria-disabled');
       row.classList.toggle('is-locked',!allowed);
       row.querySelector('.academy-lock-label')?.remove();
@@ -89,12 +92,7 @@
       const cta=row.querySelector('.academy-start');
       if(cta) cta.textContent=guest?'Sign up to unlock':allowed?'Start':'Unlock · ₦'+meta.price.toLocaleString('en-NG');
     });
-    const list=document.querySelector('.academy-cards');
-    if(list){
-      // Moving existing nodes keeps their click handlers and their original order within each group.
-      rows.filter(row=>hasCourseAccess(row.dataset.course)).forEach(row=>list.appendChild(row));
-      rows.filter(row=>!hasCourseAccess(row.dataset.course)).forEach(row=>list.appendChild(row));
-    }
+    // Keep the authored course order; the free Steal My Prompts feature stays first in both tabs.
   }
 
   async function loadAccess({keepStatus=false}={}){
@@ -172,3 +170,4 @@
     }
   })();
 })();
+

@@ -1,6 +1,13 @@
 /* Free tutorials feature */
+.academy-course-tabs{display:flex;align-items:center;justify-content:center;gap:clamp(20px,7vw,54px);margin:2px 0 20px}
+.academy-course-tab{position:relative;border:0;background:none;color:#fff;padding:8px 2px 12px;font:600 clamp(14px,3.5vw,18px) Montserrat,Arial,sans-serif;cursor:pointer}
+.academy-course-tab[aria-pressed=true]{color:#FFF2A1}
+.academy-course-tab[aria-pressed=true]::after{content:"";position:absolute;left:0;right:0;bottom:1px;height:3px;border-radius:3px;background:#FFE66A}
+.academy-course-tab:focus-visible{outline:2px solid #DFFF4E;outline-offset:4px}
 .tutorial-feature{min-width:0}
-.tutorial-cover{display:block;position:relative;aspect-ratio:16/9;border-radius:22px;overflow:hidden;background:#062125}
+.tutorial-cover{display:block;position:relative;aspect-ratio:16/9;border:3px solid transparent;border-radius:22px;overflow:hidden;background:linear-gradient(#062125,#062125) padding-box,var(--academy-chrome) border-box;box-shadow:0 0 10px #dfff4e88,0 0 24px #ffe66a44;animation:tutorialChromeGlow 2.2s ease-in-out infinite alternate}
+@keyframes tutorialChromeGlow{from{box-shadow:0 0 7px #dfff4e77,0 0 18px #ffe66a33}to{box-shadow:0 0 16px #dfff4edd,0 0 38px #ffe66a88}}
+@media(prefers-reduced-motion:reduce){.tutorial-cover{animation:none}}
 .tutorial-cover img{display:block;width:100%;height:100%;object-fit:cover}
 .tutorial-feature-title{margin:15px 0 14px;color:#fff;font-size:clamp(18px,4.5vw,28px);font-weight:500;line-height:1.28;letter-spacing:-.025em}
 .tutorial-feature-title a{color:inherit;text-decoration:none}
@@ -63,3 +70,4 @@
 #freeTutorialFeature .tutorial-stat{font-size:clamp(10px,3cqw,14px);gap:4px}
 #freeTutorialFeature .tutorial-stat svg{width:clamp(17px,5cqw,21px);height:clamp(17px,5cqw,21px)}
 #freeTutorialFeature .tutorial-cover img{object-fit:contain}
+

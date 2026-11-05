@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="academy-ui.css?v=academy-overflow-fix-7">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
   <script src="course-funnel.js?v=1" defer></script><script src="fuse-shell.js?v=explore-actions-1" defer></script>
-  <script src="agent-course-offers.js?v=9900-1" defer></script><script src="learn.js?v=course-funnel-1" defer></script>
+  <script src="agent-course-offers.js?v=9900-1" defer></script><script src="learn.js?v=course-tabs-1" defer></script>
 <style>.academy-v3 .academy-free{grid-template-columns:minmax(0,1fr) 42%}.academy-v3 .academy-free .academy-copy{padding:14px 12px;gap:10px}.academy-free-label{display:inline-flex;align-self:flex-start;padding:5px 9px;border-radius:999px;background:var(--academy-chrome);color:#001012;font-size:10px;font-weight:600;line-height:1}.academy-v3 .academy-free .academy-visual img{object-fit:contain;background:white}.academy-v3 .academy-free h2{font-size:20px}
 /* Keep the free training and ebook cards at the Academy's landscape ratio. */
 .academy-v3 .academy-course.academy-free,
@@ -34,7 +34,7 @@ body.academy-v3 .academy-shell{margin-top:6px}
 .academy-intro-title{max-width:850px;margin:0 auto;color:#fff;font-size:clamp(21px,5.2vw,36px);font-weight:600;line-height:1.22;letter-spacing:-.045em;overflow-wrap:anywhere;text-wrap:balance}
 .academy-intro-greeting{display:block;font-size:clamp(18px,5vw,30px);line-height:1.25;overflow-wrap:anywhere}
 .academy-intro-chrome{display:inline-block;margin-top:6px;background:var(--academy-chrome);background-clip:text;-webkit-background-clip:text;color:transparent}
-</style><link rel="stylesheet" href="academy-tutorial-feature.css?v=compact-meta-7"><script src="academy-tutorial-feature.js?v=explore-actions-1" defer></script><style>
+</style><link rel="stylesheet" href="academy-tutorial-feature.css?v=chrome-glow-8"><script src="academy-tutorial-feature.js?v=explore-actions-1" defer></script><style>
 .academy-offer-banner{display:flex;align-items:center;gap:12px;min-height:56px;padding:9px max(12px,calc((100vw - 1100px)/2));background:linear-gradient(100deg,#F8E85C 0%,#B9FF5D 50%,#F4F4F4 100%);color:#090909;font:600 13px/1.25 Montserrat,Arial,sans-serif}
 .academy-offer-banner[hidden]{display:none!important}.academy-offer-banner>span{flex:1}.academy-offer-banner>a{display:flex;align-items:center;justify-content:center;min-height:40px;padding:10px 16px;border-radius:999px;white-space:nowrap;background:linear-gradient(105deg,#090909,#021418 52%,#21474B);color:#fff;text-decoration:none;font-weight:600}.academy-offer-banner>button{border:0;background:none;color:#21474B;font:700 25px/1 Arial;min-width:32px;min-height:40px;padding:0;cursor:pointer}.academy-offer-banner a:focus-visible,.academy-offer-banner button:focus-visible{outline:2px solid #001012;outline-offset:2px}@media(max-width:350px){.academy-offer-banner{gap:6px;font-size:12px}.academy-offer-banner>a{padding:10px 12px}}
 </style></head>
@@ -58,6 +58,10 @@ body.academy-v3 .academy-shell{margin-top:6px}
       <p class="academy-intro-label"><svg viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M1 11 16 4l15 7-15 7L1 11Zm5 5.5 10 4.7 10-4.7V24c-6.7 4.7-13.3 4.7-20 0v-7.5Z"/><path d="M30 12v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Academy</span></p>
       <h1 id="academyGreeting" class="academy-intro-title"><span class="academy-intro-greeting">Welcome, <span id="academyName">there</span>.</span><span class="academy-intro-chrome">Your next skill is waiting.</span></h1>
     </section>
+    <nav class="academy-course-tabs" aria-label="Course lists">
+      <button type="button" class="academy-course-tab" data-course-tab="all" aria-pressed="true">All Course</button>
+      <button type="button" class="academy-course-tab" data-course-tab="mine" aria-pressed="false">My Courses</button>
+    </nav>
     <p id="courseStatus" class="academy-status" role="status">Checking your course access…</p>
 
     <section class="academy-cards" aria-label="My courses">
@@ -121,5 +125,6 @@ document.getElementById('academyOfferOpen').addEventListener('click',event=>{
 </script>
 </body>
 </html>
+
 
 
