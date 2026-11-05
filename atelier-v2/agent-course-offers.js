@@ -2,7 +2,7 @@
  'use strict';
  // Same standalone Academy offers and checkout destinations as learn.js.
  const offers=[
-  {key:'challenge',title:'14-Day AI Video Client Challenge',description:'Package your skill, research clients, pitch and build your pipeline with Coach Ria.',price:9900,checkout:'/atelier-v2/learn.html?buy=challenge',image:'/atelier-v2/media/academy/ai-video-client-challenge.webp',alt:'14-Day AI Video Client Challenge with Coach Ria'},
+  {key:'challenge',title:'14-Day AI Video Client Challenge',description:'Package your skill, research clients, pitch and build your pipeline with Coach Ria.',price:9900,checkout:'/challenge',image:'/atelier-v2/media/academy/ai-video-client-challenge.webp',alt:'14-Day AI Video Client Challenge with Coach Ria'},
   {key:'money',title:'The Money Engine System',description:'Turn your skill into clients.',price:9900,checkout:'/atelier-v2/learn.html?buy=money',image:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789495289/fuse-atelier/academy/money-card-exact.png',alt:'The Money Engine System course cover'}
  ];
  window.FuseAgentCourseOffers=offers;
