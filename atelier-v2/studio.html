@@ -161,6 +161,14 @@
     .composer-message{margin:7px 0 0;min-height:0}
     .create-grid{margin-top:8px}
     @media(max-width:520px){.create-agent{padding:11px 0 11px}.create-agent-brand{font-size:24px;margin-bottom:14px}.create-agent-brand img{width:34px;height:34px}.create-composer{padding:10px 12px 9px;border-radius:22px}.create-composer textarea{min-height:125px;font-size:15px}.composer-pill{font-size:12px;padding:0 10px}.create-grid{gap:18px 14px;margin-top:10px}}
+  
+    #createGrid{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x proximity;overscroll-behavior-x:contain;padding:4px 2px 16px;scrollbar-width:thin;scrollbar-color:#315456 transparent}
+    #createGrid .create-card{flex:0 0 clamp(230px,72vw,340px);scroll-snap-align:start;cursor:pointer;border-radius:22px}
+    #createGrid .create-media{aspect-ratio:16/9}
+    #createGrid .create-card:focus-visible{outline:2px solid #dfff4e;outline-offset:3px}
+    #createGrid .create-card[aria-pressed=true] .create-media{box-shadow:0 0 0 2px #dfff4e,0 0 20px #dfff4e44}
+    #createGrid .is-locked{cursor:not-allowed}
+    #createGrid .is-locked .create-media{filter:saturate(.35);opacity:.65}
   </style>
 </head>
 <body class="create-catalog" data-page="create">
@@ -173,7 +181,7 @@
         <div class="composer-toolbar"><button type="button" class="composer-plus" id="assetOpen" aria-label="Add reference assets">+</button><button type="button" class="composer-pill" id="modelOpen"><span aria-hidden="true">▣</span><span id="modelLabel">Auto mode</span></button><button type="button" class="composer-settings" id="settingsOpen" aria-label="Model settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3v18M12 3v18M18 3v18M3 8h6M9 16h6M15 6h6"/></svg></button><button type="button" class="composer-send" id="createSend" aria-label="Generate with quoted credits" disabled>✦ …</button></div>
       </div><p class="composer-message" id="composerMessage" role="status" aria-live="polite"></p>
     </section>
-    <section class="create-grid" id="createGrid"></section>
+    <section class="create-grid" id="createGrid" aria-label="Choose what to create" tabindex="0"></section><p id="createToolStatus" class="composer-message" role="status" aria-live="polite"></p>
   </main>
 
   <dialog class="create-sheet" id="modelSheet" aria-label="Choose a model"><div class="sheet-head"><h2>Model</h2><button type="button" data-close-sheet aria-label="Close model picker">×</button></div><input class="sheet-search" id="modelSearch" type="search" placeholder="Search models" aria-label="Search models"><div id="modelOptions"></div></dialog>
@@ -186,10 +194,11 @@
     const tools=[
       {cat:'Image',title:'Create Image',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1788626963/4870020.png',href:'image-create.html'},
       {cat:'Video',title:'Create Video',video:'/atelier-site/assets/course-ai-ugc.mp4',href:'video-create.html'},
-      {cat:'Page',title:'Build Website With AI',img:'/atelier-site/assets/work/landing-card.jpg',fallback:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789492222/fuse-atelier/academy/landing-card.webp',href:'page-create.html'},
+      {cat:'Influencer',title:'Create Influencer',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1788626963/4870020.png'},
+      {cat:'Page',locked:true,title:'Build Website With AI',img:'/atelier-site/assets/work/landing-card.jpg',fallback:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789492222/fuse-atelier/academy/landing-card.webp',href:'page-create.html'},
       {cat:'Twin',title:'Create Your AI Twin',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789528511/fuse-atelier/create/ai-twin-car.jpg',route:'avatar'},
       {cat:'Voice',title:'Clone Your Voice',voice:true,route:'audio'},
-      {cat:'Flyer',title:'AI Flyer',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789527907/fuse-atelier/create/ai-flyer-rosen.jpg',route:'flyer'},
+      {cat:'Flyer',locked:true,title:'AI Flyer',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1789527907/fuse-atelier/create/ai-flyer-rosen.jpg',route:'flyer'},
       {cat:'Lipsync',title:'Lipsync Video',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789529143/fuse-atelier/create/lipsync-video.mp4',route:'omni'},
       {cat:'UGC',title:'UGC Video',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1789528540/fuse-atelier/create/ugc-video.mp4',route:'video-seedance'}
       // Social content remains available in the Content tab, outside the All shortcuts.
@@ -360,8 +369,12 @@
       tools.forEach(tool=>{
         const card=document.createElement('article');
         card.className='create-card';
+        card.setAttribute('role','button');card.tabIndex=tool.locked?-1:0;card.dataset.createTool=tool.cat;card.setAttribute('aria-pressed','false');
+        if(tool.locked){card.classList.add('is-locked');card.setAttribute('aria-disabled','true');card.setAttribute('aria-label',tool.title+' · Coming soon');}
+        else {const activate=()=>window.dispatchEvent(new CustomEvent('fuse-create-tool',{detail:{category:tool.cat}}));card.onclick=activate;card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};}
         card.innerHTML='<div class="create-media">'+mediaMarkup(tool)+'</div><h2></h2>';
         card.querySelector('h2').textContent=tool.title;
+        if(tool.locked){const badge=document.createElement('span');badge.className='pin-badge';badge.textContent='🔒 Coming soon';card.append(badge);}
         grid.append(card);
       });
     }
@@ -371,7 +384,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="fuse-shell.js?v=explore-actions-1"></script>
   <script src="media-download.js?v=native-download-3"></script>
-  <script src="create-composer.js?v=explore-actions-1" defer></script>
+  <script src="create-composer.js?v=tool-modes-2" defer></script>
 </body>
 </html>
 

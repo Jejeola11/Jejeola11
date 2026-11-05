@@ -1,0 +1,13 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync(__dirname+'/../atelier-v2/create-composer.js','utf8');
+const part=(a,b)=>source.slice(source.indexOf(a),source.indexOf(b,source.indexOf(a)));
+const model=(id,type)=>({id,type,schema:{properties:{}}});const state={models:[model('openai/gpt-image-2.5-sunburst/text-to-image','text-to-image'),model('bytedance/seedance-2.5/text-to-video','text-to-video')],settings:{},autoMode:true};
+const nodes=new Map();const $=id=>{if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',querySelector:()=>({}),scrollIntoView(){}});return nodes.get(id)};let notes=[];const cards=['Image','Video','Influencer','Page','Flyer'].map(category=>({dataset:{createTool:category},setAttribute(){}}));const context={state,$,note:t=>notes.push(t),document:{querySelectorAll:()=>cards,querySelector:()=>({scrollIntoView(){}})},window:{addEventListener(){}},isVideo:m=>m.type.includes('video'),chosen:()=>[],defaults:()=>({}),isMedia:()=>false,isHF:()=>false,label:m=>m.id,select:(m)=>{state.model=m;state.settings={};state.autoMode=true;},renderModels(){},renderSettings(){},refreshQuote(){},renderMediaPanel(){},renderChips(){}};
+vm.createContext(context);vm.runInContext(part('function resolveAutoModel(){','const imageSettingLabels='),context);vm.runInContext(part('function activateTool(category){','function pickMode(){'),context);
+context.activateTool('Image');$('createPrompt').value='Make a cinematic video trailer';context.resolveAutoModel();assert.equal(state.model.type,'text-to-image');
+context.activateTool('Video');$('createPrompt').value='A product photograph';context.resolveAutoModel();assert.equal(state.model.type,'text-to-video');
+context.activateTool('Influencer');assert.equal(state.model.type,'text-to-image');assert.match($('createToolStatus').textContent,/Influencer/);
+const before=state.model;context.activateTool('Page');context.activateTool('Flyer');assert.equal(state.model,before);
+state.busy=true;context.activateTool('Video');assert.equal(state.model,before);state.busy=false;
+const html=fs.readFileSync(__dirname+'/../atelier-v2/studio.html','utf8');assert.match(html,/#createGrid\{display:flex/);assert.match(html,/#createGrid \.create-media\{aspect-ratio:16\/9/);assert(html.indexOf("title:'Create Influencer'")>html.indexOf("title:'Create Video'"));assert(html.indexOf("title:'Create Influencer'")<html.indexOf("title:'Build Website With AI'"));
+assert(!part('function activateTool(category){','function pickMode(){').includes('generate('));console.log('PASS: Image/Video stay scoped despite opposing prompt text; Influencer selects images; locks and busy guard prevent switching; landscape horizontal rail; no generation on card taps.');
