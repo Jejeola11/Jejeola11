@@ -74,5 +74,6 @@
 #freeTutorialFeature .tutorial-stat svg,
 #influencerCourseFeature .tutorial-stat svg{width:clamp(17px,5cqw,21px);height:clamp(17px,5cqw,21px)}
 #freeTutorialFeature .tutorial-cover img{object-fit:cover;transform:translateY(3.5%)}
-#influencerCourseFeature{margin-top:24px}
+.academy-cards{gap:14px}
+#influencerCourseFeature{margin-top:0}
 

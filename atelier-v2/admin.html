@@ -180,6 +180,14 @@
         <p id="challengeVideoStatus" class="status" role="status" aria-live="polite"></p>
       </section>
 
+      <section class="panel" id="influencerVideosPanel">
+        <h2>Create &amp; Monetize Viral AI Influencers · module videos</h2>
+        <p>Paste one recording link for each of the six modules. Empty links remain “Video coming soon.” Only your owner account can view this course while it is private.</p>
+        <div class="form-actions" style="margin-bottom:16px"><a class="btn secondary" href="/atelier-v2/influencer-course.html">Preview influencer course →</a></div>
+        <div id="influencerVideoList" class="challenge-video-list"><p>Loading modules…</p></div>
+        <p id="influencerVideoStatus" class="status" role="status" aria-live="polite"></p>
+      </section>
+
       <section class="panel" id="challengeGoalsPanel">
         <h2>Challenge students’ goals</h2>
         <p>Goals students save in Start Here appear here with their account email.</p>
@@ -327,6 +335,31 @@
       }));
     }catch(error){$('challengeVideoList').textContent=error.message}
   }
+  async function loadInfluencerVideos(){
+    const list=$('influencerVideoList');
+    try{
+      const response=await fetch('/api/influencer-course',{headers:{authorization:'Bearer '+session.access_token},cache:'no-store'});
+      const data=await response.json();
+      if(!response.ok)throw Error(data.error||'Could not load influencer modules.');
+      list.replaceChildren(...data.modules.map(module=>{
+        const row=document.createElement('div');row.className='challenge-video-row';
+        const label=document.createElement('label');label.textContent='Module '+module.number+' · '+module.title;
+        const note=document.createElement('small');note.textContent=module.url?'Video connected':'Video coming soon';label.append(note);
+        const input=document.createElement('input');input.type='url';input.placeholder='Paste YouTube, Cloudinary or Drive video URL';input.value=module.url||'';input.setAttribute('aria-label',module.title+' video URL');
+        const button=document.createElement('button');button.className='btn secondary';button.type='button';button.textContent='Save';
+        button.onclick=async()=>{
+          button.disabled=true;$('influencerVideoStatus').textContent='Saving module '+module.number+'…';
+          try{
+            const saved=await fetch('/api/influencer-course',{method:'POST',headers:{authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({lesson_key:module.key,url:input.value.trim()})});
+            const result=await saved.json();if(!saved.ok)throw Error(result.error||'Could not save module link.');
+            note.textContent=result.url?'Video connected':'Video coming soon';$('influencerVideoStatus').className='status ok';$('influencerVideoStatus').textContent='Module '+module.number+' saved.';
+          }catch(error){$('influencerVideoStatus').className='status';$('influencerVideoStatus').textContent=error.message}
+          finally{button.disabled=false}
+        };
+        row.append(label,input,button);return row;
+      }));
+    }catch(error){list.textContent=error.message}
+  }
   async function loadChallengeGoals(){
     const list=$('challengeGoalList');
     try{
@@ -353,9 +386,10 @@
       return;
     }
     loadChallengeVideos();
+    loadInfluencerVideos();
     loadChallengeGoals();
     $('app').classList.remove('hidden');
-    $('refresh').onclick=async()=>{await Promise.all([loadMetrics(),loadChallengeVideos(),loadChallengeGoals()]);await lookup()};
+    $('refresh').onclick=async()=>{await Promise.all([loadMetrics(),loadChallengeVideos(),loadInfluencerVideos(),loadChallengeGoals()]);await lookup()};
     await loadMetrics();
   }
   boot();
