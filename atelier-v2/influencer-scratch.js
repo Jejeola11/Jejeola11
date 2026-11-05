@@ -3,7 +3,7 @@
  const root=document.getElementById('influencerScratch');
  if(!root)return;
  const catalog=window.FuseInfluencerCatalog||[];
- const colors={hairColor:['#090b0b','#36251c','#794a31','#b9662e','#b92c32','#d5b56e','#e6ddbd','#898989','#eee9dd','#dd9aba','#b3a1cc','#4282bd','#4d805e'],eyeColor:['#181514','#68462e','#847345','#628052','#4e829d','#a6cbd5','#bd8e3c','#939b9d'],skinTone:['#f3e3d5','#eccbb6','#d9b398','#b29b6b','#bc8c63','#805033','#563620','#2f211c']};
+ const colors={hairColor:['#090b0b','#36251c','#794a31','#b9662e','#b92c32','#d5b56e','#e6ddbd','#898989','#eee9dd','#dd9aba','#b3a1cc','#4282bd','#4d805e','#241b1a','#b88250','#b9693d','#8a3e32','#742938','#e8c577','#b9c4c9','#182b50','#15646a','#12634f','#f7f1e5','#b9798b'],eyeColor:['#181514','#68462e','#847345','#628052','#4e829d','#a6cbd5','#bd8e3c','#939b9d'],skinTone:['#f3e3d5','#eccbb6','#d9b398','#b29b6b','#bc8c63','#805033','#563620','#2f211c']};
  const symbols=['♀','♂','⚧','⚧','◌'];
  const key='fuse-influencer-scratch-v1';
  let saved={};try{saved=JSON.parse(sessionStorage.getItem(key)||'{}')||{};}catch{}

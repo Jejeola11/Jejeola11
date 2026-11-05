@@ -44,7 +44,7 @@ window.FuseInfluencerCatalog=[
   },
   {
     "id": "hairstyle",
-    "label": "Hairstyle",
+    "label": "Hairstyle/scarf",
     "options": [
       "Bob",
       "Bald",
@@ -70,13 +70,17 @@ window.FuseInfluencerCatalog=[
       "Hair wings",
       "Hedgehog spikes",
       "Side tufts",
-      "Stair steps"
+      "Stair steps",
+      "Pearl crown hijab",
+      "Draped chiffon hijab",
+      "Folded turban",
+      "Layered square hijab"
     ],
     "kind": "image"
   },
   {
     "id": "hairColor",
-    "label": "Hair Color",
+    "label": "Hair/Scarf color",
     "options": [
       "Jet black",
       "Dark brown",
@@ -90,7 +94,19 @@ window.FuseInfluencerCatalog=[
       "Pastel pink",
       "Lilac",
       "Blue",
-      "Green"
+      "Green",
+      "Espresso",
+      "Caramel",
+      "Copper",
+      "Auburn",
+      "Burgundy",
+      "Honey blonde",
+      "Silver",
+      "Navy",
+      "Teal",
+      "Emerald",
+      "Ivory",
+      "Dusty rose"
     ],
     "kind": "color"
   },
