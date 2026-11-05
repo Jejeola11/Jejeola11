@@ -1,0 +1,400 @@
+{
+  "generator": "Built-in image generation",
+  "basePrompt": "Use case: photorealistic-natural. Asset: original square selection-card photograph for Fuse Atelier AI influencer builder. ONE subject, ONE image, no collage. Dark black-to-deep-teal seamless gradient studio background, soft photographic key light and subtle rim light. Authentic influencer/editorial photography with visible pores, fine hairs, realistic eyes, natural asymmetry and fabric texture. Adult humans aged 25-40 only, varied genders and skin tones across the collection. Centered composition with safe margins. No text, labels, logos, watermark, beauty filter, plastic skin, illustration or cartoon. ",
+  "groupInstructions": {
+    "character": "Chest-up character portrait. For Average use ordinary human proportions; Bold use striking fashion model angular features; Extreme use exaggerated sculptural facial features with realistic prosthetic texture; animal types are original anthropomorphic adult creatures with species-accurate heads, realistic fur/feathers/chitin/skin and clothed human-like torsos, cinematic practical-creature photographic realism.",
+    "build": "Full-length adult, entire figure visible, neutral standing pose, simple fitted opaque long-sleeved top and trousers, clearly show the named body build; centaur is an original realistic adult human-horse creature with clothed human torso and anatomically coherent horse body, cinematic photographic realism.",
+    "hairstyle": "Head and shoulders adult portrait, entire hairstyle visible with space around head. Precisely demonstrate the named haircut. Fantastical hair shapes are physically sculpted real hair, not actual animal parts or food. Natural strands and flyaways, simple opaque crew-neck top.",
+    "style": "Three-quarter-length adult fashion editorial, clothing clearly demonstrates the named style, opaque outfit, natural fabric folds and weave.",
+    "ethnicity": "Head and shoulders portrait of an adult with the named ethnic background, individual natural features without stereotypes, simple opaque crew-neck top.",
+    "height": "Full-body adult standing beside a simple unnumbered doorframe for scale, head and feet visible, show named height, opaque long sleeve top and trousers.",
+    "proportions": "Full-body adult neutral pose, head and feet visible, simple fitted opaque long sleeve top and trousers, clearly demonstrate named proportions. Egg body means rounded oval torso, treat respectfully. Stylized proportions rendered as photographic practical character design.",
+    "head": "Head and shoulders portrait, clearly demonstrate named head proportions, all head visible, simple opaque crew-neck top. Tiny means small head relative to shoulders.",
+    "neck": "Head to chest portrait, clearly demonstrate named neck proportions, simple opaque crew-neck top. Column means strong wide cylindrical neck.",
+    "eyes": "Close photographic face crop from eyebrows to upper cheeks including both eyes, clearly demonstrate named eye shape, realistic irises, moist catchlights, fine skin texture."
+  },
+  "suffix": " Selected option: {option}. Make this attribute unmistakable.",
+  "assets": [
+    {
+      "group": "character",
+      "option": "Average",
+      "id": "character-average"
+    },
+    {
+      "group": "character",
+      "option": "Bold",
+      "id": "character-bold"
+    },
+    {
+      "group": "character",
+      "option": "Extreme",
+      "id": "character-extreme"
+    },
+    {
+      "group": "character",
+      "option": "Insect",
+      "id": "character-insect"
+    },
+    {
+      "group": "character",
+      "option": "Frog",
+      "id": "character-frog"
+    },
+    {
+      "group": "character",
+      "option": "Cat",
+      "id": "character-cat"
+    },
+    {
+      "group": "character",
+      "option": "Dog",
+      "id": "character-dog"
+    },
+    {
+      "group": "character",
+      "option": "Rodent",
+      "id": "character-rodent"
+    },
+    {
+      "group": "character",
+      "option": "Bird",
+      "id": "character-bird"
+    },
+    {
+      "group": "build",
+      "option": "Slim",
+      "id": "build-slim"
+    },
+    {
+      "group": "build",
+      "option": "Athletic",
+      "id": "build-athletic"
+    },
+    {
+      "group": "build",
+      "option": "Muscular",
+      "id": "build-muscular"
+    },
+    {
+      "group": "build",
+      "option": "Curvy",
+      "id": "build-curvy"
+    },
+    {
+      "group": "build",
+      "option": "Heavy",
+      "id": "build-heavy"
+    },
+    {
+      "group": "build",
+      "option": "Ultra Muscular",
+      "id": "build-ultra-muscular"
+    },
+    {
+      "group": "build",
+      "option": "Centaur",
+      "id": "build-centaur"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Bob",
+      "id": "hairstyle-bob"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Bald",
+      "id": "hairstyle-bald"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Buzz cut",
+      "id": "hairstyle-buzz-cut"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Bowl cut",
+      "id": "hairstyle-bowl-cut"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Mullet",
+      "id": "hairstyle-mullet"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Braids",
+      "id": "hairstyle-braids"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Afro",
+      "id": "hairstyle-afro"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Mohawk",
+      "id": "hairstyle-mohawk"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Volume waves",
+      "id": "hairstyle-volume-waves"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Beehive",
+      "id": "hairstyle-beehive"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Perm",
+      "id": "hairstyle-perm"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Long hair",
+      "id": "hairstyle-long-hair"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Pigtails",
+      "id": "hairstyle-pigtails"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Blunt bob",
+      "id": "hairstyle-blunt-bob"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Corkscrews",
+      "id": "hairstyle-corkscrews"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Side coil",
+      "id": "hairstyle-side-coil"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Mushroom",
+      "id": "hairstyle-mushroom"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Horns",
+      "id": "hairstyle-horns"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Soft-serve swirl",
+      "id": "hairstyle-soft-serve-swirl"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Curl sphere",
+      "id": "hairstyle-curl-sphere"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Mouse-ear puffs",
+      "id": "hairstyle-mouse-ear-puffs"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Hair wings",
+      "id": "hairstyle-hair-wings"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Hedgehog spikes",
+      "id": "hairstyle-hedgehog-spikes"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Side tufts",
+      "id": "hairstyle-side-tufts"
+    },
+    {
+      "group": "hairstyle",
+      "option": "Stair steps",
+      "id": "hairstyle-stair-steps"
+    },
+    {
+      "group": "style",
+      "option": "Retro",
+      "id": "style-retro"
+    },
+    {
+      "group": "style",
+      "option": "Sporty",
+      "id": "style-sporty"
+    },
+    {
+      "group": "style",
+      "option": "Y2K",
+      "id": "style-y2k"
+    },
+    {
+      "group": "style",
+      "option": "Theatre",
+      "id": "style-theatre"
+    },
+    {
+      "group": "style",
+      "option": "Goth",
+      "id": "style-goth"
+    },
+    {
+      "group": "style",
+      "option": "Suits",
+      "id": "style-suits"
+    },
+    {
+      "group": "style",
+      "option": "Streetstyle",
+      "id": "style-streetstyle"
+    },
+    {
+      "group": "style",
+      "option": "Casual",
+      "id": "style-casual"
+    },
+    {
+      "group": "ethnicity",
+      "option": "African",
+      "id": "ethnicity-african"
+    },
+    {
+      "group": "ethnicity",
+      "option": "Asian",
+      "id": "ethnicity-asian"
+    },
+    {
+      "group": "ethnicity",
+      "option": "European",
+      "id": "ethnicity-european"
+    },
+    {
+      "group": "ethnicity",
+      "option": "Indian",
+      "id": "ethnicity-indian"
+    },
+    {
+      "group": "ethnicity",
+      "option": "Middle Eastern",
+      "id": "ethnicity-middle-eastern"
+    },
+    {
+      "group": "ethnicity",
+      "option": "Mixed",
+      "id": "ethnicity-mixed"
+    },
+    {
+      "group": "height",
+      "option": "Average",
+      "id": "height-average"
+    },
+    {
+      "group": "height",
+      "option": "Tall",
+      "id": "height-tall"
+    },
+    {
+      "group": "height",
+      "option": "Very tall",
+      "id": "height-very-tall"
+    },
+    {
+      "group": "proportions",
+      "option": "Standard",
+      "id": "proportions-standard"
+    },
+    {
+      "group": "proportions",
+      "option": "Long limbs",
+      "id": "proportions-long-limbs"
+    },
+    {
+      "group": "proportions",
+      "option": "Short legs",
+      "id": "proportions-short-legs"
+    },
+    {
+      "group": "proportions",
+      "option": "Broad shoulders",
+      "id": "proportions-broad-shoulders"
+    },
+    {
+      "group": "proportions",
+      "option": "Tiny waist",
+      "id": "proportions-tiny-waist"
+    },
+    {
+      "group": "proportions",
+      "option": "Egg body",
+      "id": "proportions-egg-body"
+    },
+    {
+      "group": "head",
+      "option": "Standard",
+      "id": "head-standard"
+    },
+    {
+      "group": "head",
+      "option": "Long",
+      "id": "head-long"
+    },
+    {
+      "group": "head",
+      "option": "Tiny",
+      "id": "head-tiny"
+    },
+    {
+      "group": "head",
+      "option": "High forehead",
+      "id": "head-high-forehead"
+    },
+    {
+      "group": "neck",
+      "option": "Standard",
+      "id": "neck-standard"
+    },
+    {
+      "group": "neck",
+      "option": "Column",
+      "id": "neck-column"
+    },
+    {
+      "group": "neck",
+      "option": "Long",
+      "id": "neck-long"
+    },
+    {
+      "group": "neck",
+      "option": "Short",
+      "id": "neck-short"
+    },
+    {
+      "group": "eyes",
+      "option": "Almond",
+      "id": "eyes-almond"
+    },
+    {
+      "group": "eyes",
+      "option": "Round",
+      "id": "eyes-round"
+    },
+    {
+      "group": "eyes",
+      "option": "Monolid",
+      "id": "eyes-monolid"
+    },
+    {
+      "group": "eyes",
+      "option": "Close-set",
+      "id": "eyes-close-set"
+    }
+  ],
+  "firstAssetPrompt": "Original square studio photograph of an adult woman with natural facial proportions, medium brown skin and a modest deep teal crew-neck top. Chest-up, centered, entire head visible. Dark black-to-teal seamless background, soft key light, rim light, realistic pores, fine hairs, eyes and fabric weave. No text, watermark, plastic skin, illustration or CGI."
+}

@@ -8,3 +8,6 @@ const all=node=>[node,...node.children.flatMap(all)];const nodes=all(root);const
 const snapshot=context.window.FuseInfluencerScratch.getSettings();snapshot.character='Dog';assert.equal(context.window.FuseInfluencerScratch.getSettings().character,'Cat');
 const upload=nodes.find(n=>n.type==='file');upload.files=[{type:'text/html',size:10}];upload.listeners.change();assert.match(status.textContent,/JPG/);upload.files=[{type:'image/png',size:100}];upload.listeners.change();assert(nodes.some(n=>n.tag==='img'&&n.src==='blob:test'&&!n.hidden));
 console.log('PASS: all 14 groups; saved choices validated; selection persists; snapshot isolated; style upload accepts images and rejects other files.');
+
+
+const artImages=nodes.filter(n=>n.tag==='img'&&n.src?.startsWith('/atelier-v2/assets/influencer/'));assert.equal(artImages.length,76);for(const img of artImages){assert(fs.statSync(__dirname+'/..'+img.src).size>0);assert.equal(img.loading,'lazy');}console.log('PASS: 76 unique original artwork cards point to nonempty local files.');

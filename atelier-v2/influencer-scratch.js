@@ -30,7 +30,13 @@
    const art=document.createElement('span');art.className='scratch-art';art.setAttribute('aria-hidden','true');
    if(group.kind==='color')art.style.backgroundColor=colors[group.id][index];
    else if(group.kind==='symbol')art.textContent=symbols[index];
-   else if(group.kind==='image'){art.textContent='＋';art.dataset.asset=group.id+'-'+option.toLowerCase().replace(/[^a-z0-9]+/g,'-');}
+   else if(group.kind==='image'){
+    const asset=group.id+'-'+option.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    art.dataset.asset=asset;
+    const image=document.createElement('img');image.src='/atelier-v2/assets/influencer/'+asset+'.webp';
+    image.alt='';image.loading='lazy';image.decoding='async';image.width=480;image.height=480;
+    art.append(image);
+   }
    const caption=document.createElement('span');caption.className='scratch-caption';caption.textContent=option;
    input.addEventListener('change',()=>{if(input.checked){values[group.id]=option;persist();}});
    label.append(input);if(group.kind!=='text')label.append(art);label.append(caption);rail.append(label);

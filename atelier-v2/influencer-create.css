@@ -49,3 +49,8 @@
 body:has(#influencerBuilder:not([hidden])){background:radial-gradient(ellipse at 85% 55%,#0c343955,transparent 65%),linear-gradient(180deg,#000000 0%,#000b0d 35%,#00191b 75%,#062125 100%);background-attachment:fixed}
 .influencer-banner,.influencer-face,.influencer-advanced,.scratch-style-upload{background:var(--fuse-dark)}
 .scratch-choice{background:var(--fuse-dark)}
+
+/* Original photographic option artwork; captions remain native accessible text. */
+.scratch-image .scratch-art{height:112px;min-height:112px;overflow:hidden;background:var(--fuse-dark)}
+.scratch-image .scratch-art img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}
+.scratch-image .scratch-caption{flex:1}

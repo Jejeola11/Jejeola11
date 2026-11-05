@@ -1,112 +1,112 @@
 # Influencer artwork checklist
 
-Use original Fuse artwork, not screenshots from the reference service. Card art: square 1024×1024, consistent framing, clean neutral background, no baked-in labels; labels are rendered by the app. Adults only for human portraits. Body examples: full-length, clothed, neutral pose. Hair/head/neck examples: clear portraits. Eye examples: close crops.
+Use original Fuse artwork, not screenshots from the reference service. Card art: individually generated original photographic images, delivered as 480×480 WebP cards with consistent framing and dark black-to-teal studio backgrounds, no baked-in labels; labels are rendered by the app. Adults only for human portraits. Body examples: full-length, clothed, neutral pose. Hair/head/neck examples: clear portraits. Eye examples: close crops.
 
 ## Character type
 
-- [ ] Average — `character-average`
-- [ ] Bold — `character-bold`
-- [ ] Extreme — `character-extreme`
-- [ ] Insect — `character-insect`
-- [ ] Frog — `character-frog`
-- [ ] Cat — `character-cat`
-- [ ] Dog — `character-dog`
-- [ ] Rodent — `character-rodent`
-- [ ] Bird — `character-bird`
+- [x] Average — `character-average`
+- [x] Bold — `character-bold`
+- [x] Extreme — `character-extreme`
+- [x] Insect — `character-insect`
+- [x] Frog — `character-frog`
+- [x] Cat — `character-cat`
+- [x] Dog — `character-dog`
+- [x] Rodent — `character-rodent`
+- [x] Bird — `character-bird`
 
 ## Build
 
-- [ ] Slim — `build-slim`
-- [ ] Athletic — `build-athletic`
-- [ ] Muscular — `build-muscular`
-- [ ] Curvy — `build-curvy`
-- [ ] Heavy — `build-heavy`
-- [ ] Ultra Muscular — `build-ultra-muscular`
-- [ ] Centaur — `build-centaur`
+- [x] Slim — `build-slim`
+- [x] Athletic — `build-athletic`
+- [x] Muscular — `build-muscular`
+- [x] Curvy — `build-curvy`
+- [x] Heavy — `build-heavy`
+- [x] Ultra Muscular — `build-ultra-muscular`
+- [x] Centaur — `build-centaur`
 
 ## Hairstyle
 
-- [ ] Bob — `hairstyle-bob`
-- [ ] Bald — `hairstyle-bald`
-- [ ] Buzz cut — `hairstyle-buzz-cut`
-- [ ] Bowl cut — `hairstyle-bowl-cut`
-- [ ] Mullet — `hairstyle-mullet`
-- [ ] Braids — `hairstyle-braids`
-- [ ] Afro — `hairstyle-afro`
-- [ ] Mohawk — `hairstyle-mohawk`
-- [ ] Volume waves — `hairstyle-volume-waves`
-- [ ] Beehive — `hairstyle-beehive`
-- [ ] Perm — `hairstyle-perm`
-- [ ] Long hair — `hairstyle-long-hair`
-- [ ] Pigtails — `hairstyle-pigtails`
-- [ ] Blunt bob — `hairstyle-blunt-bob`
-- [ ] Corkscrews — `hairstyle-corkscrews`
-- [ ] Side coil — `hairstyle-side-coil`
-- [ ] Mushroom — `hairstyle-mushroom`
-- [ ] Horns — `hairstyle-horns`
-- [ ] Soft-serve swirl — `hairstyle-soft-serve-swirl`
-- [ ] Curl sphere — `hairstyle-curl-sphere`
-- [ ] Mouse-ear puffs — `hairstyle-mouse-ear-puffs`
-- [ ] Hair wings — `hairstyle-hair-wings`
-- [ ] Hedgehog spikes — `hairstyle-hedgehog-spikes`
-- [ ] Side tufts — `hairstyle-side-tufts`
-- [ ] Stair steps — `hairstyle-stair-steps`
+- [x] Bob — `hairstyle-bob`
+- [x] Bald — `hairstyle-bald`
+- [x] Buzz cut — `hairstyle-buzz-cut`
+- [x] Bowl cut — `hairstyle-bowl-cut`
+- [x] Mullet — `hairstyle-mullet`
+- [x] Braids — `hairstyle-braids`
+- [x] Afro — `hairstyle-afro`
+- [x] Mohawk — `hairstyle-mohawk`
+- [x] Volume waves — `hairstyle-volume-waves`
+- [x] Beehive — `hairstyle-beehive`
+- [x] Perm — `hairstyle-perm`
+- [x] Long hair — `hairstyle-long-hair`
+- [x] Pigtails — `hairstyle-pigtails`
+- [x] Blunt bob — `hairstyle-blunt-bob`
+- [x] Corkscrews — `hairstyle-corkscrews`
+- [x] Side coil — `hairstyle-side-coil`
+- [x] Mushroom — `hairstyle-mushroom`
+- [x] Horns — `hairstyle-horns`
+- [x] Soft-serve swirl — `hairstyle-soft-serve-swirl`
+- [x] Curl sphere — `hairstyle-curl-sphere`
+- [x] Mouse-ear puffs — `hairstyle-mouse-ear-puffs`
+- [x] Hair wings — `hairstyle-hair-wings`
+- [x] Hedgehog spikes — `hairstyle-hedgehog-spikes`
+- [x] Side tufts — `hairstyle-side-tufts`
+- [x] Stair steps — `hairstyle-stair-steps`
 
 ## Style
 
-- [ ] Retro — `style-retro`
-- [ ] Sporty — `style-sporty`
-- [ ] Y2K — `style-y2k`
-- [ ] Theatre — `style-theatre`
-- [ ] Goth — `style-goth`
-- [ ] Suits — `style-suits`
-- [ ] Streetstyle — `style-streetstyle`
-- [ ] Casual — `style-casual`
+- [x] Retro — `style-retro`
+- [x] Sporty — `style-sporty`
+- [x] Y2K — `style-y2k`
+- [x] Theatre — `style-theatre`
+- [x] Goth — `style-goth`
+- [x] Suits — `style-suits`
+- [x] Streetstyle — `style-streetstyle`
+- [x] Casual — `style-casual`
 
 ## Ethnicity
 
-- [ ] African — `ethnicity-african`
-- [ ] Asian — `ethnicity-asian`
-- [ ] European — `ethnicity-european`
-- [ ] Indian — `ethnicity-indian`
-- [ ] Middle Eastern — `ethnicity-middle-eastern`
-- [ ] Mixed — `ethnicity-mixed`
+- [x] African — `ethnicity-african`
+- [x] Asian — `ethnicity-asian`
+- [x] European — `ethnicity-european`
+- [x] Indian — `ethnicity-indian`
+- [x] Middle Eastern — `ethnicity-middle-eastern`
+- [x] Mixed — `ethnicity-mixed`
 
 ## Height
 
-- [ ] Average — `height-average`
-- [ ] Tall — `height-tall`
-- [ ] Very tall — `height-very-tall`
+- [x] Average — `height-average`
+- [x] Tall — `height-tall`
+- [x] Very tall — `height-very-tall`
 
 ## Proportions
 
-- [ ] Standard — `proportions-standard`
-- [ ] Long limbs — `proportions-long-limbs`
-- [ ] Short legs — `proportions-short-legs`
-- [ ] Broad shoulders — `proportions-broad-shoulders`
-- [ ] Tiny waist — `proportions-tiny-waist`
-- [ ] Egg body — `proportions-egg-body`
+- [x] Standard — `proportions-standard`
+- [x] Long limbs — `proportions-long-limbs`
+- [x] Short legs — `proportions-short-legs`
+- [x] Broad shoulders — `proportions-broad-shoulders`
+- [x] Tiny waist — `proportions-tiny-waist`
+- [x] Egg body — `proportions-egg-body`
 
 ## Head shape
 
-- [ ] Standard — `head-standard`
-- [ ] Long — `head-long`
-- [ ] Tiny — `head-tiny`
-- [ ] High forehead — `head-high-forehead`
+- [x] Standard — `head-standard`
+- [x] Long — `head-long`
+- [x] Tiny — `head-tiny`
+- [x] High forehead — `head-high-forehead`
 
 ## Neck
 
-- [ ] Standard — `neck-standard`
-- [ ] Column — `neck-column`
-- [ ] Long — `neck-long`
-- [ ] Short — `neck-short`
+- [x] Standard — `neck-standard`
+- [x] Column — `neck-column`
+- [x] Long — `neck-long`
+- [x] Short — `neck-short`
 
 ## Eye shape
 
-- [ ] Almond — `eyes-almond`
-- [ ] Round — `eyes-round`
-- [ ] Monolid — `eyes-monolid`
-- [ ] Close-set — `eyes-close-set`
+- [x] Almond — `eyes-almond`
+- [x] Round — `eyes-round`
+- [x] Monolid — `eyes-monolid`
+- [x] Close-set — `eyes-close-set`
 
 ## Other artwork
 
