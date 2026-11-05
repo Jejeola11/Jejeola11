@@ -7,7 +7,7 @@
  const symbols=['♀','♂','⚧','⚧','◌'];
  const key='fuse-influencer-scratch-v1';
  let saved={};try{saved=JSON.parse(sessionStorage.getItem(key)||'{}')||{};}catch{}
- const values={promptEnabled:saved.promptEnabled===true,prompt:typeof saved.prompt==='string'?saved.prompt.slice(0,2000):''},controls={};let styleURL=null;
+ const values={promptEnabled:saved.promptEnabled===true,prompt:typeof saved.prompt==='string'?saved.prompt.slice(0,2000):''},controls={};let styleURL=null,styleFile=null;
  function persist(){try{sessionStorage.setItem(key,JSON.stringify(values));}catch{}}
  for(const group of catalog){
   const field=document.createElement('fieldset');field.className='scratch-field';field.dataset.group=group.id;
@@ -18,8 +18,8 @@
    const input=document.createElement('input');input.type='file';input.accept='image/jpeg,image/png,image/webp';input.setAttribute('aria-label','Upload style reference');
    const preview=document.createElement('img');preview.hidden=true;preview.alt='Selected style reference';
    const remove=document.createElement('button');remove.type='button';remove.textContent='Remove reference';remove.hidden=true;remove.className='scratch-reference-remove';
-   function clear(){if(styleURL)URL.revokeObjectURL(styleURL);styleURL=null;preview.removeAttribute('src');preview.hidden=true;remove.hidden=true;input.value='';}
-   input.addEventListener('change',()=>{const file=input.files?.[0];if(!file)return;if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>20*1024*1024){input.value='';document.getElementById('influencerStatus').textContent='Choose a JPG, PNG or WebP style reference under 20 MB.';return;}clear();styleURL=URL.createObjectURL(file);preview.src=styleURL;preview.hidden=false;remove.hidden=false;});
+   function clear(){if(styleURL)URL.revokeObjectURL(styleURL);styleURL=null;styleFile=null;preview.removeAttribute('src');preview.hidden=true;remove.hidden=true;input.value='';}
+   input.addEventListener('change',()=>{const file=input.files?.[0];if(!file)return;if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>20*1024*1024){input.value='';document.getElementById('influencerStatus').textContent='Choose a JPG, PNG or WebP style reference under 20 MB.';return;}clear();styleFile=file;styleURL=URL.createObjectURL(file);preview.src=styleURL;preview.hidden=false;remove.hidden=false;});
    preview.addEventListener('error',clear);remove.addEventListener('click',clear);window.addEventListener('pagehide',clear);
    upload.append(input,preview);rail.append(upload,remove);
   }
@@ -54,7 +54,7 @@
  promptToggle.addEventListener('change',()=>{values.promptEnabled=promptToggle.checked;syncPrompt();persist();});
  promptInput.addEventListener('input',()=>{values.prompt=promptInput.value.slice(0,2000);persist();});
  promptLabel.append(promptToggle);promptBox.append(promptLabel,promptInput);root.append(promptBox);
- window.FuseInfluencerScratch={getSettings:()=>Object.fromEntries(Object.entries(values).map(([k,v])=>[k,Array.isArray(v)?[...v]:v])),setSettings(settings){
+ window.FuseInfluencerScratch={getStyleFile:()=>styleFile,getSettings:()=>Object.fromEntries(Object.entries(values).map(([k,v])=>[k,Array.isArray(v)?[...v]:v])),setSettings(settings){
   for(const group of catalog){
    if(group.multiple&&Array.isArray(settings[group.id])){values[group.id]=[...new Set(settings[group.id].filter(v=>group.options.includes(v)&&v!=='None'))];controls[group.id].forEach(input=>input.checked=input.value==='None'?values[group.id].length===0:values[group.id].includes(input.value));}
    else if(!group.multiple&&group.options.includes(settings[group.id])){values[group.id]=settings[group.id];controls[group.id].forEach(input=>input.checked=input.value===values[group.id]);}

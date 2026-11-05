@@ -107,5 +107,10 @@
     }
   ],
   "buildCommand": "bash scripts/vercel-build.sh",
-  "outputDirectory": "."
+  "outputDirectory": ".",
+  "git": {
+    "deploymentEnabled": {
+      "fuse-live": false
+    }
+  }
 }
