@@ -5,7 +5,7 @@
   const status=document.getElementById('courseStatus');
   const nameEl=document.getElementById('academyName');
   // Only server-owned product IDs are sent to Paystack checkout.
-  const checkoutUrls={ebook:'academy-ebook',challenge:'academy-challenge',money:'academy-money',video:'academy-video',landing:'academy-landing',design:'academy-design'};
+  const checkoutUrls={ebook:'academy-ebook',challenge:'academy-challenge',money:'academy-money',video:'academy-video',influencer:'academy-influencer',landing:'academy-landing',design:'academy-design'};
   const params=new URLSearchParams(location.search);
   const returnTo=FuseCourseFunnel.safeReturn(params.get('return')||(params.has('buy')?'/atelier-v2/free-prompts-workflows.html#course-offer':location.pathname));
   function signupToBuy(course){
@@ -54,6 +54,7 @@
   const courseMeta={
     design:{name:'Design & Flyers',price:9900,href:'academy-v2.html?course=design'},
     video:{name:'AI UGC & Influencer',price:9900,href:'academy-v2.html?course=video'},
+    influencer:{name:'Create & Monetize Viral AI Influencers',price:9900,href:'influencer-course.html'},
     landing:{name:'Landing Page Design',price:9900,href:'academy-v2.html?course=landing'},
     money:{name:'Money Engine',price:9900,href:'academy-v2.html?course=money'},
     challenge:{name:'14-Day AI Video Client Challenge',price:9900,href:'academy-v2.html?course=challenge'},
@@ -73,6 +74,7 @@
   function hasCourseAccess(course){
     if(course==='challenge') return isAdmin || owned.has('ai-video-client-challenge');
     if(course==='ebook') return isAdmin || owned.has('ai-video-business-guide');
+    if(course==='influencer') return isAdmin || owned.has('ai-influencer-course');
     if(isFull) return true;
     const keys=required[course]||[];
     return keys.some(k=>owned.has(k)) || (keys.length>0 && keys.every(k=>owned.has(k)));
@@ -81,7 +83,12 @@
   function renderAccess(){
     const influencerFeature=document.getElementById('influencerCourseFeature');
     if(influencerFeature){
-      influencerFeature.hidden=activeCourseTab==='mine'&&!isAdmin;
+      const allowed=hasCourseAccess('influencer');
+      influencerFeature.hidden=activeCourseTab==='mine'&&!allowed;
+      influencerFeature.dataset.courseAccess=allowed?'unlocked':'locked';
+      const button=influencerFeature.querySelector('.tutorial-open-button');
+      button.innerHTML=allowed?'Tap Here <span aria-hidden="true">↗</span>':'Unlock For ₦9,900';
+      button.setAttribute('aria-label',allowed?'Open AI influencer course':'Unlock AI influencer course for ₦9,900');
     }
     rows.forEach(row=>{
       const course=row.dataset.course;
@@ -130,6 +137,27 @@
     accessReady=true;
     renderAccess();
     if(!keepStatus) status.textContent='';
+  }
+
+  const influencerFeature=document.getElementById('influencerCourseFeature');
+  if(influencerFeature){
+    const button=influencerFeature.querySelector('.tutorial-open-button');
+    const cover=influencerFeature.querySelector('.tutorial-cover');
+    cover.addEventListener('click',event=>{
+      if(influencerFeature.dataset.courseAccess==='unlocked')return;
+      event.preventDefault();
+      button.classList.remove('unlock-nudge');
+      void button.offsetWidth;
+      button.classList.add('unlock-nudge');
+      document.getElementById('influencerCourseStatus').textContent='Unlock this course for ₦9,900 to start.';
+    });
+    button.addEventListener('click',async event=>{
+      if(influencerFeature.dataset.courseAccess==='unlocked')return;
+      event.preventDefault();
+      if(!accessReady){document.getElementById('influencerCourseStatus').textContent='Checking your course access. Please try again.';return;}
+      if(guest){signupToBuy('influencer');return;}
+      await openCheckout('influencer');
+    });
   }
 
   rows.forEach(row=>{

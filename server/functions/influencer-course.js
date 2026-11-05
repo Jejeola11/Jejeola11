@@ -17,7 +17,13 @@ exports.handler=async event=>{
     if(!user)return json(401,{error:'Sign in to view this course.'});
     const {data,error}=await admin().from('profiles').select('is_admin').eq('id',user.id).maybeSingle();
     if(error)throw error;
-    if(!data?.is_admin||String(user.email||'').trim().toLowerCase()!==OWNER_EMAIL)return json(403,{error:'This course is not open for enrolment yet.'});
+    const isOwner=!!data?.is_admin&&String(user.email||'').trim().toLowerCase()===OWNER_EMAIL;
+    if(!isOwner){
+      const {data:unlock,error:unlockError}=await admin().from('module_unlocks').select('module_key').eq('user_id',user.id).eq('module_key','ai-influencer-course').maybeSingle();
+      if(unlockError)throw unlockError;
+      if(!unlock)return json(403,{error:'Unlock this course first.'});
+    }
+    if(event.httpMethod==='POST'&&!isOwner)return json(403,{error:'Owner access only.'});
     const db=admin();
     if(event.httpMethod==='POST'){
       let body;try{body=JSON.parse(event.body||'{}')}catch{return json(400,{error:'Bad request.'})}

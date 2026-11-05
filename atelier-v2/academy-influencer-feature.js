@@ -40,7 +40,7 @@
   feature.querySelectorAll('a[href="influencer-course.html"]').forEach(link=>{
     link.addEventListener('click',async event=>{
       if(event.defaultPrevented||event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
-      if(!link.href.includes('/influencer-course.html'))return;
+      if(!link.href.includes('/influencer-course.html')||feature.dataset.courseAccess!=='unlocked')return;
       event.preventDefault();
       const destination=link.href;
       try{await request({action:'view',source:'influencer-course',contentPath:'/atelier-v2/influencer-course.html'});}

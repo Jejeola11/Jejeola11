@@ -3,6 +3,7 @@ const {PACKS:LEGACY_PACKS}=require('./_packs');
 const ACADEMY=Object.freeze({
  'academy-design':{label:'Design & Flyers',amount_naira:9900,credits:0,kind:'course',course:'design'},
  'academy-video':{label:'AI UGC & Influencer',amount_naira:9900,credits:0,kind:'course',course:'video'},
+ 'academy-influencer':{label:'Create & Monetize Viral AI Influencers',amount_naira:9900,credits:0,kind:'course',course:'influencer'},
  'academy-landing':{label:'Landing Page Design',amount_naira:9900,credits:0,kind:'course',course:'landing'},
  'academy-money':{label:'Money Engine',amount_naira:9900,credits:0,kind:'course',course:'money'},
  'academy-challenge':{label:'14-Day AI Video Client Challenge',amount_naira:9900,credits:0,kind:'course',course:'challenge'},

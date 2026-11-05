@@ -77,3 +77,9 @@
 .academy-cards{gap:14px}
 #influencerCourseFeature{margin-top:0}
 
+
+#influencerCourseFeature .tutorial-open-button{min-width:174px;padding:7px 12px;font-size:clamp(11px,3.1cqw,14px)}
+#influencerCourseFeature .tutorial-cover{opacity:1;filter:none}
+#influencerCourseFeature .tutorial-open-button.unlock-nudge{animation:courseUnlockNudge 1.15s ease-in-out;box-shadow:0 0 0 2px #eeffe0,0 0 18px #dfff4e,0 0 35px #ffe66a}
+@keyframes courseUnlockNudge{0%,100%{transform:translateX(0)}12%,36%,60%{transform:translateX(-5px)}24%,48%,72%{transform:translateX(5px)}}
+@media(prefers-reduced-motion:reduce){#influencerCourseFeature .tutorial-open-button.unlock-nudge{animation:none;outline:3px solid #dfff4e}}

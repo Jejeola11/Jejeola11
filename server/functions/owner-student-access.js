@@ -5,10 +5,12 @@ const OWNER_EMAIL='riadigitals0@gmail.com';
 const PLAYBOOK_KEY='first-client-playbook';
 const CHALLENGE_KEY='ai-video-client-challenge';
 const EBOOK_KEY='ai-video-business-guide';
+const INFLUENCER_KEY='ai-influencer-course';
 
 const ACCESS_KEYS={
   playbook:['first-client-playbook'],
   design:['flyer-m1','flyer-m2','flyer-m3','flyer-m4','flyer-m5','flyer-m6'],
+  influencer:[INFLUENCER_KEY],
   video:['aiv-m1','aiv-m2','aiv-m3','aiv-m4','aiv-m5','aiv-m6','aiv-m7','aiv-m8','aiv-m9','aiv-m10','aiv-m11','aiv-m12','aiv-m13','aiv-m14','aiv-m15','aiv-m16'],
   landing:['web-m1','web-m2','web-m3-current','web-m4','web-m5','web-m6','web-m7','web-m8','web-m9','web-m10'],
   money:['money']
@@ -58,11 +60,12 @@ async function ensureStudent(db,email){
 
 function summarizeAccess(unlocks){
   const owned=new Set(unlocks||[]);
-  if(owned.has('atelier-full')||owned.has('atelier-empire'))return ['All four Academy courses',...(owned.has(CHALLENGE_KEY)?['14-Day AI Video Client Challenge']:[]),...(owned.has(EBOOK_KEY)?['Zero To First 10 Million With AI Video']:[])];
+  if(owned.has('atelier-full')||owned.has('atelier-empire'))return ['All four Academy courses',...(owned.has(CHALLENGE_KEY)?['14-Day AI Video Client Challenge']:[]),...(owned.has(EBOOK_KEY)?['Zero To First 10 Million With AI Video']:[]),...(owned.has(INFLUENCER_KEY)?['Create & Monetize Viral AI Influencers']:[])];
   const out=[];
   if(owned.has('first-client-playbook'))out.push('First Client Playbook');
   if(owned.has(CHALLENGE_KEY))out.push('14-Day AI Video Client Challenge');
   if(owned.has(EBOOK_KEY))out.push('Zero To First 10 Million With AI Video');
+  if(owned.has(INFLUENCER_KEY))out.push('Create & Monetize Viral AI Influencers');
   if(ACCESS_KEYS.design.some(k=>owned.has(k)))out.push('Design & Flyers');
   if(ACCESS_KEYS.video.some(k=>owned.has(k)))out.push('AI UGC & Influencer');
   if(ACCESS_KEYS.landing.some(k=>owned.has(k)))out.push('Landing Page Design');
