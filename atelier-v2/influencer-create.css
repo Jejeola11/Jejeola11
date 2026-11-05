@@ -1,5 +1,5 @@
 .create-agent[hidden],.influencer-builder[hidden]{display:none!important}
-.influencer-builder{width:100%;max-width:760px;margin:12px auto 28px;color:#f6fff8}
+.influencer-builder{--fuse-chrome:linear-gradient(115deg,#FFE66A 0%,#DFFF4E 46%,#EEFFE0 72%,#FFE66A 100%);--fuse-dark:linear-gradient(155deg,#000708 0%,#001012 48%,#062125 100%);width:100%;max-width:760px;margin:12px auto 28px;color:#f6fff8}
 .influencer-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
 .influencer-heading h1{font-size:clamp(22px,4vw,30px);margin:0}
 .influencer-builder button,.influencer-builder select{font:inherit;cursor:pointer}
@@ -7,13 +7,13 @@
 .influencer-banner{aspect-ratio:16/9;border:1px solid #305352;border-radius:24px;background:linear-gradient(145deg,#030908,#102e30);display:grid;place-items:center;color:#91aaa9;font-size:14px}
 .influencer-modes{display:flex;gap:8px;margin:20px 0;padding:5px;border:1px solid #41615f;border-radius:30px;background:#071b1c}
 .influencer-modes button{flex:1;border:1px solid #3d6261;border-radius:24px;padding:13px 8px;background:linear-gradient(165deg,#274647,#081819 52%,#31575a);color:#edf8f6;font-weight:600;box-shadow:inset 0 1px 2px #a5c6bd44}
-.influencer-modes button[aria-pressed=true]{background:linear-gradient(145deg,#fcffe8,#b8d0c4 45%,#f8ffe7 53%,#a5c5bb);color:#071a19;border-color:#ddf9b5}
+.influencer-modes button[aria-pressed=true]{background:var(--fuse-chrome);color:#001012;border-color:#eeffe0}
 .influencer-face{aspect-ratio:4/3;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:15px;overflow:hidden;border:1px dashed #456361;border-radius:24px;background:#10222299}
 .influencer-face img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#041112}
 .influencer-face:has(img:not([hidden])) .influencer-upload,.influencer-face:has(img:not([hidden])) .influencer-presets{z-index:1;background:#061819e8}
 .influencer-upload{display:grid;justify-items:center;gap:12px;cursor:pointer;padding:12px 18px;border-radius:18px;font-size:22px;font-weight:600}
 .influencer-upload span{display:grid;place-items:center;width:52px;height:52px;border:1px solid #71908a;border-radius:50%;background:radial-gradient(circle at 35% 25%,#6e827e,#162b2c 70%);font-size:30px}
-.influencer-upload:focus-within{outline:2px solid #dfff4e;outline-offset:3px}
+.influencer-upload:focus-within{outline:2px solid #eeffe0;outline-offset:3px}
 .influencer-upload input{position:absolute;width:1px;height:1px;opacity:0}
 .influencer-presets{border:1px solid #4c6560;border-radius:24px;background:#2b4240;color:#bccbc7;padding:9px 18px}
 .influencer-builder button:disabled{cursor:not-allowed}
@@ -22,16 +22,16 @@
 .influencer-advanced summary{cursor:pointer;font-size:18px;color:#d0dfda}
 .influencer-advanced label{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-top:16px}
 .influencer-advanced select{max-width:60%;background:#0a2021;border:1px solid #4e6c64;border-radius:10px;padding:9px;color:#f4ffe9}
-.influencer-generate{width:100%;border:0;border-radius:30px;background:linear-gradient(110deg,#fff25a,#dfff4e,#eaffc9);color:#0a1812;font-size:20px;font-weight:700;padding:18px}
+.influencer-generate{width:100%;border:0;border-radius:30px;background:var(--fuse-chrome);color:#0a1812;font-size:20px;font-weight:700;padding:18px}
 .influencer-note{font-size:13px;color:#a6bdb8;text-align:center;line-height:1.5;margin:12px 0}
-.influencer-builder :focus-visible{outline:2px solid #e1ff65;outline-offset:3px}
+.influencer-builder :focus-visible{outline:2px solid #eeffe0;outline-offset:3px}
 .influencer-face[hidden],#influencerScratch[hidden]{display:none!important}
 .scratch-field{border:0;min-width:0;margin:0 0 32px;padding:0}
 .scratch-field legend{font-size:20px;font-weight:600;margin-bottom:16px;padding:0}
 .scratch-rail{display:flex;gap:12px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;padding:4px 3px 10px;scrollbar-width:thin;scrollbar-color:#315456 transparent}
 .scratch-choice{position:relative;flex:0 0 128px;scroll-snap-align:start;border:2px solid #315456;border-radius:20px;overflow:hidden;cursor:pointer;background:linear-gradient(145deg,#163537,#041314);display:flex;flex-direction:column;justify-content:center;min-height:142px;box-sizing:border-box}
-.scratch-choice:has(input:checked){border-color:#dfff4e;box-shadow:0 0 0 1px #dfff4e,inset 0 0 24px #dfff4e12}
-.scratch-choice:has(input:checked) .scratch-caption{color:#e1ff65}
+.scratch-choice:has(input:checked){border-color:transparent;background:var(--fuse-dark) padding-box,var(--fuse-chrome) border-box;box-shadow:0 3px 16px #ffe66a20,inset 0 1px 12px #eeffe00d}
+.scratch-choice:has(input:checked) .scratch-caption{color:#eeffe0;background:var(--fuse-chrome);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .scratch-choice:focus-within{outline:2px solid #eeffe0;outline-offset:2px}
 .scratch-choice input,.scratch-style-upload input{position:absolute;width:1px;height:1px;opacity:0}
 .scratch-art{display:grid;place-items:center;min-height:100px;color:#809b94;font-size:40px;background:radial-gradient(ellipse at center,#35574d55,transparent 70%)}
@@ -41,6 +41,11 @@
 .scratch-color .scratch-art{min-height:68px;margin:6px;border-radius:12px}
 .scratch-text{min-height:54px}
 .scratch-style-upload{position:relative;flex:0 0 220px;min-height:142px;display:grid;place-items:center;border:1px dashed #65827a;border-radius:20px;background:#102728;color:#e4f5ed;overflow:hidden;cursor:pointer;padding:12px;box-sizing:border-box}
-.scratch-style-upload:focus-within{outline:2px solid #dfff4e}
+.scratch-style-upload:focus-within{outline:2px solid #eeffe0}
 .scratch-style-upload img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#041314}
 .scratch-reference-remove{align-self:center;border:1px solid #456963;border-radius:16px;background:#163537;color:white;padding:10px}
+
+/* Keep the existing shell while the Influencer canvas uses Fuse's black-teal depth. */
+body:has(#influencerBuilder:not([hidden])){background:radial-gradient(ellipse at 85% 55%,#0c343955,transparent 65%),linear-gradient(180deg,#000000 0%,#000b0d 35%,#00191b 75%,#062125 100%);background-attachment:fixed}
+.influencer-banner,.influencer-face,.influencer-advanced,.scratch-style-upload{background:var(--fuse-dark)}
+.scratch-choice{background:var(--fuse-dark)}
