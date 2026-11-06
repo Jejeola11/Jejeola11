@@ -21,7 +21,8 @@ function models(){return Object.entries(modes).flatMap(([version,ops])=>ops.map(
  const model_id='bytedance/seedance-'+version+'/'+op;
  return {model_id,name:'Seedance '+version+' · '+op.replaceAll('-',' '),type:op==='video-edit'?'video-to-video':op,description:'Seedance '+version+' '+op.replaceAll('-',' ')+'. Powered by Higgsfield.',provider:'higgsfield',api_schema:{api_schemas:[{type:'model_run',request_schema:{type:'object',additionalProperties:false,properties,required}}]}};
 }));}
-function find(id){return models().find(m=>m.model_id===id);}
+const REMIX='higgsfield/genjutsu-light/motion-transfer/v1.0';
+function find(id){if(id===REMIX)return {model_id:REMIX};return models().find(m=>m.model_id===id);}
 function headers(){if(!key())throw Error('Seedance is not configured. Please contact Fuse support.');return {Authorization:'Key '+key(),'Content-Type':'application/json'};}
 function safeError(status){if(status===401||status===403)return 'The Seedance provider connection needs attention. Please contact Fuse support.';if(status===402)return 'Seedance is temporarily unavailable because the provider balance needs funding. Your Fuse credits will be returned.';if(status===429)return 'Seedance is busy. Please try again shortly.';return 'Seedance could not accept these settings or reference assets. Your Fuse credits will be returned.';}
 function ownAsset(url,userId){let u,root;try{u=new URL(url);root=new URL(process.env.SUPABASE_URL)}catch{throw Error('Upload your reference assets to Fuse first.');}if(u.protocol!=='https:'||u.origin!==root.origin||!u.pathname.startsWith('/storage/v1/object/public/avatars/'+userId+'/')||u.username||u.password)throw Error('Use reference assets uploaded to your Fuse account.');return u.href;}
@@ -37,6 +38,7 @@ async function inspect(url,userId,video){url=ownAsset(url,userId);const ck=url+'
  if(metadata.size>100)metadata.clear();result.until=Date.now()+300000;metadata.set(ck,result);return result;
 }
 async function quote(m,raw,{validate=true,userId}={}){
+ if(m.model_id===REMIX){const {prompt,video_url,image_urls,resolution}=arguments[1]||{};const rate={'480p':.05,'720p':.10,'1080p':.20}[resolution];if(!rate||typeof prompt!=='string'||!prompt.trim()||prompt.length>10000||!Array.isArray(image_urls)||image_urls.length<1||image_urls.length>10)throw Error('Add a prompt, a video and 1–10 reference images.');image_urls.forEach(url=>ownAsset(url,userId));const source=await inspect(video_url,userId,true);if(source.duration<4||source.duration>15)throw Error('Trim the reference to 4–15 seconds.');const usd=2*Math.ceil(source.duration)*rate;return {inputs:{prompt,video_url,image_urls,resolution},credits:safeCreditsFor(usd),provider_usd:usd,pricing_source:'higgsfield-genjutsu-light',pricing_version:'base-v1'};}
  const schema=m.api_schema.api_schemas[0].request_schema,Ajv=require('ajv');const input=JSON.parse(JSON.stringify(raw||{}));
  // Compatibility aliases from previous WaveSpeed selections.
  for(const [a,b] of [['image','image_url'],['last_image','end_image_url'],['reference_images','image_urls'],['reference_videos','video_urls'],['reference_audios','audio_urls'],['video','video_url']]){if(a in input){if(input[b]===undefined)input[b]=input[a];delete input[a];}}
