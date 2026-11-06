@@ -272,6 +272,16 @@ async function startInfluencerChat({request,credits,referenceUrls=[],mode='scrat
  }catch(error){turn.status='failed';turn.error=error.message||'Could not start generation.';turn._dirty=true;saveThreads();renderThreads();if(/not enough credits/i.test(turn.error))window.dispatchEvent(new Event('fuse-influencer-credits-low'));else note(turn.error)}
  finally{refreshBalance()}
 }
+window.startFuseRemixChat=async function(request,credits,assets){
+ if(state.busy||!state.historyReady)throw Error('Chat is not ready yet. Please try again.');
+ const now=new Date().toISOString(),c={id:crypto.randomUUID(),title:'Scene Remix',renamed:true,turns:[],created_at:now,updated_at:now};
+ chats.unshift(c);openChat(c.id);
+ const turn={id:crypto.randomUUID(),prompt:request.inputs.prompt,modelLabel:'Scene Remix',model:request.model,kind:'video',assets,status:'preparing',started_at:Date.now()};
+ threads.push(turn);saveThreads();renderThreads();
+ try{const job=await Fuse.api('remix-generate',{...request,accepted_credits:credits,client_request_id:turn.id});if(!job.request_id)throw Error('No job reference returned. Check your Library before trying again.');turn.request_id=job.request_id;turn.status='processing';try{const jobs=JSON.parse(localStorage.getItem('fuse_pending_jobs')||'[]');jobs.push({request_id:job.request_id,endpoint:'job-status',mediaType:'video',label:'Scene Remix',model:request.model,started_at:turn.started_at});localStorage.setItem('fuse_pending_jobs',JSON.stringify(jobs))}catch{}}
+ catch(error){turn.status='failed';turn.error=error.message||'Could not start Scene Remix.';}
+ finally{turn._dirty=true;saveThreads();renderThreads();pollThreads();refreshBalance();document.getElementById('turn-'+turn.id)?.scrollIntoView({block:'start'});}
+};
 window.addEventListener('fuse-influencer-generate',event=>{startInfluencerChat(event.detail)});
 window.addEventListener('fuse-influencer-back',newChat);
 setInterval(()=>{for(const t of threads.filter(t=>t.status==='processing')){const el=$('turn-'+t.id);const value=estimatedProgress(t);if(el?.querySelector('[data-progress]'))el.querySelector('[data-progress]').textContent=value+'%';if(el?.querySelector('progress'))el.querySelector('progress').value=value}},1000);
