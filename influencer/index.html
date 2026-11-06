@@ -58,12 +58,13 @@
 <section class="results" aria-labelledby="results-heading"><div class="results-inner">
 <div class="section-marker"><b>02</b><span>THE RESULTS</span></div>
 <h2 id="results-heading"><span>Viral AI Influencer Videos</span><span class="chrome">Made on My Phone</span></h2>
-<p class="section-copy">Short videos I made with my AI Influencer using the same tools I teach in this class. Tap play to watch.</p>
+<p class="section-copy">Short videos I made with my AI Influencer using the same tools I teach in this class. Tap play to watch with sound.</p>
 <div class="video-grid" aria-label="AI influencer video examples">
+<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793977419/lv_0_20261106023609.mp4" controls playsinline preload="metadata" aria-label="AI influencer example video 2"></video></div>
 <div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/fuse-atelier/influencer/results/result-01.mp4" controls playsinline preload="metadata" aria-label="AI influencer example video 1"></video></div>
-<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/fuse-atelier/influencer/results/result-02.mp4" controls playsinline preload="metadata" aria-label="AI influencer example video 2"></video></div>
-<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/fuse-atelier/influencer/results/result-03.mp4" controls playsinline preload="metadata" aria-label="AI influencer example video 3"></video></div>
-<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/fuse-atelier/influencer/results/result-04.mp4" controls playsinline preload="metadata" aria-label="AI influencer example video 4"></video></div>
+<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/fuse-atelier/influencer/results/result-02.mp4" controls playsinline preload="metadata" aria-label="AI influencer example video 3"></video></div>
+<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/fuse-atelier/influencer/results/result-03.mp4" controls playsinline preload="metadata" aria-label="AI influencer example video 4"></video></div>
+<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/fuse-atelier/influencer/results/result-04.mp4" controls playsinline preload="metadata" aria-label="AI influencer example video 5"></video></div>
 </div></div></section>
 <section class="curriculum" aria-labelledby="curriculum-heading"><div class="curriculum-inner">
 <div class="section-marker"><b>03</b><span>WHAT YOU'RE GETTING</span></div>
@@ -163,4 +164,5 @@
   const toggleSticky=()=>{if(!sticky||!problem||!bonuses)return;const y=scrollY+innerHeight*.72,end=bonuses.offsetTop+bonuses.offsetHeight;sticky.classList.toggle('show',y>=problem.offsetTop&&scrollY<end)};
   addEventListener('scroll',toggleSticky,{passive:true});addEventListener('resize',toggleSticky);toggleSticky();
 })();
-</script></html>
+</script><script>document.querySelectorAll(".results .result-video").forEach(video=>{video.defaultMuted=false;video.muted=false;video.volume=1;video.addEventListener("loadedmetadata",()=>{video.defaultMuted=false;video.muted=false;video.volume=1;},{once:true});});</script>
+</html>
