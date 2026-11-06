@@ -166,12 +166,12 @@
     #createGrid .create-card{flex:0 0 clamp(126px,35vw,180px);scroll-snap-align:start;cursor:pointer;border-radius:18px}
     #createGrid .create-media{aspect-ratio:3/4}
     #createGrid .create-media{position:relative;border-radius:18px}
-    #createGrid .create-tap-badge{position:absolute;top:8px;left:8px;z-index:2;padding:6px 9px;border:1px solid #678783;border-radius:999px;background:linear-gradient(125deg,#050809,#00191b 60%,#21464a);color:#fff;font-size:clamp(9px,2.5vw,11px);font-weight:600;line-height:1;box-shadow:0 3px 10px #0008}
+    #createGrid .create-tap-badge{position:absolute;bottom:0;left:0;z-index:2;padding:6px 9px;border:1px solid #678783;border-radius:999px;background:linear-gradient(125deg,#050809,#00191b 60%,#21464a);color:#fff;font-size:clamp(9px,2.5vw,11px);font-weight:600;line-height:1;box-shadow:0 3px 10px #0008}
     #createGrid .is-locked .pin-badge{left:auto;right:8px;top:37px}
     #createGrid .create-card:focus-visible{outline:2px solid #dfff4e;outline-offset:3px}
     #createGrid .create-card[aria-pressed=true] .create-media{box-shadow:0 0 0 2px #dfff4e,0 0 20px #dfff4e44}
     #createGrid .is-locked{cursor:not-allowed}
-    #createGrid .is-locked .create-media{filter:saturate(.35);opacity:.65}
+    #createGrid .is-locked:not([data-create-tool="Remix"]) .create-media{filter:saturate(.35);opacity:.65}
   </style>
 </head>
 <body class="create-catalog" data-page="create">
@@ -224,6 +224,7 @@
     const tabs=['All','Image','Video','Twin','Page','Voice','Flyer','Content','Lipsync','UGC'];
 
     const tools=[
+      {cat:'Remix',locked:true,title:'Scene Remix',label:'tap to remix',video:'https://res.cloudinary.com/bzw55wh2/video/upload/v1793977419/lv_0_20261106023609.mp4'},
       {cat:'Image',title:'Create Image',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1788626963/4870020.png',href:'image-create.html'},
       {cat:'Video',title:'Create Video',video:'/atelier-site/assets/course-ai-ugc.mp4',href:'video-create.html'},
       {cat:'Influencer',title:'Create Influencer',img:'https://res.cloudinary.com/bzw55wh2/image/upload/v1788626963/4870020.png'},
@@ -402,7 +403,7 @@
         card.setAttribute('role','button');card.tabIndex=tool.locked?-1:0;card.dataset.createTool=tool.cat;card.setAttribute('aria-pressed','false');
         if(tool.locked){card.classList.add('is-locked');card.setAttribute('aria-disabled','true');card.setAttribute('aria-label',tool.title+' · Coming soon');}
         else {const activate=()=>window.dispatchEvent(new CustomEvent('fuse-create-tool',{detail:{category:tool.cat}}));card.onclick=activate;card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};}
-        card.innerHTML='<div class="create-media">'+mediaMarkup(tool)+'<span class="create-tap-badge">Tap to create</span></div><h2></h2>';
+        card.innerHTML='<div class="create-media">'+mediaMarkup(tool)+'<span class="create-tap-badge">'+(tool.label||'Tap to create')+'</span></div><h2></h2>';
         card.querySelector('h2').textContent=tool.title;
         if(tool.locked){const badge=document.createElement('span');badge.className='pin-badge';badge.textContent='🔒 Coming soon';card.append(badge);}
         grid.append(card);
