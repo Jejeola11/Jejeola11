@@ -1,0 +1,1 @@
+const {run}=require('./_higgsfield-jobs');const {json}=require('./_supabase');exports.handler=async event=>{let body;try{body=JSON.parse(event.body||'{}')}catch{return json(400,{error:'Invalid request.'})}if(body?.model!=='higgsfield/genjutsu-light/motion-transfer/v1.0')return json(400,{error:'Choose Scene Remix.'});return run(event,body);};
