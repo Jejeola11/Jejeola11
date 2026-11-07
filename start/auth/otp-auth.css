@@ -24,7 +24,10 @@ body{background:radial-gradient(ellipse at top,#092427,#080a0a 80%)}
 .fuse-auth-card form{text-align:left}
 .fuse-auth-card form label{margin:5px 0 9px}
 .fuse-auth-card form input[type=email]{width:100%;height:53px;border-radius:13px}
-.fuse-code-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:clamp(5px,1.8vw,9px);width:100%;margin:23px auto 0}
+.fuse-code-row{display:grid;grid-template-columns:repeat(var(--fuse-code-columns,6),minmax(0,1fr));gap:clamp(3px,1.1vw,8px);width:100%;margin:23px auto 0}
+.fuse-code-row .fuse-code-digit[hidden]{display:none!important}
+.fuse-code-row[data-length="8"] .fuse-code-digit{height:clamp(41px,10vw,53px);border-radius:9px;font-size:clamp(17px,4.5vw,25px)}
+.fuse-code-row[data-length="10"] .fuse-code-digit{height:42px;border-radius:7px;font-size:17px}
 .fuse-code-row .fuse-code-digit{width:100%;height:clamp(48px,13vw,58px);padding:0;text-align:center;background:rgba(9,36,39,.95);border:1px solid #426a6c;border-radius:11px;color:#fff;font:700 clamp(21px,6vw,27px) Montserrat,Arial,sans-serif}
 .fuse-code-row .fuse-code-digit:focus{outline:2px solid #dfff4e;outline-offset:1px}
 .fuse-sent-to{font-size:12px;color:#a7beba;margin:12px 0 5px;text-align:center;overflow-wrap:anywhere}
