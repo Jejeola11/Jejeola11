@@ -56,3 +56,10 @@
   .course-shell .module-heading{font-size:15px}
   .course-actions button,.course-actions .submit-task{font-size:12px;padding:9px 11px}
 }
+
+/* Director Ria module 1–2 title/CTA refinements, Nov 2026 */
+.drawer-name{font-size:clamp(16px,4.5vw,19px);letter-spacing:.02em;line-height:1.42;font-weight:600}
+.drawer-name span{display:block;white-space:nowrap}
+.course-shell .module-heading{font-size:clamp(14px,3.75vw,21px);letter-spacing:-.035em;white-space:nowrap}
+.course-actions .submit-task,.course-actions .submit-task:visited{background:var(--chrome);color:#001012;border:1px solid transparent;font-weight:700;box-shadow:0 5px 16px rgba(223,255,78,.15)}
+.course-actions .submit-task:hover{filter:brightness(1.06)}
