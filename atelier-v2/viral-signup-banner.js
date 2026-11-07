@@ -23,12 +23,13 @@
   }catch{}
   return '';
  }
- function signupURL(){
+ function signupURL(afterViewingLimit=false){
   const url=new URL(root.location.href),ref=referral();
   if(ref&&!url.searchParams.has('ref'))url.searchParams.set('ref',ref);
   const destination=url.pathname+url.search+url.hash;
   const q=new URLSearchParams({next:destination,return:destination});
   if(ref)q.set('ref',ref);
+  if(afterViewingLimit)q.set('gate','free-view-limit');
   return '/signup?'+q.toString();
  }
  function init(){
@@ -37,9 +38,50 @@
   if(!banner||!heading||!button){doc.documentElement.classList.remove('fuse-banner-pending');return}
   const signedMarkup=heading.innerHTML, signedButton=button.textContent, signedHref=button.getAttribute('href')||'/influencer',signedLabel=banner.getAttribute('aria-label')||'AI Influencer course';
   let guestState=null,client=null;
+  const VIEW_LIMIT_MS=10*60*1000;
+  const TIME_KEY='fuse_free_tutorial_guest_view_ms_v1';
+  let timer=null,lastTick=0,elapsed=0,redirecting=false;
+  function readElapsed(){
+   try{
+    const value=Number(root.sessionStorage.getItem(TIME_KEY)||0);
+    return Number.isFinite(value)&&value>=0?Math.min(VIEW_LIMIT_MS,value):0;
+   }catch{return elapsed}
+  }
+  function saveElapsed(){
+   try{root.sessionStorage.setItem(TIME_KEY,String(Math.min(VIEW_LIMIT_MS,Math.floor(elapsed))))}catch{}
+  }
+  function sendToSignup(){
+   if(redirecting||guestState!==true)return;
+   redirecting=true;saveElapsed();
+   root.location.assign(signupURL(true));
+  }
+  function tick(){
+   if(guestState!==true||redirecting)return;
+   const now=Date.now();
+   if(!doc.hidden){
+    // Only count time with this page visible. Cap delayed mobile-browser
+    // ticks so a backgrounded/suspended tab cannot consume the allowance.
+    elapsed=Math.max(elapsed,readElapsed())+Math.max(0,Math.min(2500,now-lastTick));
+    saveElapsed();
+    if(elapsed>=VIEW_LIMIT_MS){sendToSignup();return}
+   }
+   lastTick=now;
+  }
+  function startTimer(){
+   if(timer!==null||redirecting)return;
+   elapsed=readElapsed();lastTick=Date.now();
+   if(elapsed>=VIEW_LIMIT_MS){sendToSignup();return}
+   timer=root.setInterval(tick,1000);
+  }
+  function stopTimer(){
+   if(timer!==null)root.clearInterval(timer);
+   timer=null;lastTick=0;redirecting=false;elapsed=0;
+   try{root.sessionStorage.removeItem(TIME_KEY)}catch{}
+  }
   function render(isGuest){
    if(isGuest===guestState)return;
    guestState=isGuest;
+   if(isGuest)startTimer();else stopTimer();
    banner.classList.toggle('fuse-banner-guest',isGuest);
    if(isGuest){
     heading.textContent=guestHeading;button.textContent=guestButton;
@@ -81,7 +123,8 @@
    }catch{}
   })();
   root.addEventListener('pageshow',()=>refresh());
-  doc.addEventListener('visibilitychange',()=>{if(!doc.hidden)refresh()});
+  doc.addEventListener('visibilitychange',()=>{if(doc.hidden){lastTick=Date.now()}else{lastTick=Date.now();refresh()}});
+  root.addEventListener('pagehide',()=>{if(guestState===true)tick();if(timer!==null){root.clearInterval(timer);timer=null}});
   root.addEventListener('storage',event=>{
    if(event.key&&/supabase|auth-token|fuse_pending_referral/i.test(event.key))refresh();
   });
