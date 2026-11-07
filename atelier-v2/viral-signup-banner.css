@@ -1,0 +1,28 @@
+/* Guest-only copy and button sizing. Signed-in .viral-banner stays untouched. */
+.fuse-banner-pending .viral-banner{visibility:hidden}
+.viral-banner.fuse-banner-guest p{
+ white-space:normal!important;
+ text-wrap:balance!important;
+ font:800 clamp(13px,3.4vw,19px)/1.25 system-ui,sans-serif!important;
+ letter-spacing:-.015em!important;
+ max-width:640px;
+ margin:0 auto!important;
+}
+.viral-banner.fuse-banner-guest a{
+ box-sizing:border-box;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ width:min(100%,430px);
+ min-height:53px;
+ margin:14px auto 0;
+ padding:12px 14px;
+ font:800 clamp(12px,3.2vw,16px)/1.2 system-ui,sans-serif;
+ white-space:nowrap;
+ text-align:center;
+}
+.viral-banner.fuse-banner-guest a:focus-visible{outline:3px solid #001012;outline-offset:3px}
+@media(max-width:350px){
+ .viral-banner.fuse-banner-guest a{font-size:11px;padding:12px 9px}
+ .viral-banner.fuse-banner-guest p{font-size:12px}
+}
