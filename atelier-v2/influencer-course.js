@@ -19,8 +19,8 @@
     'Pricing & Repeat Income'
   ];
   const tasks=[
-    'Submit your audience statement, character card, 5 video ideas, approved master sheet, 3 consistency tests and a voice description or permitted sample.',
-    'Submit 3 ideas with STOP notes, a one-sentence premise and 1 finished Scene Remix using a permitted reference.',
+    'Create two AI influencer variations and submit both.',
+    'Create your first AI remix video and submit it.',
     'Create one original short-form video with a strong opening hook and a repeatable series idea. Submit the video and caption.',
     'Choose a way your influencer could earn money. Outline the offer, call to action and how you will track results, then submit your plan.',
     'Prepare a relevant influencer portfolio sample and a short pitch to a business. Submit the sample and your pitch.',
