@@ -25,9 +25,9 @@ exports.handler=async event=>{
     const record={visitor_id:visitor,event:type,source_path:path,referral_code:ref||null,
       utm_source:clean(body.utmSource,120),utm_campaign:clean(body.utmCampaign,120),
       user_id:user?.id||null};
-    const {error}=await admin().from('fuse_free_signup_events').upsert(record,{onConflict:'visitor_id,event',ignoreDuplicates:true});
+    const {data,error}=await admin().from('fuse_free_signup_events').upsert(record,{onConflict:'visitor_id,event',ignoreDuplicates:true}).select('id');
     if(error&&error.code!=='23505')throw error;
-    return {statusCode:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'},body:JSON.stringify({ok:true})};
+    return {statusCode:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'},body:JSON.stringify({ok:true,recorded:!!data?.length})};
   }catch(err){
     console.error('[Free signup funnel]',String(err?.message||err).slice(0,160));
     return json(500,{error:'Event unavailable'});
