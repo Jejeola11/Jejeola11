@@ -23,12 +23,17 @@
   const form=$('signup-form'), email=$('email'), name=$('name'), submit=$('submit'), google=$('google'), links=document.querySelector('.signin'), agreement=$('agree').closest('.agreement');
   document.querySelector('.close').href=returnTo;
   const params=new URLSearchParams(location.search), callback=new URL('/signup','https://fuseatelier.com');
-  for(const key of ['next','return','ref'])if(params.has(key))callback.searchParams.set(key,params.get(key));
+  for(const key of ['next','return','ref','gate'])if(params.has(key))callback.searchParams.set(key,params.get(key));
   if(referral&&!callback.searchParams.has('ref'))callback.searchParams.set('ref',referral);
   const row=document.createElement('div');row.className='password-row';row.innerHTML='<input id="password" aria-label="Password" placeholder="Password" type="password"><button type="button" id="eye" aria-label="Show password" aria-pressed="false"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path id="slash" d="M3 3l18 18"/></svg></button>';
   submit.before(row);
   const confirm=document.createElement('div');confirm.innerHTML='<label for="confirm-code">Email confirmation code</label><input id="confirm-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6,10}" maxlength="10">';submit.before(confirm);
   const pw=$('password'), code=$('confirm-code'), eye=$('eye');
+  // Only the 10-minute free-tutorial redirect changes the welcome heading.
+  // Normal signup links keep the standard Fuse Atelier welcome message.
+  const timedTutorialGate=params.get('gate')==='free-view-limit' &&
+   location.pathname.replace(/\/+$/,'')==='/signup' &&
+   /^\/atelier-v2\/(?:free-prompts-workflows|ocean-eyes-halloween|free-ai-tutorial|realistic-images)\.html$/.test(new URL(destination,location.origin).pathname);
   let view,busy=false,resendAt=0,finishing=false;
   const consentKey='fuse_signup_marketing_consent';
   function rememberConsent(){try{localStorage.setItem(consentKey,JSON.stringify({optedIn:$('marketing-opt-in').checked,at:Date.now()}));}catch{}}
@@ -57,7 +62,7 @@
   function render(mode,msg=''){
     view=mode;document.body.dataset.auth=mode;const welcome=mode==='welcome';$('marketing-choice').hidden=!welcome;
     const [title,subtitle,action]={welcome:['Welcome to Fuse Atelier','Sign up and learn AI for free','Continue'],create:['Create an account','Sign up and learn AI for free','Sign up'],login:['Log in to Fuse Atelier','Enter your account and continue creating','Log in'],forgot:['Reset your password','Enter your email to get a reset link','Send reset link'],reset:['Set a new password','Choose a new password','Save password'],confirm:['Check your email','Confirm your email to finish signing up','Verify code']}[mode];
-    document.querySelector('h1').textContent=title;document.querySelector('.subheading').textContent=subtitle;submit.textContent=action;
+    document.querySelector('h1').textContent=welcome&&timedTutorialGate?'Sign Up to Continue':title;document.querySelector('.subheading').textContent=subtitle;submit.textContent=action;
     back.hidden=welcome||mode==='reset';google.hidden=document.querySelector('.divider').hidden=agreement.hidden=name.hidden=name.labels[0].hidden=!welcome;name.required=welcome;
     email.hidden=email.labels[0].hidden=mode==='reset'||mode==='confirm';email.required=!email.hidden;email.readOnly=mode==='create';email.labels[0].hidden=!welcome;
     row.hidden=!['create','login','reset'].includes(mode);pw.required=!row.hidden;pw.minLength=mode==='login'?1:8;pw.autocomplete=mode==='login'?'current-password':'new-password';pw.value='';if(pw.type==='text')eye.click();
