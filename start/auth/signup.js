@@ -238,7 +238,11 @@
   showError('Use your email address to receive a fresh one-time login code.');
  }
  client.auth.onAuthStateChange((event,session)=>{
-  if(event==='INITIAL_SESSION'&&session&&!recovery)setTimeout(()=>finish(session,'login'),0);
-  if(event==='SIGNED_IN'&&session&&modal.hidden)setTimeout(()=>finish(session,'signup'),0);
+  if(!session||recovery)return;
+  // Google OAuth returns via /signup and Supabase may emit INITIAL_SESSION
+  // before SIGNED_IN. Both must use the same registration classification.
+  const source=location.pathname.replace(/\/+$/,'')==='/signup'?'signup':'login';
+  if(event==='INITIAL_SESSION'||(event==='SIGNED_IN'&&modal.hidden))
+   setTimeout(()=>finish(session,source),0);
  });
 })();
