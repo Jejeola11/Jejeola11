@@ -52,8 +52,12 @@
   }
   function sendToSignup(){
    if(redirecting||guestState!==true)return;
-   redirecting=true;saveElapsed();
-   root.location.assign(signupURL(true));
+   // Reset before leaving: closing signup (or using the browser Back button)
+   // must grant a fresh 10 minutes instead of instantly reopening signup.
+   const destination=signupURL(true);
+   redirecting=true;elapsed=0;lastTick=0;
+   try{root.sessionStorage.removeItem(TIME_KEY)}catch{}
+   root.location.assign(destination);
   }
   function tick(){
    if(guestState!==true||redirecting)return;
