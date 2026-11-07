@@ -53,11 +53,16 @@ test('return URLs cannot point off-site or back into automatic checkout',()=>{
  for(const url of ['https://evil.example','//evil.example','/signup','/atelier-v2/learn.html?buy=video'])assert.equal(funnel.safeReturn(url),'/atelier-v2/free-prompts-workflows.html#course-offer');
  assert.throws(()=>funnel.signupURL('https://evil.example',offer));assert.throws(()=>funnel.checkoutURL('unknown',offer));
 });
-test('all three sales entry pages contain a static course offer and price',()=>{
+test('all three tutorial entry pages embed the live AI Influencer course offer',()=>{
+ const offer=fs.readFileSync(require.resolve('../influencer/index.html'),'utf8');
+ assert(offer.includes('₦9,900'),'course price must be displayed on the linked offer');
+ assert(offer.includes('learn.html?buy=influencer'),'linked offer must provide course checkout');
+ assert(offer.includes('AI generation credits are purchased separately.'),'course pricing must not imply video-generation credits are included');
  for(const name of ['ocean-eyes-halloween','free-ai-tutorial','free-prompts-workflows']){
   const html=fs.readFileSync(require.resolve('../atelier-v2/'+name+'.html'),'utf8');
-  assert(html.includes('class="course-preview"'));assert(html.includes('Get the course · ₦9,900'));
-  assert(html.indexOf('course-funnel.js')<html.indexOf('fuse-shell.js'));
-  assert(html.includes('AI generation credits are purchased separately.'));
+  assert(html.includes('id="course-offer"'),name+' contains offer target');
+  assert(html.includes('src="/influencer?embed=workflows"'),name+' embeds current offer');
+  assert(html.includes('href="/influencer"'),name+' supplies accessible fallback link');
+  assert(html.indexOf('course-funnel.js')<html.indexOf('fuse-shell.js'),name+' initializes funnel before shell');
  }
 });
