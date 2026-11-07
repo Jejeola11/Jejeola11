@@ -12,6 +12,10 @@
   },
   "routes": [
     {
+      "src": "/directorria/?",
+      "dest": "/directorria/index.html"
+    },
+    {
       "src": "/influencer/?",
       "dest": "/influencer/index.html"
     },
