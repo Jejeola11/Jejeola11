@@ -15,7 +15,18 @@
   resend=$('resend-code'), resendActions=$('verify-actions'),
   codeFields=Array.from(document.querySelectorAll('.fuse-code-digit')),
   digitsCount=codeFields.length, query=new URLSearchParams(location.search);
- if(!client||digitsCount!==6)return;
+ let expectedCodeLength=6;
+ function applyCodeLength(value){
+  const size=Number(value);
+  expectedCodeLength=Number.isInteger(size)&&size>=6&&size<=digitsCount?size:8;
+  const row=$('otp-row');
+  row.style.setProperty('--fuse-code-columns',String(expectedCodeLength));
+  row.dataset.length=String(expectedCodeLength);
+  row.setAttribute('aria-label',expectedCodeLength+'-digit verification code');
+  codeFields.forEach((field,i)=>{field.hidden=i>=expectedCodeLength;field.disabled=i>=expectedCodeLength;field.value=''});
+ }
+
+ if(!client||digitsCount!==10)return;
  function safePath(raw) {
   try{
    const url=new URL(raw,location.origin);
@@ -87,7 +98,7 @@
     :'Fuse Atelier just sent you a verification code, check your email and fill it below to create your account';
    modalButton.textContent=requestPurpose==='login'?'Login':'Create Account';
    $('sent-to').textContent='Code sent to '+requestedEmail;
-   codeFields.forEach(f=>{f.value='';f.disabled=false});
+   applyCodeLength(expectedCodeLength);
    codeFields[0].focus({preventScroll:true});
   }else{
    title.textContent='Login to your account';
@@ -160,6 +171,7 @@
    });
    const body=await response.json().catch(()=>({}));
    if(!response.ok)throw Error(body.error||'We couldn’t send a code right now.');
+   applyCodeLength(body.codeLength);
    resendAt=Date.now()+60000;
    openModal('code',purpose==='login'?'If an account exists, check your email for the code.':'');
   }catch(error){showError(error,purpose==='login'?modalInfo:info)}
@@ -167,8 +179,8 @@
  }
  async function verifyCode(){
   if(busy)return;
-  const code=codeFields.map(field=>field.value).join('');
-  if(!/^\d{6}$/.test(code)){showError('Enter the 6-digit code from your email.');return}
+  const code=codeFields.slice(0,expectedCodeLength).map(field=>field.value).join('');
+  if(code.length!==expectedCodeLength||!/^[0-9]+$/.test(code)){showError('Enter all '+expectedCodeLength+' digits from your email.');return}
   lock(true);showError('Verifying your code…');
   try{
    const {data,error}=await client.auth.verifyOtp({email:requestedEmail,token:code,type:'email'});
@@ -178,24 +190,24 @@
   }catch(error){showError(error)}
   finally{if(!done)lock(false)}
  }
- // The six boxes accept Android OTP autofill, pasted codes and backspace.
+ // The visible boxes accept Android OTP autofill, pasted codes and backspace.
  function fillDigits(text,start=0){
-  const value=String(text||'').replace(/\D/g,'').slice(0,6-start);
+  const value=String(text||'').replace(/\D/g,'').slice(0,expectedCodeLength-start);
   if(!value)return;
-  for(let i=0;i<value.length&&i+start<digitsCount;i++)codeFields[i+start].value=value[i];
-  codeFields[Math.min(5,start+value.length)].focus({preventScroll:true});
+  for(let i=0;i<value.length&&i+start<expectedCodeLength;i++)codeFields[i+start].value=value[i];
+  codeFields[Math.min(expectedCodeLength-1,start+value.length)].focus({preventScroll:true});
  }
  codeFields.forEach((field,i)=>{
   field.addEventListener('input',()=>{
    const value=field.value.replace(/\D/g,'');
    if(value.length>1){field.value='';fillDigits(value,i);return}
    field.value=value.slice(0,1);
-   if(field.value&&i<5)codeFields[i+1].focus({preventScroll:true});
+   if(field.value&&i<expectedCodeLength-1)codeFields[i+1].focus({preventScroll:true});
   });
   field.addEventListener('keydown',event=>{
    if(event.key==='Backspace'&&!field.value&&i>0){codeFields[i-1].value='';codeFields[i-1].focus({preventScroll:true})}
    if(event.key==='ArrowLeft'&&i>0)codeFields[i-1].focus({preventScroll:true});
-   if(event.key==='ArrowRight'&&i<5)codeFields[i+1].focus({preventScroll:true});
+   if(event.key==='ArrowRight'&&i<expectedCodeLength-1)codeFields[i+1].focus({preventScroll:true});
   });
   field.addEventListener('paste',event=>{const value=event.clipboardData?.getData('text')||'';event.preventDefault();fillDigits(value,i)});
  });
