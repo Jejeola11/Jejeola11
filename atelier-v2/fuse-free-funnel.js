@@ -18,11 +18,13 @@
   const utmCampaign=params.get('utm_campaign')||'';
   function track(event,token){
     if(!allowed.has(event))return Promise.resolve(false);
+    if(event==='signup_clicked')window.FuseFreePixel?.trackClick();
+    if(event==='signup_started')window.FuseFreePixel?.trackStart();
     const data={event,visitorId,ref:ref.toLowerCase(),path:location.pathname,utmSource,utmCampaign};
     const headers={'Content-Type':'application/json'};
     if(token)headers.Authorization='Bearer '+token;
     return fetch('/api/free-signup-funnel',{method:'POST',headers,body:JSON.stringify(data),cache:'no-store',keepalive:true})
-      .then(r=>r.ok).catch(()=>false);
+      .then(async r=>r.ok?await r.json():{ok:false}).catch(()=>({ok:false}));
   }
   window.FuseFreeFunnel=Object.freeze({track,getRef:()=>ref.toLowerCase(),getVisitorId:()=>visitorId});
 })();
