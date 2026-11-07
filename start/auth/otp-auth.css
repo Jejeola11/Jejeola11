@@ -1,0 +1,37 @@
+/* Mobile-first Fuse email OTP signup / login, preserving the established brand. */
+[hidden]{display:none!important}
+body{background:radial-gradient(ellipse at top,#092427,#080a0a 80%)}
+.signup-panel{padding-top:46px}
+.signup-panel .brand img{width:34px;height:34px}
+.signup-panel h1{font-size:clamp(22px,5.8vw,30px);white-space:normal;font-weight:700;line-height:1.16}
+.signup-panel .subheading{font-size:clamp(13px,3.6vw,15px)}
+.signup-panel .google{min-height:55px}
+.signup-panel form label[for="email"]{margin-top:20px}
+.signup-panel .submit,.fuse-modal-submit{background:linear-gradient(110deg,#ffe66a 0%,#dfff4e 54%,#eeffe0 100%);color:#001012;font-weight:700;min-height:54px}
+.signup-panel .signin{margin:19px 0 0;color:#fff;font-weight:500;font-size:14px}
+.signup-panel .signin button{background:none;border:none;padding:3px 0 3px 4px;color:#c7e7e0;font:700 14px Montserrat,Arial,sans-serif;cursor:pointer;text-decoration:none}
+.signup-panel .signin button:hover,.signup-panel .signin button:focus-visible{color:#dfff4e;text-decoration:underline}
+.signup-panel .signin button:focus-visible{outline:2px solid #dfff4e;outline-offset:4px}
+.signup-panel #message{margin:14px 0 0;min-height:18px}
+.fuse-modal-shell{position:fixed;inset:0;z-index:2500;display:flex;align-items:center;justify-content:center;padding:18px 15px calc(18px + env(safe-area-inset-bottom))}
+.fuse-modal-backdrop{position:absolute;inset:0;background:rgba(0,7,9,.83);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+.fuse-auth-card{position:relative;isolation:isolate;width:min(100%,460px);max-height:calc(100svh - 36px);overflow-y:auto;border:1px solid #376166;border-radius:24px;padding:34px 22px 25px;text-align:center;color:#fff;background:radial-gradient(ellipse at 60% 0%,rgba(27,76,82,.5),transparent 64%),linear-gradient(148deg,#041315 0%,#062125 57%,#00090b 100%);box-shadow:0 25px 75px rgba(0,0,0,.65);font-family:Montserrat,Arial,sans-serif}
+.fuse-modal-close{position:absolute;top:12px;right:13px;width:36px;height:36px;display:grid;place-items:center;background:#102b2e;border:1px solid #315456;color:#fff;border-radius:50%;font:400 27px/1 Arial;cursor:pointer}
+.fuse-card-logo{display:flex;justify-content:center;margin:1px 0 20px}
+.fuse-card-logo img{object-fit:contain;border-radius:10px}
+.fuse-auth-card h2{font-size:clamp(20px,5.6vw,27px);line-height:1.22;letter-spacing:-.035em;margin:0 12px 12px;font-weight:700}
+.fuse-auth-card>p:not(#modal-message){font-size:clamp(12px,3.35vw,14px);line-height:1.7;color:#bbd0cc;margin:0 auto 22px;max-width:390px}
+.fuse-auth-card form{text-align:left}
+.fuse-auth-card form label{margin:5px 0 9px}
+.fuse-auth-card form input[type=email]{width:100%;height:53px;border-radius:13px}
+.fuse-code-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:clamp(5px,1.8vw,9px);width:100%;margin:23px auto 0}
+.fuse-code-row .fuse-code-digit{width:100%;height:clamp(48px,13vw,58px);padding:0;text-align:center;background:rgba(9,36,39,.95);border:1px solid #426a6c;border-radius:11px;color:#fff;font:700 clamp(21px,6vw,27px) Montserrat,Arial,sans-serif}
+.fuse-code-row .fuse-code-digit:focus{outline:2px solid #dfff4e;outline-offset:1px}
+.fuse-sent-to{font-size:12px;color:#a7beba;margin:12px 0 5px;text-align:center;overflow-wrap:anywhere}
+.fuse-modal-submit{width:100%;margin:22px 0 0;cursor:pointer}
+#modal-message{color:#e4ff9c;font-size:12px;min-height:19px;line-height:1.55;margin:13px 0 0}
+.fuse-modal-actions{display:flex;justify-content:space-between;gap:15px;margin:11px 0 0}
+.fuse-modal-actions button{border:0;background:transparent;color:#bce3dc;font:600 12px Montserrat,Arial,sans-serif;cursor:pointer;padding:11px 0}
+.fuse-modal-actions button:disabled{opacity:.48;cursor:wait}
+@media(max-width:360px){.fuse-auth-card{padding-inline:15px}.fuse-code-row{gap:5px}.fuse-code-row .fuse-code-digit{border-radius:8px}}
+@media(prefers-reduced-motion:reduce){.fuse-auth-card{scroll-behavior:auto}}
