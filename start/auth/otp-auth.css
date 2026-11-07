@@ -9,7 +9,7 @@ body{background:radial-gradient(ellipse at top,#092427,#080a0a 80%)}
 .signup-panel form label[for="email"]{margin-top:20px}
 .signup-panel .submit,.fuse-modal-submit{background:linear-gradient(110deg,#ffe66a 0%,#dfff4e 54%,#eeffe0 100%);color:#001012;font-weight:700;min-height:54px}
 .signup-panel .signin{margin:19px 0 0;color:#fff;font-weight:500;font-size:14px}
-.signup-panel .signin button{background:none;border:none;padding:3px 0 3px 4px;color:#c7e7e0;font:700 14px Montserrat,Arial,sans-serif;cursor:pointer;text-decoration:none}
+.signup-panel .signin button{background:none;border:none;padding:3px 0 3px 4px;color:#dfff4e;font:700 14px Montserrat,Arial,sans-serif;cursor:pointer;text-decoration:none}
 .signup-panel .signin button:hover,.signup-panel .signin button:focus-visible{color:#dfff4e;text-decoration:underline}
 .signup-panel .signin button:focus-visible{outline:2px solid #dfff4e;outline-offset:4px}
 .signup-panel #message{margin:14px 0 0;min-height:18px}
