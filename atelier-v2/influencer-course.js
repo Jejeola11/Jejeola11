@@ -10,6 +10,22 @@
     'Character services, portfolio, prospect research, pitching and paid pilots.',
     'Costs, proposals, payment, usage, recurring packages and a 30-day plan.'
   ];
+  const moduleHeadings=[
+    'Foundation & Character',
+    'Motion & Talking Videos',
+    'Viral Content & Growth',
+    'Influencer Monetization',
+    'Selling to Businesses',
+    'Pricing & Repeat Income'
+  ];
+  const tasks=[
+    'Define your influencer’s audience, personality and signature look. Create a master reference image and a character sheet, then share your result in the group.',
+    'Bring your influencer to life in a short speaking or motion video. Check that the face, outfit and voice stay consistent before submitting.',
+    'Create one original short-form video with a strong opening hook and a repeatable series idea. Submit the video and caption.',
+    'Choose a way your influencer could earn money. Outline the offer, call to action and how you will track results, then submit your plan.',
+    'Prepare a relevant influencer portfolio sample and a short pitch to a business. Submit the sample and your pitch.',
+    'Create your pricing, a simple service package and a 30-day action plan for finding and keeping clients. Submit your plan.'
+  ];
   let modules=[],current=0;
   function closeDrawer(){drawer.classList.remove('open');drawer.setAttribute('aria-hidden','true');backdrop.hidden=true;$('openModules').setAttribute('aria-expanded','false');}
   function openDrawer(){drawer.classList.add('open');drawer.setAttribute('aria-hidden','false');backdrop.hidden=false;$('openModules').setAttribute('aria-expanded','true');$('closeModules').focus();}
@@ -34,9 +50,9 @@
   }
   function select(index){
     current=index;const module=modules[index];
-    $('moduleKicker').textContent='MODULE '+String(module.number).padStart(2,'0')+' · AI INFLUENCER';
-    $('moduleTitle').textContent=module.title;
-    $('moduleSummary').textContent=summaries[index];
+    $('moduleHeading').textContent=moduleHeadings[index]||module.title;
+    $('moduleSummary').textContent=summaries[index]||'';
+    $('moduleAction').textContent=tasks[index]||'Complete the exercise from this lesson and share it in the course group.';
     player.replaceChildren();
     let video=null;try{video=media(module.url)}catch{}
     if(video)player.append(video);else{const placeholder=document.createElement('span');placeholder.textContent='Video coming soon';player.append(placeholder)}
