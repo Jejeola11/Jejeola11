@@ -2,7 +2,17 @@
   'use strict';
   const sb = window.supabase.createClient('https://rgbweaimkcndjznlazho.supabase.co','sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   const $ = id => document.getElementById(id), message=$('message');
-  const referral=new URLSearchParams(location.search).get('ref');
+  // A referral may arrive directly, nested in ?next=, or from the ad landing
+  // page's saved visit token. Preserve the same code across Google redirects.
+  const landingParams=new URLSearchParams(location.search);
+  const nestedReferral=(()=>{try{
+    const next=landingParams.get('next');if(!next)return '';
+    const u=new URL(next,location.origin);
+    return u.origin===location.origin?(u.searchParams.get('ref')||''):'';
+  }catch{return ''}})();
+  const storedReferral=(()=>{try{return JSON.parse(localStorage.getItem('fuse_pending_referral')||'null')?.code||''}catch{return ''}})();
+  const referralCandidate=(landingParams.get('ref')||nestedReferral||window.FuseFreeTracking?.getRef()||storedReferral||'').toLowerCase();
+  const referral=/^[a-z0-9-]{5,80}$/.test(referralCandidate)?referralCandidate:'';
   const referralReady=(async()=>{if(!referral||!/^[a-z0-9-]{5,80}$/i.test(referral))return;try{const saved=JSON.parse(localStorage.getItem('fuse_pending_referral')||'null');if(saved?.code===referral.toLowerCase()&&/^[0-9a-f-]{36}$/i.test(saved.token))return;const response=await fetch('/api/fuse-earn?ref='+encodeURIComponent(referral.toLowerCase()),{signal:AbortSignal.timeout(5000)});const info=await response.json();if(response.ok)localStorage.setItem('fuse_pending_referral',JSON.stringify({code:referral.toLowerCase(),token:info.token}));}catch{}})();
   const next = new URLSearchParams(location.search).get('next');
   const destination = next&&safeReturn(next)||'/atelier-v2/home.html';
@@ -14,11 +24,12 @@
   document.querySelector('.close').href=returnTo;
   const params=new URLSearchParams(location.search), callback=new URL('/signup','https://fuseatelier.com');
   for(const key of ['next','return','ref'])if(params.has(key))callback.searchParams.set(key,params.get(key));
+  if(referral&&!callback.searchParams.has('ref'))callback.searchParams.set('ref',referral);
   const row=document.createElement('div');row.className='password-row';row.innerHTML='<input id="password" aria-label="Password" placeholder="Password" type="password"><button type="button" id="eye" aria-label="Show password" aria-pressed="false"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path id="slash" d="M3 3l18 18"/></svg></button>';
   submit.before(row);
   const confirm=document.createElement('div');confirm.innerHTML='<label for="confirm-code">Email confirmation code</label><input id="confirm-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6,10}" maxlength="10">';submit.before(confirm);
   const pw=$('password'), code=$('confirm-code'), eye=$('eye');
-  let view,busy=false,resendAt=0;
+  let view,busy=false,resendAt=0,finishing=false;
   const consentKey='fuse_signup_marketing_consent';
   function rememberConsent(){try{localStorage.setItem(consentKey,JSON.stringify({optedIn:$('marketing-opt-in').checked,at:Date.now()}));}catch{}}
   async function saveConsent(session){
@@ -58,18 +69,57 @@
   links.onclick=e=>{if(busy||!e.target.dataset.mode)return;if(view==='create')signupStep='create';render(e.target.dataset.mode==='welcome'?signupStep:e.target.dataset.mode);};back.onclick=()=>{if(!busy)render(view==='forgot'?'login':view==='login'?signupStep:'welcome');};
   function agreed(){if(!$('marketing-opt-in').checked){const box=$('marketing-choice');box.classList.remove('needs-attention');void box.offsetWidth;box.classList.add('needs-attention');}if($('agree').checked)return true;message.textContent='';agreement.classList.remove('needs-attention');void agreement.offsetWidth;agreement.classList.add('needs-attention');agreement.scrollIntoView({block:'nearest',behavior:'smooth'});$('agree').focus({preventScroll:true});return false;}
   try{if(localStorage.getItem('fuse_last_auth')==='google'){const badge=document.createElement('span');badge.id='last-used';badge.textContent='Last used';google.append(badge);}}catch{}
-  async function finish(session){await saveConsent(session);try{localStorage.setItem('fuse_last_auth',session.user.app_metadata?.provider==='google'?'google':'email')}catch{}location.replace(new URL(destination,'https://fuseatelier.com').href);}
-  google.onclick=async()=>{if(busy||!agreed())return;busy=true;google.disabled=true;try{rememberConsent();await referralReady;const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:callback.href}});if(error)throw error;}catch(e){message.textContent=e.message;busy=false;google.disabled=false;}};
+  async function finish(session){
+    if(!session?.access_token||finishing)return;
+    finishing=true;
+    await saveConsent(session);
+    // Only a confirmed, genuinely new Supabase account will be counted;
+    // returning logins or opening signup are never counted as registration.
+    try{await window.FuseFreeTracking?.complete(session)}catch{}
+    // Claim the existing Fuse Earn visit after authentication, even when
+    // returning to a tutorial that doesn't load the shared home shell.
+    try{
+      await referralReady;
+      const pending=JSON.parse(localStorage.getItem('fuse_pending_referral')||'null');
+      if(pending?.token&&/^[0-9a-f-]{36}$/i.test(pending.token)){
+        const response=await fetch('/api/fuse-earn',{
+          method:'POST',
+          headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},
+          body:JSON.stringify({action:'claim',token:pending.token}),
+          signal:AbortSignal.timeout(4500)
+        });
+        if(response.ok){
+          const result=await response.json();
+          if(result.claimed===true)localStorage.removeItem('fuse_pending_referral');
+        }
+      }
+    }catch{}
+    try{localStorage.setItem('fuse_last_auth',session.user.app_metadata?.provider==='google'?'google':'email')}catch{}
+    location.replace(new URL(destination,'https://fuseatelier.com').href);
+  }
+  google.onclick=async()=>{if(busy||!agreed())return;busy=true;google.disabled=true;try{
+    rememberConsent();
+    if(location.pathname.startsWith('/signup'))await window.FuseFreeTracking?.event('signup_started');
+    await referralReady;
+    const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:callback.href}});
+    if(error)throw error;
+  }catch(e){message.textContent=e.message;busy=false;google.disabled=false;}};
   form.noValidate=true;
   submit.addEventListener('click',e=>{if(view==='welcome'&&!agreed())e.preventDefault();});
   form.onsubmit=async e=>{
     e.preventDefault();if(busy)return;
-    if(view==='welcome'){if(agreed()&&form.reportValidity()&&name.value.trim()){rememberConsent();render('create');pw.focus();}return;}
+    if(view==='welcome'){if(agreed()&&form.reportValidity()&&name.value.trim()){
+      rememberConsent();
+      if(location.pathname.startsWith('/signup'))window.FuseFreeTracking?.event('signup_started');
+      render('create');pw.focus();
+    }return;}
     if(!form.reportValidity())return;
     busy=true;submit.disabled=true;message.textContent='';
     try{
       await referralReady;const address=email.value.trim().toLowerCase(),password=pw.value;let result;
       if(view==='create'){
+        // The server sees signup_started before Supabase creates the user.
+        if(location.pathname.startsWith('/signup'))await window.FuseFreeTracking?.event('signup_started');
         result=await sb.auth.signUp({email:address,password,options:{data:{name:name.value.trim(),full_name:name.value.trim(),fuse_password_set:true,email_marketing_opt_in:$('marketing-opt-in').checked,email_marketing_opt_in_at:$('marketing-opt-in').checked?new Date().toISOString():null,email_marketing_consent_text:'Send me occasional updates, guides, and promotions.'},emailRedirectTo:callback.href}});
         if(result.error&&['user_already_exists','email_exists'].includes(result.error.code)||!result.error&&!result.data?.session&&Array.isArray(result.data?.user?.identities)&&result.data.user.identities.length===0){signupStep='create';render('login','You already have an account. Log in instead.');pw.focus();return;}
         if(!result.error&&!result.data.session){resendAt=Date.now()+60000;render('confirm','Enter the verification code sent to your email to finish signing up.');return;}
