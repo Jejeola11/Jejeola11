@@ -9,10 +9,10 @@
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
  <link rel="stylesheet" href="/start/auth/signup.css?v=terms-glow-4">
- <link rel="stylesheet" href="/start/auth/otp-auth.css?v=1">
+ <link rel="stylesheet" href="/start/auth/otp-auth.css?v=2">
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
  <script src="/atelier-v2/fuse-free-tracking.js?v=1" defer></script>
- <script src="/start/auth/signup.js?v=otp-flow-1" defer></script>
+ <script src="/start/auth/signup.js?v=otp-length-1" defer></script>
 </head>
 <body>
  <main class="signup-panel" id="signup-panel">
@@ -55,6 +55,10 @@
       <input type="text" class="fuse-code-digit" inputmode="numeric" maxlength="1" aria-label="Code digit 4">
       <input type="text" class="fuse-code-digit" inputmode="numeric" maxlength="1" aria-label="Code digit 5">
       <input type="text" class="fuse-code-digit" inputmode="numeric" maxlength="1" aria-label="Code digit 6">
+      <input type="text" class="fuse-code-digit" inputmode="numeric" maxlength="1" aria-label="Code digit 7" hidden>
+      <input type="text" class="fuse-code-digit" inputmode="numeric" maxlength="1" aria-label="Code digit 8" hidden>
+      <input type="text" class="fuse-code-digit" inputmode="numeric" maxlength="1" aria-label="Code digit 9" hidden>
+      <input type="text" class="fuse-code-digit" inputmode="numeric" maxlength="1" aria-label="Code digit 10" hidden>
      </div>
      <p class="fuse-sent-to" id="sent-to"></p>
     </div>
