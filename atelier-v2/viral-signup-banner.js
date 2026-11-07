@@ -65,7 +65,6 @@
    }catch{render(true)}
   }
   const pendingFallback=root.setTimeout(()=>render(true),4500);
-  const originalRender=render;
   // The timeout is a safety fallback if the auth bundle fails to initialize.
   // Refresh on sign-in, sign-out, tab return, and history navigation.
   (async()=>{
