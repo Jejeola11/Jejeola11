@@ -3,24 +3,24 @@
   const $=id=>document.getElementById(id);
   const access=$('courseAccess'),lesson=$('courseLesson'),player=$('modulePlayer'),drawer=$('moduleDrawer'),backdrop=$('drawerBackdrop');
   const summaries=[
-    'Audience, personality, master images, reference sheets and consistent identity.',
-    'Motion adaptation, original scenes, speaking videos, product integration and editing.',
+    'Choose an audience and personality, study repeatable TikTok ideas, and build a consistent character sheet and voice identity.',
+    'Use STOP (Surprise, Tension, Outcome, Pass it on) to choose a strong idea, then remake a permitted scene in Fuse Scene Remix with your own character.',
     'Original ideas, STOP, recurring series, profile setup, publishing and iteration.',
     'Affiliate offers, your own products, conversion paths, tracking and sponsorships.',
     'Character services, portfolio, prospect research, pitching and paid pilots.',
     'Costs, proposals, payment, usage, recurring packages and a 30-day plan.'
   ];
   const moduleHeadings=[
-    'Foundation & Character',
-    'Motion & Talking Videos',
+    'Module 1 · FOUNDATION & CHARACTER',
+    'Module 2 · SPOT IT. REMIX IT.',
     'Viral Content & Growth',
     'Influencer Monetization',
     'Selling to Businesses',
     'Pricing & Repeat Income'
   ];
   const tasks=[
-    'Define your influencer’s audience, personality and signature look. Create a master reference image and a character sheet, then share your result in the group.',
-    'Bring your influencer to life in a short speaking or motion video. Check that the face, outfit and voice stay consistent before submitting.',
+    'Submit your audience statement, character card, 5 video ideas, approved master sheet, 3 consistency tests and a voice description or permitted sample.',
+    'Submit 3 ideas with STOP notes, a one-sentence premise and 1 finished Scene Remix using a permitted reference.',
     'Create one original short-form video with a strong opening hook and a repeatable series idea. Submit the video and caption.',
     'Choose a way your influencer could earn money. Outline the offer, call to action and how you will track results, then submit your plan.',
     'Prepare a relevant influencer portfolio sample and a short pitch to a business. Submit the sample and your pitch.',
