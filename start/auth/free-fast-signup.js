@@ -1,6 +1,9 @@
 (() => {
  'use strict';
- if(location.pathname.replace(/\/$/,'')!=='/signup'||new URLSearchParams(location.search).get('mode')==='reset')return;
+ const authPath=location.pathname.replace(/\/$/,'');
+ const isLogin=authPath==='/login';
+ const query=new URLSearchParams(location.search);
+ if(!['/signup','/login'].includes(authPath)||query.get('mode')==='reset'||query.get('method')==='password')return;
  const sb=window.supabase.createClient('https://rgbweaimkcndjznlazho.supabase.co','sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3',
    {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
  const $=id=>document.getElementById(id),form=$('signup-form'),email=$('email'),name=$('name'),
@@ -30,10 +33,17 @@
  actions.innerHTML='<button type="button" id="fuse-resend">Resend code</button><button type="button" id="fuse-change-email">Change email</button>';
  submit.after(actions);
  const resend=$('fuse-resend'),change=$('fuse-change-email');
- const login=document.createElement('p');login.className='signin';login.innerHTML='Already have an account? <a href="/login">Log in</a>';
+ const login=document.createElement('p');login.className='signin';
+ const switchLink='/login?'+new URLSearchParams({next:destination,ref:referral});
+ const signupLink='/signup?'+new URLSearchParams({next:destination,ref:referral});
+ const passwordLink='/login?'+new URLSearchParams({method:'password',next:destination,ref:referral});
+ login.innerHTML=isLogin
+  ?'Prefer your password? <a href="'+passwordLink+'">Log in with password</a><br><a href="'+signupLink+'">Create a free account</a>'
+  :'Already have an account? <a href="'+switchLink+'">Log in</a>';
  document.querySelector('.signup-panel').append(login);
+ if(isLogin){name.required=false;name.hidden=true;form.querySelector('label[for=name]').hidden=true;terms.closest('.agreement').hidden=true;$('marketing-choice').hidden=true;}
  const note=document.createElement('p');note.className='fuse-signup-note';
- note.textContent='Free account · No payment required · No password needed for email signup';
+ note.textContent=isLogin?'Secure email-code login · No password needed':'Free account · No payment required · No password needed for email signup';
  google.before(note);
  const textTitle=document.querySelector('h1'),subtitle=document.querySelector('.subheading'),divider=document.querySelector('.divider');
  const share=window.FuseFreeFunnel;
@@ -45,7 +55,7 @@
  function showError(err){message.textContent=typeof err==='string'?err:(err?.message||'Something went wrong. Please try again.')}
  const validEmail=v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)&&v.length<=254;
  function agreed(){
-   if(terms.checked)return true;
+   if(isLogin||terms.checked)return true;
    const box=terms.closest('.agreement');box.classList.remove('needs-attention');void box.offsetWidth;box.classList.add('needs-attention');
    terms.focus({preventScroll:true});message.textContent='Please accept the Terms and Privacy Policy to continue.';return false;
  }
@@ -53,14 +63,14 @@
  function render(next,msg=''){
    mode=next;document.body.dataset.auth=next;
    const confirming=next==='confirm';
-   textTitle.textContent=confirming?'Check your email':'Get Your Free AI Resources';
-   subtitle.textContent=confirming?'Enter the verification code we sent you to finish signing up.':'Create a free Fuse Atelier account to unlock my prompts and step-by-step workflows.';
+   textTitle.textContent=confirming?'Check your email':isLogin?'Log in to Fuse Atelier':'Get Your Free AI Resources';
+   subtitle.textContent=confirming?'Enter the verification code sent to your email.':isLogin?'Enter your email to receive a one-time sign-in code.':'Create a free Fuse Atelier account to unlock my prompts and step-by-step workflows.';
    document.title=confirming?'Verify email · Fuse Atelier':'Free AI Resources · Fuse Atelier';
-   google.hidden=divider.hidden=confirming;form.querySelector('label[for=name]').hidden=confirming;name.hidden=confirming;
+   google.hidden=divider.hidden=confirming;form.querySelector('label[for=name]').hidden=confirming||isLogin;name.hidden=confirming||isLogin;
    form.querySelector('label[for=email]').hidden=confirming;email.hidden=confirming;
    codeBox.hidden=!confirming;code.required=confirming;actions.hidden=!confirming;
-   $('marketing-choice').hidden=confirming;
-   submit.textContent=confirming?'Verify code & unlock':'Send Verification Code';
+   $('marketing-choice').hidden=confirming||isLogin;
+   submit.textContent=confirming?'Verify code & unlock':isLogin?'Send Sign-in Code':'Send Verification Code';
    message.textContent=msg;
    if(confirming)code.focus();
  }
@@ -94,13 +104,13 @@
  }
  async function requestCode(){
    if(!agreed()||!form.reportValidity())return;
-   const address=email.value.trim().toLowerCase(),fullName=name.value.trim();
+   const address=email.value.trim().toLowerCase(),fullName=isLogin?(name.value.trim()||email.value.trim().split('@')[0]):name.value.trim();
    if(!fullName||!validEmail(address)){message.textContent='Enter your name and a valid email.';return}
    requestedEmail=address;requestedName=fullName;saveChoice();
    setBusy(true);message.textContent='Sending your verification code…';
    await track('signup_started');await referralReady;
    try{
-     const response=await fetch('/api/public-auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'signup',email:address,name:fullName,next:destination}),signal:AbortSignal.timeout(15000)});
+     const response=await fetch('/api/public-auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:isLogin?'login':'signup',email:address,name:fullName,next:destination}),signal:AbortSignal.timeout(15000)});
      const data=await response.json();if(!response.ok)throw Error(data.error||'Could not send the code. Please retry.');
      resendUntil=Date.now()+60000;
      await track('signup_code_requested');
