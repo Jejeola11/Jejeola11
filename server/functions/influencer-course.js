@@ -2,8 +2,8 @@ const {admin,getUser,json}=require('./_supabase');
 const OWNER_EMAIL='riadigitals0@gmail.com';
 
 const MODULES=[
-  'Create an Influencer People Remember',
-  'Bring Your Influencer to Life',
+  'FOUNDATION & CHARACTER',
+  'SPOT IT. REMIX IT.',
   'Build Content People Watch and Share',
   'Monetize Your Own AI Influencer',
   'Sell AI Influencers and Content to Businesses',
