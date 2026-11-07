@@ -1,7 +1,9 @@
 (() => {
   'use strict';
   // New free-resource signup uses a lighter email-code flow. Keep legacy login and reset intact.
-  if(location.pathname.replace(/\/$/,'')==='/signup' && new URLSearchParams(location.search).get('mode')!=='reset')return;
+  if(['/signup','/login'].includes(location.pathname.replace(/\/$/,'')) &&
+    new URLSearchParams(location.search).get('mode')!=='reset' &&
+    new URLSearchParams(location.search).get('method')!=='password')return;
   const sb = window.supabase.createClient('https://rgbweaimkcndjznlazho.supabase.co','sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   const $ = id => document.getElementById(id), message=$('message');
   const referral=new URLSearchParams(location.search).get('ref');
