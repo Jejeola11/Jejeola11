@@ -62,6 +62,24 @@
     .free-section{padding-top:2px}
     .free-section .section-title{font-size:clamp(26px,7vw,35px);margin-bottom:22px}
     
+
+    .heading-down{display:inline-block;background:var(--chrome);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-variant-emoji:text;font-family:"Segoe UI Symbol",Arial,sans-serif;white-space:nowrap;font-size:.88em;vertical-align:.02em;margin-left:.13em}
+    .videos-section{padding-top:6px;padding-bottom:27px}
+    .videos-section .section-title{font-size:clamp(24px,6.6vw,34px);margin-bottom:18px}
+    .reel-rail{display:flex;align-items:flex-start;gap:11px;overflow-x:auto;overflow-y:hidden;padding:4px 2px 13px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:pan-x}
+    .reel-rail::-webkit-scrollbar{display:none}
+    .reel-card{width:clamp(103px,29vw,130px);flex:0 0 clamp(103px,29vw,130px);min-width:0}
+    .reel-media{aspect-ratio:9/16;border-radius:15px;position:relative;overflow:hidden;background:linear-gradient(145deg,#071c20,#061014);border:1px solid #335457;box-shadow:0 10px 26px #0006}
+    .reel-video{display:block;width:100%;height:100%;object-fit:cover;object-position:center;background:#061014;pointer-events:none}
+    .reel-out:not([hidden]){position:absolute;inset:0;z-index:1;display:block;cursor:pointer;outline-offset:-4px}
+    .reel-out[hidden]{display:none}
+    .reel-out:focus-visible{outline:2px solid #dfff4e}
+    .reel-stats{display:flex;gap:5px;margin-top:8px;justify-content:space-between}
+    .stat-pill{display:flex;align-items:center;justify-content:center;gap:3px;padding:6px 3px;border:1px solid #2b4c4e;border-radius:999px;background:#102729cc;color:#b3cbca;font-size:10px;line-height:1;font-weight:600;white-space:nowrap;flex:1;min-width:0}
+    .stat-pill svg{width:14px;height:14px;flex:none;stroke:#dfff91}
+    .stat-value{font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis}
+    .reel-disclaimer{margin:7px 0 0;font-size:10px;color:#769996;text-align:center;line-height:1.7}
+    @media(max-width:380px){.reel-card{width:108px;flex-basis:108px}.reel-rail{gap:9px}}
     .page-footer{text-align:center;color:#6c9090;font-size:11px;letter-spacing:.04em;padding:6px 0 44px}
     .page-footer a{text-decoration:none;color:#a9c9c7}
     .toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,15px);padding:12px 18px;background:#163b3a;border:1px solid #dfff4e66;color:#ecffe6;border-radius:14px;font-size:12px;font-weight:700;opacity:0;visibility:hidden;transition:opacity .2s,transform .2s;box-shadow:0 10px 25px #0008;z-index:10;white-space:nowrap}
@@ -93,7 +111,7 @@
       </nav>
     </section>
     <section class="section" aria-labelledby="courseTitle">
-      <h2 class="section-title single chrome" id="courseTitle">Get My AI Influencer Course</h2>
+      <h2 class="section-title single chrome" id="courseTitle">Get My AI Influencer Course <span class="heading-down" aria-hidden="true">👇︎</span></h2>
       <article class="product">
         <img class="product-cover" src="/atelier-v2/media/academy/create-monetize-viral-ai-influencers-20261105.jpg" width="1672" height="941" alt="Create & Monetize Viral AI Influencers — Director Ria and AI character" fetchpriority="high">
         <div class="product-body">
@@ -107,7 +125,7 @@
       </article>
     </section>
     <section class="section free-section" aria-labelledby="freeTitle">
-      <h2 class="section-title chrome" id="freeTitle">Learn For Free</h2>
+      <h2 class="section-title chrome" id="freeTitle">Learn For Free <span class="heading-down" aria-hidden="true">👇︎</span></h2>
       <article class="product">
         <img class="product-cover" src="/atelier-v2/media/academy/steal-my-prompts-bright-20261105.jpg" width="1672" height="941" alt="Steal My Prompts & Workflows — free AI learning with Director Ria" loading="lazy">
         <div class="product-body">
@@ -119,6 +137,102 @@
           <p class="footnote">Explore free AI prompts and practical tutorials</p>
         </div>
       </article>
+    </section>
+    <section class="section videos-section" id="my-ai-videos" aria-labelledby="videosTitle">
+      <h2 class="section-title chrome" id="videosTitle">My AI Videos <span class="heading-down" aria-hidden="true">👇︎</span></h2>
+      <div class="reel-rail" id="riaReelRail" role="region" aria-label="My AI Videos — swipe to explore" tabindex="0">
+        <article class="reel-card" data-reel="1" aria-label="AI video 1">
+          <div class="reel-media">
+            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793582835/fuse-atelier/academy/tutorial-after-v2.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 1, muted autoplay" aria-describedby="reelStats1"></video>
+            <a class="reel-out" target="_blank" rel="noopener noreferrer" hidden aria-label="Watch AI video 1 on TikTok"></a>
+          </div>
+          <div class="reel-stats" id="reelStats1" aria-label="TikTok performance">
+            <span class="stat-pill" data-stat="views" title="TikTok views not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.8"/></svg><span class="stat-value">—</span></span>
+            <span class="stat-pill" data-stat="likes" title="TikTok likes not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 8.3c0 4.3-8.8 10.4-8.8 10.4S3.2 12.6 3.2 8.3a4.6 4.6 0 0 1 8.8-1.7 4.6 4.6 0 0 1 8.8 1.7Z"/></svg><span class="stat-value">—</span></span>
+          </div>
+        </article>
+        <article class="reel-card" data-reel="2" aria-label="AI video 2">
+          <div class="reel-media">
+            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793977419/lv_0_20261106023609.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 2, muted autoplay" aria-describedby="reelStats2"></video>
+            <a class="reel-out" target="_blank" rel="noopener noreferrer" hidden aria-label="Watch AI video 2 on TikTok"></a>
+          </div>
+          <div class="reel-stats" id="reelStats2" aria-label="TikTok performance">
+            <span class="stat-pill" data-stat="views" title="TikTok views not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.8"/></svg><span class="stat-value">—</span></span>
+            <span class="stat-pill" data-stat="likes" title="TikTok likes not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 8.3c0 4.3-8.8 10.4-8.8 10.4S3.2 12.6 3.2 8.3a4.6 4.6 0 0 1 8.8-1.7 4.6 4.6 0 0 1 8.8 1.7Z"/></svg><span class="stat-value">—</span></span>
+          </div>
+        </article>
+        <article class="reel-card" data-reel="3" aria-label="AI video 3">
+          <div class="reel-media">
+            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793934579/fuse-atelier/influencer/results/result-01.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 3, muted autoplay" aria-describedby="reelStats3"></video>
+            <a class="reel-out" target="_blank" rel="noopener noreferrer" hidden aria-label="Watch AI video 3 on TikTok"></a>
+          </div>
+          <div class="reel-stats" id="reelStats3" aria-label="TikTok performance">
+            <span class="stat-pill" data-stat="views" title="TikTok views not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.8"/></svg><span class="stat-value">—</span></span>
+            <span class="stat-pill" data-stat="likes" title="TikTok likes not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 8.3c0 4.3-8.8 10.4-8.8 10.4S3.2 12.6 3.2 8.3a4.6 4.6 0 0 1 8.8-1.7 4.6 4.6 0 0 1 8.8 1.7Z"/></svg><span class="stat-value">—</span></span>
+          </div>
+        </article>
+        <article class="reel-card" data-reel="4" aria-label="AI video 4">
+          <div class="reel-media">
+            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794023635/lv_0_20261107003126.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 4, muted autoplay" aria-describedby="reelStats4"></video>
+            <a class="reel-out" target="_blank" rel="noopener noreferrer" hidden aria-label="Watch AI video 4 on TikTok"></a>
+          </div>
+          <div class="reel-stats" id="reelStats4" aria-label="TikTok performance">
+            <span class="stat-pill" data-stat="views" title="TikTok views not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.8"/></svg><span class="stat-value">—</span></span>
+            <span class="stat-pill" data-stat="likes" title="TikTok likes not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 8.3c0 4.3-8.8 10.4-8.8 10.4S3.2 12.6 3.2 8.3a4.6 4.6 0 0 1 8.8-1.7 4.6 4.6 0 0 1 8.8 1.7Z"/></svg><span class="stat-value">—</span></span>
+          </div>
+        </article>
+        <article class="reel-card" data-reel="5" aria-label="AI video 5">
+          <div class="reel-media">
+            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794023645/lv_0_20261106194626.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 5, muted autoplay" aria-describedby="reelStats5"></video>
+            <a class="reel-out" target="_blank" rel="noopener noreferrer" hidden aria-label="Watch AI video 5 on TikTok"></a>
+          </div>
+          <div class="reel-stats" id="reelStats5" aria-label="TikTok performance">
+            <span class="stat-pill" data-stat="views" title="TikTok views not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.8"/></svg><span class="stat-value">—</span></span>
+            <span class="stat-pill" data-stat="likes" title="TikTok likes not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 8.3c0 4.3-8.8 10.4-8.8 10.4S3.2 12.6 3.2 8.3a4.6 4.6 0 0 1 8.8-1.7 4.6 4.6 0 0 1 8.8 1.7Z"/></svg><span class="stat-value">—</span></span>
+          </div>
+        </article>
+        <article class="reel-card" data-reel="6" aria-label="AI video 6">
+          <div class="reel-media">
+            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793934510/fuse-atelier/influencer/results/result-04.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 6, muted autoplay" aria-describedby="reelStats6"></video>
+            <a class="reel-out" target="_blank" rel="noopener noreferrer" hidden aria-label="Watch AI video 6 on TikTok"></a>
+          </div>
+          <div class="reel-stats" id="reelStats6" aria-label="TikTok performance">
+            <span class="stat-pill" data-stat="views" title="TikTok views not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.8"/></svg><span class="stat-value">—</span></span>
+            <span class="stat-pill" data-stat="likes" title="TikTok likes not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 8.3c0 4.3-8.8 10.4-8.8 10.4S3.2 12.6 3.2 8.3a4.6 4.6 0 0 1 8.8-1.7 4.6 4.6 0 0 1 8.8 1.7Z"/></svg><span class="stat-value">—</span></span>
+          </div>
+        </article>
+        <article class="reel-card" data-reel="7" aria-label="AI video 7">
+          <div class="reel-media">
+            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794023641/lv_0_20261107035319.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 7, muted autoplay" aria-describedby="reelStats7"></video>
+            <a class="reel-out" target="_blank" rel="noopener noreferrer" hidden aria-label="Watch AI video 7 on TikTok"></a>
+          </div>
+          <div class="reel-stats" id="reelStats7" aria-label="TikTok performance">
+            <span class="stat-pill" data-stat="views" title="TikTok views not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.8"/></svg><span class="stat-value">—</span></span>
+            <span class="stat-pill" data-stat="likes" title="TikTok likes not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 8.3c0 4.3-8.8 10.4-8.8 10.4S3.2 12.6 3.2 8.3a4.6 4.6 0 0 1 8.8-1.7 4.6 4.6 0 0 1 8.8 1.7Z"/></svg><span class="stat-value">—</span></span>
+          </div>
+        </article>
+        <article class="reel-card" data-reel="8" aria-label="AI video 8">
+          <div class="reel-media">
+            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794023646/lv_0_20261106224824.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 8, muted autoplay" aria-describedby="reelStats8"></video>
+            <a class="reel-out" target="_blank" rel="noopener noreferrer" hidden aria-label="Watch AI video 8 on TikTok"></a>
+          </div>
+          <div class="reel-stats" id="reelStats8" aria-label="TikTok performance">
+            <span class="stat-pill" data-stat="views" title="TikTok views not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.8"/></svg><span class="stat-value">—</span></span>
+            <span class="stat-pill" data-stat="likes" title="TikTok likes not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 8.3c0 4.3-8.8 10.4-8.8 10.4S3.2 12.6 3.2 8.3a4.6 4.6 0 0 1 8.8-1.7 4.6 4.6 0 0 1 8.8 1.7Z"/></svg><span class="stat-value">—</span></span>
+          </div>
+        </article>
+        <article class="reel-card" data-reel="9" aria-label="AI video 9">
+          <div class="reel-media">
+            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794023653/lv_0_20261106233218.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 9, muted autoplay" aria-describedby="reelStats9"></video>
+            <a class="reel-out" target="_blank" rel="noopener noreferrer" hidden aria-label="Watch AI video 9 on TikTok"></a>
+          </div>
+          <div class="reel-stats" id="reelStats9" aria-label="TikTok performance">
+            <span class="stat-pill" data-stat="views" title="TikTok views not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.8"/></svg><span class="stat-value">—</span></span>
+            <span class="stat-pill" data-stat="likes" title="TikTok likes not connected"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 8.3c0 4.3-8.8 10.4-8.8 10.4S3.2 12.6 3.2 8.3a4.6 4.6 0 0 1 8.8-1.7 4.6 4.6 0 0 1 8.8 1.7Z"/></svg><span class="stat-value">—</span></span>
+          </div>
+        </article>
+      </div>
+      <p class="reel-disclaimer" id="reelSyncStatus" role="status">TikTok views and likes will appear when the matching posts are connected.</p>
     </section>
   </main>
   <footer class="container page-footer">© Director Ria · Powered by <a href="https://fuseatelier.com">Fuse Atelier</a></footer>
@@ -142,6 +256,82 @@
         }catch(error){if(error.name!=='AbortError'){toast.textContent='Copy this link: fuseatelier.com/directorria';toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){toast.classList.remove('show')},3500)}}
       });
     })();
+  </script>
+
+  <script>
+  (() => {
+    const rail=document.getElementById('riaReelRail');
+    if(!rail)return;
+    const cards=[...rail.querySelectorAll('.reel-card')];
+    const videos=cards.map(card=>card.querySelector('video'));
+    const status=document.getElementById('reelSyncStatus');
+    const pretty=n=>new Intl.NumberFormat('en',{notation:'compact',maximumFractionDigits:1}).format(n);
+    const setUnavailable=()=>{status.textContent='TikTok views and likes will appear when the matching posts are connected.'};
+    async function syncTikTokStats(){
+      try{
+        const response=await fetch('/api/directorria-video-stats',{cache:'no-store'});
+        if(!response.ok)throw Error('Stats unavailable');
+        const data=await response.json();
+        if(!Array.isArray(data.items)||data.items.length!==cards.length)throw Error('Invalid stats');
+        let linked=0,available=0;
+        data.items.forEach((item,i)=>{
+          const card=cards[i],link=card.querySelector('.reel-out');
+          if(item.tiktokUrl){
+            link.href=item.tiktokUrl;link.hidden=false;linked++;
+          }else{link.hidden=true;link.removeAttribute('href')}
+          for(const key of ['views','likes']){
+            const node=card.querySelector('[data-stat="'+key+'"]'),value=node.querySelector('.stat-value');
+            const count=item[key];
+            if(Number.isSafeInteger(count)&&count>=0){
+              value.textContent=pretty(count);node.title='TikTok '+key+': '+new Intl.NumberFormat('en').format(count);available++;
+            }else{value.textContent='—';node.title='TikTok '+key+' not available'}
+          }
+        });
+        if(available){
+          status.textContent='TikTok video stats synced'+(data.updatedAt?' · Updated '+new Date(data.updatedAt).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}):'');
+        }else if(linked){status.textContent='TikTok links connected. Live views and likes are awaiting account authorization.'}
+        else setUnavailable();
+      }catch{setUnavailable()}
+    }
+    syncTikTokStats();setInterval(()=>{if(!document.hidden)syncTikTokStats()},5*60*1000);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncTikTokStats()});
+    // Autoplay only visible clips to avoid decoding all nine videos on mobile.
+    if('IntersectionObserver' in window){
+      const observer=new IntersectionObserver(entries=>{
+        for(const entry of entries){
+          const video=entry.target;
+          if(entry.isIntersecting&&entry.intersectionRatio>.12&&document.visibilityState==='visible'){
+            const started=video.play();if(started?.catch)started.catch(()=>{});
+          }else video.pause();
+        }
+      },{root:rail,rootMargin:'0px 80px',threshold:[0,.12,.4]});
+      videos.forEach(video=>observer.observe(video));
+      document.addEventListener('visibilitychange',()=>{
+        if(document.hidden)videos.forEach(video=>video.pause());
+        else videos.forEach(video=>{const box=video.getBoundingClientRect(),host=rail.getBoundingClientRect();if(box.right>host.left&&box.left<host.right){const p=video.play();p?.catch?.(()=>{})}});
+      });
+    }else videos.forEach(video=>{const p=video.play();p?.catch?.(()=>{})});
+    const motion=window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    let direction=1,last=0,holdUntil=0,hover=false;
+    rail.addEventListener('pointerenter',event=>{if(event.pointerType==='mouse')hover=true});
+    rail.addEventListener('pointerleave',()=>hover=false);
+    rail.addEventListener('pointerdown',()=>{holdUntil=performance.now()+12000});
+    rail.addEventListener('focusin',()=>{holdUntil=performance.now()+12000});
+    rail.addEventListener('wheel',()=>{holdUntil=performance.now()+9000},{passive:true});
+    function step(now){
+      if(last===0)last=now;
+      const dt=Math.min(now-last,80);last=now;
+      const max=Math.max(0,rail.scrollWidth-rail.clientWidth);
+      if(max>2&&!document.hidden&&!hover&&now>holdUntil&&!motion?.matches){
+        const next=rail.scrollLeft+direction*(dt/1000)*22;
+        if(next>=max){rail.scrollLeft=max;direction=-1}
+        else if(next<=0){rail.scrollLeft=0;direction=1}
+        else rail.scrollLeft=next;
+      }
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  })();
   </script>
 </body>
 </html>
