@@ -83,7 +83,12 @@
    try{root.sessionStorage.removeItem(TIME_KEY)}catch{}
   }
   function render(isGuest){
-   if(isGuest===guestState)return;
+   if(isGuest===guestState){
+    // A restored BFCache page keeps its previous guest state, but pagehide
+    // stopped the interval. Resume the next 10-minute cycle on return.
+    if(isGuest)startTimer();
+    return;
+   }
    guestState=isGuest;
    if(isGuest)startTimer();else stopTimer();
    banner.classList.toggle('fuse-banner-guest',isGuest);
@@ -126,7 +131,11 @@
     }
    }catch{}
   })();
-  root.addEventListener('pageshow',()=>refresh());
+  root.addEventListener('pageshow',()=>{
+   // Browser Back can restore this page from the back-forward cache.
+   redirecting=false;
+   refresh();
+  });
   doc.addEventListener('visibilitychange',()=>{if(doc.hidden){lastTick=Date.now()}else{lastTick=Date.now();refresh()}});
   root.addEventListener('pagehide',()=>{if(guestState===true)tick();if(timer!==null){root.clearInterval(timer);timer=null}});
   root.addEventListener('storage',event=>{
