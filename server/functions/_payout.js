@@ -1,26 +1,8 @@
-// ============================================================
-// Automatic payout sweep — the moment a payment webhook confirms money has
-// landed in the Paystack balance, push it straight out to the real bank
-// account it should end up in, instead of waiting on Paystack's own
-// settlement batch (T+1, and pushed further out over weekends/holidays).
-// Paystack's Transfer API moves money over the same NIP interbank rails as
-// any other Nigerian transfer, which run every day of the week — this is
-// what actually delivers "lands in my account immediately, weekends
-// included" rather than Paystack's own settlement schedule.
-//
-// ONE real-world step has to happen before this can run fully hands-off:
-// ask Paystack support to disable OTP confirmation for transfers on this
-// business (a manual request on their side, tied to identity verification).
-// Until that's done, every transfer Paystack receives will just sit
-// "pending OTP" and never complete on its own — see the troubleshooting
-// note in the deploy guide. Nothing here breaks if that hasn't happened
-// yet; the transfer call still succeeds (submits fine), it just won't
-// finish moving money until OTP is disabled account-side.
-//
-// Sweeps the FULL amount received (per your own choice) — Paystack's
-// transfer fee + the ₦50 stamp duty (transfers ≥ ₦10,000) come out of your
-// overall Paystack balance separately, not out of this specific transfer.
-// ============================================================
+// Automatic third-party transfers require a Paystack Registered Business.
+// Starter businesses can collect customer payments but are not permitted to
+// initiate third-party payouts. Ordinary Paystack bank settlements continue.
+// Keep transfers disabled unless the merchant explicitly enables this flag
+// after Paystack confirms Registered Business transfer access.
 const PAYSTACK_BASE = 'https://api.paystack.co';
 
 // Your real settlement account — same one already shown to customers as
@@ -67,6 +49,7 @@ async function ensureRecipient(db) {
 // amountNaira: whole-naira amount to sweep out — the webhook already
 // derives this from Paystack's kobo `amount` field for the same payment.
 async function sweepToBank(db, amountNaira, reference) {
+  if (process.env.PAYSTACK_AUTO_SWEEP !== 'true') return;
   if (!process.env.PAYSTACK_SECRET_KEY) return;
   if (!amountNaira || amountNaira < 1) return;
   const recipientCode = await ensureRecipient(db);
