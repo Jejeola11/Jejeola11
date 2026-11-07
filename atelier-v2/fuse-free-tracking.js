@@ -3,7 +3,7 @@
  if(w.FuseFreeTracking)return;
  const pixelId='1865426751496318';
  const landing='/atelier-v2/free-prompts-workflows.html';
- const path=w.location.pathname;
+ const path=w.location.pathname.replace(/\/+$/,'')||'/';
  if(path!==landing&&path!=='/signup')return;
  const params=new URLSearchParams(w.location.search);
  function validRef(value){return typeof value==='string'&&/^[a-z0-9-]{5,80}$/i.test(value)?value.toLowerCase():''}
