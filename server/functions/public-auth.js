@@ -7,8 +7,9 @@ exports.handler = async event => {
  try{
   const body=JSON.parse(event.body||'{}');
   const email=String(body.email||'').trim().toLowerCase();
-  const name=String(body.name||'').trim().slice(0,120);
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||!name)return json(400,{error:'Enter your name and a valid email address.'});
+  // Email-first accounts do not request a name; profile setup can happen later.
+  const name=String(body.name||'Fuse Creator').trim().slice(0,120)||'Fuse Creator';
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254)return json(400,{error:'Enter a valid email address.'});
   if(!process.env.RESEND_API_KEY||!process.env.FUSE_EMAIL_FROM)return json(503,{error:'Email delivery is temporarily unavailable. Please try again later.'});
   const sb=admin();
   const ip=String(event.headers['x-forwarded-for']||'unknown').split(',')[0].trim();
