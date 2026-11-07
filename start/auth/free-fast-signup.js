@@ -91,7 +91,8 @@
      if(user){
        const fullName=requestedName||user.user_metadata?.full_name||user.user_metadata?.name||user.email?.split('@')[0]||'Fuse creator';
        try{await fetch('/api/public-registration-sync',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({name:fullName,marketingOptIn:readMarketing()}),signal:AbortSignal.timeout(6500)})}catch{}
-       await track('registration_completed',session.access_token);
+       const recorded=await track('registration_completed',session.access_token);
+       if(recorded?.recorded)window.FuseFreePixel?.trackComplete();
      }
      try{
        const p=JSON.parse(localStorage.getItem('fuse_pending_referral')||'null');
