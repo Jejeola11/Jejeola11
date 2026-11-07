@@ -40,16 +40,16 @@
     .social{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(155deg,#112e31,#061519);border:1px solid #33585a;color:#ebfbf5;text-decoration:none;transition:transform .2s,border-color .2s,box-shadow .2s;box-shadow:inset 0 1px 0 #ffffff10,0 8px 24px #0004}
     .social:hover,.social:focus-visible{transform:translateY(-3px);border-color:#defb8e;box-shadow:0 0 28px #dfff4e20}
     .social svg{width:19px;height:19px}
-    .section-title{margin:4px 0 22px;font-size:clamp(19px,5.2vw,28px);line-height:1.25;letter-spacing:-.035em;text-align:center;font-weight:700}
-    .section-title.single{white-space:nowrap;font-size:clamp(17px,4.7vw,26px)}
+    .section-title{margin:4px 0 22px;font-size:clamp(20px,5.15vw,28px);line-height:1.25;letter-spacing:-.035em;text-align:center;font-weight:700;color:#f5fbf8}
+    .section-title.single{white-space:normal}
     .section{padding:0 0 42px}
     .product{border-radius:25px;overflow:hidden;background:linear-gradient(145deg,rgba(12,39,40,.96),rgba(5,18,20,.98));border:1px solid var(--border);box-shadow:0 22px 64px #0006,inset 0 1px 0 #ffffff09}
     .product-cover{display:block;width:100%;height:auto;aspect-ratio:1672/941;object-fit:cover}
     .product-body{padding:clamp(20px,4.3vw,29px)}
-    .product-top{display:flex;align-items:center;justify-content:flex-end;margin-bottom:9px}
+    .product-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:12px}
     .eyebrow{font-weight:800;letter-spacing:.15em;font-size:10px;color:#a1c7c3;text-transform:uppercase}
-    .deal{font-size:10px;letter-spacing:.06em;border:1px solid #587352;border-radius:999px;color:#e9ffad;padding:4px 10px;font-weight:700;background:#2f432f44}
-    .product h3{margin:0 0 12px;font-size:clamp(19px,5.5vw,27px);line-height:1.3;letter-spacing:-.035em;font-weight:700;color:#f7fdf8}
+    .deal{flex:0 0 auto;font-size:10px;letter-spacing:.06em;border:1px solid #587352;border-radius:999px;color:#e9ffad;padding:4px 10px;font-weight:700;background:#2f432f44;margin-top:3px}
+    .product h3{margin:0;font-size:clamp(16px,4.85vw,26px);line-height:1.3;letter-spacing:-.035em;font-weight:700;color:#f7fdf8}.product-top h3{flex:1;min-width:0;white-space:nowrap;background:var(--chrome);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
     .description{margin:0;color:#adbfbd;line-height:1.85;font-size:clamp(12.5px,3.4vw,14.5px);font-weight:500}
     .pricebar{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin:20px 0 22px}
     .price{font-size:clamp(28px,7vw,37px);font-weight:700;letter-spacing:-.055em;background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -60,12 +60,12 @@
     .cta svg{width:18px;height:18px}
     .footnote{font-size:11px;color:#92b5ad;text-align:center;margin:13px 0 0;line-height:1.7}
     .free-section{padding-top:2px}
-    .free-section .section-title{font-size:clamp(26px,7vw,35px);margin-bottom:22px}
+    .free-section .section-title{margin-bottom:22px}
     
 
     .heading-down{display:inline-block;background:var(--chrome);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-variant-emoji:text;font-family:"Segoe UI Symbol",Arial,sans-serif;white-space:nowrap;font-size:.88em;vertical-align:.02em;margin-left:.13em}
     .videos-section{padding-top:6px;padding-bottom:27px}
-    .videos-section .section-title{font-size:clamp(24px,6.6vw,34px);margin-bottom:18px}
+    .videos-section .section-title{margin-bottom:18px}
     .reel-rail{display:flex;align-items:flex-start;gap:11px;overflow-x:auto;overflow-y:hidden;padding:4px 2px 13px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:pan-x}
     .reel-rail::-webkit-scrollbar{display:none}
     .reel-card{width:clamp(103px,29vw,130px);flex:0 0 clamp(103px,29vw,130px);min-width:0}
@@ -79,6 +79,9 @@
     .stat-pill svg{width:14px;height:14px;flex:none;stroke:#dfff91}
     .stat-value{font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis}
     .reel-disclaimer{margin:7px 0 0;font-size:10px;color:#769996;text-align:center;line-height:1.7}
+    .collab-section{text-align:center;padding:18px 0 38px}
+    .collab-section .section-title{margin:0 0 22px}
+    .collab-action{width:min(100%,390px);margin:0 auto}
     @media(max-width:380px){.reel-card{width:108px;flex-basis:108px}.reel-rail{gap:9px}}
     .page-footer{text-align:center;color:#6c9090;font-size:11px;letter-spacing:.04em;padding:6px 0 44px}
     .page-footer a{text-decoration:none;color:#a9c9c7}
@@ -111,12 +114,11 @@
       </nav>
     </section>
     <section class="section" aria-labelledby="courseTitle">
-      <h2 class="section-title single chrome" id="courseTitle">Get My AI Influencer Course <span class="heading-down" aria-hidden="true">👇︎</span></h2>
+      <h2 class="section-title single" id="courseTitle">Get My AI Influencer Course <span class="heading-down" aria-hidden="true">👇︎</span></h2>
       <article class="product">
         <img class="product-cover" src="/atelier-v2/media/academy/create-monetize-viral-ai-influencers-20261105.jpg" width="1672" height="941" alt="Create & Monetize Viral AI Influencers — Director Ria and AI character" fetchpriority="high">
         <div class="product-body">
-          <div class="product-top"><span class="deal">SALE</span></div>
-          <h3>Create &amp; Monetize<br>Viral AI Influencers</h3>
+          <div class="product-top"><h3>Create &amp; Monetize<br>Viral AI Influencers</h3><span class="deal">SALE</span></div>
           <p class="description">Watch me create a viral AI influencer live, and I'll show you how a client paid me over ₦5 million for 30 AI influencer videos.</p>
           <div class="pricebar"><strong class="price">₦9,900</strong><span class="old-price"><s>₦400,000</s></span></div>
           <a class="cta" id="courseBuy" href="/atelier-v2/learn.html?buy=influencer">Buy Now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16m-7-7 7 7-7 7"/></svg></a>
@@ -125,21 +127,20 @@
       </article>
     </section>
     <section class="section free-section" aria-labelledby="freeTitle">
-      <h2 class="section-title chrome" id="freeTitle">Learn For Free <span class="heading-down" aria-hidden="true">👇︎</span></h2>
+      <h2 class="section-title" id="freeTitle">Learn For Free <span class="heading-down" aria-hidden="true">👇︎</span></h2>
       <article class="product">
         <img class="product-cover" src="/atelier-v2/media/academy/steal-my-prompts-bright-20261105.jpg" width="1672" height="941" alt="Steal My Prompts & Workflows — free AI learning with Director Ria" loading="lazy">
         <div class="product-body">
-          <div class="product-top"><span class="deal">FREE</span></div>
-          <h3>Steal My Prompts<br>&amp; Workflows</h3>
+          <div class="product-top"><h3>Steal My Prompts<br>&amp; Workflows</h3><span class="deal">FREE</span></div>
           <p class="description">Learn AI for free with my step-by-step workflows and prompts.</p>
           <div class="pricebar"><strong class="price">₦0</strong><span class="old-price"><s>₦500,000</s></span></div>
-          <a class="cta" id="startFree" href="/atelier-v2/free-prompts-workflows.html">Start For Free <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16m-7-7 7 7-7 7"/></svg></a>
+          <a class="cta" id="startFree" href="/atelier-v2/free-prompts-workflows.html?ref=d65a950a">Start For Free <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16m-7-7 7 7-7 7"/></svg></a>
           <p class="footnote">Explore free AI prompts and practical tutorials</p>
         </div>
       </article>
     </section>
     <section class="section videos-section" id="my-ai-videos" aria-labelledby="videosTitle">
-      <h2 class="section-title chrome" id="videosTitle">My AI Videos <span class="heading-down" aria-hidden="true">👇︎</span></h2>
+      <h2 class="section-title" id="videosTitle">My AI Videos <span class="heading-down" aria-hidden="true">👇︎</span></h2>
       <div class="reel-rail" id="riaReelRail" role="region" aria-label="My AI Videos — swipe to explore" tabindex="0">
         <article class="reel-card" data-reel="1" aria-label="AI video 1">
           <div class="reel-media">
@@ -234,6 +235,10 @@
       </div>
       <p class="reel-disclaimer" id="reelSyncStatus" role="status">TikTok views and likes will appear when the matching posts are connected.</p>
     </section>
+    <section class="section collab-section" aria-labelledby="collabTitle">
+      <h2 class="section-title" id="collabTitle">Let's Collaborate <span class="heading-down" aria-hidden="true">👇︎</span></h2>
+      <a class="cta collab-action" href="mailto:maryamjejeola002@gmail.com?subject=Let%27s%20Collaborate">Send Email <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16m-7-7 7 7-7 7"/></svg></a>
+    </section>
   </main>
   <footer class="container page-footer">© Director Ria · Powered by <a href="https://fuseatelier.com">Fuse Atelier</a></footer>
   <div class="toast" role="status" id="shareToast" aria-live="polite">Link copied to clipboard</div>
@@ -241,7 +246,7 @@
     (function(){
       var ref=new URLSearchParams(location.search).get('ref');
       if(ref && /^[a-z0-9-]{5,80}$/i.test(ref)){
-        ['courseBuy','startFree'].forEach(function(id){var link=document.getElementById(id);var url=new URL(link.href);url.searchParams.set('ref',ref);link.href=url.pathname+url.search});
+        ['courseBuy'].forEach(function(id){var link=document.getElementById(id);var url=new URL(link.href);url.searchParams.set('ref',ref);link.href=url.pathname+url.search});
       }
       var share=document.getElementById('shareProfile');
       var toast=document.getElementById('shareToast');
