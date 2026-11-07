@@ -28,16 +28,24 @@
 
  if(!client||digitsCount!==10)return;
  function safePath(raw) {
+  // Never pass a null/undefined destination into new URL(): JavaScript would
+  // stringify it into "/null" or "/undefined" and redirect signed-in users to 404.
+  if(typeof raw!=='string')return null;
+  const value=raw.trim();
+  if(!value||/^(?:null|undefined)$/i.test(value)||value.startsWith('//'))return null;
   try{
-   const url=new URL(raw,location.origin);
-   if(url.origin!==location.origin||url.pathname.startsWith('//')||
-     ['/signup','/login','/start/auth/'].some(prefix=>url.pathname.startsWith(prefix)))return null;
+   const url=new URL(value,location.origin);
+   if(url.origin!==location.origin||
+     ['/null','/undefined','/signup','/login'].includes(url.pathname)||
+     url.pathname.startsWith('/start/auth/')||
+     url.pathname.startsWith('//'))return null;
    return url.pathname+url.search+url.hash;
   }catch{return null}
  }
  const requestedNext=safePath(query.get('next'));
- const destination=requestedNext||'/atelier-v2/home.html';
- const returnPage=safePath(query.get('return'))||requestedNext||safePath(document.referrer)||'/atelier-v2/home.html';
+ // The Fuse Atelier home route is "/", including new users with no ?next.
+ const destination=requestedNext||'/';
+ const returnPage=safePath(query.get('return'))||requestedNext||safePath(document.referrer)||'/';
  document.querySelector('.close').href=returnPage;
  const nestedRef=(()=>{try{
    const u=new URL(query.get('next')||'',location.origin);
@@ -118,7 +126,7 @@
  function homeAfterAuth(){
   // Preserve explicit return destinations for tutorials, purchases and the
   // 10-minute guest gate; otherwise open Fuse Atelier's homepage.
-  return destination;
+  return safePath(destination)||'/';
  }
  async function finish(session,source){
   if(done||!session?.access_token||!session?.user?.id)return;
