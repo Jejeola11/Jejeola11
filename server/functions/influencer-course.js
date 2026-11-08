@@ -1,13 +1,10 @@
 const {admin,getUser,json}=require('./_supabase');
 const OWNER_EMAIL='riadigitals0@gmail.com';
 
+// Only the two published course modules are currently available.
 const MODULES=[
   'FOUNDATION & CHARACTER',
-  'SPOT IT. REMIX IT.',
-  'Build Content People Watch and Share',
-  'Monetize Your Own AI Influencer',
-  'Sell AI Influencers and Content to Businesses',
-  'Price, Close and Build Repeat Income'
+  'SPOT IT. REMIX IT.'
 ];
 
 exports.handler=async event=>{
@@ -28,7 +25,7 @@ exports.handler=async event=>{
     if(event.httpMethod==='POST'){
       let body;try{body=JSON.parse(event.body||'{}')}catch{return json(400,{error:'Bad request.'})}
       const key=String(body.lesson_key||'');
-      if(!/^influencer-m[1-6]$/.test(key))return json(400,{error:'Choose one of the six modules.'});
+      if(!/^influencer-m[1-2]$/.test(key))return json(400,{error:'Choose one of the two available modules.'});
       const url=String(body.url||'').trim();
       if(url){
         let parsed;try{parsed=new URL(url)}catch{return json(400,{error:'Enter a valid HTTPS video URL.'})}
