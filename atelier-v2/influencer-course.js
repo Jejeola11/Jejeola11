@@ -3,28 +3,16 @@
   const $=id=>document.getElementById(id);
   const access=$('courseAccess'),lesson=$('courseLesson'),player=$('modulePlayer'),drawer=$('moduleDrawer'),backdrop=$('drawerBackdrop');
   const summaries=[
-    'Choose an audience and personality, study repeatable TikTok ideas, and build a consistent character sheet and voice identity.',
-    'Use STOP (Surprise, Tension, Outcome, Pass it on) to choose a strong idea, then remake a permitted scene in Fuse Scene Remix with your own character.',
-    'Original ideas, STOP, recurring series, profile setup, publishing and iteration.',
-    'Affiliate offers, your own products, conversion paths, tracking and sponsorships.',
-    'Character services, portfolio, prospect research, pitching and paid pilots.',
-    'Costs, proposals, payment, usage, recurring packages and a 30-day plan.'
+    'Choose an audience and personality, then create two consistent AI influencer variations.',
+    'Spot a strong video idea, remix it with your own character in Fuse Scene Remix, and produce your first remix video.'
   ];
   const moduleHeadings=[
     'Module 1 · FOUNDATION & CHARACTER',
-    'Module 2 · SPOT IT. REMIX IT.',
-    'Viral Content & Growth',
-    'Influencer Monetization',
-    'Selling to Businesses',
-    'Pricing & Repeat Income'
+    'Module 2 · SPOT IT. REMIX IT.'
   ];
   const tasks=[
     'Create two AI influencer variations and submit both.',
-    'Create your first AI remix video and submit it.',
-    'Create one original short-form video with a strong opening hook and a repeatable series idea. Submit the video and caption.',
-    'Choose a way your influencer could earn money. Outline the offer, call to action and how you will track results, then submit your plan.',
-    'Prepare a relevant influencer portfolio sample and a short pitch to a business. Submit the sample and your pitch.',
-    'Create your pricing, a simple service package and a 30-day action plan for finding and keeping clients. Submit your plan.'
+    'Create your first AI remix video and submit it.'
   ];
   let modules=[],current=0;
   function closeDrawer(){drawer.classList.remove('open');drawer.setAttribute('aria-hidden','true');backdrop.hidden=true;$('openModules').setAttribute('aria-expanded','false');}
@@ -56,6 +44,7 @@
     player.replaceChildren();
     let video=null;try{video=media(module.url)}catch{}
     if(video)player.append(video);else{const placeholder=document.createElement('span');placeholder.textContent='Video coming soon';player.append(placeholder)}
+    $('nextModule').hidden=index===modules.length-1;
     $('nextModule').disabled=index===modules.length-1;
     $('drawerProgress').style.width=((index+1)/modules.length*100)+'%';
     [...$('moduleList').children].forEach((button,i)=>{button.classList.toggle('active',i===index);button.setAttribute('aria-current',i===index?'step':'false')});
@@ -69,7 +58,8 @@
       if(!token){access.innerHTML='<p>Sign in to check access to this course.</p><a href="/signup/">Sign in</a>';return;}
       const response=await fetch('/api/influencer-course',{headers:{authorization:'Bearer '+token},cache:'no-store'});
       const course=await response.json();if(!response.ok){access.textContent=course.error||'Could not open this course.';return;}
-      modules=course.modules;
+      modules=(course.modules||[]).filter(module=>module.number===1||module.number===2);
+      if(!modules.length){access.textContent='No course modules are currently available.';return;}
       modules.forEach((module,index)=>{const button=document.createElement('button');button.type='button';const dot=document.createElement('i');dot.setAttribute('aria-hidden','true');const title=document.createElement('span');title.textContent='Module '+module.number+' · '+module.title;button.append(dot,title);button.onclick=()=>select(index);$('moduleList').append(button)});
       access.hidden=true;lesson.hidden=false;
       const requested=Number(new URLSearchParams(location.search).get('module'));
