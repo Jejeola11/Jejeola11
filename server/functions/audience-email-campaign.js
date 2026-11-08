@@ -1,6 +1,7 @@
 const { json } = require('./_supabase');
 const { requireAdmin, parseBody, clean, publicAppUrl } = require('./_audience');
-const { configured, mailHtml, deliverCampaign } = require('./_audience-email');
+const { configured, mailHtml, deliverCampaign, eligibleRecipients, audienceSegmentCounts } = require('./_audience-email');
+const { normalizeDesign, templates, SEGMENTS } = require('./_audience-email-studio');
 
 function parseScheduledFor(value) {
   if (!value) return null;
@@ -9,6 +10,48 @@ function parseScheduledFor(value) {
   return date.toISOString();
 }
 
+function creativeFilter(input){
+  const segment=SEGMENTS.includes(input.segment)?input.segment:'all_subscribed';
+  const design=normalizeDesign(input.design);
+  if(design&&JSON.stringify(design).length>55000)throw new Error('Email design is too large. Remove a few blocks or shorten descriptions.');
+  return {segment,design};
+}
+async function reconcileQueued(db,campaignId){
+  if(!configured())throw new Error('Resend is not configured.');
+  let query=db.from('audience_campaign_recipients').select('id,status,provider_message_id,contact_id')
+    .eq('status','queued').not('provider_message_id','is',null)
+    .order('sent_at',{ascending:true}).limit(25);
+  if(campaignId)query=query.eq('campaign_id',campaignId);
+  const {data:items,error}=await query;
+  if(error)throw error;
+  let updated=0,unchanged=0,errors=0;
+  for(const row of items||[]){
+    try{
+      const response=await fetch('https://api.resend.com/emails/'+encodeURIComponent(row.provider_message_id),{
+        headers:{authorization:'Bearer '+process.env.RESEND_API_KEY}
+      });
+      if(!response.ok){errors++;continue}
+      const message=await response.json();
+      const event=String(message.last_event||'').toLowerCase();
+      let status=event==='delivered'?'delivered':(['bounced','complained','suppressed'].includes(event)?'failed':null);
+      if(!status){unchanged++;continue}
+      const patch={status};
+      if(status==='delivered')patch.delivered_at=new Date().toISOString();
+      else patch.failure_reason='Resend event: '+event;
+      const {error:writeError}=await db.from('audience_campaign_recipients').update(patch).eq('id',row.id).eq('status','queued');
+      if(writeError){errors++;continue}
+      updated++;
+      // Prevent future sends to addresses rejected by the email provider.
+      if(status==='failed'){
+        const {data:contact}=await db.from('audience_contacts').select('email_normalized').eq('id',row.contact_id).maybeSingle();
+        if(contact?.email_normalized){
+          await db.from('audience_suppressions').upsert({channel:'email',identifier:contact.email_normalized.toLowerCase(),reason:'Resend: '+event},{onConflict:'channel,identifier',ignoreDuplicates:true});
+        }
+      }
+    }catch(_){errors++}
+  }
+  return {checked:(items||[]).length,updated,unchanged,errors,batchLimit:25};
+}
 async function recentDeliveryLog(db, campaigns) {
   const ids = campaigns.map(item => item.id);
   if (!ids.length) return [];
@@ -26,16 +69,35 @@ exports.handler = async event => {
 
   if (event.httpMethod === 'GET') {
     const { data, error } = await db.from('audience_campaigns')
-      .select('id, name, channel, campaign_kind, status, subject, body, action_url, sender_name, sender_email, scheduled_for, created_at')
+      .select('id, name, channel, campaign_kind, status, subject, body, action_url, audience_filter, sender_name, sender_email, scheduled_for, created_at')
       .eq('channel', 'email').order('created_at', { ascending: false }).limit(50);
     if (error) return json(500, { error: 'Could not load email campaigns.' });
     let deliveries = [];
     try { deliveries = await recentDeliveryLog(db, data || []); } catch (_) {}
-    return json(200, { ok: true, configured: configured(), sender: process.env.FUSE_EMAIL_FROM || null, campaigns: data || [], deliveries });
+    let audienceCounts = {};
+    try { audienceCounts = await audienceSegmentCounts(db); } catch (err) { console.error('[Audience segments]',err.message); }
+    const statuses = {};
+    for(const d of deliveries){const key=d.status||'pending';statuses[key]=(statuses[key]||0)+1;}
+    return json(200, { ok:true, configured:configured(), sender:process.env.FUSE_EMAIL_FROM||null,
+      dailyLimit:100, templates:templates(), segments:SEGMENTS, audienceCounts,
+      campaigns:data||[], deliveries, deliverySummary:statuses, deliverySummarySample:deliveries.length });
   }
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed.' });
 
   const input = parseBody(event);
+  if(input.action==='preview'){
+    const subject=clean(input.subject,220)||'Fuse Atelier preview';
+    let filter;
+    try{filter=creativeFilter(input)}catch(err){return json(400,{error:err.message})}
+    const campaign={subject,body:clean(input.body,9000)||'Email preview',campaign_kind:'marketing',
+      action_url:clean(input.actionUrl,2000),audience_filter:filter};
+    const html=mailHtml(campaign,{first_name:'Creator'},publicAppUrl()+'/api/audience-unsubscribe?test=1',null);
+    return json(200,{ok:true,html});
+  }
+  if(input.action==='reconcile'){
+    try{const result=await reconcileQueued(db,clean(input.campaignId,100)||null);return json(200,{ok:true,...result})}
+    catch(err){return json(502,{error:err.message||'Could not check Resend delivery.'})}
+  }
   if (input.action === 'create') {
     const name = clean(input.name, 140);
     const subject = clean(input.subject, 220);
@@ -43,12 +105,14 @@ exports.handler = async event => {
     const actionUrl = clean(input.actionUrl, 2000);
     const kind = ['marketing', 'repermission', 'transactional'].includes(input.kind) ? input.kind : 'marketing';
     const scheduledFor = parseScheduledFor(input.scheduledFor);
+    let audienceFilter;
+    try{audienceFilter=creativeFilter(input)}catch(err){return json(400,{error:err.message})}
     if (!name || !subject || !body) return json(400, { error: 'Campaign name, subject and message are required.' });
     if (input.scheduledFor && !scheduledFor) return json(400, { error: 'Choose a future date and time to schedule this email.' });
     if (actionUrl && !/^https:\/\//i.test(actionUrl)) return json(400, { error: 'Your action link must start with https://.' });
     const { data, error } = await db.from('audience_campaigns').insert({
       name, channel: 'email', campaign_kind: kind, status: scheduledFor ? 'scheduled' : 'draft', subject, body,
-      action_url: actionUrl || null, scheduled_for: scheduledFor, sender_name: clean(input.senderName, 100) || null,
+      action_url: actionUrl || null, audience_filter:audienceFilter, scheduled_for: scheduledFor, sender_name: clean(input.senderName, 100) || null,
       sender_email: process.env.FUSE_EMAIL_FROM || null
     }).select().single();
     if (error) return json(500, { error: 'Could not create this draft.' });
@@ -71,7 +135,7 @@ exports.handler = async event => {
     if (input.scheduledFor && !scheduledFor) return json(400, { error: 'Choose a future date and time to schedule this email.' });
     if (actionUrl && !/^https:\/\//i.test(actionUrl)) return json(400, { error: 'Your action link must start with https://.' });
     const { data, error } = await db.from('audience_campaigns').update({
-      name, subject, body, action_url: actionUrl || null, campaign_kind: kind,
+      name, subject, body, action_url: actionUrl || null, campaign_kind: kind, audience_filter:audienceFilter,
       scheduled_for: scheduledFor, status: scheduledFor ? 'scheduled' : 'draft',
       updated_at: new Date().toISOString()
     }).eq('id', campaign.id).select().single();
