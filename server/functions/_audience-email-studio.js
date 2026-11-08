@@ -83,10 +83,22 @@ function renderBlock(b,d,c){
  default:return '';
  }
 }
+function trackingUrl(link,campaign){
+ if(!link)return '';
+ try{
+  const u=new URL(link);
+  if(u.protocol!=='https:')return '';
+  const campaignName=cap(campaign.name||campaign.id||'fuse-email',140).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'fuse-email';
+  if(!u.searchParams.has('utm_source'))u.searchParams.set('utm_source','fuse_atelier');
+  if(!u.searchParams.has('utm_medium'))u.searchParams.set('utm_medium','email');
+  if(!u.searchParams.has('utm_campaign'))u.searchParams.set('utm_campaign',campaignName);
+  return u.href;
+ }catch(_){return link}
+}
 function renderVisual(campaign,contact,unsubscribeUrl,subscribeUrl){
  const f=campaign.audience_filter||{},d=normalizeDesign(f.design);if(!d||!d.blocks.length)return null;
  const header='<tr><td style="background:#001012;padding:24px 34px;text-align:center"><span style="font:800 16px Arial,sans-serif;letter-spacing:3px;color:'+d.accent+'">'+e(d.brand)+'</span></td></tr>';
- const content=d.blocks.map(b=>renderBlock(b,d,contact)).join('');
+ const content=d.blocks.map(b=>renderBlock({...b,buttonUrl:trackingUrl(b.buttonUrl,campaign)},d,contact)).join('');
  const footer='<tr><td style="background:#001012;text-align:center;padding:30px 34px">'+
   '<div style="color:'+d.accent+';font:800 17px Arial,sans-serif;letter-spacing:2px;margin-bottom:14px">FUSE ATELIER</div>'+
   '<a href="https://fuseatelier.com" style="color:#d9eee8;font:13px Arial,sans-serif">fuseatelier.com</a>'+
