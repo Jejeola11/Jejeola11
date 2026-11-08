@@ -1,4 +1,5 @@
 const { clean, escapeHtml, token, publicAppUrl } = require('./_audience');
+const { renderVisual, SEGMENTS } = require('./_audience-email-studio');
 
 const DAILY_SEND_LIMIT = 100;
 
@@ -11,6 +12,8 @@ function merge(value, contact) {
 }
 
 function mailHtml(campaign, contact, unsubscribeUrl, subscribeUrl) {
+  const creative = renderVisual(campaign, contact, unsubscribeUrl, subscribeUrl);
+  if (creative) return creative;
   const mergedBody = merge(campaign.body, contact);
   const message = mergedBody.replace(/\n\n(?:Ria|Ria Jejeola)\n(?:Founder of Fuse Atelier|Fuse Atelier)\s*$/i, '');
   const body = escapeHtml(message).replace(/\n/g, '<br>');
@@ -64,19 +67,66 @@ async function resendBatch(items) {
 }
 
 async function eligibleRecipients(db, campaign) {
-  const { data: contacts, error } = await db.from('audience_contacts')
-    .select('id, first_name, email_normalized, email_marketing_status')
-    .not('email_normalized', 'is', null)
-    .neq('email_marketing_status', 'unsubscribed')
-    .limit(1000);
-  if (error) throw error;
-  const { data: suppressed, error: suppressedError } = await db.from('audience_suppressions').select('identifier').eq('channel', 'email');
-  if (suppressedError) throw suppressedError;
-  const suppressedSet = new Set((suppressed || []).map(row => String(row.identifier).toLowerCase()));
-  const consented = campaign.campaign_kind === 'repermission'
-    ? (contacts || [])
-    : (contacts || []).filter(row => row.email_marketing_status === 'subscribed');
-  return consented.filter(row => !suppressedSet.has(String(row.email_normalized).toLowerCase()));
+  // Marketing sends must be permissioned, deduplicated, and suppression-aware.
+  // An account registration or an unknown consent state never confers opt-in.
+  const { data: rows, error } = await db.from('audience_contacts')
+    .select('id,first_name,email_normalized,email_marketing_status,email_opted_in_at,email_opted_out_at')
+    .eq('email_marketing_status','subscribed')
+    .not('email_opted_in_at','is',null)
+    .is('email_opted_out_at',null)
+    .not('email_normalized','is',null).limit(2000);
+  if(error)throw error;
+  const { data: suppressed, error: suppressionError } = await db.from('audience_suppressions')
+    .select('identifier').eq('channel','email').limit(2000);
+  if(suppressionError)throw suppressionError;
+  const blocked=new Set((suppressed||[]).map(x=>String(x.identifier||'').toLowerCase().trim()));
+  const unique=new Map();
+  for(const row of rows||[]){
+    const email=String(row.email_normalized||'').toLowerCase().trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||blocked.has(email))continue;
+    if(!unique.has(email))unique.set(email,{...row,email_normalized:email});
+  }
+  const contacts=[...unique.values()];
+  const segment=SEGMENTS.includes(campaign?.audience_filter?.segment)?campaign.audience_filter.segment:'all_subscribed';
+  if(segment==='all_subscribed')return contacts;
+  if(segment==='influencer_prospects'||segment==='influencer_students'){
+    const {data:unlocks,error:unlockErr}=await db.from('module_unlocks').select('user_id').eq('module_key','ai-influencer-course').limit(1000);
+    if(unlockErr)throw unlockErr;
+    const ids=[...new Set((unlocks||[]).map(x=>x.user_id))];
+    let ownerEmails=new Set();
+    if(ids.length){
+      const {data:profiles,error:profErr}=await db.from('profiles').select('email').in('id',ids);
+      if(profErr)throw profErr;
+      ownerEmails=new Set((profiles||[]).map(x=>String(x.email||'').toLowerCase().trim()));
+    }
+    return contacts.filter(x=>segment==='influencer_students'?ownerEmails.has(x.email_normalized):!ownerEmails.has(x.email_normalized));
+  }
+  if(segment==='earn_prospects'){
+    const {data:members,error:membersErr}=await db.from('affiliate_applications').select('email').limit(1000);
+    if(membersErr)throw membersErr;
+    const applied=new Set((members||[]).map(x=>String(x.email||'').toLowerCase().trim()));
+    return contacts.filter(x=>!applied.has(x.email_normalized));
+  }
+  if(segment==='registered_subscribers'){
+    const {data:profiles,error:profErr}=await db.from('profiles').select('email').limit(2000);
+    if(profErr)throw profErr;
+    const registered=new Set((profiles||[]).map(x=>String(x.email||'').toLowerCase().trim()));
+    return contacts.filter(x=>registered.has(x.email_normalized));
+  }
+  if(segment==='phone_to_client'){
+    const {data:leads,error:leadErr}=await db.from('phone_to_client_leads').select('email_normalized,email').limit(2000);
+    if(leadErr)throw leadErr;
+    const leadsSet=new Set((leads||[]).map(x=>String(x.email_normalized||x.email||'').toLowerCase().trim()));
+    return contacts.filter(x=>leadsSet.has(x.email_normalized));
+  }
+  return contacts;
+}
+async function audienceSegmentCounts(db){
+  const counts={};
+  for(const segment of SEGMENTS){
+    counts[segment]=(await eligibleRecipients(db,{audience_filter:{segment}})).length;
+  }
+  return counts;
 }
 
 async function deliverCampaign(db, campaign) {
@@ -159,4 +209,4 @@ async function sendWelcome(db, contact) {
   return { sent: true, id: payload.id || null };
 }
 
-module.exports = { configured, mailHtml, createUnsubscribeTokens, deliverCampaign, sendWelcome };
+module.exports = { configured, mailHtml, createUnsubscribeTokens, deliverCampaign, sendWelcome, eligibleRecipients, audienceSegmentCounts };
