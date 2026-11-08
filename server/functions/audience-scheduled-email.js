@@ -42,8 +42,11 @@ exports.handler = async event => {
   const db = admin();
   const now = new Date().toISOString();
   const { data: due, error } = await db.from('audience_campaigns')
-    .select('*').eq('channel', 'email').in('status', ['scheduled', 'sending'])
-    .lte('scheduled_for', now).order('scheduled_for', { ascending: true }).limit(10);
+    .select('*').eq('channel', 'email')
+    // A manually launched campaign has no scheduled_for. Continue its next daily
+    // batch without requiring a date, while honoring future schedules.
+    .or('status.eq.sending,and(status.eq.scheduled,scheduled_for.lte.' + now + ')')
+    .order('created_at', { ascending: true }).limit(10);
   if (error) return json(500, { error: 'Could not load scheduled email.' });
 
   const results = [];
