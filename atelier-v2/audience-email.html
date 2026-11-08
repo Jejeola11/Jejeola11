@@ -1,27 +1,126 @@
 <!doctype html>
-<html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#001012">
-<title>Fuse Audience — Email Broadcasts</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<style>
-:root{--deep:#001012;--mid:#00191B;--surface:#062125;--line:#315456;--lime:#DFFF4E;--white:#EEFFE0}*{box-sizing:border-box}body{margin:0;min-height:100svh;background:var(--deep);color:#fff;font:500 14px/1.45 Montserrat,Arial,sans-serif}.top{position:sticky;top:0;z-index:2;background:#001012ed;border-bottom:1px solid var(--line)}.topin,main{width:min(960px,calc(100% - 32px));margin:auto}.topin{height:70px;display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font-size:18px;font-weight:800}.brand span{color:var(--lime)}main{padding:26px 0 64px}.gate{min-height:64vh;display:grid;place-items:center}.card{background:linear-gradient(145deg,#062125,#00191B);border:1px solid var(--line);border-radius:20px;padding:20px}.btn{min-height:42px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:#fff;font:700 13px Montserrat;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.btn.primary{background:var(--lime);border-color:var(--lime);color:#001012}.btn:disabled{opacity:.55;cursor:wait}.eyebrow{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--lime);font-weight:800}.hero h1{font-size:clamp(30px,5vw,43px);letter-spacing:-.065em;margin:6px 0}.hero p,.muted{color:#b9ceca}.notice{margin:18px 0;padding:13px 15px;border-radius:12px;background:#dfff4e17;border:1px solid #dfff4e45;color:#e9f8b0}.notice.bad{background:#ffb9b917;border-color:#ffb9b945;color:#ffcaca}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.form{margin-top:18px}.field{display:grid;gap:7px;margin-bottom:14px}.field label{font-weight:800;font-size:12px}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);border-radius:10px;background:#041b1e;color:white;padding:12px;font:inherit}.field textarea{min-height:170px;resize:vertical}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:17px}.campaigns{display:grid;gap:10px;margin-top:15px}.campaign{display:flex;justify-content:space-between;gap:12px;padding:14px;border:1px solid var(--line);background:#041b1e;border-radius:13px}.campaign h3{margin:0 0 5px;font-size:14px}.campaign p{margin:0;color:#b9ceca;font-size:11px}.pill{align-self:start;background:#dfff4e20;color:#dfffaf;border:1px solid #dfff4e55;padding:4px 7px;border-radius:999px;font-size:9px;font-weight:800}.test{display:flex;gap:8px}.test input{flex:1}@media(max-width:650px){.topin,main{width:min(100% - 24px,960px)}.grid{grid-template-columns:1fr}.test{flex-direction:column}.topin{height:62px}}
-</style></head><body>
-<header class="top"><div class="topin"><a class="btn" href="/atelier-v2/audience.html">← Audience</a><div class="brand">EMAIL <span>BROADCASTS</span></div></div></header>
-<main><section id="gate" class="gate"><div class="card"><div class="eyebrow">Private admin</div><h1>Checking access…</h1><p id="gate-copy" class="muted">Only the Fuse Atelier owner can create broadcasts.</p></div></section>
-<div id="app" hidden><section class="hero"><div class="eyebrow">Fuse Audience</div><h1>Write it. Test it. Send now—or schedule it.</h1><p>Every sent email gets an individual unsubscribe link. Platform sign-ups are saved in your audience dashboard. Subscribers who opt in can receive your future marketing emails. Scheduled emails send at the date and time you choose.</p></section><div id="setup" class="notice"></div>
-<section class="grid"><div class="card form"><div class="eyebrow" id="composer-title">New email</div><div class="field"><label>Internal campaign name</label><input id="name" placeholder="Phone-to-Client class update"></div><div class="field"><label>Subject line</label><input id="subject" placeholder="Your First Client Playbook is here"></div><div class="field"><label>Campaign type</label><select id="kind"><option value="repermission">Class follow-up / re-permission</option><option value="marketing">Marketing email</option></select></div><div class="field"><label>Message</label><textarea id="body" placeholder="Hi {{first_name}},&#10;&#10;Write your message here…"></textarea></div><div class="field"><label>Button link (optional)</label><input id="action-url" placeholder="https://fuseatelier.com/pricing"></div><div class="field"><label>Schedule for (optional — your local time)</label><input id="scheduled-for" type="datetime-local"><p class="muted" style="margin:0">Leave this blank to save a draft. Scheduled sends run automatically and can still be tested first.</p></div><div class="actions"><button id="save" class="btn primary">Save draft or schedule</button><button id="new-email" class="btn" type="button" hidden>New email</button></div><p id="composer-status" class="muted"></p></div>
-<div class="card"><div class="eyebrow">How launch works</div><h2 style="margin:6px 0 10px">No accidental broadcast.</h2><p class="muted">1. Create a draft or schedule it<br>2. Send yourself a test<br>3. Review the email on your phone<br>4. Launch only when the sender domain is verified.<br>Scheduled emails go out automatically.</p><div class="notice">A WhatsApp “Stop” button will be built too, but WhatsApp broadcasts stay locked until contacts have captured WhatsApp opt-in.</div><div class="field"><label>Test email</label><div class="test"><input id="test-email" type="email" placeholder="you@email.com"><button id="test" class="btn">Send test</button></div></div><div id="launch-box" class="field" hidden><label>Final launch confirmation</label><input id="launch-confirmation" autocomplete="off" placeholder="Type the exact confirmation shown here"><p id="launch-help" class="muted" style="margin:0">Save a draft to unlock launch confirmation.</p></div><div class="actions"><button id="launch" class="btn primary">Launch latest draft</button><button id="cancel-schedule" class="btn" hidden>Cancel latest scheduled email</button></div><p id="test-status" class="muted"></p></div></section>
-<section class="card" style="margin-top:16px"><div class="eyebrow">Saved drafts & sends</div><div id="campaigns" class="campaigns"><p class="muted">Loading…</p></div></section><section class="card" style="margin-top:16px"><div class="eyebrow">Delivery tracking</div><p class="muted">Shows the provider request and verified delivery separately. “Queued” means the provider accepted it; it is not proof it reached an inbox.</p><div id="deliveries" class="campaigns"><p class="muted">Loading…</p></div></section></div>
+<html lang="en">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+ <meta name="theme-color" content="#001012"><meta name="description" content="Fuse Atelier Audience — visual email campaigns, templates, subscribers and delivery tracking.">
+ <title>Email Studio · Fuse Audience</title>
+ <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="/atelier-v2/audience-email-studio.css?v=1">
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+ <script defer src="/atelier-v2/audience-email-studio.js?v=1"></script>
+</head>
+<body>
+<header class="top"><div class="shell top-inner">
+ <a class="brand" href="/atelier-v2/audience.html" aria-label="Return to Fuse Audience"><span class="mark">F</span><span>FUSE <span class="gradient">AUDIENCE</span><small>Marketing email studio</small></span></a>
+ <div class="top-right"><span class="tag">OWNER WORKSPACE</span><a class="btn small" href="/atelier-v2/audience.html">← Audience Dashboard</a></div>
+</div></header>
+<main class="shell main">
+ <section id="gate" class="gate"><div class="panel"><div class="eyebrow">Fuse operations</div><h1>Checking admin access…</h1><p class="muted" id="gate-copy">Only the Fuse Atelier owner can manage email campaigns.</p><button id="gate-action" hidden class="btn">Back to audience</button></div></section>
+ <div id="app" hidden>
+  <section class="hero">
+   <div><div class="eyebrow">Creative campaigns · Real people · Measurable results</div><h1>Email that <span class="gradient">looks like your brand.</span></h1><p>Design image-rich campaigns for the AI Influencer course, Fuse Earn and more. Build your email, check your permissioned audience, preview it on any screen, then test, schedule or launch deliberately.</p></div>
+   <div class="hero-actions"><button class="btn" id="refresh" type="button">↻ Refresh data</button><button class="btn primary" id="reset" type="button">+ New campaign</button></div>
+  </section>
+  <div id="setup" class="note">Checking sender configuration…</div>
+  <section class="metric-grid" aria-label="Campaign overview">
+   <article class="metric"><label>Opted-in email audience</label><strong id="metric-opted">—</strong><p>Excludes unknown consent</p></article>
+   <article class="metric"><label>Saved email campaigns</label><strong id="metric-campaigns">—</strong><p>Drafts, scheduled and sent</p></article>
+   <article class="metric"><label>Recently queued</label><strong id="metric-queued">—</strong><p>Provider accepted, not delivered</p></article>
+   <article class="metric"><label>Recently delivered</label><strong id="metric-delivered">—</strong><p>Delivery confirmation recorded</p></article>
+  </section>
+  <nav class="toolbar" aria-label="Email studio sections">
+   <button type="button" class="tab active" data-tab="compose">✦ Visual builder</button>
+   <button type="button" class="tab" data-tab="campaigns">▤ Campaigns</button>
+   <button type="button" class="tab" data-tab="audience">◎ Audience</button>
+   <button type="button" class="tab" data-tab="analytics">▥ Analytics</button>
+  </nav>
+  <section class="pane active" id="pane-compose" aria-label="Create an email campaign">
+   <div class="composer">
+    <section class="panel">
+     <div class="panel-head"><div><div class="mini" id="edit-indicator">NEW CAMPAIGN</div><h2>Design your next email</h2></div><button class="btn small" id="new-email" type="button" hidden>Start fresh</button></div>
+     <div class="panel-body">
+      <div class="sectiontitle"><div><h2>Choose a direction</h2><p>Layouts inspired by the visual email examples you shared.</p></div></div>
+      <div class="templates" id="templates" aria-label="Visual email templates"></div>
+      <hr class="divide">
+      <div class="sectiontitle"><h2>Campaign details</h2><span class="mini">01 / Setup</span></div>
+      <div class="field"><label for="name">Internal campaign name</label><input id="name" maxlength="140" placeholder="AI Influencer — Course Launch"></div>
+      <div class="field"><label for="subject">Email subject</label><input id="subject" maxlength="220" placeholder="Your AI Influencer starts here"></div>
+      <div class="field"><label for="preheader">Preview text (in the inbox)</label><input id="preheader" maxlength="180" placeholder="A sneak peek to encourage opens."></div>
+      <div class="form-grid">
+       <div class="field"><label for="segment">Audience segment</label><select id="segment">
+        <option value="influencer_prospects">AI Influencer · Non-owners</option>
+        <option value="earn_prospects">Fuse Earn · Not yet applied</option>
+        <option value="all_subscribed">All opted-in contacts</option>
+        <option value="influencer_students">AI Influencer · Course owners</option>
+        <option value="registered_subscribers">Subscribed Fuse members</option>
+        <option value="phone_to_client">Phone-to-Client subscribers</option>
+       </select><p class="hint" id="segment-count">Checking audience…</p></div>
+       <div class="field"><label for="kind">Email type</label><select id="kind"><option value="marketing">Promotional marketing</option><option value="repermission">Permission follow-up (subscribed only)</option></select></div>
+      </div>
+      <div class="field"><label for="body">Plain-text summary / fallback</label><textarea id="body" placeholder="Hi {{first_name}}, your campaign introduction…"></textarea><p class="hint">Used for older email layouts and campaign records. The visual layout below is what recipients will see for new designs.</p></div>
+      <div class="field"><label for="action-url">Primary destination</label><input id="action-url" placeholder="https://fuseatelier.com/influencer"></div>
+      <hr class="divide">
+      <div class="sectiontitle"><h2>Visual identity</h2><span class="mini">02 / Style</span></div>
+      <div class="form-grid">
+       <div class="field"><label for="design-bg">Email background</label><input type="color" data-design="background" id="design-bg" value="#eaf2ef"></div>
+       <div class="field"><label for="design-surface">Card background</label><input type="color" data-design="surface" id="design-surface" value="#ffffff"></div>
+       <div class="field"><label for="design-accent">Accent / button colour</label><input type="color" data-design="accent" id="design-accent" value="#dfff4e"></div>
+       <div class="field"><label for="design-ink">Body text colour</label><input type="color" data-design="ink" id="design-ink" value="#00191b"></div>
+      </div>
+      <hr class="divide">
+      <div class="sectiontitle"><div><h2>Build the email</h2><p>Change copy, move sections and add images or animated GIFs.</p></div><span class="mini" id="block-count">0 sections</span></div>
+      <div id="block-list" class="block-list"></div>
+      <div class="block-add" id="block-add" aria-label="Add email sections"></div>
+      <div class="note">Use <span class="keyhint">{{first_name}}</span> in text to personalise the message. Images require public HTTPS URLs. Video is represented by a short GIF, linked to the full video or offer page.</div>
+      <p class="hint" id="media-status" aria-live="polite"></p>
+      <hr class="divide">
+      <div class="sectiontitle"><h2>Save or schedule</h2><span class="mini">03 / Save</span></div>
+      <div class="field"><label for="schedule-for">Schedule (optional · local time)</label><input type="datetime-local" id="schedule-for"><p class="hint">Leave blank for a draft. A future date schedules sending automatically through the existing Fuse scheduler; verify your design and audience before scheduling.</p></div>
+      <div class="action-row"><button class="btn primary" id="save" type="button">Save draft or schedule</button><button class="btn ghost" type="button" id="copy-html">Copy email HTML</button></div><p class="save-status" id="save-status" aria-live="polite"></p>
+     </div>
+    </section>
+    <aside class="panel preview-panel">
+     <div class="panel-head"><div><div class="mini">REAL EMAIL OUTPUT</div><h2>Live campaign preview</h2></div><div class="preview-switch"><button type="button" class="active" id="preview-desktop">Desktop</button><button type="button" id="preview-mobile">Mobile</button></div></div>
+     <div class="preview-bg"><div class="preview-shell" id="preview-shell"><iframe title="Email preview" id="preview" class="preview" sandbox="" referrerpolicy="no-referrer"></iframe></div></div>
+     <div class="subpanel"><p class="hint" id="preview-status" aria-live="polite">Select a template to preview your email.</p><p class="hint">A GIF can animate in the inbox. Some email apps show only its first frame. Videos themselves cannot reliably play inside email.</p></div>
+     <div class="subpanel"><div class="sectiontitle"><div><h2>Test, then launch</h2><p>Save first. Send a real test to your own inbox.</p></div></div>
+      <div class="note" id="selected-campaign">Save a draft before sending a test or launching.</div>
+      <div class="test-row"><input class="control" type="email" id="test-email" placeholder="Your email for testing" autocomplete="email"><button class="btn" type="button" id="test" disabled>Send test</button></div>
+      <p class="hint" id="test-status" aria-live="polite"></p>
+      <div class="launch-confirm" id="launch-confirm" hidden><p id="launch-help">Type the exact confirmation phrase to launch.</p><input id="launch-confirmation" autocomplete="off" spellcheck="false" placeholder="SEND campaign-id"></div>
+      <div class="action-row"><button class="btn primary" id="launch" type="button" disabled>Launch selected draft</button><button class="btn danger" id="cancel-schedule" type="button" hidden>Cancel schedule</button></div>
+      <div class="note warn">No subscribers will receive anything until you explicitly launch a draft or schedule a campaign. The existing sender permits up to 100 email requests per UTC day; queued requests are not proof of delivery.</div>
+     </div>
+    </aside>
+   </div>
+  </section>
+  <section class="pane" id="pane-campaigns" aria-label="Saved campaigns">
+   <div class="panel"><div class="panel-head"><div><div class="mini">CAMPAIGN LIBRARY</div><h2>Your saved emails</h2></div><button class="btn small primary" type="button" data-tab="compose" onclick="document.querySelector('.tab[data-tab=compose]').click()">+ Design another</button></div>
+    <div class="panel-body"><p class="muted">Edit previous drafts, check scheduled messages, and select a campaign before testing or launching. Sent campaigns stay locked to preserve delivery history.</p><div id="campaign-list" class="campaign-list"></div></div></div>
+  </section>
+  <section class="pane" id="pane-audience" aria-label="Audience segments">
+   <div class="section-grid">
+    <div class="panel"><div class="panel-head"><div><div class="mini">LIVE CONTACT DATABASE</div><h2>Permissioned email segments</h2></div></div><div class="panel-body"><div id="audience-breakdown"></div><p class="hint">Segment totals overlap. A subscriber may be in multiple segments; adding row totals would double-count people.</p></div></div>
+    <div class="panel"><div class="panel-head"><h2>Audience safety</h2></div><div class="panel-body">
+     <div class="note">Campaigns only include valid, unique addresses marked <strong>subscribed</strong> with an opt-in timestamp, no recorded opt-out, and no active email suppression.</div><p class="muted">Business research leads, people with unknown permission, unsubscribed addresses, and account holders who never opted in are excluded from promotional sending.</p>
+     <p class="muted">The AI Influencer segment excludes people already granted the course. Fuse Earn excludes people who have already applied to the affiliate program.</p>
+     <div class="note warn">Review delivery status and your consent records before launching large sends. Existing historical queued messages must not be automatically resent.</div>
+    </div></div>
+   </div>
+  </section>
+  <section class="pane" id="pane-analytics" aria-label="Delivery analytics">
+   <div class="section-grid">
+    <div class="panel"><div class="panel-head"><div><div class="mini">DELIVERY MONITOR</div><h2>Provider delivery status</h2></div></div><div class="panel-body"><div class="statbars" id="analytics-bars"></div><p id="analytics-note" class="hint"></p><p id="metrics-note" class="hint"></p>
+     <div class="action-row"><button class="btn primary" id="reconcile" type="button">↻ Verify queued messages</button></div><p class="hint" id="reconcile-status">Checks up to 25 older queued messages against Resend. No duplicate sends.</p>
+     <div class="note warn">Some older records were left in queued state after provider acceptance. Only verified delivered events count as delivered. Hard bounces are excluded from future campaigns.</div>
+    </div></div>
+    <div class="panel"><div class="panel-head"><div><div class="mini">RECENT ACTIVITY</div><h2>Recipient-level events</h2></div></div><div class="delivery-scroll" id="delivery-list"></div></div>
+   </div>
+  </section>
+  <p class="footer-line">FUSE ATELIER · Owner-only marketing operations · Built for ethical, visual email campaigns</p>
+ </div>
 </main>
-<script>
-(()=>{const URL='https://rgbweaimkcndjznlazho.supabase.co',KEY='sb_publishable_S3IEOR8vkWkXEdGtx8fGjw_nH8c4fV3',sb=supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});const $=id=>document.getElementById(id);let current=null;
-const esc=v=>String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-async function request(method,body){const {data:{session}}=await sb.auth.getSession();if(!session)throw Error('Sign in through Fuse Operations first.');const r=await fetch('/api/audience-email-campaign',{method,headers:{authorization:'Bearer '+session.access_token,'content-type':'application/json'},body:body?JSON.stringify(body):undefined});const d=await r.json();if(!r.ok)throw Error(d.error||'Something went wrong.');return d}
-let campaigns=[],editing=null;function scheduleText(c){return c.scheduled_for?'Scheduled for: '+new Date(c.scheduled_for).toLocaleString():'Not scheduled'}function editable(c){return ['draft','scheduled','paused','cancelled'].includes(c.status)}function localInput(value){if(!value)return '';const d=new Date(value);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)}function deliveryText(row){const contact=row.audience_contacts||{};const campaign=campaigns.find(item=>item.id===row.campaign_id);const who=contact.first_name?contact.first_name+' — ':'';const when=row.delivered_at?'Delivered: '+new Date(row.delivered_at).toLocaleString():row.sent_at?'Queued with provider: '+new Date(row.sent_at).toLocaleString():'Waiting to send';const detail=row.failure_reason?' · '+row.failure_reason:'';return '<article class="campaign"><div><h3>'+esc(who+(contact.email_normalized||'Contact'))+'</h3><p>'+esc((campaign&&campaign.name)||'Email campaign')+' · '+when+esc(detail)+'</p></div><span class="pill">'+esc(row.status||'pending')+'</span></article>'}function drawDeliveries(items){$('deliveries').innerHTML=items&&items.length?items.map(deliveryText).join(''):'<p class="muted">No deliveries recorded yet.</p>'}function draw(items){campaigns=items;$('campaigns').innerHTML=items.length?items.map(c=>'<article class="campaign"><div><h3>'+esc(c.name)+'</h3><p>'+esc(c.subject)+' · '+esc(c.campaign_kind)+'<br>'+scheduleText(c)+'</p>'+(editable(c)?'<div class="actions" style="margin-top:10px"><button class="btn edit-campaign" data-id="'+esc(c.id)+'">Edit</button></div>':'')+'</div><span class="pill">'+esc(c.status)+'</span></article>').join(''):'<p class="muted">No email campaigns yet.</p>';document.querySelectorAll('.edit-campaign').forEach(button=>button.onclick=()=>startEdit(button.dataset.id));current=items[0]||null;const box=$('launch-box'),help=$('launch-help'),input=$('launch-confirmation'),cancel=$('cancel-schedule');if(current&&current.status==='draft'){box.hidden=false;input.value='';help.textContent='Type exactly: SEND '+current.id}else{box.hidden=true;input.value=''}cancel.hidden=!(current&&current.status==='scheduled')}
-function clearComposer(){editing=null;$('composer-title').textContent='New email';$('name').value='';$('subject').value='';$('kind').value='repermission';$('body').value='';$('action-url').value='';$('scheduled-for').value='';$('save').textContent='Save draft or schedule';$('new-email').hidden=true;$('composer-status').textContent=''}function startEdit(id){const c=campaigns.find(item=>item.id===id);if(!c)return;editing=c;$('composer-title').textContent='Editing: '+c.name;$('name').value=c.name||'';$('subject').value=c.subject||'';$('kind').value=c.campaign_kind||'marketing';$('body').value=c.body||'';$('action-url').value=c.action_url||'';$('scheduled-for').value=localInput(c.scheduled_for);$('save').textContent='Save changes';$('new-email').hidden=false;$('composer-status').textContent='You are editing a '+c.status+' email. It will not send until its scheduled time.';window.scrollTo({top:0,behavior:'smooth'})}async function load(){try{const d=await request('GET');$('setup').className='notice '+(d.configured?'':'bad');$('setup').textContent=d.configured?'Sender ready: '+d.sender+'. Create a draft, send yourself a test, then launch the draft you choose.':'Email sending is not connected yet. Add RESEND_API_KEY and FUSE_EMAIL_FROM in Vercel first; drafts are still safe to create.';$('launch').disabled=!d.configured;draw(d.campaigns||[]);drawDeliveries(d.deliveries||[]);$('gate').hidden=true;$('app').hidden=false}catch(e){$('gate-copy').textContent=e.message}}
-$('new-email').onclick=clearComposer;$('save').onclick=async()=>{const button=$('save');button.disabled=true;$('composer-status').textContent='Saving…';try{const action=editing?'update':'create';await request('POST',{action,campaignId:editing&&editing.id,name:$('name').value,subject:$('subject').value,kind:$('kind').value,body:$('body').value,actionUrl:$('action-url').value,scheduledFor:$('scheduled-for').value?new Date($('scheduled-for').value).toISOString():null});$('composer-status').textContent=editing?'Changes saved.':($('scheduled-for').value?'Email scheduled.':'Draft saved.');editing=null;$('save').textContent='Save draft or schedule';$('new-email').hidden=true;await load()}catch(e){$('composer-status').textContent=e.message}finally{button.disabled=false}};
-$('test').onclick=async()=>{const button=$('test');const target=editing||current;if(!target){$('test-status').textContent='Save a draft first.';return}button.disabled=true;$('test-status').textContent='Sending test…';try{await request('POST',{action:'send_test',campaignId:target.id,email:$('test-email').value});$('test-status').textContent='Test sent. Check inbox and spam.'}catch(e){$('test-status').textContent=e.message}finally{button.disabled=false}};
-$('cancel-schedule').onclick=async()=>{if(!current||current.status!=='scheduled')return;const button=$('cancel-schedule');button.disabled=true;$('test-status').textContent='Cancelling scheduled email…';try{await request('POST',{action:'cancel_schedule',campaignId:current.id});$('test-status').textContent='Scheduled email cancelled.';await load()}catch(e){$('test-status').textContent=e.message}finally{button.disabled=false}};
-$('launch').onclick=async()=>{if(!current){$('test-status').textContent='Save a draft first.';return}if(current.status!=='draft'){ $('test-status').textContent='The latest campaign is already '+current.status+'. Create a new draft.';return }const confirmation=$('launch-confirmation').value.trim();const required='SEND '+current.id;if(confirmation!==required){$('test-status').textContent='Type exactly: '+required;return}const button=$('launch');button.disabled=true;$('test-status').textContent='Launching…';try{const d=await request('POST',{action:'send',campaignId:current.id,confirmation});$('test-status').textContent=(d.queued||0)+' emails queued with the provider. Delivery is tracked separately.'+(d.failed&&d.failed.length?' Some batches need review.':'');await load()}catch(e){$('test-status').textContent=e.message}finally{button.disabled=false}};load()})();
-</script></body></html>
+<input id="media-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+<div id="toast" class="toast" role="status" hidden></div>
+</body></html>
