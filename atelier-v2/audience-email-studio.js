@@ -186,7 +186,7 @@
   for(const r of all)counts[r.status||'pending']=(counts[r.status||'pending']||0)+1;
   const labels=[['delivered','Verified delivered'],['queued','Accepted / queued'],['failed','Failed'],['pending','Waiting']];
   const max=Math.max(...labels.map(([s])=>counts[s]||0),1);
-  $('analytics-bars').innerHTML=labels.map(([s,label])=>'<div><div class="bar-head"><span>'+label+'</span><span>'+Number(counts[s]||0).toLocaleString()+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.min(100,((counts[s]||0)/max)*100)+'%"></div></div></div>').join('');
+  $('analytics-bars').innerHTML=labels.map(([s,label])=>'<div><div class="bar-head"><span>'+label+'</span><span>'+Number(counts[s]||0).toLocaleString()+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.min(100,((counts[s]||0)/max)*100)+'%"></div></div></div>').join('')+'<div class="row wrap" style="padding:10px 0;border-top:1px solid #315456"><span><strong>'+all.filter(r=>!!r.opened_at).length+'</strong> recorded opens</span><span><strong>'+all.filter(r=>!!r.clicked_at).length+'</strong> recorded clicks</span></div>';
   $('delivery-list').innerHTML=all.length?all.slice(0,80).map(r=>{
    const contact=r.audience_contacts||{};
    const c=state.campaigns.find(x=>x.id===r.campaign_id);
@@ -206,6 +206,7 @@
   if(c&&c.status==='draft')$('launch-help').textContent='Type exactly: SEND '+c.id;
   if(c&&c.status==='draft')$('launch-confirmation').placeholder='SEND '+c.id;
   $('test').disabled=!(state.configured&&c);
+  $('save').disabled=!!(c&&!['draft','scheduled','paused','cancelled'].includes(c.status));
  }
  async function load({initial=false}={}){
   try{
