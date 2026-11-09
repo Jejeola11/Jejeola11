@@ -98,32 +98,40 @@ async function syncMaster(db, batchLimit = 20) {
   const missing = [...allowed.values()].filter(c => !existing.has(c.email_normalized));
   let imported=0, already=0, denied=0;
   const limit = Math.max(1,Math.min(Number(batchLimit) || 20,40));
-  for (const contact of missing.slice(0,limit)) {
-    const email = contact.email_normalized;
-    try {
-      const remote = await request('/subscribers/' + encodeURIComponent(email),'GET',undefined,true);
-      const existingContact = remote?.data || remote;
-      if (remote && remoteState(existingContact) !== 'active') {
-        await suppressLocal(db,email,'Sender ' + (remoteState(existingContact) || 'not-active'));
-        denied++;
-        continue;
-      }
-      if (remote) {
-        await request('/subscribers/groups/' + encodeURIComponent(master.id), 'POST',
-          {subscribers:[email],trigger_automation:false});
-        already++;
-      } else {
+  // A few concurrent API requests make the import fit within Vercel's execution window.
+  for(let i=0;i<Math.min(missing.length,limit);i+=4){
+    const batch=missing.slice(i,i+4);
+    const outcomes=await Promise.all(batch.map(async contact=>{
+      const email=contact.email_normalized;
+      try{
+        const remote=await request('/subscribers/'+encodeURIComponent(email),'GET',undefined,true);
+        const existingContact=remote?.data || remote;
+        if(remote && remoteState(existingContact)!=='active'){
+          await suppressLocal(db,email,'Sender '+(remoteState(existingContact)||'not-active'));
+          return 'denied';
+        }
+        if(remote){
+          await request('/subscribers/groups/'+encodeURIComponent(master.id),'POST',
+            {subscribers:[email],trigger_automation:false});
+          return 'already';
+        }
         await request('/subscribers','POST',{
-          email, firstname: String(contact.first_name || '').trim().slice(0,80),
+          email,firstname:String(contact.first_name||'').trim().slice(0,80),
           groups:[master.id],trigger_automation:false
         });
-        imported++;
+        return 'imported';
+      }catch(error){
+        console.error('[Sender sync]',{status:error.status||0,message:error.message});
+        return {error:error.message};
       }
-    } catch (error) {
-      // A temporary failure must not cause a subscription status override or mass send.
-      console.error('[Sender sync]', {status:error.status||0,message:error.message});
-      return {configured:true,groupId:master.id,eligible:list.length,started:missing.length,
-        imported,already,denied,remoteSuppressed,error:error.message,partial:true};
+    }));
+    for(const item of outcomes){
+      if(item==='imported')imported++;
+      else if(item==='already')already++;
+      else if(item==='denied')denied++;
+      else return {configured:true,groupId:master.id,eligible:list.length,
+        imported,already,denied,remoteSuppressed,remaining:missing.length-imported-already-denied,
+        partial:true,error:item.error};
     }
   }
   const remaining = Math.max(0,missing.length - imported - already - denied);
@@ -134,8 +142,9 @@ async function syncMaster(db, batchLimit = 20) {
 function senderIdentity() {
   const from = String(process.env.FUSE_EMAIL_FROM || '').trim();
   const reply = String(process.env.FUSE_EMAIL_REPLY_TO || '').trim();
-  const email = (reply.match(/<([^<>]+@[^<>]+)>/)||reply.match(/([^\s<>]+@[^\s<>]+)/)||[])[1]
-    || (from.match(/<([^<>]+@[^<>]+)>/)||from.match(/([^\s<>]+@[^\s<>]+)/)||[])[1];
+  // Sender validates the verified sending domain on this address.
+  const email = (from.match(/<([^<>]+@[^<>]+)>/)||from.match(/([^\\s<>]+@[^\\s<>]+)/)||[])[1]
+    || (reply.match(/<([^<>]+@[^<>]+)>/)||reply.match(/([^\\s<>]+@[^\\s<>]+)/)||[])[1];
   const name = from.replace(/<[^>]+>/,'').trim().replace(/^["']|["']$/g,'') || 'Fuse Atelier';
   if (!validEmail(email)) throw Error('Sender requires a verified FUSE_EMAIL_FROM or FUSE_EMAIL_REPLY_TO domain address.');
   return {name,email};
@@ -185,6 +194,15 @@ async function deliverSenderCampaign(db,campaign) {
     const patch = {...fields,sender_campaign_id:providerId,sender_group_id:target.id};
     const {error}=await db.from('audience_campaigns').update({audience_filter:patch}).eq('id',campaign.id);
     if (error) throw error;
+  }
+  if (fields.sender_campaign_id) {
+    // Recover safely after a timeout between provider acceptance and our DB update.
+    const previous = await request('/campaigns/'+encodeURIComponent(providerId));
+    const state = String(previous?.data?.status || '').toLowerCase();
+    if (['sent','sending','scheduled','queued','finished','completed'].includes(state)) {
+      await db.from('audience_campaigns').update({status:'sent',updated_at:new Date().toISOString()}).eq('id',campaign.id);
+      return {status:'sent',provider:'sender',recipientCount:audience.length,providerCampaignId:providerId,alreadySubmitted:true};
+    }
   }
   // Only invoked by a user-confirmed launch or by an explicitly scheduled campaign.
   await request('/campaigns/'+encodeURIComponent(providerId)+'/send','POST');
