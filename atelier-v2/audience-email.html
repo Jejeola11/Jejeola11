@@ -101,6 +101,13 @@
   </section>
   <section class="pane" id="pane-audience" aria-label="Audience segments">
    <div class="section-grid">
+    <div class="panel" id="sender-panel"><div class="panel-head"><div><div class="mini">SENDER · MARKETING PROVIDER</div><h2>Audience import & automation</h2></div></div>
+     <div class="panel-body"><div id="sender-state" class="note">Checking Sender connection…</div>
+      <div class="statbars" id="sender-summary"></div>
+      <div class="action-row"><button id="sender-sync-now" class="btn primary" type="button">↻ Import next opted-in batch</button></div>
+      <p id="sender-sync-message" class="hint">The five-minute scheduler also syncs opted-in subscribers automatically. Imports do not trigger welcome automations.</p>
+      <div class="note warn">The full 639-address master audience stays in Fuse. Unknown marketing consent is not converted into a subscription. Explicit opt-outs and Sender-side unsubscribes are excluded.</div>
+     </div></div>
     <div class="panel"><div class="panel-head"><div><div class="mini">LIVE CONTACT DATABASE</div><h2>Permissioned email segments</h2></div></div><div class="panel-body"><div id="audience-breakdown"></div><p class="hint">Segment totals overlap. A subscriber may be in multiple segments; adding row totals would double-count people.</p></div></div>
     <div class="panel"><div class="panel-head"><h2>Audience safety</h2></div><div class="panel-body">
      <div class="note">Campaigns only include valid, unique addresses marked <strong>subscribed</strong> with an opt-in timestamp, no recorded opt-out, and no active email suppression.</div><p class="muted">Business research leads, people with unknown permission, unsubscribed addresses, and account holders who never opted in are excluded from promotional sending.</p>
