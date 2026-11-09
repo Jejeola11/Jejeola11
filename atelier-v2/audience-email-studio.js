@@ -242,7 +242,7 @@
    const email=$('optin-test-email').value.trim().toLowerCase();
    const box=$('optin-test-consent');
    const status=$('optin-test-feedback');
-   if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){
+   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
      status.textContent='Enter a valid inbox address you personally control.';
      return;
    }
@@ -276,7 +276,7 @@
  async function checkOwnOptinTest(){
    const email=$('optin-test-email').value.trim().toLowerCase();
    const status=$('optin-test-feedback');
-   if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){
+   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
      status.textContent='Enter the same inbox address to check its confirmation status.';
      return;
    }
