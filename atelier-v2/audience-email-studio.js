@@ -27,7 +27,7 @@
   $('metric-delivered').textContent=String(state.deliveries.filter(x=>x.status==='delivered').length);
   $('metrics-note').textContent='Delivery metrics reflect the most recent '+state.deliveries.length+' recipient records.';
   $('setup').className='note'+(data.configured?'':' warn');
-  $('setup').textContent=data.configured?'Resend is configured · '+(data.sender||'Verified sender')+' · Visual campaigns can be saved and tested. The existing campaign sender currently limits launches to 100 emails a day.':'Email drafts and previews work. Sending requires a configured Resend sender in Vercel.';
+  $('setup').textContent=data.senderProvider==='sender'?'Sender marketing enabled · '+(data.sender||'Verified sending domain')+' · New campaigns use Sender without the former 100-email/day Fuse limit. Tests and older delivery records still use Resend.':(data.configured?'Resend is configured · '+(data.sender||'Verified sender')+' · Visual campaigns can be saved and tested. The existing Resend sender limits launches to 100 emails a day.':'Drafts and previews work. Sending requires an email provider in Vercel.');
  }
  function drawTemplates(){
   $('templates').innerHTML=state.templates.map(t=>'<button type="button" class="template art-'+esc(t.id)+(state.design&&state.design.template===t.id?' active':'')+'" data-template="'+esc(t.id)+'"><span class="template-art"><i>FUSE ATELIER</i><b>'+(t.id==='earn'?'EARN WITH FUSE':t.id==='influencer'?'CREATE<br>INFLUENCE':'A CREATIVE NOTE')+'</b><span></span></span><label>'+esc(t.name)+'</label><small>'+esc(t.description)+'</small></button>').join('');
@@ -217,12 +217,35 @@
    state.templates=d.templates||[];
    state.segments=d.audienceCounts||{};
    if(initial){loadTemplate('influencer',true);state.mutated=false}
-   renderMetrics(d);drawAudience();drawCampaigns();drawAnalytics();drawTemplates();previewCount();updateSelected();
+   renderMetrics(d);drawAudience();drawCampaigns();drawAnalytics();drawTemplates();previewCount();updateSelected();await loadSender();
    $('gate').hidden=true;$('app').hidden=false;
   }catch(err){
    if(initial){$('gate-copy').textContent=err.message;$('gate-action').hidden=false}
    else toast(err.message,true);
   }
+ }
+ async function loadSender(){
+  try{
+   const d=await api('GET',null,'/api/audience-sender');
+   const c=d.connection||{},v=d.summary||{};
+   $('sender-state').className='note'+(!c.connected?' warn':'');
+   $('sender-state').textContent=c.connected?'Sender API connected · '+(c.importedCount||0)+' active subscribers in the managed group.':(c.configured?'Sender token detected, but connection test failed: '+(c.error||'Check your token.'):'Sender API token is not configured in Production.');
+   $('sender-summary').innerHTML='<div class="bar-row"><span>All collected email addresses</span><b>'+Number(v.total||0).toLocaleString()+'</b></div>'+
+    '<div class="bar-row"><span>Verified marketing consent</span><b>'+Number(v.marketingEligible||0).toLocaleString()+'</b></div>'+
+    '<div class="bar-row"><span>Consent not verified</span><b>'+Number(v.needsConsent||0).toLocaleString()+'</b></div>'+
+    '<div class="bar-row"><span>Unsubscribed / suppressed</span><b>'+Number(v.suppressed||0).toLocaleString()+'</b></div>';
+   $('sender-sync-now').disabled=!c.connected;
+  }catch(err){$('sender-state').className='note warn';$('sender-state').textContent=err.message;$('sender-sync-now').disabled=true}
+ }
+ async function syncSenderNow(){
+   const b=$('sender-sync-now');b.disabled=true;$('sender-sync-message').textContent='Syncing the next confirmed-subscriber batch without sending emails…';
+   try{
+     const d=await api('POST',{action:'sync',limit:20},'/api/audience-sender');
+     $('sender-sync-message').textContent='Added '+Number(d.imported||0)+' new subscribers, linked '+Number(d.already||0)+' existing. '+Number(d.remaining||0)+' still pending. '+Number(d.denied||0)+' provider-level suppressions. '+(d.error||'');
+     toast('Sender sync batch processed. No marketing email sent.');
+     await loadSender();
+   }catch(err){$('sender-sync-message').textContent=err.message;toast(err.message,true)}
+   finally{b.disabled=false}
  }
  function reset(){
   state.editId=null;state.selected=null;state.mutated=false;$('save').textContent='Save draft or schedule';
@@ -274,8 +297,8 @@
   if($('launch-confirmation').value.trim()!==phrase){toast('Type the confirmation phrase exactly to send.',true);return}
   const b=$('launch');b.disabled=true;$('test-status').textContent='Submitting to the email provider…';
   try{const d=await api('POST',{action:'send',campaignId:c.id,confirmation:phrase});
-   $('test-status').textContent=(d.queued||0)+' messages accepted for sending; delivery still needs confirmation.';
-   toast('Campaign launch requested. Review delivery tracking.');await load();setTab('analytics')}
+   $('test-status').textContent=d.preparing?('Sender subscriber sync in progress: '+d.awaitingSync+' eligible contacts are not synced yet. The scheduler will resume the approved campaign.'):d.provider==='sender'?('Sender campaign submitted for up to '+d.recipientCount+' verified subscribers; final delivery remains subject to Sender reporting.'):(d.queued||0)+' messages accepted for sending; delivery still needs confirmation.';
+   toast(d.preparing?'Launch queued until Sender import finishes.':'Campaign launch requested. Review provider reporting.');await load();setTab(d.preparing?'audience':'analytics')}
   catch(err){toast(err.message,true);$('test-status').textContent=err.message}finally{b.disabled=false;updateSelected()}
  }
  async function cancelSchedule(id){
@@ -326,6 +349,7 @@
   $('save').onclick=save;$('new-email').onclick=reset;$('test').onclick=testSend;$('launch').onclick=launch;
   $('cancel-schedule').onclick=()=>state.editId&&cancelSchedule(state.editId);
   $('reconcile').onclick=reconcile;
+  $('sender-sync-now').onclick=syncSenderNow;
   $('refresh').onclick=()=>load();
   $('reset').onclick=reset;
   $('preview-desktop').onclick=()=>{$('preview-shell').classList.remove('mobile');$('preview-desktop').classList.add('active');$('preview-mobile').classList.remove('active')};
