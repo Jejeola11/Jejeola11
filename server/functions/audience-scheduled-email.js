@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const { admin, json } = require('./_supabase');
 const { configured, deliverCampaign } = require('./_audience-email');
+const { configured: senderConfigured, syncMaster, deliverSenderCampaign } = require('./_audience-sender');
 
 const OIDC_AUDIENCE = 'fuse-audience-scheduler';
 const OIDC_ISSUER = 'https://token.actions.githubusercontent.com';
@@ -37,9 +38,14 @@ async function authorized(event) {
 exports.handler = async event => {
   if (event.httpMethod !== 'GET') return json(405, { error: 'Method not allowed.' });
   if (!(await authorized(event))) return json(401, { error: 'Unauthorized.' });
-  if (!configured()) return json(503, { error: 'Email sending is not configured.' });
+  if (!configured() && !senderConfigured()) return json(503, { error: 'Email sending is not configured.' });
 
   const db = admin();
+  let senderSync = null;
+  if (senderConfigured()) {
+    try { senderSync = await syncMaster(db,20); }
+    catch (err) { senderSync = {error:err.message}; console.error('[Sender scheduler sync]',err.message); }
+  }
   const now = new Date().toISOString();
   const { data: due, error } = await db.from('audience_campaigns')
     .select('*').eq('channel', 'email')
@@ -56,12 +62,13 @@ exports.handler = async event => {
       .eq('id', campaign.id).in('status', ['scheduled', 'sending']).select().maybeSingle();
     if (claimError || !claimed) continue;
     try {
-      const result = await deliverCampaign(db, claimed);
+      const result = claimed.audience_filter?.provider === 'sender'
+        ? await deliverSenderCampaign(db, claimed) : await deliverCampaign(db, claimed);
       results.push({ id: campaign.id, ...result });
     } catch (sendError) {
       await db.from('audience_campaigns').update({ status: 'paused', updated_at: new Date().toISOString() }).eq('id', campaign.id);
       results.push({ id: campaign.id, error: sendError.message || 'Scheduled send failed.' });
     }
   }
-  return json(200, { ok: true, checked: (due || []).length, results });
+  return json(200, { ok: true, senderSync, checked: (due || []).length, results });
 };
