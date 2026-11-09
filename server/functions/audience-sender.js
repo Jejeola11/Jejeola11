@@ -31,6 +31,39 @@ exports.handler=async event=>{
   const {db}=access;
   if(event.httpMethod==='GET'){
     try{
+      // Owner-only status lookup for a mailbox the owner is actively using to test
+      // the double opt-in process. No token hashes or challenge links are returned.
+      if(event.queryStringParameters?.optin_status==='1'){
+        const email=String(event.queryStringParameters?.email||'').trim().toLowerCase();
+        if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)||email.length>320)
+          return json(400,{error:'Enter a valid email address to check.'});
+        const [challenge,contact,suppressed]=await Promise.all([
+          db.from('audience_email_optin_requests')
+            .select('status,created_at,expires_at,confirmed_at')
+            .eq('email_normalized',email).order('created_at',{ascending:false})
+            .limit(1).maybeSingle(),
+          db.from('audience_contacts')
+            .select('email_marketing_status,email_opted_in_at,email_opted_out_at')
+            .eq('email_normalized',email).maybeSingle(),
+          db.from('audience_suppressions').select('id')
+            .eq('channel','email').eq('identifier',email).limit(1)
+        ]);
+        for(const r of [challenge,contact,suppressed])if(r.error)throw r.error;
+        const c=contact.data||null;
+        const blocked=Boolean(suppressed.data?.length||c?.email_opted_out_at||c?.email_marketing_status==='unsubscribed');
+        const eligible=Boolean(c?.email_marketing_status==='subscribed' && c.email_opted_in_at && !blocked);
+        const last=challenge.data||null;
+        const requestStatus=last?.status==='pending' && new Date(last.expires_at).getTime()<=Date.now()?'expired':last?.status||'none';
+        return json(200,{ok:true,
+          requestStatus,requestedAt:last?.created_at||null,confirmedAt:last?.confirmed_at||null,
+          marketingEligible:eligible,blocked,
+          next:blocked?'This address is suppressed. No subscription was changed.':
+            eligible?'Consent recorded. Use the Sender import control to sync this subscriber.':
+            requestStatus==='pending'?'Check this inbox for the confirmation email and tap Yes, subscribe me.':
+            requestStatus==='expired'?'Request a new link from the public signup form.':
+            'Use the public signup form and confirm from the inbox.'
+        });
+      }
       if(event.queryStringParameters?.reports==='1'){
         if(!sender.configured()) return json(200,{ok:true,reports:[]});
         const {data:campaigns,error:dbError}=await db.from('audience_campaigns')
