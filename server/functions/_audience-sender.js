@@ -60,7 +60,18 @@ async function group(title) {
   return found;
 }
 async function members(groupId) {
-  const rows = await listPaged('/groups/' + encodeURIComponent(groupId) + '/subscribers', 12);
+  // Sender returns an API error instead of an empty array for a newly-created
+  // group with zero active subscribers. That is a valid empty starting state.
+  // Never swallow authentication, permission, or other API failures.
+  let rows;
+  try {
+    rows = await listPaged('/groups/' + encodeURIComponent(groupId) + '/subscribers', 12);
+  } catch (error) {
+    if (/^this group has no active subscribers[.!]?$/i.test(String(error.message || '').trim())) {
+      return new Map();
+    }
+    throw error;
+  }
   return new Map(rows.filter(x => x.email).map(x => [norm(x.email), x]));
 }
 async function suppressLocal(db, email, reason) {
