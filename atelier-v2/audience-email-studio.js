@@ -238,6 +238,63 @@
    $('sender-sync-now').disabled=!c.connected;
   }catch(err){$('sender-state').className='note warn';$('sender-state').textContent=err.message;$('sender-sync-now').disabled=true}
  }
+ async function sendOwnOptinTest(){
+   const email=$('optin-test-email').value.trim().toLowerCase();
+   const box=$('optin-test-consent');
+   const status=$('optin-test-feedback');
+   if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){
+     status.textContent='Enter a valid inbox address you personally control.';
+     return;
+   }
+   if(!box.checked){
+     status.textContent='Please tick the agreement to confirm you personally want these updates.';
+     return;
+   }
+   const btn=$('optin-test-send');
+   btn.disabled=true;status.textContent='Submitting one verification email request to your inbox…';
+   try{
+     const r=await fetch('/api/audience-email-optin',{
+       method:'POST',
+       headers:{'content-type':'application/json'},
+       body:JSON.stringify({action:'request',email,consent:'yes'}),
+       cache:'no-store',
+       credentials:'same-origin'
+     });
+     if(!r.ok){
+       status.textContent='Unable to submit the verification email request ('+r.status+'). Please try the public signup form.';
+       toast('The confirmation request failed.',true);
+       return;
+     }
+     status.textContent='Request submitted. Check this inbox for “Confirm your choice to receive Fuse Atelier emails.” Open the link and press “Yes, subscribe me.” Then return here and select Check confirmation status.';
+     box.checked=false;
+     toast('Confirmation requested for your inbox only.');
+   }catch(err){
+     status.textContent='Could not connect to Fuse confirmation service. '+err.message;
+     toast('Confirmation service could not be reached.',true);
+   }finally{btn.disabled=false}
+ }
+ async function checkOwnOptinTest(){
+   const email=$('optin-test-email').value.trim().toLowerCase();
+   const status=$('optin-test-feedback');
+   if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){
+     status.textContent='Enter the same inbox address to check its confirmation status.';
+     return;
+   }
+   const btn=$('optin-test-status');btn.disabled=true;status.textContent='Checking the latest consent record…';
+   try{
+     const d=await api('GET',null,'/api/audience-sender?optin_status=1&email='+encodeURIComponent(email));
+     const state=d.requestStatus||'none';
+     const intro=d.marketingEligible?'✓ Verified marketing subscriber.':state==='pending'?'Waiting for your confirmation.':
+       state==='expired'?'Your confirmation link has expired.':
+       state==='confirmed'?'Confirmation recorded.':'No pending verification request.';
+     status.textContent=intro+' '+(d.next||'');
+     if(d.marketingEligible){
+       toast('Opt-in verified! This inbox is eligible for the Sender subscriber sync.');
+       await loadSender();
+     }
+   }catch(err){status.textContent=err.message;toast(err.message,true)}
+   finally{btn.disabled=false}
+ }
  async function loadSenderReports(){
   const b=$('sender-reports-refresh');
   b.disabled=true;$('sender-reports-content').textContent='Loading Sender campaign statistics…';
@@ -373,6 +430,8 @@
   $('save').onclick=save;$('new-email').onclick=reset;$('test').onclick=testSend;$('launch').onclick=launch;
   $('cancel-schedule').onclick=()=>state.editId&&cancelSchedule(state.editId);
   $('reconcile').onclick=reconcile;
+  $('optin-test-send').onclick=sendOwnOptinTest;
+  $('optin-test-status').onclick=checkOwnOptinTest;
   $('copy-invite-text').onclick=async()=>{
    const msg="Hi! A quick introduction: Fuse Atelier is a creative platform where you can learn practical digital skills, explore AI tools and build projects. We share occasional learning resources, platform news and creative opportunities by email — but only if you choose to join. If you'd like those updates, visit https://fuseatelier.com/join-emails, enter your email, and confirm it from your inbox. If not, there's nothing to do. — Ria, Founder of Fuse Atelier";
    try{await navigator.clipboard.writeText(msg);toast('Invitation copied. Share through permitted channels.')}
