@@ -14,6 +14,10 @@ function decodeSegment(segment) {
 async function authorized(event) {
   const authorization = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
   const value = authorization.startsWith('Bearer ') ? authorization.slice(7) : '';
+  // Production Vercel Cron uses a dedicated secret; GitHub Actions uses signed OIDC.
+  const secret = process.env.CRON_SECRET || '';
+  if(secret && value.length === secret.length &&
+     crypto.timingSafeEqual(Buffer.from(value),Buffer.from(secret))) return true;
   const parts = value.split('.');
   if (parts.length !== 3) return false;
   try {
