@@ -8,7 +8,7 @@
  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
  <link rel="stylesheet" href="/atelier-v2/audience-email-studio.css?v=1">
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
- <script defer src="/atelier-v2/audience-email-studio.js?v=1"></script>
+ <script defer src="/atelier-v2/audience-email-studio.js?v=optin-test-20261109"></script>
 </head>
 <body>
 <header class="top"><div class="shell top-inner">
@@ -111,6 +111,24 @@
        </div>
        <p class="hint">Share this invitation on Fuse, WhatsApp or other channels where people have agreed to receive your messages. Do not bulk-email unknown-consent contacts simply to request permission.</p>
        <p class="hint">Public signup link: <a href="/join-emails" target="_blank" rel="noopener noreferrer">fuseatelier.com/join-emails</a></p>
+     </div>
+    </div>
+    <div class="panel" id="optin-test-panel">
+     <div class="panel-head"><div><div class="mini">VERIFY BEFORE SHARING</div><h2>Test email confirmation</h2></div></div>
+     <div class="panel-body">
+      <p class="muted">Try the real opt-in flow using <strong>an inbox you personally control that is not already subscribed</strong>. Only this address receives a user-requested confirmation message. No email goes to the 194 unverified contacts.</p>
+      <div class="field"><label for="optin-test-email">Your test email address</label>
+       <input id="optin-test-email" type="email" autocomplete="off" maxlength="320" inputmode="email" placeholder="your-other-inbox@example.com"></div>
+      <div style="display:flex;align-items:flex-start;gap:9px;margin:16px 0">
+       <input type="checkbox" id="optin-test-consent" style="width:19px;height:19px;flex:0 0 19px;accent-color:#dfff4e;margin-top:2px">
+       <label for="optin-test-consent" style="font-size:13px;line-height:1.6;color:#bed7cf">I control this inbox and explicitly want to receive Fuse Atelier learning resources, product updates, opportunities and occasional offers. I understand I can unsubscribe.</label>
+      </div>
+      <div class="action-row">
+       <button type="button" class="btn primary" id="optin-test-send">Send confirmation to my inbox</button>
+       <button type="button" class="btn" id="optin-test-status">Check confirmation status</button>
+      </div>
+      <div id="optin-test-feedback" class="note" role="status" aria-live="polite">Step 1: Send to your own inbox. Step 2: Open the email and press the confirmation button. Step 3: Return here and check the status.</div>
+      <p class="hint">Once confirmed, use the Sender import button below to sync the newly verified subscriber. Sending a test confirmation does not launch a marketing campaign.</p>
      </div>
     </div>
     <div class="panel" id="sender-panel"><div class="panel-head"><div><div class="mini">SENDER · MARKETING PROVIDER</div><h2>Audience import & automation</h2></div></div>
