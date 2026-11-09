@@ -118,6 +118,11 @@
   </section>
   <section class="pane" id="pane-analytics" aria-label="Delivery analytics">
    <div class="section-grid">
+    <div class="panel"><div class="panel-head"><div><div class="mini">SENDER ANALYTICS</div><h2>New marketing campaign results</h2></div></div>
+     <div class="panel-body"><p class="muted">Opens, clicks, bounces and total sent are retrieved directly from Sender and are separate from older Resend delivery records.</p>
+      <div class="action-row"><button id="sender-reports-refresh" class="btn primary" type="button">↻ Get Sender reports</button></div>
+      <div id="sender-reports-content" class="campaign-list"><p class="hint">No results loaded yet.</p></div>
+     </div></div>
     <div class="panel"><div class="panel-head"><div><div class="mini">DELIVERY MONITOR</div><h2>Provider delivery status</h2></div></div><div class="panel-body"><div class="statbars" id="analytics-bars"></div><p id="analytics-note" class="hint"></p><p id="metrics-note" class="hint"></p>
      <div class="action-row"><button class="btn primary" id="reconcile" type="button">↻ Verify queued messages</button></div><p class="hint" id="reconcile-status">Checks up to 25 older queued messages against Resend. No duplicate sends.</p>
      <div class="note warn">Some older records were left in queued state after provider acceptance. Only verified delivered events count as delivered. Hard bounces are excluded from future campaigns.</div>
