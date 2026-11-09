@@ -12,6 +12,10 @@
   },
   "routes": [
     {
+      "src": "/join-emails/?",
+      "dest": "/atelier-v2/join-emails.html"
+    },
+    {
       "src": "/directorria/?",
       "dest": "/directorria/index.html"
     },
