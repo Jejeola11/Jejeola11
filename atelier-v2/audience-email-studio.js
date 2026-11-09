@@ -234,6 +234,7 @@
     '<div class="bar-row"><span>Verified marketing consent</span><b>'+Number(v.marketingEligible||0).toLocaleString()+'</b></div>'+
     '<div class="bar-row"><span>Consent not verified</span><b>'+Number(v.needsConsent||0).toLocaleString()+'</b></div>'+
     '<div class="bar-row"><span>Unsubscribed / suppressed</span><b>'+Number(v.suppressed||0).toLocaleString()+'</b></div>';
+   $('permission-review-total').textContent=Number(v.needsConsent||0).toLocaleString();
    $('sender-sync-now').disabled=!c.connected;
   }catch(err){$('sender-state').className='note warn';$('sender-state').textContent=err.message;$('sender-sync-now').disabled=true}
  }
@@ -372,6 +373,11 @@
   $('save').onclick=save;$('new-email').onclick=reset;$('test').onclick=testSend;$('launch').onclick=launch;
   $('cancel-schedule').onclick=()=>state.editId&&cancelSchedule(state.editId);
   $('reconcile').onclick=reconcile;
+  $('copy-invite-text').onclick=async()=>{
+   const msg="Hi! A quick introduction: Fuse Atelier is a creative platform where you can learn practical digital skills, explore AI tools and build projects. We share occasional learning resources, platform news and creative opportunities by email — but only if you choose to join. If you'd like those updates, visit https://fuseatelier.com/join-emails, enter your email, and confirm it from your inbox. If not, there's nothing to do. — Ria, Founder of Fuse Atelier";
+   try{await navigator.clipboard.writeText(msg);toast('Invitation copied. Share through permitted channels.')}
+   catch(_){toast('Unable to copy automatically. Use fuseatelier.com/join-emails',true)}
+  };
   $('sender-sync-now').onclick=syncSenderNow;
   $('sender-reports-refresh').onclick=loadSenderReports;
   $('refresh').onclick=()=>load();
