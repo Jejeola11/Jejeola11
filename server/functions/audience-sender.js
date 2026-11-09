@@ -35,7 +35,7 @@ exports.handler=async event=>{
       // the double opt-in process. No token hashes or challenge links are returned.
       if(event.queryStringParameters?.optin_status==='1'){
         const email=String(event.queryStringParameters?.email||'').trim().toLowerCase();
-        if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)||email.length>320)
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>320)
           return json(400,{error:'Enter a valid email address to check.'});
         const [challenge,contact,suppressed]=await Promise.all([
           db.from('audience_email_optin_requests')
