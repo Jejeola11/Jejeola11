@@ -101,6 +101,18 @@
   </section>
   <section class="pane" id="pane-audience" aria-label="Audience segments">
    <div class="section-grid">
+    <div class="panel" id="permission-review-panel"><div class="panel-head"><div><div class="mini">SEPARATE AUDIENCE · CONSENT NOT YET VERIFIED</div><h2>Invite people to choose</h2></div></div>
+     <div class="panel-body">
+       <p class="muted">There are <strong id="permission-review-total">—</strong> addresses still awaiting verified permission. They have not been imported as marketing subscribers, and they will not receive automatic promotional or permission-request emails.</p>
+       <div class="note">Send interested people to a simple signup page. They enter their email, explicitly agree, then confirm from their own inbox before joining Sender.</div>
+       <div class="action-row">
+         <a class="btn primary" href="/join-emails" target="_blank" rel="noopener noreferrer">↗ Preview signup page</a>
+         <button id="copy-invite-text" class="btn" type="button">Copy invitation message</button>
+       </div>
+       <p class="hint">Share this invitation on Fuse, WhatsApp or other channels where people have agreed to receive your messages. Do not bulk-email unknown-consent contacts simply to request permission.</p>
+       <p class="hint">Public signup link: <a href="/join-emails" target="_blank" rel="noopener noreferrer">fuseatelier.com/join-emails</a></p>
+     </div>
+    </div>
     <div class="panel" id="sender-panel"><div class="panel-head"><div><div class="mini">SENDER · MARKETING PROVIDER</div><h2>Audience import & automation</h2></div></div>
      <div class="panel-body"><div id="sender-state" class="note">Checking Sender connection…</div>
       <div class="statbars" id="sender-summary"></div>
