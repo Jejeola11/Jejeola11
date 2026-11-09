@@ -31,6 +31,26 @@ exports.handler=async event=>{
   const {db}=access;
   if(event.httpMethod==='GET'){
     try{
+      if(event.queryStringParameters?.reports==='1'){
+        if(!sender.configured()) return json(200,{ok:true,reports:[]});
+        const {data:campaigns,error:dbError}=await db.from('audience_campaigns')
+          .select('id,name,audience_filter,status').eq('channel','email')
+          .order('created_at',{ascending:false}).limit(40);
+        if(dbError)throw dbError;
+        const relevant=(campaigns||[]).filter(x=>x.audience_filter?.sender_campaign_id).slice(0,12);
+        const reports=await Promise.all(relevant.map(async campaign=>{
+          const id=campaign.audience_filter.sender_campaign_id;
+          try{
+            const payload=await sender.request('/campaigns/'+encodeURIComponent(id));
+            const p=payload.data||{};
+            return {fuseCampaignId:campaign.id,name:campaign.name,providerCampaignId:id,
+              status:String(p.status||campaign.status),recipients:Number(p.recipient_count||0),
+              sent:Number(p.sent_count||0),opens:Number(p.opens||0),
+              clicks:Number(p.clicks||0),bounces:Number(p.bounces_count||0)};
+          }catch(err){return {fuseCampaignId:campaign.id,name:campaign.name,error:err.message}}
+        }));
+        return json(200,{ok:true,reports});
+      }
       const summary=await audienceSummary(db);
       let connection={configured:sender.configured()};
       if(sender.configured()){
