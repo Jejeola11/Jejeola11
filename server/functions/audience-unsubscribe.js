@@ -22,5 +22,14 @@ exports.handler = async event => {
     const { data: existing } = await db.from('audience_suppressions').select('id').eq('channel', 'email').eq('identifier', contact.email_normalized).maybeSingle();
     if (!existing) await db.from('audience_suppressions').insert({ channel: 'email', identifier: contact.email_normalized, reason: 'unsubscribe_link' });
   }
+  // Provider-side suppression is necessary because Sender owns the marketing group.
+  // The local opt-out above is authoritative even when the provider is unavailable.
+  if (contact?.email_normalized && process.env.SENDER_API_TOKEN) {
+    try {
+      const { request } = require('./_audience-sender');
+      await request('/subscribers/' + encodeURIComponent(contact.email_normalized),
+        'PATCH', {subscriber_status:'UNSUBSCRIBED',trigger_automation:false}, true);
+    } catch (err) { console.error('[Sender unsubscribe propagation]', err.message); }
+  }
   return page('You’re unsubscribed.', 'Fuse Atelier will no longer send marketing emails to this address.');
 };
