@@ -116,5 +116,11 @@
     "deploymentEnabled": {
       "fuse-live": false
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/audience-scheduled-email",
+      "schedule": "0 9 * * *"
+    }
+  ]
 }
