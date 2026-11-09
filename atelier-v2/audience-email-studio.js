@@ -237,6 +237,21 @@
    $('sender-sync-now').disabled=!c.connected;
   }catch(err){$('sender-state').className='note warn';$('sender-state').textContent=err.message;$('sender-sync-now').disabled=true}
  }
+ async function loadSenderReports(){
+  const b=$('sender-reports-refresh');
+  b.disabled=true;$('sender-reports-content').textContent='Loading Sender campaign statistics…';
+  try{
+   const d=await api('GET',null,'/api/audience-sender?reports=1');
+   const reports=d.reports||[];
+   $('sender-reports-content').innerHTML=reports.length?reports.map(r=>'<article class="campaign-row">'+
+    '<strong>'+esc(r.name||'Fuse marketing campaign')+'</strong><div class="hint">'+
+    (r.error?esc(r.error):('Status: '+esc(r.status)+' · Sent: '+Number(r.sent||0).toLocaleString()+
+      ' · Opens: '+Number(r.opens||0).toLocaleString()+' · Clicks: '+Number(r.clicks||0).toLocaleString()+
+      ' · Bounces: '+Number(r.bounces||0).toLocaleString()))+'</div></article>').join(''):
+    '<p class="hint">No Sender marketing campaign has been launched yet. Saved drafts will not appear here until submitted to Sender.</p>';
+  }catch(err){$('sender-reports-content').textContent=err.message;toast(err.message,true)}
+  finally{b.disabled=false}
+ }
  async function syncSenderNow(){
    const b=$('sender-sync-now');b.disabled=true;$('sender-sync-message').textContent='Syncing the next confirmed-subscriber batch without sending emails…';
    try{
@@ -350,6 +365,7 @@
   $('cancel-schedule').onclick=()=>state.editId&&cancelSchedule(state.editId);
   $('reconcile').onclick=reconcile;
   $('sender-sync-now').onclick=syncSenderNow;
+  $('sender-reports-refresh').onclick=loadSenderReports;
   $('refresh').onclick=()=>load();
   $('reset').onclick=reset;
   $('preview-desktop').onclick=()=>{$('preview-shell').classList.remove('mobile');$('preview-desktop').classList.add('active');$('preview-mobile').classList.remove('active')};
