@@ -30,8 +30,11 @@ function actionBody(event){
 function safeOrigin(event) {
   const origin=event.headers?.origin || event.headers?.Origin;
   if(!origin)return true; // Ordinary form submissions may omit Origin on some clients.
-  try{return new URL(origin).origin===new URL(publicAppUrl()).origin}
-  catch(_){return false}
+  try{
+    const incoming=new URL(origin).origin;
+    const allowed=new Set([new URL(publicAppUrl()).origin,'https://fuseatelier.com','https://www.fuseatelier.com']);
+    return allowed.has(incoming);
+  }catch(_){return false}
 }
 async function isBlocked(db,email){
   const [s,c] = await Promise.all([
