@@ -2,6 +2,7 @@ const { json } = require('./_supabase');
 const { requireAdmin, parseBody, clean, publicAppUrl } = require('./_audience');
 const { configured, mailHtml, deliverCampaign, eligibleRecipients, audienceSegmentCounts } = require('./_audience-email');
 const { normalizeDesign, templates, SEGMENTS } = require('./_audience-email-studio');
+const { configured: senderConfigured, deliverSenderCampaign } = require('./_audience-sender');
 
 function parseScheduledFor(value) {
   if (!value) return null;
@@ -10,11 +11,11 @@ function parseScheduledFor(value) {
   return date.toISOString();
 }
 
-function creativeFilter(input){
+function creativeFilter(input,previousProvider){
   const segment=SEGMENTS.includes(input.segment)?input.segment:'all_subscribed';
   const design=normalizeDesign(input.design);
   if(design&&JSON.stringify(design).length>55000)throw new Error('Email design is too large. Remove a few blocks or shorten descriptions.');
-  return {segment,design};
+  return {segment,design,provider: previousProvider || (senderConfigured() ? 'sender' : 'resend')};
 }
 async function reconcileQueued(db,campaignId){
   if(!configured())throw new Error('Resend is not configured.');
@@ -78,8 +79,8 @@ exports.handler = async event => {
     try { audienceCounts = await audienceSegmentCounts(db); } catch (err) { console.error('[Audience segments]',err.message); }
     const statuses = {};
     for(const d of deliveries){const key=d.status||'pending';statuses[key]=(statuses[key]||0)+1;}
-    return json(200, { ok:true, configured:configured(), sender:process.env.FUSE_EMAIL_FROM||null,
-      dailyLimit:100, templates:templates(), segments:SEGMENTS, audienceCounts,
+    return json(200, { ok:true, configured:configured()||senderConfigured(), senderProvider:senderConfigured()?'sender':'resend', sender:process.env.FUSE_EMAIL_FROM||null,
+      dailyLimit:senderConfigured()?null:100, templates:templates(), segments:SEGMENTS, audienceCounts,
       campaigns:data||[], deliveries, deliverySummary:statuses, deliverySummarySample:deliveries.length });
   }
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed.' });
@@ -131,6 +132,7 @@ exports.handler = async event => {
     const actionUrl = clean(input.actionUrl, 2000);
     const kind = ['marketing', 'repermission', 'transactional'].includes(input.kind) ? input.kind : 'marketing';
     const scheduledFor = parseScheduledFor(input.scheduledFor);
+    const audienceFilter = creativeFilter(input,campaign.audience_filter?.provider);
     if (!name || !subject || !body) return json(400, { error: 'Campaign name, subject and message are required.' });
     if (input.scheduledFor && !scheduledFor) return json(400, { error: 'Choose a future date and time to schedule this email.' });
     if (actionUrl && !/^https:\/\//i.test(actionUrl)) return json(400, { error: 'Your action link must start with https://.' });
@@ -143,9 +145,10 @@ exports.handler = async event => {
     return json(200, { ok: true, campaign: data, message: scheduledFor ? 'Scheduled email updated.' : 'Draft updated.' });
   }
 
-  if (!configured()) return json(409, { error: 'Add RESEND_API_KEY and FUSE_EMAIL_FROM in Vercel before sending.' });
+  if (!configured() && !senderConfigured()) return json(409, { error: 'Configure an email provider in Vercel before sending.' });
 
   if (input.action === 'send_test') {
+    if (!configured()) return json(409,{error:'Test email currently requires Resend to be configured.'});
     const email = clean(input.email, 320).toLowerCase();
     if (!/^\S+@\S+\.\S+$/.test(email)) return json(400, { error: 'Enter a valid test email.' });
     const html = mailHtml(campaign, { first_name: 'Ria' }, `${publicAppUrl()}/api/audience-unsubscribe?test=1`, `${publicAppUrl()}/api/audience-subscribe?test=1`);
@@ -174,7 +177,8 @@ exports.handler = async event => {
     .eq('id', campaign.id).eq('status', 'draft').select().maybeSingle();
   if (claimError || !claimed) return json(409, { error: 'This campaign is already being processed.' });
   try {
-    const result = await deliverCampaign(db, claimed);
+    const result = claimed.audience_filter?.provider === 'sender'
+      ? await deliverSenderCampaign(db, claimed) : await deliverCampaign(db, claimed);
     return json(200, { ok: true, ...result });
   } catch (error) {
     await db.from('audience_campaigns').update({ status: 'paused', updated_at: new Date().toISOString() }).eq('id', campaign.id);
