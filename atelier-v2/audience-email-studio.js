@@ -253,13 +253,21 @@
   finally{b.disabled=false}
  }
  async function syncSenderNow(){
-   const b=$('sender-sync-now');b.disabled=true;$('sender-sync-message').textContent='Syncing the next confirmed-subscriber batch without sending emails…';
+   const b=$('sender-sync-now');b.disabled=true;
+   let totalNew=0,totalExisting=0,totalDenied=0;
+   $('sender-sync-message').textContent='Importing verified subscribers in batches. No marketing emails will be sent…';
    try{
-     const d=await api('POST',{action:'sync',limit:20},'/api/audience-sender');
-     $('sender-sync-message').textContent='Added '+Number(d.imported||0)+' new subscribers, linked '+Number(d.already||0)+' existing. '+Number(d.remaining||0)+' still pending. '+Number(d.denied||0)+' provider-level suppressions. '+(d.error||'');
-     toast('Sender sync batch processed. No marketing email sent.');
+     for(let run=1;run<=25;run++){
+       const d=await api('POST',{action:'sync',limit:40},'/api/audience-sender');
+       totalNew+=Number(d.imported||0);totalExisting+=Number(d.already||0);totalDenied+=Number(d.denied||0);
+       $('sender-sync-message').textContent='Batch '+run+' · Imported '+totalNew+' · Linked '+totalExisting+
+         ' · Provider-level exclusions '+totalDenied+' · Remaining '+Number(d.remaining||0)+
+         '. Keep this page open for the full import.';
+       if(d.error)throw Error(d.error);
+       if(Number(d.remaining||0)===0){toast('Sender import completed for eligible subscribers. No campaigns sent.');break}
+     }
      await loadSender();
-   }catch(err){$('sender-sync-message').textContent=err.message;toast(err.message,true)}
+   }catch(err){$('sender-sync-message').textContent+=' Import paused: '+err.message;toast(err.message,true)}
    finally{b.disabled=false}
  }
  function reset(){
