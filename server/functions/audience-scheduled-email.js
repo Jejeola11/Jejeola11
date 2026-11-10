@@ -72,8 +72,16 @@ exports.handler = async event => {
         ? await deliverSenderCampaign(db, claimed) : await deliverCampaign(db, claimed);
       results.push({ id: campaign.id, ...result });
     } catch (sendError) {
-      await db.from('audience_campaigns').update({ status: 'paused', updated_at: new Date().toISOString() }).eq('id', campaign.id);
-      results.push({ id: campaign.id, error: sendError.message || 'Scheduled send failed.' });
+      // Retain the verified provider error for the owner-only dashboard.
+      const timestamp = new Date().toISOString();
+      const { data: latest } = await db.from('audience_campaigns')
+        .select('audience_filter').eq('id',campaign.id).maybeSingle();
+      const filter = {...(latest?.audience_filter || claimed.audience_filter || {}),
+        sender_last_error: String(sendError.message || 'Scheduled send failed.').slice(0,750),
+        sender_failed_at: timestamp};
+      await db.from('audience_campaigns').update({status:'paused',audience_filter:filter,updated_at:timestamp})
+        .eq('id',campaign.id).eq('status','sending');
+      results.push({ id: campaign.id, error: String(sendError.message || 'Scheduled send failed.').slice(0,750) });
     }
   }
   return json(200, { ok: true, senderSync, checked: (due || []).length, results });
