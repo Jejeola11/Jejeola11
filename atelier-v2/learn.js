@@ -7,6 +7,7 @@
   // Only server-owned product IDs are sent to Paystack checkout.
   const checkoutUrls={ebook:'academy-ebook',challenge:'academy-challenge',money:'academy-money',video:'academy-video',influencer:'academy-influencer',landing:'academy-landing',design:'academy-design'};
   const params=new URLSearchParams(location.search);
+  const emailDiscount=params.get('buy')==='influencer' && String(params.get('coupon')||'').trim().toUpperCase()==='EMAIL30';
   const returnTo=FuseCourseFunnel.safeReturn(params.get('return')||(params.has('buy')?'/atelier-v2/free-prompts-workflows.html#course-offer':location.pathname));
   function signupToBuy(course){
     const checkout=FuseCourseFunnel.checkoutURL(course,returnTo,location.search);
@@ -16,9 +17,11 @@
   async function openCheckout(course){
     if(checkoutBusy)return;
     checkoutBusy=true;pendingCourse=course;retry.hidden=true;
-    status.textContent='Opening secure Paystack checkout for '+courseMeta[course].name+' · ₦'+courseMeta[course].price.toLocaleString('en-NG')+'…';
+    const discounted=course==='influencer'&&emailDiscount;
+    status.textContent='Opening secure Paystack checkout for '+courseMeta[course].name+' · ₦'+(discounted?6930:courseMeta[course].price).toLocaleString('en-NG')+'…';
     try{
-      const out=await Fuse.api('paystack-init',{pack:checkoutUrls[course]});
+      const out=await Fuse.api('paystack-init',{pack:checkoutUrls[course],...(discounted?{coupon:'EMAIL30'}:{})});
+      if(discounted&&Number(out.amount_naira)!==6930)throw Error('Your 30% discount could not be verified. No payment was started.');
       const url=new URL(out.authorization_url);
       if(url.protocol!=='https:'||url.hostname!=='checkout.paystack.com')throw Error('Could not open secure Paystack checkout. Please try again.');
       location.assign(url.href);
