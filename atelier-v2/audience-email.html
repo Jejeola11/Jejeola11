@@ -3,39 +3,55 @@
 <head>
  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
  <meta name="theme-color" content="#001012"><meta name="description" content="Fuse Atelier Audience — visual email campaigns, templates, subscribers and delivery tracking.">
- <title>Email Studio · Fuse Audience</title>
+ <title>Email Studio · Fuse Atelier</title>
  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
- <link rel="stylesheet" href="/atelier-v2/audience-email-studio.css?v=discount-20261110">
+ <link rel="stylesheet" href="/atelier-v2/audience-email-studio.css?v=premium-reset-20261110">
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
- <script defer src="/atelier-v2/audience-email-studio.js?v=loop-20261110"></script>
+ <script defer src="/atelier-v2/audience-email-studio.js?v=premium-reset-20261110"></script>
 </head>
 <body>
 <header class="top"><div class="shell top-inner">
- <a class="brand" href="/atelier-v2/audience.html" aria-label="Return to Fuse Audience"><span class="mark">F</span><span>FUSE <span class="gradient">AUDIENCE</span><small>Marketing email studio</small></span></a>
- <div class="top-right"><span class="tag">OWNER WORKSPACE</span><a class="btn small" href="/atelier-v2/audience.html">← Audience Dashboard</a></div>
+ <a class="brand" href="/atelier-v2/audience.html" aria-label="Return to Fuse Audience"><span class="mark">F</span><span>FUSE <span class="gradient">ATELIER</span><small>Email Studio</small></span></a>
+ <div class="top-right"><span class="tag">PRIVATE WORKSPACE</span><a class="btn small" href="/atelier-v2/audience.html">← Audience Dashboard</a></div>
 </div></header>
 <main class="shell main">
  <section id="gate" class="gate"><div class="panel"><div class="eyebrow">Fuse operations</div><h1>Checking admin access…</h1><p class="muted" id="gate-copy">Only the Fuse Atelier owner can manage email campaigns.</p><button id="gate-action" hidden class="btn">Back to audience</button></div></section>
  <div id="app" hidden>
   <section class="hero">
-   <div><div class="eyebrow">Creative campaigns · Real people · Measurable results</div><h1>Email that <span class="gradient">looks like your brand.</span></h1><p>Design image-rich campaigns for the AI Influencer course, Fuse Earn and more. Build your email, check your permissioned audience, preview it on any screen, then test, schedule or launch deliberately.</p></div>
-   <div class="hero-actions"><button class="btn" id="refresh" type="button">↻ Refresh data</button><button class="btn primary" id="reset" type="button">+ New campaign</button></div>
+   <div><div class="eyebrow">FUSE ATELIER <span class="eyebrow-rule"></span> EMAIL STUDIO</div>
+    <h1>Your email <span class="gradient">command centre.</span></h1>
+    <p>One clear place to manage your next send, your audience and results.</p></div>
+   <div class="hero-actions"><button class="btn ghost" id="refresh" type="button">↻ Refresh</button><button class="btn primary" id="reset" type="button">+ Create new email</button></div>
   </section>
-  <div id="setup" class="note">Checking sender configuration…</div>
+  <div id="setup" class="integration-line">Checking sender connection…</div>
+  <section id="spotlight" class="spotlight" aria-label="Next scheduled campaign">
+   <div class="spotlight-main">
+    <div class="spotlight-eyebrow"><span class="live-dot"></span><span id="spotlight-label">NEXT EMAIL</span></div>
+    <h2 id="spotlight-subject">Loading your campaign…</h2>
+    <div class="spotlight-meta"><span id="spotlight-audience">Checking recipients</span><span id="spotlight-provider">Email campaign</span></div>
+    <div class="spotlight-actions"><button class="btn primary" id="spotlight-edit" type="button">Review email design</button><button class="btn ghost" id="spotlight-results" type="button">View results</button></div>
+   </div>
+   <div class="spotlight-time">
+    <span class="time-kicker" id="spotlight-time-label">SCHEDULED SEND</span>
+    <strong id="spotlight-clock">—</strong>
+    <span id="spotlight-date">Lagos time (WAT)</span>
+    <span class="spotlight-pill" id="spotlight-status">Checking</span>
+   </div>
+  </section>
   <section class="metric-grid" aria-label="Campaign overview">
-   <article class="metric"><label>Opted-in email audience</label><strong id="metric-opted">—</strong><p>Excludes unknown consent</p></article>
-   <article class="metric"><label>Saved email campaigns</label><strong id="metric-campaigns">—</strong><p>Drafts, scheduled and sent</p></article>
-   <article class="metric"><label>Recently queued</label><strong id="metric-queued">—</strong><p>Provider accepted, not delivered</p></article>
-   <article class="metric"><label>Recently delivered</label><strong id="metric-delivered">—</strong><p>Delivery confirmation recorded</p></article>
+   <article class="metric"><label>Opted-in subscribers</label><strong id="metric-opted">—</strong><p>Permission verified</p></article>
+   <article class="metric"><label>Current campaigns</label><strong id="metric-campaigns">—</strong><p>Previous campaigns archived</p></article>
+   <article class="metric"><label>Queued for delivery</label><strong id="metric-queued">—</strong><p>Current campaign only</p></article>
+   <article class="metric"><label>Verified delivered</label><strong id="metric-delivered">—</strong><p>Current campaign only</p></article>
   </section>
   <nav class="toolbar" aria-label="Email studio sections">
-   <button type="button" class="tab active" data-tab="compose">✦ Visual builder</button>
-   <button type="button" class="tab" data-tab="campaigns">▤ Campaigns</button>
-   <button type="button" class="tab" data-tab="audience">◎ Audience</button>
-   <button type="button" class="tab" data-tab="analytics">▥ Analytics</button>
+   <button type="button" class="tab active" data-tab="campaigns">01 <span>Campaigns</span></button>
+   <button type="button" class="tab" data-tab="compose">02 <span>Design email</span></button>
+   <button type="button" class="tab" data-tab="audience">03 <span>Subscribers</span></button>
+   <button type="button" class="tab" data-tab="analytics">04 <span>Results</span></button>
   </nav>
-  <section class="pane active" id="pane-compose" aria-label="Create an email campaign">
+  <section class="pane" id="pane-compose" aria-label="Create an email campaign">
    <div class="composer">
     <section class="panel">
      <div class="panel-head"><div><div class="mini" id="edit-indicator">NEW CAMPAIGN</div><h2>Design your next email</h2></div><button class="btn small" id="new-email" type="button" hidden>Start fresh</button></div>
@@ -82,7 +98,7 @@
      </div>
     </section>
     <aside class="panel preview-panel">
-     <div class="panel-head"><div><div class="mini">REAL EMAIL OUTPUT</div><h2>Live campaign preview</h2></div><div class="preview-switch"><button type="button" class="active" id="preview-desktop">Desktop</button><button type="button" id="preview-mobile">Mobile</button></div></div>
+     <div class="panel-head"><div><div class="mini">LIVE PREVIEW</div><h2>How your email looks</h2></div><div class="preview-switch"><button type="button" class="active" id="preview-desktop">Desktop</button><button type="button" id="preview-mobile">Mobile</button></div></div>
      <div class="preview-bg"><div class="preview-shell" id="preview-shell"><iframe title="Email preview" id="preview" class="preview" sandbox="" referrerpolicy="no-referrer"></iframe></div></div>
      <div class="subpanel"><p class="hint" id="preview-status" aria-live="polite">Select a template to preview your email.</p><p class="hint">The GIF is encoded to loop automatically; some email apps or accessibility settings may show only its first frame. Videos themselves cannot reliably play inside email.</p></div>
      <div class="subpanel"><div class="sectiontitle"><div><h2>Test, then launch</h2><p>Save first. Send a real test to your own inbox.</p></div></div>
@@ -96,15 +112,16 @@
     </aside>
    </div>
   </section>
-  <section class="pane" id="pane-campaigns" aria-label="Saved campaigns">
-   <div class="panel"><div class="panel-head"><div><div class="mini">CAMPAIGN LIBRARY</div><h2>Your saved emails</h2></div><button class="btn small primary" type="button" data-tab="compose" onclick="document.querySelector('.tab[data-tab=compose]').click()">+ Design another</button></div>
-    <div class="panel-body"><p class="muted">Edit previous drafts, check scheduled messages, and select a campaign before testing or launching. Sent campaigns stay locked to preserve delivery history.</p><div id="campaign-list" class="campaign-list"></div></div></div>
+  <section class="pane active" id="pane-campaigns" aria-label="Saved campaigns">
+   <div class="panel"><div class="panel-head"><div><div class="mini">YOUR ACTIVE WORKSPACE</div><h2>Current campaigns</h2></div><button class="btn small primary" type="button" id="campaign-new">+ New email</button></div>
+    <div class="panel-body"><p class="muted campaign-intro">Your new starting point. Open a campaign to change its design, send a test or see its delivery status.</p><div id="campaign-list" class="campaign-list"></div>
+    <p class="archive-footnote">Previous campaign history is safely archived, including delivery records. It is excluded from this workspace and will not be resent.</p></div></div>
   </section>
   <section class="pane" id="pane-audience" aria-label="Audience segments">
    <div class="section-grid">
     <div class="panel" id="permission-review-panel"><div class="panel-head"><div><div class="mini">SEPARATE AUDIENCE · CONSENT NOT YET VERIFIED</div><h2>Invite people to choose</h2></div></div>
      <div class="panel-body">
-       <p class="muted">There are <strong id="permission-review-total">—</strong> addresses still awaiting verified permission. They have not been imported as marketing subscribers, and they will not receive automatic promotional or permission-request emails.</p>
+       <p class="muted">There are <strong id="permission-review-total">—</strong> contacts still awaiting verified permission. They have not been imported as marketing subscribers, and they will not receive automatic promotional or permission-request emails.</p>
        <div class="note">Send interested people to a simple signup page. They enter their email, explicitly agree, then confirm from their own inbox before joining Sender.</div>
        <div class="action-row">
          <a class="btn primary" href="/join-emails" target="_blank" rel="noopener noreferrer">↗ Preview signup page</a>
@@ -115,7 +132,7 @@
      </div>
     </div>
     <div class="panel" id="optin-test-panel">
-     <div class="panel-head"><div><div class="mini">VERIFY BEFORE SHARING</div><h2>Test email confirmation</h2></div></div>
+     <div class="panel-head"><div><div class="mini">OPTIONAL · ADVANCED</div><h2>Test email confirmation</h2></div></div>
      <div class="panel-body">
       <p class="muted">Try the real opt-in flow using <strong>an inbox you personally control that is not already subscribed</strong>. Only this address receives a user-requested confirmation message. No email goes to the 194 unverified contacts.</p>
       <div class="field"><label for="optin-test-email">Your test email address</label>
@@ -136,7 +153,7 @@
      <div class="panel-body"><div id="sender-state" class="note">Checking Sender connection…</div>
       <div class="statbars" id="sender-summary"></div>
       <div class="action-row"><button id="sender-sync-now" class="btn primary" type="button">↻ Import all opted-in subscribers</button></div>
-      <p id="sender-sync-message" class="hint">The five-minute scheduler also syncs opted-in subscribers automatically. Imports do not trigger welcome automations.</p>
+      <p id="sender-sync-message" class="hint">Eligible contacts are synchronized before sending. Imports do not trigger welcome emails.</p>
       <div class="note warn">The full 639-address master audience stays in Fuse. Unknown marketing consent is not converted into a subscription. Explicit opt-outs and Sender-side unsubscribes are excluded.</div>
      </div></div>
     <div class="panel"><div class="panel-head"><div><div class="mini">LIVE CONTACT DATABASE</div><h2>Permissioned email segments</h2></div></div><div class="panel-body"><div id="audience-breakdown"></div><p class="hint">Segment totals overlap. A subscriber may be in multiple segments; adding row totals would double-count people.</p></div></div>
@@ -149,14 +166,14 @@
   </section>
   <section class="pane" id="pane-analytics" aria-label="Delivery analytics">
    <div class="section-grid">
-    <div class="panel"><div class="panel-head"><div><div class="mini">SENDER ANALYTICS</div><h2>New marketing campaign results</h2></div></div>
-     <div class="panel-body"><p class="muted">Opens, clicks, bounces and total sent are retrieved directly from Sender and are separate from older Resend delivery records.</p>
+    <div class="panel"><div class="panel-head"><div><div class="mini">SENDER ANALYTICS</div><h2>Campaign performance</h2></div></div>
+     <div class="panel-body"><p class="muted">Opens, clicks, bounces and delivery totals for the current campaign are retrieved from Sender.</p>
       <div class="action-row"><button id="sender-reports-refresh" class="btn primary" type="button">↻ Get Sender reports</button></div>
       <div id="sender-reports-content" class="campaign-list"><p class="hint">No results loaded yet.</p></div>
      </div></div>
     <div class="panel"><div class="panel-head"><div><div class="mini">DELIVERY MONITOR</div><h2>Provider delivery status</h2></div></div><div class="panel-body"><div class="statbars" id="analytics-bars"></div><p id="analytics-note" class="hint"></p><p id="metrics-note" class="hint"></p>
-     <div class="action-row"><button class="btn primary" id="reconcile" type="button">↻ Verify queued messages</button></div><p class="hint" id="reconcile-status">Checks up to 25 older queued messages against Resend. No duplicate sends.</p>
-     <div class="note warn">Some older records were left in queued state after provider acceptance. Only verified delivered events count as delivered. Hard bounces are excluded from future campaigns.</div>
+     <div class="action-row"><button class="btn primary" id="reconcile" type="button">↻ Verify queued messages</button></div><p class="hint" id="reconcile-status">Only checks queued messages for the current campaign; does not send duplicates.</p>
+     <div class="note">Previous delivery records are archived. A queued email is not the same as a confirmed delivery.</div>
     </div></div>
     <div class="panel"><div class="panel-head"><div><div class="mini">RECENT ACTIVITY</div><h2>Recipient-level events</h2></div></div><div class="delivery-scroll" id="delivery-list"></div></div>
    </div>
