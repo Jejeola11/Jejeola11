@@ -16,8 +16,8 @@ function subscriberDiscountReadiness(filter) {
   if(!/^https:\/\//i.test(destination))return 'Set the discount CTA to a working HTTPS discount checkout page.';
   try{
     const u=new URL(destination);
-    if(u.hostname.replace(/^www\./,'')==='fuseatelier.com'&&/^\/influencer\/?$/.test(u.pathname)&&!u.search){
-      return 'The 30% coupon redemption page is not connected yet. Point the chrome button to the working discount checkout before scheduling or sending.';
+    if(u.origin!=='https://fuseatelier.com' || !/^\/influencer\/discount\/?$/.test(u.pathname) || u.search){
+      return 'Set the chrome discount button to https://fuseatelier.com/influencer/discount so subscribers can redeem EMAIL30.';
     }
   }catch(_){return 'Provide a valid HTTPS coupon checkout link.'}
   return '';
