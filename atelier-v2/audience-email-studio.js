@@ -27,8 +27,41 @@
   $('metric-queued').textContent=String(state.deliveries.filter(x=>x.status==='queued').length);
   $('metric-delivered').textContent=String(state.deliveries.filter(x=>x.status==='delivered').length);
   $('metrics-note').textContent='Delivery metrics reflect the most recent '+state.deliveries.length+' recipient records.';
-  $('setup').className='note'+(data.configured?'':' warn');
-  $('setup').textContent=data.senderProvider==='sender'?'Sender marketing enabled · '+(data.sender||'Verified sending domain')+' · New campaigns use Sender without the former 100-email/day Fuse limit. Tests and older delivery records still use Resend.':(data.configured?'Resend is configured · '+(data.sender||'Verified sender')+' · Visual campaigns can be saved and tested. The existing Resend sender limits launches to 100 emails a day.':'Drafts and previews work. Sending requires an email provider in Vercel.');
+  $('setup').className='integration-line'+(data.configured?'':' disconnected');
+  $('setup').textContent=data.senderProvider==='sender'
+    ?'● Sender connected · Verified marketing audience · Test messages via Resend'
+    :(data.configured?'● Email connected · Review the 100/day Resend sending limit':'● Connect an email provider before launching campaigns');
+ }
+ function renderSpotlight(){
+  const c=state.campaigns.find(x=>x.status==='scheduled')||
+    state.campaigns.find(x=>x.status==='sending')||
+    state.campaigns.find(x=>x.status==='draft')||
+    state.campaigns[0];
+  const el=$('spotlight');if(!el)return;
+  if(!c){
+   $('spotlight-label').textContent='START YOUR FIRST EMAIL';
+   $('spotlight-subject').textContent='Create a campaign that feels like Fuse Atelier.';
+   $('spotlight-audience').textContent='Your verified audience is ready';
+   $('spotlight-provider').textContent='Design · Test · Schedule';
+   $('spotlight-time-label').textContent='NO UPCOMING SEND';
+   $('spotlight-clock').textContent='—';
+   $('spotlight-date').textContent='Nothing scheduled';
+   $('spotlight-status').textContent='Ready to design';
+   $('spotlight-edit').textContent='Create an email';
+   $('spotlight-edit').dataset.campaignId='';
+   return;
+  }
+  $('spotlight-label').textContent=c.status==='scheduled'?'NEXT SCHEDULED EMAIL':c.status==='sending'?'SENDING NOW':c.status==='sent'?'LATEST CAMPAIGN':'CURRENT CAMPAIGN';
+  $('spotlight-subject').textContent=c.subject||c.name;
+  $('spotlight-audience').textContent=Number(state.segments[c.audience_filter?.segment]||0).toLocaleString()+' opted-in recipients';
+  $('spotlight-provider').textContent='Via '+(c.audience_filter?.provider==='sender'?'Sender':'Resend')+' · '+(c.campaign_kind==='marketing'?'Promotional email':'Email');
+  const date=c.scheduled_for?new Date(c.scheduled_for):null;
+  $('spotlight-time-label').textContent=date?'SCHEDULED · LAGOS TIME':'CAMPAIGN STATUS';
+  $('spotlight-clock').textContent=date?date.toLocaleTimeString('en-GB',{timeZone:'Africa/Lagos',hour:'2-digit',minute:'2-digit',hour12:true}).toUpperCase():c.status.toUpperCase();
+  $('spotlight-date').textContent=date?date.toLocaleDateString('en-GB',{timeZone:'Africa/Lagos',weekday:'long',day:'numeric',month:'long',year:'numeric'})+' · WAT':'No send time scheduled';
+  $('spotlight-status').textContent=c.status==='scheduled'?'● Scheduled':c.status==='sent'?'● Submitted to provider':'● '+c.status[0].toUpperCase()+c.status.slice(1);
+  $('spotlight-edit').textContent=c.status==='sent'?'View email':'Review email design';
+  $('spotlight-edit').dataset.campaignId=c.id;
  }
  function drawTemplates(){
   $('templates').innerHTML=state.templates.map(t=>'<button type="button" class="template art-'+esc(t.id)+(state.design&&state.design.template===t.id?' active':'')+'" data-template="'+esc(t.id)+'"><span class="template-art"><i>FUSE ATELIER</i><b>'+(t.id==='earn'?'EARN WITH FUSE':t.id==='influencer_discount'?'30% OFF<br>AI INFLUENCERS':t.id==='influencer'?'CREATE<br>INFLUENCE':'A CREATIVE NOTE')+'</b><span></span></span><label>'+esc(t.name)+'</label><small>'+esc(t.description)+'</small></button>').join('');
@@ -180,13 +213,17 @@
  }
  function drawCampaigns(){
   const node=$('campaign-list');
-  node.innerHTML=state.campaigns.length?state.campaigns.map(c=>
-   '<article class="campaign-row"><div class="campaign-info"><h3>'+esc(c.name)+'</h3><p>'+esc(c.subject||'Untitled')+' · '+esc(c.campaign_kind)+' · '+esc(SEGMENT_LABELS[c.audience_filter?.segment]||'Existing audience')+'</p><p>'+new Date(c.created_at).toLocaleDateString()+(c.scheduled_for?' · Scheduled '+new Date(c.scheduled_for).toLocaleString():'')+'</p>'+
-   '<div class="campaign-actions">'+(['draft','paused','scheduled','cancelled'].includes(c.status)?'<button type="button" class="btn small" data-campaign-action="edit" data-id="'+esc(c.id)+'">Edit design</button>':'')+
-   '<button type="button" class="btn small ghost" data-campaign-action="select" data-id="'+esc(c.id)+'">Select for testing</button>'+
-   (c.status==='scheduled'?'<button type="button" class="btn small danger" data-campaign-action="cancel" data-id="'+esc(c.id)+'">Cancel schedule</button>':'')+
-   '</div></div><span class="status '+esc(c.status)+'">'+esc(c.status)+'</span></article>').join('')
-   :'<div class="empty"><strong>No campaigns saved</strong>Select a template, build the email and save your first draft.</div>';
+  node.innerHTML=state.campaigns.length?state.campaigns.map(c=>{
+    const when=c.scheduled_for?new Date(c.scheduled_for).toLocaleString('en-GB',{timeZone:'Africa/Lagos',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:true})+' WAT':'Not scheduled';
+    return '<article class="campaign-row"><div class="campaign-info"><div class="mini">EMAIL CAMPAIGN</div><h3>'+esc(c.subject||c.name)+'</h3>'+
+     '<p>'+esc(c.name)+' · '+esc(SEGMENT_LABELS[c.audience_filter?.segment]||'Selected audience')+'</p>'+
+     '<p><strong>'+esc(c.status==='scheduled'?'Scheduled for '+when:c.status==='sent'?'Submitted to provider':c.status==='draft'?'Draft · Not scheduled':c.status)+'</strong></p>'+
+     '<div class="campaign-actions">'+(['draft','paused','scheduled','cancelled'].includes(c.status)?'<button type="button" class="btn small primary" data-campaign-action="edit" data-id="'+esc(c.id)+'">Open email</button>':'')+
+     (c.status==='sent'?'<button type="button" class="btn small" data-campaign-action="select" data-id="'+esc(c.id)+'">View details</button>':'')+
+     (c.status==='scheduled'?'<button type="button" class="btn small danger" data-campaign-action="cancel" data-id="'+esc(c.id)+'">Cancel schedule</button>':'')+
+     '</div></div><span class="status '+esc(c.status)+'">'+esc(c.status)+'</span></article>';
+  }).join('')
+   :'<div class="empty"><strong>No current campaigns</strong>Create your next email to begin a fresh campaign.</div>';
  }
  function drawAudience(){
   const keys=['all_subscribed','influencer_prospects','influencer_students','earn_prospects','registered_subscribers','phone_to_client'];
@@ -229,7 +266,7 @@
    state.templates=d.templates||[];
    state.segments=d.audienceCounts||{};
    if(initial){loadTemplate('influencer_discount',true);state.mutated=false}
-   renderMetrics(d);drawAudience();drawCampaigns();drawAnalytics();drawTemplates();previewCount();updateSelected();await loadSender();
+   renderMetrics(d);renderSpotlight();drawAudience();drawCampaigns();drawAnalytics();drawTemplates();previewCount();updateSelected();await loadSender();
    $('gate').hidden=true;$('app').hidden=false;
   }catch(err){
    if(initial){$('gate-copy').textContent=err.message;$('gate-action').hidden=false}
@@ -343,7 +380,7 @@
  function reset(){
   state.editId=null;state.selected=null;state.mutated=false;$('save').textContent='Save draft or schedule';
   $('edit-indicator').textContent='NEW CAMPAIGN';$('new-email').hidden=true;$('launch-confirmation').value='';
-  loadTemplate('influencer_discount',true);updateSelected();setTab('compose');window.scrollTo({top:0,behavior:'smooth'});
+  loadTemplate('influencer_discount',true);updateSelected();setTab('compose');document.querySelector('.toolbar')?.scrollIntoView({behavior:'smooth',block:'start'});
  }
  function editCampaign(id){
   const c=state.campaigns.find(x=>x.id===id);if(!c)return;
@@ -357,7 +394,7 @@
   $('preheader').value=state.design.preheader||'';
   applyColors();drawTemplates();drawBlocks();previewCount();requestPreview();
   $('edit-indicator').textContent='EDITING · '+c.status.toUpperCase();
-  $('save').textContent='Save changes';$('new-email').hidden=false;updateSelected();setTab('compose');window.scrollTo({top:0,behavior:'smooth'});
+  $('save').textContent='Save changes';$('new-email').hidden=false;updateSelected();setTab('compose');document.querySelector('.toolbar')?.scrollIntoView({behavior:'smooth',block:'start'});
  }
  async function save(){
   const b=$('save'),data=formPayload();
@@ -408,7 +445,10 @@
   catch(err){toast(err.message,true);$('reconcile-status').textContent=err.message}finally{b.disabled=false}
  }
  function bind(){
-  document.querySelectorAll('[data-tab]').forEach(el=>el.addEventListener('click',()=>setTab(el.dataset.tab)));
+  document.querySelectorAll('[data-tab]').forEach(el=>el.addEventListener('click',()=>{
+   setTab(el.dataset.tab);
+   document.querySelector('.toolbar')?.scrollIntoView({behavior:'smooth',block:'start'});
+  }));
   $('templates').addEventListener('click',ev=>{const btn=ev.target.closest('[data-template]');if(btn)loadTemplate(btn.dataset.template)});
   $('block-add').innerHTML=Object.entries(TYPES).map(([type,label])=>'<button type="button" data-add="'+type+'">+ '+esc(label)+'</button>').join('');
   $('block-add').addEventListener('click',e=>{const el=e.target.closest('[data-add]');if(el)addBlock(el.dataset.add)});
@@ -454,6 +494,12 @@
   $('sender-reports-refresh').onclick=loadSenderReports;
   $('refresh').onclick=()=>load();
   $('reset').onclick=reset;
+  $('campaign-new').onclick=reset;
+  $('spotlight-edit').onclick=()=>{
+    const id=$('spotlight-edit').dataset.campaignId;
+    if(id)editCampaign(id);else reset();
+  };
+  $('spotlight-results').onclick=()=>{setTab('analytics');document.querySelector('.toolbar')?.scrollIntoView({behavior:'smooth',block:'start'});};
   $('preview-desktop').onclick=()=>{$('preview-shell').classList.remove('mobile');$('preview-desktop').classList.add('active');$('preview-mobile').classList.remove('active')};
   $('preview-mobile').onclick=()=>{$('preview-shell').classList.add('mobile');$('preview-mobile').classList.add('active');$('preview-desktop').classList.remove('active')};
   $('copy-html').onclick=async()=>{if(!state.latestHtml)return toast('Preview the email first.',true);try{await navigator.clipboard.writeText(state.latestHtml);toast('Email HTML copied to clipboard.')}catch(_){toast('Clipboard is unavailable on this browser.',true)}};
