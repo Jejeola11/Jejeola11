@@ -51,14 +51,14 @@
    $('spotlight-edit').dataset.campaignId='';
    return;
   }
-  $('spotlight-label').textContent=c.status==='scheduled'?'NEXT SCHEDULED EMAIL':c.status==='sending'?'SENDING NOW':c.status==='sent'?'LATEST CAMPAIGN':'CURRENT CAMPAIGN';
+  $('spotlight-label').textContent=c.status==='paused'?'DELIVERY BLOCKED · ACTION REQUIRED':c.status==='scheduled'?'NEXT SCHEDULED EMAIL':c.status==='sending'?'SENDING NOW':c.status==='sent'?'LATEST CAMPAIGN':'CURRENT CAMPAIGN';
   $('spotlight-subject').textContent=c.subject||c.name;
   $('spotlight-audience').textContent=Number(state.segments[c.audience_filter?.segment]||0).toLocaleString()+' opted-in recipients';
   $('spotlight-provider').textContent='Via '+(c.audience_filter?.provider==='sender'?'Sender':'Resend')+' · '+(c.campaign_kind==='marketing'?'Promotional email':'Email');
   const date=c.scheduled_for?new Date(c.scheduled_for):null;
-  $('spotlight-time-label').textContent=date?'SCHEDULED · LAGOS TIME':'CAMPAIGN STATUS';
-  $('spotlight-clock').textContent=date?date.toLocaleTimeString('en-GB',{timeZone:'Africa/Lagos',hour:'2-digit',minute:'2-digit',hour12:true}).toUpperCase():c.status.toUpperCase();
-  $('spotlight-date').textContent=date?date.toLocaleDateString('en-GB',{timeZone:'Africa/Lagos',weekday:'long',day:'numeric',month:'long',year:'numeric'})+' · WAT':'No send time scheduled';
+  $('spotlight-time-label').textContent=c.status==='paused'?'PROVIDER ERROR':date?'SCHEDULED · LAGOS TIME':'CAMPAIGN STATUS';
+  $('spotlight-clock').textContent=c.status==='paused'?'PAUSED':date?date.toLocaleTimeString('en-GB',{timeZone:'Africa/Lagos',hour:'2-digit',minute:'2-digit',hour12:true}).toUpperCase():c.status.toUpperCase();
+  $('spotlight-date').textContent=c.status==='paused'?(c.audience_filter?.sender_last_error||'Sender could not start this campaign. Check your sending domain and retry.').slice(0,380):date?date.toLocaleDateString('en-GB',{timeZone:'Africa/Lagos',weekday:'long',day:'numeric',month:'long',year:'numeric'})+' · WAT':'No send time scheduled';
   $('spotlight-status').textContent=c.status==='scheduled'?'● Scheduled':c.status==='sent'?'● Submitted to provider':'● '+c.status[0].toUpperCase()+c.status.slice(1);
   $('spotlight-edit').textContent=c.status==='sent'?'View email':'Review email design';
   $('spotlight-edit').dataset.campaignId=c.id;
@@ -217,8 +217,10 @@
     const when=c.scheduled_for?new Date(c.scheduled_for).toLocaleString('en-GB',{timeZone:'Africa/Lagos',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:true})+' WAT':'Not scheduled';
     return '<article class="campaign-row"><div class="campaign-info"><div class="mini">EMAIL CAMPAIGN</div><h3>'+esc(c.subject||c.name)+'</h3>'+
      '<p>'+esc(c.name)+' · '+esc(SEGMENT_LABELS[c.audience_filter?.segment]||'Selected audience')+'</p>'+
-     '<p><strong>'+esc(c.status==='scheduled'?'Scheduled for '+when:c.status==='sent'?'Submitted to provider':c.status==='draft'?'Draft · Not scheduled':c.status)+'</strong></p>'+
+     '<p><strong>'+esc(c.status==='scheduled'?'Scheduled for '+when:c.status==='sent'?'Submitted to provider':c.status==='draft'?'Draft · Not scheduled':c.status==='paused'?'Paused · Sending provider rejected launch':c.status)+'</strong></p>'+ 
+     (c.status==='paused'&&c.audience_filter?.sender_last_error?'<p class="note">'+esc(c.audience_filter.sender_last_error).slice(0,650)+'</p>':'')+
      '<div class="campaign-actions">'+(['draft','paused','scheduled','cancelled'].includes(c.status)?'<button type="button" class="btn small primary" data-campaign-action="edit" data-id="'+esc(c.id)+'">Open email</button>':'')+
+     (c.status==='paused'?'<button type="button" class="btn small primary" data-campaign-action="retry" data-id="'+esc(c.id)+'">Retry after fixing DNS</button>':'')+
      (c.status==='sent'?'<button type="button" class="btn small" data-campaign-action="select" data-id="'+esc(c.id)+'">View details</button>':'')+
      (c.status==='scheduled'?'<button type="button" class="btn small danger" data-campaign-action="cancel" data-id="'+esc(c.id)+'">Cancel schedule</button>':'')+
      '</div></div><span class="status '+esc(c.status)+'">'+esc(c.status)+'</span></article>';
@@ -431,6 +433,18 @@
    toast(d.preparing?'Launch queued until Sender import finishes.':'Campaign launch requested. Review provider reporting.');await load();setTab(d.preparing?'audience':'analytics')}
   catch(err){toast(err.message,true);$('test-status').textContent=err.message}finally{b.disabled=false;updateSelected()}
  }
+ async function retryCampaign(id){
+  const campaign=state.campaigns.find(c=>c.id===id);
+  if(!campaign||campaign.status!=='paused')return toast('This campaign is not paused.',true);
+  if(!confirm('Retry the SAME campaign in Sender now? Only continue once Sender shows the fuseatelier.com DMARC record as verified. The existing campaign is reused so no duplicate campaign is created.'))return;
+  const buttons=[...document.querySelectorAll('[data-campaign-action="retry"]')].filter(b=>b.dataset.id===id);
+  buttons.forEach(b=>b.disabled=true);
+  try{
+   const result=await api('POST',{action:'retry',campaignId:id,confirmation:'RETRY '+id});
+   toast(result.status==='sent'?'Existing campaign submitted to Sender. Verify actual delivery in Sender Reports.':result.preparing?'Waiting for verified subscribers to sync.':'Sender is processing the retry.');
+  }catch(err){toast(err.message,true)}
+  finally{await load();buttons.forEach(b=>b.disabled=false)}
+ }
  async function cancelSchedule(id){
   const c=state.campaigns.find(x=>x.id===id);if(!c||c.status!=='scheduled')return;
   if(!confirm('Cancel scheduled email: '+c.name+'?'))return;
@@ -515,6 +529,7 @@
   $('campaign-list').addEventListener('click',ev=>{const el=ev.target.closest('[data-campaign-action]');if(!el)return;
    if(el.dataset.campaignAction==='edit'||el.dataset.campaignAction==='select')editCampaign(el.dataset.id);
    if(el.dataset.campaignAction==='cancel')cancelSchedule(el.dataset.id);
+   if(el.dataset.campaignAction==='retry')retryCampaign(el.dataset.id);
   });
   $('gate-action').onclick=()=>location.assign('/atelier-v2/audience.html');
  }
