@@ -175,7 +175,7 @@ exports.handler = async event => {
     const html = mailHtml(campaign, { first_name: 'Ria' }, `${publicAppUrl()}/api/audience-unsubscribe?test=1`, `${publicAppUrl()}/api/audience-subscribe?test=1`);
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST', headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: process.env.FUSE_EMAIL_FROM, to: [email], subject: `[TEST] ${campaign.subject}`, html, reply_to: process.env.FUSE_EMAIL_REPLY_TO || undefined })
+      body: JSON.stringify({ from: process.env.FUSE_EMAIL_FROM, to: [email], subject: `[TEST ${new Date().toISOString().replace(/[^0-9]/g,'').slice(0,14)}-${Math.random().toString(36).slice(2,6)}] ${campaign.subject}`, html, reply_to: process.env.FUSE_EMAIL_REPLY_TO || undefined })
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) return json(502, { error: payload.message || 'Resend rejected the test email.' });
