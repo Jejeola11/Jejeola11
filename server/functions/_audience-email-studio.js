@@ -114,7 +114,24 @@ function trackingUrl(link,campaign){
    Visual gradients have solid-color fallbacks for clients that do not support them.
    GIF and hero images remain user-editable through the regular Email Studio blocks. */
 function renderDiscountEmail(campaign,d,contact,unsubscribeUrl){
- const dark='#031316',panel='#0b2023',white='#f4f6f8',muted='#aabcc0',teal='#92ece4',yellow='#e7f45b';
+ const dark='#020b0f',panel='#0b2023',white='#f4f6f8',muted='#aabcc0',teal='#92ece4',yellow='#e7f45b';
+ // Rasterized design assets: Android Gmail may drop inline CSS gradients.
+ // These public PNG images preserve the intended metallic finish when images load.
+ const chromeButton='https://res.cloudinary.com/bzw55wh2/image/upload/f_png/v1794278420/fuse_email_chrome_cta_20261110.png';
+ const chromeTitle='https://res.cloudinary.com/bzw55wh2/image/upload/f_png/v1794278501/fuse_email_chrome_how_it_works_20261110.png';
+ const bgImage='https://res.cloudinary.com/bzw55wh2/image/upload/f_png/v1794278403/fuse_email_black_teal_gradient_20261110.png';
+ // Progressively changing fallback colours give an obvious black-to-teal effect
+ // even in email clients which block remote backgrounds or strip gradients.
+ const tones={
+  top:['#020e12','linear-gradient(118deg,#02090d 0%,#092b2e 100%)'],
+  intro:['#061e22','linear-gradient(118deg,#031015 0%,#0d3437 100%)'],
+  how:['#0b2b2e','linear-gradient(118deg,#071b20 0%,#0a393c 100%)'],
+  after:['#0c3033','linear-gradient(118deg,#071d23 0%,#0d4143 100%)'],
+  gif:['#0b3638','linear-gradient(118deg,#08272c 0%,#0d4042 100%)'],
+  code:['#092b2d','linear-gradient(118deg,#0b3538 0%,#041e22 100%)'],
+  button:['#072226','linear-gradient(118deg,#07262a 0%,#03161c 100%)'],
+  close:['#04151a','linear-gradient(118deg,#051b20 0%,#020e13 100%)']
+ };
  const offerUrl=trackingUrl(campaign.action_url||'https://fuseatelier.com/influencer/discount',campaign);
  const rich=s=>{
   const safe=e(withName(s||'',contact));
@@ -123,34 +140,48 @@ function renderDiscountEmail(campaign,d,contact,unsubscribeUrl){
  };
  const paragraphs=(s,style='')=>String(s||'').split(/\n\s*\n/).filter(Boolean).map(x=>
    '<p style="font:400 16px/1.78 Arial,Helvetica,sans-serif;color:'+white+';margin:0 0 22px;'+style+'">'+rich(x).replace(/\n/g,'<br>')+'</p>').join('');
- const section=(content,padding='8px 34px 12px')=>'<tr><td style="background-color:'+dark+';background-image:linear-gradient(125deg,#031316 5%,#092629 75%,#031316);padding:'+padding+'">'+content+'</td></tr>';
+ const section=(content,padding='8px 34px 12px',tone='intro')=>{
+  const palette=tones[tone]||tones.intro;
+  // Deliberately use CSS background shorthand (not background-image:linear-gradient).
+  // Gmail Android can corrupt the latter; bgcolor remains as a graceful fallback.
+  return '<tr><td bgcolor="'+palette[0]+'" style="background-color:'+palette[0]+';background:'+palette[1]+';padding:'+padding+'">'+content+'</td></tr>';
+ };
  const pic=(b,alt)=>b.src?'<img src="'+e(b.src)+'" alt="'+e(b.alt||alt)+'" width="600" style="display:block;width:100%;max-width:600px;height:auto;border:0;outline:none;text-decoration:none">':'<div style="background:#123239;border:1px dashed #85cdc8;border-radius:12px;padding:55px 20px;color:#bee6df;text-align:center;font:700 15px Arial,sans-serif">Add your '+e(alt)+' image in the Fuse Email Studio before sending.</div>';
  const renderSpecial=b=>{
   switch(b.id){
    case 'discount-hero':
-    return section(pic(b,'top flyer'),'0');
+    return section(pic(b,'top flyer'),'0','top');
    case 'discount-intro':
-    return section(paragraphs(b.text),'36px 34px 14px');
+    return section(paragraphs(b.text),'36px 34px 14px','intro');
    case 'discount-how':{
     const points=String(b.text||'').split(/\n\s*\n/).filter(Boolean).map(x=>'<p style="font:600 16px/1.72 Arial,Helvetica,sans-serif;color:'+white+';margin:0 0 23px">'+rich(x).replace(/\n/g,'<br>')+'</p>').join('');
     return section('<div style="background-color:'+panel+';border:1px solid #3d6d6c;border-left:6px solid '+teal+';border-radius:22px;padding:30px 27px 8px">'+
-      '<div style="font:900 18px/1.2 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#e7edf0;background-image:linear-gradient(95deg,#adb3b9,#ffffff,#8d98a0);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin:0 0 24px">'+rich(b.title||'HOW IT WORKS')+'</div>'+points+'</div>','9px 34px 28px');
+      '<div style="margin:0 0 24px">'+(String(b.title||'HOW IT WORKS').trim().toUpperCase()==='HOW IT WORKS'?
+      '<img src="'+chromeTitle+'" alt="HOW IT WORKS" width="270" height="30" style="display:block;width:270px;max-width:100%;height:auto;border:0;text-align:left;color:#ecf5f5;font:900 18px Arial,Helvetica,sans-serif;letter-spacing:1px">':
+      '<strong style="font:900 18px Arial,Helvetica,sans-serif;letter-spacing:2px;color:#ecf5f5">'+rich(b.title)+'</strong>')+'</div>'+points+'</div>','9px 34px 28px','how');
    }
    case 'discount-after':
-    return section(paragraphs(b.text),'3px 34px 15px');
+    return section(paragraphs(b.text),'3px 34px 15px','after');
    case 'discount-gif':
     return section('<a href="'+e(offerUrl)+'" target="_blank" style="display:block;text-decoration:none;outline:none">'+
-      '<div style="border:1px solid #336a6b;border-radius:18px;overflow:hidden">'+pic(b,'animated GIF')+'</div></a>','6px 34px 21px');
+      '<div style="border:1px solid #336a6b;border-radius:18px;overflow:hidden">'+pic(b,'animated GIF')+'</div></a>','6px 34px 21px','gif');
    case 'discount-code':
     return section('<div style="text-align:center;padding:10px 0 6px">'+
      '<div style="font:700 11px/1.5 Arial,sans-serif;letter-spacing:1.8px;color:'+muted+';margin-bottom:9px">'+rich(b.text||'SELECT AND COPY YOUR CODE')+'</div>'+
-     '<div style="display:inline-block;font:900 25px/1.25 Arial,sans-serif;letter-spacing:3px;color:'+yellow+';border:1px dashed '+yellow+';border-radius:11px;padding:11px 30px;user-select:all;-webkit-user-select:all">'+rich(b.title||'EMAIL30')+'</div></div>','0 34px 18px');
+     '<div style="display:inline-block;font:900 25px/1.25 Arial,sans-serif;letter-spacing:3px;color:'+yellow+';border:1px dashed '+yellow+';border-radius:11px;padding:11px 30px;user-select:all;-webkit-user-select:all">'+rich(b.title||'EMAIL30')+'</div></div>','0 34px 18px','code');
    case 'discount-button':{
     const destination=trackingUrl(b.buttonUrl||offerUrl,campaign);
-    return section('<div style="text-align:center"><a href="'+e(destination)+'" style="display:block;padding:19px 15px;border-radius:16px;border:1px solid #f6ffff;background-color:#dce0e6;background-image:linear-gradient(115deg,#9fa6b1 0%,#fcffff 45%,#aab3bb 100%);font:900 16px/1.3 Arial,Helvetica,sans-serif;color:#081315;text-decoration:none">'+e(b.buttonText||'ACCESS YOUR 30% DISCOUNT →')+'</a></div>','4px 34px 31px');
+    const text=String(b.buttonText||'ACCESS YOUR 30% DISCOUNT →').trim();
+    const asset=text==='ACCESS YOUR 30% DISCOUNT →';
+    // A linked 2x PNG prevents Gmail dark mode from flattening the chrome into
+    // an indistinct grey rectangle. Keep the label editable in the studio.
+    const content=asset
+       ?'<a href="'+e(destination)+'" target="_blank" style="display:block;text-decoration:none;border:0" aria-label="'+e(text)+'"><img src="'+chromeButton+'" width="536" height="105" alt="'+e(text)+'" style="display:block;width:100%;max-width:536px;height:auto;border:0;color:#edffff;font:900 18px Arial,Helvetica,sans-serif;text-align:center"></a>'
+       :'<a href="'+e(destination)+'" target="_blank" style="display:block;padding:20px 16px;border:3px solid #e7f45b;border-radius:16px;background-color:#eaf4f5;background:linear-gradient(120deg,#a0b3be,#ffffff,#a7bbc4);font:900 17px/1.35 Arial,Helvetica,sans-serif;color:#071a1c;text-align:center;text-decoration:none">'+e(text)+'</a>';
+    return section('<div style="text-align:center">'+content+'</div>','2px 34px 30px','button');
    }
    case 'discount-close':
-    return section(paragraphs(b.text),'0 34px 27px');
+    return section(paragraphs(b.text),'0 34px 27px','close');
    default:
     return renderBlock(b,d,contact);
   }
@@ -161,11 +192,12 @@ function renderDiscountEmail(campaign,d,contact,unsubscribeUrl){
   '<div style="font:12px/1.8 Arial,Helvetica,sans-serif;color:'+muted+'">You’re receiving this email because you subscribed to Fuse Atelier updates.<br>'+
   'You can <a href="'+e(unsubscribeUrl)+'" style="color:'+teal+';text-decoration:underline">unsubscribe anytime</a>.</div></td></tr>';
  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
+  '<meta name="color-scheme" content="only light"><meta name="supported-color-schemes" content="light">'+
   '<style>@media only screen and (max-width:620px){.outer{width:100%!important}.email-pad{padding:12px 0!important}}</style></head>'+
   '<body style="margin:0;padding:0;background:#031316;font-family:Arial,Helvetica,sans-serif">'+
   '<div style="display:none!important;font-size:1px;color:#031316;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden">'+pre+'</div>'+
-  '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;background-color:#031316;background-image:linear-gradient(145deg,#020b10,#0b3435 65%,#020b10)"><tr><td align="center" class="email-pad" style="padding:30px 12px">'+
-  '<table role="presentation" class="outer" width="600" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:600px;max-width:100%;background:#031316;border-radius:18px;overflow:hidden">'+
+  '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#020b0f" style="border-collapse:collapse;background-color:#020b0f;background:linear-gradient(145deg,#02090d,#0a3538 60%,#020b0f)"><tr><td align="center" class="email-pad" style="padding:30px 12px">'+
+  '<table role="presentation" class="outer" background="'+bgImage+'" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#062227" style="border-collapse:collapse;width:600px;max-width:100%;background-color:#062227;background-image:url(\''+bgImage+'\');background-repeat:no-repeat;background-position:top center;background-size:100% 100%;border-radius:18px;overflow:hidden">'+
   d.blocks.map(renderSpecial).join('')+footer+'</table></td></tr></table></body></html>';
 }
 
