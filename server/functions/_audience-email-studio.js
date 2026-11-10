@@ -24,7 +24,7 @@ function normalizeDesign(input){
 function templates(){
  return [
   {id:'influencer',name:'AI Influencer Launch',description:'High-contrast editorial course launch',design:normalizeDesign({template:'influencer',brand:'FUSE ATELIER',preheader:'Create an AI influencer. Turn attention into an opportunity.',background:'#eaf2ef',surface:'#ffffff',accent:'#dfff4e',ink:'#00191b',blocks:[
-   {type:'hero',eyebrow:'FUSE ATELIER · AI INFLUENCER COURSE',title:'Create a face the internet remembers.',text:'Your phone. Your creative direction. Your very own AI influencer.',src:'https://res.cloudinary.com/bzw55wh2/video/upload/f_gif,so_0,du_4,w_520,fps_8/v1793971815/lv_0_20261106022053.gif',alt:'A short animated AI influencer video created with Fuse Atelier',buttonText:'Explore the AI Influencer Course',buttonUrl:'https://fuseatelier.com/influencer',align:'center',background:'#00191b',accent:'#dfff4e'},
+   {type:'hero',eyebrow:'FUSE ATELIER · AI INFLUENCER COURSE',title:'Create a face the internet remembers.',text:'Your phone. Your creative direction. Your very own AI influencer.',src:'https://res.cloudinary.com/bzw55wh2/video/upload/f_gif,so_0,du_4,w_320,fps_5/e_loop/v1793971815/lv_0_20261106022053.gif',alt:'A short animated AI influencer video created with Fuse Atelier',buttonText:'Explore the AI Influencer Course',buttonUrl:'https://fuseatelier.com/influencer',align:'center',background:'#00191b',accent:'#dfff4e'},
    {type:'heading',title:'FROM IDEA TO INFLUENCER',text:'Build. Create. Monetize.',align:'center'},
    {type:'product',title:'Your next creative skill starts here.',text:'Learn to shape a memorable virtual identity, produce creator-style content, and explore how to sell AI influencer services to businesses.',buttonText:'See the course — ₦9,900',buttonUrl:'https://fuseatelier.com/influencer'},
    {type:'banner',title:'A course for creators who are ready to build.',text:'Practical lessons on making, growing and monetizing AI influencer content.',background:'#dfff4e'},
@@ -197,11 +197,11 @@ function renderDiscountEmail(campaign,d,contact,unsubscribeUrl){
   'You can <a href="'+e(unsubscribeUrl)+'" style="color:'+teal+';text-decoration:underline">unsubscribe anytime</a>.</div></td></tr>';
  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
   '<meta name="color-scheme" content="only light"><meta name="supported-color-schemes" content="light">'+
-  '<style>@media only screen and (max-width:620px){.outer{width:100%!important}.email-pad{padding:12px 0!important}}</style></head>'+
+  '<style>@media only screen and (max-width:620px){.outer{width:100%!important}.email-pad{padding:0!important}}</style></head>'+
   '<body style="margin:0;padding:0;background:#031316;font-family:Arial,Helvetica,sans-serif">'+
   '<div style="display:none!important;font-size:1px;color:#031316;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden">'+pre+'</div>'+
-  '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#020b0f" style="border-collapse:collapse;background-color:#020b0f;background:linear-gradient(145deg,#02090d,#0a3538 60%,#020b0f)"><tr><td align="center" class="email-pad" style="padding:30px 12px">'+
-  '<table role="presentation" class="outer" background="'+bgImage+'" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#062227" style="border-collapse:collapse;width:600px;max-width:100%;background-color:#062227;background-image:url(\''+bgImage+'\');background-repeat:no-repeat;background-position:top center;background-size:100% 100%;border-radius:18px;overflow:hidden">'+
+  '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#020b0f" style="border-collapse:collapse;background-color:#020b0f;background:linear-gradient(145deg,#02090d,#0a3538 60%,#020b0f)"><tr><td align="center" class="email-pad" style="padding:0 12px 0">'+
+  '<table role="presentation" class="outer" background="'+bgImage+'" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#062227" style="border-collapse:collapse;width:600px;max-width:100%;background-color:#062227;background-image:url(\''+bgImage+'\');background-repeat:no-repeat;background-position:top center;background-size:100% 100%;border-radius:0 0 18px 18px;overflow:hidden">'+
   d.blocks.map(renderSpecial).join('')+footer+'</table></td></tr></table></body></html>';
 }
 
