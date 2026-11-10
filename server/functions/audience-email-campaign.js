@@ -130,7 +130,6 @@ exports.handler = async event => {
     if (!name || !subject || !body) return json(400, { error: 'Campaign name, subject and message are required.' });
     if (input.scheduledFor && !scheduledFor) return json(400, { error: 'Choose a future date and time to schedule this email.' });
     if (scheduledFor) { const blocked=subscriberDiscountReadiness(audienceFilter);if(blocked)return json(409,{error:blocked}); }
-    if (scheduledFor) { const blocked=subscriberDiscountReadiness(audienceFilter);if(blocked)return json(409,{error:blocked}); }
     if (actionUrl && !/^https:\/\//i.test(actionUrl)) return json(400, { error: 'Your action link must start with https://.' });
     const { data, error } = await db.from('audience_campaigns').insert({
       name, channel: 'email', campaign_kind: kind, status: scheduledFor ? 'scheduled' : 'draft', subject, body,
@@ -156,6 +155,7 @@ exports.handler = async event => {
     const audienceFilter = creativeFilter(input,campaign.audience_filter?.provider);
     if (!name || !subject || !body) return json(400, { error: 'Campaign name, subject and message are required.' });
     if (input.scheduledFor && !scheduledFor) return json(400, { error: 'Choose a future date and time to schedule this email.' });
+    if (scheduledFor) { const blocked=subscriberDiscountReadiness(audienceFilter);if(blocked)return json(409,{error:blocked}); }
     if (actionUrl && !/^https:\/\//i.test(actionUrl)) return json(400, { error: 'Your action link must start with https://.' });
     const { data, error } = await db.from('audience_campaigns').update({
       name, subject, body, action_url: actionUrl || null, campaign_kind: kind, audience_filter:audienceFilter,
