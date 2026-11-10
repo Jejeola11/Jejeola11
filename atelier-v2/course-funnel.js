@@ -35,6 +35,9 @@
     const q=new URLSearchParams({buy:course,return:safeReturn(returnTo)});
     const ref=new URLSearchParams(search).get('ref');
     if(ref&&/^[a-z0-9-]{5,80}$/i.test(ref))q.set('ref',ref);
+    // Preserve the email discount across the OTP-only sign-up redirect.
+    const coupon=new URLSearchParams(search).get('coupon');
+    if(course==='influencer'&&String(coupon||'').trim().toUpperCase()==='EMAIL30')q.set('coupon','EMAIL30');
     return '/atelier-v2/learn.html?'+q;
   }
   function signupURL(next,returnTo,search=''){
