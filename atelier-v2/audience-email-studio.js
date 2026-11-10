@@ -43,7 +43,7 @@
   state.design=JSON.parse(JSON.stringify(t.design));
   if(id==='influencer_discount'){
    $('name').value='AI Influencer — Exclusive 30% Email Offer';
-   $('subject').value='Creator, your exclusive 30% AI Influencer discount is here 💚';
+   $('subject').value='The Viral AI Influencer Course Exclusive Discount is Live (30% off)';
    $('body').value='Hey Creator! Imagine creating your own realistic AI influencer, remixing trending videos and building a portfolio with your phone. Email subscribers have an exclusive 30% code — see the designed email for details.';
    $('segment').value='influencer_prospects';
    $('action-url').value='https://fuseatelier.com/influencer/discount';
