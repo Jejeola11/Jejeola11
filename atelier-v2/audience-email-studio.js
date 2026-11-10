@@ -174,7 +174,7 @@
   try{
    const u=new URL(link);
    if(u.protocol!=='https:'||u.hostname!=='res.cloudinary.com'||!/^\/[a-zA-Z0-9_-]+\/video\/upload\//.test(u.pathname)||!/\.(mp4|mov|webm)$/i.test(u.pathname))return '';
-   u.pathname=u.pathname.replace('/video/upload/','/video/upload/f_gif,so_0,du_4,w_520,fps_8/').replace(/\.(mp4|mov|webm)$/i,'.gif');
+   u.pathname=u.pathname.replace('/video/upload/','/video/upload/f_gif,so_0,du_4,w_320,fps_5/e_loop/').replace(/\.(mp4|mov|webm)$/i,'.gif');
    u.search='';return u.href;
   }catch(_){return ''}
  }
@@ -432,7 +432,7 @@
     const link=videoField?videoField.value.trim():prompt('Paste the original Cloudinary MP4 video URL. A short, optimized GIF will be generated for email:',blocks[i].src||'');
     if(!link)return;const gif=cloudinaryGif(link);
     if(!gif){toast('Use an original HTTPS Cloudinary video URL ending in .mp4, .mov or .webm.',true);return}
-    blocks[i].src=gif;blocks[i].alt=blocks[i].alt||'Animated Fuse Atelier visual';toast('Up to 4 seconds selected for the GIF (shorter videos use their full length). Cloudinary creates it on first request. Original video is unchanged.');
+    blocks[i].src=gif;blocks[i].alt=blocks[i].alt||'Animated Fuse Atelier visual';toast('Up to 4 seconds selected for the GIF (shorter videos use their full length). Cloudinary creates a looping GIF on first request. Original video is unchanged.');
    }
    state.mutated=true;drawBlocks();requestPreview();
   });
