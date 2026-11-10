@@ -8,7 +8,7 @@
  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
  <link rel="stylesheet" href="/atelier-v2/audience-email-studio.css?v=discount-20261110">
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
- <script defer src="/atelier-v2/audience-email-studio.js?v=limechrome-20261110"></script>
+ <script defer src="/atelier-v2/audience-email-studio.js?v=loop-20261110"></script>
 </head>
 <body>
 <header class="top"><div class="shell top-inner">
@@ -42,7 +42,7 @@
      <div class="panel-body">
       <div class="sectiontitle"><div><h2>Choose a direction</h2><p>Layouts inspired by the visual email examples you shared.</p></div></div>
       <div class="templates" id="templates" aria-label="Visual email templates"></div>
-      <div class="note" id="discount-setup-note" hidden><strong>30% EMAIL EXCLUSIVE — READY TO CUSTOMISE.</strong> The full email copy and chrome/teal layout are prebuilt. Upload your hero flyer in section 01, paste your Cloudinary video link into section 05 and select Convert to GIF (up to 4 seconds, or the entire video if shorter), then save a draft. <strong>EMAIL30 is now connected:</strong> customers enter it at <a href="/influencer/discount" target="_blank" rel="noopener">fuseatelier.com/influencer/discount</a> and securely pay ₦6,930 (regularly ₦9,900). For existing saved drafts, ensure both the Primary destination and the chrome discount button point to the discount page. Sending remains blocked until the flyer and animated GIF are uploaded.</div>
+      <div class="note" id="discount-setup-note" hidden><strong>30% EMAIL EXCLUSIVE — READY TO CUSTOMISE.</strong> The full email copy and chrome/teal layout are prebuilt. Upload your hero flyer in section 01, paste your Cloudinary video link into section 05 and select Convert to GIF (loops continuously, up to 4 seconds or the entire video if shorter), then save a draft. <strong>EMAIL30 is now connected:</strong> customers enter it at <a href="/influencer/discount" target="_blank" rel="noopener">fuseatelier.com/influencer/discount</a> and securely pay ₦6,930 (regularly ₦9,900). For existing saved drafts, ensure both the Primary destination and the chrome discount button point to the discount page. Sending remains blocked until the flyer and animated GIF are uploaded.</div>
       <hr class="divide">
       <div class="sectiontitle"><h2>Campaign details</h2><span class="mini">01 / Setup</span></div>
       <div class="field"><label for="name">Internal campaign name</label><input id="name" maxlength="140" placeholder="AI Influencer — Course Launch"></div>
@@ -84,7 +84,7 @@
     <aside class="panel preview-panel">
      <div class="panel-head"><div><div class="mini">REAL EMAIL OUTPUT</div><h2>Live campaign preview</h2></div><div class="preview-switch"><button type="button" class="active" id="preview-desktop">Desktop</button><button type="button" id="preview-mobile">Mobile</button></div></div>
      <div class="preview-bg"><div class="preview-shell" id="preview-shell"><iframe title="Email preview" id="preview" class="preview" sandbox="" referrerpolicy="no-referrer"></iframe></div></div>
-     <div class="subpanel"><p class="hint" id="preview-status" aria-live="polite">Select a template to preview your email.</p><p class="hint">A GIF can animate in the inbox. Some email apps show only its first frame. Videos themselves cannot reliably play inside email.</p></div>
+     <div class="subpanel"><p class="hint" id="preview-status" aria-live="polite">Select a template to preview your email.</p><p class="hint">The GIF is encoded to loop automatically; some email apps or accessibility settings may show only its first frame. Videos themselves cannot reliably play inside email.</p></div>
      <div class="subpanel"><div class="sectiontitle"><div><h2>Test, then launch</h2><p>Save first. Send a real test to your own inbox.</p></div></div>
       <div class="note" id="selected-campaign">Save a draft before sending a test or launching.</div>
       <div class="test-row"><input class="control" type="email" id="test-email" placeholder="Your email for testing" autocomplete="email"><button class="btn" type="button" id="test" disabled>Send test</button></div>
