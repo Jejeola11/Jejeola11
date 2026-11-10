@@ -99,6 +99,21 @@ exports.handler=async event=>{
   }
   if(event.httpMethod!=='POST')return json(405,{error:'Method not allowed.'});
   const input=parseBody(event);
+  if(input.action==='reconcile_reports'){
+    if(!sender.configured())return json(503,{error:'Sender is not configured.'});
+    const {data:campaigns,error}=await db.from('audience_campaigns')
+      .select('id,name,status,audience_filter').eq('channel','email')
+      .order('created_at',{ascending:false}).limit(40);
+    if(error)return json(500,{error:'Could not load Sender campaigns.'});
+    const targets=(campaigns||[]).filter(c=>c.audience_filter?.provider==='sender' &&
+      c.audience_filter?.sender_campaign_id && c.audience_filter?.archived!==true).slice(0,12);
+    const reports=[];
+    for(const campaign of targets){
+      try { reports.push({name:campaign.name,...await sender.reconcileSenderCampaign(db,campaign)}); }
+      catch(err){reports.push({name:campaign.name,fuseCampaignId:campaign.id,error:String(err.message||err).slice(0,400)});}
+    }
+    return json(200,{ok:true,reports});
+  }
   if(input.action!=='sync')return json(400,{error:'Unknown Sender action.'});
   try{
     const result=await sender.syncMaster(db,Math.min(40,Math.max(1,Number(input.limit)||20)));
