@@ -46,7 +46,7 @@
    $('subject').value='Creator, your exclusive 30% AI Influencer discount is here 💚';
    $('body').value='Hey Creator! Imagine creating your own realistic AI influencer, remixing trending videos and building a portfolio with your phone. Email subscribers have an exclusive 30% code — see the designed email for details.';
    $('segment').value='influencer_prospects';
-   $('action-url').value='https://fuseatelier.com/influencer';
+   $('action-url').value='https://fuseatelier.com/influencer/discount';
   }else if(id==='influencer'){
    $('name').value='AI Influencer course — Launch';
    $('subject').value='{{first_name}}, your AI influencer starts here';
