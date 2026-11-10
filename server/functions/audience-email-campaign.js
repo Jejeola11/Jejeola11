@@ -90,17 +90,20 @@ exports.handler = async event => {
   if (event.httpMethod === 'GET') {
     const { data, error } = await db.from('audience_campaigns')
       .select('id, name, channel, campaign_kind, status, subject, body, action_url, audience_filter, sender_name, sender_email, scheduled_for, created_at')
-      .eq('channel', 'email').order('created_at', { ascending: false }).limit(50);
+      .eq('channel', 'email').order('created_at', { ascending: false }).limit(200);
     if (error) return json(500, { error: 'Could not load email campaigns.' });
+    // Start-fresh view: archived campaigns and their delivery logs stay in the
+    // audit database, but never appear in current campaign metrics or the UI.
+    const visible = (data || []).filter(c => c.audience_filter?.archived !== true);
     let deliveries = [];
-    try { deliveries = await recentDeliveryLog(db, data || []); } catch (_) {}
+    try { deliveries = await recentDeliveryLog(db, visible); } catch (_) {}
     let audienceCounts = {};
     try { audienceCounts = await audienceSegmentCounts(db); } catch (err) { console.error('[Audience segments]',err.message); }
     const statuses = {};
     for(const d of deliveries){const key=d.status||'pending';statuses[key]=(statuses[key]||0)+1;}
     return json(200, { ok:true, configured:configured()||senderConfigured(), senderProvider:senderConfigured()?'sender':'resend', sender:process.env.FUSE_EMAIL_FROM||null,
       dailyLimit:senderConfigured()?null:100, templates:templates(), segments:SEGMENTS, audienceCounts,
-      campaigns:data||[], deliveries, deliverySummary:statuses, deliverySummarySample:deliveries.length });
+      campaigns:visible, deliveries, deliverySummary:statuses, deliverySummarySample:deliveries.length });
   }
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed.' });
 
@@ -115,7 +118,14 @@ exports.handler = async event => {
     return json(200,{ok:true,html});
   }
   if(input.action==='reconcile'){
-    try{const result=await reconcileQueued(db,clean(input.campaignId,100)||null);return json(200,{ok:true,...result})}
+    try{
+      const id=clean(input.campaignId,100);
+      if(!id) return json(200,{ok:true,checked:0,updated:0,unchanged:0,errors:0,message:'Select your current campaign to check its delivery status.'});
+      const {data:target,error:lookupError}=await db.from('audience_campaigns').select('id,audience_filter').eq('id',id).eq('channel','email').maybeSingle();
+      if(lookupError||!target||target.audience_filter?.archived===true) return json(404,{error:'Current campaign not found.'});
+      const result=await reconcileQueued(db,id);
+      return json(200,{ok:true,...result});
+    }
     catch(err){return json(502,{error:err.message||'Could not check Resend delivery.'})}
   }
   if (input.action === 'create') {
@@ -143,6 +153,8 @@ exports.handler = async event => {
   const campaignId = clean(input.campaignId, 100);
   const { data: campaign, error: campaignError } = await db.from('audience_campaigns').select('*').eq('id', campaignId).eq('channel', 'email').maybeSingle();
   if (campaignError || !campaign) return json(404, { error: 'Email campaign not found.' });
+  if (campaign.audience_filter?.archived === true)
+    return json(409, { error: 'This campaign is archived. Only current campaigns can be edited, scheduled or sent.' });
 
   if (input.action === 'update') {
     if (!['draft', 'scheduled', 'paused', 'cancelled'].includes(campaign.status)) return json(409, { error: 'Sent or active emails cannot be edited.' });
