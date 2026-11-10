@@ -7,6 +7,7 @@
  const $=id=>document.getElementById(id);
  const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
  const TYPES={hero:'Hero / Cover',image:'Image / GIF',heading:'Heading',text:'Text section',button:'Call to action',product:'Product card',testimonial:'Testimonial',banner:'Highlight banner',divider:'Divider',spacer:'Space'};
+ const DISCOUNT_LABELS={'discount-hero':'01 · Top hero flyer','discount-intro':'02 · Hey Creator — introduction','discount-how':'03 · Chrome HOW IT WORKS box','discount-after':'04 · Follow-up message','discount-gif':'05 · Cloudinary video to GIF','discount-code':'06 · Email discount code','discount-button':'07 · Chrome discount CTA','discount-close':'08 · Closing and signature'};
  const SEGMENT_LABELS={all_subscribed:'All opted-in subscribers',influencer_prospects:'AI Influencer: non-owners',influencer_students:'AI Influencer: course owners',earn_prospects:'Fuse Earn: not yet applied',registered_subscribers:'Subscribed Fuse members',phone_to_client:'Phone-to-Client subscribers'};
  const state={campaigns:[],deliveries:[],templates:[],segments:{},selected:null,editId:null,design:null,previewTimer:null,toastTimer:null,latestHtml:'',configured:false,mutated:false,uploadIndex:null};
  function toast(message,bad=false){const el=$('toast');if(!el)return;el.textContent=message;el.className='toast'+(bad?' bad':'');el.hidden=false;clearTimeout(state.toastTimer);state.toastTimer=setTimeout(()=>el.hidden=true,5400)}
@@ -31,6 +32,7 @@
  }
  function drawTemplates(){
   $('templates').innerHTML=state.templates.map(t=>'<button type="button" class="template art-'+esc(t.id)+(state.design&&state.design.template===t.id?' active':'')+'" data-template="'+esc(t.id)+'"><span class="template-art"><i>FUSE ATELIER</i><b>'+(t.id==='earn'?'EARN WITH FUSE':t.id==='influencer_discount'?'30% OFF<br>AI INFLUENCERS':t.id==='influencer'?'CREATE<br>INFLUENCE':'A CREATIVE NOTE')+'</b><span></span></span><label>'+esc(t.name)+'</label><small>'+esc(t.description)+'</small></button>').join('');
+  const note=$('discount-setup-note');if(note)note.hidden=state.design?.template!=='influencer_discount';
  }
  function isHttps(v){try{return new URL(v).protocol==='https:'}catch(_){return false}}
  function newDesign(){return {template:'custom',brand:'FUSE ATELIER',preheader:'',background:'#eaf2ef',surface:'#ffffff',accent:'#dfff4e',ink:'#00191b',blocks:[]}}
@@ -116,7 +118,7 @@
   const blocks=state.design?.blocks||[];
   $('block-count').textContent=blocks.length+' sections';
   $('block-list').innerHTML=blocks.length?blocks.map((b,i)=>
-   '<article class="block" data-block="'+i+'"><div class="block-head"><span class="block-num">'+String(i+1).padStart(2,'0')+'</span><strong>'+esc(TYPES[b.type]||b.type)+'</strong><div class="block-actions">'+
+   '<article class="block" data-block="'+i+'"><div class="block-head"><span class="block-num">'+String(i+1).padStart(2,'0')+'</span><strong>'+esc(DISCOUNT_LABELS[b.id]||TYPES[b.type]||b.type)+'</strong><div class="block-actions">'+
    '<button type="button" data-act="up" data-i="'+i+'" title="Move up" '+(i===0?'disabled':'')+'>↑</button>'+
    '<button type="button" data-act="down" data-i="'+i+'" title="Move down" '+(i===blocks.length-1?'disabled':'')+'>↓</button>'+
    '<button type="button" data-act="remove" data-i="'+i+'" title="Delete block">×</button></div></div><div class="block-fields">'+blockFields(b,i)+'</div></article>').join('')
@@ -133,7 +135,7 @@
   if(type==='banner')return {...base,title:'Something worth knowing',text:'A short, memorable announcement.',background:'#dfff4e'};
   return base;
  }
- function addBlock(type){if(!TYPES[type])return;if(!state.design)state.design=newDesign();if(state.design.blocks.length>=32){toast('You can add up to 32 sections.',true);return}state.design.blocks.push(blankBlock(type));state.design.template='custom';state.mutated=true;drawBlocks();drawTemplates();requestPreview()}
+ function addBlock(type){if(!TYPES[type])return;if(!state.design)state.design=newDesign();if(state.design.blocks.length>=32){toast('You can add up to 32 sections.',true);return}state.design.blocks.push(blankBlock(type));if(state.design.template!=='influencer_discount')state.design.template='custom';state.mutated=true;drawBlocks();drawTemplates();requestPreview()}
  function formPayload(){
   const design={...state.design,preheader:$('preheader').value,background:$('design-bg').value,surface:$('design-surface').value,accent:$('design-accent').value,ink:$('design-ink').value};
   const time=$('schedule-for').value;
