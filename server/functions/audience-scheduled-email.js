@@ -61,6 +61,8 @@ exports.handler = async event => {
 
   const results = [];
   for (const campaign of due || []) {
+    // Historical campaigns are retained for compliance but must never send again.
+    if(campaign.audience_filter?.archived === true) continue;
     const { data: claimed, error: claimError } = await db.from('audience_campaigns')
       .update({ status: 'sending', updated_at: new Date().toISOString() })
       .eq('id', campaign.id).in('status', ['scheduled', 'sending']).select().maybeSingle();
