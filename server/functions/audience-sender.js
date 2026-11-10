@@ -70,7 +70,7 @@ exports.handler=async event=>{
           .select('id,name,audience_filter,status').eq('channel','email')
           .order('created_at',{ascending:false}).limit(40);
         if(dbError)throw dbError;
-        const relevant=(campaigns||[]).filter(x=>x.audience_filter?.sender_campaign_id).slice(0,12);
+        const relevant=(campaigns||[]).filter(x=>x.audience_filter?.archived !== true && x.audience_filter?.sender_campaign_id).slice(0,12);
         const reports=await Promise.all(relevant.map(async campaign=>{
           const id=campaign.audience_filter.sender_campaign_id;
           try{
