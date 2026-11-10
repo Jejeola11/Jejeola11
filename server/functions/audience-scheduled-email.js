@@ -84,5 +84,7 @@ exports.handler = async event => {
       results.push({ id: campaign.id, error: String(sendError.message || 'Scheduled send failed.').slice(0,750) });
     }
   }
-  return json(200, { ok: true, senderSync, checked: (due || []).length, results });
+  const failures=results.filter(item=>item.error);
+  // Do not tell Vercel Cron / GitHub Actions that a rejected send succeeded.
+  return json(failures.length?502:200, {ok:failures.length===0,senderSync,checked:(due||[]).length,failures:failures.length,results});
 };
