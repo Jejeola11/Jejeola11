@@ -56,9 +56,14 @@
     <section class="panel">
      <div class="panel-head"><div><div class="mini" id="edit-indicator">NEW CAMPAIGN</div><h2>Design your next email</h2></div><button class="btn small" id="new-email" type="button" hidden>Start fresh</button></div>
      <div class="panel-body">
-      <div class="sectiontitle"><div><h2>Choose a direction</h2><p>Layouts inspired by the visual email examples you shared.</p></div></div>
-      <div class="templates" id="templates" aria-label="Visual email templates"></div>
-      <div class="note" id="discount-setup-note" hidden><strong>30% EMAIL EXCLUSIVE — READY TO CUSTOMISE.</strong> The full email copy and chrome/teal layout are prebuilt. Upload your hero flyer in section 01, paste your Cloudinary video link into section 05 and select Convert to GIF (loops continuously, up to 4 seconds or the entire video if shorter), then save a draft. <strong>EMAIL30 is now connected:</strong> customers enter it at <a href="/influencer/discount" target="_blank" rel="noopener">fuseatelier.com/influencer/discount</a> and securely pay ₦6,930 (regularly ₦9,900). For existing saved drafts, ensure both the Primary destination and the chrome discount button point to the discount page. Sending remains blocked until the flyer and animated GIF are uploaded.</div>
+      <details class="studio-details" id="template-options">
+       <summary><div><strong>Change email template</strong><small>Optional · Keep your current design unless you want a different layout</small></div></summary>
+       <div class="studio-details-body">
+        <div class="sectiontitle"><div><h2>Choose a direction</h2><p>Layouts inspired by the visual email examples you shared.</p></div></div>
+              <div class="templates" id="templates" aria-label="Visual email templates"></div>
+              <div class="note" id="discount-setup-note" hidden><strong>30% EMAIL EXCLUSIVE — READY TO CUSTOMISE.</strong> The full email copy and chrome/teal layout are prebuilt. Upload your hero flyer in section 01, paste your Cloudinary video link into section 05 and select Convert to GIF (loops continuously, up to 4 seconds or the entire video if shorter), then save a draft. <strong>EMAIL30 is now connected:</strong> customers enter it at <a href="/influencer/discount" target="_blank" rel="noopener">fuseatelier.com/influencer/discount</a> and securely pay ₦6,930 (regularly ₦9,900). For existing saved drafts, ensure both the Primary destination and the chrome discount button point to the discount page. Sending remains blocked until the flyer and animated GIF are uploaded.</div>
+       </div>
+      </details>
       <hr class="divide">
       <div class="sectiontitle"><h2>Campaign details</h2><span class="mini">01 / Setup</span></div>
       <div class="field"><label for="name">Internal campaign name</label><input id="name" maxlength="140" placeholder="AI Influencer — Course Launch"></div>
@@ -75,16 +80,20 @@
        </select><p class="hint" id="segment-count">Checking audience…</p></div>
        <div class="field"><label for="kind">Email type</label><select id="kind"><option value="marketing">Promotional marketing</option><option value="repermission">Permission follow-up (subscribed only)</option></select></div>
       </div>
-      <div class="field"><label for="body">Plain-text summary / fallback</label><textarea id="body" placeholder="Hi {{first_name}}, your campaign introduction…"></textarea><p class="hint">Used for older email layouts and campaign records. The visual layout below is what recipients will see for new designs.</p></div>
       <div class="field"><label for="action-url">Primary destination</label><input id="action-url" placeholder="https://fuseatelier.com/influencer"></div>
-      <hr class="divide">
-      <div class="sectiontitle"><h2>Visual identity</h2><span class="mini">02 / Style</span></div>
-      <div class="form-grid">
-       <div class="field"><label for="design-bg">Email background</label><input type="color" data-design="background" id="design-bg" value="#eaf2ef"></div>
-       <div class="field"><label for="design-surface">Card background</label><input type="color" data-design="surface" id="design-surface" value="#ffffff"></div>
-       <div class="field"><label for="design-accent">Accent / button colour</label><input type="color" data-design="accent" id="design-accent" value="#dfff4e"></div>
-       <div class="field"><label for="design-ink">Body text colour</label><input type="color" data-design="ink" id="design-ink" value="#00191b"></div>
-      </div>
+      <details class="studio-details" id="advanced-options">
+       <summary><div><strong>Advanced email settings</strong><small>Backup text and custom colours · Optional</small></div></summary>
+       <div class="studio-details-body">
+        <div class="field"><label for="body">Plain-text summary / fallback</label><textarea id="body" placeholder="Hi {{first_name}}, your campaign introduction…"></textarea><p class="hint">Used for older email layouts and campaign records. The visual layout below is what recipients will see for new designs.</p></div>
+        <div class="sectiontitle"><h2>Visual identity</h2><span class="mini">02 / Style</span></div>
+              <div class="form-grid">
+               <div class="field"><label for="design-bg">Email background</label><input type="color" data-design="background" id="design-bg" value="#eaf2ef"></div>
+               <div class="field"><label for="design-surface">Card background</label><input type="color" data-design="surface" id="design-surface" value="#ffffff"></div>
+               <div class="field"><label for="design-accent">Accent / button colour</label><input type="color" data-design="accent" id="design-accent" value="#dfff4e"></div>
+               <div class="field"><label for="design-ink">Body text colour</label><input type="color" data-design="ink" id="design-ink" value="#00191b"></div>
+              </div>
+       </div>
+      </details>
       <hr class="divide">
       <div class="sectiontitle"><div><h2>Build the email</h2><p>Change copy, move sections and add images or animated GIFs.</p></div><span class="mini" id="block-count">0 sections</span></div>
       <div id="block-list" class="block-list"></div>
