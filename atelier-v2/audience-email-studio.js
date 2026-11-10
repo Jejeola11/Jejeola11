@@ -94,7 +94,7 @@
    '<input data-i="'+i+'" data-field="src" placeholder="Paste https://... image or GIF URL" value="'+esc(b.src||'')+'">'+
    (specialGif?'<div class="field" style="margin:11px 0 0"><label>Paste your Cloudinary video URL (MP4, MOV or WebM)</label><input data-video-i="'+i+'" inputmode="url" placeholder="https://res.cloudinary.com/.../video/upload/...mp4"></div>':'')+
    '<div class="asset-actions"><button type="button" class="btn small" data-act="upload" data-i="'+i+'">↑ Upload image / GIF</button><button type="button" class="btn small ghost" data-act="gif" data-i="'+i+'">◉ Convert Cloudinary video → GIF</button></div>'+
-   '<div class="hint">'+(specialHero?'Upload the flyer you approved. It will appear at the very top of the email.':specialGif?'Paste your Cloudinary video link above, then tap Convert. Your source video stays unchanged; the email uses an optimized animated GIF.':'Images and GIFs can be uploaded directly (15MB max). Cloudinary MP4 links can create a lightweight animated GIF without changing the original video.')+'</div></div>'+
+   '<div class="hint">'+(specialHero?'Upload the flyer you approved. It will appear at the very top of the email.':specialGif?'Paste your Cloudinary video link above, then tap Convert. The GIF uses up to 4 seconds from the start; clips shorter than 4 seconds are used in full. Your original video stays unchanged.':'Images and GIFs can be uploaded directly (15MB max). Cloudinary MP4 links can create a lightweight animated GIF without changing the original video.')+'</div></div>'+
    makeField(i,'alt','Image description',b.alt,false,'Describe the image for accessibility');
  }
  function blockFields(b,i){
@@ -174,7 +174,7 @@
   try{
    const u=new URL(link);
    if(u.protocol!=='https:'||u.hostname!=='res.cloudinary.com'||!/^\/[a-zA-Z0-9_-]+\/video\/upload\//.test(u.pathname)||!/\.(mp4|mov|webm)$/i.test(u.pathname))return '';
-   u.pathname=u.pathname.replace('/video/upload/','/video/upload/f_gif,so_0,du_2,w_520,fps_8/').replace(/\.(mp4|mov|webm)$/i,'.gif');
+   u.pathname=u.pathname.replace('/video/upload/','/video/upload/f_gif,so_0,du_4,w_520,fps_8/').replace(/\.(mp4|mov|webm)$/i,'.gif');
    u.search='';return u.href;
   }catch(_){return ''}
  }
@@ -432,7 +432,7 @@
     const link=videoField?videoField.value.trim():prompt('Paste the original Cloudinary MP4 video URL. A short, optimized GIF will be generated for email:',blocks[i].src||'');
     if(!link)return;const gif=cloudinaryGif(link);
     if(!gif){toast('Use an original HTTPS Cloudinary video URL ending in .mp4, .mov or .webm.',true);return}
-    blocks[i].src=gif;blocks[i].alt=blocks[i].alt||'Animated Fuse Atelier visual';toast('GIF URL generated. Cloudinary creates it on first request. Original video is unchanged.');
+    blocks[i].src=gif;blocks[i].alt=blocks[i].alt||'Animated Fuse Atelier visual';toast('Up to 4 seconds selected for the GIF (shorter videos use their full length). Cloudinary creates it on first request. Original video is unchanged.');
    }
    state.mutated=true;drawBlocks();requestPreview();
   });
