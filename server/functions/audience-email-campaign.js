@@ -4,6 +4,25 @@ const { configured, mailHtml, deliverCampaign, eligibleRecipients, audienceSegme
 const { normalizeDesign, templates, SEGMENTS } = require('./_audience-email-studio');
 const { configured: senderConfigured, deliverSenderCampaign } = require('./_audience-sender');
 
+function subscriberDiscountReadiness(filter) {
+  const d=filter&&filter.design;
+  if(!d||d.template!=='influencer_discount')return '';
+  const blocks=Array.isArray(d.blocks)?d.blocks:[];
+  const find=id=>blocks.find(b=>b.id===id)||{};
+  if(!find('discount-hero').src)return 'Upload the top flyer image before scheduling or launching this discount campaign.';
+  const gif=find('discount-gif').src||'';
+  if(!gif||!/\.gif(?:$|[?#])/i.test(gif))return 'Add a valid animated GIF preview (upload one or convert your Cloudinary video) before scheduling or launching.';
+  const button=find('discount-button'),destination=String(button.buttonUrl||'');
+  if(!/^https:\/\//i.test(destination))return 'Set the discount CTA to a working HTTPS discount checkout page.';
+  try{
+    const u=new URL(destination);
+    if(u.hostname.replace(/^www\./,'')==='fuseatelier.com'&&/^\/influencer\/?$/.test(u.pathname)&&!u.search){
+      return 'The 30% coupon redemption page is not connected yet. Point the chrome button to the working discount checkout before scheduling or sending.';
+    }
+  }catch(_){return 'Provide a valid HTTPS coupon checkout link.'}
+  return '';
+}
+
 function parseScheduledFor(value) {
   if (!value) return null;
   const date = new Date(value);
@@ -110,6 +129,8 @@ exports.handler = async event => {
     try{audienceFilter=creativeFilter(input)}catch(err){return json(400,{error:err.message})}
     if (!name || !subject || !body) return json(400, { error: 'Campaign name, subject and message are required.' });
     if (input.scheduledFor && !scheduledFor) return json(400, { error: 'Choose a future date and time to schedule this email.' });
+    if (scheduledFor) { const blocked=subscriberDiscountReadiness(audienceFilter);if(blocked)return json(409,{error:blocked}); }
+    if (scheduledFor) { const blocked=subscriberDiscountReadiness(audienceFilter);if(blocked)return json(409,{error:blocked}); }
     if (actionUrl && !/^https:\/\//i.test(actionUrl)) return json(400, { error: 'Your action link must start with https://.' });
     const { data, error } = await db.from('audience_campaigns').insert({
       name, channel: 'email', campaign_kind: kind, status: scheduledFor ? 'scheduled' : 'draft', subject, body,
@@ -171,6 +192,8 @@ exports.handler = async event => {
   if (input.action !== 'send') return json(400, { error: 'Unknown campaign action.' });
   if (input.confirmation !== `SEND ${campaign.id}`) return json(400, { error: `Type SEND ${campaign.id} exactly to launch this campaign.` });
   if (campaign.status !== 'draft') return json(409, { error: 'This campaign is no longer a draft.' });
+  const discountIssue=subscriberDiscountReadiness(campaign.audience_filter);
+  if(discountIssue)return json(409,{error:discountIssue});
 
   const { data: claimed, error: claimError } = await db.from('audience_campaigns')
     .update({ status: 'sending', updated_at: new Date().toISOString() })
