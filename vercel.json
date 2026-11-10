@@ -20,6 +20,10 @@
       "dest": "/directorria/index.html"
     },
     {
+      "src": "/influencer/discount/?",
+      "dest": "/influencer/discount.html"
+    },
+    {
       "src": "/influencer/?",
       "dest": "/influencer/index.html"
     },
