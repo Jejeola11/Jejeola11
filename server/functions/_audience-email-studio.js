@@ -120,6 +120,7 @@ function renderDiscountEmail(campaign,d,contact,unsubscribeUrl){
  const chromeButton='https://res.cloudinary.com/bzw55wh2/image/upload/f_png/v1794279047/fuse_email_lime_chrome_cta_20261110.png';
  const chromeTitle='https://res.cloudinary.com/bzw55wh2/image/upload/f_png/v1794279059/fuse_email_lime_chrome_how_20261110.png';
  const bgImage='https://res.cloudinary.com/bzw55wh2/image/upload/f_png/v1794278403/fuse_email_black_teal_gradient_20261110.png';
+ const footerLogo='https://res.cloudinary.com/bzw55wh2/image/upload/v1794279497/fuse_email_footer_logo_20261110_v1.png';
  // Progressively changing fallback colours give an obvious black-to-teal effect
  // even in email clients which block remote backgrounds or strip gradients.
  const tones={
@@ -139,7 +140,7 @@ function renderDiscountEmail(campaign,d,contact,unsubscribeUrl){
     .replace(/\*([^*\n]+)\*/g,'<em>$1</em>');
  };
  const paragraphs=(s,style='')=>String(s||'').split(/\n\s*\n/).filter(Boolean).map(x=>
-   '<p style="font:400 16px/1.78 Arial,Helvetica,sans-serif;color:'+white+';margin:0 0 22px;'+style+'">'+rich(x).replace(/\n/g,'<br>')+'</p>').join('');
+   '<p style="font:400 18px/1.72 Arial,Helvetica,sans-serif;color:'+white+';margin:0 0 22px;'+style+'">'+rich(x).replace(/\n/g,'<br>')+'</p>').join('');
  const section=(content,padding='8px 34px 12px',tone='intro')=>{
   const palette=tones[tone]||tones.intro;
   // Deliberately use CSS background shorthand (not background-image:linear-gradient).
@@ -154,7 +155,7 @@ function renderDiscountEmail(campaign,d,contact,unsubscribeUrl){
    case 'discount-intro':
     return section(paragraphs(b.text),'36px 34px 14px','intro');
    case 'discount-how':{
-    const points=String(b.text||'').split(/\n\s*\n/).filter(Boolean).map(x=>'<p style="font:600 16px/1.72 Arial,Helvetica,sans-serif;color:'+white+';margin:0 0 23px">'+rich(x).replace(/\n/g,'<br>')+'</p>').join('');
+    const points=String(b.text||'').split(/\n\s*\n/).filter(Boolean).map(x=>'<p style="font:600 18px/1.7 Arial,Helvetica,sans-serif;color:'+white+';margin:0 0 23px">'+rich(x).replace(/\n/g,'<br>')+'</p>').join('');
     return section('<div style="background-color:'+panel+';border:1px solid #3d6d6c;border-left:6px solid '+teal+';border-radius:22px;padding:30px 27px 8px">'+
       '<div style="margin:0 0 24px">'+(String(b.title||'HOW IT WORKS').trim().toUpperCase()==='HOW IT WORKS'?
       '<img src="'+chromeTitle+'" alt="HOW IT WORKS" width="270" height="30" style="display:block;width:270px;max-width:100%;height:auto;border:0;text-align:left;color:#ecf5f5;font:900 18px Arial,Helvetica,sans-serif;letter-spacing:1px">':
@@ -167,8 +168,8 @@ function renderDiscountEmail(campaign,d,contact,unsubscribeUrl){
       '<div style="border:1px solid #336a6b;border-radius:18px;overflow:hidden">'+pic(b,'animated GIF')+'</div></a>','6px 34px 21px','gif');
    case 'discount-code':
     return section('<div style="text-align:center;padding:10px 0 6px">'+
-     '<div style="font:700 11px/1.5 Arial,sans-serif;letter-spacing:1.8px;color:'+muted+';margin-bottom:9px">'+rich(b.text||'SELECT AND COPY YOUR CODE')+'</div>'+
-     '<div style="display:inline-block;font:900 25px/1.25 Arial,sans-serif;letter-spacing:3px;color:'+yellow+';border:1px dashed '+yellow+';border-radius:11px;padding:11px 30px;user-select:all;-webkit-user-select:all">'+rich(b.title||'EMAIL30')+'</div></div>','0 34px 18px','code');
+     '<div style="font:700 13px/1.5 Arial,sans-serif;letter-spacing:1.5px;color:'+muted+';margin-bottom:9px">'+rich(b.text||'SELECT AND COPY YOUR CODE')+'</div>'+
+     '<div style="display:inline-block;font:900 29px/1.25 Arial,sans-serif;letter-spacing:3px;color:'+yellow+';border:1px dashed '+yellow+';border-radius:11px;padding:11px 30px;user-select:all;-webkit-user-select:all">'+rich(b.title||'EMAIL30')+'</div></div>','0 34px 18px','code');
    case 'discount-button':{
     const destination=trackingUrl(b.buttonUrl||offerUrl,campaign);
     const text=String(b.buttonText||'ACCESS YOUR 30% DISCOUNT →').trim();
@@ -188,8 +189,11 @@ function renderDiscountEmail(campaign,d,contact,unsubscribeUrl){
  };
  const pre=e(withName(d.preheader||campaign.subject||'Fuse Atelier',contact));
  const footer='<tr><td style="background:#06171a;padding:29px 34px 34px;text-align:center;border-top:1px solid #305151">'+
-  '<div style="font:900 16px Arial,sans-serif;letter-spacing:2.4px;color:#e7edf0;margin-bottom:18px">FUSE ATELIER</div>'+
-  '<div style="font:12px/1.8 Arial,Helvetica,sans-serif;color:'+muted+'">You’re receiving this email because you subscribed to Fuse Atelier updates.<br>'+
+  '<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="border-collapse:collapse;margin:0 auto 19px"><tr>'+
+  '<td width="52" style="width:52px;vertical-align:middle"><img src="'+footerLogo+'" alt="Fuse Atelier logo" width="44" height="44" style="display:block;width:44px;height:44px;border:0;border-radius:12px;outline:none"></td>'+
+  '<td style="vertical-align:middle;text-align:left;font:900 18px/1.2 Arial,Helvetica,sans-serif;letter-spacing:2.3px;color:#f6f9f7;white-space:nowrap">FUSE ATELIER</td>'+
+  '</tr></table>'+
+  '<div style="font:13px/1.7 Arial,Helvetica,sans-serif;color:'+muted+'">You’re receiving this email because you subscribed to Fuse Atelier updates.<br>'+
   'You can <a href="'+e(unsubscribeUrl)+'" style="color:'+teal+';text-decoration:underline">unsubscribe anytime</a>.</div></td></tr>';
  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
   '<meta name="color-scheme" content="only light"><meta name="supported-color-schemes" content="light">'+
