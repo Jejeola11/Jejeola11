@@ -30,7 +30,7 @@
   $('setup').textContent=data.senderProvider==='sender'?'Sender marketing enabled · '+(data.sender||'Verified sending domain')+' · New campaigns use Sender without the former 100-email/day Fuse limit. Tests and older delivery records still use Resend.':(data.configured?'Resend is configured · '+(data.sender||'Verified sender')+' · Visual campaigns can be saved and tested. The existing Resend sender limits launches to 100 emails a day.':'Drafts and previews work. Sending requires an email provider in Vercel.');
  }
  function drawTemplates(){
-  $('templates').innerHTML=state.templates.map(t=>'<button type="button" class="template art-'+esc(t.id)+(state.design&&state.design.template===t.id?' active':'')+'" data-template="'+esc(t.id)+'"><span class="template-art"><i>FUSE ATELIER</i><b>'+(t.id==='earn'?'EARN WITH FUSE':t.id==='influencer'?'CREATE<br>INFLUENCE':'A CREATIVE NOTE')+'</b><span></span></span><label>'+esc(t.name)+'</label><small>'+esc(t.description)+'</small></button>').join('');
+  $('templates').innerHTML=state.templates.map(t=>'<button type="button" class="template art-'+esc(t.id)+(state.design&&state.design.template===t.id?' active':'')+'" data-template="'+esc(t.id)+'"><span class="template-art"><i>FUSE ATELIER</i><b>'+(t.id==='earn'?'EARN WITH FUSE':t.id==='influencer_discount'?'30% OFF<br>AI INFLUENCERS':t.id==='influencer'?'CREATE<br>INFLUENCE':'A CREATIVE NOTE')+'</b><span></span></span><label>'+esc(t.name)+'</label><small>'+esc(t.description)+'</small></button>').join('');
  }
  function isHttps(v){try{return new URL(v).protocol==='https:'}catch(_){return false}}
  function newDesign(){return {template:'custom',brand:'FUSE ATELIER',preheader:'',background:'#eaf2ef',surface:'#ffffff',accent:'#dfff4e',ink:'#00191b',blocks:[]}}
@@ -39,7 +39,13 @@
   if(!t)return;
   if(!force&&state.mutated&&!confirm('Replace your current design with this template? Unsaved changes will be lost.'))return;
   state.design=JSON.parse(JSON.stringify(t.design));
-  if(id==='influencer'){
+  if(id==='influencer_discount'){
+   $('name').value='AI Influencer — Exclusive 30% Email Offer';
+   $('subject').value='Creator, your exclusive 30% AI Influencer discount is here 💚';
+   $('body').value='Hey Creator! Imagine creating your own realistic AI influencer, remixing trending videos and building a portfolio with your phone. Email subscribers have an exclusive 30% code — see the designed email for details.';
+   $('segment').value='influencer_prospects';
+   $('action-url').value='https://fuseatelier.com/influencer';
+  }else if(id==='influencer'){
    $('name').value='AI Influencer course — Launch';
    $('subject').value='{{first_name}}, your AI influencer starts here';
    $('body').value='Hi {{first_name}}, learn to create your own AI influencer and build content you can turn into a skill. Explore the ₦9,900 course at Fuse Atelier.';
@@ -80,9 +86,13 @@
  }
  function mediaFields(b,i){
   const tag=b.src&&isHttps(b.src)?'<img src="'+esc(b.src)+'" alt="" style="max-width:100%;height:92px;object-fit:contain;border-radius:8px;margin-bottom:7px">':'';
-  return '<div class="field"><label>Image or animated GIF</label>'+tag+
+  const specialHero=b.id==='discount-hero',specialGif=b.id==='discount-gif';
+  const label=specialHero?'TOP HERO FLYER · Upload your finished portrait image':specialGif?'ANIMATED VIDEO PREVIEW · Convert Cloudinary MP4 to GIF':'Image or animated GIF';
+  return '<div class="field"><label>'+label+'</label>'+tag+
    '<input data-i="'+i+'" data-field="src" placeholder="Paste https://... image or GIF URL" value="'+esc(b.src||'')+'">'+
-   '<div class="asset-actions"><button type="button" class="btn small" data-act="upload" data-i="'+i+'">↑ Upload image / GIF</button><button type="button" class="btn small ghost" data-act="gif" data-i="'+i+'">◉ Video URL → GIF</button></div><div class="hint">Images and GIFs can be uploaded directly (15MB max). Cloudinary MP4 links can create a lightweight animated GIF without changing the original video.</div></div>'+
+   (specialGif?'<div class="field" style="margin:11px 0 0"><label>Paste your Cloudinary video URL (MP4, MOV or WebM)</label><input data-video-i="'+i+'" inputmode="url" placeholder="https://res.cloudinary.com/.../video/upload/...mp4"></div>':'')+
+   '<div class="asset-actions"><button type="button" class="btn small" data-act="upload" data-i="'+i+'">↑ Upload image / GIF</button><button type="button" class="btn small ghost" data-act="gif" data-i="'+i+'">◉ Convert Cloudinary video → GIF</button></div>'+
+   '<div class="hint">'+(specialHero?'Upload the flyer you approved. It will appear at the very top of the email.':specialGif?'Paste your Cloudinary video link above, then tap Convert. Your source video stays unchanged; the email uses an optimized animated GIF.':'Images and GIFs can be uploaded directly (15MB max). Cloudinary MP4 links can create a lightweight animated GIF without changing the original video.')+'</div></div>'+
    makeField(i,'alt','Image description',b.alt,false,'Describe the image for accessibility');
  }
  function blockFields(b,i){
@@ -216,7 +226,7 @@
    state.deliveries=d.deliveries||[];
    state.templates=d.templates||[];
    state.segments=d.audienceCounts||{};
-   if(initial){loadTemplate('influencer',true);state.mutated=false}
+   if(initial){loadTemplate('influencer_discount',true);state.mutated=false}
    renderMetrics(d);drawAudience();drawCampaigns();drawAnalytics();drawTemplates();previewCount();updateSelected();await loadSender();
    $('gate').hidden=true;$('app').hidden=false;
   }catch(err){
@@ -331,7 +341,7 @@
  function reset(){
   state.editId=null;state.selected=null;state.mutated=false;$('save').textContent='Save draft or schedule';
   $('edit-indicator').textContent='NEW CAMPAIGN';$('new-email').hidden=true;$('launch-confirmation').value='';
-  loadTemplate('influencer',true);updateSelected();setTab('compose');window.scrollTo({top:0,behavior:'smooth'});
+  loadTemplate('influencer_discount',true);updateSelected();setTab('compose');window.scrollTo({top:0,behavior:'smooth'});
  }
  function editCampaign(id){
   const c=state.campaigns.find(x=>x.id===id);if(!c)return;
@@ -416,10 +426,11 @@
    if(act==='remove')blocks.splice(i,1);
    if(act==='upload'){state.uploadIndex=i;$('media-file').click();return}
    if(act==='gif'){
-    const link=prompt('Paste the original Cloudinary MP4 video URL. A short, optimized GIF will be generated for email:',blocks[i].src||'');
+    const videoField=document.querySelector('[data-video-i="'+i+'"]');
+    const link=videoField?videoField.value.trim():prompt('Paste the original Cloudinary MP4 video URL. A short, optimized GIF will be generated for email:',blocks[i].src||'');
     if(!link)return;const gif=cloudinaryGif(link);
     if(!gif){toast('Use an original HTTPS Cloudinary video URL ending in .mp4, .mov or .webm.',true);return}
-    blocks[i].src=gif;blocks[i].alt=blocks[i].alt||'Animated Fuse Atelier visual';toast('GIF URL created. Cloudinary will render it on first request.');
+    blocks[i].src=gif;blocks[i].alt=blocks[i].alt||'Animated Fuse Atelier visual';toast('GIF URL generated. Cloudinary creates it on first request. Original video is unchanged.');
    }
    state.mutated=true;drawBlocks();requestPreview();
   });
