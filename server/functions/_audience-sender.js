@@ -243,4 +243,33 @@ async function deliverSenderCampaign(db,campaign) {
   return {status:'sent',provider:'sender',recipientCount:audience.length,
     providerCampaignId:providerId,message:'Campaign submitted to Sender. Final delivery is reported by Sender.'};
 }
-module.exports={configured,request,group,members,syncMaster,deliverSenderCampaign,MASTER_TITLE};
+// Read-only provider inspection, followed by a local status correction ONLY when
+// Sender confirms this exact campaign has begun sending. Never re-dispatch mail.
+async function reconcileSenderCampaign(db,campaign) {
+  const fields=campaign.audience_filter || {};
+  const providerId=String(fields.sender_campaign_id||'');
+  if(fields.provider!=='sender'||fields.archived===true||!providerId)return {skipped:true};
+  const payload=await request('/campaigns/'+encodeURIComponent(providerId));
+  const remote=payload?.data||{};
+  if(remote.id&&String(remote.id)!==providerId)throw Error('Sender campaign identifier did not match the saved campaign.');
+  const value=field=>remote[field]===undefined||remote[field]===null||remote[field]===''?null:
+    (Number.isFinite(Number(remote[field]))&&Number(remote[field])>=0?Number(remote[field]):null);
+  const report={providerStatus:norm(remote.status),sent:value('sent_count'),
+    delivered:value('delivered_count'),recipients:value('recipient_count'),
+    opens:value('opens'),clicks:value('clicks'),bounces:value('bounces_count'),
+    sentTime:remote.sent_time||null,checkedAt:new Date().toISOString()};
+  const confirmed=['sent','sending','finished','completed'].includes(report.providerStatus) ||
+    (report.sent!==null&&report.sent>0);
+  if(confirmed){
+    const next={...fields,sender_report:report};
+    delete next.sender_last_error;
+    delete next.sender_failed_at;
+    const {error}=await db.from('audience_campaigns')
+      .update({status:'sent',audience_filter:next,updated_at:report.checkedAt})
+      .eq('id',campaign.id).in('status',['paused','sending','scheduled','sent']);
+    if(error)throw error;
+  }
+  return {fuseCampaignId:campaign.id,providerCampaignId:providerId,
+    providerStatus:report.providerStatus,confirmedSent:confirmed,...report};
+}
+module.exports={configured,request,group,members,syncMaster,deliverSenderCampaign,reconcileSenderCampaign,MASTER_TITLE};
