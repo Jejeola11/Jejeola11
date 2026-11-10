@@ -30,6 +30,20 @@ function templates(){
    {type:'banner',title:'A course for creators who are ready to build.',text:'Practical lessons on making, growing and monetizing AI influencer content.',background:'#dfff4e'},
    {type:'button',buttonText:'Start creating your influencer',buttonUrl:'https://fuseatelier.com/influencer'}
   ]})},
+  {id:'influencer_discount',name:'AI Influencer · 30% Email Exclusive',description:'Your dark teal launch email · flyer, creator story, GIF, coupon and chrome CTA',design:normalizeDesign({
+   template:'influencer_discount',brand:'FUSE ATELIER',
+   preheader:'A little thank-you for being a Fuse Creator: 30% off our AI Influencer course.',
+   background:'#031316',surface:'#091c20',accent:'#92ece4',ink:'#f4f6f8',
+   blocks:[
+    {id:'discount-hero',type:'image',src:'',alt:'The discount is live — Create a Realistic AI Influencer. Exclusive 30% discount for email subscribers.'},
+    {id:'discount-intro',type:'text',text:"Hey Creator! 💚\n\nImagine creating a beautiful, realistic influencer who can dress up, appear in videos, follow trends, and even showcase products for brands.\n\n**Except there's one little twist…**\n\n**She doesn't actually exist. 🤯**\n\nAnd the most interesting part? You don't have to appear on camera to create content with her.\n\nI've been creating AI influencer videos using my phone, and I've turned the process into a practical skill I can use for creative projects.\n\nNow I want to show you how it works.\n\nI created a course called **Create & Monetize Viral AI Influencers**, where you'll learn how to:"},
+    {id:'discount-how',type:'banner',title:'HOW IT WORKS',text:'✨ Create your own realistic AI influencer from scratch.\n\n✨ Keep your character looking consistent across different scenes and outfits.\n\n✨ Turn trending videos into content featuring your AI character.\n\n✨ Start building a portfolio you can use to approach brands.',background:'#0b2023'},
+    {id:'discount-after',type:'text',text:'**No camera. No existing audience. No previous AI experience required to begin.**\n\nAnd you can start learning right from your phone.\n\n**Want to see what I’ve created?**'},
+    {id:'discount-gif',type:'image',src:'',alt:'Animated preview of realistic AI influencer videos. Tap to explore the course.'},
+    {id:'discount-code',type:'banner',title:'EMAIL30',text:'Your exclusive 30% off code · Select and copy it',background:'#0c2427'},
+    {id:'discount-button',type:'button',buttonText:'ACCESS YOUR 30% DISCOUNT →',buttonUrl:'https://fuseatelier.com/influencer'},
+    {id:'discount-close',type:'text',text:"You'll also find the course there, currently available for **₦9,900 (one-time payment)**.\n\nYour first AI influencer could start with one idea. ✨\n\nSee you inside,\n\n**Ria 💚**\nFounder, Fuse Atelier\n*Learn. Create. Sell.*"}
+   ]})},
   {id:'earn',name:'Fuse Earn Affiliate',description:'Referrals and creator opportunity',design:normalizeDesign({template:'earn',brand:'FUSE ATELIER',preheader:'Make your content work harder with Fuse Earn.',background:'#eaf2ef',surface:'#ffffff',accent:'#ffe66a',ink:'#00191b',blocks:[
    {type:'hero',eyebrow:'INTRODUCING FUSE EARN',title:'Recommend what you believe in. Get rewarded.',text:'Share Fuse Atelier with people who can benefit from our creative tools and learning experiences.',src:'https://fuseatelier.com/atelier-v2/fuse-earn-hero.jpg',alt:'Fuse Earn creative partner programme',buttonText:'Discover Fuse Earn',buttonUrl:'https://fuseatelier.com/atelier-v2/earn.html',background:'#00191b',accent:'#ffe66a'},
    {type:'heading',title:'HOW IT WORKS',text:'Your content. Your audience. Your unique link.'},
