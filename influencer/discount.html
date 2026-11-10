@@ -30,6 +30,21 @@
 @media(max-width:600px){.availability{font-size:9px}.availability strong{font-size:16px}.offer-clock strong{font-size:23px}.faq h2{font-size:31px}.faq summary{font-size:12px;padding-top:17px;padding-bottom:17px}.faq details p{font-size:11.5px}.final-cta h2{font-size:31px}.final-button{min-width:min(100%,310px)}.sticky-offer{justify-content:space-between;gap:10px;padding-left:13px;padding-right:13px}.sticky-copy{min-width:105px}.sticky-copy strong{font-size:17px}.sticky-copy span{font-size:8.5px}.sticky-button{min-width:166px;padding:10px 13px}.sticky-button span{font-size:12px}}
 .video-grid{display:flex;grid-template-columns:none;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:2px 1px 12px}.video-grid::-webkit-scrollbar{display:none}.video-placeholder{flex:0 0 calc((100% - 36px)/3);scroll-snap-align:start}.video-placeholder:before{display:none}.result-video{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:cover;background:#020707;pointer-events:auto;cursor:pointer}.sticky-button{background:linear-gradient(120deg,#00191b,#1b4c52 60%,#0b2b2f)}.results .section-marker,.curriculum .section-marker,.reality .section-marker,.coach-results .section-marker,.testimonials .section-marker,.bonuses .section-marker{margin-bottom:30px}.testimonials h2{margin-top:0}
 @media(max-width:600px){.results h2{font-size:23px;line-height:1.1;letter-spacing:-.055em}.video-grid{gap:13px}.video-placeholder{flex-basis:64%}}
+
+/* Email subscriber coupon redemption, scoped only to cloned discount page. */
+.email-discount-redeem{max-width:480px;margin:20px auto 14px;padding:20px 18px 18px;border:1px solid #5b898744;border-radius:19px;background:linear-gradient(135deg,#0b2325,#071213 80%);text-align:left;box-shadow:0 10px 33px #0005}
+.email-discount-redeem .offer-eyebrow{font-size:10px;letter-spacing:.17em;color:#dfff4e;font-weight:850;margin:0 0 9px}
+.email-discount-redeem label{display:block;font-size:17px;line-height:1.35;font-weight:850;letter-spacing:-.02em;margin-bottom:13px;color:#f7ffff}
+.email-discount-redeem .entry{display:flex;align-items:stretch;gap:9px}
+.email-discount-redeem input{min-width:0;flex:1;width:100%;background:#081315;color:white;border:1px solid #506969;border-radius:11px;font:800 16px system-ui;padding:12px 13px;letter-spacing:.06em;text-transform:uppercase;outline-offset:2px}
+.email-discount-redeem input:focus{outline:2px solid #dfff4e}
+.email-discount-redeem button{flex:none;border:0;border-radius:11px;background:var(--chrome);color:#051617;font:850 13px system-ui;padding:0 16px;cursor:pointer}
+.email-discount-redeem p{color:#bdd6d1;font-size:12px;line-height:1.45;text-align:left;margin:11px 0 0;max-width:none}
+.email-discount-redeem .coupon-state{min-height:21px;margin:10px 0 0;font-size:12px;font-weight:750}
+.email-discount-redeem .coupon-state.success{color:#dfff4e}
+.email-discount-redeem .coupon-state.error{color:#ffc7a2}
+@media(max-width:420px){.email-discount-redeem{padding:17px 14px}.email-discount-redeem input{font-size:14px}.email-discount-redeem button{font-size:12px;padding:0 13px}}
+
 </style>
 <main>
 <div class="reveal">REVEALING THE VIRAL AI INFLUENCER SYSTEM<br>YOUR MATES WON'T TELL YOU ABOUT!</div>
@@ -38,6 +53,15 @@
 <p class="chrome pledge"><span>No Tech Skills. No Audience.</span><span>No Camera. No Experience Needed.</span></p>
 <div class="frame"><video autoplay muted loop playsinline disablepictureinpicture poster="/influencer/poster.jpg" aria-label="AI influencer video demonstration"><source src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793971815/lv_0_20261106022053.mp4" type="video/mp4"></video></div>
 <p class="description">In this course, I'll show you how to create a recognizable character from scratch, turn a trend into your own video, introduce a product or business and build a fast growing faceless page.</p>
+<section id="email-discount-redeem" class="email-discount-redeem" aria-label="Redeem your email subscriber discount">
+ <div class="offer-eyebrow">30% OFF · FOR EMAIL SUBSCRIBERS</div>
+ <form id="email-discount-form" autocomplete="off">
+  <label for="email-discount-code">Enter your discount code to unlock ₦6,930</label>
+  <div class="entry"><input id="email-discount-code" name="coupon" maxlength="24" inputmode="text" autocapitalize="characters" spellcheck="false" placeholder="Enter code" required><button type="submit">Apply Code</button></div>
+ </form>
+ <p>Regular ₦9,900 · Save ₦2,970 with your email code. One-time course payment.</p>
+ <p class="coupon-state" id="email-discount-status" aria-live="polite">Your secure checkout unlocks after applying the code.</p>
+</section>
 <div class="offer"><a class="buy" style="text-decoration:none" href="#discount-checkout-pending" data-discount-checkout="pending">Yes, Teach Me For ₦6,930<span class="slots">Only <span data-slots>30</span> slots left at this price</span></a>
 <ul class="features"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="m9 12 2 2 4-4"/></svg>Instant access</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20m-15 5h3"/></svg>Secure Paystack</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>Learn on your phone</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2m2-15a3 3 0 0 1 0 6m2 9h2v-2a6 6 0 0 0-4-5.7"/></svg>Community access</li></ul></div>
 </main>
@@ -167,12 +191,48 @@
 })();
 </script><script>document.querySelectorAll(".results .result-video").forEach(video=>{video.defaultMuted=false;video.muted=false;video.volume=1;video.addEventListener("loadedmetadata",()=>{video.defaultMuted=false;video.muted=false;video.volume=1;},{once:true});});</script>
 <script>if(new URLSearchParams(location.search).get('embed')==='workflows'){document.body.style.minHeight='0';const sticky=document.getElementById('stickyOffer');if(sticky)sticky.hidden=true;document.querySelectorAll('a[href]:not([href^="#"])').forEach(a=>a.target='_top');}</script><script>
-/* Preview only: original Academy checkout charges the standard course price,
-   so it must not be accessible until the reduced-price payment flow is ready. */
-document.querySelectorAll('[data-discount-checkout="pending"]').forEach(link=>{
-  link.addEventListener('click',event=>{
-    event.preventDefault();
-    window.alert('This 30% email-subscriber discount checkout is not available yet. The code redemption and reduced-price payment flow will be connected next. No payment has been taken.');
-  });
-});
+(() => {
+ 'use strict';
+ const form=document.getElementById('email-discount-form');
+ const input=document.getElementById('email-discount-code');
+ const message=document.getElementById('email-discount-status');
+ const region=document.getElementById('email-discount-redeem');
+ const buttons=[...document.querySelectorAll('[data-discount-checkout="pending"]')];
+ const destination='/atelier-v2/learn.html?buy=influencer&coupon=EMAIL30&return=%2Fatelier-v2%2Flearn.html';
+ let activated=false;
+ function status(text,type){
+   message.textContent=text;message.classList.toggle('success',type==='success');
+   message.classList.toggle('error',type==='error');
+ }
+ form.addEventListener('submit',(event)=>{
+   event.preventDefault();
+   const code=String(input.value||'').trim().toUpperCase();
+   if(code!=='EMAIL30'){
+     activated=false;
+     buttons.forEach(link=>link.setAttribute('href','#email-discount-redeem'));
+     status('That code is not valid. Please check the code in your email.','error');
+     input.focus();return;
+   }
+   activated=true;
+   input.value='EMAIL30';
+   buttons.forEach(link=>link.setAttribute('href',destination));
+   status('30% discount applied! Your checkout is unlocked at ₦6,930.','success');
+   form.querySelector('button').textContent='Applied ✓';
+ });
+ input.addEventListener('input',()=>{
+   if(activated){
+     activated=false;
+     buttons.forEach(link=>link.setAttribute('href','#email-discount-redeem'));
+     status('Reapply your code to unlock the discounted checkout.','');
+     form.querySelector('button').textContent='Apply Code';
+   }
+ });
+ buttons.forEach(link=>link.addEventListener('click',event=>{
+   if(activated)return;
+   event.preventDefault();
+   region.scrollIntoView({behavior:'smooth',block:'center'});
+   input.focus({preventScroll:true});
+   status('Enter your email discount code above to continue at ₦6,930.','');
+ }));
+})();
 </script></html>
