@@ -41,8 +41,8 @@ function templates(){
     {id:'discount-after',type:'text',text:'**No camera. No existing audience. No previous AI experience required to begin.**\n\nAnd you can start learning right from your phone.\n\n**Want to see what I’ve created?**'},
     {id:'discount-gif',type:'image',src:'',alt:'Animated preview of realistic AI influencer videos. Tap to explore the course.'},
     {id:'discount-code',type:'banner',title:'EMAIL30',text:'Your exclusive 30% off code · Select and copy it',background:'#0c2427'},
-    {id:'discount-button',type:'button',buttonText:'ACCESS YOUR 30% DISCOUNT →',buttonUrl:'https://fuseatelier.com/influencer'},
-    {id:'discount-close',type:'text',text:"You'll also find the course there, currently available for **₦9,900 (one-time payment)**.\n\nYour first AI influencer could start with one idea. ✨\n\nSee you inside,\n\n**Ria 💚**\nFounder, Fuse Atelier\n*Learn. Create. Sell.*"}
+    {id:'discount-button',type:'button',buttonText:'ACCESS YOUR 30% DISCOUNT →',buttonUrl:'https://fuseatelier.com/influencer/discount'},
+    {id:'discount-close',type:'text',text:"The course is normally **₦9,900**, but your email code **EMAIL30** unlocks it for just **₦6,930 (one-time payment)**.\n\nYour first AI influencer could start with one idea. ✨\n\nSee you inside,\n\n**Ria 💚**\nFounder, Fuse Atelier\n*Learn. Create. Sell.*"}
    ]})},
   {id:'earn',name:'Fuse Earn Affiliate',description:'Referrals and creator opportunity',design:normalizeDesign({template:'earn',brand:'FUSE ATELIER',preheader:'Make your content work harder with Fuse Earn.',background:'#eaf2ef',surface:'#ffffff',accent:'#ffe66a',ink:'#00191b',blocks:[
    {type:'hero',eyebrow:'INTRODUCING FUSE EARN',title:'Recommend what you believe in. Get rewarded.',text:'Share Fuse Atelier with people who can benefit from our creative tools and learning experiences.',src:'https://fuseatelier.com/atelier-v2/fuse-earn-hero.jpg',alt:'Fuse Earn creative partner programme',buttonText:'Discover Fuse Earn',buttonUrl:'https://fuseatelier.com/atelier-v2/earn.html',background:'#00191b',accent:'#ffe66a'},
@@ -115,7 +115,7 @@ function trackingUrl(link,campaign){
    GIF and hero images remain user-editable through the regular Email Studio blocks. */
 function renderDiscountEmail(campaign,d,contact,unsubscribeUrl){
  const dark='#031316',panel='#0b2023',white='#f4f6f8',muted='#aabcc0',teal='#92ece4',yellow='#e7f45b';
- const offerUrl=trackingUrl(campaign.action_url||'https://fuseatelier.com/influencer',campaign);
+ const offerUrl=trackingUrl(campaign.action_url||'https://fuseatelier.com/influencer/discount',campaign);
  const rich=s=>{
   const safe=e(withName(s||'',contact));
   return safe.replace(/\*\*([\s\S]+?)\*\*/g,'<strong style="font-weight:800;color:#ffffff">$1</strong>')
