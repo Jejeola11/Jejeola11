@@ -180,6 +180,33 @@ exports.handler = async event => {
 
   if (!configured() && !senderConfigured()) return json(409, { error: 'Configure an email provider in Vercel before sending.' });
 
+  if (input.action === 'retry') {
+    if (campaign.status !== 'paused' || campaign.audience_filter?.provider !== 'sender')
+      return json(409, {error:'Only a paused Sender campaign can be retried.'});
+    if (input.confirmation !== 'RETRY '+campaign.id)
+      return json(400, {error:'Confirm this exact paused campaign before retrying.'});
+    const discountIssue=subscriberDiscountReadiness(campaign.audience_filter);
+    if(discountIssue) return json(409,{error:discountIssue});
+    const {data:claimed,error:claimError}=await db.from('audience_campaigns')
+      .update({status:'sending',updated_at:new Date().toISOString()})
+      .eq('id',campaign.id).eq('status','paused').select().maybeSingle();
+    if(claimError||!claimed) return json(409,{error:'Campaign is already being processed.'});
+    try {
+      // Reuses the existing Sender ID and checks its remote state before sending.
+      const result=await deliverSenderCampaign(db,claimed);
+      return json(200,{ok:true,...result});
+    } catch (err) {
+      const timestamp=new Date().toISOString();
+      const {data:latest}=await db.from('audience_campaigns')
+        .select('audience_filter').eq('id',campaign.id).maybeSingle();
+      const filter={...(latest?.audience_filter||claimed.audience_filter||{}),
+        sender_last_error:String(err.message||'Campaign launch failed').slice(0,750),sender_failed_at:timestamp};
+      await db.from('audience_campaigns').update({status:'paused',audience_filter:filter,updated_at:timestamp})
+        .eq('id',campaign.id).eq('status','sending');
+      return json(502,{error:err.message||'Sender rejected this campaign. Check domain authentication.'});
+    }
+  }
+
   if (input.action === 'send_test') {
     if (!configured()) return json(409,{error:'Test email currently requires Resend to be configured.'});
     const email = clean(input.email, 320).toLowerCase();
