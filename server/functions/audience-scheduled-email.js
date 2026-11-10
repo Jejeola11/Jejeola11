@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const { admin, json } = require('./_supabase');
 const { configured, deliverCampaign } = require('./_audience-email');
-const { configured: senderConfigured, syncMaster, deliverSenderCampaign } = require('./_audience-sender');
+const { configured: senderConfigured, syncMaster, deliverSenderCampaign, reconcileSenderCampaign } = require('./_audience-sender');
 
 const OIDC_AUDIENCE = 'fuse-audience-scheduler';
 const OIDC_ISSUER = 'https://token.actions.githubusercontent.com';
@@ -50,6 +50,20 @@ exports.handler = async event => {
     try { senderSync = await syncMaster(db,20); }
     catch (err) { senderSync = {error:err.message}; console.error('[Sender scheduler sync]',err.message); }
   }
+  // Re-check campaigns that Sender may have completed after an API timeout.
+  // This only calls GET /campaigns/{id} on Sender; no email is sent here.
+  const senderReports=[];
+  if(senderConfigured()){
+    const {data:tracked,error:trackedError}=await db.from('audience_campaigns')
+      .select('id,status,audience_filter').eq('channel','email')
+      .in('status',['paused','sending','sent']).order('updated_at',{ascending:false}).limit(20);
+    if(trackedError)return json(500,{error:'Unable to inspect saved Sender campaign statuses.'});
+    for(const campaign of tracked||[]){
+      if(campaign.audience_filter?.provider!=='sender'||campaign.audience_filter?.archived===true||!campaign.audience_filter?.sender_campaign_id)continue;
+      try { senderReports.push(await reconcileSenderCampaign(db,campaign)); }
+      catch(err){senderReports.push({fuseCampaignId:campaign.id,error:String(err.message||err).slice(0,400)});}
+    }
+  }
   const now = new Date().toISOString();
   const { data: due, error } = await db.from('audience_campaigns')
     .select('*').eq('channel', 'email')
@@ -86,5 +100,5 @@ exports.handler = async event => {
   }
   const failures=results.filter(item=>item.error);
   // Do not tell Vercel Cron / GitHub Actions that a rejected send succeeded.
-  return json(failures.length?502:200, {ok:failures.length===0,senderSync,checked:(due||[]).length,failures:failures.length,results});
+  return json(failures.length?502:200, {ok:failures.length===0,senderSync,checked:(due||[]).length,failures:failures.length,results,senderReports});
 };
