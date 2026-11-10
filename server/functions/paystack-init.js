@@ -1,6 +1,7 @@
 const {getUser,admin,json}=require('./_supabase');
 const {assertPack}=require('./_credit-policy');
 const {COMMERCE,CREDIT_KEYS}=require('./_commerce');
+const {PACK:EMAIL_PACK,CODE:EMAIL_CODE,DISCOUNT_NAIRA,normalizeCode,hasValidCoupon}=require('./_influencer-email-discount');
 async function referralPrice(db,userId,item,key){
  if(!CREDIT_KEYS.includes(key))return {amount:item.amount_naira,discount:false};
  const [profile,ref,prior]=await Promise.all([
@@ -19,7 +20,14 @@ exports.handler=async event=>{
  const key=String(body.pack||'').trim(),item=COMMERCE[key];
  if(!item||!['pack','course'].includes(item.kind))return json(400,{error:'This product is unavailable.'});
  const secret=(process.env.PAYSTACK_SECRET_KEY||'').trim();if(!secret)return json(503,{error:'Paystack is not configured.'});
- const db=admin(),price=await referralPrice(db,user.id,item,key);
+ // Only the dedicated course can use EMAIL30; reject invalid codes rather than
+ // silently collecting the normal full price from a coupon-seeking buyer.
+ const suppliedCoupon=String(body.coupon||'').trim();
+ const coupon=normalizeCode(suppliedCoupon);
+ if(suppliedCoupon&&!hasValidCoupon(key,coupon))return json(400,{error:'This discount code is not valid for this checkout.'});
+ const db=admin(),price=coupon===EMAIL_CODE&&key===EMAIL_PACK
+   ?{amount:DISCOUNT_NAIRA,discount:true}
+   :await referralPrice(db,user.id,item,key);
  if(item.kind==='pack'){try{assertPack(item,price.amount)}catch(e){return json(409,{error:e.message})}}
  const host=event.headers['x-forwarded-host']||event.headers.host||'fuseatelier.com';
  const proto=event.headers['x-forwarded-proto']||'https';
@@ -27,7 +35,7 @@ exports.handler=async event=>{
  const response=await fetch('https://api.paystack.co/transaction/initialize',{method:'POST',headers:{Authorization:'Bearer '+secret,'Content-Type':'application/json'},body:JSON.stringify({
   email:user.email,amount:price.amount*100,currency:'NGN',channels:['bank_transfer','card','bank','ussd'],
   callback_url:appUrl+'/api/paystack-complete',
-  metadata:{user_id:user.id,pack:key,kind:item.kind,amount_naira:price.amount,discount_applied:price.discount,course:item.course||null,custom_fields:[{display_name:'Product',variable_name:'product',value:item.label}]}
+  metadata:{user_id:user.id,pack:key,kind:item.kind,amount_naira:price.amount,discount_applied:price.discount,promo_code:coupon||null,course:item.course||null,custom_fields:[{display_name:'Product',variable_name:'product',value:item.label}]}
  })});
  const data=await response.json();if(!response.ok||!data.status||!data.data?.authorization_url)return json(502,{error:data.message||'Could not start Paystack checkout.'});
  return json(200,{authorization_url:data.data.authorization_url,reference:data.data.reference||null,amount_naira:price.amount,discount_applied:price.discount});
