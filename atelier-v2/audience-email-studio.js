@@ -438,11 +438,20 @@
   catch(err){toast(err.message,true)}
  }
  async function reconcile(){
-  const b=$('reconcile');b.disabled=true;$('reconcile-status').textContent='Checking queued messages with Resend…';
-  try{const d=await api('POST',{action:'reconcile'});toast('Checked '+d.checked+' provider records; '+d.updated+' updated.');
-   $('reconcile-status').textContent='Checked '+d.checked+' queued records; '+d.updated+' updated, '+d.unchanged+' still queued, '+d.errors+' errors. Repeat to inspect the next batch if needed.';
-   await load();}
-  catch(err){toast(err.message,true);$('reconcile-status').textContent=err.message}finally{b.disabled=false}
+  const active=state.campaigns.find(c=>c.status==='scheduled'||c.status==='sending')||state.campaigns[0];
+  if(!active){toast('No active campaign to check.');return}
+  if(active.audience_filter?.provider==='sender'){
+   $('reconcile-status').textContent='Sender campaigns are tracked using the Get Sender reports button above. No older Resend records will be checked.';
+   await loadSenderReports();return;
+  }
+  const b=$('reconcile');b.disabled=true;$('reconcile-status').textContent='Checking queued messages for this campaign only…';
+  try{
+   const d=await api('POST',{action:'reconcile',campaignId:active.id});
+   toast('Checked '+d.checked+' current campaign provider records; '+d.updated+' updated.');
+   $('reconcile-status').textContent='Checked '+d.checked+' current records; '+d.updated+' updated, '+d.unchanged+' still queued, '+d.errors+' errors.';
+   await load();
+  }catch(err){toast(err.message,true);$('reconcile-status').textContent=err.message}
+  finally{b.disabled=false}
  }
  function bind(){
   document.querySelectorAll('[data-tab]').forEach(el=>el.addEventListener('click',()=>{
