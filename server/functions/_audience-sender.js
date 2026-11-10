@@ -27,7 +27,10 @@ async function request(path, method = 'GET', data = undefined, allowNotFound = f
   payload = await response.json().catch(() => ({}));
   if (allowNotFound && response.status === 404) return null;
   if (!response.ok || payload.success === false) {
-    const error = new Error(String(payload.message || payload.error || 'Sender API request rejected').slice(0, 230));
+    const describe=value=>typeof value==='string'?value:typeof value==='object'?JSON.stringify(value):String(value||'');
+    const issues=[payload.message,payload.error,payload.errors].filter(Boolean).map(describe).filter(Boolean);
+    const detail=(issues.join(' | ')||'Sender API request rejected').replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/gi,'[email]').slice(0,650);
+    const error = new Error('Sender HTTP '+response.status+': '+detail);
     error.status = response.status;
     throw error;
   }
@@ -216,7 +219,24 @@ async function deliverSenderCampaign(db,campaign) {
     }
   }
   // Only invoked by a user-confirmed launch or by an explicitly scheduled campaign.
-  await request('/campaigns/'+encodeURIComponent(providerId)+'/send','POST');
+  try {
+    await request('/campaigns/'+encodeURIComponent(providerId)+'/send','POST');
+  } catch (sendError) {
+    // An HTTP timeout can happen AFTER Sender accepted the launch. Re-check
+    // the provider before declaring failure or allowing a retry.
+    let remoteStateAfter='unknown';
+    let remoteRecipients=null;
+    try {
+      const check=await request('/campaigns/'+encodeURIComponent(providerId));
+      remoteStateAfter=String(check?.data?.status||'unknown').toLowerCase();
+      remoteRecipients=check?.data?.recipient_count??null;
+      if(['sent','sending','scheduled','queued','finished','completed'].includes(remoteStateAfter)) {
+        await db.from('audience_campaigns').update({status:'sent',updated_at:new Date().toISOString()}).eq('id',campaign.id);
+        return {status:'sent',provider:'sender',providerCampaignId:providerId,alreadySubmitted:true,providerStatus:remoteStateAfter,recipientCount:remoteRecipients};
+      }
+    } catch (_) {}
+    throw Error('Campaign launch was refused: '+sendError.message+'; Sender campaign status='+remoteStateAfter+'; recipient count='+String(remoteRecipients));
+  }
   const {error:markError}=await db.from('audience_campaigns')
     .update({status:'sent',updated_at:new Date().toISOString()}).eq('id',campaign.id);
   if (markError) throw markError;
