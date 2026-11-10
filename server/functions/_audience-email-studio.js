@@ -134,7 +134,7 @@ function renderDiscountEmail(campaign,d,contact,unsubscribeUrl){
    case 'discount-how':{
     const points=String(b.text||'').split(/\n\s*\n/).filter(Boolean).map(x=>'<p style="font:600 16px/1.72 Arial,Helvetica,sans-serif;color:'+white+';margin:0 0 23px">'+rich(x).replace(/\n/g,'<br>')+'</p>').join('');
     return section('<div style="background-color:'+panel+';border:1px solid #3d6d6c;border-left:6px solid '+teal+';border-radius:22px;padding:30px 27px 8px">'+
-      '<div style="font:900 18px/1.2 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#e7edf0;background-image:linear-gradient(95deg,#adb3b9,#ffffff,#8d98a0);-webkit-background-clip:text;background-clip:text;margin:0 0 24px">'+rich(b.title||'HOW IT WORKS')+'</div>'+points+'</div>','9px 34px 28px');
+      '<div style="font:900 18px/1.2 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#e7edf0;background-image:linear-gradient(95deg,#adb3b9,#ffffff,#8d98a0);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin:0 0 24px">'+rich(b.title||'HOW IT WORKS')+'</div>'+points+'</div>','9px 34px 28px');
    }
    case 'discount-after':
     return section(paragraphs(b.text),'3px 34px 15px');
