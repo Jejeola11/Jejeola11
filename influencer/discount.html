@@ -85,11 +85,11 @@
 <h2 id="results-heading"><span>Viral AI Influencer Videos</span><span class="chrome">Made on My Phone</span></h2>
 <p class="section-copy">Short videos I made with my AI Influencer using the same tools I teach in this class. Tap play to watch with sound.</p>
 <div class="video-grid" aria-label="AI influencer video examples">
-<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793977419/lv_0_20261106023609.mp4" controls playsinline preload="metadata" aria-label="AI influencer example video 1"></video></div>
-<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793978730/lv_0_20261103133617.mp4" controls playsinline preload="metadata" aria-label="AI influencer example video 2"></video></div>
-<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1792022499/lv_0_20260917031547.mp4" controls playsinline preload="metadata" aria-label="AI influencer example video 3"></video></div>
-<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1792022504/lv_0_20261014152630.mp4" controls playsinline preload="metadata" aria-label="AI influencer example video 4"></video></div>
-<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793978737/lv_0_20260930020804.mp4" controls playsinline preload="metadata" aria-label="AI influencer example video 5"></video></div>
+<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794270019/lv_0_20261109231412.mp4" poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_1/v1794270019/lv_0_20261109231412.jpg" controls playsinline preload="metadata" aria-label="AI influencer example video 1"></video></div>
+<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794274783/fuse_atelier_influencer_result_20261110_02.mp4" poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_1/v1794274783/fuse_atelier_influencer_result_20261110_02.jpg" controls playsinline preload="metadata" aria-label="AI influencer example video 2"></video></div>
+<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793977419/lv_0_20261106023609.mp4" poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_1/v1793977419/lv_0_20261106023609.jpg" controls playsinline preload="metadata" aria-label="AI influencer example video 3"></video></div>
+<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793978730/lv_0_20261103133617.mp4" poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_1/v1793978730/lv_0_20261103133617.jpg" controls playsinline preload="metadata" aria-label="AI influencer example video 4"></video></div>
+<div class="video-placeholder"><video class="result-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793978737/lv_0_20260930020804.mp4" poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_1/v1793978737/lv_0_20260930020804.jpg" controls playsinline preload="metadata" aria-label="AI influencer example video 5"></video></div>
 </div></div></section>
 <section class="curriculum" aria-labelledby="curriculum-heading"><div class="curriculum-inner">
 <div class="section-marker"><b>03</b><span>WHAT YOU'RE GETTING</span></div>
@@ -183,6 +183,7 @@
   let galleryTimer=null;
   const stopGallery=()=>{if(galleryTimer){clearInterval(galleryTimer);galleryTimer=null}};
   const startGallery=()=>{if(!gallery||videos.length<2)return;galleryTimer=setInterval(()=>{const cards=[...gallery.children],current=cards.reduce((best,card,index)=>Math.abs(card.offsetLeft-gallery.scrollLeft)<Math.abs(cards[best].offsetLeft-gallery.scrollLeft)?index:best,0),next=(current+1)%cards.length;gallery.scrollTo({left:cards[next].offsetLeft,behavior:'smooth'})},3200)};
+  if(gallery){gallery.addEventListener('pointerdown',stopGallery,{passive:true});gallery.addEventListener('touchstart',stopGallery,{passive:true});}
   videos.forEach(video=>video.addEventListener('play',()=>{stopGallery();videos.forEach(other=>{if(other!==video)other.pause()})}));startGallery();
   fetch('/api/influencer-offer-status',{cache:'no-store'}).then(r=>r.json()).then(data=>{const remaining=Math.max(0,Math.min(30,Number(data.remaining)));document.querySelectorAll('[data-slots]').forEach(el=>el.textContent=remaining);document.querySelectorAll('[data-slot-track]').forEach(el=>el.style.width=`${remaining/30*100}%`)}).catch(()=>{});
   const sticky=document.getElementById('stickyOffer'),problem=document.querySelector('.problem'),bonuses=document.querySelector('.bonuses');
