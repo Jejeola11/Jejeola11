@@ -109,8 +109,69 @@ function trackingUrl(link,campaign){
   return u.href;
  }catch(_){return link}
 }
+
+/* The subscriber-exclusive course email is intentionally table-based and email-safe.
+   Visual gradients have solid-color fallbacks for clients that do not support them.
+   GIF and hero images remain user-editable through the regular Email Studio blocks. */
+function renderDiscountEmail(campaign,d,contact,unsubscribeUrl){
+ const dark='#031316',panel='#0b2023',white='#f4f6f8',muted='#aabcc0',teal='#92ece4',yellow='#e7f45b';
+ const offerUrl=trackingUrl(campaign.action_url||'https://fuseatelier.com/influencer',campaign);
+ const rich=s=>{
+  const safe=e(withName(s||'',contact));
+  return safe.replace(/\*\*([\s\S]+?)\*\*/g,'<strong style="font-weight:800;color:#ffffff">$1</strong>')
+    .replace(/\*([^*\n]+)\*/g,'<em>$1</em>');
+ };
+ const paragraphs=(s,style='')=>String(s||'').split(/\n\s*\n/).filter(Boolean).map(x=>
+   '<p style="font:400 16px/1.78 Arial,Helvetica,sans-serif;color:'+white+';margin:0 0 22px;'+style+'">'+rich(x).replace(/\n/g,'<br>')+'</p>').join('');
+ const section=(content,padding='8px 34px 12px')=>'<tr><td style="background-color:'+dark+';background-image:linear-gradient(125deg,#031316 5%,#092629 75%,#031316);padding:'+padding+'">'+content+'</td></tr>';
+ const pic=(b,alt)=>b.src?'<img src="'+e(b.src)+'" alt="'+e(b.alt||alt)+'" width="600" style="display:block;width:100%;max-width:600px;height:auto;border:0;outline:none;text-decoration:none">':'<div style="background:#123239;border:1px dashed #85cdc8;border-radius:12px;padding:55px 20px;color:#bee6df;text-align:center;font:700 15px Arial,sans-serif">Add your '+e(alt)+' image in the Fuse Email Studio before sending.</div>';
+ const renderSpecial=b=>{
+  switch(b.id){
+   case 'discount-hero':
+    return section(pic(b,'top flyer'),'0');
+   case 'discount-intro':
+    return section(paragraphs(b.text),'36px 34px 14px');
+   case 'discount-how':{
+    const points=String(b.text||'').split(/\n\s*\n/).filter(Boolean).map(x=>'<p style="font:600 16px/1.72 Arial,Helvetica,sans-serif;color:'+white+';margin:0 0 23px">'+rich(x).replace(/\n/g,'<br>')+'</p>').join('');
+    return section('<div style="background-color:'+panel+';border:1px solid #3d6d6c;border-left:6px solid '+teal+';border-radius:22px;padding:30px 27px 8px">'+
+      '<div style="font:900 18px/1.2 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#e7edf0;background-image:linear-gradient(95deg,#adb3b9,#ffffff,#8d98a0);-webkit-background-clip:text;background-clip:text;margin:0 0 24px">'+rich(b.title||'HOW IT WORKS')+'</div>'+points+'</div>','9px 34px 28px');
+   }
+   case 'discount-after':
+    return section(paragraphs(b.text),'3px 34px 15px');
+   case 'discount-gif':
+    return section('<a href="'+e(offerUrl)+'" target="_blank" style="display:block;text-decoration:none;outline:none">'+
+      '<div style="border:1px solid #336a6b;border-radius:18px;overflow:hidden">'+pic(b,'animated GIF')+'</div></a>','6px 34px 21px');
+   case 'discount-code':
+    return section('<div style="text-align:center;padding:10px 0 6px">'+
+     '<div style="font:700 11px/1.5 Arial,sans-serif;letter-spacing:1.8px;color:'+muted+';margin-bottom:9px">'+rich(b.text||'SELECT AND COPY YOUR CODE')+'</div>'+
+     '<div style="display:inline-block;font:900 25px/1.25 Arial,sans-serif;letter-spacing:3px;color:'+yellow+';border:1px dashed '+yellow+';border-radius:11px;padding:11px 30px;user-select:all;-webkit-user-select:all">'+rich(b.title||'EMAIL30')+'</div></div>','0 34px 18px');
+   case 'discount-button':{
+    const destination=trackingUrl(b.buttonUrl||offerUrl,campaign);
+    return section('<div style="text-align:center"><a href="'+e(destination)+'" style="display:block;padding:19px 15px;border-radius:16px;border:1px solid #f6ffff;background-color:#dce0e6;background-image:linear-gradient(115deg,#9fa6b1 0%,#fcffff 45%,#aab3bb 100%);font:900 16px/1.3 Arial,Helvetica,sans-serif;color:#081315;text-decoration:none">'+e(b.buttonText||'ACCESS YOUR 30% DISCOUNT →')+'</a></div>','4px 34px 31px');
+   }
+   case 'discount-close':
+    return section(paragraphs(b.text),'0 34px 27px');
+   default:
+    return renderBlock(b,d,contact);
+  }
+ };
+ const pre=e(withName(d.preheader||campaign.subject||'Fuse Atelier',contact));
+ const footer='<tr><td style="background:#06171a;padding:29px 34px 34px;text-align:center;border-top:1px solid #305151">'+
+  '<div style="font:900 16px Arial,sans-serif;letter-spacing:2.4px;color:#e7edf0;margin-bottom:18px">FUSE ATELIER</div>'+
+  '<div style="font:12px/1.8 Arial,Helvetica,sans-serif;color:'+muted+'">You’re receiving this email because you subscribed to Fuse Atelier updates.<br>'+
+  'You can <a href="'+e(unsubscribeUrl)+'" style="color:'+teal+';text-decoration:underline">unsubscribe anytime</a>.</div></td></tr>';
+ return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
+  '<style>@media only screen and (max-width:620px){.outer{width:100%!important}.email-pad{padding:12px 0!important}}</style></head>'+
+  '<body style="margin:0;padding:0;background:#031316;font-family:Arial,Helvetica,sans-serif">'+
+  '<div style="display:none!important;font-size:1px;color:#031316;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden">'+pre+'</div>'+
+  '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;background-color:#031316;background-image:linear-gradient(145deg,#020b10,#0b3435 65%,#020b10)"><tr><td align="center" class="email-pad" style="padding:30px 12px">'+
+  '<table role="presentation" class="outer" width="600" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:600px;max-width:100%;background:#031316;border-radius:18px;overflow:hidden">'+
+  d.blocks.map(renderSpecial).join('')+footer+'</table></td></tr></table></body></html>';
+}
+
 function renderVisual(campaign,contact,unsubscribeUrl,subscribeUrl){
  const f=campaign.audience_filter||{},d=normalizeDesign(f.design);if(!d||!d.blocks.length)return null;
+ if(d.template==='influencer_discount')return renderDiscountEmail(campaign,d,contact,unsubscribeUrl);
  const header='<tr><td style="background:#001012;padding:24px 34px;text-align:center"><span style="font:800 16px Arial,sans-serif;letter-spacing:3px;color:'+d.accent+'">'+e(d.brand)+'</span></td></tr>';
  const content=d.blocks.map(b=>renderBlock({...b,buttonUrl:trackingUrl(b.buttonUrl,campaign)},d,contact)).join('');
  const footer='<tr><td style="background:#001012;text-align:center;padding:30px 34px">'+
