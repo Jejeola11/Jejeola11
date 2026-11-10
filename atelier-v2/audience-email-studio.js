@@ -21,12 +21,23 @@
  }
  function segment(){return $('segment').value||'all_subscribed'}
  function previewCount(){const v=state.segments[segment()];$('segment-count').textContent=Number.isFinite(v)?v.toLocaleString()+' eligible email addresses':'Checking audience…'}
+ function currentSenderReport(){
+  const campaign=state.campaigns.find(x=>x.audience_filter?.provider==='sender'&&x.audience_filter?.sender_report&&x.status==='sent');
+  if(!campaign)return null;
+  const r=campaign.audience_filter.sender_report;
+  const num=x=>Number.isFinite(Number(x))&&x!==null?Number(x):null;
+  const sent=num(r.sent),bounces=num(r.bounces),official=num(r.delivered);
+  return {...r,sent,bounces,delivered:official!==null?official:sent!==null&&bounces!==null?Math.max(0,sent-bounces):null,deliveredEstimated:official===null};
+ }
  function renderMetrics(data){
   $('metric-opted').textContent=Number(state.segments.all_subscribed||0).toLocaleString();
   $('metric-campaigns').textContent=String(state.campaigns.length);
+  const report=currentSenderReport();
   $('metric-queued').textContent=String(state.deliveries.filter(x=>x.status==='queued').length);
-  $('metric-delivered').textContent=String(state.deliveries.filter(x=>x.status==='delivered').length);
-  $('metrics-note').textContent='Delivery metrics reflect the most recent '+state.deliveries.length+' recipient records.';
+  $('metric-delivered').textContent=report&&report.delivered!==null?report.delivered.toLocaleString():String(state.deliveries.filter(x=>x.status==='delivered').length);
+  const deliveredLabel=$('metric-delivered').closest('.metric')?.querySelector('label');
+  if(deliveredLabel)deliveredLabel.textContent=report?(report.deliveredEstimated?'Estimated delivered':'Provider delivered'):'Verified delivered';
+  $('metrics-note').textContent=report?'Sender confirms '+Number(report.sent||0).toLocaleString()+' sent and '+Number(report.bounces||0).toLocaleString()+' bounces. '+(report.deliveredEstimated?'Delivered is estimated as sent minus bounces; see Sender for its official total.':'Delivered comes directly from Sender.'):'Delivery metrics reflect the most recent '+state.deliveries.length+' recipient records.';
   $('setup').className='integration-line'+(data.configured?'':' disconnected');
   $('setup').textContent=data.senderProvider==='sender'
     ?'● Sender connected · Verified marketing audience · Test messages via Resend'
@@ -46,7 +57,7 @@
    $('spotlight-time-label').textContent='NO UPCOMING SEND';
    $('spotlight-clock').textContent='—';
    $('spotlight-date').textContent='Nothing scheduled';
-   $('spotlight-status').textContent='Ready to design';
+   $('spotlight-status').textContent=c.status==='scheduled'?'● Scheduled':c.status==='sent'?(c.audience_filter?.sender_report?'● Sent via Sender · '+Number(c.audience_filter.sender_report.sent||0).toLocaleString()+' sent':'● Submitted to provider'):'● '+c.status[0].toUpperCase()+c.status.slice(1);
    $('spotlight-edit').textContent='Create an email';
    $('spotlight-edit').dataset.campaignId='';
    return;
@@ -233,6 +244,17 @@
    keys.map(k=>'<tr><td>'+esc(SEGMENT_LABELS[k])+'</td><td>'+Number(state.segments[k]||0).toLocaleString()+'</td></tr>').join('')+'</tbody></table>';
  }
  function drawAnalytics(){
+  const report=currentSenderReport();
+  if(report&&report.sent!==null){
+   const sent=report.sent,bounces=report.bounces||0,delivered=report.delivered||0;
+   const rows=[['Sent via Sender',sent],[report.deliveredEstimated?'Estimated delivered':'Provider delivered',delivered],['Bounced',bounces],['Awaiting dispatch',Math.max(0,Number(report.recipients||sent)-sent)]];
+   const maximum=Math.max(1,...rows.map(r=>r[1]));
+   $('analytics-bars').innerHTML=rows.map(([label,n])=>'<div><div class="bar-head"><span>'+esc(label)+'</span><span>'+Number(n).toLocaleString()+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.min(100,n/maximum*100)+'%"></div></div></div>').join('')+
+    '<div class="row wrap" style="padding:10px 0;border-top:1px solid #315456"><span><strong>'+Number(report.opens||0).toLocaleString()+'</strong> opens</span><span><strong>'+Number(report.clicks||0).toLocaleString()+'</strong> clicks</span></div>';
+   $('delivery-list').innerHTML='<div class="empty"><strong>Sent via Sender.</strong>Recipient-level records are available in Sender → Subscriber actions. Fuse displays provider campaign totals rather than inventing individual delivery events.</div>';
+   $('analytics-note').textContent='Provider statistics checked '+new Date(report.checkedAt).toLocaleString('en-GB',{timeZone:'Africa/Lagos'})+'. '+(report.deliveredEstimated?'Delivered estimate = sent minus bounces; verify the exact delivered count in Sender.':'Delivered confirmed by Sender.')+' Opens and clicks update as people engage.';
+   return;
+  }
   const all=state.deliveries;const counts={};
   for(const r of all)counts[r.status||'pending']=(counts[r.status||'pending']||0)+1;
   const labels=[['delivered','Verified delivered'],['queued','Accepted / queued'],['failed','Failed'],['pending','Waiting']];
@@ -347,17 +369,16 @@
    finally{btn.disabled=false}
  }
  async function loadSenderReports(){
-  const b=$('sender-reports-refresh');
-  b.disabled=true;$('sender-reports-content').textContent='Loading Sender campaign statistics…';
+  const b=$('sender-reports-refresh');b.disabled=true;
+  $('sender-reports-content').textContent='Checking Sender campaign status; this does not send email…';
   try{
-   const d=await api('GET',null,'/api/audience-sender?reports=1');
+   const d=await api('POST',{action:'reconcile_reports'},'/api/audience-sender');
    const reports=d.reports||[];
    $('sender-reports-content').innerHTML=reports.length?reports.map(r=>'<article class="campaign-row">'+
     '<strong>'+esc(r.name||'Fuse marketing campaign')+'</strong><div class="hint">'+
-    (r.error?esc(r.error):('Status: '+esc(r.status)+' · Sent: '+Number(r.sent||0).toLocaleString()+
-      ' · Opens: '+Number(r.opens||0).toLocaleString()+' · Clicks: '+Number(r.clicks||0).toLocaleString()+
-      ' · Bounces: '+Number(r.bounces||0).toLocaleString()))+'</div></article>').join(''):
-    '<p class="hint">No Sender marketing campaign has been launched yet. Saved drafts will not appear here until submitted to Sender.</p>';
+    (r.error?esc(r.error):('Status: '+esc(r.providerStatus||'unknown')+' · Sent: '+Number(r.sent||0).toLocaleString()+' · Opens: '+Number(r.opens||0).toLocaleString()+' · Clicks: '+Number(r.clicks||0).toLocaleString()+' · Bounces: '+Number(r.bounces||0).toLocaleString()))+'</div></article>').join(''):
+    '<p class="hint">No active Sender campaign found.</p>';
+   await load();
   }catch(err){$('sender-reports-content').textContent=err.message;toast(err.message,true)}
   finally{b.disabled=false}
  }
