@@ -117,8 +117,8 @@ function renderDiscountEmail(campaign,d,contact,unsubscribeUrl){
  const dark='#020b0f',panel='#0b2023',white='#f4f6f8',muted='#aabcc0',teal='#92ece4',yellow='#e7f45b';
  // Rasterized design assets: Android Gmail may drop inline CSS gradients.
  // These public PNG images preserve the intended metallic finish when images load.
- const chromeButton='https://res.cloudinary.com/bzw55wh2/image/upload/f_png/v1794278420/fuse_email_chrome_cta_20261110.png';
- const chromeTitle='https://res.cloudinary.com/bzw55wh2/image/upload/f_png/v1794278501/fuse_email_chrome_how_it_works_20261110.png';
+ const chromeButton='https://res.cloudinary.com/bzw55wh2/image/upload/f_png/v1794279047/fuse_email_lime_chrome_cta_20261110.png';
+ const chromeTitle='https://res.cloudinary.com/bzw55wh2/image/upload/f_png/v1794279059/fuse_email_lime_chrome_how_20261110.png';
  const bgImage='https://res.cloudinary.com/bzw55wh2/image/upload/f_png/v1794278403/fuse_email_black_teal_gradient_20261110.png';
  // Progressively changing fallback colours give an obvious black-to-teal effect
  // even in email clients which block remote backgrounds or strip gradients.
@@ -176,8 +176,8 @@ function renderDiscountEmail(campaign,d,contact,unsubscribeUrl){
     // A linked 2x PNG prevents Gmail dark mode from flattening the chrome into
     // an indistinct grey rectangle. Keep the label editable in the studio.
     const content=asset
-       ?'<a href="'+e(destination)+'" target="_blank" style="display:block;text-decoration:none;border:0" aria-label="'+e(text)+'"><img src="'+chromeButton+'" width="536" height="105" alt="'+e(text)+'" style="display:block;width:100%;max-width:536px;height:auto;border:0;color:#edffff;font:900 18px Arial,Helvetica,sans-serif;text-align:center"></a>'
-       :'<a href="'+e(destination)+'" target="_blank" style="display:block;padding:20px 16px;border:3px solid #e7f45b;border-radius:16px;background-color:#eaf4f5;background:linear-gradient(120deg,#a0b3be,#ffffff,#a7bbc4);font:900 17px/1.35 Arial,Helvetica,sans-serif;color:#071a1c;text-align:center;text-decoration:none">'+e(text)+'</a>';
+       ?'<a href="'+e(destination)+'" target="_blank" style="display:block;text-decoration:none;border:0" aria-label="'+e(text)+'"><img src="'+chromeButton+'" width="536" height="118" alt="'+e(text)+'" style="display:block;width:100%;max-width:536px;height:auto;border:0;color:#edffff;font:900 18px Arial,Helvetica,sans-serif;text-align:center"></a>'
+       :'<a href="'+e(destination)+'" target="_blank" style="display:block;padding:20px 16px;border:3px solid #e7f45b;border-radius:16px;background-color:#eaf4f5;background:linear-gradient(135deg,#ffe66a,#dfff4e 48%,#eeffe0);font:900 17px/1.35 Arial,Helvetica,sans-serif;color:#061312;text-align:center;text-decoration:none">'+e(text)+'</a>';
     return section('<div style="text-align:center">'+content+'</div>','2px 34px 30px','button');
    }
    case 'discount-close':
