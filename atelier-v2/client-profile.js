@@ -382,6 +382,7 @@
               ? `<label for="profileEditValue">What you can do</label><textarea id="profileEditValue" maxlength="2000" rows="7">${esc(about(s))}</textarea>`
               : `<label for="profileEditValue">${isLink ? linkLabel + " URL" : key === "price" ? "Starter package price" : key === "name" ? "Your name" : "Your title"}</label><input id="profileEditValue" ${key === "price" ? 'type="number" min="1" step="0.01"' : isLink ? 'type="url" inputmode="url"' : 'type="text"'} maxlength="300" value="${esc(isLink ? linkValue(s, linkKey) : key === "name" ? name(s) : key === "title" ? title(s) : key === "price" ? meta(s).client_starter_price || s.profile?.price_amount || "" : "")}">`;
           dialog.dataset.key = key;
+          dialog.classList.toggle('profile-name-dialog',key==='name');
           dialog.showModal();
           field.querySelector("input,textarea")?.focus();
         }),
@@ -424,7 +425,7 @@
       }
     };
     document.getElementById("clientAvatarEdit").onclick = () =>
-      document.getElementById("clientAvatarInput").click();
+      window.openClientPhotoEditor(s,rerender,toast);
     document.getElementById("clientAvatarInput").onchange = async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;

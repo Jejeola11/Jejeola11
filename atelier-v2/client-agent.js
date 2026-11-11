@@ -8,6 +8,14 @@ const statusNames={new:'Found',audited:'Reviewed',qualified:'Reviewed',asked:'Co
 const state={followups:[],profile:null,prospects:[],jobs:[],credits:0,cost:30,view:'discover',search:'',filter:'all',session:null,starting:false,selected:null,detailTab:'opportunity',step:0,draft:{},polling:false};
 let toastTimer,pollTimer,requestKey;
 let uploadingProject=false;
+const clientViews=['discover','profile','proposals','tracker','prospects','recent'];
+const requestedView=new URL(location.href).searchParams.get('view');
+if(clientViews.includes(requestedView)){
+  state.view=requestedView;
+  if(['profile','proposals','tracker'].includes(requestedView)&&!history.state?.clientInner){const base=new URL(location.href);base.searchParams.delete('view');history.replaceState({clientView:'discover'},'',base);const inner=new URL(base);inner.searchParams.set('view',requestedView);history.pushState({clientView:requestedView,clientInner:true},'',inner)}
+}
+function navigate(view){const next=new URL(location.href);view==='discover'?next.searchParams.delete('view'):next.searchParams.set('view',view);history.pushState({clientView:view,clientInner:['profile','proposals','tracker'].includes(view)},'',next);state.view=view;render();window.scrollTo(0,0)}
+window.addEventListener('popstate',()=>{state.view=new URL(location.href).searchParams.get('view')||'discover';if(state.session)render()});
 const mediaTypes={'video/mp4':'mp4','video/quicktime':'mov','video/webm':'webm','image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif','image/avif':'avif'};
 function projectMedia(x){const u=url(x.url);if(!u)return '';const ext=new URL(u).pathname.split('.').pop().toLowerCase();if(['mp4','mov','webm'].includes(ext))return `<video class="project-preview" src="${escape(u)}" controls playsinline preload="metadata"></video>`;if(['jpg','jpeg','png','webp','gif','avif'].includes(ext))return `<img class="project-preview" src="${escape(u)}" alt="${escape(x.title||'Your project')}" loading="lazy">`;return source(u,'Open project ↗')}
 async function uploadProject(index,file){
@@ -46,9 +54,9 @@ function render(){
     const back=document.createElement('button');back.id='clientBack';back.className='client-back';back.type='button';back.setAttribute('aria-label','Back to Client workspace');back.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>';siteHeader.prepend(back);
   }
   if($('menuCredits'))$('menuCredits').textContent=state.credits+' left';
-  if($('clientBack'))$('clientBack').onclick=()=>{state.view='discover';render();window.scrollTo(0,0)};
+  if($('clientBack'))$('clientBack').onclick=()=>{if(history.state?.clientInner)history.back();else navigate('discover')};
   $('app').innerHTML=(innerView?'':header())+`<div class="client-view" id="clientView">${state.view==='profile'?ClientProfile.render(state):state.view==='offer'?renderOffer():state.view==='proposals'?renderProposals():state.view==='tracker'?renderTracker():state.view==='prospects'?renderProspects():state.view==='recent'?renderRecent():renderDiscover()}</div>`;
-  document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{state.view=b.dataset.view;render();window.scrollTo(0,0)});
+  document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>navigate(b.dataset.view));
   if(state.view==='profile')ClientProfile.mount(state,render,toast);
   document.querySelectorAll('[data-setup]').forEach(b=>b.onclick=()=>openSetup());
   document.querySelectorAll('[data-prospect]').forEach(b=>b.onclick=()=>openProspect(b.dataset.prospect));
