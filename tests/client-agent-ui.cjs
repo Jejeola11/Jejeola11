@@ -10,6 +10,7 @@ async function main(){
  w.HTMLElement.prototype.scrollIntoView=function(){};w.confirm=()=>true;w.structuredClone=structuredClone;d.execCommand=()=>true;
  w.addEventListener('error',event=>{console.error(event.error||event.message)});
  w.Fuse={session:async()=>({user:{id:'22222222-2222-4222-8222-222222222222'}}),api:async(_,body)=>{calls.push(body);if(body.action==='load')return state;if(body.action==='profile'){state.profile={...body.profile,version:2,price_amount:Number(body.profile.price_amount)};return {profile:state.profile}}if(body.action==='start'){state.credits=30;state.jobs=[{id:'11111111-1111-4111-8111-111111111111',status:'searching',market:body.market,message:'Checking sources.',created_at:new Date().toISOString()}];return {job:state.jobs[0],credits:30}}if(body.action==='status')return {job:state.jobs[0]};if(body.action==='update-prospect'){Object.assign(state.prospects[0],body);return {prospect:state.prospects[0]}}throw Error('Unexpected action '+body.action)}};
+ w.FuseExplore={session:async()=>({user:{id:'22222222-2222-4222-8222-222222222222'}})};
  w.eval(fs.readFileSync('atelier-v2/client-agent.js','utf8'));await tick();await tick();
  const click=text=>{const b=[...d.querySelectorAll('button')].find(x=>x.textContent.trim()===text);assert.ok(b,'Button not found: '+text);b.click()};
  const fill=(name,value)=>{const el=d.querySelector(`[name="${name}"]`);assert.ok(el,name);el.value=value};
@@ -24,9 +25,11 @@ async function main(){
  state.jobs[0].status='completed';state.jobs[0].result_count=1;state.jobs[0].credits_refunded=24;
  state.prospects.push({id:'33333333-3333-4333-8333-333333333333',brand_name:'Fixture Beauty',status:'new',location:'United Kingdom',website:'https://example.test',current_activity:'Serum available with refill options.',email:'hello@example.test',pitch_email:'A factual email draft.',pitch_instagram:'A factual DM.',qualification_json:{version:2,agent_job_id:state.jobs[0].id,description:'A skincare brand',buyer_fit:'Product video fit',opportunity:'A suggested product demonstration',approach:'ASK-FIRST',approach_reason:'Custom assets need approval',subject:'Product video idea',contacts:[{kind:'email',value:'hello@example.test',source_url:'https://example.test/contact',quote:'Business enquiries: hello@example.test'}],evidence:[{source_url:'https://example.test',quote:'Fixture Beauty creates skincare products.'}]}});
  click('Discover');await tick();await tick();
+ assert.match(d.querySelector('.client-dashboard').textContent,/01 · RESEARCHED[\s\S]*1[\s\S]*02 · CONTACTED/);
  click('Review prospect →');click('Contacts');assert.match(d.querySelector('#prospectContent').textContent,/hello@example.test/);
  click('Your pitch');click('Copy email');await tick();assert.equal(state.prospects[0].status,'new');
  click('Track');d.querySelector('#trackStatus').value='asked';d.querySelector('#trackNotes').value='Sent a researched email.';click('Save next step');await tick();await tick();assert.equal(state.prospects[0].status,'asked');assert.match(d.querySelector('#detailStatus').textContent,/Saved/);
+ d.querySelector('[data-view="prospects"]').click();assert.ok([...d.querySelectorAll('#prospectFilter option')].some(x=>x.value==='sample_ready'),'every saved pipeline stage is filterable');
  await w.happyDOM.abort();console.log('PASS: three-step setup, approval, exact scope and price, research progress, duplicate-click prevention, offer navigation, evidence and contacts, copy does not mark contacted, saved tracking.');
 }
 main().catch(e=>{console.error(e);process.exitCode=1});
