@@ -39,10 +39,11 @@ function currentJob(){return state.jobs.find(active)||state.jobs[0]}
 function ready(){return state.profile?.approved&&state.profile.version===2}
 function header(){return `<nav class="client-links" aria-label="Client workspace"><button type="button" data-view="proposals"><span>My Proposals</span><i aria-hidden="true">›</i></button><button type="button" data-view="profile"><span>My Profile</span><i aria-hidden="true">›</i></button><button type="button" data-view="tracker"><span>My Tracker</span><i aria-hidden="true">›</i></button></nav><nav class="tabs" aria-label="Prospect lists">${[['discover','Prospect Research'],['prospects','All Prospects'],['recent','Recent']].map(([key,label])=>`<button type="button" data-view="${key}" class="${state.view===key?'active':''}" aria-current="${state.view===key?'page':'false'}">${label}</button>`).join('')}</nav>`}
 function render(){
-  document.body.classList.toggle('client-profile-open',state.view==='profile');
+  const innerView=['profile','proposals','tracker'].includes(state.view);
+  document.body.classList.toggle('client-inner-open',innerView);
   if($('menuCredits'))$('menuCredits').textContent=state.credits+' left';
   $('clientBack')?.addEventListener('click',()=>{state.view='discover';render();window.scrollTo(0,0)});
-  $('app').innerHTML=(state.view==='profile'?'':header())+`<div class="client-view" id="clientView">${state.view==='profile'?ClientProfile.render(state):state.view==='offer'?renderOffer():state.view==='proposals'?renderProposals():state.view==='tracker'?renderTracker():state.view==='prospects'?renderProspects():state.view==='recent'?renderRecent():renderDiscover()}</div>`;
+  $('app').innerHTML=(innerView?'':header())+`<div class="client-view" id="clientView">${state.view==='profile'?ClientProfile.render(state):state.view==='offer'?renderOffer():state.view==='proposals'?renderProposals():state.view==='tracker'?renderTracker():state.view==='prospects'?renderProspects():state.view==='recent'?renderRecent():renderDiscover()}</div>`;
   document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{state.view=b.dataset.view;render();window.scrollTo(0,0)});
   if(state.view==='profile')ClientProfile.mount(state,render,toast);
   document.querySelectorAll('[data-setup]').forEach(b=>b.onclick=()=>openSetup());
