@@ -7,6 +7,7 @@ const tick=()=>new Promise(r=>setImmediate(r));
  w.structuredClone=structuredClone;w.HTMLElement.prototype.scrollIntoView=function(){};
  const uploads=[];let fail=false;
  w.Fuse={session:async()=>({user:{id:'22222222-2222-4222-8222-222222222222'}}),api:async()=>({profile:null,prospects:[],jobs:[],credits:60,research_cost:30}),client:async()=>({storage:{from:bucket=>({upload:async(path,file,opts)=>{uploads.push({bucket,path,file,opts});return fail?{error:new Error('Connection interrupted')}:{error:null}},getPublicUrl:path=>({data:{publicUrl:'https://storage.example/'+path}})})}})};
+ w.FuseExplore={session:async()=>({user:{id:'22222222-2222-4222-8222-222222222222'}})};
  w.eval(fs.readFileSync('atelier-v2/client-agent.js','utf8'));await tick();await tick();d.querySelector('[data-setup]').click();
  d.querySelector('[name=skill]').value='AI video and image production';d.querySelector('[name=project_0_description]').value='A product concept I made.';
  async function choose(file){const input=d.querySelector('[data-upload-project="0"]');Object.defineProperty(input,'files',{value:[file],configurable:true});input.dispatchEvent(new w.Event('change'));await tick();await tick()}
