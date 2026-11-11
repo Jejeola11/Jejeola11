@@ -41,8 +41,12 @@ function header(){return `<nav class="client-links" aria-label="Client workspace
 function render(){
   const innerView=['profile','proposals','tracker'].includes(state.view);
   document.body.classList.toggle('client-inner-open',innerView);
+  const siteHeader=document.querySelector('.reference-header');
+  if(siteHeader&&!$('clientBack')){
+    const back=document.createElement('button');back.id='clientBack';back.className='client-back';back.type='button';back.setAttribute('aria-label','Back to Client workspace');back.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>';siteHeader.prepend(back);
+  }
   if($('menuCredits'))$('menuCredits').textContent=state.credits+' left';
-  $('clientBack')?.addEventListener('click',()=>{state.view='discover';render();window.scrollTo(0,0)});
+  if($('clientBack'))$('clientBack').onclick=()=>{state.view='discover';render();window.scrollTo(0,0)};
   $('app').innerHTML=(innerView?'':header())+`<div class="client-view" id="clientView">${state.view==='profile'?ClientProfile.render(state):state.view==='offer'?renderOffer():state.view==='proposals'?renderProposals():state.view==='tracker'?renderTracker():state.view==='prospects'?renderProspects():state.view==='recent'?renderRecent():renderDiscover()}</div>`;
   document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{state.view=b.dataset.view;render();window.scrollTo(0,0)});
   if(state.view==='profile')ClientProfile.mount(state,render,toast);
