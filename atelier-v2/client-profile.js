@@ -383,7 +383,17 @@
               : `<label for="profileEditValue">${isLink ? linkLabel + " URL" : key === "price" ? "Starter package price" : key === "name" ? "Your name" : "Your title"}</label><input id="profileEditValue" ${key === "price" ? 'type="number" min="1" step="0.01"' : isLink ? 'type="url" inputmode="url"' : 'type="text"'} maxlength="300" value="${esc(isLink ? linkValue(s, linkKey) : key === "name" ? name(s) : key === "title" ? title(s) : key === "price" ? meta(s).client_starter_price || s.profile?.price_amount || "" : "")}">`;
           dialog.dataset.key = key;
           dialog.classList.toggle('profile-name-dialog',key==='name');
+          dialog.classList.toggle('profile-title-dialog',key==='title');
+          dialog.querySelector('.title-edit-actions')?.remove();
+          dialog.querySelector('button[type="submit"]').hidden=false;
+          if(key==='title'){
+            document.getElementById('clientProfileDialogTitle').textContent='Edit your title';
+            field.innerHTML='<p class="title-edit-description">Enter a single sentence description of your professional skills/experience (e.g. AI)</p><label class="chrome-text" for="profileEditValue">Your title *</label><input id="profileEditValue" type="text" maxlength="160" value="'+esc(title(s))+'">';
+            dialog.querySelector('button[type="submit"]').hidden=true;
+            const actions=document.createElement('div');actions.className='title-edit-actions';actions.innerHTML='<button type="button" class="title-edit-cancel">Cancel</button><button type="submit" class="chrome-button">Save</button>';dialog.querySelector('form').append(actions);actions.querySelector('.title-edit-cancel').onclick=()=>dialog.close();
+          }
           dialog.showModal();
+          if(key==='name'){const rect=document.querySelector('.profile-identity').getBoundingClientRect();dialog.style.setProperty('--name-top',Math.min(rect.bottom+8,window.innerHeight-210)+'px');dialog.style.setProperty('--name-left',Math.max(12,Math.min(rect.left,window.innerWidth-242))+'px')}
           field.querySelector("input,textarea")?.focus();
         }),
     );
