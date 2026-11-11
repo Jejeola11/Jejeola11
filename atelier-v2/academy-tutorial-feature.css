@@ -83,3 +83,9 @@
 #influencerCourseFeature .tutorial-open-button.unlock-nudge{animation:courseUnlockNudge 1.15s ease-in-out;box-shadow:0 0 0 2px #eeffe0,0 0 18px #dfff4e,0 0 35px #ffe66a}
 @keyframes courseUnlockNudge{0%,100%{transform:translateX(0)}12%,36%,60%{transform:translateX(-5px)}24%,48%,72%{transform:translateX(5px)}}
 @media(prefers-reduced-motion:reduce){#influencerCourseFeature .tutorial-open-button.unlock-nudge{animation:none;outline:3px solid #dfff4e}}
+/* AI short course: keep engagement counters wired, but show only its heart beside the author. */
+#influencerCourseFeature .tutorial-meta{justify-content:flex-start;flex-wrap:nowrap;column-gap:8px}
+#influencerCourseFeature .tutorial-stats{gap:0}
+#influencerCourseFeature #influencerCourseLikes,
+#influencerCourseFeature .tutorial-stats>a.tutorial-stat{display:none}
+#influencerCourseFeature #influencerCourseLike{padding:4px;line-height:1}
