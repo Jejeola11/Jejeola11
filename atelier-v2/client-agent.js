@@ -139,6 +139,10 @@ async function continueSetup(){
 function openProspect(id){state.selected=state.prospects.find(x=>x.id===id);if(!state.selected)return;state.detailTab='opportunity';renderDetail();$('prospectDialog').showModal()}
 function evidenceCard(e,label){return `<section class="evidence-card"><h3>${escape(label)}</h3>${e.summary?`<p>${escape(e.summary)}</p>`:''}<p class="evidence-quote">“${escape(e.quote)}”</p>${source(e.source_url)}<p class="job-meta">${e.date?date(e.date):'Activity date not published'} · Source checked ${date(e.checked_at)}</p></section>`}
 function contacts(p){const m=q(p);if(m.version===2)return m.contacts||[];return [{kind:'email',value:p.email},{kind:'website',value:p.website},{kind:'instagram',value:p.instagram}].filter(x=>x.value)}
+function journey(p){
+  const step=({new:0,audited:0,qualified:0,asked:1,contacted:1,pitched:1,replied:2,sample_ready:2,sample_sent:2,proposal_sent:2,deposit_paid:3,in_delivery:3,delivered:3,won:3,lost:-1})[p.status]??0;
+  return `<div class="prospect-journey" aria-label="Prospect progress">${[['Research',0],['Reach out',1],['Reply',2],['Client',3]].map(([label,index])=>`<span class="${step>=index?'done':''} ${step===index?'current':''}"><i aria-hidden="true"></i>${label}</span>`).join('')}</div>`;
+}
 function renderDetail(){
   const p=state.selected,m=q(p),v2=m.version===2;
   let content='';
@@ -157,7 +161,7 @@ function renderDetail(){
     <label class="field"><span>Your notes and next step</span><textarea id="trackNotes">${escape(p.notes||'')}</textarea></label><button class="secondary-button" id="saveTracking">Save next step</button>
     <details class="evidence-card"><summary>Conversation history</summary>${(p.conversation_json||[]).map(x=>`<p><b>${x.kind==='received'?'Brand':'You'} · ${escape(x.channel)} · ${escape(date(x.at))}</b><br>${escape(x.text)}</p>`).join('')||'<p>No messages recorded yet.</p>'}</details>`;
   }
-  $('prospectContent').innerHTML=`<header class="dialog-head"><div><p class="kicker">YOUR PROSPECT WORKSPACE</p><h2 id="prospectTitle">${escape(p.brand_name)}</h2></div><button class="close-button" id="closeProspect" aria-label="Close prospect">×</button></header><div class="dialog-body"><nav class="detail-tabs" aria-label="Prospect details">${[['opportunity','Opportunity'],['contacts','Contacts'],['pitch','Your pitch'],['track','Track']].map(([k,l])=>`<button data-detail="${k}" class="${state.detailTab===k?'active':''}">${l}</button>`).join('')}</nav>${content}<p id="detailStatus" class="inline-status" aria-live="polite"></p></div>`;
+  $('prospectContent').innerHTML=`<header class="dialog-head"><div><p class="kicker">YOUR PROSPECT WORKSPACE</p><h2 id="prospectTitle">${escape(p.brand_name)}</h2></div><button class="close-button" id="closeProspect" aria-label="Close prospect">×</button></header><div class="dialog-body">${journey(p)}<nav class="detail-tabs" aria-label="Prospect details">${[['opportunity','Opportunity'],['contacts','Contacts'],['pitch','Your pitch'],['track','Track']].map(([k,l])=>`<button data-detail="${k}" class="${state.detailTab===k?'active':''}">${l}</button>`).join('')}</nav>${content}<p id="detailStatus" class="inline-status" aria-live="polite"></p></div>`;
   $('closeProspect').onclick=()=>$('prospectDialog').close();
   document.querySelectorAll('[data-detail]').forEach(b=>b.onclick=()=>{state.detailTab=b.dataset.detail;renderDetail();$('prospectDialog').scrollTop=0});
   if($('enrichContacts'))$('enrichContacts').onclick=async()=>{const b=$('enrichContacts');b.disabled=true;b.textContent='Researching contacts…';try{const r=await api({action:'enrich-contacts',id:p.id});state.selected=r.prospect;state.prospects=state.prospects.map(x=>x.id===p.id?r.prospect:x);renderDetail();toast(r.cached?'Showing the latest contact check.':'Contact research saved.')}catch(e){toast(e.message)}finally{if($('enrichContacts')){$('enrichContacts').disabled=false;$('enrichContacts').textContent='Research missing contacts ↗'}}};
