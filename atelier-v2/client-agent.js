@@ -37,7 +37,7 @@ function normalizeProfile(p){if(!p)return null;if(p.version===2)return p;return 
 function q(p){return p.qualification_json||{}}
 function currentJob(){return state.jobs.find(active)||state.jobs[0]}
 function ready(){return state.profile?.approved&&state.profile.version===2}
-function header(){return `<nav class="client-links" aria-label="Client workspace"><button type="button" data-view="proposals"><span>My Proposals</span><i aria-hidden="true">›</i></button><button type="button" data-view="offer"><span>My Profile</span><i aria-hidden="true">›</i></button><button type="button" data-view="tracker"><span>My Tracker</span><i aria-hidden="true">›</i></button></nav><nav class="tabs" aria-label="Prospect lists">${[['discover','Prospect Research'],['prospects','All Prospects'],['recent','Most Recent']].map(([key,label])=>`<button type="button" data-view="${key}" class="${state.view===key?'active':''}" aria-current="${state.view===key?'page':'false'}">${label}</button>`).join('')}</nav>`}
+function header(){return `<nav class="client-links" aria-label="Client workspace"><button type="button" data-view="proposals"><span>My Proposals</span><i aria-hidden="true">›</i></button><button type="button" data-view="offer"><span>My Profile</span><i aria-hidden="true">›</i></button><button type="button" data-view="tracker"><span>My Tracker</span><i aria-hidden="true">›</i></button></nav><nav class="tabs" aria-label="Prospect lists">${[['discover','Prospect Research'],['prospects','All Prospects'],['recent','Recent']].map(([key,label])=>`<button type="button" data-view="${key}" class="${state.view===key?'active':''}" aria-current="${state.view===key?'page':'false'}">${label}</button>`).join('')}</nav>`}
 function render(){
   if($('menuCredits'))$('menuCredits').textContent=state.credits+' left';
   $('app').innerHTML=header()+`<div class="client-view" id="clientView">${state.view==='offer'?renderOffer():state.view==='proposals'?renderProposals():state.view==='tracker'?renderTracker():state.view==='prospects'?renderProspects():state.view==='recent'?renderRecent():renderDiscover()}</div>`;
@@ -70,7 +70,7 @@ function filteredCards(){const rows=state.prospects.filter(p=>(state.filter==='a
 function renderList(){$('prospectList').innerHTML=filteredCards();$('prospectList').querySelectorAll('[data-prospect]').forEach(b=>b.onclick=()=>openProspect(b.dataset.prospect))}
 function renderRecent(){
   const rows=[...state.prospects].sort((a,b)=>Date.parse(b.created_at||b.updated_at||0)-Date.parse(a.created_at||a.updated_at||0)).slice(0,10);
-  return `<div class="section-heading"><h2>Most Recent</h2><small>Latest 10 saved prospects</small></div><div class="prospect-grid">${rows.length?rows.map(card).join(''):'<div class="empty"><h2>No prospects yet.</h2><p>Start with Prospect Research to find businesses that fit your offer.</p></div>'}</div>`;
+  return `<div class="section-heading"><h2>Recent</h2><small>Latest 10 saved prospects</small></div><div class="prospect-grid">${rows.length?rows.map(card).join(''):'<div class="empty"><h2>No prospects yet.</h2><p>Start with Prospect Research to find businesses that fit your offer.</p></div>'}</div>`;
 }
 function renderProposals(){
   const rows=state.prospects.filter(p=>['proposal_sent','deposit_paid','in_delivery','delivered','won'].includes(p.status));
