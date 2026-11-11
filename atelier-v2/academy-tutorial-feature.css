@@ -86,6 +86,5 @@
 /* AI short course: keep engagement counters wired, but show only its heart beside the author. */
 #influencerCourseFeature .tutorial-meta{justify-content:flex-start;flex-wrap:nowrap;column-gap:8px}
 #influencerCourseFeature .tutorial-stats{gap:0}
-#influencerCourseFeature #influencerCourseLikes,
 #influencerCourseFeature .tutorial-stats>a.tutorial-stat{display:none}
 #influencerCourseFeature #influencerCourseLike{padding:4px;line-height:1}
