@@ -59,17 +59,19 @@ exports.handler=async event=>{
       const saved=await db.from('client_agent_profiles').select('profile_json').eq('user_id',user.id).single();if(saved.error)throw saved.error;
       const p=agent.profile(saved.data.profile_json);
       if(!p.approved||agent.missing(p).length)return response(400,{error:'Review and confirm your complete offer before researching.'});
-      const market=agent.clean(body.market,180)||p.market;
+      const markets=user.user_metadata?.client_markets;
+      const market=Array.isArray(markets)&&markets.length?markets.map(x=>agent.clean(x,100)).filter(Boolean).join(', '):agent.clean(body.market,2000)||p.market;
       p.search_query=agent.clean(body.query,160);
       p.search_instructions=agent.clean(body.instructions,1000);
       const metadata=user.user_metadata||{};
       p.client_profile={
         name:agent.clean(metadata.client_display_name||metadata.full_name||metadata.name,160),
         title:agent.clean(metadata.client_title,300),
-        overview:agent.clean(metadata.client_about,5000),
+        overview:agent.clean(metadata.client_about,50000),
         starter_price:agent.clean(String(metadata.client_starter_price||''),50),
         target_markets:Array.isArray(metadata.client_markets)?metadata.client_markets.map(x=>agent.clean(x,100)).slice(0,30):[],
         portfolio:[...(Array.isArray(metadata.client_portfolio_projects)?metadata.client_portfolio_projects:[]),...Object.values(metadata.client_portfolio_overrides||{})].slice(0,30).map(x=>({title:agent.clean(x.title,180),role:agent.clean(x.role,180),description:agent.clean(x.description,2000),website:agent.safeUrl(x.website),media:(Array.isArray(x.media)?x.media:[]).slice(0,10).map(m=>({url:agent.safeUrl(m.url),name:agent.clean(m.name,150)}))})),
+        custom_links:(metadata.client_custom_links||[]).map(x=>({title:agent.clean(x.title,80),url:agent.safeUrl(x.url)})),
         links:Object.fromEntries(['portfolio','instagram','tiktok','upwork','whatsapp','other'].map(k=>[k,agent.clean(metadata['client_link_'+k],400)]))
       };
       const started=await db.rpc('client_agent_start',{p_user:user.id,p_key:body.request_key,p_profile:p,p_market:market});

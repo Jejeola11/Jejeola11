@@ -226,6 +226,7 @@ async function advance(db,job){
       await update(db,job,{verified,cursor,message:`Checked ${cursor} of ${job.candidates.length} candidates; ${verified.length} meet the evidence standard.`,attempts:0});
     }
   }catch(error){
+    if(/credit_balance_exhausted|insufficient_quota/.test(error.message+' '+(error.provider||''))){await finish(db,job,[],'The research service API balance is exhausted. Your search credits were returned. Please contact Fuse support.');return}
     console.warn('[client-agent stage]',job.id,job.status,error.status||'',clean(error.provider||error.message,500));
     if(job.attempts>=2){await finish(db,job,[],'Fuse could not complete this research. Your credits were returned. Please try again later.');return}
     await update(db,job,{attempts:job.attempts+1,last_error:'A research step needs another attempt.',message:'A source or provider is taking longer than expected. Fuse will retry this step.'});
