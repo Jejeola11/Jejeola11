@@ -346,6 +346,8 @@
     toast("Profile updated.");
   }
   function mount(s, rerender, toast) {
+    const overview=document.querySelector('.profile-about');
+    if(overview&&about(s).length>260){const full=about(s),toggle=document.createElement('button');toggle.type='button';toggle.className='overview-toggle';toggle.textContent='more';overview.textContent=full.slice(0,260).trimEnd()+'…';overview.after(toggle);toggle.onclick=()=>{const expanded=toggle.textContent==='more';overview.textContent=expanded?full:full.slice(0,260).trimEnd()+'…';toggle.textContent=expanded?'less':'more'}}
     const clock = document.getElementById("clientLocalTime");
     const now = () => {
       if (clock?.isConnected)
@@ -382,7 +384,8 @@
               ? `<label for="profileEditValue">What you can do</label><textarea id="profileEditValue" maxlength="2000" rows="7">${esc(about(s))}</textarea>`
               : `<label for="profileEditValue">${isLink ? linkLabel + " URL" : key === "price" ? "Starter package price" : key === "name" ? "Your name" : "Your title"}</label><input id="profileEditValue" ${key === "price" ? 'type="number" min="1" step="0.01"' : isLink ? 'type="url" inputmode="url"' : 'type="text"'} maxlength="300" value="${esc(isLink ? linkValue(s, linkKey) : key === "name" ? name(s) : key === "title" ? title(s) : key === "price" ? meta(s).client_starter_price || s.profile?.price_amount || "" : "")}">`;
           dialog.dataset.key = key;
-          dialog.classList.toggle('profile-name-dialog',key==='name');
+          dialog.classList.toggle('profile-name-dialog',key==='name'||key==='price');
+          dialog.classList.toggle('profile-overview-dialog',key==='about');
           dialog.classList.toggle('profile-title-dialog',key==='title');
           dialog.querySelector('.title-edit-actions')?.remove();
           dialog.querySelector('button[type="submit"]').hidden=false;
@@ -392,8 +395,14 @@
             dialog.querySelector('button[type="submit"]').hidden=true;
             const actions=document.createElement('div');actions.className='title-edit-actions';actions.innerHTML='<button type="button" class="title-edit-cancel">Cancel</button><button type="submit" class="chrome-button">Save</button>';dialog.querySelector('form').append(actions);actions.querySelector('.title-edit-cancel').onclick=()=>dialog.close();
           }
+          if(key==='about'){
+            document.getElementById('clientProfileDialogTitle').textContent='Profile overview';
+            field.innerHTML='<div class="overview-guidance"><p>Use this space to tailor your searches to get the exact prospects you’re looking to work for.</p><ul><li>Describe your strengths and skills</li><li>Highlight projects, accomplishments and education</li><li>Keep it short and make sure it’s error-free</li></ul><p>Use this space to tailor your searches to get the exact prospects you’re looking to work for.</p></div><label class="chrome-text" for="profileEditValue">Profile overview</label><textarea id="profileEditValue" maxlength="50000" rows="7">'+esc(about(s))+'</textarea><p class="overview-counter"></p>';
+            const input=field.querySelector('textarea'),counter=field.querySelector('.overview-counter');const count=()=>counter.textContent=(50000-input.value.length)+' characters left';input.oninput=count;count();dialog.querySelector('button[type="submit"]').hidden=true;
+            const actions=document.createElement('div');actions.className='title-edit-actions';actions.innerHTML='<button type="button" class="chrome-button">Cancel</button><button type="submit" class="chrome-button">Save</button>';actions.firstElementChild.onclick=()=>dialog.close();dialog.querySelector('form').append(actions);
+          }
           dialog.showModal();
-          if(key==='name'){const rect=document.querySelector('.profile-identity').getBoundingClientRect();dialog.style.setProperty('--name-top',Math.min(rect.bottom+8,window.innerHeight-210)+'px');dialog.style.setProperty('--name-left',Math.max(12,Math.min(rect.left,window.innerWidth-242))+'px')}
+          if(key==='name'||key==='price'){const rect=document.querySelector(key==='name'?'.profile-identity':'.profile-price').getBoundingClientRect();dialog.style.setProperty('--name-top',Math.min(rect.bottom+8,window.innerHeight-210)+'px');dialog.style.setProperty('--name-left',Math.max(12,Math.min(rect.left,window.innerWidth-242))+'px')}
           field.querySelector("input,textarea")?.focus();
         }),
     );
