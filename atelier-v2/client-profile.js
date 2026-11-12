@@ -280,6 +280,11 @@
     meta(s)["client_link_" + key] ||
     (key === "portfolio" ? s.profile?.portfolio : "") ||
     "";
+  function portfolioProjects(s){
+    const m=meta(s),hidden=m.client_portfolio_hidden||[],overrides=m.client_portfolio_overrides||{};
+    const base=(s.profile?.projects||[]).map((p,i)=>({...p,...(overrides[i]||{}),_source:'base',_index:i})).filter(p=>p.title&&!hidden.includes(p._index));
+    return [...base,...(m.client_portfolio_projects||[]).map((p,i)=>({...p,_source:'added',_index:i})).filter(p=>p.title)];
+  }
   function render(s) {
     const user = name(s),
       parts = user.trim().split(/\s+/),
@@ -290,11 +295,11 @@
     const won = s.prospects.filter((x) =>
       ["won", "deposit_paid", "in_delivery", "delivered"].includes(x.status),
     ).length;
-    const projects = [...(s.profile?.projects || []), ...(meta(s).client_portfolio_projects || [])].filter((x) => x.title);
+    const projects = portfolioProjects(s);
     return `<section class="client-profile" aria-label="My Profile"><div class="profile-hero"><div class="profile-avatar-wrap"><img class="profile-avatar" src="${esc(avatar(s))}" alt="${esc(user)} profile photo"><span class="profile-online" title="Active"></span><button type="button" id="clientAvatarEdit" class="profile-avatar-edit" aria-label="Change profile photo">✎</button><input id="clientAvatarInput" type="file" accept="image/jpeg,image/png,image/webp" hidden></div><div class="profile-identity"><div class="profile-name-line"><h1>${display}</h1>${edit("name", "name")}</div><p id="clientLocalTime" class="profile-time"></p></div></div>
  <div class="profile-stats"><div><strong class="chrome-text">${s.prospects.length}</strong><span>Total prospects</span></div><div><strong class="chrome-text">${won}</strong><span>Total jobs</span></div></div>
  <section class="profile-section profile-service"><div class="profile-service-row profile-service-title"><p class="profile-value">${esc(title(s)) || "Add a title that describes your work."}</p>${edit("title", "title")}</div><div class="profile-service-row"><p class="profile-price chrome-text">${esc(meta(s).client_starter_price || s.profile?.price_amount || "—")}</p>${edit("price", "starter price")}</div><div class="profile-service-row profile-service-about"><p class="profile-about">${esc(about(s)) || "Tell clients what you can create and how you work."}</p>${edit("about", "about")}</div></section>
- <section class="profile-portfolio-section"><div class="profile-section-head"><h2>Portfolio</h2><button type="button" class="portfolio-add chrome-text" id="addPortfolio" aria-label="Add portfolio project">+</button></div><div class="profile-portfolio">${projects.length ? projects.map((p,i) => `<button type="button" class="profile-work" data-project="${i}" aria-label="View ${esc(p.title)}"><div class="profile-work-cover">${projectPreview(p)}</div><h3><span>${esc(p.title)}</span></h3></button>`).join("") : '<p class="profile-muted">Your saved projects will appear here.</p>'}</div></section>
+ <section class="profile-portfolio-section"><div class="profile-section-head"><h2>Portfolio</h2><button type="button" class="portfolio-add chrome-text" id="addPortfolio" aria-label="Add portfolio project">+</button></div><div class="profile-portfolio">${projects.length ? projects.map((p,i) => `<div class="profile-work-card"><button type="button" class="profile-work" data-project="${i}" aria-label="View ${esc(p.title)}"><div class="profile-work-cover">${projectPreview(p)}</div><h3><span>${esc(p.title)}</span></h3></button><button type="button" class="portfolio-more" data-project-menu="${i}" aria-label="Options for ${esc(p.title)}" aria-expanded="false">⋮</button><div class="portfolio-menu" data-menu="${i}" hidden><button type="button" data-project-edit="${i}">Edit</button><button type="button" data-project-delete="${i}">Delete</button></div></div>`).join("") : '<p class="profile-muted">Your saved projects will appear here.</p>'}</div></section>
  <section class="profile-section profile-market-section"><div class="profile-section-head"><h2 class="chrome-text">Your Target Market</h2></div><div class="market-grid">${market(
    s,
  )
@@ -329,11 +334,10 @@
     }
   }
   function projectPreview(p) {
-    if (image(p.url))
-      return `<img src="${esc(p.url)}" alt="${esc(p.title)}" loading="lazy">`;
-    if (video(p.url))
-      return `<video src="${esc(p.url)}" muted playsinline preload="metadata" aria-label="${esc(p.title)} video preview"></video>`;
-    return "<span>Open project ↗</span>";
+    const cover=[p.url,...(p.media||[]).map(x=>x.url)].find(x=>image(x)||video(x));
+    if (image(cover))return `<img src="${esc(cover)}" alt="${esc(p.title)}" loading="lazy">`;
+    if (video(cover))return `<video src="${esc(cover)}" muted playsinline preload="metadata" aria-label="${esc(p.title)} video preview"></video>`;
+    return "<span>View project ↗</span>";
   }
   async function save(s, patch, rerender, toast) {
     const sb = await Fuse.client();
@@ -346,22 +350,27 @@
     toast("Profile updated.");
   }
   function mount(s, rerender, toast) {
-    const projects=[...(s.profile?.projects||[]),...(meta(s).client_portfolio_projects||[])].filter(p=>p.title);
+    const projects=portfolioProjects(s);
+    const safeLink=value=>{try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:''}catch{return ''}};
+    const mediaList=p=>{const items=(p.media?.length?p.media:(p.url?[{url:p.url,name:p.title}]:[]));const content=items.map(item=>{const link=safeLink(item.url);if(!link)return '';return video(link)?'<video controls playsinline src="'+esc(link)+'"></video>':image(link)?'<img src="'+esc(link)+'" alt="'+esc(item.name||p.title)+'">':/\.(mp3|wav|m4a|ogg|aac)$/i.test(new URL(link).pathname)?'<audio controls src="'+esc(link)+'"></audio>':'<a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">'+esc(item.name||'Open attachment')+' ↗</a>'}).join('');return content+(p.website&&p.website!==p.url&&safeLink(p.website)?'<a href="'+esc(p.website)+'" target="_blank" rel="noopener noreferrer">View website ↗</a>':'')};
     document.querySelectorAll('[data-project]').forEach(button=>button.onclick=()=>{
       const p=projects[Number(button.dataset.project)],dialog=document.createElement('dialog');
       dialog.className='portfolio-dialog';
-      dialog.innerHTML='<div class="portfolio-dialog-head"><h2>'+esc(p.title)+'</h2><button type="button" aria-label="Close">×</button></div><p><strong>My role</strong><br>'+esc(p.role||p.my_role||'—')+'</p><p><strong>Project description</strong><br>'+esc(p.description||'—')+'</p><div class="portfolio-detail-media">'+(video(p.url)?'<video controls playsinline src="'+esc(p.url)+'"></video>':image(p.url)?'<img src="'+esc(p.url)+'" alt="'+esc(p.title)+'">':p.url?'<a href="'+esc(p.url)+'" target="_blank" rel="noopener noreferrer">View attached project ↗</a>':'')+'</div>';
+      dialog.innerHTML='<div class="portfolio-dialog-head"><h2>'+esc(p.title)+'</h2><button type="button" aria-label="Close">×</button></div><p><strong>My role</strong><br>'+esc(p.role||p.my_role||'—')+'</p><p><strong>Project description</strong><br>'+esc(p.description||'—')+'</p><div class="portfolio-detail-media">'+mediaList(p)+'</div>';
       document.body.append(dialog);dialog.querySelector('button').onclick=()=>dialog.close();dialog.onclose=()=>dialog.remove();dialog.showModal();
     });
-    document.getElementById('addPortfolio').onclick=()=>{
+    document.querySelectorAll('[data-project-menu]').forEach(button=>button.onclick=()=>{const menu=document.querySelector('[data-menu="'+button.dataset.projectMenu+'"]'),open=menu.hidden;document.querySelectorAll('.portfolio-menu').forEach(x=>x.hidden=true);document.querySelectorAll('[data-project-menu]').forEach(x=>x.setAttribute('aria-expanded','false'));menu.hidden=!open;button.setAttribute('aria-expanded',String(open))});
+    document.querySelectorAll('[data-project-delete]').forEach(button=>button.onclick=async()=>{const p=projects[Number(button.dataset.projectDelete)];if(!confirm('Delete “'+p.title+'” from your portfolio?'))return;button.disabled=true;try{if(p._source==='base')await save(s,{client_portfolio_hidden:[...new Set([...(meta(s).client_portfolio_hidden||[]),p._index])]},rerender,toast);else await save(s,{client_portfolio_projects:(meta(s).client_portfolio_projects||[]).filter((_,i)=>i!==p._index)},rerender,toast)}catch(e){button.disabled=false;toast(e.message||'Could not delete project.')}});
+    function openProjectEditor(existing=null){
       const dialog=document.createElement('dialog');dialog.className='portfolio-dialog portfolio-create';
-      dialog.innerHTML='<form><div class="portfolio-dialog-head"><h2>Add a new portfolio project</h2><button type="button" aria-label="Close">×</button></div><p>All fields are required unless otherwise indicated.</p><label>Project title *<input name="title" required maxlength="100" placeholder="Enter a brief but descriptive title."></label><small class="portfolio-count" data-for="title">100 characters left</small><label>Your role (optional)<input name="role" maxlength="100" placeholder="e.g., AI Video Creator & Editor"></label><small class="portfolio-count" data-for="role">100 characters left</small><label>Project description *<textarea name="description" required maxlength="600" rows="4" placeholder="Briefly describe the project’s goals, your solution and the impact you made here."></textarea></label><small class="portfolio-count" data-for="description">600 characters left</small><label class="portfolio-upload">Add content (image or video)<input name="media" type="file" accept="image/*,video/mp4,video/webm,video/quicktime"></label><div class="portfolio-preview"></div><p class="portfolio-error" role="alert"></p><div class="portfolio-actions"><button type="button" class="portfolio-draft">Save as draft</button><button type="submit" class="chrome-button">Save project</button></div></form>';
-      document.body.append(dialog);dialog.showModal();dialog.querySelector('.portfolio-dialog-head button').onclick=()=>dialog.close();dialog.onclose=()=>dialog.remove();
-      for(const input of dialog.querySelectorAll('[maxlength]'))input.oninput=()=>dialog.querySelector('[data-for="'+input.name+'"]').textContent=(Number(input.maxLength)-input.value.length)+' characters left';
-      const fileInput=dialog.querySelector('[name="media"]');fileInput.onchange=()=>{const f=fileInput.files[0],box=dialog.querySelector('.portfolio-preview');box.replaceChildren();if(f){const url=URL.createObjectURL(f),element=document.createElement(f.type.startsWith('video/')?'video':'img');element.src=url;if(element.tagName==='VIDEO')element.controls=true;element.onload=()=>URL.revokeObjectURL(url);box.append(element)}};
-      async function submit(draft){const form=dialog.querySelector('form'),error=dialog.querySelector('.portfolio-error'),title=form.elements.title.value.trim(),role=form.elements.role.value.trim(),description=form.elements.description.value.trim(),file=fileInput.files[0];if(!title||!description){error.textContent='Add a title and project description.';return}const buttons=dialog.querySelectorAll('.portfolio-actions button');buttons.forEach(b=>b.disabled=true);try{let url='';if(file){if(file.size>100*1024*1024)throw Error('Choose a file smaller than 100 MB.');const sb=await Fuse.client(),ext=(file.name.split('.').pop()||'bin').toLowerCase(),path=s.session.user.id+'/client-portfolio/'+crypto.randomUUID()+'.'+ext;const result=await sb.storage.from('avatars').upload(path,file,{contentType:file.type,upsert:false});if(result.error)throw result.error;url=sb.storage.from('avatars').getPublicUrl(path).data.publicUrl}await save(s,{client_portfolio_projects:[...(meta(s).client_portfolio_projects||[]),{title,role,description,url,draft}]},rerender,toast);dialog.close()}catch(e){error.textContent=e.message||'Could not save project.';buttons.forEach(b=>b.disabled=false)}}
-      dialog.querySelector('form').onsubmit=e=>{e.preventDefault();submit(false)};dialog.querySelector('.portfolio-draft').onclick=()=>submit(true);
-    };
+      dialog.innerHTML='<form><div class="portfolio-dialog-head"><h2>'+(existing?'Edit Your Project':'Add a new portfolio project')+'</h2><button type="button" aria-label="Close">×</button></div><p>All fields are required unless otherwise indicated.</p><label>Project title *<input name="title" required maxlength="100" placeholder="Enter a brief but descriptive title." value="'+esc(existing?.title||'')+'"></label><small class="portfolio-count" data-for="title">100 characters left</small><label>Your role (optional)<input name="role" maxlength="100" placeholder="e.g., AI Video Creator & Editor" value="'+esc(existing?.role||existing?.my_role||'')+'"></label><small class="portfolio-count" data-for="role">100 characters left</small><label>Project description *<textarea name="description" required maxlength="2000" rows="4" placeholder="Briefly describe the project’s goals, your solution and the impact you made here.">'+esc(existing?.description||'')+'</textarea></label><small class="portfolio-count" data-for="description">2000 characters left</small><label class="portfolio-upload">Add images, videos, audio or files<input name="media" type="file" multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.ppt,.pptx,.txt,.zip"></label><label>Website link (optional)<input name="website" type="url" placeholder="https://example.com" value="'+esc(existing?.website||'')+'"></label><div class="portfolio-preview">'+(existing?mediaList(existing):'')+'</div><p class="portfolio-error" role="alert"></p><div class="portfolio-actions"><button type="submit" class="chrome-button">Save project</button></div></form>';
+      document.body.append(dialog);dialog.showModal();dialog.scrollTop=0;dialog.querySelector('.portfolio-dialog-head button').focus({preventScroll:true});dialog.querySelector('.portfolio-dialog-head button').onclick=()=>dialog.close();dialog.onclose=()=>dialog.remove();
+      for(const input of dialog.querySelectorAll('[maxlength]')){const count=()=>dialog.querySelector('[data-for="'+input.name+'"]').textContent=(input.maxLength-input.value.length)+' characters left';input.oninput=count;count()}
+      const fileInput=dialog.querySelector('[name="media"]');fileInput.onchange=()=>{const box=dialog.querySelector('.portfolio-preview');box.innerHTML=existing?mediaList(existing):'';for(const file of fileInput.files){const item=document.createElement('p');item.textContent=file.name;box.append(item)}};
+      dialog.querySelector('form').onsubmit=async e=>{e.preventDefault();const form=e.currentTarget,error=dialog.querySelector('.portfolio-error'),title=form.elements.title.value.trim(),role=form.elements.role.value.trim(),description=form.elements.description.value.trim(),website=safeLink(form.elements.website.value.trim()),files=[...fileInput.files];if(!title||!description){error.textContent='Add a title and project description.';return}if(form.elements.website.value.trim()&&!website){error.textContent='Enter a complete website link beginning with https://';return}const button=form.querySelector('[type="submit"]');button.disabled=true;try{const media=existing?.media?.length?[...existing.media]:existing?.url?[{url:existing.url,name:existing.title}]:[];for(const file of files){if(file.size>(file.type.startsWith('video/')?100:20)*1024*1024)throw Error(file.name+' is too large. Videos must be under 100 MB; other files under 20 MB.');const sb=await Fuse.client(),ext=(file.name.split('.').pop()||'bin').toLowerCase(),path=s.session.user.id+'/client-portfolio/'+crypto.randomUUID()+'.'+ext;const result=await sb.storage.from('avatars').upload(path,file,{contentType:file.type||'application/octet-stream',upsert:false});if(result.error)throw result.error;media.push({url:sb.storage.from('avatars').getPublicUrl(path).data.publicUrl,name:file.name,type:file.type})}const project={title,role,description,website,url:media[0]?.url||website,media};let patch;if(existing?._source==='base')patch={client_portfolio_overrides:{...(meta(s).client_portfolio_overrides||{}),[existing._index]:project}};else{const list=[...(meta(s).client_portfolio_projects||[])];if(existing)list[existing._index]=project;else list.push(project);patch={client_portfolio_projects:list}}await save(s,patch,rerender,toast);dialog.close()}catch(err){error.textContent=err.message||'Could not save project.';button.disabled=false}};
+    }
+    document.getElementById('addPortfolio').onclick=()=>openProjectEditor();
+    document.querySelectorAll('[data-project-edit]').forEach(button=>button.onclick=()=>openProjectEditor(projects[Number(button.dataset.projectEdit)]));
     const overview=document.querySelector('.profile-about');
     if(overview&&about(s).length>260){const full=about(s),toggle=document.createElement('button');toggle.type='button';toggle.className='overview-toggle';toggle.textContent='more';overview.textContent=full.slice(0,260).trimEnd()+'…';overview.after(toggle);toggle.onclick=()=>{const expanded=toggle.textContent==='more';overview.textContent=expanded?full:full.slice(0,260).trimEnd()+'…';toggle.textContent=expanded?'less':'more'}}
     const clock = document.getElementById("clientLocalTime");
@@ -407,7 +416,7 @@
           dialog.querySelector('button[type="submit"]').hidden=false;
           if(key==='title'){
             document.getElementById('clientProfileDialogTitle').textContent='Edit your title';
-            field.innerHTML='<p class="title-edit-description">Enter a single sentence description of your professional skills/experience (e.g. AI)</p><label class="chrome-text" for="profileEditValue">Your title *</label><input id="profileEditValue" type="text" maxlength="160" value="'+esc(title(s))+'">';
+            field.innerHTML='<p class="title-edit-description">Enter a single sentence description of your professional skills/experience (e.g. AI UGC Creator | Website Designer)</p><label class="chrome-text" for="profileEditValue">Your title *</label><input id="profileEditValue" type="text" maxlength="160" value="'+esc(title(s))+'">';
             dialog.querySelector('button[type="submit"]').hidden=true;
             const actions=document.createElement('div');actions.className='title-edit-actions';actions.innerHTML='<button type="button" class="title-edit-cancel">Cancel</button><button type="submit" class="chrome-button">Save</button>';dialog.querySelector('form').append(actions);actions.querySelector('.title-edit-cancel').onclick=()=>dialog.close();
           }
@@ -552,3 +561,4 @@
   }
   window.ClientProfile = { render, mount };
 })();
+
