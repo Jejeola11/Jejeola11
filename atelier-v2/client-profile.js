@@ -290,11 +290,11 @@
     const won = s.prospects.filter((x) =>
       ["won", "deposit_paid", "in_delivery", "delivered"].includes(x.status),
     ).length;
-    const projects = (s.profile?.projects || []).filter((x) => x.title);
+    const projects = [...(s.profile?.projects || []), ...(meta(s).client_portfolio_projects || [])].filter((x) => x.title);
     return `<section class="client-profile" aria-label="My Profile"><div class="profile-hero"><div class="profile-avatar-wrap"><img class="profile-avatar" src="${esc(avatar(s))}" alt="${esc(user)} profile photo"><span class="profile-online" title="Active"></span><button type="button" id="clientAvatarEdit" class="profile-avatar-edit" aria-label="Change profile photo">✎</button><input id="clientAvatarInput" type="file" accept="image/jpeg,image/png,image/webp" hidden></div><div class="profile-identity"><div class="profile-name-line"><h1>${display}</h1>${edit("name", "name")}</div><p id="clientLocalTime" class="profile-time"></p></div></div>
  <div class="profile-stats"><div><strong class="chrome-text">${s.prospects.length}</strong><span>Total prospects</span></div><div><strong class="chrome-text">${won}</strong><span>Total jobs</span></div></div>
  <section class="profile-section profile-service"><div class="profile-service-row profile-service-title"><p class="profile-value">${esc(title(s)) || "Add a title that describes your work."}</p>${edit("title", "title")}</div><div class="profile-service-row"><p class="profile-price chrome-text">${esc(meta(s).client_starter_price || s.profile?.price_amount || "—")}</p>${edit("price", "starter price")}</div><div class="profile-service-row profile-service-about"><p class="profile-about">${esc(about(s)) || "Tell clients what you can create and how you work."}</p>${edit("about", "about")}</div></section>
- <section class="profile-portfolio-section"><div class="profile-section-head"><h2>Portfolio</h2></div><div class="profile-portfolio">${projects.length ? projects.map((p) => `<a class="profile-work" href="${esc(p.url)}" target="_blank" rel="noopener noreferrer" aria-label="Open ${esc(p.title)}"><div class="profile-work-cover">${projectPreview(p)}</div><h3>${esc(p.title)}</h3></a>`).join("") : '<p class="profile-muted">Your saved projects will appear here.</p>'}</div></section>
+ <section class="profile-portfolio-section"><div class="profile-section-head"><h2>Portfolio</h2><button type="button" class="portfolio-add chrome-text" id="addPortfolio" aria-label="Add portfolio project">+</button></div><div class="profile-portfolio">${projects.length ? projects.map((p,i) => `<button type="button" class="profile-work" data-project="${i}" aria-label="View ${esc(p.title)}"><div class="profile-work-cover">${projectPreview(p)}</div><h3><span>${esc(p.title)}</span></h3></button>`).join("") : '<p class="profile-muted">Your saved projects will appear here.</p>'}</div></section>
  <section class="profile-section profile-market-section"><div class="profile-section-head"><h2 class="chrome-text">Your Target Market</h2></div><div class="market-grid">${market(
    s,
  )
@@ -346,6 +346,22 @@
     toast("Profile updated.");
   }
   function mount(s, rerender, toast) {
+    const projects=[...(s.profile?.projects||[]),...(meta(s).client_portfolio_projects||[])].filter(p=>p.title);
+    document.querySelectorAll('[data-project]').forEach(button=>button.onclick=()=>{
+      const p=projects[Number(button.dataset.project)],dialog=document.createElement('dialog');
+      dialog.className='portfolio-dialog';
+      dialog.innerHTML='<div class="portfolio-dialog-head"><h2>'+esc(p.title)+'</h2><button type="button" aria-label="Close">×</button></div><p><strong>My role</strong><br>'+esc(p.role||p.my_role||'—')+'</p><p><strong>Project description</strong><br>'+esc(p.description||'—')+'</p><div class="portfolio-detail-media">'+(video(p.url)?'<video controls playsinline src="'+esc(p.url)+'"></video>':image(p.url)?'<img src="'+esc(p.url)+'" alt="'+esc(p.title)+'">':p.url?'<a href="'+esc(p.url)+'" target="_blank" rel="noopener noreferrer">View attached project ↗</a>':'')+'</div>';
+      document.body.append(dialog);dialog.querySelector('button').onclick=()=>dialog.close();dialog.onclose=()=>dialog.remove();dialog.showModal();
+    });
+    document.getElementById('addPortfolio').onclick=()=>{
+      const dialog=document.createElement('dialog');dialog.className='portfolio-dialog portfolio-create';
+      dialog.innerHTML='<form><div class="portfolio-dialog-head"><h2>Add a new portfolio project</h2><button type="button" aria-label="Close">×</button></div><p>All fields are required unless otherwise indicated.</p><label>Project title *<input name="title" required maxlength="100" placeholder="Enter a brief but descriptive title."></label><small class="portfolio-count" data-for="title">100 characters left</small><label>Your role (optional)<input name="role" maxlength="100" placeholder="e.g., AI Video Creator & Editor"></label><small class="portfolio-count" data-for="role">100 characters left</small><label>Project description *<textarea name="description" required maxlength="600" rows="4" placeholder="Briefly describe the project’s goals, your solution and the impact you made here."></textarea></label><small class="portfolio-count" data-for="description">600 characters left</small><label class="portfolio-upload">Add content (image or video)<input name="media" type="file" accept="image/*,video/mp4,video/webm,video/quicktime"></label><div class="portfolio-preview"></div><p class="portfolio-error" role="alert"></p><div class="portfolio-actions"><button type="button" class="portfolio-draft">Save as draft</button><button type="submit" class="chrome-button">Save project</button></div></form>';
+      document.body.append(dialog);dialog.showModal();dialog.querySelector('.portfolio-dialog-head button').onclick=()=>dialog.close();dialog.onclose=()=>dialog.remove();
+      for(const input of dialog.querySelectorAll('[maxlength]'))input.oninput=()=>dialog.querySelector('[data-for="'+input.name+'"]').textContent=(Number(input.maxLength)-input.value.length)+' characters left';
+      const fileInput=dialog.querySelector('[name="media"]');fileInput.onchange=()=>{const f=fileInput.files[0],box=dialog.querySelector('.portfolio-preview');box.replaceChildren();if(f){const url=URL.createObjectURL(f),element=document.createElement(f.type.startsWith('video/')?'video':'img');element.src=url;if(element.tagName==='VIDEO')element.controls=true;element.onload=()=>URL.revokeObjectURL(url);box.append(element)}};
+      async function submit(draft){const form=dialog.querySelector('form'),error=dialog.querySelector('.portfolio-error'),title=form.elements.title.value.trim(),role=form.elements.role.value.trim(),description=form.elements.description.value.trim(),file=fileInput.files[0];if(!title||!description){error.textContent='Add a title and project description.';return}const buttons=dialog.querySelectorAll('.portfolio-actions button');buttons.forEach(b=>b.disabled=true);try{let url='';if(file){if(file.size>100*1024*1024)throw Error('Choose a file smaller than 100 MB.');const sb=await Fuse.client(),ext=(file.name.split('.').pop()||'bin').toLowerCase(),path=s.session.user.id+'/client-portfolio/'+crypto.randomUUID()+'.'+ext;const result=await sb.storage.from('avatars').upload(path,file,{contentType:file.type,upsert:false});if(result.error)throw result.error;url=sb.storage.from('avatars').getPublicUrl(path).data.publicUrl}await save(s,{client_portfolio_projects:[...(meta(s).client_portfolio_projects||[]),{title,role,description,url,draft}]},rerender,toast);dialog.close()}catch(e){error.textContent=e.message||'Could not save project.';buttons.forEach(b=>b.disabled=false)}}
+      dialog.querySelector('form').onsubmit=e=>{e.preventDefault();submit(false)};dialog.querySelector('.portfolio-draft').onclick=()=>submit(true);
+    };
     const overview=document.querySelector('.profile-about');
     if(overview&&about(s).length>260){const full=about(s),toggle=document.createElement('button');toggle.type='button';toggle.className='overview-toggle';toggle.textContent='more';overview.textContent=full.slice(0,260).trimEnd()+'…';overview.after(toggle);toggle.onclick=()=>{const expanded=toggle.textContent==='more';overview.textContent=expanded?full:full.slice(0,260).trimEnd()+'…';toggle.textContent=expanded?'less':'more'}}
     const clock = document.getElementById("clientLocalTime");
@@ -376,13 +392,13 @@
               : {
                   name: "Your Name",
                   title: "Your Title",
-                  price: "Your Starter Package Price",
+                  price: "Your Price",
                   about: "About Your Work",
                 }[key];
           field.innerHTML =
             key === "about"
               ? `<label for="profileEditValue">What you can do</label><textarea id="profileEditValue" maxlength="2000" rows="7">${esc(about(s))}</textarea>`
-              : `<label for="profileEditValue">${isLink ? linkLabel + " URL" : key === "price" ? "Starter package price" : key === "name" ? "Your name" : "Your title"}</label><input id="profileEditValue" ${key === "price" ? 'type="number" min="1" step="0.01"' : isLink ? 'type="url" inputmode="url"' : 'type="text"'} maxlength="300" value="${esc(isLink ? linkValue(s, linkKey) : key === "name" ? name(s) : key === "title" ? title(s) : key === "price" ? meta(s).client_starter_price || s.profile?.price_amount || "" : "")}">`;
+              : `<label for="profileEditValue">${isLink ? linkLabel + " URL" : key === "price" ? "Input Price" : key === "name" ? "Input Name" : "Your title"}</label><input id="profileEditValue" ${key === "price" ? 'type="number" min="1" step="0.01"' : isLink ? 'type="url" inputmode="url"' : 'type="text"'} maxlength="300" value="${esc(isLink ? linkValue(s, linkKey) : key === "name" ? name(s) : key === "title" ? title(s) : key === "price" ? meta(s).client_starter_price || s.profile?.price_amount || "" : "")}">`;
           dialog.dataset.key = key;
           dialog.classList.toggle('profile-name-dialog',key==='name'||key==='price');
           dialog.classList.toggle('profile-overview-dialog',key==='about');
@@ -397,7 +413,7 @@
           }
           if(key==='about'){
             document.getElementById('clientProfileDialogTitle').textContent='Profile overview';
-            field.innerHTML='<div class="overview-guidance"><p>Use this space to tailor your searches to get the exact prospects you’re looking to work for.</p><ul><li>Describe your strengths and skills</li><li>Highlight projects, accomplishments and education</li><li>Keep it short and make sure it’s error-free</li></ul><p>Use this space to tailor your searches to get the exact prospects you’re looking to work for.</p></div><label class="chrome-text" for="profileEditValue">Profile overview</label><textarea id="profileEditValue" maxlength="50000" rows="7">'+esc(about(s))+'</textarea><p class="overview-counter"></p>';
+            field.innerHTML='<div class="overview-guidance"><p>Use this space to tailor your searches to get the exact prospects you’re looking to work for.</p><ul><li>Describe your strengths and skills</li><li>Highlight projects, accomplishments and education</li><li>Keep it short and make sure it’s error-free</li></ul></div><label class="chrome-text" for="profileEditValue">Profile overview</label><textarea id="profileEditValue" maxlength="50000" rows="7">'+esc(about(s))+'</textarea><p class="overview-counter"></p>';
             const input=field.querySelector('textarea'),counter=field.querySelector('.overview-counter');const count=()=>counter.textContent=(50000-input.value.length)+' characters left';input.oninput=count;count();dialog.querySelector('button[type="submit"]').hidden=true;
             const actions=document.createElement('div');actions.className='title-edit-actions';actions.innerHTML='<button type="button" class="chrome-button">Cancel</button><button type="submit" class="chrome-button">Save</button>';actions.firstElementChild.onclick=()=>dialog.close();dialog.querySelector('form').append(actions);
           }

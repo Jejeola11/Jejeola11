@@ -10,6 +10,45 @@
   font-family: Montserrat, Arial, sans-serif;
   color-scheme: dark;
 }
+/* Compact client profile editors and portfolio */
+#clientProfileDialog.profile-title-dialog,#clientProfileDialog.profile-overview-dialog{height:fit-content!important;min-height:0!important;max-height:min(86dvh,800px)!important;overflow:auto!important;padding:18px!important;background:linear-gradient(145deg,#082b2f 0%,#001012 100%)!important}
+#clientProfileDialog.profile-title-dialog .profile-modal-head,#clientProfileDialog.profile-overview-dialog .profile-modal-head{margin-bottom:12px}
+#clientProfileDialog.profile-title-dialog .profile-modal-head h2,#clientProfileDialog.profile-overview-dialog .profile-modal-head h2{font-size:19px;line-height:1.2}
+#clientProfileDialog .title-edit-description{font-size:12px;line-height:1.45;margin:0 0 14px}
+#clientProfileDialog.profile-title-dialog label.chrome-text,#clientProfileDialog.profile-overview-dialog label.chrome-text{font-size:13px;margin:0 0 6px}
+#clientProfileDialog.profile-title-dialog input{font-size:13px;padding:10px;margin:0}
+#clientProfileDialog .title-edit-actions{margin-top:16px;gap:10px}
+#clientProfileDialog .title-edit-actions button{min-height:38px;padding:8px;font-size:13px}
+#clientProfileDialog .overview-guidance{font-size:12px;line-height:1.45}
+#clientProfileDialog .overview-guidance p{margin:0 0 7px}
+#clientProfileDialog .overview-guidance ul{margin:0 0 12px;padding-left:20px}
+#clientProfileDialog.profile-overview-dialog textarea{font-size:13px;line-height:1.5;min-height:105px;max-height:27dvh;margin:0 0 4px;padding:10px}
+#clientProfileDialog.profile-name-dialog label{display:block;font-size:11px;margin:0 0 5px}
+#clientProfileDialog.profile-name-dialog .profile-modal-head h2{text-align:center;width:100%}
+#clientProfileDialog.profile-name-dialog{height:fit-content!important;min-height:0!important}
+#clientProfileError:empty{display:none}
+.profile-section-head{display:flex;align-items:center;justify-content:space-between}
+.portfolio-add{border:1px solid #b9ea93;border-radius:50%;width:34px;height:34px;background:linear-gradient(145deg,#092b2f,#001012);font-size:26px;line-height:1;cursor:pointer}
+.profile-work{border:0;background:none;padding:0;width:100%;text-align:left;cursor:pointer;font:inherit}
+.profile-work h3 span{background-image:linear-gradient(90deg,#ffed68,#dcffad);background-repeat:no-repeat;background-size:100% 1px;background-position:0 100%;padding-bottom:2px}
+.portfolio-dialog{width:min(480px,calc(100vw - 24px));max-height:85dvh;overflow:auto;margin:auto;padding:20px;border:1px solid #315456;border-radius:20px;background:linear-gradient(145deg,#082b2f,#001012);color:#fff;box-shadow:0 20px 70px #000a}
+.portfolio-dialog::backdrop{background:#000b;backdrop-filter:blur(5px)}
+.portfolio-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.portfolio-dialog h2{font-size:20px;line-height:1.25;margin:0;color:#fff}
+.portfolio-dialog-head button{border:0;background:none;color:#dfff4e;font-size:26px;line-height:1;cursor:pointer}
+.portfolio-dialog p{font-size:13px;line-height:1.5;margin:0 0 14px;white-space:pre-wrap}
+.portfolio-dialog p strong,.portfolio-create label{display:block;color:#dfff4e;font-size:13px;margin-bottom:6px}
+.portfolio-detail-media img,.portfolio-detail-media video,.portfolio-preview img,.portfolio-preview video{display:block;max-width:100%;max-height:55dvh;object-fit:contain;border-radius:10px;margin:10px auto}
+.portfolio-create label{margin:12px 0 4px;color:#fff}
+.portfolio-create input:not([type=file]),.portfolio-create textarea{display:block;width:100%;box-sizing:border-box;margin:6px 0 0;padding:10px;border:1px solid #315456;border-radius:10px;background:#001012;color:#fff;font:inherit;font-size:13px}
+.portfolio-create textarea{resize:vertical;min-height:78px}
+.portfolio-create .portfolio-count{display:block;text-align:right;color:#b4c4c4;font-size:10px}
+.portfolio-create .portfolio-upload{border:1px dashed #c5f780;border-radius:12px;padding:14px;text-align:center;color:#dfff4e;cursor:pointer}
+.portfolio-upload input{display:block;width:100%;font-size:11px;margin-top:8px}
+.portfolio-actions{display:flex;align-items:center;gap:10px;margin-top:14px}
+.portfolio-actions button{flex:1;min-height:39px;font-size:12px}
+.portfolio-draft{background:none;border:0;color:#fff}
+.portfolio-error{color:#ffb0a6!important}
 .project-preview {
   display: block;
   width: 100%;
