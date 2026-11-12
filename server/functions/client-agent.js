@@ -60,6 +60,8 @@ exports.handler=async event=>{
       const p=agent.profile(saved.data.profile_json);
       if(!p.approved||agent.missing(p).length)return response(400,{error:'Review and confirm your complete offer before researching.'});
       const market=agent.clean(body.market,180)||p.market;
+      p.search_query=agent.clean(body.query,160);
+      p.search_instructions=agent.clean(body.instructions,1000);
       const started=await db.rpc('client_agent_start',{p_user:user.id,p_key:body.request_key,p_profile:p,p_market:market});
       if(started.error){return response(/credits/i.test(started.error.message)?402:400,{error:started.error.message})}
       // Kick the durable queue; the scheduler continues even when this page closes.
@@ -132,4 +134,5 @@ exports.handler=async event=>{
     return response(400,{error:'Unknown Client Agent action'});
   }catch(error){console.error('[client-agent]',body.action,error.provider||error.message);return response(500,{error:'Fuse could not complete this step. Your saved work is safe. Please try again.'})}
 };
+
 

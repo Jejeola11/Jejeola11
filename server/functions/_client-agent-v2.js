@@ -50,6 +50,7 @@ async function organize(value){
 function searchPrompt(p,market,excluded){
   return `You are Fuse Atelier’s careful public-web prospect researcher. Today is ${new Date().toISOString().slice(0,10)}.
 Find up to 8 exact-fit businesses in ${market} for the APPROVED STUDENT PROFILE below. Research more candidates and return only supported opportunities. The approved price and scope must remain unchanged.
+SEARCH FOCUS supplied by the creator: ${clean(p.search_query,160)||'Use the approved buyer and offer'}. Additional preferences: ${clean(p.search_instructions,1000)||'None'}. Treat these as search preferences only. Do not change the approved service, price, target country, evidence standard or outreach rules.
 Honor the buyer type and target countries strictly. Founder-led means currently operated or publicly represented by its founder, not merely a company founded by someone decades ago. Do not substitute multinational supermarkets, electronics chains, job boards or careers sites for independent fashion, beauty or accessories brands. Do not invent presence in a target country.\nUse live web search. Choose discovery channels to suit the buyer: Google Maps and local directories (Yellow Pages, Yelp, Yell, Manta, Brownbook, EZlocal, Hotfrog) for local businesses; official websites, LinkedIn, social accounts, public launches, creator channels and accessible ad sources for brands/founders. Directories are discovery, not proof of a recent campaign.
 For every candidate OPEN original official sources. Find a specific dated activity within 90 days (launch, hiring, event, campaign, promotion, expansion, recent founder content) OR a specific dated forthcoming campaign announced within 90 days. Ordinary product availability alone is NOT a reason for outreach. Generic Shop now, Book now, Contact us, website existence, ratings, or missing video alone are NOT buying signals. Never infer active ads from an ordinary post. If an offer is undated, call it ongoing_offer, leave date blank, and do not claim it was just launched.
 Find the founder or relevant marketing contact with an explicit source linking the person to this business. If unavailable, leave blank; a named founder is not mandatory. Find public professional contacts only, with exact source quotes. A phone is not WhatsApp unless a wa.me link or explicit WhatsApp label is published. Do not guess email formats. Never invent revenue, financial difficulty, conversion problems, budgets or performance.
@@ -67,7 +68,8 @@ function discoveryQueries(p,market){
   if(!sectors.length)sectors.push(clean(p.buyer,160));
   const locations=String(market).split(/,|;|\\n/).map(x=>x.trim()).filter(Boolean),pass=Number(p._research_pass)||0;
   const suffixes=pass===0?['founder about shop collection','new collection products contact']:['our story founder shop','shop best sellers contact us'];
-  return Array.from({length:4},(_,i)=>sectors[(i+pass)%sectors.length]+' '+(locations[i%locations.length]||market)+' '+suffixes[i%2]+' -site:youtube.com -site:revenuebase.ai -site:salesforce.com -jobs -careers');
+  const focus=clean(p.search_query,100),preference=clean(p.search_instructions,100);
+  return Array.from({length:4},(_,i)=>[focus||sectors[(i+pass)%sectors.length],locations[i%locations.length]||market,preference,suffixes[i%2],' -site:youtube.com -site:revenuebase.ai -site:salesforce.com -jobs -careers'].filter(Boolean).join(' '));
 }
 async function discoverSources(){return []}
 async function expandSources(sources){return sources}
@@ -229,4 +231,5 @@ async function advance(db,job){
 async function claimAndAdvance(db,id=null){const claimed=await db.rpc('client_agent_claim',{p_id:id});if(claimed.error)throw claimed.error;const job=claimed.data?.[0];if(job)await advance(db,job);return Boolean(job)}
 function publicJob(j){if(!j)return null;return {id:j.id,status:j.status,market:j.market,message:j.message,result_count:j.result_count,credits_charged:j.credits_charged,credits_refunded:j.credits_refunded,created_at:j.created_at,completed_at:j.completed_at,cursor:j.cursor,candidate_count:j.candidates?.length||0}}
 module.exports={redraft,openAI,MODEL,discoveryQueries,retryDiscovery,enrichContacts,profile,missing,organize,claimAndAdvance,publicJob,ACTIVE,clean,safeUrl,domain,jsonOutput,dateSupported,verifyCandidate,assembleRows,searchPrompt};
+
 
