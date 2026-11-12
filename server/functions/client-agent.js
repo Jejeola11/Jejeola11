@@ -27,7 +27,7 @@ exports.handler=async event=>{
         db.from('profiles').select('credits').eq('id',user.id).single(),
         db.from('client_agent_followups').select('id,prospect_id,due_at,status,draft,sent_at,last_error').eq('user_id',user.id).order('created_at',{ascending:false}).limit(300)
       ]);for(const r of [profile,prospects,jobs,balance,followups])if(r.error)throw r.error;
-      return response(200,{followups:followups.data||[],profile:profile.data?.profile_json||null,prospects:prospects.data||[],jobs:(jobs.data||[]).map(agent.publicJob),credits:balance.data.credits,research_cost:30});
+      return response(200,{followups:followups.data||[],profile:profile.data?.profile_json||null,prospects:prospects.data||[],jobs:(jobs.data||[]).map(agent.publicJob),credits:balance.data.credits,research_cost:18});
     }
     if(body.action==='organize'){
       if(!agent.clean(body.day1)&&!agent.clean(body.day2))return response(400,{error:'Paste some notes about your skills or service offer first.'});
