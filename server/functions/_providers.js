@@ -689,7 +689,7 @@ const FLYER_IMAGE_ROUTES = {
 // fall back to their own MuAPI route — same graceful-degrade pattern as
 // submitImageGoogle.
 async function submitFlyerImage(model, { prompt, aspect, images }) {
-  if(model!=='gpt-image-2.5-sunburst'&&require('./_openai-direct').imageModel(model))return require('./_openai-direct').submitImage(model,{prompt,aspect,images});
+  if(require('./_openai-direct').imageModel(model))return require('./_openai-direct').submitImage(model,{prompt,aspect,images});
   const wsModel = FLYER_IMAGE_ROUTES[model];
   if (!wsModel || !hasWaveSpeed()) return null;
   const body = { prompt, aspect_ratio: aspect || '4:5' };
@@ -752,7 +752,7 @@ function wsResolution(route, resolution) {
 // The dedicated Fuse Atelier creator can request WaveSpeed-only mode at the
 // API layer; older callers still retain their normal fallback behavior.
 async function submitImageWS(model, { prompt, aspect, images, resolution, quality }) {
-  if(model!=='gpt-image-2.5-sunburst'&&require('./_openai-direct').imageModel(model))return require('./_openai-direct').submitImage(model,{prompt,aspect,images,resolution,quality});
+  if(require('./_openai-direct').imageModel(model))return require('./_openai-direct').submitImage(model,{prompt,aspect,images,resolution,quality});
   const route = IMAGE_ROUTES[model];
   if (!route || !hasWaveSpeed()) return null;
   const hasRefs = Array.isArray(images) && images.length > 0;
