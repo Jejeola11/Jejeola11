@@ -132,15 +132,15 @@ exports.handler = async (event) => {
   // WaveSpeed account. Only substitute a known edit-capable default for
   // models that genuinely have no editing variant at all (e.g. flux-schnell).
   const selectedModel = body.model || 'flux-schnell-image';
-  const directGPT = !!require('./_openai-direct').imageModel(selectedModel);
+  const directGPT = selectedModel!=='gpt-image-2.5-sunburst' && !!require('./_openai-direct').imageModel(selectedModel);
    const influencerSheet = body.product === 'influencer-sheet';
    if(influencerSheet && (selectedModel!=='gpt-image-2.5-sunburst'||aspect!=='16:9'||body.resolution!=='2k'||body.quality!=='high'||body.count!==1||referenceCount>14))return json(400,{error:'Invalid influencer sheet settings.'});
-  const forceWaveSpeed = body.provider === 'wavespeed';
+  const forceWaveSpeed = selectedModel==='gpt-image-2.5-sunburst' || body.provider === 'wavespeed';
   const requestedResolution = ['1k','2k','4k'].includes(String(body.resolution || '').toLowerCase())
     ? String(body.resolution).toLowerCase() : null;
   const requestedQuality = ['low','medium','high','xhigh','max'].includes(String(body.quality || '').toLowerCase())
     ? String(body.quality).toLowerCase() : 'medium';
-  if(forceWaveSpeed && requestedQuality!=='medium')return json(400,{error:'This image tool currently supports medium quality only.'});
+  if(forceWaveSpeed && selectedModel!=='gpt-image-2.5-sunburst' && requestedQuality!=='medium')return json(400,{error:'This image tool currently supports medium quality only.'});
   const EDIT_CAPABLE = ['nano-banana', 'nano-banana-2', 'nano-banana-pro-ws-text-to-image', 'gpt-image-2-text-to-image', 'gpt-image-2.5-sunburst', 'gpt-image-2.5-flare', 'minimax-h3-image', 'qwen-image', 'flux-2-pro', 'seedream-5.0', 'hunyuan-image-3.0', 'hidream_i1_full_image', 'flux-dev-image'];
   const model = useRef ? ((directGPT || EDIT_CAPABLE.includes(selectedModel)) ? selectedModel : 'nano-banana-edit') : selectedModel;
   if (!prompt) return json(400, { error: 'Add a prompt first.' });
