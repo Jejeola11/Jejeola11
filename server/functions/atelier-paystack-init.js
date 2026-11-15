@@ -15,6 +15,7 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'GET') {
     return json(200, { ok: true, configured: !!process.env.PAYSTACK_SECRET_KEY });
   }
+  if(event.httpMethod==='POST')return json(410,{error:'This founding offer has ended. Visit /atelier-v2/learn.html'});
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
 
   const secret = (process.env.PAYSTACK_SECRET_KEY || '').trim();

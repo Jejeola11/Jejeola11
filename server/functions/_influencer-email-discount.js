@@ -9,7 +9,7 @@ function normalizeCode(value) {
   return typeof value === 'string' ? value.trim().toUpperCase() : '';
 }
 function hasValidCoupon(pack, code) {
-  return pack === PACK && normalizeCode(code) === CODE;
+  return false; // Retired on premium pricing launch; historical receipts remain verifiable.
 }
 function isDiscountedTransaction(pack, metadata, amountNaira) {
   return pack === PACK &&

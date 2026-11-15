@@ -30,4 +30,5 @@
   const tabs=[...document.querySelectorAll('.tutorial-tab')];
   function activate(tab){for(const t of tabs){const selected=t===tab;t.setAttribute('aria-selected',selected);t.tabIndex=selected?0:-1;document.getElementById(t.getAttribute('aria-controls')).hidden=!selected;}}
   tabs.forEach((t,i)=>{t.addEventListener('click',()=>activate(t));t.addEventListener('keydown',e=>{const n={ArrowLeft:(i+tabs.length-1)%tabs.length,ArrowRight:(i+1)%tabs.length,Home:0,End:tabs.length-1}[e.key];if(n!==undefined){e.preventDefault();activate(tabs[n]);tabs[n].focus();}});});
-})();});</script></body></html>
+})();});</script><script src="/atelier-v2/global-pricing.js?v=20261115" defer></script>
+</body></html>

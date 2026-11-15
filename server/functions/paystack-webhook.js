@@ -98,6 +98,11 @@ exports.handler = async (event) => {
   }
   if (!userId) return { statusCode: 200, body: 'missing user' };
 
+  if(pack.course==='bundle'){
+    if(!require('./_academy-bundles').validBundle(pack,meta,d))return {statusCode:400,body:'amount mismatch'};
+    const {error}=await require('./_academy-bundles').fulfillBundle(db,pack,userId,reference,d);
+    return {statusCode:error?500:200,body:error?'fulfillment failed':'ok (academy bundle)'};
+  }
   if(meta.pack==='fuse-creator-pass'){
     if(d.currency!=='NGN'||d.amount!==2590000||Number(meta.amount_naira)!==25900)return {statusCode:400,body:'amount mismatch'};
     const {data:fulfilled,error}=await db.rpc('fulfill_creator_pass',{p_user_id:userId,p_reference:reference,p_amount_naira:25900,p_raw:d});

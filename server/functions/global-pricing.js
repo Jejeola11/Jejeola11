@@ -1,0 +1,6 @@
+// Geolocation is supplied by Vercel's trusted ingress, never a client price.
+const COUNTRY_CURRENCY={NG:'NGN',GH:'GHS',GB:'GBP',US:'USD',CA:'CAD',AU:'AUD',ZA:'ZAR',KE:'KES',UG:'UGX',TZ:'TZS',RW:'RWF',AE:'AED',IN:'INR',FR:'EUR',DE:'EUR',IE:'EUR',ES:'EUR',IT:'EUR',NL:'EUR',BE:'EUR',PT:'EUR',AT:'EUR',FI:'EUR',GR:'EUR'};
+let cached=null,expires=0;
+async function rates(){if(cached&&Date.now()<expires)return cached;try{const r=await fetch('https://open.er-api.com/v6/latest/NGN',{signal:AbortSignal.timeout(3500)});const d=await r.json();if(!r.ok||d.result!=='success'||!d.rates||d.rates.NGN!==1)throw Error('Rates unavailable');cached={rates:d.rates,updatedAt:d.time_last_update_utc};expires=Date.now()+3600000;return cached}catch{return cached||{rates:{NGN:1},updatedAt:null}}}
+exports.handler=async e=>{if(e.httpMethod!=='GET')return {statusCode:405,body:''};const country=String(e.headers?.['x-vercel-ip-country']||'NG').toUpperCase();const data=await rates();let currency=COUNTRY_CURRENCY[country]||'USD';if(!Number.isFinite(data.rates[currency]))currency='NGN';return {statusCode:200,headers:{'Content-Type':'application/json','Cache-Control':'private, no-store'},body:JSON.stringify({country,currency,rate:data.rates[currency],rates:data.rates,updatedAt:data.updatedAt,estimated:currency!=='NGN',checkoutCurrency:'NGN'})}};
+exports.COUNTRY_CURRENCY=COUNTRY_CURRENCY;

@@ -52,6 +52,8 @@ exports.handler = async (event) => {
     let body; try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
     const module_key = (body.module_key || '').trim();
     if (!module_key) return json(400, { error: 'Missing module_key' });
+    const academyKey=/^(flyer-m|aiv-m|web-m|money(?:-|$)|ai-influencer-course$|ai-video-client-challenge$|ai-video-business-guide$|design$|video$|landing$|atelier-)/.test(module_key);
+    if(academyKey)return json(410,{error:'Academy courses are purchased at /atelier-v2/learn.html. Existing access is preserved.'});
     const cost = costFor(module_key);
 
     db = admin();

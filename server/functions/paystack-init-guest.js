@@ -38,6 +38,7 @@ exports.handler = async (event) => {
   try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad request' }); }
 
   const pack = PACKS[body.pack];
+  if(pack?.kind==='course')return json(410,{error:'Please sign in and choose your course at /atelier-v2/learn.html'});
   if (!pack) return json(400, { error: 'Unknown pack.' });
 
   const name = (body.name || '').trim().slice(0, 200) || null;

@@ -1,0 +1,10 @@
+const {ACADEMY}=require('./_commerce');
+const range=(p,n)=>Array.from({length:n},(_,i)=>p+(i+1));
+const KEYS={design:['design',...range('flyer-m',6)],video:['video',...range('aiv-m',16)],landing:['landing',...range('web-m',10).map(k=>k==='web-m3'?'web-m3-current':k)],money:['money','money-m1','money-m2','money-m3'],challenge:['ai-video-client-challenge'],influencer:['ai-influencer-course']};
+function validateSelection(item,courses){if(!Array.isArray(courses)||courses.length!==item.count||new Set(courses).size!==item.count||courses.some(k=>!KEYS[k]))throw Error('Choose '+item.count+' different eligible courses.');return [...courses].sort()}
+function bundleAmount(item,courses){return Math.min(item.amount_naira,courses.reduce((n,k)=>n+ACADEMY['academy-'+k].amount_naira,0))}
+function owns(keys,k){return KEYS[k].some(x=>keys.has(x))||(!['challenge','influencer'].includes(k)&&['atelier-full','atelier-empire','atelier-starter','atelier-creator'].some(x=>keys.has(x)))}
+async function assertUnowned(db,uid,courses){const {data,error}=await db.from('module_unlocks').select('module_key').eq('user_id',uid);if(error)throw Error('Could not check your course access. Please retry.');const keys=new Set((data||[]).map(x=>x.module_key));if(courses.some(k=>owns(keys,k)))throw Error('One of your selected courses is already unlocked. Refresh Academy and choose another course.')}
+function validBundle(item,meta,tx){try{const courses=validateSelection(item,meta.selected_courses);return tx.currency==='NGN'&&Number(tx.amount)===bundleAmount(item,courses)*100&&Number(meta.amount_naira)===bundleAmount(item,courses)}catch{return false}}
+async function fulfillBundle(db,item,uid,reference,tx){if(!validBundle(item,tx.metadata||{},tx))return {error:Error('Bundle amount mismatch')};return db.rpc('fulfill_academy_bundle',{p_user_id:uid,p_reference:reference,p_amount_naira:tx.amount/100,p_pack:tx.metadata.pack,p_courses:tx.metadata.selected_courses,p_raw:tx})}
+module.exports={KEYS,owns,validateSelection,bundleAmount,assertUnowned,validBundle,fulfillBundle};

@@ -94,7 +94,7 @@
   }else if(id==='influencer'){
    $('name').value='AI Influencer course — Launch';
    $('subject').value='{{first_name}}, your AI influencer starts here';
-   $('body').value='Hi {{first_name}}, learn to create your own AI influencer and build content you can turn into a skill. Explore the ₦9,900 course at Fuse Atelier.';
+   $('body').value='Hi {{first_name}}, learn to create your own AI influencer and build content you can turn into a skill. Explore the ₦30,000 course at Fuse Atelier.';
    $('segment').value='influencer_prospects';
    $('action-url').value='https://fuseatelier.com/influencer';
   }else if(id==='earn'){

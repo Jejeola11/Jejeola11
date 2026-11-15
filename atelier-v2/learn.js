@@ -7,7 +7,7 @@
   // Only server-owned product IDs are sent to Paystack checkout.
   const checkoutUrls={ebook:'academy-ebook',challenge:'academy-challenge',money:'academy-money',video:'academy-video',influencer:'academy-influencer',landing:'academy-landing',design:'academy-design'};
   const params=new URLSearchParams(location.search);
-  const emailDiscount=params.get('buy')==='influencer' && String(params.get('coupon')||'').trim().toUpperCase()==='EMAIL30';
+  const emailDiscount=false;
   const returnTo=FuseCourseFunnel.safeReturn(params.get('return')||(params.has('buy')?'/atelier-v2/free-prompts-workflows.html#course-offer':location.pathname));
   function signupToBuy(course){
     const checkout=FuseCourseFunnel.checkoutURL(course,returnTo,location.search);
@@ -21,7 +21,7 @@
     status.textContent='Opening secure Paystack checkout for '+courseMeta[course].name+' · ₦'+(discounted?6930:courseMeta[course].price).toLocaleString('en-NG')+'…';
     try{
       const out=await Fuse.api('paystack-init',{pack:checkoutUrls[course],...(discounted?{coupon:'EMAIL30'}:{})});
-      if(discounted&&Number(out.amount_naira)!==6930)throw Error('Your 30% discount could not be verified. No payment was started.');
+      if(discounted&&Number(out.amount_naira)!==30000)throw Error('Your 30% discount could not be verified. No payment was started.');
       const url=new URL(out.authorization_url);
       if(url.protocol!=='https:'||url.hostname!=='checkout.paystack.com')throw Error('Could not open secure Paystack checkout. Please try again.');
       location.assign(url.href);
@@ -55,12 +55,12 @@
   };
 
   const courseMeta={
-    design:{name:'Design & Flyers',price:9900,href:'academy-v2.html?course=design'},
-    video:{name:'AI UGC & Influencer',price:9900,href:'academy-v2.html?course=video'},
-    influencer:{name:'Create & Monetize Viral AI Influencers',price:9900,href:'influencer-course.html'},
-    landing:{name:'Landing Page Design',price:9900,href:'academy-v2.html?course=landing'},
-    money:{name:'Money Engine',price:9900,href:'academy-v2.html?course=money'},
-    challenge:{name:'14-Day AI Video Client Challenge',price:9900,href:'academy-v2.html?course=challenge'},
+    design:{name:'Design & Flyers',price:20000,href:'academy-v2.html?course=design'},
+    video:{name:'AI UGC & Influencer',price:35000,href:'academy-v2.html?course=video'},
+    influencer:{name:'Create & Monetize Viral AI Influencers',price:30000,href:'influencer-course.html'},
+    landing:{name:'Landing Page Design',price:30000,href:'academy-v2.html?course=landing'},
+    money:{name:'Money Engine',price:25000,href:'academy-v2.html?course=money'},
+    challenge:{name:'14-Day AI Video Client Challenge',price:25000,href:'academy-v2.html?course=challenge'},
     ebook:{name:'Zero To First 10 Million With AI Video',price:9900,href:'ai-video-book.html'}
   };
 
@@ -90,8 +90,8 @@
       influencerFeature.hidden=activeCourseTab==='mine'&&!allowed;
       influencerFeature.dataset.courseAccess=allowed?'unlocked':'locked';
       const button=influencerFeature.querySelector('.tutorial-open-button');
-      button.innerHTML=allowed?'Tap Here <span aria-hidden="true">↗</span>':'Unlock For ₦9,900';
-      button.setAttribute('aria-label',allowed?'Open AI influencer course':'Unlock AI influencer course for ₦9,900');
+      button.innerHTML=allowed?'Tap Here <span aria-hidden="true">↗</span>':'Unlock For ₦30,000';
+      button.setAttribute('aria-label',allowed?'Open AI influencer course':'Unlock AI influencer course for ₦30,000');
     }
     rows.forEach(row=>{
       const course=row.dataset.course;
@@ -152,7 +152,7 @@
       button.classList.remove('unlock-nudge');
       void button.offsetWidth;
       button.classList.add('unlock-nudge');
-      document.getElementById('influencerCourseStatus').textContent='Unlock this course for ₦9,900 to start.';
+      document.getElementById('influencerCourseStatus').textContent='Unlock this course for ₦30,000 to start.';
     });
     button.addEventListener('click',async event=>{
       if(influencerFeature.dataset.courseAccess==='unlocked')return;
