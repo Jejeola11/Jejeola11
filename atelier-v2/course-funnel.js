@@ -16,7 +16,7 @@
 })(typeof window!=='undefined'?window:globalThis,()=>{
   'use strict';
   const courses=new Set(['video','design','landing','money','challenge','ebook','influencer']);
-  const publicFiles=new Set(['ocean-eyes-halloween.html','free-ai-tutorial.html','free-prompts-workflows.html','realistic-images.html']);
+  const publicFiles=new Set(['ocean-eyes-halloween.html','free-ai-tutorial.html','free-prompts-workflows.html','realistic-images.html','create-first-ai-influencer.html']);
   function isPublicPage(pathname,search=''){
     const file=pathname.split('/').pop().toLowerCase();
     const q=new URLSearchParams(search);

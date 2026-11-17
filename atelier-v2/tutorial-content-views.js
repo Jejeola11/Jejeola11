@@ -1,5 +1,5 @@
 (()=>{'use strict';
- const paths=new Set(['/atelier-v2/free-prompts-workflows.html','/atelier-v2/ocean-eyes-halloween.html','/atelier-v2/free-ai-tutorial.html','/atelier-v2/realistic-images.html']);
+ const paths=new Set(['/atelier-v2/free-prompts-workflows.html','/atelier-v2/ocean-eyes-halloween.html','/atelier-v2/free-ai-tutorial.html','/atelier-v2/realistic-images.html','/atelier-v2/create-first-ai-influencer.html']);
  const contentPath=location.pathname;if(!paths.has(contentPath))return;
  let viewId;try{viewId=sessionStorage.getItem('fuse-tutorial-view-session');if(!/^[0-9a-f-]{36}$/i.test(viewId||'')){viewId=crypto.randomUUID();sessionStorage.setItem('fuse-tutorial-view-session',viewId);}}catch{viewId=crypto.randomUUID();}
  const marker='fuse-tutorial-seen:'+contentPath;

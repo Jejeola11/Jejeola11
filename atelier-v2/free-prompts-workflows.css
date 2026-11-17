@@ -3,3 +3,5 @@
 
 /* Reserved newest tutorial: add future cards before this first grid item. */
 .workflow-preview--empty{background:linear-gradient(140deg,#00090b,#133b3f);position:relative}.workflow-preview--empty:after{content:"";width:28%;aspect-ratio:1;border:1px solid #64a0a044;border-radius:50%;box-shadow:0 0 36px #50bab51a}.workflow-copy--empty{justify-content:flex-start;padding-top:clamp(20px,5vw,40px)}.workflow-skeleton{display:block;height:clamp(9px,2.2vw,18px);width:86%;border-radius:5px;background:linear-gradient(90deg,#71908c44,#b6ccc866)}.workflow-skeleton--short{width:58%}
+
+.workflow-preview--training{text-decoration:none;padding:15px;text-align:center}.workflow-preview--training span{font:900 clamp(18px,5vw,44px)/1.05 Montserrat,Arial,sans-serif;letter-spacing:-.04em;background:linear-gradient(115deg,#a4bdbb,#fff 25%,#b3c8c6 50%,#fff 70%,#92afac);background-clip:text;-webkit-background-clip:text;color:transparent}

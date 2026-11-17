@@ -4,7 +4,7 @@
   '/atelier-v2/free-prompts-workflows.html',
   '/atelier-v2/ocean-eyes-halloween.html',
   '/atelier-v2/free-ai-tutorial.html',
-  '/atelier-v2/realistic-images.html'
+  '/atelier-v2/realistic-images.html','/atelier-v2/create-first-ai-influencer.html'
  ]);
  if(!pages.has(root.location.pathname))return;
  const guestHeading='LEARN HIGH PAYING AI SKILLS AND BRING YOUR IDEAS TO LIVE WITH FUSE ATELIER';
