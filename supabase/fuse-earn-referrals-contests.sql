@@ -75,7 +75,7 @@ grant usage, select on sequence public.fuse_contests_id_seq, public.fuse_contest
 
 -- Called only by a server-verified new account. Credit grant and referral attribution are atomic.
 create or replace function public.claim_fuse_referral_click(p_user_id uuid,p_token uuid)
-returns boolean language plpgsql security definer set search_path=public,pg_temp as $
+returns boolean language plpgsql security definer set search_path=public,pg_temp as $$
 declare v_referrer uuid; v_code text; v_clicked timestamptz; v_created timestamptz;
 begin
  select created_at into v_created from auth.users where id=p_user_id for update;
@@ -88,11 +88,11 @@ begin
  values(p_user_id,v_referrer,v_code) on conflict do nothing;
  if not found then return false; end if;
  update public.fuse_referral_clicks set claimed_by=p_user_id where token=p_token;
- update public.profiles set credits=credits+1 where id=v_referrer;
+ update public.profiles set credits=credits+5 where id=v_referrer;
  insert into public.transactions(user_id,delta,reason,meta)
- values(v_referrer,1,'fuse-referral-signup',jsonb_build_object('referred_user_id',p_user_id));
+ values(v_referrer,5,'fuse-referral-signup',jsonb_build_object('referred_user_id',p_user_id));
  return true;
-end;$;
+end;$$;
 revoke all on function public.claim_fuse_referral_click(uuid,uuid) from public,anon,authenticated;
 grant execute on function public.claim_fuse_referral_click(uuid,uuid) to service_role;
 
