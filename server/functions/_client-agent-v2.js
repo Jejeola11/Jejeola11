@@ -35,11 +35,7 @@ async function formatResponse(data,kind){
 async function openAI(path,body){
   // JSON mode validates the input messages as well as the instructions.
   if(body?.text?.format?.type==='json_object'&&typeof body.input==='string'&&!/json/i.test(body.input))body={...body,input:'Return a JSON object following the instructions.\n'+body.input};
-  const key=String(process.env.OPENAI_API_KEY||'').trim();if(!key)throw new Error('The research connection is not configured. Please contact Ria.');
-  const r=await fetch('https://api.openai.com/v1/'+path,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(25000)});
-  const data=await r.json().catch(()=>({}));
-  if(!r.ok){const e=new Error('The research provider could not complete this step.');e.provider=clean(data.error?.message,500);e.status=r.status;throw e}
-  return data;
+  return require('./_openai-fallback').request('/'+path,body,{timeout:25000});
 }
 async function organize(value){
   const data=await openAI('responses',{model:MODEL,store:false,max_output_tokens:3200,text:{format:{type:'json_object'}},
@@ -173,14 +169,15 @@ async function advance(db,job){
       await update(db,job,{status:'searching',seed_sources:sources,response_id:null,message:'Discovery complete. Comparing original business pages with your approved service.',attempts:0});return;
     }
     if(job.status==='searching'||job.status==='drafting'){
+      let response;
       if(job.status==='searching'&&!job.response_id){
         if(!job.sources_expanded&&(job.seed_sources||[]).length){
           const pages=await expandSources(job.seed_sources);
           await update(db,job,{seed_sources:pages,sources_expanded:true,message:'Opened original business websites behind the discovery listings.'});return;
         }
         const previous=await previousProspects(db,job.user_id);
-        const response=await submitSearch(p,job.market,[...previous,...(job.verified||[]).map(x=>({brand_name:x.name,website:x.website}))],job.seed_sources||[]);
-        await update(db,job,{response_id:response.id,message:'Checking identity, specific offers and public contacts against original sources.'});return;
+        response=await submitSearch(p,job.market,[...previous,...(job.verified||[]).map(x=>({brand_name:x.name,website:x.website}))],job.seed_sources||[]);
+        if(response.provider!=='wavespeed'){await update(db,job,{response_id:response.id,message:'Checking identity, specific offers and public contacts against original sources.'});return;}
       }
       if(job.status==='drafting'&&!job.response_id){
         const index=(job.verified||[]).findIndex(x=>!x.contact_research);
@@ -190,17 +187,22 @@ async function advance(db,job){
           await update(db,job,{verified,message:`Checked decision-maker and contact pages for ${index+1} of ${verified.length} businesses.`});return;
         }
 
-        const response=await submitDraft(p,job.verified);
-        await update(db,job,{response_id:response.id,message:'Matching your proof and writing personalized email and DM drafts.'});return;
+        response=await submitDraft(p,job.verified);
+        if(response.provider!=='wavespeed'){await update(db,job,{response_id:response.id,message:'Matching your proof and writing personalized email and DM drafts.'});return;}
       }
-      const response=await openAI('responses/'+encodeURIComponent(job.response_id));
+      response=response||await openAI('responses/'+encodeURIComponent(job.response_id));
+      if(response.status==='failed'&&require('./_openai-fallback').billingError(response.error)){
+        if(job.status==='drafting')response=await submitDraft(p,job.verified);
+        else{const previous=await previousProspects(db,job.user_id);response=await submitSearch(p,job.market,[...previous,...(job.verified||[]).map(x=>({brand_name:x.name,website:x.website}))],job.seed_sources||[]);}
+      }
       if(['queued','in_progress'].includes(response.status)){await update(db,job,{message:job.status==='searching'?'Checking original sources, decision makers and public contact routes.':'Matching your existing projects and preparing email and DM drafts.'});return}
       if(response.status!=='completed')throw new Error('The research provider returned '+response.status+' ('+(response.incomplete_details?.reason||response.error?.code||'unknown')+').');
       let parsed;
       try{parsed=jsonOutput(response)}catch(error){
         if(!error.needsFormatting||job.attempts>=2)throw error;
         const formatted=await formatResponse(response,job.status);
-        await update(db,job,{response_id:formatted.id,attempts:job.attempts+1,message:'Organizing the source-backed findings into your research cards.'});return;
+        if(formatted.provider==='wavespeed')parsed=jsonOutput(formatted);
+        else{await update(db,job,{response_id:formatted.id,attempts:job.attempts+1,message:'Organizing the source-backed findings into your research cards.'});return;}
       }
       if(job.status==='searching'){
         const previous=await previousProspects(db,job.user_id);

@@ -1,6 +1,5 @@
 'use strict';
-// GPT requests never fall back to a reseller. Existing ws: jobs keep their poller.
-const BASE='https://api.openai.com/v1';
+// OpenAI is primary; verified billing failures use WaveSpeed.
 const key=()=>String(process.env.OPENAI_API_KEY||'').trim();
 function imageModel(id){
  const s=String(id||'').replace(/^openai\//,'');
@@ -12,14 +11,7 @@ function textModel(id){
  if(s==='gpt-5-5')return 'gpt-5.5';if(s==='gpt-5-2')return 'gpt-5.2';
  return /^gpt-(?!image)[a-zA-Z0-9.-]+$/.test(s)?s:null;
 }
-async function request(path,body,{timeout=35000}={}){
- if(!key())throw Error('OpenAI is not configured.');
- const reference=require('crypto').randomUUID();
- let r;try{r=await fetch(BASE+path,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+key(),'Content-Type':'application/json','X-Client-Request-Id':reference},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(timeout)});}catch(e){e.uncertain=!!body;if(body)e.message='OpenAI submission needs checking. Do not resubmit. Contact support with '+reference;throw e;}
- const j=await r.json().catch(()=>({}));
- if(!r.ok){const e=Error(j.error?.message||'OpenAI request failed ('+r.status+').');e.uncertain=r.status>=500;throw e;}
- return j;
-}
+const {request}=require('./_openai-fallback');
 function sizeFor(aspect,resolution,size){return require('./_gpt-pricing').sizeFor(aspect,resolution,size);}
 function imageBody(id,opts={}){
  require('./_gpt-pricing').imageQuote(id,opts);
@@ -36,16 +28,20 @@ function imageBody(id,opts={}){
  if(background==='transparent'&&format==='jpeg')throw Error('Transparent images require PNG or WebP.');
  return {model:'gpt-5.2',background:true,store:true,max_output_tokens:require('./_gpt-pricing').POLICY.imageHelperOutputTokens,max_tool_calls:1,parallel_tool_calls:false,input:[{role:'user',content:[{type:'input_text',text:String(opts.prompt||'')},...refs.map(url=>({type:'input_image',image_url:url}))]}],tools:[{type:'image_generation',model,action:refs.length?'edit':'generate',size,quality,output_format:format,background,...(opts.input_fidelity&&model!=='gpt-image-2'?{input_fidelity:opts.input_fidelity}:{})}],tool_choice:{type:'image_generation'}};
 }
-async function submitImage(id,opts){const body=imageBody(id,opts);const refs=await require('./_gpt-references').normalize(opts.images||[]);if(refs.length)body.input[0].content=[body.input[0].content[0],...refs.map(url=>({type:'input_image',image_url:url}))];const j=await request('/responses',body);if(!j.id)throw Error('OpenAI did not return a generation reference.');return {requestId:'oa:'+j.id+'~'+(opts?.output_format||'png'),provider:'openai'};}
+async function submitImage(id,opts){const body=imageBody(id,opts);const refs=await require('./_gpt-references').normalize(opts.images||[]);if(refs.length)body.input[0].content=[body.input[0].content[0],...refs.map(url=>({type:'input_image',image_url:url}))];const j=await request('/responses',body);if(!j.id)throw Error('OpenAI did not return a generation reference.');return {requestId:'oa:'+j.id+'~'+(opts?.output_format||'png'),provider:j.provider||'openai'};}
 async function submitText({prompt,imageUrl,model}){
  const resolved=textModel(model);if(!require('./_gpt-pricing').textModel(resolved))throw Error('Unverified GPT text model pricing.');require('./_gpt-pricing').promptBytes(prompt);
  if(imageUrl)imageUrl=(await require('./_gpt-references').normalize([imageUrl]))[0];
  const j=await request('/responses',{model:resolved,background:true,store:true,reasoning:{effort:'none'},max_output_tokens:require('./_gpt-pricing').POLICY.chatOutputTokens,input:[{role:'user',content:[{type:'input_text',text:prompt},...(imageUrl?[{type:'input_image',image_url:imageUrl}]:[])]}]});
+ if(j.provider==='wavespeed'){const text=j.output_text||(j.output||[]).flatMap(o=>o.content||[]).filter(c=>c.type==='output_text').map(c=>c.text).join('\n');if(!text)throw Error('WaveSpeed returned no text.');return {requestId:'wsllm-'+require('crypto').randomUUID(),provider:'wavespeed',text,completed:true};}
  if(!j.id)throw Error('OpenAI did not return a generation reference.');return {requestId:'oa-text:'+j.id,provider:'openai'};
 }
-async function pollText(id){
+async function pollText(id,context={}){
+ context={...context,requestId:'oa-text:'+id};
+ const fallback=await require('./_openai-fallback').savedFallback(context);if(fallback)return fallback;
  if(!/^resp_[a-zA-Z0-9_-]+$/.test(id))throw Error('Invalid OpenAI generation reference.');
  const j=await request('/responses/'+id);
+ const recovered=await require('./_openai-fallback').recoverResponse(id,j,context,{text:true});if(recovered)return recovered;
  const text=(j.output||[]).filter(o=>o.type==='message').flatMap(o=>o.content||[]).filter(c=>c.type==='output_text').map(c=>c.text).join('\n');
  const limited=j.status==='incomplete'&&j.incomplete_details?.reason==='max_output_tokens'&&!!text;
  if(text&&(j.status==='completed'||limited))return {status:'completed',text:text+(limited?'\n\n[Response reached the included length limit.]':''),truncated:limited,usage:j.usage,cost_usd:require('./_gpt-pricing').responseCost(j)};
@@ -54,9 +50,13 @@ async function pollText(id){
 }
 
 async function poll(encoded,{db,userId,model}={}){
+ const context={db,userId,requestId:'oa:'+encoded};
+ const fallback=await require('./_openai-fallback').savedFallback(context);if(fallback)return fallback;
  const [id,format='png']=encoded.split('~');if(!['png','jpeg','webp'].includes(format))throw Error('Invalid output format.');
+ if(id.startsWith('wsimg_'))return require('./_openai-fallback').pollImage(id.slice(6));
  if(!/^resp_[a-zA-Z0-9_-]+$/.test(id))throw Error('Invalid OpenAI generation reference.');
  const j=await request('/responses/'+id);
+ const recovered=await require('./_openai-fallback').recoverResponse(id,j,context);if(recovered)return recovered;
  const image=(j.output||[]).find(o=>o.type==='image_generation_call'&&o.result);
  if(!(['completed','incomplete'].includes(j.status)&&image)){
   if(['failed','cancelled','incomplete'].includes(j.status))return {status:'failed',raw:{error:j.error?.message||j.incomplete_details?.reason||'OpenAI could not complete this image.'}};

@@ -52,30 +52,22 @@ async function openAIResearchBatch({skill,niche,location,offer,candidates}){
     'Return strict JSON only in this exact shape:',
     '{"leads":[{"business_name":"","location":"","website":"","maps_url":"","founder_name":"","founder_title":"","founder_source":"","founder_linkedin":"","founder_instagram":"","founder_facebook":"","founder_youtube":"","founder_public_email":"","founder_public_phone":"","email":"","phone":"","instagram":"","linkedin":"","niche_proof":"","niche_source":"","why_now":"","why_now_source":"","tailored_offer":"","best_contact_method":"","sources":[{"label":"","url":""}]}]}'
   ].join('\\n');
-  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),90000);
   try{
-    const r=await fetch('https://api.openai.com/v1/responses',{
-      method:'POST',
-      signal:controller.signal,
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
-      body:JSON.stringify({
+    const data=await require('./_openai-fallback').request('/responses',{
         model:process.env.OPENAI_CLIENT_RESEARCH_MODEL||'gpt-4.1-mini',
         tools:[{type:'web_search',external_web_access:true}],
         tool_choice:'required',
         // OpenAI web search cannot be combined with JSON mode. The prompt
         // requires JSON and extractJson below validates the returned shape.
         input:prompt
-      })
-    });
-    const data=await r.json().catch(()=>({}));
-    if(!r.ok)throw new Error(data&&data.error&&data.error.message||'OpenAI research request failed');
+      },{timeout:90000});
     const parsed=extractJson(responseText(data));
     const leads=Array.isArray(parsed&&parsed.leads)?parsed.leads:[];
     return {enabled:true,leads:leads.slice(0,16),response_id:clean(data.id,160),error:''};
   }catch(error){
     console.warn('[openai client research]',error&&error.message||error);
     return {enabled:true,leads:[],error:clean(error&&error.message,300)};
-  }finally{clearTimeout(timer)}
+  }
 }
 function aiPlace(lead,niche){
   const name=clean(lead&&lead.business_name,180);

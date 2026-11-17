@@ -51,10 +51,11 @@ exports.handler = async (event) => {
     // 2026-07-17. So this just inserts a pending job and returns
     // immediately; job-status.js does the actual WaveSpeed call lazily on
     // its first poll.
-    const id = directGPT?(await require('./_openai-direct').submitText({prompt,imageUrl:images[0],model})).requestId:'wsllm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+    const submission=directGPT?await require('./_openai-direct').submitText({prompt,imageUrl:images[0],model}):null;
+    const id=submission?.requestId||'wsllm-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     await db.from('jobs').insert({
       request_id: id, user_id: user.id, kind: 'chat', model: encodeModelImage(model, images[0]), prompt, credits: cost,
-      status: 'processing',meta:directGPT?{provider:'openai',pricing_version:require('./_gpt-pricing').POLICY.version,provider_usd_quote:priced.provider_usd,pricing_source:'wavespeed'}:undefined,
+      status: submission?.completed?'completed':'processing',...(submission?.completed?{output_text:submission.text}:{}),meta:directGPT?{provider:submission.provider,pricing_version:require('./_gpt-pricing').POLICY.version,provider_usd_quote:priced.provider_usd,pricing_source:'wavespeed'}:undefined,
     });
     if(!directGPT)triggerTextWorker(id);
     return json(200, { request_id: id, credits: balance });
