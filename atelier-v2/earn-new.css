@@ -257,3 +257,18 @@ body.affiliate-modal-open{overflow:hidden}
  .range-handle{width:36px;height:36px;font-size:17px}
  .range-dots{inset:0 12px}
 }
+
+/* Tighter rhythm across the affiliate landing page. */
+.affiliate-hero{min-height:0;padding-bottom:32px}
+.affiliate-kicker{margin:16px 0 10px}
+.affiliate-hero h1,.affiliate-block h2{margin-bottom:16px}
+.affiliate-lead,.block-lead{margin-bottom:20px;line-height:1.4}
+.affiliate-block{padding:32px 0 22px}
+.section-pill{margin-bottom:18px}
+.step-grid{margin-top:22px}
+.feature-card h3{margin-top:16px}
+.payout-numbers{margin:26px 0;gap:20px}
+.faq-block h2{margin-bottom:22px}
+.course-price-label{display:grid;gap:8px;font-size:13px;color:#b7cbc8}
+#coursePrice{width:100%;padding:12px;border:1px solid #315456;border-radius:12px;background:#00191b;color:#fff;font:inherit}
+@media(max-width:700px){.affiliate-hero{padding-bottom:28px}.affiliate-block{padding:28px 0 18px}.section-pill{margin-bottom:16px}.step-grid{margin-top:20px}.affiliate-lead,.block-lead{line-height:1.4;margin-bottom:18px}.payout-numbers{gap:24px;margin:24px 0}.feature-card h3{margin-top:16px}}
