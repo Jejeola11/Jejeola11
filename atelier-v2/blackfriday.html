@@ -13,7 +13,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script defer src="/atelier-v2/explore-auth.js?v=1"></script>
   <script defer src="/atelier-v2/fuse-shell.js?v=explore-actions-1"></script>
-  <script defer src="/atelier-v2/blackfriday-offer.js?v=bundle-2"></script>
+  <script defer src="/atelier-v2/blackfriday-offer.js?v=payment-visibility-1"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -31,7 +31,7 @@
       font-family: Montserrat, Arial, sans-serif;
     }
     .offer-page { width: min(calc(100% - 32px), 1000px); margin: 0 auto; }
-    .hero { position: relative; text-align: center; padding: clamp(70px, 10vw, 112px) 0 clamp(54px, 8vw, 92px); }
+    .black-friday-hero { position: relative; text-align: center; padding: clamp(70px, 10vw, 112px) 0 clamp(54px, 8vw, 92px); }
     .back {
       position: absolute;
       top: 14px;
@@ -55,7 +55,7 @@
       font-weight: 700;
       white-space: nowrap;
     }
-    h1 {
+    .black-friday-hero h1 {
       max-width: 850px;
       margin: 24px auto 16px;
       font-size: clamp(29px, 7.2vw, 65px);
@@ -180,12 +180,13 @@
     .offer-dialog button:disabled { opacity: .55; cursor: default; }
     .referral-count { font-weight: 700; }
     .referral-count output { display: inline-block; padding: 2px 9px; border-radius: 5px; background: var(--chrome); color: #000; }
+    #offer-pay[data-locked] { opacity: .45; }
     #offer-status:empty { display: none; }
   </style>
 </head>
 <body>
   <main class="offer-page">
-    <header class="hero">
+    <header class="black-friday-hero">
       <a class="back" href="/credits" aria-label="Back to Credits">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M19 12H5m7-7-7 7 7 7"/>
@@ -254,8 +255,8 @@
         <li>14-Day AI Video Client Challenge Course</li>
         <li>100 Fuse Credits</li>
       </ul>
-      <button type="button" class="unlock" id="offer-pay">Make Payment Of 15k Now</button>
     </div>
+    <button type="button" class="unlock" id="offer-pay" data-locked>Make Payment Of 15k Now</button>
     <p id="offer-status" role="status"></p>
   </dialog>
 </body>

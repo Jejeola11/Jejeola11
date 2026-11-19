@@ -7,6 +7,16 @@
   const status = byId('offer-status');
   let timer;
   let refreshing = false;
+  let signups = 0;
+  let qualified = false;
+
+  function updateEligibility(count, eligible) {
+    signups = count;
+    qualified = eligible;
+    byId('offer-count').value = count;
+    byId('offer-qualified').hidden = !eligible;
+    pay.toggleAttribute('data-locked', !eligible);
+  }
 
   async function refresh() {
     if (!dialog.open || document.hidden || refreshing) return;
@@ -17,15 +27,13 @@
       if (!session) {
         link.value = '';
         copy.disabled = true;
-        byId('offer-count').value = 0;
-        byId('offer-qualified').hidden = true;
+        updateEligibility(0, false);
         return;
       }
       const offer = await Fuse.api('black-friday-offer');
       link.value = offer.referral_url || '';
       copy.disabled = !link.value;
-      byId('offer-count').value = offer.signups;
-      byId('offer-qualified').hidden = !offer.eligible;
+      updateEligibility(offer.signups, offer.eligible);
       if (!link.value) status.textContent = 'Your referral link is unavailable. Please try again shortly.';
     } catch {
       status.textContent = 'Could not refresh referrals. Retrying shortly.';
@@ -60,6 +68,13 @@
   });
 
   pay.addEventListener('click', async () => {
+    if (!qualified) {
+      const remaining = Math.max(1, 5 - signups);
+      status.textContent = byId('offer-signin').hidden
+        ? 'Invite ' + remaining + ' more ' + (remaining === 1 ? 'person' : 'people') + ' to unlock payment.'
+        : 'Sign in to get your referral link and start inviting friends.';
+      return;
+    }
     pay.disabled = true;
     status.textContent = 'Opening Paystack checkout…';
     try {
