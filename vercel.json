@@ -79,6 +79,10 @@
       "dest": "/app/studio.html"
     },
     {
+      "src": "/blackfriday/?",
+      "dest": "/atelier-v2/blackfriday.html"
+    },
+    {
       "src": "/credits/?",
       "dest": "/atelier-v2/pricing.html"
     },
