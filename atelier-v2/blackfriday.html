@@ -10,6 +10,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script defer src="/atelier-v2/explore-auth.js?v=1"></script>
+  <script defer src="/atelier-v2/fuse-shell.js?v=explore-actions-1"></script>
+  <script defer src="/atelier-v2/blackfriday-offer.js"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -42,9 +46,9 @@
     }
     .pill {
       display: inline-block;
-      border: 1px solid #7c9b9d;
+      border: 2px solid #ff2929;
       border-radius: 999px;
-      background: #0a2023;
+      background: #000;
       padding: 9px 14px;
       color: #f0fbfb;
       font-size: clamp(11px, 3.5vw, 14px);
@@ -63,7 +67,7 @@
     .hero-highlight {
       padding: .02em .13em;
       border-radius: .13em;
-      background: #fff09a;
+      background: #ffea00;
       color: #000;
       -webkit-box-decoration-break: clone;
       box-decoration-break: clone;
@@ -96,6 +100,9 @@
       font-size: 16px;
       font-weight: 800;
       text-decoration: none;
+      border: 0;
+      font-family: inherit;
+      cursor: pointer;
     }
     .back:focus-visible, .unlock:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
     .terms { max-width: 460px; margin: 16px auto 0; color: #fff; font-weight: 600; font-size: 13px; line-height: 1.6; }
@@ -127,6 +134,52 @@
     .art img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
     .item h3 { margin: 0 0 7px; font-size: clamp(14px, 3.4vw, 26px); line-height: 1.18; }
     .item p { margin: 0; color: var(--muted); font-size: clamp(12px, 2.3vw, 16px); line-height: 1.52; }
+    .offer-dialog {
+      position: fixed;
+      width: min(calc(100% - 28px), 440px);
+      max-height: calc(100% - 28px);
+      padding: 24px 20px;
+      border: 2px solid transparent;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #010405, #0a282c) padding-box, var(--chrome) border-box;
+      color: #fff;
+    }
+    .offer-dialog::backdrop { background: #000b; }
+    .offer-dialog h2 { margin: 0 30px 10px 0; font-size: 25px; }
+    .offer-dialog p, .offer-dialog ul { font-size: 14px; line-height: 1.55; }
+    .offer-dialog ul { padding-left: 21px; }
+    .offer-close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 50%;
+      background: #183337;
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+    }
+    .referral-link { display: flex; gap: 7px; }
+    .referral-link input {
+      flex: 1;
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid #517075;
+      border-radius: 8px;
+      background: #020809;
+      color: #fff;
+      font: inherit;
+      font-size: 13px;
+    }
+    .offer-dialog [hidden] { display: none; }
+    .offer-dialog .unlock { margin-top: 10px; min-height: 44px; }
+    .referral-link .unlock { margin: 0; padding: 8px 14px; font-size: 13px; }
+    .offer-dialog button:disabled { opacity: .55; cursor: default; }
+    .referral-count { font-weight: 700; }
+    .referral-count output { display: inline-block; padding: 2px 9px; border-radius: 5px; background: var(--chrome); color: #000; }
+    #offer-status:empty { display: none; }
   </style>
 </head>
 <body>
@@ -140,7 +193,7 @@
       <span class="pill">Fuse Atelier Black Friday Offer</span>
       <h1><mark class="hero-highlight">Learn how to Create</mark> <span class="white-text">your</span> <span class="chrome-text">AI Influencer</span><span class="white-text">,</span> <span class="chrome-text">Monetize</span> <span class="white-text">it and Get</span> <span class="chrome-text">Real</span> <span class="white-text">AI Video</span> <span class="chrome-text">Gigs</span><span class="white-text">.</span></h1>
       <p class="lead">Get the Zero to 10 Million With AI Video Ebook, Viral AI Influencer Course, 14-Day AI Video Client Challenge and 100 Fuse credits, <strong class="chrome-text">All For ₦15,000</strong></p>
-      <a class="unlock" href="/atelier-v2/earn.html">Unlock For ₦15,000</a>
+      <button type="button" class="unlock" id="unlock-offer" aria-haspopup="dialog">Unlock For ₦15,000</button>
       <p class="terms">Invite 5 new people to join Fuse Atelier through your link to unlock this offer. No purchase required from your invitees.</p>
     </header>
 
@@ -165,5 +218,27 @@
       </div>
     </section>
   </main>
+  <dialog class="offer-dialog" id="referral-offer" aria-labelledby="offer-title">
+    <form method="dialog"><button class="offer-close" aria-label="Close offer">×</button></form>
+    <h2 class="chrome-text" id="offer-title">UNLOCK 80% OFF</h2>
+    <p>Copy and Share your referral link below to your friends, invite 5 new signups to Fuse Atelier to unlock this offer.</p>
+    <a class="unlock" id="offer-signin" href="/signup?next=%2Fblackfriday%3Foffer%3D1" hidden>Sign in to get your link</a>
+    <div class="referral-link">
+      <input id="offer-link" type="url" aria-label="Your referral link" readonly placeholder="Your referral link">
+      <button type="button" class="unlock" id="copy-offer-link" disabled>Copy</button>
+    </div>
+    <p class="referral-count">Number of Current referrals: <output id="offer-count" aria-live="polite">0</output></p>
+    <div id="offer-qualified" hidden>
+      <p>Congratulations 👏 🎉 🥳 You got the offer! Make payment of ₦15,000 to unlock the creator bundle and get 👇</p>
+      <ul>
+        <li>The Zero to 10 Million With AI Video Ebook</li>
+        <li>Viral AI Influencer Course</li>
+        <li>14-Day AI Video Client Challenge Course</li>
+        <li>100 Fuse Credits</li>
+      </ul>
+      <button type="button" class="unlock" id="offer-pay">Make Payment Of 15k Now</button>
+    </div>
+    <p id="offer-status" role="status"></p>
+  </dialog>
 </body>
 </html>

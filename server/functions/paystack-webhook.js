@@ -6,6 +6,7 @@
 //   3. extend plan access for subscription packs
 // Set this URL in Paystack → Settings → API Keys & Webhooks → Webhook URL.
 // ============================================================
+const blackFriday = require('./_black-friday');
 const crypto = require('crypto');
 const { admin } = require('./_supabase');
 const { PACKS, creditsForPack } = require('./_packs');
@@ -97,6 +98,12 @@ exports.handler = async (event) => {
     }
   }
   if (!userId) return { statusCode: 200, body: 'missing user' };
+
+  if (meta.pack === blackFriday.PACK) {
+    if (!blackFriday.validTransaction(d)) return { statusCode: 400, body: 'amount mismatch' };
+    const { error } = await blackFriday.fulfill(db, userId, reference, d);
+    return { statusCode: error ? 500 : 200, body: error ? 'fulfillment failed' : 'ok (Black Friday bundle)' };
+  }
 
   if(pack.course==='bundle'){
     if(!require('./_academy-bundles').validBundle(pack,meta,d))return {statusCode:400,body:'amount mismatch'};

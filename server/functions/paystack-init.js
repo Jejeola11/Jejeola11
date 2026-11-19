@@ -1,3 +1,4 @@
+const blackFriday = require('./_black-friday');
 const {getUser,admin,json}=require('./_supabase');
 const {assertPack}=require('./_credit-policy');
 const {COMMERCE,CREDIT_KEYS}=require('./_commerce');
@@ -19,7 +20,7 @@ exports.handler=async event=>{
  let body={};try{body=JSON.parse(event.body||'{}')}catch{return json(400,{error:'Bad request'})}
  const key=String(body.pack||'').trim(),item=COMMERCE[key];
  if(!item||!['pack','course'].includes(item.kind))return json(400,{error:'This product is unavailable.'});
- if(item.kind==='course'&&!key.startsWith('academy-'))return json(410,{error:'Full Access has been replaced by Choose Any 2 or 4 Courses. Visit Academy.'});
+ if(item.kind==='course'&&!key.startsWith('academy-')&&key!==blackFriday.PACK)return json(410,{error:'Full Access has been replaced by Choose Any 2 or 4 Courses. Visit Academy.'});
  const secret=(process.env.PAYSTACK_SECRET_KEY||'').trim();if(!secret)return json(503,{error:'Paystack is not configured.'});
  // Only the dedicated course can use EMAIL30; reject invalid codes rather than
  // silently collecting the normal full price from a coupon-seeking buyer.
@@ -27,6 +28,9 @@ exports.handler=async event=>{
  const coupon=normalizeCode(suppliedCoupon);
  if(suppliedCoupon&&!hasValidCoupon(key,coupon))return json(400,{error:'This discount code is not valid for this checkout.'});
  const db=admin();
+ if(key===blackFriday.PACK && await blackFriday.countSignups(db,user.id)<blackFriday.REQUIRED_SIGNUPS){
+  return json(403,{error:'Invite 5 new signups to unlock checkout.'});
+ }
  let selection=[];
  if(item.course==='bundle'){try{selection=require('./_academy-bundles').validateSelection(item,body.courses);await require('./_academy-bundles').assertUnowned(db,user.id,selection);}catch(e){return json(400,{error:e.message})}}
  const price=coupon===EMAIL_CODE&&key===EMAIL_PACK
