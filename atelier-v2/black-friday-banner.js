@@ -1,6 +1,17 @@
 (() => {
   const banner = document.getElementById('blackFriday');
   const offer = document.getElementById('blackFridayOffer');
+  const offerLink = offer.querySelector('a');
+  const signupUrl = offerLink.getAttribute('href');
+  async function resolveOfferUrl() {
+    return await window.FuseExplore?.session() ? '/blackfriday' : signupUrl;
+  }
+  offerLink.addEventListener('click', async event => {
+    if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    window.location.assign(await resolveOfferUrl());
+  });
+  resolveOfferUrl().then(url => { offerLink.href = url; });
   const deadline = Date.parse('2026-11-20T08:01:38.305Z');
   const digits = banner.querySelectorAll('[data-clock]');
   let interval;

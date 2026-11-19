@@ -13,7 +13,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script defer src="/atelier-v2/explore-auth.js?v=1"></script>
   <script defer src="/atelier-v2/fuse-shell.js?v=explore-actions-1"></script>
-  <script defer src="/atelier-v2/blackfriday-offer.js"></script>
+  <script defer src="/atelier-v2/blackfriday-offer.js?v=bundle-2"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -112,6 +112,7 @@
     .marker:after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, #dfff4e80, transparent); }
     .bundle-lead { margin: 18px 0 24px; font-size: clamp(22px, 4.8vw, 40px); font-weight: 800; line-height: 1.15; letter-spacing: -.035em; }
     .items { display: grid; gap: 14px; }
+    .bundle-action { margin-top: 4px; text-align: center; }
     .item {
       display: grid;
       grid-template-columns: clamp(80px, 31%, 200px) minmax(0, 1fr);
@@ -193,7 +194,7 @@
       <span class="pill">Fuse Atelier Black Friday Offer</span>
       <h1><mark class="hero-highlight">Learn how to Create</mark> <span class="white-text">your</span> <span class="chrome-text">AI Influencer</span><span class="white-text">,</span> <span class="chrome-text">Monetize</span> <span class="white-text">it and Get</span> <span class="chrome-text">Real</span> <span class="white-text">AI Video</span> <span class="chrome-text">Gigs</span><span class="white-text">.</span></h1>
       <p class="lead">Get the Zero to 10 Million With AI Video Ebook, Viral AI Influencer Course, 14-Day AI Video Client Challenge and 100 Fuse credits, <strong class="chrome-text">All For ₦15,000</strong></p>
-      <button type="button" class="unlock" id="unlock-offer" aria-haspopup="dialog">Unlock For ₦15,000</button>
+      <button type="button" class="unlock" data-unlock-offer aria-haspopup="dialog">Unlock For ₦15,000</button>
       <p class="terms">Invite 5 new people to join Fuse Atelier through your link to unlock this offer. No purchase required from your invitees.</p>
     </header>
 
@@ -215,6 +216,23 @@
             <p>Turn your AI videos into a portfolio, find businesses that could use your work, and pitch them for paid gigs.</p>
           </div>
         </article>
+        <article class="item">
+          <div class="art"><img src="/atelier-v2/assets/blackfriday-ebook.webp" width="576" height="768" alt="" loading="lazy"></div>
+          <div>
+            <h3>Zero to First 10 Million With AI Video Ebook</h3>
+            <p>Learn how to create AI videos people pay for, package your services, and build a business around the skill.</p>
+          </div>
+        </article>
+        <article class="item">
+          <div class="art"><img src="/atelier-v2/assets/blackfriday-credits.webp" width="576" height="768" alt="" loading="lazy"></div>
+          <div>
+            <h3>100 Fuse Credits</h3>
+            <p>Use 100 credits in Fuse Atelier to generate AI images and videos for your portfolio, content, or client projects.</p>
+          </div>
+        </article>
+      </div>
+      <div class="bundle-action">
+        <button type="button" class="unlock" data-unlock-offer aria-haspopup="dialog">Unlock For ₦15,000</button>
       </div>
     </section>
   </main>

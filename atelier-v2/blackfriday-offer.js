@@ -41,7 +41,7 @@
     timer = setInterval(refresh, 10000);
   }
 
-  byId('unlock-offer').addEventListener('click', openOffer);
+  document.querySelectorAll('[data-unlock-offer]').forEach(button => button.addEventListener('click', openOffer));
   dialog.addEventListener('close', () => {
     clearInterval(timer);
     status.textContent = '';
