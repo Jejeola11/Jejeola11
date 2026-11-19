@@ -12,7 +12,7 @@
     window.location.assign(await resolveOfferUrl());
   });
   resolveOfferUrl().then(url => { offerLink.href = url; });
-  const deadline = Date.parse('2026-11-20T08:01:38.305Z');
+  const deadline = Date.parse(banner.dataset.closesAt);
   const digits = banner.querySelectorAll('[data-clock]');
   let interval;
   function render() {

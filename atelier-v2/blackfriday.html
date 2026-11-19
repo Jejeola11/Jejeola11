@@ -13,7 +13,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script defer src="/atelier-v2/explore-auth.js?v=1"></script>
   <script defer src="/atelier-v2/fuse-shell.js?v=explore-actions-1"></script>
-  <script defer src="/atelier-v2/blackfriday-offer.js?v=payment-visibility-1"></script>
+  <script defer src="/atelier-v2/blackfriday-offer.js?v=campaign-sections-1"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -182,6 +182,29 @@
     .referral-count output { display: inline-block; padding: 2px 9px; border-radius: 5px; background: var(--chrome); color: #000; }
     #offer-pay[data-locked] { opacity: .45; }
     #offer-status:empty { display: none; }
+    .offer-page { padding-bottom: calc(165px + env(safe-area-inset-bottom)); }
+    .bf-section { margin-bottom: clamp(48px, 8vw, 86px); }
+    .bf-lead { color: #fff; line-height: 1.6; font-weight: 600; }
+    .bf-reel-tools { display: flex; justify-content: flex-end; margin: 14px 0 8px; }
+    .bf-pause, .bf-copy { border: 1px solid #688184; border-radius: 9px; padding: 8px 12px; background: #092427; color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
+    .bf-reels { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; scrollbar-color: #688184 #072023; }
+    .bf-reel { flex: 0 0 clamp(140px, 43vw, 190px); margin: 0; }
+    .bf-reel video { display: block; width: 100%; aspect-ratio: 9 / 16; object-fit: contain; border: 1px solid #58787a; border-radius: 13px; background: #000; }
+    .bf-reel figcaption { padding: 10px 2px 0; }
+    .bf-reel p, .bf-steps p, .bf-faq p { color: var(--muted); font-size: 14px; line-height: 1.55; margin: 6px 0 0; }
+    .bf-steps { padding-left: 24px; line-height: 1.55; }
+    .bf-steps li { padding: 8px; }
+    .bf-panel { border: 1px solid #45666a; border-radius: 18px; background: linear-gradient(145deg,#03090a,#0b272b); padding: clamp(15px,4vw,30px); }
+    .bf-progress { margin-top: 16px; }
+    .bf-progress progress { display: block; width: 100%; margin: 12px 0; accent-color: #dfff4e; }
+    .bf-copy { background: var(--chrome); color: #000; font-weight: 800; }
+    .bf-copy:disabled { opacity: .5; }
+    .bf-faq details { border-bottom: 1px solid #395458; padding: 14px 0; }
+    .bf-faq summary { cursor: pointer; font-weight: 700; }
+    .bf-final { text-align: center; }
+    .bf-final strong { display: block; font-size: clamp(32px, 8vw, 54px); }
+    .bf-final [hidden], .bf-reel-tools [hidden] { display: none; }
+    .bf-final button:disabled { opacity: .5; cursor: default; }
   </style>
 </head>
 <body>
@@ -235,6 +258,63 @@
       <div class="bundle-action">
         <button type="button" class="unlock" data-unlock-offer aria-haspopup="dialog">Unlock For ₦15,000</button>
       </div>
+    </section>
+
+    <section class="bf-section" aria-labelledby="bf-create-title">
+      <h2 class="marker" id="bf-create-title"><b aria-hidden="true">02</b><span>See What You Can Create</span></h2>
+      <p class="bf-lead">Create videos like this with your phone, you don't need a camera or editing skills.</p>
+      <div class="bf-reel-tools"><button type="button" class="bf-pause" id="bf-reel-pause">Pause scrolling</button></div>
+      <div class="bf-reels" id="bf-reels" tabindex="0" aria-label="Scrollable AI video examples">
+<figure class="bf-reel"><video controls playsinline preload="none" poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_1,w_360/v1794023641/lv_0_20261107035319.jpg" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794023641/lv_0_20261107035319.mp4" aria-label="A character you recognize"></video><figcaption><strong>A character you recognize</strong><p>Give your AI influencer a signature look people remember.</p></figcaption></figure>
+<figure class="bf-reel"><video controls playsinline preload="none" poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_1,w_360/v1794023653/lv_0_20261106233218.jpg" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794023653/lv_0_20261106233218.mp4" aria-label="One face, new content"></video><figcaption><strong>One face, new content</strong><p>Keep your character recognizable from a close-up to a mirror shot.</p></figcaption></figure>
+<figure class="bf-reel"><video controls playsinline preload="none" poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_1,w_360/v1794793021/lv_0_20261115114647.jpg" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794793021/lv_0_20261115114647.mp4" aria-label="Fashion in motion"></video><figcaption><strong>Fashion in motion</strong><p>Turn an outfit into a street-style reel with a campaign feel.</p></figcaption></figure>
+<figure class="bf-reel"><video controls playsinline preload="none" poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_1,w_360/v1794793024/lv_0_20261108183237.jpg" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794793024/lv_0_20261108183237.mp4" aria-label="A royal scene remix"></video><figcaption><strong>A royal scene remix</strong><p>Put your own character at the center of a cinematic moment.</p></figcaption></figure>
+<figure class="bf-reel"><video controls playsinline preload="none" poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_1,w_360/v1794793024/lv_0_20261112024823.jpg" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794793024/lv_0_20261112024823.mp4" aria-label="Behind the scenes"></video><figcaption><strong>Behind the scenes</strong><p>Turn your creative process into content your audience can follow.</p></figcaption></figure>
+<figure class="bf-reel"><video controls playsinline preload="none" poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_1,w_360/v1794270019/lv_0_20261109231412.jpg" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794270019/lv_0_20261109231412.mp4" aria-label="Make the reveal count"></video><figcaption><strong>Make the reveal count</strong><p>Use movement and timing to give viewers a reason to keep watching.</p></figcaption></figure>
+<figure class="bf-reel"><video controls playsinline preload="none" poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_1,w_360/v1793934579/fuse-atelier/influencer/results/result-01.jpg" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793934579/fuse-atelier/influencer/results/result-01.mp4" aria-label="Build a campaign scene"></video><figcaption><strong>Build a campaign scene</strong><p>Show a look in a setting that feels made for a brand shoot.</p></figcaption></figure>
+<figure class="bf-reel"><video controls playsinline preload="none" poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_1,w_360/v1793934593/fuse-atelier/influencer/results/result-03.jpg" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793934593/fuse-atelier/influencer/results/result-03.mp4" aria-label="Creator-style lifestyle"></video><figcaption><strong>Creator-style lifestyle</strong><p>Make a casual, close-up clip that feels at home in the feed.</p></figcaption></figure>
+<figure class="bf-reel"><video controls playsinline preload="none" poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_1,w_360/v1793977419/lv_0_20261106023609.jpg" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793977419/lv_0_20261106023609.mp4" aria-label="Make the detail the hook"></video><figcaption><strong>Make the detail the hook</strong><p>Lead with a close-up that makes viewers want to see what happens next.</p></figcaption></figure>
+<figure class="bf-reel"><video controls playsinline preload="none" poster="https://res.cloudinary.com/bzw55wh2/video/upload/so_1,w_360/v1793978730/lv_0_20261103133617.jpg" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793978730/lv_0_20261103133617.mp4" aria-label="Talk straight to the viewer"></video><figcaption><strong>Talk straight to the viewer</strong><p>Create a presenter-led video for a pitch, tutorial, or product story.</p></figcaption></figure>
+      </div>
+      <div class="bundle-action"><button type="button" class="unlock" data-unlock-offer aria-haspopup="dialog">Unlock For ₦15,000</button></div>
+    </section>
+    <section class="bf-section" aria-labelledby="bf-how-title">
+      <h2 class="marker" id="bf-how-title"><b aria-hidden="true">03</b><span>How To Unlock</span></h2>
+      <ol class="bf-steps">
+        <li><strong>Get your personal referral link.</strong><p>Sign in to Fuse Atelier and copy the link shown below.</p></li>
+        <li><strong>Invite five new people.</strong><p>Share your link with friends who want to create with AI. Each new person who signs up and verifies their account through your link counts. They can join for free.</p></li>
+        <li><strong>Unlock the ₦15,000 checkout.</strong><p>Once your verified count reaches five, pay once to get the ebook, both courses, and 100 Fuse credits.</p></li>
+      </ol>
+      <div class="bundle-action"><button type="button" class="unlock" data-unlock-offer aria-haspopup="dialog">Unlock For ₦15,000</button></div>
+    </section>
+    <section class="bf-section" id="bf-progress" aria-labelledby="bf-progress-title">
+      <h2 class="marker" id="bf-progress-title"><b aria-hidden="true">04</b><span>Check Your Progress</span></h2>
+      <div class="bf-panel bf-progress">
+        <label for="bf-progress-link"><strong>Your referral link</strong></label>
+        <div class="referral-link">
+          <input id="bf-progress-link" type="url" readonly placeholder="Sign in to get your link">
+          <button type="button" class="bf-copy" id="bf-progress-copy" disabled>Copy</button>
+        </div>
+        <p class="referral-count">Verified signups <output id="bf-progress-count">0</output> / 5</p>
+        <progress id="bf-progress-meter" max="5" value="0" aria-label="Verified signups toward five"></progress>
+        <p id="bf-progress-status" role="status">Sign in to see your referral link and verified signups.</p>
+      </div>
+      <div class="bundle-action"><button type="button" class="unlock" data-unlock-offer aria-haspopup="dialog">Unlock For ₦15,000</button></div>
+    </section>
+    <section class="bf-section bf-faq" aria-labelledby="bf-faq-title">
+      <h2 class="marker" id="bf-faq-title"><b aria-hidden="true">05</b><span>FAQ</span></h2>
+      <details><summary>Who qualifies for this offer?</summary><p>Fuse Atelier members who get five verified new signups through their personal referral link during the promotion qualify. Invitees can join for free.</p></details>
+      <details><summary>What can I use the 100 Fuse credits for?</summary><p>Use them for supported creation tools, including AI image and video generation. Each tool shows the credit cost for the model and settings you choose.</p></details>
+      <details><summary>How long will I have access?</summary><p>The ebook and both courses stay unlocked in your Fuse account after purchase. You can start the 14-day challenge at your own pace.</p></details>
+      <details><summary>How do I pay?</summary><p>Once five qualifying signups are verified, you can make a one-time ₦15,000 payment through Paystack. Start checkout before the offer closes.</p></details>
+      <details><summary>How do I receive the bundle?</summary><p>After Paystack confirms your payment, the ebook and courses unlock in your Fuse account and 100 credits are added to your balance.</p></details>
+    </section>
+    <section class="bf-panel bf-final" aria-labelledby="bf-final-title">
+      <h2 id="bf-final-title">Black Friday Creator Bundle</h2>
+      <strong class="chrome-text">₦15,000</strong>
+      <p>Offer closes <time id="bf-closing" datetime="2026-11-21T16:10:00Z">Saturday, 21 November 2026 at 5:10 PM WAT</time>.</p>
+      <a id="bf-final-signin" class="unlock" href="/signup?next=%2Fblackfriday">Sign In to Get Your Link</a>
+      <button id="bf-final-action" type="button" class="unlock" hidden>Check My Progress</button>
     </section>
   </main>
   <dialog class="offer-dialog" id="referral-offer" aria-labelledby="offer-title">

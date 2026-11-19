@@ -1,6 +1,7 @@
 const PACK = 'black-friday-creator-bundle';
 const AMOUNT = 15000;
 const REQUIRED_SIGNUPS = 5;
+const CAMPAIGN_CLOSE = Date.parse('2026-11-21T16:10:00Z');
 const CAMPAIGN_START = '2026-11-19T15:38:00Z';
 
 async function countSignups(db, userId) {
@@ -26,4 +27,4 @@ function fulfill(db, userId, reference, tx) {
   });
 }
 
-module.exports = { PACK, AMOUNT, REQUIRED_SIGNUPS, countSignups, validTransaction, fulfill };
+module.exports = { CAMPAIGN_CLOSE, PACK, AMOUNT, REQUIRED_SIGNUPS, countSignups, validTransaction, fulfill };

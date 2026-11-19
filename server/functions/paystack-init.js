@@ -27,6 +27,9 @@ exports.handler=async event=>{
  const suppliedCoupon=String(body.coupon||'').trim();
  const coupon=normalizeCode(suppliedCoupon);
  if(suppliedCoupon&&!hasValidCoupon(key,coupon))return json(400,{error:'This discount code is not valid for this checkout.'});
+ if(key===blackFriday.PACK && Date.now()>=blackFriday.CAMPAIGN_CLOSE){
+  return json(410,{error:'The Black Friday offer has closed.'});
+ }
  const db=admin();
  if(key===blackFriday.PACK && await blackFriday.countSignups(db,user.id)<blackFriday.REQUIRED_SIGNUPS){
   return json(403,{error:'Invite 5 new signups to unlock checkout.'});
