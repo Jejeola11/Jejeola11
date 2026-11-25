@@ -1,5 +1,4 @@
 'use strict';
-const jsonata=require('jsonata');
 const Ajv=require('ajv');
 const {safeCreditsFor}=require('./_packs');
 const TYPES=new Set(['text-to-image','image-to-image','image-tools','upscale-image','image-effects','image-background-removal','image-object-removal','image-face-swap','text-to-video','image-to-video','reference-to-video','video-to-video','digital-human','video-extend','motion-control','upscale-video','video-tools','video-effects','video-object-removal','video-face-swap','video-background-removal','video-dubbing','audio-to-video']);
@@ -35,16 +34,23 @@ async function quote(m,raw,{validate=true}={}){
  const assetCount=Object.entries(input).filter(([k])=>/^(image|images|image_urls|last_image|first_frame|last_frame|reference_images|reference_videos|reference_audios|video|audio)$/.test(k)).reduce((n,[,v])=>n+(Array.isArray(v)?v.length:v?1:0),0);
  if(assetCount>14)throw Error('Select at most 14 assets.');
  if(require('./_gpt-pricing').imageModel(m.model_id))return {inputs:input,...require('./_gpt-pricing').imageQuote(m.model_id,input)};
- const meta=await pricing(m);let micro=meta.base_price;
- if(!meta.formula&&meta.price_inputs?.length)throw Error('This model’s dynamic pricing needs verification.');
- if(meta.formula){
-  if(meta.formula.length>12000||/\$eval|function\s*\(|\$get|\$fetch|\$http/i.test(meta.formula))throw Error('This model needs additional pricing support before generation.');
-  try{const out=await jsonata(meta.formula).evaluate({...input,base_price:meta.base_price});micro=typeof out==='number'?out:out?.total_price}catch{throw Error('This model’s selected settings could not be priced safely.');}
+ const response=await fetch('https://api.wavespeed.ai/api/v3/model/price',{
+  method:'POST',headers:{Authorization:'Bearer '+apiKey(),'Content-Type':'application/json'},
+  body:JSON.stringify({model_id:m.model_id,input}),signal:AbortSignal.timeout(45000)
+ });
+ const result=await response.json();
+ if(!response.ok||result.code!==200){
+  if(result.code===4006)throw Error('The reference video or audio could not be read. Upload it again before generating.');
+  if(result.code===4007)throw Error('The reference image could not be read. Upload a valid image before generating.');
+  throw Error('The selected settings could not be priced. Check the required media and try again.');
  }
- if(!Number.isFinite(micro)||micro<=0)throw Error('A verified model quote is unavailable.');
- // Raw catalogue prices are millionths of USD. Discounts are deliberately not
- // assumed so temporary offers cannot remove the margin floor.
- return {inputs:input,credits:safeCreditsFor(micro/1000000),provider_usd:micro/1000000,wavespeed_usd:micro/1000000,pricing_source:'wavespeed',pricing_version:require('./_retail-pricing').VERSION};
+ const price=result.data;
+ if(price?.model_id!==m.model_id||price.currency!=='USD'||!Number.isFinite(price.price)||price.price<0)
+  throw Error('A valid model quote is temporarily unavailable.');
+ if(price.price===0)throw Error('Add the required reference media to calculate the generation price.');
+ // Retail credits use the original price. Provider discounts remain backend savings.
+ return {inputs:input,credits:safeCreditsFor(price.price),provider_usd:price.price,wavespeed_usd:price.price,pricing_source:'wavespeed',pricing_version:require('./_retail-pricing').VERSION};
+
 }
 module.exports={catalogue,schema,pricing,quote,objectAt,apiKey};
 
