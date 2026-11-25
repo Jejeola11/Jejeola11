@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>Fuse Atelier Media Uploads</title>
+<style>
+body{margin:0;background:#001719;color:#f3fffb;font:1rem/1.5 system-ui,sans-serif}
+main{max-width:36rem;margin:4rem auto;padding:1.5rem}
+label,input,textarea{display:block;width:100%;box-sizing:border-box}
+input,textarea,button{font:inherit;margin:.5rem 0 1rem;padding:.65rem;border-radius:.5rem}
+button{background:#dfff4e;color:#001719;border:0;font-weight:700}
+a{color:#dfff4e}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
+<script src="fuse-shell.js?v=r2-media-upload-1" defer></script>
+</head>
+<body>
+<main>
+<h1>Media upload links</h1>
+<p>Create a 10-minute upload link for each image or video you want to add to the public Fuse media bucket.</p>
+<form id="link-form">
+<label for="filename">Original filename</label>
+<input id="filename" placeholder="example.mp4" required maxlength="180">
+<button id="generate">Create upload link</button>
+</form>
+<p id="status" role="status"></p>
+<section id="result" hidden>
+<label for="upload-link">Temporary upload link</label>
+<textarea id="upload-link" rows="3" readonly></textarea>
+<button id="copy" type="button">Copy upload link</button>
+<label for="public-link">Public media URL after upload</label>
+<input id="public-link" readonly>
+</section>
+<a href="/login">Sign in to Fuse Atelier</a>
+</main>
+<script>
+const form = document.getElementById('link-form');
+const button = document.getElementById('generate');
+const status = document.getElementById('status');
+const result = document.getElementById('result');
+const uploadLink = document.getElementById('upload-link');
+const publicLink = document.getElementById('public-link');
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  button.disabled = true;
+  result.hidden = true;
+  uploadLink.value = '';
+  publicLink.value = '';
+  status.textContent = 'Creating link…';
+  try {
+    const link = await Fuse.api('admin-media-upload', {
+      filename: document.getElementById('filename').value.trim()
+    });
+    uploadLink.value = link.uploadUrl;
+    publicLink.value = link.publicUrl;
+    result.hidden = false;
+    status.textContent = 'Upload link ready. It expires in 10 minutes.';
+  } catch (error) {
+    status.textContent = error.message || 'Could not create upload link.';
+  } finally {
+    button.disabled = false;
+  }
+});
+document.getElementById('copy').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(uploadLink.value);
+    status.textContent = 'Upload link copied.';
+  } catch {
+    uploadLink.select();
+    status.textContent = 'Select and copy the upload link.';
+  }
+});
+</script>
+</body>
+</html>
