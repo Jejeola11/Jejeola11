@@ -7,7 +7,6 @@ tests/*
 !tests/credit-policy.test.cjs
 scripts/*
 !scripts/vercel-build.sh
-!scripts/home-r2/
 supabase/
 deployment/
 
