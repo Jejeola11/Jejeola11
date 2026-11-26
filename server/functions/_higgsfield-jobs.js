@@ -6,9 +6,9 @@ async function refund(db,job,message){
  const r=await db.rpc('higgsfield_fail_job',{p_request_id:job.request_id,p_message:message});
  if(r.error)throw r.error;return r.data===true;
 }
-async function run(event,provided){
+async function run(event,provided,authenticatedUser){
  if(event.httpMethod!=='POST')return json(405,{error:'Method not allowed'});
- const user=await getUser(event);if(!user)return json(401,{error:'Please sign in to create.'});
+ const user=authenticatedUser||await getUser(event);if(!user)return json(401,{error:'Please sign in to create.'});
  let body;try{body=provided||JSON.parse(event.body||'{}');if((event.body||'').length>262144)throw Error()}catch{return json(400,{error:'Invalid Seedance request.'});}
  try{
   const m=hf.find(body.model);if(!m)return json(400,{error:'Choose a supported Higgsfield Seedance model.'});

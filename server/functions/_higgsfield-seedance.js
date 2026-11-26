@@ -22,7 +22,35 @@ function models(){return Object.entries(modes).flatMap(([version,ops])=>ops.map(
  return {model_id,name:'Seedance '+version+' · '+op.replaceAll('-',' '),type:op==='video-edit'?'video-to-video':op,description:'Seedance '+version+' '+op.replaceAll('-',' ')+'. Powered by Higgsfield.',provider:'higgsfield',api_schema:{api_schemas:[{type:'model_run',request_schema:{type:'object',additionalProperties:false,properties,required}}]}};
 }));}
 const REMIX='higgsfield/genjutsu-light/motion-transfer/v1.0';
-function find(id){if(id===REMIX)return {model_id:REMIX};return models().find(m=>m.model_id===id);}
+const MAGI_PREFIX='sand/magi-2/';
+function magiModels(){
+ return ['text-to-video','image-to-video','reference-to-video'].map(mode=>{
+  const properties={
+   prompt:{type:'string',minLength:1,maxLength:15000,pattern:'\\S'},
+   duration:{type:'integer',minimum:4,maximum:30,default:5},
+   resolution:{type:'string',enum:['1080p'],default:'1080p'},
+   aspect_ratio:{type:'string',enum:ratios,default:'16:9'},
+   generate_audio:{type:'boolean',default:true},
+   seed:{type:'integer',minimum:0,maximum:4294967295}
+  };
+  const required=[];
+  if(mode==='text-to-video')required.push('prompt');
+  if(mode==='image-to-video'){
+   properties.image_url=media();
+   properties.end_image_url=media();
+   required.push('image_url');
+  }
+  if(mode==='reference-to-video'){
+   properties.image_urls=media(true,10);
+   properties.video_urls=media(true,5);
+   properties.audio_urls=media(true,5);
+  }
+  return {model_id:MAGI_PREFIX+mode,name:'MAGI-2 · '+mode.replaceAll('-',' '),type:mode,
+   description:'1080p video with optional audio, powered by Higgsfield.',provider:'higgsfield',
+   api_schema:{api_schemas:[{type:'model_run',request_schema:{type:'object',additionalProperties:false,properties,required}}]}};
+ });
+}
+function find(id){if(id?.startsWith(MAGI_PREFIX))return magiModels().find(model=>model.model_id===id);if(id===REMIX)return {model_id:REMIX};return models().find(m=>m.model_id===id);}
 function headers(){if(!key())throw Error('Seedance is not configured. Please contact Fuse support.');return {Authorization:'Key '+key(),'Content-Type':'application/json'};}
 function safeError(status){if(status===401||status===403)return 'The Seedance provider connection needs attention. Please contact Fuse support.';if(status===402)return 'Seedance is temporarily unavailable because the provider balance needs funding. Your Fuse credits will be returned.';if(status===429)return 'Seedance is busy. Please try again shortly.';return 'Seedance could not accept these settings or reference assets. Your Fuse credits will be returned.';}
 function ownAsset(url,userId){let u,root;try{u=new URL(url);root=new URL(process.env.SUPABASE_URL)}catch{throw Error('Upload your reference assets to Fuse first.');}if(u.protocol!=='https:'||u.origin!==root.origin||!u.pathname.startsWith('/storage/v1/object/public/avatars/'+userId+'/')||u.username||u.password)throw Error('Use reference assets uploaded to your Fuse account.');return u.href;}
@@ -48,6 +76,12 @@ async function quote(m,raw,{validate=true,userId}={}){
  const imageUrls=[...(input.image_url?[input.image_url]:[]),...(input.end_image_url?[input.end_image_url]:[]),...(input.image_urls||[])];
  const audioUrls=input.audio_urls||[];
  if(validate&&op==='reference-to-video'&&!imageUrls.length&&!videoUrls.length&&!audioUrls.length)throw Error('Add reference assets for this Seedance mode.');
+ if(m.model_id.startsWith(MAGI_PREFIX)){
+  for(const url of [...imageUrls,...videoUrls,...audioUrls])ownAsset(url,userId);
+  const usd=input.duration*.08;
+  return {inputs:input,credits:safeCreditsFor(usd),provider_usd:usd,
+   pricing_source:'higgsfield-magi-2',pricing_version:'magi-2-v1'};
+ }
  const maxAssets=m.model_id.includes('2.5')?30:15;
  if(imageUrls.length+videoUrls.length+audioUrls.length>maxAssets)throw Error('Select at most '+maxAssets+' reference assets for this model.');
  for(const url of [...imageUrls,...videoUrls,...audioUrls]){if(validate||!url.startsWith('https://example.com/'))ownAsset(url,userId);}
@@ -75,5 +109,5 @@ async function submit(model,input){let r;try{r=await fetch(BASE+'/'+model,{metho
  if(typeof out.request_id!=='string'||!/^[a-zA-Z0-9-]{8,100}$/.test(out.request_id)){const e=Error('Seedance submission is being checked. Do not submit it again.');e.uncertain=true;throw e;}return out.request_id;
 }
 async function poll(id){if(!/^[a-zA-Z0-9-]{8,100}$/.test(id))throw Error('Invalid Seedance task.');const r=await fetch(BASE+'/requests/'+id+'/status',{headers:headers(),signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error('Seedance status is temporarily unavailable.');const out=await r.json();if(out.status==='completed'){let url=out.video?.url;if(!url||!url.startsWith('https://'))throw Error('Seedance output is not available yet.');return {status:'completed',url};}if(['failed','nsfw','canceled'].includes(out.status))return {status:'failed',error:out.status==='nsfw'?'Seedance could not generate this content.':'Seedance generation did not complete.'};return {status:'processing'};}
-module.exports={models,find,quote,submit,poll,key};
+module.exports={models,magiModels,MAGI_PREFIX,find,quote,submit,poll,key};
 

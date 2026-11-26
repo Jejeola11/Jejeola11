@@ -5,6 +5,7 @@ exports.handler=async event=>{
  if(event.httpMethod!=='POST')return json(405,{error:'Method not allowed'});
  const user=await getUser(event);if(!user)return json(401,{error:'Please sign in to create.'});
  let body;try{body=JSON.parse(event.body||'{}');if((event.body||'').length>262144)throw Error()}catch{return json(400,{error:'Invalid model request'})}
+ if(typeof body?.model==='string'&&body.model.startsWith('sand/magi-2/'))return require('./_higgsfield-jobs').run(event,body,user);
  try{
   const m=(await wave.catalogue()).find(m=>m.model_id===body.model);if(!m)return json(400,{error:'Choose a supported image or video model.'});
   const quoteInputs={...(body.inputs||{})};const gpt=require('./_openai-direct').imageModel(m.model_id);const background=gpt?quoteInputs.background:undefined;
