@@ -2367,3 +2367,24 @@ body[data-page="client"] {
 .verified-information dd{margin:0;color:#b8d0cd;overflow-wrap:anywhere}
 .verified-value+.verified-value{margin-top:5px}
 #openProspectPitch{width:100%}
+
+.prospect-card, #prospectDialog {
+  border: 1px solid transparent;
+  background: linear-gradient(155deg, #09292d, #001012 75%) padding-box,
+    linear-gradient(115deg, #ffe66a, #dfff4e, #eeffe0) border-box;
+  color: #ffffff;
+}
+.prospect-card h3, .prospect-card-title, .prospect-card .description,
+.prospect-card .card-top .pill, .prospect-meta, #prospectDialog #prospectTitle,
+#prospectDialog .prospect-overview, #prospectDialog .verified-information,
+#prospectDialog .verified-information :is(dt, dd, a) {
+  color: #ffffff;
+}
+.prospect-meta strong {
+  color: #e9fc8b;
+  background-image: linear-gradient(115deg, #ffe66a, #dfff4e, #eeffe0);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.prospect-card .chrome-button.full { width: 100%; }
