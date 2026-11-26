@@ -277,9 +277,22 @@
     ["other", "Others"],
   ];
   const linkValue = (s, key) =>
-    meta(s)["client_link_" + key] ||
-    (key === "portfolio" ? s.profile?.portfolio : "") ||
-    "";
+    meta(s)["client_link_" + key] ?? (
+    (key === "portfolio" ? s.profile?.portfolio : "") || "");
+  const customLinks = (s) => Array.isArray(meta(s).client_custom_links) ? meta(s).client_custom_links : [];
+  const deleteLinkButton = `<button type="button" class="link-delete" data-delete-link aria-label="Delete link" title="Delete link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></svg></button>`;
+  function customLinkRows(s) {
+    return customLinks(s).map((link, index) => `
+      <div class="profile-link-row"><div><strong>${esc(link.title)}</strong><a href="${esc(link.url)}" target="_blank" rel="noopener noreferrer">${esc(link.url)}</a></div>
+        <button type="button" class="profile-edit" data-link-editor="customLinkInline${index}" aria-label="Edit ${esc(link.title)}" aria-expanded="false" aria-controls="customLinkInline${index}">✎</button>
+      </div>
+      <div id="customLinkInline${index}" class="link-inline-editor" data-custom-link-index="${index}" hidden><form>
+        <label>Link Title<input name="title" required maxlength="80" value="${esc(link.title)}"></label>
+        <label>Link Url<input type="url" name="url" required value="${esc(link.url)}"></label>
+        <div class="link-inline-actions">${deleteLinkButton}<button type="button" data-close-inline>Cancel</button><button type="submit" class="chrome-button">Save</button></div>
+        <p role="alert"></p>
+      </form></div>`).join("");
+  }
   function portfolioProjects(s){
     const m=meta(s),hidden=m.client_portfolio_hidden||[],overrides=m.client_portfolio_overrides||{};
     const base=(s.profile?.projects||[]).map((p,i)=>({...p,...(overrides[i]||{}),_source:'base',_index:i})).filter(p=>p.title&&!hidden.includes(p._index));
@@ -310,7 +323,7 @@
    .join(
      "",
    )}<button type="button" id="addCountry" class="market-add">+ Add country</button></div><div id="countryPicker" class="country-picker" hidden><label for="countrySearch">Search for a country</label><input id="countrySearch" type="search" autocomplete="off" placeholder="Search countries"><div id="countryResults" class="country-results"></div></div></section>
- <section class="profile-links-section"><h2 class="chrome-text">Your Links</h2><div class="profile-link-list"><div class="profile-link-row portfolio-link-row"><div><strong>Portfolio <span class="link-lock" aria-label="Fixed link title">▣</span></strong>${linkValue(s,"portfolio") ? `<a href="${esc(linkValue(s,"portfolio"))}" target="_blank" rel="noopener noreferrer">${esc(linkValue(s,"portfolio"))}</a>` : '<span>Not added yet</span>'}</div><button type="button" class="profile-edit" id="editPortfolioLink" aria-label="Edit portfolio URL">✎</button></div><div id="portfolioLinkInline" class="link-inline-editor" hidden><form><label>Link Url<input type="url" name="url" required value="${esc(linkValue(s,"portfolio"))}" placeholder="https://example.com"></label><div class="link-inline-actions"><button type="button" data-close-inline>Cancel</button><button type="submit" class="chrome-button">Save</button></div><p role="alert"></p></form></div>${(Array.isArray(meta(s).client_custom_links)?meta(s).client_custom_links:[]).map(x=>`<div class="profile-link-row"><div><strong>${esc(x.title)}</strong><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.url)}</a></div></div>`).join('')}<button type="button" id="addProfileLink" class="profile-link-add">+ Add A Link</button><div id="addLinkInline" class="link-inline-editor" hidden><form><label>Link Title<input name="title" required maxlength="80" placeholder="Link Title"></label><label>Link Url<input name="url" type="url" required placeholder="https://example.com"></label><div class="link-inline-actions"><button type="button" data-close-inline>Cancel</button><button type="submit" class="chrome-button">Save</button></div><p role="alert"></p></form></div></div></section></section><dialog id="clientProfileDialog" class="client-profile-dialog" aria-labelledby="clientProfileDialogTitle"><form id="clientProfileForm"><div class="profile-modal-head"><h2 id="clientProfileDialogTitle"></h2><button type="button" id="closeProfileEdit" aria-label="Close">×</button></div><div id="clientProfileField"></div><button type="submit" class="chrome-button">Save</button><p id="clientProfileError" role="alert"></p></form></dialog>`;
+ <section class="profile-links-section"><h2 class="chrome-text">Your Links</h2><div class="profile-link-list"><div class="profile-link-row portfolio-link-row"><div><strong>Portfolio <span class="link-lock" aria-label="Fixed link title">▣</span></strong>${linkValue(s,"portfolio") ? `<a href="${esc(linkValue(s,"portfolio"))}" target="_blank" rel="noopener noreferrer">${esc(linkValue(s,"portfolio"))}</a>` : '<span>Not added yet</span>'}</div><button type="button" class="profile-edit" data-link-editor="portfolioLinkInline" aria-expanded="false" aria-controls="portfolioLinkInline" aria-label="Edit portfolio URL">✎</button></div><div id="portfolioLinkInline" class="link-inline-editor" hidden><form><label>Link Url<input type="url" name="url" required value="${esc(linkValue(s,"portfolio"))}" placeholder="https://example.com"></label><div class="link-inline-actions">${linkValue(s,"portfolio") ? deleteLinkButton : ""}<button type="button" data-close-inline>Cancel</button><button type="submit" class="chrome-button">Save</button></div><p role="alert"></p></form></div>${customLinkRows(s)}<button type="button" data-link-editor="addLinkInline" aria-expanded="false" aria-controls="addLinkInline" class="profile-link-add">+ Add A Link</button><div id="addLinkInline" class="link-inline-editor" hidden><form><label>Link Title<input name="title" required maxlength="80" placeholder="Link Title"></label><label>Link Url<input name="url" type="url" required placeholder="https://example.com"></label><div class="link-inline-actions"><button type="button" data-close-inline>Cancel</button><button type="submit" class="chrome-button">Save</button></div><p role="alert"></p></form></div></div></section></section><dialog id="clientProfileDialog" class="client-profile-dialog" aria-labelledby="clientProfileDialogTitle"><form id="clientProfileForm"><div class="profile-modal-head"><h2 id="clientProfileDialogTitle"></h2><button type="button" id="closeProfileEdit" aria-label="Close">×</button></div><div id="clientProfileField"></div><button type="submit" class="chrome-button">Save</button><p id="clientProfileError" role="alert"></p></form></dialog>`;
   }
   function image(link) {
     try {
@@ -354,10 +367,73 @@
     });
     document.querySelectorAll('[data-project-menu]').forEach(button=>button.onclick=()=>{const menu=document.querySelector('[data-menu="'+button.dataset.projectMenu+'"]'),open=menu.hidden;document.querySelectorAll('.portfolio-menu').forEach(x=>x.hidden=true);document.querySelectorAll('[data-project-menu]').forEach(x=>x.setAttribute('aria-expanded','false'));menu.hidden=!open;button.setAttribute('aria-expanded',String(open))});
     document.querySelectorAll('[data-project-delete]').forEach(button=>button.onclick=()=>{const p=projects[Number(button.dataset.projectDelete)],dialog=document.createElement('dialog');dialog.className='portfolio-delete-dialog';dialog.innerHTML='<p>Are you sure you want to delete this project?</p><div><button type="button" class="chrome-button" data-confirm-delete>Yes</button><button type="button" class="delete-no" data-cancel-delete>No</button></div>';document.body.append(dialog);dialog.onclose=()=>dialog.remove();dialog.querySelector('[data-cancel-delete]').onclick=()=>dialog.close();dialog.querySelector('[data-confirm-delete]').onclick=async()=>{const yes=dialog.querySelector('[data-confirm-delete]');yes.disabled=true;try{if(p._source==='base')await save(s,{client_portfolio_hidden:[...new Set([...(meta(s).client_portfolio_hidden||[]),p._index])]},rerender,toast);else await save(s,{client_portfolio_projects:(meta(s).client_portfolio_projects||[]).filter((_,i)=>i!==p._index)},rerender,toast);dialog.close()}catch(e){yes.disabled=false;toast(e.message||'Could not delete project.')}};dialog.showModal()});
-    const portfolioLinkEditor=document.getElementById('portfolioLinkInline'),addLinkEditor=document.getElementById('addLinkInline');
-    document.getElementById('editPortfolioLink').onclick=()=>{addLinkEditor.hidden=true;portfolioLinkEditor.hidden=!portfolioLinkEditor.hidden};
-    document.getElementById('addProfileLink').onclick=()=>{portfolioLinkEditor.hidden=true;addLinkEditor.hidden=!addLinkEditor.hidden};
-    for(const panel of [portfolioLinkEditor,addLinkEditor]){panel.querySelector('[data-close-inline]').onclick=()=>panel.hidden=true;panel.querySelector('form').onsubmit=async e=>{e.preventDefault();const form=e.currentTarget,url=safeLink(form.elements.url.value.trim()),title=form.elements.title?.value.trim(),error=form.querySelector('[role="alert"]');if(!url||panel===addLinkEditor&&!title){error.textContent='Enter a title and a complete http or https link.';return}const button=form.querySelector('[type="submit"]');button.disabled=true;try{const patch=panel===portfolioLinkEditor?{client_link_portfolio:url}:{client_custom_links:[...(Array.isArray(meta(s).client_custom_links)?meta(s).client_custom_links:[]),{title,url}]};await save(s,patch,rerender,toast)}catch(err){error.textContent=err.message||'Could not save link.';button.disabled=false}}}
+    const linkEditors = [...document.querySelectorAll('[data-link-editor]')];
+    let savingLink = false;
+    function toggleLinkEditor(activeButton) {
+      for (const button of linkEditors) {
+        const open = button === activeButton;
+        document.getElementById(button.dataset.linkEditor).hidden = !open;
+        button.setAttribute('aria-expanded', String(open));
+      }
+    }
+    for (const button of linkEditors) {
+      const panel = document.getElementById(button.dataset.linkEditor);
+      const form = panel.querySelector('form');
+      const error = form.querySelector('[role="alert"]');
+      const isPortfolio = panel.id === 'portfolioLinkInline';
+      const isAdd = panel.id === 'addLinkInline';
+      const index = Number(panel.dataset.customLinkIndex);
+      button.onclick = () => {
+        if (savingLink) return;
+        toggleLinkEditor(panel.hidden ? button : null);
+        if (!panel.hidden) form.querySelector('input').focus();
+      };
+      form.querySelector('[data-close-inline]').onclick = () => {
+        if (savingLink) return;
+        form.reset();
+        error.textContent = '';
+        toggleLinkEditor(null);
+        button.focus();
+      };
+      async function persistLink(patch) {
+        savingLink = true;
+        error.textContent = '';
+        const controls = form.querySelectorAll('button');
+        controls.forEach(control => control.disabled = true);
+        try {
+          await save(s, patch, rerender, toast);
+        } catch (err) {
+          error.textContent = err.message || 'Could not update the link.';
+        } finally {
+          savingLink = false;
+          controls.forEach(control => control.disabled = false);
+        }
+      }
+      form.onsubmit = async event => {
+        event.preventDefault();
+        if (savingLink) return;
+        const url = safeLink(form.elements.url.value.trim());
+        const title = form.elements.title?.value.trim();
+        if (!url || (!isPortfolio && !title)) {
+          error.textContent = 'Enter a complete http or https link and a title if required.';
+          return;
+        }
+        const links = customLinks(s);
+        const updated = { title, url };
+        const patch = isPortfolio ? { client_link_portfolio: url } : {
+          client_custom_links: isAdd ? [...links, updated] :
+            links.map((link, i) => i === index ? { ...link, ...updated } : link)
+        };
+        await persistLink(patch);
+      };
+      const deleteButton = form.querySelector('[data-delete-link]');
+      if (deleteButton) deleteButton.onclick = async () => {
+        if (savingLink) return;
+        await persistLink(isPortfolio ? { client_link_portfolio: '' } : {
+          client_custom_links: customLinks(s).filter((_, i) => i !== index)
+        });
+      };
+    }
     function openProjectEditor(existing=null){
       const dialog=document.createElement('dialog');dialog.className='portfolio-dialog portfolio-create';
       dialog.innerHTML='<form><div class="portfolio-dialog-head"><h2>'+(existing?'Edit Your Project':'Add a new portfolio project')+'</h2><button type="button" aria-label="Close">×</button></div><p>All fields are required unless otherwise indicated.</p><label>Project title *<input name="title" required maxlength="100" placeholder="Enter a brief but descriptive title." value="'+esc(existing?.title||'')+'"></label><small class="portfolio-count" data-for="title">100 characters left</small><label>Your role (optional)<input name="role" maxlength="100" placeholder="e.g., AI Video Creator & Editor" value="'+esc(existing?.role||existing?.my_role||'')+'"></label><small class="portfolio-count" data-for="role">100 characters left</small><label>Project description *<textarea name="description" required maxlength="2000" rows="4" placeholder="Briefly describe the project’s goals, your solution and the impact you made here.">'+esc(existing?.description||'')+'</textarea></label><small class="portfolio-count" data-for="description">2000 characters left</small><label class="portfolio-upload">Add images, videos, audio or files<input name="media" type="file" multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.ppt,.pptx,.txt,.zip"></label><label>Website link (optional)<input name="website" type="url" placeholder="https://example.com" value="'+esc(existing?.website||'')+'"></label><div class="portfolio-preview">'+(existing?mediaList(existing):'')+'</div><p class="portfolio-error" role="alert"></p><div class="portfolio-actions"><button type="submit" class="chrome-button">Save project</button></div></form>';
