@@ -298,6 +298,18 @@
     const base=(s.profile?.projects||[]).map((p,i)=>({...p,...(overrides[i]||{}),_source:'base',_index:i})).filter(p=>p.title&&!hidden.includes(p._index));
     return [...base,...(m.client_portfolio_projects||[]).map((p,i)=>({...p,_source:'added',_index:i})).filter(p=>p.title)];
   }
+  function renderPortfolio(projects) {
+    if (!projects.length) return '<p class="profile-muted">Your saved projects will appear here.</p>';
+    const pageSize = 4;
+    const cards = projects.map((p, i) => `<div class="profile-work-card"><button type="button" class="profile-work" data-project="${i}" aria-label="View ${esc(p.title)}"><div class="profile-work-cover">${projectPreview(p)}</div><h3><span>${esc(p.title)}</span></h3></button><button type="button" class="portfolio-more" data-project-menu="${i}" aria-label="Options for ${esc(p.title)}" aria-expanded="false">⋮</button><div class="portfolio-menu" data-menu="${i}" hidden><button type="button" data-project-edit="${i}">Edit</button><button type="button" data-project-delete="${i}">Delete</button></div></div>`);
+    const pages = [];
+    for (let start = 0; start < cards.length; start += pageSize) {
+      pages.push('<div class="profile-portfolio">' + cards.slice(start, start + pageSize).join("") + '</div>');
+    }
+    if (pages.length === 1) return pages[0];
+    return '<div class="profile-portfolio-scroll" role="region" aria-label="Portfolio projects, scroll horizontally for more" tabindex="0">' +
+      pages.join("") + '</div>';
+  }
   function render(s) {
     const user = name(s),
       parts = user.trim().split(/\s+/),
@@ -312,7 +324,7 @@
     return `<section class="client-profile" aria-label="My Profile"><div class="profile-hero"><div class="profile-avatar-wrap"><img class="profile-avatar" src="${esc(avatar(s))}" alt="${esc(user)} profile photo"><span class="profile-online" title="Active"></span><button type="button" id="clientAvatarEdit" class="profile-avatar-edit" aria-label="Change profile photo">✎</button><input id="clientAvatarInput" type="file" accept="image/jpeg,image/png,image/webp" hidden></div><div class="profile-identity"><div class="profile-name-line"><h1>${display}</h1>${edit("name", "name")}</div><p id="clientLocalTime" class="profile-time"></p></div></div>
  <div class="profile-stats"><div><strong class="chrome-text">${s.prospects.length}</strong><span>Total prospects</span></div><div><strong class="chrome-text">${won}</strong><span>Total jobs</span></div></div>
  <section class="profile-section profile-service"><div class="profile-service-row profile-service-title"><p class="profile-value">${esc(title(s)) || "Add a title that describes your work."}</p>${edit("title", "title")}</div><div class="profile-service-row"><p class="profile-price chrome-text">${esc(meta(s).client_starter_price || s.profile?.price_amount || "—")}</p>${edit("price", "starter price")}</div><div class="profile-service-row profile-service-about"><p class="profile-about">${esc(about(s)) || "Tell clients what you can create and how you work."}</p>${edit("about", "about")}</div></section>
- <section class="profile-portfolio-section"><div class="profile-section-head"><h2>Portfolio</h2><button type="button" class="portfolio-add" id="addPortfolio" aria-label="Add portfolio project"><span>+</span></button></div><div class="profile-portfolio">${projects.length ? projects.map((p,i) => `<div class="profile-work-card"><button type="button" class="profile-work" data-project="${i}" aria-label="View ${esc(p.title)}"><div class="profile-work-cover">${projectPreview(p)}</div><h3><span>${esc(p.title)}</span></h3></button><button type="button" class="portfolio-more" data-project-menu="${i}" aria-label="Options for ${esc(p.title)}" aria-expanded="false">⋮</button><div class="portfolio-menu" data-menu="${i}" hidden><button type="button" data-project-edit="${i}">Edit</button><button type="button" data-project-delete="${i}">Delete</button></div></div>`).join("") : '<p class="profile-muted">Your saved projects will appear here.</p>'}</div></section>
+ <section class="profile-portfolio-section"><div class="profile-section-head"><h2>Portfolio</h2><button type="button" class="portfolio-add" id="addPortfolio" aria-label="Add portfolio project"><span>+</span></button></div>${renderPortfolio(projects)}</section>
  <section class="profile-section profile-market-section"><div class="profile-section-head"><h2 class="chrome-text">Your Target Market</h2></div><div class="market-grid">${market(
    s,
  )
