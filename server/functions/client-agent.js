@@ -98,9 +98,10 @@ exports.handler=async event=>{
       const q=current.data.qualification_json||{};
       const contacts=[...enriched.contacts,...(q.contacts||[]),...['email','instagram','whatsapp'].filter(k=>old.data[k]).map(k=>({kind:k,value:old.data[k],source_url:old.data.website}))].filter(c=>c.kind!=='website').filter((c,i,a)=>a.findIndex(x=>x.kind===c.kind&&x.value===c.value)===i);
       if(!contacts.length)contacts.push({kind:'website',value:old.data.website,source_url:old.data.website});
-      const person=enriched.person||q.person||null;
+      const person=agent.isVerifiedFounder(enriched.person)?enriched.person:q.person||enriched.person||null;
       const patch={qualification_json:{...q,version:2,contacts,person,contact_research:enriched},updated_at:new Date().toISOString()};
-      if(person){patch.contact_name=person.name;patch.founder_name=person.name;patch.founder_title=person.role;}
+      if(person)patch.contact_name=person.name;
+      if(agent.isVerifiedFounder(person)){patch.founder_name=person.name;patch.founder_title=person.role;}
       for(const kind of ['email','instagram','whatsapp']){const found=contacts.find(c=>c.kind===kind);if(found)patch[kind]=found.value;}
       const saved=await db.from('client_prospects').update(patch).eq('id',body.id).eq('user_id',user.id).select('*').single();if(saved.error)throw saved.error;
       return response(200,{prospect:saved.data});
