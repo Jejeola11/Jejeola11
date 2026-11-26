@@ -64,19 +64,15 @@
     
 
     .heading-down{display:inline-block;background:var(--chrome);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-variant-emoji:text;font-family:"Segoe UI Symbol",Arial,sans-serif;white-space:nowrap;font-size:.88em;vertical-align:.02em;margin-left:.13em}
-    .videos-section{padding-top:6px;padding-bottom:27px}
-    .videos-section .section-title{margin-bottom:18px}
-    .reel-rail{display:flex;align-items:flex-start;gap:11px;overflow-x:auto;overflow-y:hidden;padding:4px 2px 13px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:pan-x}
+    .videos-section{position:relative;padding:24px 0 14px}
+    .reel-sound{position:absolute;right:2px;top:-9px;width:24px;height:24px;display:grid;place-items:center;padding:0;border:1px solid #eaffb0;border-radius:50%;background:var(--chrome);color:#001012;cursor:pointer}
+    .reel-sound svg{width:13px;height:13px}
+    .reel-sound[aria-pressed="false"] .reel-audible,.reel-sound[aria-pressed="true"] .reel-muted{display:none}
+    .reel-rail{display:flex;align-items:flex-start;gap:11px;overflow-x:auto;overflow-y:hidden;padding:4px 2px 13px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
     .reel-rail::-webkit-scrollbar{display:none}
     .reel-card{width:clamp(103px,29vw,130px);flex:0 0 clamp(103px,29vw,130px);min-width:0}
     .reel-media{aspect-ratio:9/16;border-radius:15px;position:relative;overflow:hidden;background:linear-gradient(145deg,#071c20,#061014);border:1px solid #335457;box-shadow:0 10px 26px #0006}
     .reel-video{display:block;width:100%;height:100%;object-fit:cover;object-position:center;background:#061014;pointer-events:none}
-    .reel-out:not([hidden]){position:absolute;inset:0;z-index:1;display:block;cursor:pointer;outline-offset:-4px}
-    .reel-out[hidden]{display:none}
-    .reel-out:focus-visible{outline:2px solid #dfff4e}
-    .watch-pill{display:flex;justify-content:center;align-items:center;margin-top:9px;min-height:30px;border:1px solid #bce98477;border-radius:999px;background:linear-gradient(115deg,rgba(255,230,106,.14),rgba(223,255,78,.13),rgba(238,255,224,.09));color:#e8ffae;font-size:11px;font-weight:700;letter-spacing:.015em;text-decoration:none;transition:filter .18s,border-color .18s,transform .18s}
-    a.watch-pill:hover,a.watch-pill:focus-visible{border-color:#dfff4e;filter:brightness(1.15);transform:translateY(-1px)}
-    .watch-pill.is-disabled{opacity:.45;cursor:not-allowed;border-color:#355557;background:#102729;color:#b3c6c3}
     .collab-section{text-align:center;padding:18px 0 38px}
     .collab-section .section-title{margin:0 0 22px}
     .collab-action{width:min(100%,390px);margin:0 auto}
@@ -111,6 +107,29 @@
         </a>
       </nav>
     </section>
+<section class="videos-section" aria-label="Director Ria’s AI videos">
+<button type="button" class="reel-sound" id="riaReelSound" aria-label="Video sound" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button>
+<div class="reel-rail" id="riaReelRail" tabindex="0" aria-label="Scroll AI videos">
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000251262.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 1"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000277869.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 2"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/directorria/reels/1000263708-92819f77cdf3.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 3"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/directorria/reels/1000269271-c7c6576a459d.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 4"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000293847.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 5"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000269069.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 6"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000277949.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 7"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/directorria/reels/1000256012-d06636bc25ad.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 8"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000268269.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 9"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000255877.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 10"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000296321.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 11"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000149399.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 12"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000269372.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 13"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/directorria/reels/1000087936-9752744c52b7.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 14"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000254610.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 15"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000255777.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 16"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000239201.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 17"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000035070.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 18"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000296603.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 19"></video></div></div>
+</div></section>
     <section class="section" aria-labelledby="courseTitle">
       <h2 class="section-title single" id="courseTitle">Get My AI Influencer Course <span class="heading-down" aria-hidden="true">👇︎</span></h2>
       <article class="product">
@@ -136,74 +155,6 @@
           <p class="footnote">Explore free AI prompts and practical tutorials</p>
         </div>
       </article>
-    </section>
-    <section class="section videos-section" id="my-ai-videos" aria-labelledby="videosTitle">
-      <h2 class="section-title" id="videosTitle">My AI Videos <span class="heading-down" aria-hidden="true">👇︎</span></h2>
-      <div class="reel-rail" id="riaReelRail" role="region" aria-label="My AI Videos — swipe to explore" tabindex="0">
-        <article class="reel-card" data-reel="1" aria-label="AI video 1">
-          <div class="reel-media">
-            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793582835/fuse-atelier/academy/tutorial-after-v2.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 1, muted autoplay"></video>
-            <a class="reel-out" href="https://vt.tiktok.com/ZSprHPFt6/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 1 on TikTok"></a>
-          </div>
-          <a class="watch-pill" href="https://vt.tiktok.com/ZSprHPFt6/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 1 on TikTok">Watch</a>
-        </article>
-        <article class="reel-card" data-reel="2" aria-label="AI video 2">
-          <div class="reel-media">
-            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793977419/lv_0_20261106023609.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 2, muted autoplay"></video>
-            <a class="reel-out" href="https://vt.tiktok.com/ZSprHyjre/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 2 on TikTok"></a>
-          </div>
-          <a class="watch-pill" href="https://vt.tiktok.com/ZSprHyjre/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 2 on TikTok">Watch</a>
-        </article>
-        <article class="reel-card" data-reel="3" aria-label="AI video 3">
-          <div class="reel-media">
-            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793934579/fuse-atelier/influencer/results/result-01.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 3, muted autoplay"></video>
-            <a class="reel-out" href="https://vt.tiktok.com/ZSprHuePh/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 3 on TikTok"></a>
-          </div>
-          <a class="watch-pill" href="https://vt.tiktok.com/ZSprHuePh/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 3 on TikTok">Watch</a>
-        </article>
-        <article class="reel-card" data-reel="4" aria-label="AI video 4">
-          <div class="reel-media">
-            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794023635/lv_0_20261107003126.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 4, muted autoplay"></video>
-            <a class="reel-out" href="https://vt.tiktok.com/ZSprH9WxU/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 4 on TikTok"></a>
-          </div>
-          <a class="watch-pill" href="https://vt.tiktok.com/ZSprH9WxU/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 4 on TikTok">Watch</a>
-        </article>
-        <article class="reel-card" data-reel="5" aria-label="AI video 5">
-          <div class="reel-media">
-            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794023645/lv_0_20261106194626.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 5, muted autoplay"></video>
-            <a class="reel-out" href="https://vt.tiktok.com/ZSprHV6cE/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 5 on TikTok"></a>
-          </div>
-          <a class="watch-pill" href="https://vt.tiktok.com/ZSprHV6cE/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 5 on TikTok">Watch</a>
-        </article>
-        <article class="reel-card" data-reel="6" aria-label="AI video 6">
-          <div class="reel-media">
-            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1793934510/fuse-atelier/influencer/results/result-04.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 6, muted autoplay"></video>
-            <a class="reel-out" href="https://vt.tiktok.com/ZSprH5WMk/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 6 on TikTok"></a>
-          </div>
-          <a class="watch-pill" href="https://vt.tiktok.com/ZSprH5WMk/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 6 on TikTok">Watch</a>
-        </article>
-        <article class="reel-card" data-reel="7" aria-label="AI video 7">
-          <div class="reel-media">
-            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794023641/lv_0_20261107035319.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 7, muted autoplay"></video>
-            <a class="reel-out" href="https://vt.tiktok.com/ZSpkVhTBK/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 7 on TikTok"></a>
-          </div>
-          <a class="watch-pill" href="https://vt.tiktok.com/ZSpkVhTBK/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 7 on TikTok">Watch</a>
-        </article>
-        <article class="reel-card" data-reel="8" aria-label="AI video 8">
-          <div class="reel-media">
-            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794023646/lv_0_20261106224824.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 8, muted autoplay"></video>
-            <a class="reel-out" href="https://vt.tiktok.com/ZSprHPDEt/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 8 on TikTok"></a>
-          </div>
-          <a class="watch-pill" href="https://vt.tiktok.com/ZSprHPDEt/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 8 on TikTok">Watch</a>
-        </article>
-        <article class="reel-card" data-reel="9" aria-label="AI video 9">
-          <div class="reel-media">
-            <video class="reel-video" src="https://res.cloudinary.com/bzw55wh2/video/upload/v1794023653/lv_0_20261106233218.mp4" preload="metadata" autoplay muted playsinline loop disablepictureinpicture aria-label="AI video 9, muted autoplay"></video>
-            <a class="reel-out" href="https://vt.tiktok.com/ZSprHHg5Y/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 9 on TikTok"></a>
-          </div>
-          <a class="watch-pill" href="https://vt.tiktok.com/ZSprHHg5Y/" target="_blank" rel="noopener noreferrer" aria-label="Watch AI video 9 on TikTok">Watch</a>
-        </article>
-      </div>
     </section>
     <section class="section collab-section" aria-labelledby="collabTitle">
       <h2 class="section-title" id="collabTitle">Let's Collaborate <span class="heading-down" aria-hidden="true">👇︎</span></h2>
@@ -237,26 +188,48 @@
   (() => {
     const rail=document.getElementById('riaReelRail');
     if(!rail)return;
-    const cards=[...rail.querySelectorAll('.reel-card')];
-    const videos=cards.map(card=>card.querySelector('video'));
-    // Autoplay only visible clips to avoid decoding all nine videos on mobile.
-    if('IntersectionObserver' in window){
-      const observer=new IntersectionObserver(entries=>{
-        for(const entry of entries){
-          const video=entry.target;
-          if(entry.isIntersecting&&entry.intersectionRatio>.12&&document.visibilityState==='visible'){
-            const started=video.play();if(started?.catch)started.catch(()=>{});
-          }else video.pause();
-        }
-      },{root:rail,rootMargin:'0px 80px',threshold:[0,.12,.4]});
-      videos.forEach(video=>observer.observe(video));
-      document.addEventListener('visibilitychange',()=>{
-        if(document.hidden)videos.forEach(video=>video.pause());
-        else videos.forEach(video=>{const box=video.getBoundingClientRect(),host=rail.getBoundingClientRect();if(box.right>host.left&&box.left<host.right){const p=video.play();p?.catch?.(()=>{})}});
-      });
-    }else videos.forEach(video=>{const p=video.play();p?.catch?.(()=>{})});
+    const videos=[...rail.querySelectorAll('video')];
+    const sound=document.getElementById('riaReelSound');
+    const visible=new Set();
+    let enabled=false,audible=null;
+    function syncSound(){
+      const box=rail.getBoundingClientRect(),center=(box.left+box.right)/2;
+      let next=null,distance=Infinity;
+      if(enabled&&!document.hidden)for(const video of visible){
+        const rect=video.getBoundingClientRect(),offset=Math.abs((rect.left+rect.right)/2-center);
+        if(offset<distance){next=video;distance=offset}
+      }
+      if(audible&&audible!==next)audible.muted=true;
+      if(next&&next!==audible){next.muted=false;next.play().catch(()=>{});}
+      audible=next;
+    }
+    sound.addEventListener('click',()=>{
+      enabled=!enabled;
+      sound.setAttribute('aria-pressed',String(enabled));
+      sound.title=enabled?'Turn sound off':'Turn sound on';
+      syncSound();
+    });
+    function syncPlayback(){
+      for(const video of videos){
+        if(visible.has(video)&&!document.hidden){
+          if(!video.hasAttribute('src'))video.src=video.dataset.src;
+          if(video.paused)video.play().catch(()=>{});
+        }else if(!video.paused)video.pause();
+      }
+      syncSound();
+    }
+    const observer=new IntersectionObserver(entries=>{
+      for(const entry of entries){
+        if(entry.isIntersecting&&entry.intersectionRatio>=.2)visible.add(entry.target);
+        else visible.delete(entry.target);
+      }
+      syncPlayback();
+    },{threshold:[0,.2]});
+    videos.forEach(video=>observer.observe(video));
+    rail.addEventListener('scroll',()=>{if(enabled)syncSound()},{passive:true});
+    document.addEventListener('visibilitychange',syncPlayback);
     const motion=window.matchMedia?.('(prefers-reduced-motion: reduce)');
-    let direction=1,last=0,holdUntil=0,hover=false;
+    let direction=1,last=0,holdUntil=0,hover=false,remainder=0;
     rail.addEventListener('pointerenter',event=>{if(event.pointerType==='mouse')hover=true});
     rail.addEventListener('pointerleave',()=>hover=false);
     rail.addEventListener('pointerdown',()=>{holdUntil=performance.now()+12000});
@@ -267,7 +240,10 @@
       const dt=Math.min(now-last,80);last=now;
       const max=Math.max(0,rail.scrollWidth-rail.clientWidth);
       if(max>2&&!document.hidden&&!hover&&now>holdUntil&&!motion?.matches){
-        const next=rail.scrollLeft+direction*(dt/1000)*22;
+        remainder+=dt*0.034;
+        const pixels=Math.floor(remainder);
+        remainder-=pixels;
+        const next=rail.scrollLeft+direction*pixels;
         if(next>=max){rail.scrollLeft=max;direction=-1}
         else if(next<=0){rail.scrollLeft=0;direction=1}
         else rail.scrollLeft=next;
