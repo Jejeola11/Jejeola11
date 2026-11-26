@@ -13,19 +13,26 @@ exports.handler=async event=>{
  const origin=event.headers?.origin||event.headers?.Origin;
  if(origin&&!['https://fuseatelier.com','https://www.fuseatelier.com','https://fuse-atelier.vercel.app'].includes(origin))return json(403,{error:'Please submit from the portfolio page.'});
  if(!event.body||Buffer.byteLength(event.body)>15000)return json(400,{error:'Please shorten your brief.'});
- let d,total;try{
+ let d,total,packageName,formattedPrice;try{
  d=JSON.parse(event.body);if(d.website)return json(400,{error:'Unable to submit this form.'});
  for(const [key,max] of Object.entries({name:100,email:150,brand:150,goal:1500,reference:500,deadline:30,details:1500}))if(typeof(d[key]??'')!=='string'||(d[key]||'').length>max)throw Error('Check the form fields.');
  if(!d.name?.trim()||!d.goal?.trim()||! /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email||'')||/[\r\n]/.test(d.email))throw Error('Enter your name, valid email and project goal.');
  if(d.reference&&!/^https?:\/\//i.test(d.reference))throw Error('Use a complete reference URL.');
  if(!/^[a-f0-9-]{36}$/i.test(d.requestId||''))throw Error('Refresh the page and try again.');
- total=calculate(d.scope||{});
+ if(d.package!==undefined){
+ const selected=new Map([["signature",["Signature Reel",200,250000]],["collection",["Collection Launch",550,650000]],["monthly",["Monthly Content",1050,1200000]]]).get(d.package);
+ if(!selected||!['nigeria','international'].includes(d.market))throw Error('Choose a package and market.');
+ packageName=selected[0];
+ const local=d.market==='nigeria';
+ total=selected[local?2:1];
+ formattedPrice=(local?'₦':'$')+total.toLocaleString('en-US')+(d.package==='monthly'?' per month':'');
+ }else total=calculate(d.scope||{});
  }catch(e){return json(400,{error:e.message||'Check your brief and try again.'});}
  if(!process.env.RESEND_API_KEY||!process.env.FUSE_EMAIL_FROM){console.error('[Portfolio brief] Email configuration missing');return json(503,{error:'Brief delivery is temporarily unavailable. Please try again shortly.'});}
- const s=d.scope;const text=`NEW PORTFOLIO PROJECT BRIEF\n\nName: ${d.name}\nEmail: ${d.email}\nBrand: ${d.brand||'—'}\nGoal: ${d.goal}\nReference: ${d.reference||'—'}\nPreferred deadline: ${d.deadline||'Flexible'}\nDetails: ${d.details||'—'}\n\nSELECTED SCOPE\nType: ${s.type}\nOriginal videos: ${s.quantity}\nSeconds/video: ${s.seconds}\nScenes/video: ${s.scenes}\nSpeaking characters/video: ${s.characters}\nExtra hooks/video: ${s.hooks}\nFormats/video: ${s.formats}\nNew digital twins: ${s.twins}\nNew fictional/animal characters: ${s.setups}\n\nPRODUCTION PRICE: $${total.toFixed(2)} USD\nConfirm the brief and arrange the matching Nestuge payment link.`;
+ const s=d.scope;const text=packageName?`NEW MODEST FASHION PROJECT BRIEF\n\nName: ${d.name}\nEmail: ${d.email}\nBrand: ${d.brand||"—"}\nBrief: ${d.goal}\nPackage: ${packageName}\nMarket: ${d.market}\nListed price: ${formattedPrice}\nConfirm the final scope and quote before payment.`:`NEW PORTFOLIO PROJECT BRIEF\n\nName: ${d.name}\nEmail: ${d.email}\nBrand: ${d.brand||'—'}\nGoal: ${d.goal}\nReference: ${d.reference||'—'}\nPreferred deadline: ${d.deadline||'Flexible'}\nDetails: ${d.details||'—'}\n\nSELECTED SCOPE\nType: ${s.type}\nOriginal videos: ${s.quantity}\nSeconds/video: ${s.seconds}\nScenes/video: ${s.scenes}\nSpeaking characters/video: ${s.characters}\nExtra hooks/video: ${s.hooks}\nFormats/video: ${s.formats}\nNew digital twins: ${s.twins}\nNew fictional/animal characters: ${s.setups}\n\nPRODUCTION PRICE: $${total.toFixed(2)} USD\nConfirm the brief and arrange the matching Nestuge payment link.`;
  try{
  const key=createHash('sha256').update(JSON.stringify(d)).digest('hex');
- const response=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${process.env.RESEND_API_KEY}`,'Content-Type':'application/json','Idempotency-Key':`portfolio-brief/${key}`},body:JSON.stringify({from:process.env.FUSE_EMAIL_FROM,to:['maryamjejeola002@gmail.com'],reply_to:d.email,subject:`Portfolio project brief: ${s.type} · $${total}`,text}),signal:AbortSignal.timeout(15000)});
+ const response=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${process.env.RESEND_API_KEY}`,'Content-Type':'application/json','Idempotency-Key':`portfolio-brief/${key}`},body:JSON.stringify({from:process.env.FUSE_EMAIL_FROM,to:['maryamjejeola002@gmail.com'],reply_to:d.email,subject:packageName?`Portfolio project brief: ${packageName} · ${formattedPrice}`:`Portfolio project brief: ${s.type} · $${total}`,text}),signal:AbortSignal.timeout(15000)});
  const result=await response.json().catch(()=>({}));
  if(!response.ok||!result.id){console.error('[Portfolio brief] Provider rejected delivery',response.status);return json(502,{error:'Your brief could not be sent yet. Please try again.'});}
  return json(200,{success:true,reference:result.id,total});
