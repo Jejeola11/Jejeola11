@@ -1,7 +1,49 @@
 const samples=[["1000293847","story","Modest streetwear","","https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000293847.mp4","https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000293847.jpg"],["1000149399","story","Resortwear editorial","","https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000149399.mp4","https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000149399.jpg"],["1000277869","story","Character-led fashion","","https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000277869.mp4","https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000277869.jpg"],["1000269333","story","Hijab look close-up","","https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/portfolio/1000269333-c06547d1451f.mp4","/portfolio/media/hijab-look-poster.jpg"],["1000035070","story","Everyday hijab styling","","https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000035070.mp4","https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000035070.jpg"],["1000269069","story","Modest fashion styling","","https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000269069.mp4","https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000269069.jpg"]];
-const grid=document.querySelector('#work-grid');samples.forEach(([id,type,title,sub,url,poster])=>{const card=document.createElement('article');card.className='work-card';card.dataset.category=type;card.dataset.title=title;card.dataset.url=url;card.innerHTML=`<div class="portfolio-video-frame"><video playsinline controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture preload="none" poster="${poster}" aria-label="${title}"><source src="${url}" type="video/mp4"></video><button type="button" class="video-toggle" aria-label="Play ${title}">▶</button></div><div class="work-card-caption"><div><h3>${title}</h3></div><a class="card-project" href="#brief">Start a project ↗</a></div>`;grid.append(card);});
-const videos=[...document.querySelectorAll('.work-card video')];videos.forEach(v=>{const button=v.parentElement.querySelector('.video-toggle');const title=v.getAttribute('aria-label');button.setAttribute('aria-pressed','false');const sync=()=>{button.textContent=v.paused?'▶':'Ⅱ';button.setAttribute('aria-label',(v.paused?'Play ':'Pause ')+title);button.classList.toggle('is-playing',!v.paused);button.setAttribute('aria-pressed',String(!v.paused))};button.addEventListener('click',()=>{if(v.paused){v.play().catch(()=>{button.textContent='▶';button.setAttribute('aria-label','Retry playing '+title);let note=v.parentElement.querySelector('.video-error');if(!note){note=document.createElement('span');note.className='video-error';note.setAttribute('role','status');v.parentElement.append(note)}note.textContent='Could not load video. Tap play to retry.'})}else v.pause()});v.addEventListener('click',()=>button.click());v.addEventListener('contextmenu',e=>e.preventDefault());v.addEventListener('play',()=>{v.parentElement.querySelector('.video-error')?.remove();videos.filter(x=>x!==v).forEach(x=>x.pause());sync()});v.addEventListener('pause',sync);v.addEventListener('ended',sync);});
-document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-filter]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b))});document.querySelectorAll('.work-card').forEach(c=>{c.hidden=b.dataset.filter!=='all'&&c.dataset.category!==b.dataset.filter;if(c.hidden)c.querySelector('video')?.pause()})}));
+const grid=document.querySelector('#work-grid');
+for(const [id,type,title,sub,url,poster] of samples){
+ const card=document.createElement('article');
+ card.className='work-card';
+ card.innerHTML=`<h3>${title}</h3><div class="portfolio-video-frame">
+ <video muted loop playsinline preload="none" poster="${poster}" data-src="${url}" aria-label="${title}"></video>
+ <button type="button" class="reel-audio" aria-label="Sound for ${title}" aria-pressed="false">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="audio-off" d="m16 9 6 6m0-6-6 6"/><path class="audio-on" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div>`;
+ grid.append(card);
+}
+const videos=[...grid.querySelectorAll('video')];
+const soundButtons=[...grid.querySelectorAll('.reel-audio')];
+const visibleVideos=new Set();
+function prepareVideo(video){
+ if(!video.hasAttribute('src')){video.preload='metadata';video.src=video.dataset.src;}
+}
+function setReelSound(index,on){
+ videos[index].muted=!on;
+ soundButtons[index].setAttribute('aria-pressed',String(on));
+}
+function syncReels(){
+ for(const video of videos){
+  if(visibleVideos.has(video)&&!document.hidden){prepareVideo(video);if(video.paused)video.play().catch(()=>{});}
+  else if(!video.paused)video.pause();
+ }
+}
+soundButtons.forEach((button,index)=>button.onclick=()=>{
+ const enable=videos[index].muted;
+ videos.forEach((_,i)=>setReelSound(i,false));
+ if(enable){prepareVideo(videos[index]);setReelSound(index,true);videos[index].play().catch(()=>setReelSound(index,false));}
+});
+if('IntersectionObserver' in window){
+ const warmup=new IntersectionObserver(entries=>{
+  for(const {target,isIntersecting} of entries)if(isIntersecting){prepareVideo(target);warmup.unobserve(target);}
+ },{root:grid,rootMargin:'0px 160px'});
+ const playback=new IntersectionObserver(entries=>{
+  for(const {target,isIntersecting,intersectionRatio} of entries){
+   if(isIntersecting&&intersectionRatio>=.2)visibleVideos.add(target);
+   else visibleVideos.delete(target);
+  }
+  syncReels();
+ },{threshold:[0,.2]});
+ videos.forEach(video=>{warmup.observe(video);playback.observe(video);});
+}
+document.addEventListener('visibilitychange',syncReels);
 const scope=document.querySelector('#scope');let current;let submitting=false;
 function update(){const send=document.querySelector('#brief-form button[type="submit"]');if(!scope.checkValidity()){document.querySelector('#total').textContent='Check scope';document.querySelector('#scope-summary').textContent='Please check the project options.';document.querySelector('#breakdown').replaceChildren();document.querySelector('#brief-price').textContent='Check your project scope above before submitting.';send.disabled=true;current=null;return}send.disabled=submitting;const s=Object.fromEntries(new FormData(scope));Object.keys(s).filter(k=>k!=='type').forEach(k=>s[k]=Number(s[k]));current={s,...RiaPricing.quote(s)};document.querySelector('#total').textContent='$'+current.total.toLocaleString('en-US');document.querySelector('#scope-summary').textContent=`${s.quantity} ${current.name}${s.quantity>1?'s':''} · ${s.seconds}s each · ${s.scenes} scenes each`;document.querySelector('#breakdown').replaceChildren(...current.lines.map(([label,cost])=>{const d=document.createElement('div');d.className='line-item'+(cost<0?' saving':'');const l=document.createElement('span');l.textContent=label;const r=document.createElement('span');r.textContent=(cost<0?'−':'')+'$'+Math.abs(cost).toLocaleString('en-US');d.append(l,r);return d}));document.querySelector('#brief-price').textContent=`Selected production price: $${current.total.toLocaleString('en-US')} USD`}
 scope.addEventListener('input',update);document.querySelectorAll('[data-type]').forEach(a=>a.addEventListener('click',()=>{scope.elements.type.value=a.dataset.type;update()}));update();
@@ -45,8 +87,7 @@ document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click'
 if('IntersectionObserver' in window)new IntersectionObserver(es=>{railVisible=es[0].isIntersecting;},{threshold:.05}).observe(grid);else railVisible=true;
 function animateRail(now){
  const dt=railLast?Math.min(now-railLast,50):0;railLast=now;
- const playing=videos.some(v=>!v.paused&&!v.ended);
- const paused=railMotion.matches||document.hidden||!railVisible||railPointer||railHover||playing||grid.contains(document.activeElement)||now<railHoldUntil;
+ const paused=railMotion.matches||document.hidden||!railVisible||railPointer||railHover||grid.contains(document.activeElement)||now<railHoldUntil;
  if(!paused&&grid.scrollWidth>grid.clientWidth+2){
   railPosition+=dt*.018;grid.scrollLeft=railPosition;railForward();
  }else railPosition=grid.scrollLeft;
