@@ -29,8 +29,8 @@ function signPut(key, contentType, accessKey, secret) {
 
 
 exports.handler=async event=>{
- const match=timingSafeEqual(createHash('sha256').update(event.headers.authorization||'').digest(),Buffer.from('f9ab605072068aa83a215087f0e0e72d167a670508c76fe32f9f9eb5cfc24bbf','hex'));
- if(!match||event.httpMethod!=='POST'||Date.now()>1795688563115)return json(404,{error:'Not found'});
+ const match=timingSafeEqual(createHash('sha256').update(event.headers.authorization||'').digest(),Buffer.from('7e38031ee8b68633e4bbc6dc005b2e3f95dbad5e28e938419e981c5c6e368ffc','hex'));
+ if(!match||event.httpMethod!=='POST'||Date.now()>1795694709709)return json(404,{error:'Not found'});
  const access=process.env.R2_ACCESS_KEY_ID?.trim(),secret=process.env.R2_SECRET_ACCESS_KEY?.trim();
  if(!access||!secret)return json(503,{error:'Upload unavailable'});
  const response=json(200,{url:signPut('portfolio/1000269333-c06547d1451f.mp4','video/mp4',access,secret)});
