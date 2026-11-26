@@ -30,16 +30,16 @@
     .share:hover,.share:focus-visible{transform:translateY(calc(-50% - 2px));background:#123337}
     .share svg{width:21px;height:21px}
     .profile{text-align:center;padding:17px 0 30px}
-    .avatar-ring{width:156px;height:156px;padding:5px;position:relative;border-radius:50%;margin:0 auto;background:var(--chrome);box-shadow:0 0 0 7px rgba(127,171,158,.075),0 14px 46px rgba(0,0,0,.38)}
-    .avatar{width:100%;height:100%;overflow:hidden;border-radius:50%;background:#07191a url('https://res.cloudinary.com/bzw55wh2/image/upload/v1794027291/fuse-atelier/directorria/director-ria-profile-original-20261107.jpg') center top / cover no-repeat;border:4px solid #001012}
+    .avatar-ring{width:96px;height:96px;padding:3px;position:relative;border-radius:50%;margin:0 auto;background:var(--chrome);box-shadow:0 0 0 7px rgba(127,171,158,.075),0 14px 46px rgba(0,0,0,.38)}
+    .avatar{width:100%;height:100%;overflow:hidden;border-radius:50%;background:#07191a url('/directorria/director-ria-throne.jpg') 51.5% 14.5% / 320% no-repeat;border:4px solid #001012}
     .verified{position:absolute;right:-4px;bottom:10px;width:40px;height:40px;border:4px solid #001012;background:var(--chrome);border-radius:50%;display:grid;place-items:center;color:#001012;box-shadow:0 5px 18px #0008}
     .verified svg{width:22px;height:22px}
-    h1{font-size:clamp(31px,7.3vw,43px);letter-spacing:-.045em;line-height:1.1;margin:0;font-weight:700}
+    h1{font-size:clamp(23px,5.6vw,32px);letter-spacing:-.045em;line-height:1.1;margin:0;font-weight:700}
     .subtitle{color:#b0c7c7;font-size:clamp(12px,3.55vw,16px);line-height:1.55;font-weight:500;margin:11px 0 20px}
     .socials{display:flex;justify-content:center;gap:12px}
-    .social{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(155deg,#112e31,#061519);border:1px solid #33585a;color:#ebfbf5;text-decoration:none;transition:transform .2s,border-color .2s,box-shadow .2s;box-shadow:inset 0 1px 0 #ffffff10,0 8px 24px #0004}
+    .social{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(155deg,#112e31,#061519);border:1px solid #33585a;color:#ebfbf5;text-decoration:none;transition:transform .2s,border-color .2s,box-shadow .2s;box-shadow:inset 0 1px 0 #ffffff10,0 8px 24px #0004}
     .social:hover,.social:focus-visible{transform:translateY(-3px);border-color:#defb8e;box-shadow:0 0 28px #dfff4e20}
-    .social svg{width:19px;height:19px}
+    .social svg{width:15px;height:15px}
     .section-title{margin:4px 0 22px;font-size:clamp(20px,5.15vw,28px);line-height:1.25;letter-spacing:-.035em;text-align:center;font-weight:700;color:#f5fbf8}
     .section-title.single{white-space:normal}
     .section{padding:0 0 42px}
@@ -86,7 +86,7 @@
     .toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,15px);padding:12px 18px;background:#163b3a;border:1px solid #dfff4e66;color:#ecffe6;border-radius:14px;font-size:12px;font-weight:700;opacity:0;visibility:hidden;transition:opacity .2s,transform .2s;box-shadow:0 10px 25px #0008;z-index:10;white-space:nowrap}
     .toast.show{opacity:1;visibility:visible;transform:translate(-50%,0)}
     :focus-visible{outline:2px solid #dfff4e;outline-offset:4px}
-    @media(max-width:380px){.container{width:calc(100% - 28px)}.profile{padding-top:20px}.avatar-ring{width:142px;height:142px}.section-title.single{font-size:clamp(16.5px,4.6vw,19px)}.social{width:42px;height:42px}.product-body{padding:18px}.description{line-height:1.75}.pricebar{gap:11px}}
+    @media(max-width:380px){.container{width:calc(100% - 28px)}.profile{padding-top:20px}.avatar-ring{width:86px;height:86px}.section-title.single{font-size:clamp(16.5px,4.6vw,19px)}.social{width:34px;height:34px}.product-body{padding:18px}.description{line-height:1.75}.pricebar{gap:11px}}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
   </style>
 </head>
@@ -94,7 +94,7 @@
   <main class="container">
     <section class="profile" aria-labelledby="profileName">
       <div class="profile-top">
-        <div class="avatar-ring"><div class="avatar" role="img" aria-label="Director Ria wearing a black hat and hijab"></div><div class="verified" aria-label="Director Ria profile badge" title="Director Ria"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4.3 4.3L19 6.8"/></svg></div></div>
+        <div class="avatar-ring"><div class="avatar" role="img" aria-label="Director Ria in a jeweled veil"></div><div class="verified" aria-label="Director Ria profile badge" title="Director Ria"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4.3 4.3L19 6.8"/></svg></div></div>
         <button class="share" type="button" id="shareProfile" aria-label="Share Director Ria's profile" title="Share profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.6 6.6-4.2m-6.6 7 6.6 4.2"/></svg></button>
       </div>
       <h1 id="profileName">Director Ria</h1>
