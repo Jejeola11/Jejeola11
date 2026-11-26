@@ -12,8 +12,10 @@ for(const [id,type,title,sub,url,poster] of samples){
 const videos=[...grid.querySelectorAll('video')];
 const soundButtons=[...grid.querySelectorAll('.reel-audio')];
 const visibleVideos=new Set();
+const pendingPlayback=new WeakSet();
 function prepareVideo(video){
- if(!video.hasAttribute('src')){video.preload='metadata';video.src=video.dataset.src;}
+ video.preload='auto';
+ if(!video.hasAttribute('src'))video.src=video.dataset.src;
 }
 function setReelSound(index,on){
  videos[index].muted=!on;
@@ -21,7 +23,13 @@ function setReelSound(index,on){
 }
 function syncReels(){
  for(const video of videos){
-  if(visibleVideos.has(video)&&!document.hidden){prepareVideo(video);if(video.paused)video.play().catch(()=>{});}
+  if(visibleVideos.has(video)&&!document.hidden){
+   prepareVideo(video);
+   if(video.paused&&!pendingPlayback.has(video)){
+    pendingPlayback.add(video);
+    video.play().catch(()=>{}).finally(()=>pendingPlayback.delete(video));
+   }
+  }
   else if(!video.paused)video.pause();
  }
 }
@@ -35,15 +43,26 @@ if('IntersectionObserver' in window){
   for(const {target,isIntersecting} of entries)if(isIntersecting){prepareVideo(target);warmup.unobserve(target);}
  },{root:grid,rootMargin:'0px 160px'});
  const playback=new IntersectionObserver(entries=>{
-  for(const {target,isIntersecting,intersectionRatio} of entries){
-   if(isIntersecting&&intersectionRatio>=.2)visibleVideos.add(target);
+  for(const {target,isIntersecting,intersectionRect} of entries){
+   if(isIntersecting&&intersectionRect.width>0&&intersectionRect.height>0)visibleVideos.add(target);
    else visibleVideos.delete(target);
   }
   syncReels();
- },{threshold:[0,.2]});
- videos.forEach(video=>{warmup.observe(video);playback.observe(video);});
+ },{threshold:0});
+ const approach=new IntersectionObserver(([entry])=>{
+  if(!entry.isIntersecting)return;
+  videos.forEach(video=>warmup.observe(video));
+  approach.disconnect();
+ },{rootMargin:'220px 0px'});
+ approach.observe(grid);
+ videos.forEach(video=>playback.observe(video));
+}else{
+ videos.slice(0,3).forEach(video=>visibleVideos.add(video));
+ syncReels();
 }
+videos.forEach(video=>video.addEventListener('canplay',syncReels));
 document.addEventListener('visibilitychange',syncReels);
+window.addEventListener('pageshow',syncReels);
 document.querySelector('#year').textContent=new Date().getFullYear();
 const hero=document.querySelector('#hero-video');hero.muted=true;hero.play().catch(()=>{});
 if('IntersectionObserver' in window){new IntersectionObserver(entries=>{for(const entry of entries){if(entry.isIntersecting&&!document.hidden)hero.play().catch(()=>{});else hero.pause();}},{threshold:0.05}).observe(hero);}
@@ -81,7 +100,8 @@ if('IntersectionObserver' in window)new IntersectionObserver(es=>{railVisible=es
 function animateRail(now){
  const dt=railLast?Math.min(now-railLast,50):0;railLast=now;
  const paused=railMotion.matches||document.hidden||!railVisible||railPointer||railHover||grid.contains(document.activeElement)||now<railHoldUntil;
- if(!paused&&grid.scrollWidth>grid.clientWidth+2){
+ const hasPlayingVideo=[...visibleVideos].some(video=>!video.paused&&video.readyState>=3);
+ if(!paused&&hasPlayingVideo&&grid.scrollWidth>grid.clientWidth+2){
   railPosition+=dt*.018;grid.scrollLeft=railPosition;railForward();
  }else railPosition=grid.scrollLeft;
  requestAnimationFrame(animateRail);
