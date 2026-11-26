@@ -345,13 +345,14 @@
     if (video(cover))return `<video src="${esc(cover)}" muted playsinline preload="metadata" aria-label="${esc(p.title)} video preview"></video>`;
     return "<span>View project ↗</span>";
   }
-  async function save(s, patch, rerender, toast) {
+  async function save(s, patch, rerender, toast, onSaved) {
     const sb = await Fuse.client();
     const { data, error } = await sb.auth.updateUser({
       data: { ...meta(s), ...patch },
     });
     if (error) throw error;
     s.session.user = data.user;
+    onSaved?.();
     rerender();
     toast("Profile updated.");
   }
@@ -436,11 +437,86 @@
     }
     function openProjectEditor(existing=null){
       const dialog=document.createElement('dialog');dialog.className='portfolio-dialog portfolio-create';
-      dialog.innerHTML='<form><div class="portfolio-dialog-head"><h2>'+(existing?'Edit Your Project':'Add a new portfolio project')+'</h2><button type="button" aria-label="Close">×</button></div><p>All fields are required unless otherwise indicated.</p><label>Project title *<input name="title" required maxlength="100" placeholder="Enter a brief but descriptive title." value="'+esc(existing?.title||'')+'"></label><small class="portfolio-count" data-for="title">100 characters left</small><label>Your role (optional)<input name="role" maxlength="100" placeholder="e.g., AI Video Creator & Editor" value="'+esc(existing?.role||existing?.my_role||'')+'"></label><small class="portfolio-count" data-for="role">100 characters left</small><label>Project description *<textarea name="description" required maxlength="2000" rows="4" placeholder="Briefly describe the project’s goals, your solution and the impact you made here.">'+esc(existing?.description||'')+'</textarea></label><small class="portfolio-count" data-for="description">2000 characters left</small><label class="portfolio-upload">Add images, videos, audio or files<input name="media" type="file" multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.ppt,.pptx,.txt,.zip"></label><label>Website link (optional)<input name="website" type="url" placeholder="https://example.com" value="'+esc(existing?.website||'')+'"></label><div class="portfolio-preview">'+(existing?mediaList(existing):'')+'</div><p class="portfolio-error" role="alert"></p><div class="portfolio-actions"><button type="submit" class="chrome-button">Save project</button></div></form>';
+      dialog.innerHTML='<form><div class="portfolio-dialog-head"><h2>'+(existing?'Edit Your Project':'Add a new portfolio project')+'</h2><button type="button" aria-label="Close">×</button></div><p>All fields are required unless otherwise indicated.</p><label>Project title *<input name="title" required maxlength="100" placeholder="Enter a brief but descriptive title." value="'+esc(existing?.title||'')+'"></label><small class="portfolio-count" data-for="title">100 characters left</small><label>Your role (optional)<input name="role" maxlength="100" placeholder="e.g., AI Video Creator & Editor" value="'+esc(existing?.role||existing?.my_role||'')+'"></label><small class="portfolio-count" data-for="role">100 characters left</small><label>Project description *<textarea name="description" required maxlength="2000" rows="4" placeholder="Briefly describe the project’s goals, your solution and the impact you made here.">'+esc(existing?.description||'')+'</textarea></label><small class="portfolio-count" data-for="description">2000 characters left</small><label class="portfolio-upload">Add images, videos, audio or files<input name="media" type="file" multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.ppt,.pptx,.txt,.zip"></label><label>Website link (optional)<input name="website" type="url" placeholder="https://example.com" value="'+esc(existing?.website||'')+'"></label><div class="portfolio-preview">'+(existing?mediaList(existing):'')+'</div><p class="portfolio-status" role="status"></p><p class="portfolio-error" role="alert"></p><div class="portfolio-actions"><button type="submit" class="chrome-button">Save project</button></div></form>';
       document.body.append(dialog);dialog.showModal();dialog.scrollTop=0;dialog.querySelector('.portfolio-dialog-head button').focus({preventScroll:true});dialog.querySelector('.portfolio-dialog-head button').onclick=()=>dialog.close();dialog.onclose=()=>dialog.remove();
       for(const input of dialog.querySelectorAll('[maxlength]')){const count=()=>dialog.querySelector('[data-for="'+input.name+'"]').textContent=(input.maxLength-input.value.length)+' characters left';input.oninput=count;count()}
       const fileInput=dialog.querySelector('[name="media"]');fileInput.onchange=()=>{const box=dialog.querySelector('.portfolio-preview');box.innerHTML=existing?mediaList(existing):'';for(const file of fileInput.files){const item=document.createElement('p');item.textContent=file.name;box.append(item)}};
-      dialog.querySelector('form').onsubmit=async e=>{e.preventDefault();const form=e.currentTarget,error=dialog.querySelector('.portfolio-error'),title=form.elements.title.value.trim(),role=form.elements.role.value.trim(),description=form.elements.description.value.trim(),website=safeLink(form.elements.website.value.trim()),files=[...fileInput.files];if(!title||!description){error.textContent='Add a title and project description.';return}if(form.elements.website.value.trim()&&!website){error.textContent='Enter a complete website link beginning with https://';return}const button=form.querySelector('[type="submit"]');button.disabled=true;try{const media=existing?.media?.length?[...existing.media]:existing?.url?[{url:existing.url,name:existing.title}]:[];for(const file of files){if(file.size>(file.type.startsWith('video/')?100:20)*1024*1024)throw Error(file.name+' is too large. Videos must be under 100 MB; other files under 20 MB.');const sb=await Fuse.client(),ext=(file.name.split('.').pop()||'bin').toLowerCase(),path=s.session.user.id+'/client-portfolio/'+crypto.randomUUID()+'.'+ext;const result=await sb.storage.from('avatars').upload(path,file,{contentType:file.type||'application/octet-stream',upsert:false});if(result.error)throw result.error;media.push({url:sb.storage.from('avatars').getPublicUrl(path).data.publicUrl,name:file.name,type:file.type})}const project={title,role,description,website,url:media[0]?.url||website,media};let patch;if(existing?._source==='base')patch={client_portfolio_overrides:{...(meta(s).client_portfolio_overrides||{}),[existing._index]:project}};else{const list=[...(meta(s).client_portfolio_projects||[])];if(existing)list[existing._index]=project;else list.push(project);patch={client_portfolio_projects:list}}await save(s,patch,rerender,toast);dialog.close()}catch(err){error.textContent=err.message||'Could not save project.';button.disabled=false}};
+      const form = dialog.querySelector('form');
+      const button = form.querySelector('[type="submit"]');
+      const closeButton = dialog.querySelector('.portfolio-dialog-head button');
+      const status = form.querySelector('.portfolio-status');
+      const error = form.querySelector('.portfolio-error');
+      const uploadedFiles = new WeakMap();
+      dialog.oncancel = event => {
+        if (button.disabled) event.preventDefault();
+      };
+      form.onsubmit = async event => {
+        event.preventDefault();
+        if (button.disabled) return;
+        error.textContent = '';
+        const title = form.elements.title.value.trim();
+        const role = form.elements.role.value.trim();
+        const description = form.elements.description.value.trim();
+        const website = safeLink(form.elements.website.value.trim());
+        const files = [...fileInput.files];
+        if (!title || !description) {
+          error.textContent = 'Add a title and project description.';
+          return;
+        }
+        if (form.elements.website.value.trim() && !website) {
+          error.textContent = 'Enter a complete website link beginning with http:// or https://.';
+          return;
+        }
+        const oversized = files.find(file => file.size >
+          (file.type.startsWith('video/') || /\.(mp4|mov|webm|m4v)$/i.test(file.name) ? 100 : 20) * 1024 * 1024
+        );
+        if (oversized) {
+          error.textContent = oversized.name + ' is too large. The limit is 100 MB for video and 20 MB for other files.';
+          return;
+        }
+        button.disabled = closeButton.disabled = fileInput.disabled = true;
+        try {
+          const media = existing?.media?.length ? [...existing.media] :
+            existing?.url && existing.url !== existing.website ? [{ url: existing.url, name: existing.title }] : [];
+          for (const file of files) {
+            if (!uploadedFiles.has(file)) {
+              button.textContent = 'Uploading…';
+              status.textContent = 'Uploading ' + file.name + '. Keep this page open.';
+              const sb = await Fuse.client();
+              const bucket = sb.storage.from('avatars');
+              const extension = file.name.split('.').pop()?.toLowerCase();
+              const key = s.session.user.id + '/client-portfolio/' + crypto.randomUUID() +
+                (extension && /^[a-z0-9]{1,10}$/.test(extension) ? '.' + extension : '');
+              const result = await bucket.upload(key, file, {
+                contentType: file.type || 'application/octet-stream',
+                upsert: false
+              });
+              if (result.error) throw new Error('Upload failed: ' + result.error.message);
+              uploadedFiles.set(file, { url: bucket.getPublicUrl(key).data.publicUrl, name: file.name, type: file.type });
+            }
+            media.push(uploadedFiles.get(file));
+          }
+          button.textContent = 'Saving project…';
+          status.textContent = 'Saving the project to your profile.';
+          const project = { title, role, description, website, url: media[0]?.url || website, media };
+          let patch;
+          if (existing?._source === 'base') {
+            patch = { client_portfolio_overrides: { ...(meta(s).client_portfolio_overrides || {}), [existing._index]: project } };
+          } else {
+            const list = [...(meta(s).client_portfolio_projects || [])];
+            if (existing) list[existing._index] = project;
+            else list.push(project);
+            patch = { client_portfolio_projects: list };
+          }
+          await save(s, patch, rerender, toast, () => dialog.close());
+        } catch (err) {
+          error.textContent = err.message || 'Could not save project. Try again.';
+        } finally {
+          status.textContent = '';
+          button.textContent = 'Save project';
+          button.disabled = closeButton.disabled = fileInput.disabled = false;
+        }
+      };
     }
     document.getElementById('addPortfolio').onclick=()=>openProjectEditor();
     document.querySelectorAll('[data-project-edit]').forEach(button=>button.onclick=()=>openProjectEditor(projects[Number(button.dataset.projectEdit)]));
