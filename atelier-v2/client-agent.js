@@ -122,7 +122,7 @@ function renderProspects(){
 }
 function renderRecent(){
   const rows=[...state.prospects].sort((a,b)=>Date.parse(b.created_at||b.updated_at||0)-Date.parse(a.created_at||a.updated_at||0)).slice(0,30);
-  return `<div class="section-heading"><h2>Recent</h2><small>Latest 10 saved prospects</small></div><div class="prospect-grid">${rows.length?rows.map(card).join(''):'<div class="empty"><h2>No prospects yet.</h2><p>Start with Prospect Research to find businesses that fit your offer.</p></div>'}</div>`;
+  return `<div class="prospect-grid">${rows.length?rows.map(card).join(''):'<div class="empty"><h2>No prospects yet.</h2><p>Start with Prospect Research to find businesses that fit your offer.</p></div>'}</div>`;
 }
 function renderProposals(){
   const rows=state.prospects.filter(p=>['proposal_sent','deposit_paid','in_delivery','delivered','won'].includes(p.status));
