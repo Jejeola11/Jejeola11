@@ -2002,6 +2002,26 @@ body[data-page="client"] {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
 }
+.profile-portfolio-scroll {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: #6c9691 transparent;
+  padding-bottom: 6px;
+}
+.profile-portfolio-scroll > .profile-portfolio {
+  min-width: 0;
+  align-content: start;
+  scroll-snap-align: start;
+}
+.profile-portfolio-scroll:focus-visible {
+  outline: 2px solid #dfff4e;
+  outline-offset: 3px;
+}
 .profile-work {
   display: block;
   color: inherit;
