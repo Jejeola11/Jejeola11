@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <link rel="preconnect" href="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#001012">
@@ -29,7 +30,7 @@
     .share{position:absolute;right:0;top:50%;transform:translateY(-50%);width:43px;height:43px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--border);color:#def2ef;background:rgba(18,42,43,.72);cursor:pointer;transition:transform .2s,background .2s}
     .share:hover,.share:focus-visible{transform:translateY(calc(-50% - 2px));background:#123337}
     .share svg{width:21px;height:21px}
-    .profile{text-align:center;padding:17px 0 23px}
+    .profile{text-align:center;padding:17px 0 12px}
     .avatar-ring{width:110px;height:110px;padding:3px;position:relative;border-radius:50%;margin:0 auto;background:var(--chrome);box-shadow:0 0 0 7px rgba(127,171,158,.075),0 14px 46px rgba(0,0,0,.38)}
     .avatar{width:100%;height:100%;overflow:hidden;border-radius:50%;background:#07191a url('/directorria/director-ria-throne.jpg') 51.5% 14.5% / 320% no-repeat;border:4px solid #001012}
     .verified{position:absolute;right:-2px;bottom:5px;width:23px;height:23px;border:2px solid #001012;background:var(--chrome);border-radius:50%;display:grid;place-items:center;color:#001012;box-shadow:0 5px 18px #0008}
@@ -64,9 +65,9 @@
     
 
     .heading-down{display:inline-block;background:var(--chrome);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-variant-emoji:text;font-family:"Segoe UI Symbol",Arial,sans-serif;white-space:nowrap;font-size:.88em;vertical-align:.02em;margin-left:.13em}
-    .videos-section{position:relative;padding:24px 0 14px}
-    .reel-sound{position:absolute;right:2px;top:-9px;width:24px;height:24px;display:grid;place-items:center;padding:0;border:1px solid #eaffb0;border-radius:50%;background:var(--chrome);color:#001012;cursor:pointer}
-    .reel-sound svg{width:13px;height:13px}
+    .videos-section{position:relative;padding:0 0 14px}
+    .reel-sound{position:absolute;right:5px;top:5px;z-index:1;width:18px;height:18px;display:grid;place-items:center;padding:0;border:1px solid #eaffb0;border-radius:50%;background:var(--chrome);color:#001012;cursor:pointer}
+    .reel-sound svg{width:10px;height:10px}
     .reel-sound[aria-pressed="false"] .reel-audible,.reel-sound[aria-pressed="true"] .reel-muted{display:none}
     .reel-rail{display:flex;align-items:flex-start;gap:11px;overflow-x:auto;overflow-y:hidden;padding:4px 2px 13px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
     .reel-rail::-webkit-scrollbar{display:none}
@@ -108,27 +109,26 @@
       </nav>
     </section>
 <section class="videos-section" aria-label="Director Ria’s AI videos">
-<button type="button" class="reel-sound" id="riaReelSound" aria-label="Video sound" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button>
 <div class="reel-rail" id="riaReelRail" tabindex="0" aria-label="Scroll AI videos">
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000251262.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 1"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000277869.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 2"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/directorria/reels/1000263708-92819f77cdf3.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 3"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/directorria/reels/1000269271-c7c6576a459d.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 4"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000293847.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 5"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000269069.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 6"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000277949.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 7"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/directorria/reels/1000256012-d06636bc25ad.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 8"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000268269.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 9"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000255877.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 10"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000296321.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 11"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000149399.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 12"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000269372.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 13"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/directorria/reels/1000087936-9752744c52b7.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 14"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000254610.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 15"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000255777.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 16"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000239201.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 17"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000035070.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 18"></video></div></div>
-<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000296603.mp4" preload="none" autoplay muted playsinline loop aria-label="AI video 19"></video></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000251262.mp4" poster="/directorria/posters/1000251262.jpg" preload="metadata" autoplay muted playsinline loop aria-label="AI video 1"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 1" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000277869.mp4" poster="/directorria/posters/1000277869.jpg" preload="metadata" autoplay muted playsinline loop aria-label="AI video 2"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 2" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/directorria/reels/1000263708-92819f77cdf3.mp4" poster="/directorria/posters/1000263708.jpg" preload="metadata" autoplay muted playsinline loop aria-label="AI video 3"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 3" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/directorria/reels/1000269271-c7c6576a459d.mp4" poster="/directorria/posters/1000269271.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 4"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 4" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000293847.mp4" poster="/directorria/posters/1000293847.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 5"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 5" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000269069.mp4" poster="/directorria/posters/1000269069.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 6"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 6" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000277949.mp4" poster="/directorria/posters/1000277949.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 7"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 7" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/directorria/reels/1000256012-d06636bc25ad.mp4" poster="/directorria/posters/1000256012.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 8"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 8" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000268269.mp4" poster="/directorria/posters/1000268269.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 9"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 9" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000255877.mp4" poster="/directorria/posters/1000255877.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 10"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 10" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000296321.mp4" poster="/directorria/posters/1000296321.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 11"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 11" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000149399.mp4" poster="/directorria/posters/1000149399.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 12"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 12" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000269372.mp4" poster="/directorria/posters/1000269372.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 13"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 13" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/directorria/reels/1000087936-9752744c52b7.mp4" poster="/directorria/posters/1000087936.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 14"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 14" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000254610.mp4" poster="/directorria/posters/1000254610.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 15"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 15" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000255777.mp4" poster="/directorria/posters/1000255777.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 16"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 16" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000239201.mp4" poster="/directorria/posters/1000239201.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 17"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 17" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000035070.mp4" poster="/directorria/posters/1000035070.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 18"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 18" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
+<div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000296603.mp4" poster="/directorria/posters/1000296603.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 19"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 19" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
 </div></section>
     <section class="section" aria-labelledby="courseTitle">
       <h2 class="section-title single" id="courseTitle">Get My AI Influencer Course <span class="heading-down" aria-hidden="true">👇︎</span></h2>
@@ -189,47 +189,50 @@
     const rail=document.getElementById('riaReelRail');
     if(!rail)return;
     const videos=[...rail.querySelectorAll('video')];
-    const sound=document.getElementById('riaReelSound');
-    const visible=new Set();
-    let enabled=false,audible=null;
-    function syncSound(){
-      const box=rail.getBoundingClientRect(),center=(box.left+box.right)/2;
-      let next=null,distance=Infinity;
-      if(enabled&&!document.hidden)for(const video of visible){
-        const rect=video.getBoundingClientRect(),offset=Math.abs((rect.left+rect.right)/2-center);
-        if(offset<distance){next=video;distance=offset}
-      }
-      if(audible&&audible!==next)audible.muted=true;
-      if(next&&next!==audible){next.muted=false;next.play().catch(()=>{});}
-      audible=next;
+    const buttons=[...rail.querySelectorAll('.reel-sound')];
+    let audible=null;
+    function setSound(index,on){
+      videos[index].muted=!on;
+      buttons[index].setAttribute('aria-pressed',String(on));
+      buttons[index].title=on?'Turn sound off':'Turn sound on';
     }
-    sound.addEventListener('click',()=>{
-      enabled=!enabled;
-      sound.setAttribute('aria-pressed',String(enabled));
-      sound.title=enabled?'Turn sound off':'Turn sound on';
-      syncSound();
-    });
+    buttons.forEach((button,index)=>button.addEventListener('click',()=>{
+      const previous=audible;
+      if(previous!==null)setSound(previous,false);
+      audible=previous===index?null:index;
+      if(audible===null)return;
+      setSound(index,true);
+      videos[index].play().catch(()=>{if(audible===index){setSound(index,false);audible=null;}});
+    }));
+    const visible=new Set();
     function syncPlayback(){
       for(const video of videos){
         if(visible.has(video)&&!document.hidden){
-          if(!video.hasAttribute('src'))video.src=video.dataset.src;
           if(video.paused)video.play().catch(()=>{});
         }else if(!video.paused)video.pause();
       }
-      syncSound();
     }
-    const observer=new IntersectionObserver(entries=>{
-      for(const entry of entries){
-        if(entry.isIntersecting&&entry.intersectionRatio>=.2)visible.add(entry.target);
-        else visible.delete(entry.target);
+    const warmup=new IntersectionObserver(entries=>{
+      for(const {target,isIntersecting} of entries){
+        if(!isIntersecting)continue;
+        target.preload='metadata';
+        if(!target.hasAttribute('src'))target.src=target.dataset.src;
+        warmup.unobserve(target);
+      }
+    },{root:rail,rootMargin:'0px 180px'});
+    const playback=new IntersectionObserver(entries=>{
+      for(const {target,isIntersecting,intersectionRatio} of entries){
+        if(isIntersecting&&intersectionRatio>=.2){
+          if(!target.hasAttribute('src'))target.src=target.dataset.src;
+          visible.add(target);
+        }else visible.delete(target);
       }
       syncPlayback();
     },{threshold:[0,.2]});
-    videos.forEach(video=>observer.observe(video));
-    rail.addEventListener('scroll',()=>{if(enabled)syncSound()},{passive:true});
+    videos.forEach(video=>{warmup.observe(video);playback.observe(video);});
     document.addEventListener('visibilitychange',syncPlayback);
     const motion=window.matchMedia?.('(prefers-reduced-motion: reduce)');
-    let direction=1,last=0,holdUntil=0,hover=false,remainder=0;
+    let direction=1,last=0,holdUntil=performance.now()+1500,hover=false,remainder=0;
     rail.addEventListener('pointerenter',event=>{if(event.pointerType==='mouse')hover=true});
     rail.addEventListener('pointerleave',()=>hover=false);
     rail.addEventListener('pointerdown',()=>{holdUntil=performance.now()+12000});
