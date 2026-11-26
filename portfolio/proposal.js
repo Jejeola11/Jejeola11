@@ -22,7 +22,7 @@ form.addEventListener('submit', async (event) => {
     const result = await response.json();
     if (!response.ok || !result.success) throw new Error(result.error || 'Please try again.');
     form.reset();
-    submit.textContent = 'Submitted';
+    submit.textContent = 'Submitted ✅';
     status.textContent = 'Thanks for sharing your project. I’ll reply by email.';
     for (const field of form.elements) field.disabled = true;
   } catch (error) {
