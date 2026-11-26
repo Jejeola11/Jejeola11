@@ -35,7 +35,7 @@
     <script src="agent-course-offers.js?v=1" defer></script>
     <script src="client-photo-editor.js?v=1" defer></script>
     <script src="client-profile.js?v=13" defer></script>
-    <script src="client-agent.js?v=founder-first-1" defer></script>
+    <script src="client-agent.js?v=direct-open-1" defer></script>
   </head>
   <body data-page="client">
     <header class="reference-header">
@@ -212,10 +212,27 @@
       <p id="menuStatus" role="status"></p>
     </section>
     <main class="agent-main" id="app">
-      <div class="loading-state" role="status">
-        <span class="orbit"></span>
-        <h1>Your Client Agent</h1>
-        <p>Opening your workspace…</p>
+      <div id="clientInitialView" aria-busy="true">
+        <nav class="client-links" aria-label="Client workspace">
+          <button type="button" disabled><span>My Proposals</span><i aria-hidden="true">›</i></button>
+          <button type="button" disabled><span>My Profile</span><i aria-hidden="true">›</i></button>
+          <button type="button" disabled><span>My Tracker</span><i aria-hidden="true">›</i></button>
+        </nav>
+        <nav class="tabs" aria-label="Prospect lists">
+          <button type="button" disabled>Prospect Research</button>
+          <button type="button" disabled>All Prospects</button>
+          <button type="button" disabled>Recent</button>
+        </nav>
+        <div class="client-view">
+          <section class="research-home" aria-label="Prospect Research">
+            <div class="research-search-row">
+              <div class="research-search-field">
+                <input type="search" placeholder="Search for prospects" aria-label="Search for prospects" disabled>
+              </div>
+            </div>
+            <button type="button" class="chrome-button research-submit" disabled>Search</button>
+          </section>
+        </div>
       </div>
     </main>
     <div id="notice" class="toast" role="status" aria-live="polite"></div>
