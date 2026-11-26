@@ -21,6 +21,12 @@
     />
     <link rel="stylesheet" href="academy-ui.css?v=academy-v6" />
     <link rel="stylesheet" href="client-agent.css?v=profile-links-1" />
+    <style>
+      .link-inline-actions [data-close-inline] { background: transparent; border: 1px solid #496265; color: #fff; }
+      .link-inline-actions .link-delete:first-child { display: inline-grid; place-items: center; min-width: 34px; padding: 5px; margin-inline-end: auto; border-color: #a55259; color: #ff777f; }
+      .profile-link-row > div { min-width: 0; overflow-wrap: anywhere; }
+      .profile-link-row .profile-edit { flex-shrink: 0; }
+    </style>
     <script
       src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"
       defer
@@ -28,7 +34,7 @@
     <script src="fuse-shell.js?v=explore-actions-1" defer></script>
     <script src="agent-course-offers.js?v=1" defer></script>
     <script src="client-photo-editor.js?v=1" defer></script>
-    <script src="client-profile.js?v=10" defer></script>
+    <script src="client-profile.js?v=11" defer></script>
     <script src="client-agent.js?v=research-fix-4" defer></script>
   </head>
   <body data-page="client">
