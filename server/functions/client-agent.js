@@ -94,7 +94,7 @@ exports.handler=async event=>{
       if(prior.contact_research?.checked_at&&Date.now()-Date.parse(prior.contact_research.checked_at)<3600000)return response(200,{prospect:old.data,cached:true});
       const recent=await db.from('client_activities').select('id',{count:'exact',head:true}).eq('user_id',user.id).eq('activity_type','contact_research').gte('created_at',new Date(Date.now()-3600000).toISOString());if(recent.error)throw recent.error;if(recent.count>=10)return response(429,{error:'You can refresh contacts for ten businesses per hour.'});
       const attempt=await db.from('client_activities').insert({user_id:user.id,activity_type:'contact_research',title:'Researching public business contacts',metadata:{prospect_id:body.id}});if(attempt.error)throw attempt.error;
-      const enriched=await agent.enrichContacts({name:old.data.brand_name,website:old.data.website,location:old.data.location});
+      const enriched=await agent.enrichContacts({name:old.data.brand_name,website:old.data.website,location:old.data.location,founder_name:old.data.founder_name,person:old.data.qualification_json?.person});
       const current=await db.from('client_prospects').select('qualification_json').eq('id',body.id).eq('user_id',user.id).single();if(current.error)throw current.error;
       const q=current.data.qualification_json||{};
       const contacts=[...enriched.contacts,...(q.contacts||[]),...['email','instagram','whatsapp'].filter(k=>old.data[k]).map(k=>({kind:k,value:old.data[k],source_url:old.data.website}))].filter(c=>c.kind!=='website').filter((c,i,a)=>a.findIndex(x=>x.kind===c.kind&&x.value===c.value)===i);
