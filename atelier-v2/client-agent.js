@@ -205,7 +205,7 @@ function verifiedInformation(p){
   const verified=contacts(p).filter(c=>c.checked_at&&c.source_url&&c.value);
   const rows=(label, entries)=>`<div><dt>${label}</dt><dd>${entries.length?entries.join(''):'Not publicly verified'}</dd></div>`;
   const values=kinds=>verified.filter(c=>kinds.includes(c.kind)).map(c=>
-    `<div class="verified-value">${url(c.value)?source(c.value,c.kind==='whatsapp'?'WhatsApp · '+c.value:c.value):escape(c.value)}</div>`);
+    `<div class="verified-value">${url(c.value)?source(c.value,c.label||(c.kind==='whatsapp'?'WhatsApp · '+c.value:c.value)):escape(c.value)}</div>`);
   const founder=founderTitle(p)!==p.brand_name?m.person:null;
   return `<section class="verified-information" aria-label="Verified Information"><h3>Verified Information</h3><dl>
     ${rows('Brand name',[escape(p.brand_name)])}
@@ -215,6 +215,7 @@ function verifiedInformation(p){
     ${rows('Emails',values(['email']))}
     ${rows('Socials',values(['instagram','linkedin','tiktok','youtube','facebook','pinterest','x','threads']))}
     ${rows('Website',url(p.website)?[source(p.website,p.website)]:[])}
+    ${verified.some(c=>['research_link','contact_form'].includes(c.kind))?rows('Contact &amp; research links',values(['contact_form','research_link'])):''}
   </dl></section>`;
 }
 function renderDetail(){
