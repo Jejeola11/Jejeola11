@@ -301,7 +301,7 @@
   function renderPortfolio(projects) {
     if (!projects.length) return '<p class="profile-muted">Your saved projects will appear here.</p>';
     const pageSize = 4;
-    const cards = projects.map((p, i) => `<div class="profile-work-card"><button type="button" class="profile-work" data-project="${i}" aria-label="View ${esc(p.title)}"><div class="profile-work-cover">${projectPreview(p)}</div><h3><span>${esc(p.title)}</span></h3></button><button type="button" class="portfolio-more" data-project-menu="${i}" aria-label="Options for ${esc(p.title)}" aria-expanded="false">⋮</button><div class="portfolio-menu" data-menu="${i}" hidden><button type="button" data-project-edit="${i}">Edit</button><button type="button" data-project-delete="${i}">Delete</button></div></div>`);
+    const cards = projects.map((p, i) => `<div class="profile-work-card"><button type="button" class="profile-work" data-project="${i}" aria-label="View ${esc(p.title)}"><div class="profile-work-cover">${projectPreview(p)}</div><h3><span>${esc(p.title)}</span></h3></button><button type="button" class="portfolio-more" data-project-menu="${i}" aria-label="Options for ${esc(p.title)}" aria-expanded="false">⋮</button><div class="portfolio-menu" data-menu="${i}" hidden><button type="button" data-project-edit="${i}">Edit</button><button type="button" class="chrome-text" data-project-share="${i}">Copy Link</button><button type="button" data-project-delete="${i}">Delete</button></div></div>`);
     const pages = [];
     for (let start = 0; start < cards.length; start += pageSize) {
       pages.push('<div class="profile-portfolio">' + cards.slice(start, start + pageSize).join("") + '</div>');
@@ -379,6 +379,23 @@
       document.body.append(dialog);dialog.querySelector('button').onclick=()=>dialog.close();dialog.onclose=()=>dialog.remove();dialog.showModal();
     });
     document.querySelectorAll('[data-project-menu]').forEach(button=>button.onclick=()=>{const menu=document.querySelector('[data-menu="'+button.dataset.projectMenu+'"]'),open=menu.hidden;document.querySelectorAll('.portfolio-menu').forEach(x=>x.hidden=true);document.querySelectorAll('[data-project-menu]').forEach(x=>x.setAttribute('aria-expanded','false'));menu.hidden=!open;button.setAttribute('aria-expanded',String(open))});
+    document.querySelectorAll('[data-project-share]').forEach(button=>button.onclick=async()=>{
+      const project=projects[Number(button.dataset.projectShare)];
+      button.disabled=true;
+      try{
+        const {url}=await Fuse.api('client-portfolio-share',{source:project._source,index:project._index});
+        try{
+          await navigator.clipboard.writeText(url);
+          toast('Project link copied.');
+        }catch{
+          window.prompt('Copy your public project link:',url);
+        }
+      }catch(error){
+        toast(error.message||'Could not create a project link.');
+      }finally{
+        button.disabled=false;
+      }
+    });
     document.querySelectorAll('[data-project-delete]').forEach(button=>button.onclick=()=>{const p=projects[Number(button.dataset.projectDelete)],dialog=document.createElement('dialog');dialog.className='portfolio-delete-dialog';dialog.innerHTML='<p>Are you sure you want to delete this project?</p><div><button type="button" class="chrome-button" data-confirm-delete>Yes</button><button type="button" class="delete-no" data-cancel-delete>No</button></div>';document.body.append(dialog);dialog.onclose=()=>dialog.remove();dialog.querySelector('[data-cancel-delete]').onclick=()=>dialog.close();dialog.querySelector('[data-confirm-delete]').onclick=async()=>{const yes=dialog.querySelector('[data-confirm-delete]');yes.disabled=true;try{if(p._source==='base')await save(s,{client_portfolio_hidden:[...new Set([...(meta(s).client_portfolio_hidden||[]),p._index])]},rerender,toast);else await save(s,{client_portfolio_projects:(meta(s).client_portfolio_projects||[]).filter((_,i)=>i!==p._index)},rerender,toast);dialog.close()}catch(e){yes.disabled=false;toast(e.message||'Could not delete project.')}};dialog.showModal()});
     const linkEditors = [...document.querySelectorAll('[data-link-editor]')];
     let savingLink = false;
