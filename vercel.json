@@ -120,7 +120,7 @@
     },
     {
       "src": "/v/([a-fA-F0-9]{12})/?",
-      "dest": "/api/client-portfolio-share?code=$1"
+      "dest": "/api/v?code=$1"
     },
     {
       "handle": "filesystem"
