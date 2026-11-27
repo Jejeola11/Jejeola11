@@ -55,15 +55,17 @@ exports.handler=async event=>{
       const db=admin();
       const item=(await projects(db,user)).find(x=>x.source===req.source&&x.index===req.index);
       if(!item)return json(404,{error:'Save the project before sharing it.'});
-      const {data,error}=await db.from('client_portfolio_shares').upsert({user_id:user.id,fingerprint:fingerprint(item.p)},{onConflict:'user_id,fingerprint'}).select('token').single();
+      const {data,error}=await db.from('client_portfolio_shares').upsert({user_id:user.id,fingerprint:fingerprint(item.p)},{onConflict:'user_id,fingerprint'}).select('short_code').single();
       if(error)throw error;
-      return json(200,{url:'https://fuseatelier.com/api/client-portfolio-share?project='+data.token});
+      return json(200,{url:'https://fuseatelier.com/v/'+data.short_code});
     }
     if(event.httpMethod!=='GET')return json(405,{error:'Method not allowed'});
-    const token=event.queryStringParameters?.project;
-    if(typeof token!=='string'||!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(token))return page(null,404);
+    const {code,project:token}=event.queryStringParameters||{};
+    const isShort=typeof code==='string'&&/^[a-f0-9]{12}$/i.test(code);
+    const isLegacy=typeof token==='string'&&/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(token);
+    if(!isShort&&!isLegacy)return page(null,404);
     const db=admin();
-    const {data:share,error}=await db.from('client_portfolio_shares').select('user_id,fingerprint').eq('token',token).maybeSingle();
+    const {data:share,error}=await db.from('client_portfolio_shares').select('user_id,fingerprint').eq(isShort?'short_code':'token',(isShort?code:token).toLowerCase()).maybeSingle();
     if(error)throw error;
     if(!share)return page(null,404);
     const {data}=await db.auth.admin.getUserById(share.user_id);
