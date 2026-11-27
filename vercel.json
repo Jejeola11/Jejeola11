@@ -119,6 +119,10 @@
       "dest": "/challenge/index.html"
     },
     {
+      "src": "/v/([a-fA-F0-9]{12})/?",
+      "dest": "/api/client-portfolio-share?code=$1"
+    },
+    {
       "handle": "filesystem"
     }
   ],
