@@ -8,6 +8,9 @@ const statusNames={new:'Found',audited:'Reviewed',qualified:'Reviewed',asked:'Co
 const state={followups:[],profile:null,prospects:[],jobs:[],credits:0,cost:30,view:'discover',session:null,starting:false,selected:null,detailTab:'opportunity',step:0,draft:{},polling:false};
 let toastTimer,pollTimer,requestKey,expiryTimer;
 let uploadingProject=false;
+const rewrittenEmails=new Map();
+const rewritingEmails=new Set();
+let rewriteCost=1;
 const clientViews=['discover','profile','proposals','tracker','prospects','recent'];
 const requestedView=new URL(location.href).searchParams.get('view');
 if(clientViews.includes(requestedView)){
@@ -136,7 +139,7 @@ function renderTracker(){
 }
 function offerDetails(p){return `<dl class="offer-grid">${[['Buyer',p.buyer],['Purpose',p.purpose],['Deliverables',p.deliverables],['Length / formats',[p.length,p.formats].filter(Boolean).join(' · ')],['I handle',p.included],['Client supplies',p.client_inputs],['Turnaround',p.turnaround],['Revision limit',p.revisions],['Price',price(p)],['Not included',p.exclusions||'No extra exclusions supplied'],['Market',p.market]].map(([k,v])=>`<div class="detail-row"><dt>${k}</dt><dd>${escape(v||'Not supplied')}</dd></div>`).join('')}</dl>`}
 function renderOffer(){const p=state.profile;if(!p)return setupIntro();return `<section class="panel"><p class="kicker">${ready()?'YOUR SOURCE OF TRUTH':'REVIEW YOUR EXISTING PROFILE'}</p><h2>${escape(p.offer_title||p.skill||'Your offer')}</h2>${!ready()?'<div class="inline-alert">Your earlier details are preserved. Complete the new fields and approve your offer before researching.</div>':''}<div class="action-row"><button class="secondary-button" id="resetOffer">Clear offer and start again ↻</button></div><p class="source-note">Clear your saved offer and setup answers. Your prospects, pitches and follow-ups stay saved.</p>${offerDetails(p)}<p class="offer-note">Fuse uses this exact scope and price. A new project or different deliverables require your approval. Portfolio links are saved as proof references; Fuse does not claim to have watched your videos.</p><button class="chrome-button" data-setup>Edit my offer</button>${source(p.portfolio,'Open my portfolio ↗')}</section>`}
-async function load(){const data=await api({action:'load'});if(data.locked){$('app').innerHTML=window.renderFuseAgentLocked();return;}state.followups=data.followups||[];state.profile=normalizeProfile(data.profile);state.prospects=data.prospects;state.jobs=data.jobs;state.credits=data.credits;state.cost=data.research_cost;render();schedulePoll()}
+async function load(){const data=await api({action:'load'});if(data.locked){$('app').innerHTML=window.renderFuseAgentLocked();return;}state.followups=data.followups||[];state.profile=normalizeProfile(data.profile);state.prospects=data.prospects;state.jobs=data.jobs;state.credits=data.credits;state.cost=data.research_cost;rewriteCost=data.rewrite_cost??1;render();schedulePoll()}
 function schedulePoll(){clearTimeout(pollTimer);if(active(currentJob()))pollTimer=setTimeout(()=>poll(),8000)}
 async function poll(manual=false){if(state.polling)return;const job=currentJob();if(!active(job))return;state.polling=true;try{const r=await api({action:'status',id:job.id});const i=state.jobs.findIndex(x=>x.id===job.id);state.jobs[i]=r.job;if(!active(r.job)){await load();toast(r.job.status==='completed'?'Your research is ready to review.':'Research stopped. Your credit refund is saved.')}else {if(!$('setupDialog').open&&!$('prospectDialog').open)render();if(manual)toast(r.job.message)}}catch{if(manual)toast('Could not refresh progress. Your saved job is still available.')}finally{state.polling=false;schedulePoll()}}
 async function startResearch(){
@@ -216,6 +219,7 @@ function verifiedInformation(p){
 }
 function renderDetail(){
   const p=state.selected,m=q(p),v2=m.version===2;
+  const rewritten=rewrittenEmails.get(p.id);
   let content='';
   if(state.detailTab==='opportunity')content=`<section class="prospect-overview"><h3>About the brand</h3>
     <p>${escape(m.description||p.brand_name)}</p>
@@ -224,7 +228,7 @@ function renderDetail(){
     </section>${verifiedInformation(p)}
     <button type="button" id="openProspectPitch" class="chrome-button full">Send pitch to this brand</button>`;
   if(state.detailTab==='contacts')content=`<section class="evidence-card"><button id="enrichContacts" class="chrome-button">Research missing contacts ↗</button><p>Checks About, Contact and Team pages plus targeted business searches. Your pitches and tracking stay saved.</p>${m.contact_research?`<small>Last checked: ${escape(date(m.contact_research.checked_at))} · ${escape(({verified:'Source-verified details found',incomplete:'Some pages could not be checked',inaccessible:'Website could not be opened',not_publicly_found:'No matching public details found'})[m.contact_research.status]||'Checked')}</small>`:''}</section><section class="evidence-card"><h3>Decision maker</h3><p>${escape(m.person?.name||p.founder_name||'Not found')}${m.person?.role?' · '+escape(m.person.role):''}</p>${m.person?`<details><summary>View role evidence</summary><p class="evidence-quote">“${escape(m.person.quote)}”</p>${source(m.person.source_url,'Role source ↗')}</details>`:''}</section><div class="contact-list">${contacts(p).map((c,i)=>`<section class="contact-item"><b>${escape(c.kind.replaceAll('_',' '))}${c.checked_at?' · source checked':' · recheck before use'}</b><p>${escape(c.value)}</p>${c.quote?`<details><summary>View evidence</summary><p class="evidence-quote">${escape(c.quote)}</p>${source(c.source_url)}</details>`:''}<div class="contact-actions"><button data-copy-contact="${i}">Copy</button>${c.kind==='email'?`<a href="mailto:${escape(c.value)}">Open email ↗</a>`:c.kind==='phone'?`<a href="tel:${escape(c.value.replace(/[^\d+]/g,''))}">Call ↗</a>`:url(c.value)?`<a href="${escape(url(c.value))}" target="_blank" rel="noopener noreferrer">Open ↗</a>`:''}</div>${source(c.source_url)}</section>`).join('')}</div><p class="offer-note">A published phone number is not automatically a WhatsApp contact. Use only the channel the business actually provides.</p>`;
-  if(state.detailTab==='pitch')content=`${m.project?`<section class="evidence-card"><h3>Your relevant proof</h3><p>${escape(m.project.title)} · ${m.project.kind==='client'?'Client work':'Concept work'}</p><p>${escape(m.project_match)}</p>${source(m.project.url,'Open project ↗')}</section>`:''}${field('emailSubject','Email subject',m.subject||'An idea for '+p.brand_name)}<label class="field pitch-field"><span>Email draft</span><textarea id="emailDraft">${escape(p.pitch_email||'No email draft is saved for this older prospect.')}</textarea></label><div class="action-row"><button class="chrome-button" data-copy-email>Copy email</button><button class="chrome-button" data-mark-pitch="email">Mark sent</button></div><label class="field pitch-field"><span>Short DM</span><textarea id="dmDraft">${escape(p.pitch_instagram||p.pitch_linkedin||'No DM draft is saved.')}</textarea></label><div class="action-row"><button class="chrome-button" data-copy-dm>Copy DM</button><button class="chrome-button" data-mark-pitch="dm">Mark sent</button></div>${m.first_question?`<section class="evidence-card"><h3>When they reply</h3><p>${escape(m.first_question)}</p></section>`:''}`;
+  if(state.detailTab==='pitch')content=`${m.project?`<section class="evidence-card"><h3>Your relevant proof</h3><p>${escape(m.project.title)} · ${m.project.kind==='client'?'Client work':'Concept work'}</p><p>${escape(m.project_match)}</p>${source(m.project.url,'Open project ↗')}</section>`:''}${`<section class="evidence-card"><h3>Rewrite email</h3><label class="field pitch-field" for="rewriteEmailNotes"><span>What would you like to add?</span><textarea id="rewriteEmailNotes" maxlength="2000" rows="3" placeholder="I made a video for your brand. Here’s the link: …">${escape(rewritten?.notes||'')}</textarea></label><button type="button" id="rewriteEmail" class="chrome-button" ${rewritingEmails.has(p.id)?'disabled':''}>${rewritingEmails.has(p.id)?'Rewriting…':`Rewrite <span aria-hidden="true">✧</span> ${rewriteCost} credit${rewriteCost===1?'':'s'}`}</button></section>`}${field('emailSubject','Email subject',rewritten?.subject||m.subject||'An idea for '+p.brand_name)}<label class="field pitch-field"><span>Email draft</span><textarea id="emailDraft">${escape(rewritten?.email||p.pitch_email||'No email draft is saved for this older prospect.')}</textarea></label><div class="action-row"><button class="chrome-button" data-copy-email>Copy email</button><button class="chrome-button" data-mark-pitch="email">Mark sent</button></div><label class="field pitch-field"><span>Short DM</span><textarea id="dmDraft">${escape(p.pitch_instagram||p.pitch_linkedin||'No DM draft is saved.')}</textarea></label><div class="action-row"><button class="chrome-button" data-copy-dm>Copy DM</button><button class="chrome-button" data-mark-pitch="dm">Mark sent</button></div>${m.first_question?`<section class="evidence-card"><h3>When they reply</h3><p>${escape(m.first_question)}</p></section>`:''}`;
   if(state.detailTab==='track'){
     const reminder=state.followups.find(x=>x.prospect_id===p.id&&x.status!=='cancelled');
     const assist=m.reply_assist;
@@ -252,6 +256,38 @@ function renderDetail(){
   $('closeProspect').onclick=()=>$('prospectDialog').close();
   if($('enrichContacts'))$('enrichContacts').onclick=async()=>{const b=$('enrichContacts');b.disabled=true;b.textContent='Researching contacts…';try{const r=await api({action:'enrich-contacts',id:p.id});state.selected=r.prospect;state.prospects=state.prospects.map(x=>x.id===p.id?r.prospect:x);renderDetail();toast(r.cached?'Showing the latest contact check.':'Contact research saved.')}catch(e){toast(e.message)}finally{if($('enrichContacts')){$('enrichContacts').disabled=false;$('enrichContacts').textContent='Research missing contacts ↗'}}};
   document.querySelectorAll('[data-copy-contact]').forEach(b=>b.onclick=()=>copy(contacts(p)[Number(b.dataset.copyContact)].value));
+  $('rewriteEmail')?.addEventListener('click',async event=>{
+    const button=event.currentTarget;
+    const notes=$('rewriteEmailNotes').value.trim();
+    const subjectField=$('prospectContent').querySelector('[name="emailSubject"]');
+    const emailField=$('emailDraft');
+    const status=$('detailStatus');
+    if(!notes){status.textContent='Add what you’d like to include in the email.';return;}
+    if(rewritingEmails.has(p.id))return;
+    rewritingEmails.add(p.id);
+    const buttonLabel=button.innerHTML;
+    button.disabled=true;
+    button.textContent='Rewriting…';
+    status.textContent='';
+    try{
+      const draft=await api({action:'rewrite-email',id:p.id,subject:subjectField.value,email:emailField.value,instructions:notes});
+      rewrittenEmails.set(p.id,{subject:draft.subject,email:draft.email,notes});
+      state.credits=draft.credits;
+      if($('menuCredits'))$('menuCredits').textContent=state.credits+' left';
+      if(button.isConnected){
+        subjectField.value=draft.subject;
+        emailField.value=draft.email;
+        status.textContent='Email rewritten. Review your draft before sending.';
+      }
+    }catch(error){
+      if(button.isConnected)status.textContent=error.message;
+      else toast(error.message);
+    }finally{
+      rewritingEmails.delete(p.id);
+      if(button.isConnected){button.disabled=false;button.innerHTML=buttonLabel;}
+      else if(state.selected?.id===p.id&&state.detailTab==='pitch'&&$('prospectDialog').open)renderDetail();
+    }
+  });
   document.querySelector('[data-copy-email]')?.addEventListener('click',()=>copy('Subject: '+document.querySelector('[name="emailSubject"]').value+'\n\n'+$('emailDraft').value));
   document.querySelector('[data-copy-dm]')?.addEventListener('click',()=>copy($('dmDraft').value));
   const operate=async(button,body)=>{
