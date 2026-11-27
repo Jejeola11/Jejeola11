@@ -26,6 +26,8 @@
       .link-inline-actions .link-delete:first-child { display: inline-grid; place-items: center; min-width: 34px; padding: 5px; margin-inline-end: auto; border-color: #a55259; color: #ff777f; }
       .profile-link-row > div { min-width: 0; overflow-wrap: anywhere; }
       .profile-link-row .profile-edit { flex-shrink: 0; }
+      .portfolio-menu button { padding: 6px 11px; line-height: 1.2; white-space: nowrap; }
+      .portfolio-menu [data-project-share] { background: linear-gradient(115deg,#ffe66a,#dfff4e,#eeffe0); background-clip: text; -webkit-background-clip: text; color: transparent; font-weight: 700; }
     </style>
     <script
       src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"
@@ -34,7 +36,7 @@
     <script src="fuse-shell.js?v=explore-actions-1" defer></script>
     <script src="agent-course-offers.js?v=1" defer></script>
     <script src="client-photo-editor.js?v=1" defer></script>
-    <script src="client-profile.js?v=13" defer></script>
+    <script src="client-profile.js?v=project-share-1" defer></script>
     <script src="client-agent.js?v=research-links-1" defer></script>
   </head>
   <body data-page="client">
