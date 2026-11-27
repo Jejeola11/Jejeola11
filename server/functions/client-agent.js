@@ -3,6 +3,7 @@ const {admin,getUser,json}=require('./_supabase');
 const agent=require('./_client-agent-v2');
 const conversation=require('./_client-agent-conversation');
 const uuid=v=>/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v||'');
+const REWRITE_COST=1;
 const statuses=new Set(['new','asked','replied','sample_ready','sample_sent','proposal_sent','deposit_paid','in_delivery','delivered','won','lost']);
 function response(code,data){const r=json(code,data);r.headers['Cache-Control']='no-store';return r}
 exports.handler=async event=>{
@@ -27,7 +28,7 @@ exports.handler=async event=>{
         db.from('profiles').select('credits').eq('id',user.id).single(),
         db.from('client_agent_followups').select('id,prospect_id,due_at,status,draft,sent_at,last_error').eq('user_id',user.id).order('created_at',{ascending:false}).limit(300)
       ]);for(const r of [profile,prospects,jobs,balance,followups])if(r.error)throw r.error;
-      return response(200,{followups:followups.data||[],profile:profile.data?.profile_json||null,prospects:prospects.data||[],jobs:(jobs.data||[]).map(agent.publicJob),credits:balance.data.credits,research_cost:18});
+      return response(200,{followups:followups.data||[],profile:profile.data?.profile_json||null,prospects:prospects.data||[],jobs:(jobs.data||[]).map(agent.publicJob),credits:balance.data.credits,research_cost:18,rewrite_cost:REWRITE_COST});
     }
     if(body.action==='organize'){
       if(!agent.clean(body.day1)&&!agent.clean(body.day2))return response(400,{error:'Paste some notes about your skills or service offer first.'});
@@ -132,6 +133,34 @@ exports.handler=async event=>{
       const patch=body.action==='refresh-pitch'?{pitch_email:draft.email,pitch_instagram:draft.dm,pitch_linkedin:draft.dm,qualification_json:{...q,subject:draft.subject,approach:draft.approach,approach_reason:draft.reason}}:{qualification_json:{...q,reply_assist:{...draft,based_on_reply_text:prospect.reply_text,created_at:new Date().toISOString()}},...(draft.stop?{status:'lost'}:{})};
       const saved=await db.from('client_prospects').update({...patch,updated_at:new Date().toISOString()}).eq('id',body.id).eq('user_id',user.id).select('*').single();if(saved.error)throw saved.error;
       return response(200,{prospect:saved.data,draft});
+    }
+    if(body.action==='rewrite-email'){
+      if(!uuid(body.id))return response(400,{error:'Invalid prospect ID'});
+      const subject=agent.clean(body.subject,180);
+      const email=agent.clean(body.email,6000);
+      const instructions=agent.clean(body.instructions,2000);
+      if(!subject||!email||!instructions)return response(400,{error:'Add your subject, email draft and rewrite notes.'});
+      const [prospect,balance]=await Promise.all([
+        db.from('client_prospects').select('brand_name').eq('user_id',user.id).eq('id',body.id).maybeSingle(),
+        db.from('profiles').select('credits,is_admin').eq('id',user.id).single()
+      ]);
+      if(prospect.error||balance.error)throw prospect.error||balance.error;
+      if(!prospect.data)return response(404,{error:'Prospect not found'});
+      if(!balance.data.is_admin&&balance.data.credits<REWRITE_COST)return response(402,{error:'You need 1 credit to rewrite an email.'});
+
+      const generated=await agent.openAI('responses',{
+        model:agent.MODEL,store:false,max_output_tokens:2200,text:{format:{type:'json_object'}},
+        instructions:'Rewrite one short outbound email for the named brand. Follow the user’s rewrite notes as editing requests only. Preserve supported facts, offer terms, sender name, and links. Include relevant new facts and exact links supplied in the notes. Do not invent names, attachments, URLs, results, deadlines, or claims of viewing a video. If the sender says they made a video but provides no link, mention the video and offer to share it. Return JSON with subject and email string fields.',
+        input:JSON.stringify({brand:prospect.data.brand_name,subject,email,notes:instructions})
+      });
+      const result=agent.jsonOutput(generated);
+      const nextSubject=agent.clean(result.subject,180).replace(/[\r\n]+/g,' ');
+      const nextEmail=agent.clean(result.email,6000);
+      if(!nextSubject||!nextEmail)throw Error('Empty rewritten email');
+      const spent=await db.rpc('spend_credits',{uid:user.id,amount:REWRITE_COST});
+      if(spent.error)throw spent.error;
+      if(spent.data==null)return response(402,{error:'You need 1 credit to rewrite an email.'});
+      return response(200,{subject:nextSubject,email:nextEmail,credits:spent.data});
     }
     if(body.action==='update-prospect'){
       if(!uuid(body.id))return response(400,{error:'Invalid prospect ID'});
