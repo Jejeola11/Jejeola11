@@ -98,7 +98,14 @@
     .course-copy .cta{align-self:flex-start;width:fit-content;justify-content:center;text-align:center;border-radius:8px;min-height:clamp(28px,10cqw,52px);font-size:clamp(10px,3.7cqw,16px);padding:4px 10px}
   </style>
 <link rel="preconnect" href="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev">
-</head>
+<style>.bf-strip{overflow:hidden;background:var(--chrome,linear-gradient(135deg,#ffe66a,#dfff4e 48%,#eeffe0));color:#a60019;font-size:clamp(12px,2.8vw,15px);font-weight:800;line-height:1.3;padding-block:6px}
+.bf-strip-track{display:flex;width:max-content;animation:bf-strip-scroll 36s linear infinite}
+.bf-strip-group{display:flex;flex:none;white-space:nowrap}
+.bf-strip-group span{padding-inline:1.25rem}
+@keyframes bf-strip-scroll{to{transform:translateX(-50%)}}
+.bf-strip:hover .bf-strip-track{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.bf-strip-track{animation:none;width:100%;justify-content:center}.bf-strip-group span:not(:first-child),.bf-strip-group+.bf-strip-group{display:none}}
+.bf-strip{border-radius:8px;margin-top:18px}</style></head>
 <body>
   <main class="container">
     <section class="profile" aria-labelledby="profileName">
@@ -142,24 +149,24 @@
 <div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000035070.mp4" poster="/directorria/posters/1000035070.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 18"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 18" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
 <div class="reel-card"><div class="reel-media"><video class="reel-video" data-src="https://pub-f4b13b406b604465ab1a6cbf282141ad.r2.dev/community/batch-3d7e29c09569/1000296603.mp4" poster="/directorria/posters/1000296603.jpg" preload="none" autoplay muted playsinline loop aria-label="AI video 19"></video><button type="button" class="reel-sound" aria-label="Sound for AI video 19" aria-pressed="false" title="Turn sound on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="reel-muted" d="m16 9 6 6m0-6-6 6"/><path class="reel-audible" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div></div>
 </div></section>
-    <section class="section course-feature" aria-labelledby="freeClassTitle">
-      <article class="course-card">
-        <div class="course-poster-frame"><img class="course-poster" src="/directorria/free-ai-influencer-class.jpg" width="1086" height="1448" alt="Director Ria’s free WhatsApp class flyer" loading="lazy"></div>
-        <div class="course-copy">
-          <h2 id="freeClassTitle">Build Your First AI Influencer With Your Phone</h2>
-          <p>In two free, beginner-friendly WhatsApp sessions, design your AI character and turn it into your first video using your phone.</p>
-          <p class="class-time">27–28 November 2026 · 8:30 PM WAT</p>
-          <a class="cta" href="https://chat.whatsapp.com/BRA9Rwb5qSM6KkXTmITC9b?s=cl&amp;p=a&amp;iam=2" target="_blank" rel="noopener noreferrer">Get Access!</a>
-        </div>
-      </article>
-    </section>
+<aside class="bf-strip" aria-label="Black Friday Offer 50% OFF"><div class="bf-strip-track" aria-hidden="true"><div class="bf-strip-group"><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span></div><div class="bf-strip-group"><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span><span>Black Friday Offer 50% OFF</span></div></div></aside>
     <section class="section course-feature" aria-labelledby="courseTitle">
       <article class="course-card">
         <div class="course-poster-frame"><img class="course-poster" src="/directorria/viral-ai-influencers-flyer.jpg" width="1086" height="1448" alt="Create &amp; Monetize Viral AI Influencers course flyer"></div>
         <div class="course-copy">
           <h2 id="courseTitle"><span>Create &amp; Monetize</span><span>Viral AI Influencers</span></h2>
           <p>Build a consistent AI character, create videos people want to watch, and learn how to pitch your content to brands for paid work.</p>
-          <a class="cta" id="courseBuy" href="/influencer">Get Access!</a>
+          <a class="cta" id="courseBuy" href="/influencer">Get 50% Off Today</a>
+        </div>
+      </article>
+    </section>
+    <section class="section course-feature" aria-labelledby="freeClassTitle">
+      <article class="course-card">
+        <div class="course-poster-frame"><img class="course-poster" src="/directorria/free-ai-influencer-class.jpg" width="1086" height="1448" alt="Director Ria’s free WhatsApp class flyer" loading="lazy"></div>
+        <div class="course-copy">
+          <h2 id="freeClassTitle">Build Your First AI Influencer With Your Phone</h2>
+          <p>In two free, beginner-friendly WhatsApp sessions, design your AI character and turn it into your first video using your phone.</p>
+          <a class="cta" href="https://chat.whatsapp.com/BRA9Rwb5qSM6KkXTmITC9b?s=cl&amp;p=a&amp;iam=2" target="_blank" rel="noopener noreferrer">Get Access For Free!</a>
         </div>
       </article>
     </section>

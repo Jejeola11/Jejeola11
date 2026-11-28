@@ -156,7 +156,7 @@ exports.handler = async (event) => {
   // Academy purchases are fulfilled atomically and never grant credits.
   if (pack.kind === 'course' && String(meta.pack).startsWith('academy-')) {
     const declared = Number(meta.amount_naira || 0);
-    if (d.currency !== 'NGN' || amountNaira !== declared || (amountNaira !== pack.amount_naira && !isDiscountedTransaction(String(meta.pack||''),meta,amountNaira))) {
+    if (d.currency !== 'NGN' || amountNaira !== declared || (amountNaira !== pack.amount_naira && !(meta.pack==='academy-influencer' && amountNaira===30000) && !isDiscountedTransaction(String(meta.pack||''),meta,amountNaira))) {
       console.error('academy amount mismatch:', reference, meta.pack, amountNaira, d.currency);
       return { statusCode: 200, body: 'amount mismatch' };
     }

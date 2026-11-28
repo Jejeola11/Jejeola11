@@ -57,7 +57,7 @@
   const courseMeta={
     design:{name:'Design & Flyers',price:20000,href:'academy-v2.html?course=design'},
     video:{name:'AI UGC & Influencer',price:35000,href:'academy-v2.html?course=video'},
-    influencer:{name:'Create & Monetize Viral AI Influencers',price:30000,href:'influencer-course.html'},
+    influencer:{name:'Create & Monetize Viral AI Influencers',price:15000,href:'influencer-course.html'},
     landing:{name:'Landing Page Design',price:30000,href:'academy-v2.html?course=landing'},
     money:{name:'Money Engine',price:25000,href:'academy-v2.html?course=money'},
     challenge:{name:'14-Day AI Video Client Challenge',price:25000,href:'academy-v2.html?course=challenge'},
@@ -91,7 +91,7 @@
       influencerFeature.dataset.courseAccess=allowed?'unlocked':'locked';
       const button=influencerFeature.querySelector('.tutorial-open-button');
       button.innerHTML=allowed?'Tap Here <span aria-hidden="true">↗</span>':'Unlock For ₦30,000';
-      button.setAttribute('aria-label',allowed?'Open AI influencer course':'Unlock AI influencer course for ₦30,000');
+      button.setAttribute('aria-label',allowed?'Open AI influencer course':'Unlock AI influencer course for ₦15,000');
     }
     rows.forEach(row=>{
       const course=row.dataset.course;
@@ -152,7 +152,7 @@
       button.classList.remove('unlock-nudge');
       void button.offsetWidth;
       button.classList.add('unlock-nudge');
-      document.getElementById('influencerCourseStatus').textContent='Unlock this course for ₦30,000 to start.';
+      document.getElementById('influencerCourseStatus').textContent='Unlock this course for ₦15,000 to start.';
     });
     button.addEventListener('click',async event=>{
       if(influencerFeature.dataset.courseAccess==='unlocked')return;
